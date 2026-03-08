@@ -1,0 +1,57 @@
+// config/vite/buildPlugins.ts
+import fs from 'fs';
+import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { PluginOption } from 'vite';
+import checker from 'vite-plugin-checker';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { buildSvgPlugin } from './loaders/buildSvgPlugin';
+import { BuildOptions } from './types/config';
+
+export function buildPlugins(options: BuildOptions): PluginOption[] {
+  const { isDev, paths, analyze } = options;
+  const isProd = !isDev;
+
+  // Проверка существования папки locales перед копированием
+  const localesSource = path.relative(process.cwd(), paths.locales);
+  const localesExists = fs.existsSync(paths.locales);
+
+  const plugins: PluginOption[] = [
+    // 1. Обработка SVG
+    buildSvgPlugin(),
+
+    // 2. Проверка типов TypeScript и ESLint в отдельном потоке
+    checker({
+      typescript: true,
+      overlay: {
+        initialIsOpen: false,
+        // Путь к оверлею ошибок в браузере
+      },
+    }),
+
+    // 3. Копирование статических файлов (locales)
+    // Копируем из src/locales в dist/locales
+    viteStaticCopy({
+      targets: [
+        {
+           src: localesSource,
+           dest: paths.buildLocales,
+        },
+      ],
+    }),
+  ];
+
+  // Плагины только для продакшена
+  if (isProd && analyze) {
+    plugins.push(
+      visualizer({
+        open: true,
+        filename: 'dist/stats.html',
+        gzipSize: true,
+        brotliSize: true,
+      })
+    );
+  }
+
+   return plugins.filter(Boolean) as PluginOption[];
+}

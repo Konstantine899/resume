@@ -1,7 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
-import { buildViteConfig } from './config/build/buildViteConfig';
-import { BuildMode, BuildOptions, BuildPath } from './config/build/types/config';
+import { buildViteConfig } from './config/vite/buildViteConfig';
+import { BuildMode, BuildOptions, BuildPath } from './config/vite/types/config';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => {
     src: path.resolve(__dirname, 'src'),
     locales: path.resolve(__dirname, 'src', 'locales'),
     buildLocales: 'locales', // папка назначения внутри dist
+    app: path.resolve(__dirname, 'src', 'app'),
+    pages: path.resolve(__dirname, 'src', 'pages'),
+    entities: path.resolve(__dirname, 'src', 'entities'),
+    features: path.resolve(__dirname, 'src', 'features'),
+    shared: path.resolve(__dirname, 'src', 'shared'),
+    widgets: path.resolve(__dirname, 'src', 'widgets')
   };
 
   const options: BuildOptions = {
@@ -18,7 +24,6 @@ export default defineConfig(({ mode }) => {
     paths,
     isDev,
     port: Number(env.PORT) || 3000,
-    apiUrl: env.API_URL || 'http://localhost:8000',
     project: 'frontend',
     analyze: env.ANALYZE === 'true',
   };
