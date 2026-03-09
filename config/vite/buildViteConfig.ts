@@ -24,7 +24,7 @@ export function buildViteConfig(options: BuildOptions): UserConfig {
       __PROJECT__: JSON.stringify(project),
     },
     build: {
-      outDir: 'dist',
+      outDir: 'public',
       assetsDir: 'assets',
       sourcemap: isDev,
       rollupOptions: {

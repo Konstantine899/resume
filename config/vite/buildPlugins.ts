@@ -1,6 +1,4 @@
 // config/vite/buildPlugins.ts
-import fs from 'fs';
-import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
@@ -12,9 +10,6 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
   const { isDev, paths, analyze } = options;
   const isProd = !isDev;
 
-  // Проверка существования папки locales перед копированием
-  const localesSource = path.relative(process.cwd(), paths.locales);
-  const localesExists = fs.existsSync(paths.locales);
 
   const plugins: PluginOption[] = [
     // 1. Обработка SVG
@@ -30,11 +25,11 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     }),
 
     // 3. Копирование статических файлов (locales)
-    // Копируем из src/locales в dist/locales
+    // Копируем из src/locales в public/locales
     viteStaticCopy({
       targets: [
         {
-           src: localesSource,
+           src: paths.locales,
            dest: paths.buildLocales,
         },
       ],
@@ -46,7 +41,7 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     plugins.push(
       visualizer({
         open: true,
-        filename: 'dist/stats.html',
+        filename: 'public/stats.html',
         gzipSize: true,
         brotliSize: true,
       })
