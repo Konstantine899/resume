@@ -1,0 +1,385 @@
+// ============================================
+// Sidebar Widget - SCSS Module (Modern Module System)
+// ============================================
+
+@use '../../../shared/styles/mixins';
+
+// Mobile Menu Button
+.mobileMenuButton {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+}
+
+// Mobile Overlay
+.mobileOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.mobilePanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 85vw;
+  max-width: 400px;
+  background: var(--background);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  
+  .mobileOverlay.open & {
+    transform: translateX(0);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+}
+
+.closeIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.logoSection {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logoLink {
+  text-decoration: none;
+}
+
+.logoText {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobileNav {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileNavItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--foreground);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+  }
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.navLabel {
+  font-weight: 500;
+}
+
+.controlsSection {
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.controlIcon {
+  width: 20px;
+  height: 20px;
+  
+  &.spinning {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.controlText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.languageLabel {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.languageFull {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.footerText {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+// Desktop Sidebar
+.desktopSidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4rem;
+  background: var(--background);
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.3s ease;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  
+  @media (min-width: 768px) {
+    display: flex;
+  }
+  
+  &.expanded {
+    width: 12rem;
+  }
+}
+
+.desktopLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(0, 123, 255, 0.05);
+  }
+}
+
+.desktopLogoText {
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.desktopLogoTextFull {
+  font-size: 1.125rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-left: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+  .desktopSidebar.expanded & {
+    opacity: 1;
+  }
+}
+
+.desktopNav {
+  flex: 1;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.desktopNavItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin: 0 0.5rem;
+  text-decoration: none;
+  color: var(--foreground);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+  }
+  
+  &.expanded {
+    justify-content: flex-start;
+  }
+}
+
+.desktopNavIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.desktopNavLabel {
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+  .desktopSidebar.expanded & {
+    opacity: 1;
+  }
+}
+
+.desktopControls {
+  padding: 1rem 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.desktopControlButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background: rgba(0, 123, 255, 0.1);
+  }
+  
+  &.expanded {
+    justify-content: flex-start;
+  }
+}
+
+.desktopControlIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  
+  &.spinning {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.desktopControlText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+  .desktopSidebar.expanded & {
+    opacity: 1;
+  }
+}
+
+.desktopLanguageLabel {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.desktopLanguageFull {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.expandIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  color: #9ca3af;
+}
+
+.expandIcon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+  
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.desktopSpacer {
+  display: none;
+  
+  @media (min-width: 768px) {
+    display: block;
+    width: 4rem;
+    transition: width 0.3s ease;
+    
+    &.expanded {
+      width: 12rem;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

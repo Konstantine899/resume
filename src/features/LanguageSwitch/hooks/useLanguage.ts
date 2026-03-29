@@ -1,0 +1,16 @@
+// ============================================
+// useLanguage Hook
+// ============================================
+
+import { useContext } from 'react';
+import { LanguageContext } from '@/app/providers/LanguageProvider';
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+export default useLanguage;

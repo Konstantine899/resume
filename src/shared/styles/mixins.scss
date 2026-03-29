@@ -1,0 +1,224 @@
+// ============================================
+// SASS Mixins and Utilities (Modern Module System)
+// ============================================
+
+@use 'variables' as *;
+
+// Media queries
+@mixin xs {
+  @media (min-width: #{$breakpoint-xs}) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media (min-width: #{$breakpoint-sm}) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media (min-width: #{$breakpoint-xl}) {
+    @content;
+  }
+}
+
+@mixin xxl {
+  @media (min-width: #{$breakpoint-2xl}) {
+    @content;
+  }
+}
+
+// Flex utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-col-center {
+  @include flex-col;
+  align-items: center;
+}
+
+// Grid utilities
+@mixin grid-cols($cols) {
+  display: grid;
+  grid-template-columns: repeat(#{$cols}, 1fr);
+}
+
+@mixin grid-gap($gap) {
+  gap: $gap;
+}
+
+// Container
+@mixin container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+
+  @include sm {
+    max-width: $container-sm;
+  }
+
+  @include md {
+    max-width: $container-md;
+  }
+
+  @include lg {
+    max-width: $container-lg;
+  }
+
+  @include xl {
+    max-width: $container-xl;
+  }
+
+  @include xxl {
+    max-width: $container-2xl;
+  }
+}
+
+// Text styles
+@mixin text-xs {
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+@mixin text-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@mixin text-base {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@mixin text-lg {
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+@mixin text-xl {
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+@mixin text-2xl {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+@mixin text-3xl {
+  font-size: 1.875rem;
+  line-height: 1.25;
+}
+
+@mixin text-4xl {
+  font-size: 2.25rem;
+  line-height: 1.25;
+}
+
+// Font weights
+@mixin font-light { font-weight: 300; }
+@mixin font-normal { font-weight: 400; }
+@mixin font-medium { font-weight: 500; }
+@mixin font-semibold { font-weight: 600; }
+@mixin font-bold { font-weight: 700; }
+
+// Component mixins
+@mixin button-base {
+  @include flex-center;
+  border: none;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+@mixin button-variant($background, $color: white, $hover-background: darken($background, 10%)) {
+  background-color: $background;
+  color: $color;
+
+  &:hover:not(:disabled) {
+    background-color: $hover-background;
+  }
+}
+
+@mixin button-size($padding-y, $padding-x, $font-size) {
+  padding: $padding-y $padding-x;
+  font-size: $font-size;
+}
+
+// Card styles
+@mixin card {
+  background: $background;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+// Input styles
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  transition: border-color 0.2s ease;
+  outline: none;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  &:disabled {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+  }
+}

@@ -1,27 +1,26 @@
-// Импортируем компонент через именованный экспорт
-import classes from './App.module.scss';
-import TestSvg from './test.svg';
+// ============================================
+// Updated App Component with FSD Structure
+// ============================================
 
-// Проверка глобальных переменных
-console.log('__IS_DEV__:', __IS_DEV__);
-console.log('__API__:', __API__);
-console.log('__PROJECT__:', __PROJECT__);
+import React from 'react';
+import { HomePage } from '@/pages/Home';
+import { ThemeProvider } from '@/app/providers/ThemeProvider';
+import { LanguageProvider } from '@/app/providers/LanguageProvider';
+import '@/shared/styles/globals.scss';
 
-
-
-const App = () => {
+/**
+ * Main App Component
+ * 
+ * This component will be replaced by the FSD structure.
+ * Currently serves as a bridge during migration.
+ */
+const App: React.FC = () => {
   return (
-    <div className={classes.app}>
-      <h1 className={classes.title}>Vite + React работает!</h1>
-      {/* Теперь TestSvg - это корректный компонент */}
-      <img src={TestSvg} />
-      <p>
-        Переменные окружения (в консоли):<br />
-        __IS_DEV__: {String(__IS_DEV__)}<br />
-        __API__: {__API__}<br />
-        __PROJECT__: {__PROJECT__}
-      </p>
-    </div>
+    <ThemeProvider>
+      <LanguageProvider>
+        <HomePage />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 };
 
