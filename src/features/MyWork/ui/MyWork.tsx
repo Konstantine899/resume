@@ -2,18 +2,18 @@
 // MyWork Feature
 // ============================================
 
-import React from 'react';
+import { projects } from '@/entities/Project';
 import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
+import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
-import { projects } from '@/entities/Project';
-import type { MyWorkProps } from '../types';
+import React from 'react';
 import styles from '../styles/MyWork.module.scss';
+import type { MyWorkProps } from '../types';
 
 /**
  * MyWork Feature Component
- * 
+ *
  * Displays portfolio projects with filtering and animations.
  * Follows FSD architecture - features layer for user scenarios.
  */
@@ -30,15 +30,15 @@ export const MyWork: React.FC<MyWorkProps> = ({
   };
 
   return (
-    <section 
-      id="work" 
+    <section
+      id="work"
       className={`${styles.myWork} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.myWork}</h2>
       </AnimatedSection>
-      
+
       <div className={styles.projectsGrid}>
         {projects.map((project, index) => (
           <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
@@ -54,7 +54,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 <p className={styles.projectDescription}>
                   {project.description[t.language as 'en' | 'ru']}
                 </p>
-                
+
                 {/* Tech icons */}
                 <div className={styles.techStack}>
                   <span className={styles.techLabel}>{t.builtUsing}</span>
@@ -69,7 +69,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Link */}
                 {project.link && (
                   <div className={styles.projectLink}>

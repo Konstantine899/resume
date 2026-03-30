@@ -2,16 +2,16 @@
 // Skills Feature
 // ============================================
 
-import React from 'react';
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
+import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
-import type { SkillsProps } from '../types';
+import React from 'react';
 import styles from '../styles/Skills.module.scss';
+import type { SkillsProps } from '../types';
 
 /**
  * Skills Feature Component
- * 
+ *
  * Displays skills and technologies.
  * Follows FSD architecture - features layer for user scenarios.
  */
@@ -27,7 +27,7 @@ export const Skills: React.FC<SkillsProps> = ({
       skills: ['React', 'TypeScript', 'Node.js', 'Next.js', 'Vue.js']
     },
     {
-      title: t.tools, 
+      title: t.tools,
       skills: ['Git', 'Docker', 'AWS', 'Figma', 'Webpack']
     },
     {
@@ -37,15 +37,15 @@ export const Skills: React.FC<SkillsProps> = ({
   ];
 
   return (
-    <section 
-      id="skills" 
+    <section
+      id="skills"
       className={`${styles.skills} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.skills}</h2>
       </AnimatedSection>
-      
+
       <div className={styles.skillsGrid}>
         {skillCategories.map((category, index) => (
           <AnimatedSection key={category.title} animation="fadeUp" delay={index * 100}>

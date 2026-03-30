@@ -2,8 +2,8 @@
 // useLanguage Hook
 // ============================================
 
+import { LanguageContext } from '@/shared/lib/contexts';
 import { useContext } from 'react';
-import { LanguageContext } from '@/app/providers/LanguageProvider';
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);

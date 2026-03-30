@@ -2,16 +2,16 @@
 // About Feature
 // ============================================
 
-import React from 'react';
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
+import { useLanguage } from '@/shared/lib/contexts';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
-import type { AboutProps } from '../types';
+import React from 'react';
 import styles from '../styles/About.module.scss';
+import type { AboutProps } from '../types';
 
 /**
  * About Feature Component
- * 
+ *
  * Displays personal information and bio.
  * Follows FSD architecture - features layer for user scenarios.
  */
@@ -22,22 +22,22 @@ export const About: React.FC<AboutProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section 
-      id="about" 
+    <section
+      id="about"
       className={`${styles.about} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.about}</h2>
       </AnimatedSection>
-      
+
       <AnimatedSection animation="fadeUp" delay={100}>
         <Card className={styles.aboutCard}>
           <div className={styles.aboutContent}>
             <p className={styles.aboutDescription}>
               {t.aboutDescription}
             </p>
-            
+
             <div className={styles.stats}>
               <div className={styles.stat}>
                 <span className={styles.statNumber}>6+</span>

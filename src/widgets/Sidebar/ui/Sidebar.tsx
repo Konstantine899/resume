@@ -2,8 +2,8 @@
 // Sidebar Widget
 // ============================================
 
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
-import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
+import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
+import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { Button } from '@/shared/ui/Button';
 import {
   ChevronRight,
