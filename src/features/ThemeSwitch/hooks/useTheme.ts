@@ -2,8 +2,8 @@
 // useTheme Hook
 // ============================================
 
+import { ThemeContext } from '@/shared/lib/contexts';
 import { useContext } from 'react';
-import { ThemeContext } from '@/app/providers/ThemeProvider';
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);

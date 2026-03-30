@@ -2,16 +2,16 @@
 // WorkHistory Feature
 // ============================================
 
-import React from 'react';
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
+import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
-import type { WorkHistoryProps } from '../types';
+import React from 'react';
 import styles from '../styles/WorkHistory.module.scss';
+import type { WorkHistoryProps } from '../types';
 
 /**
  * WorkHistory Feature Component
- * 
+ *
  * Displays work experience timeline.
  * Follows FSD architecture - features layer for user scenarios.
  */
@@ -32,7 +32,7 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
       description: 'Developing web applications for various clients using modern technologies.'
     },
     {
-      id: '2', 
+      id: '2',
       company: 'Startup Company',
       position: 'Frontend Developer',
       startDate: '2019',
@@ -42,15 +42,15 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
   ];
 
   return (
-    <section 
-      id="experience" 
+    <section
+      id="experience"
       className={`${styles.workHistory} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.workHistory}</h2>
       </AnimatedSection>
-      
+
       <div className={styles.timeline}>
         {jobs.map((job, index) => (
           <AnimatedSection key={job.id} animation="fadeUp" delay={index * 100}>
