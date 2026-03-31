@@ -1,7 +1,8 @@
 // ============================================
 // Skills Feature
 // ============================================
-
+import type { Skill, SkillCategory } from '@/entities/Skill';
+import { SKILLS, getFeaturedSkills, getSkillsByCategory } from '@/entities/Skill';
 import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
@@ -9,34 +10,32 @@ import React from 'react';
 import styles from '../styles/Skills.module.scss';
 import type { SkillsProps } from '../types';
 
-/**
- * Skills Feature Component
- *
- * Displays skills and technologies.
- * Follows FSD architecture - features layer for user scenarios.
- */
+
 export const Skills: React.FC<SkillsProps> = ({
   className = '',
   'data-testid': testId = 'skills'
 }) => {
-  const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
-  const skillCategories = [
-    {
-      title: t.technologies,
-      skills: ['React', 'TypeScript', 'Node.js', 'Next.js', 'Vue.js']
-    },
-    {
-      title: t.tools,
-      skills: ['Git', 'Docker', 'AWS', 'Figma', 'Webpack']
-    },
-    {
-      title: t.languages,
-      skills: ['JavaScript', 'Python', 'SQL', 'HTML/CSS', 'Sass']
-    }
-  ];
 
-  return (
+  // ✅ Получаем featured навыки и группируем их
+  const featuredSkills = getFeaturedSkills(SKILLS);
+  const skillsByCategory = getSkillsByCategory(featuredSkills);
+
+  // Helper для красивых названий категорий
+  const getCategoryTitle = (category: SkillCategory): string => {
+    const map: Record<SkillCategory, string> = {
+      frontend: t.technologies, // Или отдельный ключ перевода
+      backend: 'Backend',
+      database: 'Databases',
+      devops: 'DevOps',
+      tools: t.tools,
+      'soft-skills': 'Soft Skills',
+    };
+    return map[category] || category;
+  };
+
+   return (
     <section
       id="skills"
       className={`${styles.skills} ${className}`}
@@ -47,15 +46,30 @@ export const Skills: React.FC<SkillsProps> = ({
       </AnimatedSection>
 
       <div className={styles.skillsGrid}>
-        {skillCategories.map((category, index) => (
-          <AnimatedSection key={category.title} animation="fadeUp" delay={index * 100}>
+        {(Object.keys(skillsByCategory) as SkillCategory[]).map((category, index) => (
+          <AnimatedSection
+            key={category}
+            animation="fadeUp"
+            delay={index * 100}
+          >
             <Card className={styles.skillCategory}>
-              <h3 className={styles.categoryTitle}>{category.title}</h3>
+              <h3 className={styles.categoryTitle}>
+                {getCategoryTitle(category)}
+              </h3>
+
               <div className={styles.skillsList}>
-                {category.skills.map((skill, skillIndex) => (
-                  <span key={skillIndex} className={styles.skillItem}>
-                    {skill}
-                  </span>
+                {skillsByCategory[category]?.map((skill: Skill) => (
+                  <div key={skill.id} className={styles.skillItem}>
+                    {skill.iconUrl && (
+                      <img
+                        src={skill.iconUrl}
+                        alt={skill.name}
+                        className={styles.skillIcon}
+                      />
+                    )}
+                    <span className={styles.skillName}>{skill.name}</span>
+                    <span className={styles.skillLevel}>{skill.level}</span>
+                  </div>
                 ))}
               </div>
             </Card>
@@ -67,5 +81,4 @@ export const Skills: React.FC<SkillsProps> = ({
 };
 
 Skills.displayName = 'Skills';
-
 export default Skills;

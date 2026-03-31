@@ -2,13 +2,13 @@
 // WorkHistory Feature
 // ============================================
 
+import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
 import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
 import styles from '../styles/WorkHistory.module.scss';
 import type { WorkHistoryProps } from '../types';
-
 /**
  * WorkHistory Feature Component
  *
@@ -19,27 +19,14 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
   className = '',
   'data-testid': testId = 'work-history'
 }) => {
-  const { t } = useLanguage();
+  const { t, language  } = useLanguage();
 
-  // Mock data - will be replaced with actual Job entity
-  const jobs = [
-    {
-      id: '1',
-      company: 'Freelance',
-      position: 'Full Stack Developer',
-      startDate: '2020',
-      endDate: t.present,
-      description: 'Developing web applications for various clients using modern technologies.'
-    },
-    {
-      id: '2',
-      company: 'Startup Company',
-      position: 'Frontend Developer',
-      startDate: '2019',
-      endDate: '2020',
-      description: 'Built responsive user interfaces and collaborated with design team.'
-    }
-  ];
+  const jobs = sortJobsByDate(JOBS);
+
+   const getDescription = (job: Job): string[] => {
+    const lang = language === 'ru' ? 'ru' : 'en';
+    return job.description[lang] || job.description.en || [];
+  };
 
   return (
     <section
@@ -52,7 +39,7 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
       </AnimatedSection>
 
       <div className={styles.timeline}>
-        {jobs.map((job, index) => (
+        {jobs.map((job: Job, index) => (
           <AnimatedSection key={job.id} animation="fadeUp" delay={index * 100}>
             <Card className={styles.jobCard}>
               <div className={styles.jobHeader}>
@@ -60,11 +47,25 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
                 <span className={styles.jobCompany}>{job.company}</span>
               </div>
               <div className={styles.jobPeriod}>
-                {job.startDate} - {job.endDate}
+                {job.period} {/* ✅ Используем готовый период из сущности */}
+                {job.current && <span className={styles.currentBadge}> {t.present}</span>}
               </div>
-              <p className={styles.jobDescription}>
-                {job.description}
-              </p>
+               <div className={styles.jobLocation}>
+                📍 {job.location}
+              </div>
+
+             <ul className={styles.jobDescription}>
+                {getDescription(job).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+
+              {/* ✅ Технологии */}
+              <div className={styles.technologies}>
+                {job.technologies.map((tech) => (
+                  <span key={tech} className={styles.techTag}>{tech}</span>
+                ))}
+              </div>
             </Card>
           </AnimatedSection>
         ))}
