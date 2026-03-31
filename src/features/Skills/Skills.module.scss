@@ -1,0 +1,68 @@
+// ============================================
+// Skills Feature - SCSS Module (Simplified)
+// ============================================
+@use '../../shared/styles/variables' as v;
+@use '../../shared/styles/mixins' as m;
+
+.skills {
+  @include m.section-base;
+}
+
+.sectionTitle {
+  @include m.section-title;
+}
+
+.skillsGrid {
+  @include m.grid-cols(1);
+  @include m.grid-gap(v.$spacing-6);
+  max-width: 1000px;
+  margin: 0 auto;
+
+  @include m.md {
+    @include m.grid-cols(2);
+  }
+
+  @include m.lg {
+    @include m.grid-cols(3);
+  }
+}
+
+.skillCategory {
+ height: 100%;
+  @include m.theme-transition;
+
+  &:hover {
+    @include m.hover-lift;
+  }
+}
+
+.categoryTitle {
+  @include m.text-xl;
+  @include m.font-bold;
+  text-align: center;
+  margin-bottom: v.$spacing-4;
+  color: var(--foreground);
+}
+
+.skillsList {
+ display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-2;
+  justify-content: center;
+}
+
+.skillItem {
+   @include m.text-sm;
+  @include m.font-medium;
+  padding: v.$spacing-1 v.$spacing-2;
+  background: rgba(v.$primary-color, 0.1);
+  color: v.$primary-color;
+  border-radius: v.$radius-full;
+  @include m.theme-transition;
+
+  &:hover {
+    background: v.$primary-color;
+    color: white;
+    transform: scale(1.05);
+  }
+}

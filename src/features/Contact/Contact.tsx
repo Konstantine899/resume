@@ -2,19 +2,19 @@
 // Contact Feature
 // ============================================
 
-import React, { useState } from 'react';
 import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
 import { Textarea } from '@/shared/ui/Textarea';
-import type { ContactProps } from '../types';
-import styles from '../styles/Contact.module.scss';
+import React, { useState } from 'react';
+import styles from './Contact.module.scss';
+import type { ContactProps } from './types';
 
 /**
  * Contact Feature Component
- * 
+ *
  * Contact form and information.
  * Follows FSD architecture - features layer for user scenarios.
  */
@@ -33,7 +33,7 @@ export const Contact: React.FC<ContactProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
@@ -50,15 +50,15 @@ export const Contact: React.FC<ContactProps> = ({
   };
 
   return (
-    <section 
-      id="contact" 
+    <section
+      id="contact"
       className={`${styles.contact} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.contact}</h2>
       </AnimatedSection>
-      
+
       <AnimatedSection animation="fadeUp" delay={100}>
         <Card className={styles.contactCard}>
           <div className={styles.contactContent}>
@@ -71,7 +71,7 @@ export const Contact: React.FC<ContactProps> = ({
                 <strong>Email:</strong> maximus@example.com
               </div>
             </div>
-            
+
             <form className={styles.contactForm} onSubmit={handleSubmit}>
               <Input
                 name="name"

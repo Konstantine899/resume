@@ -2,5 +2,5 @@
 // Sidebar Widget - Public API
 // ============================================
 
-export { Sidebar } from './ui/Sidebar';
-export type { SidebarProps, SidebarState, NavItem } from './types';
+export { Sidebar } from './Sidebar';
+export type { NavItem, SidebarProps, SidebarState } from './types';

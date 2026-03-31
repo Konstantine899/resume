@@ -7,8 +7,8 @@ import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
-import styles from '../styles/Hero.module.scss';
-import type { HeroProps } from '../types';
+import styles from './Hero.module.scss';
+import type { HeroProps } from './types';
 
 /**
  * Hero Feature Component

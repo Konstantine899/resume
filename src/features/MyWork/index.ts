@@ -2,5 +2,5 @@
 // MyWork Feature - Public API
 // ============================================
 
-export { MyWork } from './ui/MyWork';
-export type { MyWorkProps, MyWorkTranslations, MyWorkState } from './types';
+export { MyWork } from './MyWork';
+export type { MyWorkProps, MyWorkState, MyWorkTranslations } from './types';

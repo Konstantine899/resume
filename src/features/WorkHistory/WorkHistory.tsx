@@ -7,8 +7,8 @@ import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
-import styles from '../styles/WorkHistory.module.scss';
-import type { WorkHistoryProps } from '../types';
+import styles from './WorkHistory.module.scss';
+import type { WorkHistoryProps } from './types';
 /**
  * WorkHistory Feature Component
  *

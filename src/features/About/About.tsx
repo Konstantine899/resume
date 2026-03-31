@@ -6,8 +6,8 @@ import { useLanguage } from '@/shared/lib/contexts';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
-import styles from '../styles/About.module.scss';
-import type { AboutProps } from '../types';
+import styles from './About.module.scss';
+import type { AboutProps } from './types';
 
 /**
  * About Feature Component

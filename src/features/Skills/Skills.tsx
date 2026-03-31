@@ -7,8 +7,8 @@ import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
-import styles from '../styles/Skills.module.scss';
-import type { SkillsProps } from '../types';
+import styles from './Skills.module.scss';
+import type { SkillsProps } from './types';
 
 
 export const Skills: React.FC<SkillsProps> = ({

@@ -1,0 +1,109 @@
+// ============================================
+// MyWork Feature - SCSS Module (Simplified)
+// ============================================
+
+@use '../../shared/styles/variables' as v;
+@use '../../shared/styles/mixins' as m;
+
+.myWork {
+  @include m.section-base;
+}
+
+.sectionTitle {
+   @include m.section-title;
+}
+
+.projectsGrid {
+  @include m.grid-cols(1);
+  @include m.grid-gap(v.$spacing-6);
+
+   @include m.md {
+    @include m.grid-cols(2);
+  }
+
+  @include m.lg {
+    @include m.grid-cols(3);
+  }
+}
+
+.projectCard {
+  height: 100%;
+  @include m.theme-transition;
+
+  &:hover {
+    @include m.hover-lift;
+  }
+}
+
+.projectContent {
+  height: 100%;
+  @include m.flex-col;
+  gap: v.$spacing-4;
+}
+
+.projectTitle {
+  @include m.text-base;
+  color: var(--foreground-muted);
+  line-height: v.$line-height-base;
+  flex: 1;
+  margin: 0;
+}
+
+.projectDescription {
+  @include m.flex-col;
+  gap: v.$spacing-2;
+}
+
+.techStack {
+  @include m.text-sm;
+  @include m.font-medium;
+  color: var(--foreground-muted);
+}
+
+.techLabel {
+ @include m.text-sm;
+  @include m.font-medium;
+  color: var(--foreground-muted);
+}
+
+.techIcons {
+  display: flex;
+  gap: v.$spacing-2;
+  flex-wrap: wrap;
+}
+
+.techIcon {
+   width: 24px;
+  height: 24px;
+  @include m.theme-transition;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &.inverted {
+    filter: invert(1);
+  }
+}
+
+.projectLink {
+   @include m.flex-center;
+  gap: v.$spacing-2;
+  margin-top: auto;
+}
+
+.linkLabel {
+   @include m.text-sm;
+  @include m.font-medium;
+  color: var(--foreground-muted);
+}
+
+.linkUrl {
+  @include m.text-sm;
+  color: v.$primary-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

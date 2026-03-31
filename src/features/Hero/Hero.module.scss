@@ -2,7 +2,7 @@
 // Hero Feature - SCSS Module (Modern Module System)
 // ============================================
 
-@use '../../../shared/styles/mixins';
+@use '../../shared/styles/mixins';
 
 .hero {
   min-height: 100vh;
@@ -20,7 +20,7 @@
   bottom: 0;
   background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
   opacity: 0.1;
-  
+
   &[data-theme="dark"] {
     opacity: 0.05;
   }
@@ -38,7 +38,7 @@
     rgba(255, 255, 255, 0.7) 50%,
     rgba(255, 255, 255, 0.9) 100%
   );
-  
+
   &[data-theme="dark"] {
     background: linear-gradient(
       45deg,
@@ -61,7 +61,7 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   align-items: center;
-  
+
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
@@ -91,7 +91,7 @@
   background-clip: text;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
   margin: 0;
-  
+
   @media (min-width: 1024px) {
     font-size: 3rem;
   }
@@ -101,7 +101,7 @@
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  
+
   &[data-theme="dark"] {
     background: rgba(41, 39, 38, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -119,7 +119,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  
+
   &.red { background: #ff5f56; }
   &.yellow { background: #ffbd2e; }
   &.green { background: #27ca3f; }
@@ -176,7 +176,7 @@
 
 .photoSection {
   display: none;
-  
+
   @media (min-width: 1024px) {
     display: flex;
     justify-content: center;
@@ -226,7 +226,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &[data-theme="dark"] {
     background: #292726;
   }
@@ -236,7 +236,7 @@
   font-size: 4rem;
   font-weight: 700;
   color: #d94744;
-  
+
   &[data-theme="dark"] {
     color: #f4b377;
   }

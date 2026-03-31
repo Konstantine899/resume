@@ -8,8 +8,8 @@ import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
-import styles from '../styles/MyWork.module.scss';
-import type { MyWorkProps } from '../types';
+import styles from './MyWork.module.scss';
+import type { MyWorkProps } from './types';
 
 /**
  * MyWork Feature Component

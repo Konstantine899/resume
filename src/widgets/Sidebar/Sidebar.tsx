@@ -19,8 +19,8 @@ import {
   X
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import styles from '../styles/Sidebar.module.scss';
-import type { SidebarProps } from '../types';
+import styles from './Sidebar.module.scss';
+import type { SidebarProps } from './types';
 
 /**
  * Sidebar Widget Component

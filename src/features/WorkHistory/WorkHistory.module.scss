@@ -1,0 +1,65 @@
+// ============================================
+// WorkHistory Feature - SCSS Module (Simplified)
+// ============================================
+@use '../../shared/styles/variables' as v;
+@use '../../shared/styles/mixins' as m;
+
+.workHistory {
+  @include m.section-base;
+}
+
+.sectionTitle {
+   @include m.section-title;
+}
+
+.timeline {
+  @include m.flex-col;
+  gap: v.$spacing-6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.jobCard {
+  @include m.theme-transition;
+
+  &:hover {
+    @include m.hover-slide;
+  }
+}
+
+.jobHeader {
+   @include m.flex-between;
+  align-items: flex-start;
+  margin-bottom: v.$spacing-3;
+
+  @include m.sm {
+    align-items: center;
+  }
+}
+
+.jobPosition {
+  @include m.text-xl;
+  @include m.font-bold;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.jobCompany {
+   @include m.text-lg;
+  @include m.font-medium;
+  color: v.$primary-color;
+  margin: 0;
+}
+
+.jobPeriod {
+   @include m.text-sm;
+  color: var(--foreground-muted);
+  margin-bottom: v.$spacing-3;
+}
+
+.jobDescription {
+  @include m.text-base;
+  color: var(--foreground-muted);
+  line-height: v.$line-height-base;
+  margin: 0;
+}
