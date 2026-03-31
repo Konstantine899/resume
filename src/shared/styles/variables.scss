@@ -1,0 +1,67 @@
+// ============================================
+// SASS Variables (Modern Module System)
+// ============================================
+
+// Colors
+$primary-color: #007bff !default;
+$secondary-color: #6c757d !default;
+$success-color: #28a745 !default;
+$danger-color: #dc3545 !default;
+$warning-color: #ffc107 !default;
+$info-color: #17a2b8 !default;
+
+// Typography
+$font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !default;
+$font-size-base: 1rem !default;
+$line-height-base: 1.5 !default;
+
+// Breakpoints
+$breakpoint-xs: 480px !default;
+$breakpoint-sm: 640px !default;
+$breakpoint-md: 768px !default;
+$breakpoint-lg: 1024px !default;
+$breakpoint-xl: 1280px !default;
+$breakpoint-2xl: 1536px !default;
+
+// Container max widths
+$container-sm: 640px !default;
+$container-md: 768px !default;
+$container-lg: 1024px !default;
+$container-xl: 1280px !default;
+$container-2xl: 1536px !default;
+
+// Spacing
+$spacing-xs: 0.25rem !default;
+$spacing-sm: 0.5rem !default;
+$spacing-md: 1rem !default;
+$spacing-lg: 1.5rem !default;
+$spacing-xl: 2rem !default;
+
+// Border radius
+$border-radius-sm: 0.25rem !default;
+$border-radius-md: 0.375rem !default;
+$border-radius-lg: 0.5rem !default;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !default;
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !default;
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !default;
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !default;
+
+// Theme colors for portfolio
+$primary-light: #f4b377 !default;
+$primary-dark: #d94744 !default;
+$accent: #50abc5 !default;
+
+// Text colors
+$text-primary: #1a1716 !default;
+$text-secondary: #4b5563 !default;
+$text-muted: #9ca3af !default;
+
+// Background colors
+$background: #ffffff !default;
+$background-alt: #f5f3f0 !default;
+
+// Border colors
+$border-color: #e5e7eb !default;
+$border-color-dark: #d1d5db !default;

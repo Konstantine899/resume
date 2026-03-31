@@ -1,0 +1,144 @@
+// ============================================
+// Language Context (Shared Layer)
+// ============================================
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+type Language = 'en' | 'ru';
+
+ export interface LanguageContextType {
+  language: Language;
+  toggleLanguage: () => void;
+  t: Record<string, string>;
+  isTransitioning: boolean;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+interface LanguageProviderProps {
+  children: React.ReactNode;
+}
+
+export const translations = {
+  en: {
+    greeting: 'Hello, I\'m',
+    name: 'Konstantin',
+    fullName: 'Atroschenko Konstantin',
+    profession: 'Full Stack Developer',
+    specialties: 'React, Node.js, TypeScript',
+    skillsLabel: 'Modern Web Technologies',
+    yearsOfExperience: 'yearsOfExperience',
+    age: 'age',
+    getResume: 'Get Resume',
+    home: 'Home',
+    work: 'Work',
+    about: 'About',
+    contact: 'Contact',
+    skills: 'Skills',
+    uses: 'Uses',
+    language: 'EN',
+    languageFull: 'English',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
+    footerTitle: 'Made with ❤️ by Maximus',
+    myWork: 'My Work',
+    builtUsing: 'Built using',
+    link: 'Link',
+    workHistory: 'Work History',
+    present: 'Present',
+    aboutDescription: 'Passionate full stack developer with 6+ years of experience creating modern web applications.',
+    getInTouch: 'Get in Touch',
+    email: 'Email',
+    sendMessage: 'Send Message',
+    nameField: 'Name',
+    message: 'Message',
+    sending: 'Sending...',
+    sent: 'Sent!',
+    technologies: 'Technologies',
+    tools: 'Tools',
+    languages: 'Languages'
+  },
+  ru: {
+    greeting: 'Привет, я',
+    name: 'Константин',
+    fullName: 'Атрощенко Константин',
+    profession: 'Full Stack Разработчик',
+    specialties: 'React, Node.js, TypeScript',
+    skillsLabel: 'Современные Веб-Технологии',
+    yearsOfExperience: 'летОпыта',
+    age: 'возраст',
+    getResume: 'Скачать Резюме',
+    home: 'Главная',
+    work: 'Работы',
+    about: 'Обо мне',
+    contact: 'Контакты',
+    skills: 'Навыки',
+    uses: 'Инструменты',
+    language: 'РУ',
+    languageFull: 'Русский',
+    darkMode: 'Тёмная Тема',
+    lightMode: 'Светлая Тема',
+    footerTitle: 'Сделано с ❤️ Максимусом',
+    myWork: 'Мои Работы',
+    builtUsing: 'Создано с помощью',
+    link: 'Ссылка',
+    workHistory: 'История Работы',
+    present: 'Настоящее время',
+    aboutDescription: 'Увлеченный full stack разработчик с 6+ годами опыта создания современных веб-приложений.',
+    getInTouch: 'Связаться',
+    email: 'Email',
+    sendMessage: 'Отправить Сообщение',
+    nameField: 'Имя',
+    message: 'Сообщение',
+    sending: 'Отправка...',
+    sent: 'Отправлено!',
+    technologies: 'Технологии',
+    tools: 'Инструменты',
+    languages: 'Языки'
+  }
+};
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  const [language, setLanguage] = useState<Language>('en');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') as Language;
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  const toggleLanguage = () => {
+    setIsTransitioning(true);
+    setLanguage(prev => prev === 'en' ? 'ru' : 'en');
+
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  const t = translations[language];
+
+  return (
+    <LanguageContext.Provider value={{ language, toggleLanguage, t, isTransitioning }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export { LanguageContext };
+export default LanguageProvider;
