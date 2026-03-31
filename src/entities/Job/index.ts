@@ -2,26 +2,22 @@
 // Job Entity - Public API
 // ============================================
 
-export type { 
-  Job, 
-  JobType, 
-  JobLocation, 
-  CreateJobDto, 
-  UpdateJobDto, 
-  JobFilters, 
-  JobsResponse, 
-  JobsState, 
-  UseJobsReturn, 
-  JobsConfig 
+// Types
+export type {
+  CreateJobDto, EmploymentType, Job, JobFilters,
+  JobKey, JobLevel, UpdateJobDto
 } from './types';
 
-export { 
-  jobs, 
-  DEFAULT_JOB_VALUES, 
-  JOBS_CONFIG, 
-  getJobById, 
-  filterJobs, 
-  sortJobs, 
-  getCurrentJob, 
-  calculateTotalExperience 
+// Constants
+export {
+  EMPLOYMENT_TYPES,
+  JOB_LEVELS, JOBS
 } from './constants';
+
+// Utils
+export {
+  applyJobFilters, filterJobsByEmploymentType, filterJobsByLevel, getAllJobs, getCurrentJob,
+  getFeaturedJobs,
+  searchJobs, sortJobsByDate
+} from './lib/utils';
+

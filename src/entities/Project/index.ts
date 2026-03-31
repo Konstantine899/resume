@@ -2,26 +2,24 @@
 // Project Entity - Public API
 // ============================================
 
-export type { 
-  Project, 
-  ProjectCategory, 
-  ProjectStatus, 
-  TechIcon, 
-  CreateProjectDto, 
-  UpdateProjectDto, 
-  ProjectFilters, 
-  ProjectsResponse, 
-  ProjectsState, 
-  UseProjectsReturn, 
-  ProjectsConfig 
+// Types
+export type {
+  CreateProjectDto, Project,
+  ProjectCategory, ProjectFilters,
+  ProjectKey, ProjectStatus,
+  TechIcon, UpdateProjectDto
 } from './types';
 
-export { 
-  projects, 
-  TECH_ICONS, 
-  DEFAULT_PROJECT_VALUES, 
-  PROJECTS_CONFIG, 
-  getProjectById, 
-  filterProjects, 
-  sortProjects 
+// Constants
+export {
+  PROJECT_CATEGORIES,
+  PROJECT_STATUSES, PROJECTS
 } from './constants';
+
+// Utils
+export {
+  applyProjectFilters, filterProjectsByCategory,
+  filterProjectsByStatus, getAllProjects, getFeaturedProjects,
+  searchProjects
+} from './lib/utils';
+

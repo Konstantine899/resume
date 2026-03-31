@@ -2,7 +2,7 @@
 // MyWork Feature
 // ============================================
 
-import { projects } from '@/entities/Project';
+import { PROJECTS } from '@/entities/Project';
 import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
 import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
@@ -40,7 +40,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
       </AnimatedSection>
 
       <div className={styles.projectsGrid}>
-        {projects.map((project, index) => (
+        {PROJECTS.map((project, index) => (
           <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
             <Card
               className={styles.projectCard}
