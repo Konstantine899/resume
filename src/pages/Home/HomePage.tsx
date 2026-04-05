@@ -1,7 +1,6 @@
 // ============================================
 // Home Page
 // ============================================
-
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { Hero } from '@/features/Hero';
@@ -14,16 +13,21 @@ import styles from './HomePage.module.scss';
 
 /**
  * Home Page Component
- *
- * Main page that composes all widgets and features.
- * Follows FSD architecture - pages layer composes widgets and features.
+ * Composes all widgets and features following FSD architecture.
  */
 export const HomePage: React.FC = () => {
   return (
     <div className={styles.homePage}>
+      {/* Skip link for accessibility */}
+      <a href="#main-content" className={styles.skipToMain}>
+        Skip to main content
+      </a>
+
+      {/* Sidebar (includes desktopSpacer internally) */}
       <Sidebar />
 
-      <main className={styles.mainContent}>
+      {/* Main Content */}
+      <main id="main-content" className={styles.mainContent}>
         <Hero />
         <MyWork />
         <WorkHistory />
@@ -36,5 +40,4 @@ export const HomePage: React.FC = () => {
 };
 
 HomePage.displayName = 'HomePage';
-
 export default HomePage;

@@ -30,17 +30,30 @@ $container-lg: 1024px !default;
 $container-xl: 1280px !default;
 $container-2xl: 1536px !default;
 
-// Spacing
+// Spacing Scale
 $spacing-xs: 0.25rem !default;
 $spacing-sm: 0.5rem !default;
 $spacing-md: 1rem !default;
 $spacing-lg: 1.5rem !default;
 $spacing-xl: 2rem !default;
+$spacing-1: 0.25rem !default;
+$spacing-2: 0.5rem !default;
+$spacing-3: 0.75rem !default;
+$spacing-4: 1rem !default;
+$spacing-5: 1.25rem !default;
+$spacing-6: 1.5rem !default;
+$spacing-8: 2rem !default;
+$spacing-10: 2.5rem !default;
+$spacing-12: 3rem !default;
+$spacing-16: 4rem !default;
+$spacing-20: 5rem !default;
+$spacing-24: 6rem !default;
 
 // Border radius
 $border-radius-sm: 0.25rem !default;
 $border-radius-md: 0.375rem !default;
 $border-radius-lg: 0.5rem !default;
+$radius-xl: 0.75rem !default;
 $radius-full: 9999px !default;
 
 // Shadows
@@ -67,27 +80,29 @@ $background-alt: #f5f3f0 !default;
 $border-color: #e5e7eb !default;
 $border-color-dark: #d1d5db !default;
 
-
-
-//============================================
-// Расширенная шкала отступов
-// ============================================
-$spacing-1: 0.25rem !default; // 4px
-$spacing-2: 0.5rem !default;   // 8px
-$spacing-3: 0.75rem !default;  // 12px
-$spacing-4: 1rem !default;     // 16px
-$spacing-5: 1.25rem !default;  // 20px
-$spacing-6: 1.5rem !default;   // 24px
-$spacing-8: 2rem !default;     // 32px
-$spacing-10: 2.5rem !default;  // 40px
-$spacing-12: 3rem !default;    // 48px
-$spacing-16: 4rem !default;    // 64px
-$spacing-20: 5rem !default;    // 80px
-$spacing-24: 6rem !default;    // 96px
-
-// ============================================
 // Transition & Animation
-// ============================================
 $transition-duration: 0.4s !default;
 $transition-easing: ease !default;
 $animation-duration: 0.7s !default;
+
+// Extended Font Sizes
+$font-size-xs: 0.75rem !default;
+$font-size-sm: 0.875rem !default;
+$font-size-lg: 1.125rem !default;
+$font-size-xl: 1.25rem !default;
+$font-size-2xl: 1.5rem !default;
+$font-size-3xl: 1.875rem !default;
+$font-size-4xl: 2.25rem !default;
+$font-size-5xl: 3rem !default;
+$font-size-6xl: 3.75rem !default;
+$font-size-7xl: 4.5rem !default;
+$font-size-8xl: 6rem !default;
+$font-size-9xl: 7.5rem !default;
+
+// Sidebar-specific variables
+$sidebar-width-collapsed: 4rem;   // 64px
+$sidebar-width-expanded: 12rem;   // 192px
+$sidebar-mobile-width: 85vw;
+$sidebar-mobile-max-width: 400px;
+$sidebar-transition: 0.3s ease;
+$sidebar-z-index: 100;

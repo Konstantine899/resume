@@ -1,47 +1,38 @@
 // ============================================
-// SASS Mixins and Utilities (Modern Module System)
+// SASS Mixins and Utilities (Complete)
 // ============================================
 @use 'variables' as *;
-@use 'variables' as *;
 
-// Media queries
+// --------------------------------------------
+// 1. Responsive Mixins (xxl standard)
+// --------------------------------------------
 @mixin xs {
-  @media (min-width: #{$breakpoint-xs}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-xs}) { @content; }
 }
 
 @mixin sm {
-  @media (min-width: #{$breakpoint-sm}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-sm}) { @content; }
 }
 
 @mixin md {
-  @media (min-width: #{$breakpoint-md}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-md}) { @content; }
 }
 
 @mixin lg {
-  @media (min-width: #{$breakpoint-lg}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-lg}) { @content; }
 }
 
 @mixin xl {
-  @media (min-width: #{$breakpoint-xl}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-xl}) { @content; }
 }
 
 @mixin xxl {
-  @media (min-width: #{$breakpoint-2xl}) {
-    @content;
-  }
+  @media (min-width: #{$breakpoint-2xl}) { @content; }
 }
 
-// Flex utilities
+// --------------------------------------------
+// 2. Layout & Flex Utilities
+// --------------------------------------------
 @mixin flex-center {
   display: flex;
   align-items: center;
@@ -54,17 +45,34 @@
   justify-content: space-between;
 }
 
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 @mixin flex-col {
   display: flex;
   flex-direction: column;
 }
 
-@mixin flex-col-center {
-  @include flex-col;
-  align-items: center;
+@mixin container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+
+  @include sm { max-width: $container-sm; }
+  @include md { max-width: $container-md; }
+  @include lg { max-width: $container-lg; }
+  @include xl { max-width: $container-xl; }
+  @include xxl { max-width: $container-2xl; }
 }
 
-// Grid utilities
+// --------------------------------------------
+// 3. Grid Utilities
+// --------------------------------------------
 @mixin grid-cols($cols) {
   display: grid;
   grid-template-columns: repeat(#{$cols}, 1fr);
@@ -74,84 +82,139 @@
   gap: $gap;
 }
 
-// Container
-@mixin container {
+// --------------------------------------------
+// 3. Section Mixins (CRITICAL FIX)
+// --------------------------------------------
+@mixin section-base {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
   padding-left: $spacing-md;
   padding-right: $spacing-md;
+  padding: $spacing-20 0;
+  max-width: $container-2xl;
 
   @include sm {
-    max-width: $container-sm;
-  }
-
-  @include md {
-    max-width: $container-md;
-  }
-
-  @include lg {
-    max-width: $container-lg;
-  }
-
-  @include xl {
-    max-width: $container-xl;
-  }
-
-  @include xxl {
-    max-width: $container-2xl;
+    padding: $spacing-24 0;
   }
 }
 
-// Text styles
+@mixin section-title {
+  font-size: $font-size-3xl;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: $spacing-12;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// --------------------------------------------
+// 4. Typography Mixins
+// --------------------------------------------
 @mixin text-xs {
-  font-size: 0.75rem;
-  line-height: 1.25;
+  font-size: $font-size-xs;
+  line-height: $line-height-base;
 }
 
 @mixin text-sm {
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: $font-size-sm;
+  line-height: $line-height-base;
 }
 
 @mixin text-base {
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
 }
 
 @mixin text-lg {
-  font-size: 1.125rem;
-  line-height: 1.5;
+  font-size: $font-size-lg;
+  line-height: $line-height-base;
 }
 
 @mixin text-xl {
-  font-size: 1.25rem;
-  line-height: 1.5;
+  font-size: $font-size-xl;
+  line-height: $line-height-base;
 }
 
 @mixin text-2xl {
-  font-size: 1.5rem;
-  line-height: 1.25;
+  font-size: $font-size-2xl;
+  line-height: $line-height-base;
 }
 
-@mixin text-3xl {
-  font-size: 1.875rem;
-  line-height: 1.25;
-}
-
-@mixin text-4xl {
-  font-size: 2.25rem;
-  line-height: 1.25;
-}
-
-// Font weights
 @mixin font-light { font-weight: 300; }
 @mixin font-normal { font-weight: 400; }
 @mixin font-medium { font-weight: 500; }
 @mixin font-semibold { font-weight: 600; }
 @mixin font-bold { font-weight: 700; }
 
-// Component mixins
+// --------------------------------------------
+// 5. Theme & Card Mixins
+// --------------------------------------------
+@mixin theme-transition {
+  transition:
+    background-color $transition-duration $transition-easing,
+    color $transition-duration $transition-easing,
+    border-color $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+}
+
+@mixin card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+@mixin work-history-card {
+  background: rgba(41, 39, 38, 0.8);
+  border-left: 4px solid #f4b377;
+  border-radius: $border-radius-lg;
+  backdrop-filter: blur(8px);
+  transition: background-color 0.4s ease;
+
+  [data-theme="light"] & {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+// --------------------------------------------
+// 6. Animation & Hover Mixins
+// --------------------------------------------
+@mixin hover-lift {
+  transition: transform $transition-duration $transition-easing,
+              box-shadow $transition-duration $transition-easing;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+@mixin hover-slide {
+  transition: transform $transition-duration $transition-easing,
+              box-shadow $transition-duration $transition-easing;
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+@mixin hover-scale($amount: 1.05) {
+  transition: transform $transition-duration $transition-easing;
+  &:hover { transform: scale($amount); }
+}
+
+// --------------------------------------------
+// 7. Component Mixins
+// --------------------------------------------
 @mixin button-base {
   @include flex-center;
   border: none;
@@ -174,34 +237,6 @@
   }
 }
 
-@mixin button-variant($background, $color: white, $hover-background: darken($background, 10%)) {
-  background-color: $background;
-  color: $color;
-
-  &:hover:not(:disabled) {
-    background-color: $hover-background;
-  }
-}
-
-@mixin button-size($padding-y, $padding-x, $font-size) {
-  padding: $padding-y $padding-x;
-  font-size: $font-size;
-}
-
-// Card styles
-@mixin card {
-  background: $background;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-sm;
-  transition: box-shadow 0.2s ease;
-
-  &:hover {
-    box-shadow: $shadow-md;
-  }
-}
-
-// Input styles
 @mixin input-base {
   width: 100%;
   padding: $spacing-sm $spacing-md;
@@ -223,57 +258,26 @@
   }
 }
 
-// Градиентный текст (для заголовков)
-@mixin gradient-text {
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+// --------------------------------------------
+// 8. Terminal Dots
+// --------------------------------------------
+@mixin terminal-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
 }
 
-// Hover lift эффект (для карточек)
-@mixin hover-lift {
-  transform: translateY(-4px);
-  box-shadow: $shadow-xl;
+@mixin terminal-dot-red {
+  @include terminal-dot;
+  background-color: #ff5f56;
 }
 
-// Hover slide эффект (для timeline)
-@mixin hover-slide {
-  transform: translateX(4px);
-  box-shadow: $shadow-lg;
+@mixin terminal-dot-yellow {
+  @include terminal-dot;
+  background-color: #ffbd2e;
 }
 
-// Section base styles (общие стили для всех секций)
-@mixin section-base {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: $spacing-md;
-  padding-right: $spacing-md;
-  padding: $spacing-xl 0;
-}
-
-// Section title (общий стиль заголовков секций)
-@mixin section-title {
-  @include text-3xl;
-  @include font-bold;
-  @include gradient-text;
-  text-align: center;
-  margin-bottom: $spacing-8;
-}
-
-// Theme transition (для переключения тем)
-@mixin theme-transition {
-  transition: background-color $transition-duration $transition-easing,
-              color $transition-duration $transition-easing,
-              border-color $transition-duration $transition-easing;
-}
-
-// Line clamp (ограничение строк текста)
-@mixin line-clamp($lines: 2) {
-  display: -webkit-box;
-  -webkit-line-clamp: $lines;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+@mixin terminal-dot-green {
+  @include terminal-dot;
+  background-color: #27ca40;
 }

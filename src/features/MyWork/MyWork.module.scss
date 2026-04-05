@@ -2,80 +2,80 @@
 // MyWork Feature - SCSS Module (Simplified)
 // ============================================
 
-@use '../../shared/styles/variables' as v;
-@use '../../shared/styles/mixins' as m;
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 .myWork {
-  @include m.section-base;
+  @include section-base;
 }
 
 .sectionTitle {
-   @include m.section-title;
+   @include section-title;
 }
 
 .projectsGrid {
-  @include m.grid-cols(1);
-  @include m.grid-gap(v.$spacing-6);
+  @include grid-cols(1);
+  @include grid-gap($spacing-6);
 
-   @include m.md {
-    @include m.grid-cols(2);
+   @include md {
+    @include grid-cols(2);
   }
 
-  @include m.lg {
-    @include m.grid-cols(3);
+  @include lg {
+    @include grid-cols(3);
   }
 }
 
 .projectCard {
   height: 100%;
-  @include m.theme-transition;
+  @include theme-transition;
 
   &:hover {
-    @include m.hover-lift;
+    @include hover-lift;
   }
 }
 
 .projectContent {
   height: 100%;
-  @include m.flex-col;
-  gap: v.$spacing-4;
+  @include flex-col;
+  gap: $spacing-4;
 }
 
 .projectTitle {
-  @include m.text-base;
+  @include text-base;
   color: var(--foreground-muted);
-  line-height: v.$line-height-base;
+  line-height: $line-height-base;
   flex: 1;
   margin: 0;
 }
 
 .projectDescription {
-  @include m.flex-col;
-  gap: v.$spacing-2;
+  @include flex-col;
+  gap: $spacing-2;
 }
 
 .techStack {
-  @include m.text-sm;
-  @include m.font-medium;
+  @include text-sm;
+  @include font-medium;
   color: var(--foreground-muted);
 }
 
 .techLabel {
- @include m.text-sm;
-  @include m.font-medium;
+ @include text-sm;
+  @include font-medium;
   color: var(--foreground-muted);
 }
 
 .techIcons {
   display: flex;
-  gap: v.$spacing-2;
+  gap: $spacing-2;
   flex-wrap: wrap;
 }
 
 .techIcon {
    width: 24px;
   height: 24px;
-  @include m.theme-transition;
+  @include theme-transition;
 
   &:hover {
     transform: scale(1.2);
@@ -87,20 +87,20 @@
 }
 
 .projectLink {
-   @include m.flex-center;
-  gap: v.$spacing-2;
+   @include flex-center;
+  gap: $spacing-2;
   margin-top: auto;
 }
 
 .linkLabel {
-   @include m.text-sm;
-  @include m.font-medium;
+   @include text-sm;
+  @include font-medium;
   color: var(--foreground-muted);
 }
 
 .linkUrl {
-  @include m.text-sm;
-  color: v.$primary-color;
+  @include text-sm;
+  color: $primary-color;
   text-decoration: none;
 
   &:hover {

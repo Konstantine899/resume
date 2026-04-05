@@ -1,146 +1,55 @@
 // ============================================
 // FSD Shared Styles - Animations
 // ============================================
+@use 'variables' as *;
 
-@import './variables';
-
-// Fade animations
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Slide animations
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-// Scale animations
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes scaleOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-}
-
-// Spin animation
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-// Pulse animation
-@keyframes pulse {
+// --------------------------------------------
+// Keyframes
+// --------------------------------------------
+@keyframes pulse-glow {
   0%, 100% {
-    opacity: 1;
+    opacity: 0.3;
+    transform: scale(1);
   }
   50% {
     opacity: 0.5;
+    transform: scale(1.05);
   }
 }
 
-// Bounce animation
-@keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0, 0, 0);
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
   }
-  40%, 43% {
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -2px, 0);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-// Theme toggle animation
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes theme-spin {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(180deg) scale(1.2);
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-  }
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
-// Language switch animation
+@keyframes globe-rotate {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
 @keyframes language-fade {
   0% {
     opacity: 1;
@@ -156,82 +65,49 @@
   }
 }
 
-// Globe rotation
-@keyframes globe-rotate {
-  0% {
-    transform: rotateY(0deg);
-  }
-  100% {
-    transform: rotateY(360deg);
-  }
+// --------------------------------------------
+// Animation Mixins
+// --------------------------------------------
+@mixin pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-// Scroll animations
-@keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-// Animation mixins
-@mixin animation($name, $duration: 0.3s, $timing: ease, $delay: 0s, $iteration: 1, $direction: normal) {
-  animation: $name $duration $timing $delay $iteration $direction;
-}
-
-@mixin fade-in($duration: 0.3s) {
-  @include animation(fadeIn, $duration);
-}
-
-@mixin fade-in-up($duration: 0.3s) {
+@mixin animate-fade-up($delay: 0s) {
   opacity: 0;
-  transform: translateY(20px);
-  @include animation(fadeInUp, $duration);
+  transform: translateY(2rem);
+
+  &.visible {
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-delay: $delay;
+  }
 }
 
-@mixin slide-in-left($duration: 0.3s) {
-  @include animation(slideInLeft, $duration);
-}
-
-@mixin scale-in($delay: 0) {
+@mixin animate-scale-in($delay: 0s) {
   opacity: 0;
   transform: scale(0.95);
-  animation: scaleIn $animation-duration ease-out forwards;
-  animation-delay: $delay;
+
+  &.visible {
+    animation-name: scaleIn;
+    animation-duration: 0.7s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    animation-delay: $delay;
+  }
 }
 
-@mixin fade-up($delay: 0) {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp $animation-duration ease-out forwards;
-  animation-delay: $delay;
+@mixin icon-theme-spin($is-spinning: false) {
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  @if $is-spinning {
+    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 }
 
-// Component-specific animations
-@mixin spinning-icon {
-  @include animation(spin, 1s, linear, 0s, infinite);
-}
-
-@mixin pulsing-element {
-  @include animation(pulse, 2s, ease-in-out, 0s, infinite);
-}
-
-@mixin bouncing-element {
-  @include animation(bounce, 1s, ease, 0s, infinite);
-}
-
-// Theme animations
-@mixin theme-transition-animation {
-  @include animation(theme-spin, 0.5s, cubic-bezier(0.68, -0.55, 0.265, 1.55));
-}
-
-@mixin language-transition-animation {
-  @include animation(language-fade, 0.3s, ease);
+@mixin icon-globe-spin($is-spinning: false) {
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  @if $is-spinning {
+    animation: globe-rotate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 }

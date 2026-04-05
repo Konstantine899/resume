@@ -1,265 +1,361 @@
 // ============================================
-// Hero Feature - SCSS Module (Modern Module System)
+// Hero Feature - SCSS Module
 // ============================================
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
 
-@use '../../shared/styles/mixins';
-
+// --------------------------------------------
+// Section Container
+// --------------------------------------------
 .hero {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
-  position: relative;
+  padding: 0 $spacing-md;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+
+  @include sm { padding: 0 $spacing-lg; }
+  @include md { padding: 0 $spacing-xl; }
+  @include lg { padding: 0 $spacing-8; }
+  @include xl { padding: 0 $spacing-12; }
 }
 
+// --------------------------------------------
+// Background & Overlay
+// --------------------------------------------
 .gradientBackground {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
-  opacity: 0.1;
+  inset: 0;
+  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 30%, #d94744 60%, #292726 100%);
+  transition: background $transition-duration $transition-easing;
 
-  &[data-theme="dark"] {
-    opacity: 0.05;
+  [data-theme="light"] & {
+    background: linear-gradient(135deg, #d97b3d 0%, #e88a4a 25%, #b83330 50%, #f5f3f0 100%);
   }
 }
 
 .overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.7) 50%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, transparent, #292726);
+  transition: background $transition-duration $transition-easing;
 
-  &[data-theme="dark"] {
-    background: linear-gradient(
-      45deg,
-      rgba(41, 39, 38, 0.9) 0%,
-      rgba(41, 39, 38, 0.7) 50%,
-      rgba(41, 39, 38, 0.9) 100%
-    );
+  [data-theme="light"] & {
+    background: linear-gradient(to bottom, transparent 20%, rgba(245, 243, 240, 0.3) 60%, #f5f3f0);
   }
 }
 
+// --------------------------------------------
+// Content Layout
+// --------------------------------------------
 .content {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
   position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  align-items: center;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    max-width: 1024px;
-  }
-}
-
-.textContent {
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: $spacing-16;
+  padding-top: $spacing-20;
+  padding-bottom: $spacing-20;
+
+  @include lg {
+    flex-direction: row;
+    padding-top: 0;
+    padding-bottom: 0;
+    gap: $spacing-20;
+  }
 }
 
+.leftContent {
+  width: 100%;
+  min-width: 0;
+
+  @include lg {
+    max-width: 42rem;
+  }
+}
+
+// --------------------------------------------
+// Typography
+// --------------------------------------------
 .greeting {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #6c757d;
-  margin: 0;
+  color: #ffffff;
+  font-size: $font-size-3xl;
+  font-weight: 700;
+  margin-bottom: $spacing-sm;
+
+  @include xs { font-size: $font-size-4xl; }
+  @include sm { font-size: $font-size-5xl; }
+  @include md { font-size: $font-size-7xl; }
 }
 
 .name {
-  font-size: 2.25rem;
+  color: #1a1918;
+  font-size: $font-size-3xl;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
-  margin: 0;
+  margin-bottom: $spacing-lg;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
 
-  @media (min-width: 1024px) {
-    font-size: 3rem;
+  @include xs { font-size: $font-size-4xl; }
+  @include sm { font-size: $font-size-5xl; }
+  @include md {
+    font-size: $font-size-7xl;
+    margin-bottom: $spacing-16;
   }
 }
 
+// --------------------------------------------
+// Code Block
+// --------------------------------------------
 .codeBlock {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border-radius: $border-radius-lg;
+  padding: $spacing-md;
+  backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: $spacing-lg;
+  background: var(--code-bg, rgba(41, 39, 38, 0.95));
+  border: 1px solid rgba(244, 179, 119, 0.2);
 
-  &[data-theme="dark"] {
-    background: rgba(41, 39, 38, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  @include sm {
+    padding: $spacing-lg;
+    margin-bottom: $spacing-xl;
+  }
+
+  @include md {
+    padding: $spacing-8;
   }
 }
 
 .terminalDots {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
-}
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
 
-.terminalDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  .dot {
+    @include terminal-dot;
 
-  &.red { background: #ff5f56; }
-  &.yellow { background: #ffbd2e; }
-  &.green { background: #27ca3f; }
+    &.red { @include terminal-dot-red; }
+    &.yellow { @include terminal-dot-yellow; }
+    &.green { @include terminal-dot-green; }
+  }
 }
 
 .codeContent {
-  padding: 1rem;
+  width: 100%;
   overflow-x: auto;
+  padding-bottom: $spacing-sm;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(244, 179, 119, 0.3);
+    border-radius: 2px;
+  }
+
+  pre {
+    font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.625rem;
+    white-space: pre;
+    min-width: 0;
+
+    @include xs { font-size: 0.75rem; }
+    @include sm { font-size: 0.875rem; }
+    @include md { font-size: 1rem; }
+
+    .keyword { color: #9ca3af; }
+    .string { color: var(--primary); }
+    .number { color: var(--accent); }
+    .punctuation { color: #ffffff; }
+    .property { color: #9ca3af; }
+  }
 }
 
-.codePre {
-  margin: 0;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  white-space: pre;
-}
-
-.codeVariable {
-  color: #e06c75;
-}
-
-.codeOperator {
-  color: #56b6c2;
-}
-
-.codeBrace {
-  color: #e5c07b;
-}
-
-.codeProperty {
-  color: #e06c75;
-}
-
-.codeString {
-  color: #98c379;
-}
-
-.codeStringAccent {
-  color: #d19a66;
-}
-
-.codeNumber {
-  color: #d19a66;
-}
-
-.codeComma {
-  color: #abb2bf;
-}
-
+// --------------------------------------------
+// Resume Button
+// --------------------------------------------
 .resumeButton {
-  align-self: flex-start;
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  box-shadow: $shadow-lg;
+  transition: all $transition-duration $transition-easing;
+
+  @include sm {
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-base;
+  }
+
+  @include md {
+    padding: $spacing-md $spacing-xl;
+  }
+
+  &:hover {
+    opacity: 0.9;
+    box-shadow: $shadow-xl;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
 }
 
-.photoSection {
+// --------------------------------------------
+// Photo Section
+// --------------------------------------------
+.rightContent {
   display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 
-  @media (min-width: 1024px) {
+  @include lg {
     display: flex;
-    justify-content: center;
-    align-items: center;
   }
 }
 
 .photoContainer {
   position: relative;
-  width: 300px;
-  height: 300px;
 }
 
 .photoGlow {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  height: 320px;
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+  inset: 0;
+  width: 14rem;
+  height: 14rem;
   border-radius: 50%;
-  filter: blur(20px);
+  background: var(--gradient-primary);
+  filter: blur(40px);
   opacity: 0.3;
-  animation: pulse 4s ease-in-out infinite;
-}
+  @include pulse-glow;
 
-.photoCircle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 250px;
-  height: 250px;
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  @include xl {
+    width: 18rem;
+    height: 18rem;
+  }
 
-.photoInner {
-  width: 240px;
-  height: 240px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &[data-theme="dark"] {
-    background: #292726;
+  @include xxl {
+    width: 20rem;
+    height: 20rem;
   }
 }
 
-.photoInitial {
-  font-size: 4rem;
-  font-weight: 700;
-  color: #d94744;
+.photoCircle {
+  position: relative;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  padding: $spacing-sm;
+  box-shadow: $shadow-xl;
 
-  &[data-theme="dark"] {
-    color: #f4b377;
+  @include xl {
+    width: 18rem;
+    height: 18rem;
+  }
+
+  @include xxl {
+    width: 20rem;
+    height: 20rem;
+  }
+}
+
+.photoInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #1a1918, #292726);
+  transition: background $transition-duration $transition-easing;
+
+  [data-theme="light"] & {
+    background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+  }
+
+  .initial {
+    font-size: 3.75rem;
+    font-weight: 700;
+    color: var(--primary);
+
+    @include xl { font-size: 6rem; }
+    @include xxl { font-size: 7.5rem; }
   }
 }
 
 .photoRing {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 260px;
-  height: 260px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  inset: 0;
+  width: 14rem;
+  height: 14rem;
   border-radius: 50%;
-  animation: rotate 20s linear infinite;
+  border: 2px solid rgba(244, 179, 119, 0.2);
+  transform: scale(1.1);
+  pointer-events: none;
+
+  @include xl {
+    width: 18rem;
+    height: 18rem;
+  }
+
+  @include xxl {
+    width: 20rem;
+    height: 20rem;
+  }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
+// --------------------------------------------
+// Responsive & Accessibility
+// --------------------------------------------
+@media (max-width: #{$breakpoint-lg - 1px}) {
+  .content {
+    flex-direction: column;
+    text-align: center;
+
+    .leftContent { max-width: 100%; }
+    .codeBlock { max-width: 100%; }
+    .resumeButton {
+      width: 100%;
+      max-width: 20rem;
+    }
+  }
 }
 
-@keyframes rotate {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+@include xs {
+  .hero { padding: 0 $spacing-sm; }
+  .greeting, .name { text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photoGlow { animation: none; }
+  .resumeButton { transition: none; }
+  .gradientBackground, .overlay { transition: none; }
+}
+
+.gradientBackground, .overlay, .photoInner {
+  transition: background $transition-duration $transition-easing;
 }

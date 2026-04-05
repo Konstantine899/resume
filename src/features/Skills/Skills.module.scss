@@ -1,67 +1,67 @@
 // ============================================
 // Skills Feature - SCSS Module (Simplified)
 // ============================================
-@use '../../shared/styles/variables' as v;
-@use '../../shared/styles/mixins' as m;
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 .skills {
-  @include m.section-base;
+  @include section-base;
 }
 
 .sectionTitle {
-  @include m.section-title;
+  @include  section-title;
 }
 
 .skillsGrid {
-  @include m.grid-cols(1);
-  @include m.grid-gap(v.$spacing-6);
+  @include  grid-cols(1);
+  @include  grid-gap( $spacing-6);
   max-width: 1000px;
   margin: 0 auto;
 
-  @include m.md {
-    @include m.grid-cols(2);
+  @include  md {
+    @include  grid-cols(2);
   }
 
-  @include m.lg {
-    @include m.grid-cols(3);
+  @include  lg {
+    @include grid-cols(3);
   }
 }
 
 .skillCategory {
  height: 100%;
-  @include m.theme-transition;
+  @include theme-transition;
 
   &:hover {
-    @include m.hover-lift;
+    @include hover-lift;
   }
 }
 
 .categoryTitle {
-  @include m.text-xl;
-  @include m.font-bold;
+  @include text-xl;
+  @include font-bold;
   text-align: center;
-  margin-bottom: v.$spacing-4;
+  margin-bottom: $spacing-4;
   color: var(--foreground);
 }
 
 .skillsList {
  display: flex;
   flex-wrap: wrap;
-  gap: v.$spacing-2;
+  gap: $spacing-2;
   justify-content: center;
 }
 
 .skillItem {
-   @include m.text-sm;
-  @include m.font-medium;
-  padding: v.$spacing-1 v.$spacing-2;
-  background: rgba(v.$primary-color, 0.1);
-  color: v.$primary-color;
-  border-radius: v.$radius-full;
-  @include m.theme-transition;
+   @include text-sm;
+  @include font-medium;
+  padding: $spacing-1 $spacing-2;
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
+  border-radius: $radius-full;
+  @include theme-transition;
 
   &:hover {
-    background: v.$primary-color;
+    background: $primary-color;
     color: white;
     transform: scale(1.05);
   }

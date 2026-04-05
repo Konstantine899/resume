@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
     mode: mode as BuildMode,
     paths,
     isDev,
-    port: Number(env.PORT) || 3000,
+    port: Number(env.PORT) || 3001,
     project: 'frontend',
     analyze: env.ANALYZE === 'true',
   };

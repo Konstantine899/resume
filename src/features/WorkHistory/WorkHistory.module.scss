@@ -1,65 +1,65 @@
 // ============================================
 // WorkHistory Feature - SCSS Module (Simplified)
 // ============================================
-@use '../../shared/styles/variables' as v;
-@use '../../shared/styles/mixins' as m;
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 .workHistory {
-  @include m.section-base;
+  @include section-base;
 }
 
 .sectionTitle {
-   @include m.section-title;
+   @include section-title;
 }
 
 .timeline {
-  @include m.flex-col;
-  gap: v.$spacing-6;
+  @include flex-col;
+  gap: $spacing-6;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .jobCard {
-  @include m.theme-transition;
+  @include theme-transition;
 
   &:hover {
-    @include m.hover-slide;
+    @include hover-slide;
   }
 }
 
 .jobHeader {
-   @include m.flex-between;
+   @include flex-between;
   align-items: flex-start;
-  margin-bottom: v.$spacing-3;
+  margin-bottom: $spacing-3;
 
-  @include m.sm {
+  @include sm {
     align-items: center;
   }
 }
 
 .jobPosition {
-  @include m.text-xl;
-  @include m.font-bold;
+  @include text-xl;
+  @include font-bold;
   margin: 0;
   color: var(--foreground);
 }
 
 .jobCompany {
-   @include m.text-lg;
-  @include m.font-medium;
-  color: v.$primary-color;
+   @include text-lg;
+  @include font-medium;
+  color: $primary-color;
   margin: 0;
 }
 
 .jobPeriod {
-   @include m.text-sm;
+   @include text-sm;
   color: var(--foreground-muted);
-  margin-bottom: v.$spacing-3;
+  margin-bottom: $spacing-3;
 }
 
 .jobDescription {
-  @include m.text-base;
+  @include text-base;
   color: var(--foreground-muted);
-  line-height: v.$line-height-base;
+  line-height: $line-height-base;
   margin: 0;
 }

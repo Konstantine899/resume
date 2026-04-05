@@ -6,19 +6,9 @@
  * Hero component props
  */
 export interface HeroProps {
-  /**
-   * Additional CSS class
-   */
+
   className?: string;
-  
-  /**
-   * Callback when resume button is clicked
-   */
   onGetResume?: () => void;
-  
-  /**
-   * Test ID for testing
-   */
   'data-testid'?: string;
 }
 
