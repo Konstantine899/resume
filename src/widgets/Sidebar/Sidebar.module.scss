@@ -90,7 +90,7 @@
 // ============================================
 .logoSection {
   padding: $spacing-20 $spacing-lg $spacing-xl;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .logoLink {
@@ -125,8 +125,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(0, 123, 255, 0.1);
-    color: #007bff;
+    background: rgba(244, 179, 119, 0.1);
+    color: #f4b377;
   }
 }
 
@@ -141,7 +141,7 @@
 
 .controlsSection {
   padding: $spacing-xl;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
@@ -159,9 +159,10 @@
 .controlIcon {
   width: 20px;
   height: 20px;
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   &.spinning {
-    animation: spin 1s linear infinite;
+    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
@@ -179,12 +180,12 @@
 
 .languageFull {
   font-size: $font-size-xs;
-  color: #9ca3af;
+  color: var(--foreground-muted);
 }
 
 .footerText {
   font-size: $font-size-xs;
-  color: #9ca3af;
+  color: var(--foreground-muted);
   text-align: center;
   margin-top: $spacing-4;
 }
@@ -198,8 +199,11 @@
   left: 0;
   bottom: 0;
   width: $sidebar-width-collapsed;
-  background: var(--background);
-  border-right: 1px solid #e5e7eb;
+  background: var(--card-bg);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  padding: $spacing-12 0;
+  border-right: 1px solid var(--card-border);
   transition: width $sidebar-transition;
   z-index: $sidebar-z-index;
   display: none;
@@ -219,12 +223,13 @@
   align-items: center;
   justify-content: center;
   height: 4rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--card-border);
   text-decoration: none;
   transition: all $sidebar-transition;
+   margin-bottom: $spacing-8;
 
   &:hover {
-    background: rgba(0, 123, 255, 0.05);
+    background: rgba(244, 179, 119, 0.05);
   }
 }
 
@@ -258,24 +263,27 @@
   padding: $spacing-4 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-1;
+  align-items: flex-start;
+  gap: $spacing-4;
+  width: 100%;
 }
 
 .desktopNavItem {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: $spacing-3;
-  padding: $spacing-3;
+  padding: $spacing-2 $spacing-3;
   margin: 0 $spacing-2;
   text-decoration: none;
-  color: var(--foreground);
-  border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  color: var(--foreground-muted);
+  transition: all $transition-fast, color $transition-duration;
   white-space: nowrap;
 
   &:hover {
-    background: rgba(0, 123, 255, 0.1);
-    color: #007bff;
+   background: rgba(244, 179, 119, 0.05);
+   width: 100%;
+   color: #f4b377;
   }
 
   &.expanded {
@@ -301,23 +309,86 @@
 
 .desktopControls {
   padding: $spacing-4 $spacing-2;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
+  margin-top: auto;
+  margin-bottom: $spacing-2;
+  width: 100%;
+}
+
+.sidebarControlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  padding: $spacing-2 $spacing-3;
+  background: transparent;
+  border: none;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  border-radius: $border-radius-lg;
+  transition: all $transition-fast, color $transition-duration;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow-x: hidden;
+  width: 100%;
+
+  margin-left: $spacing-3;
+  margin-right: $spacing-3;
+  margin-top: auto;
+  margin-bottom: $spacing-2;
+
+  &:hover {
+    background: rgba(244, 179, 119, 0.05);
+    color: #f4b377;
+  }
+
+  &.expanded {
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: $spacing-3;
+    padding-right: $spacing-3;
+  }
+}
+
+.sidebarControlText {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  overflow: hidden;
+
+  .languageLabel {
+    font-weight: 600;
+  }
+
+  .languageFull {
+    font-size: $font-size-xs;
+    opacity: 0.6;
+  }
 }
 
 .desktopControlButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: $spacing-3;
-  padding: $spacing-2;
-  border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  padding: $spacing-2 $spacing-3;
+  background: transparent;
+  border: none;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  max-width: 100%;
+  overflow-x: hidden;
+  transition: all $transition-fast, color $transition-duration;
   white-space: nowrap;
 
   &:hover {
-    background: rgba(0, 123, 255, 0.1);
+    background: rgba(244, 179, 119, 0.05);
   }
 
   &.expanded {
@@ -325,13 +396,16 @@
   }
 }
 
+
+
 .desktopControlIcon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   &.spinning {
-    animation: spin 1s linear infinite;
+    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
@@ -355,7 +429,7 @@
 
 .desktopLanguageFull {
   font-size: $font-size-xs;
-  color: #9ca3af;
+  color: var(--foreground-muted);
 }
 
 .expandIndicator {
@@ -363,7 +437,8 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-2;
-  color: #9ca3af;
+  color: var(--foreground-muted);
+  margin-bottom: $spacing-4;
 }
 
 .expandIcon {
@@ -392,12 +467,4 @@
       width: $sidebar-width-expanded;
     }
   }
-}
-
-// ============================================
-// ANIMATIONS
-// ============================================
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }

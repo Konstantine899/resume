@@ -28,8 +28,7 @@ export const Hero: React.FC<HeroProps> = ({
 
       {/* Overlay for better text contrast */}
       <div className={styles.overlay} />
-
-      <div className={styles.content}>
+        <div className={styles.content}>
         {/* Left side - Text content */}
         <div className={styles.leftContent}>
           {/* Greeting */}
@@ -55,7 +54,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className={styles.keyword}>maximus</span>
                 <span className={styles.punctuation}> = {'{'}</span>
                 {'\n\n'}
-                <span className={styles.property}>  fullName:</span>
+                <span className={styles.property}>fullName:</span>
                 <span className={styles.string}>'{t.fullName}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}

@@ -6,7 +6,6 @@
  * Hero component props
  */
 export interface HeroProps {
-
   className?: string;
   onGetResume?: () => void;
   'data-testid'?: string;

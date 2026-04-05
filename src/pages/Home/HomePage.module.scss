@@ -32,6 +32,7 @@
   // Mobile: no margin (sidebar is overlay)
   margin-left: 0;
 
+
   // Desktop: spacer handles the offset
   @include md {
     margin-left: 0;

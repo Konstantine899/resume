@@ -85,6 +85,7 @@
   }
 }
 
+
 @mixin animate-scale-in($delay: 0s) {
   opacity: 0;
   transform: scale(0.95);
@@ -98,16 +99,10 @@
   }
 }
 
-@mixin icon-theme-spin($is-spinning: false) {
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  @if $is-spinning {
-    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
+@mixin icon-theme-spin {
+  animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-@mixin icon-globe-spin($is-spinning: false) {
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  @if $is-spinning {
-    animation: globe-rotate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
+@mixin icon-globe-spin {
+  animation: globe-rotate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

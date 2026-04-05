@@ -56,11 +56,11 @@ button {
   --card-bg: rgba(255, 255, 255, 0.98);
   --card-border: rgba(0, 0, 0, 0.12);
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --background-secondary: #ffffff;
-  --primary: #d97b3d;
-  --primary-dark: #b83330;
-  --accent: #2d7a8f;
-  --code-bg: #1e1c1b;
+  --background-secondary: #1e1c1b;
+  --primary:#f4b377;
+  --primary-dark: #d94744;
+  --accent: #50abc5;
+  --code-bg: rgba(41, 39, 38, 0.95);
 }
 
 [data-theme="dark"] {
@@ -71,7 +71,7 @@ button {
   --card-border: rgba(255, 255, 255, 0.1);
   --shadow-color: rgba(0, 0, 0, 0.3);
   --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
-  --gradient-work-history: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
+  --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
 }
 
 
@@ -99,12 +99,3 @@ button {
   }
 }
 
-[data-theme="dark"] {
-  // ❌ Отсутствуют:
-  --background-secondary: #1e1c1b;
-  --primary: #f4b377;
-  --primary-dark: #d94744;
-  --accent: #50abc5;
-  --code-bg: rgba(41, 39, 38, 0.95);
-  --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
-}

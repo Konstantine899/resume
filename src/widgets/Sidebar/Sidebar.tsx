@@ -4,10 +4,10 @@
 
 import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
-import { Button } from '@/shared/ui/Button';
 import {
   ChevronRight,
-  Code, FileText,
+  Code,
+  FileText,
   Globe,
   Home,
   Mail,
@@ -33,10 +33,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigation,
   'data-testid': testId = 'sidebar'
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, isTransitioning } = useTheme();
   const { language, toggleLanguage, t, isTransitioning: isLangTransitioning } = useLanguage();
+
+  const isOpen = true;
 
   const navItems = [
     { icon: Home, href: "#home", label: t.home },
@@ -91,15 +92,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Mobile Burger Button */}
-      <Button
-        variant="primary"
-        size="sm"
+      <button
         onClick={() => setMobileMenuOpen(true)}
         className={styles.mobileMenuButton}
         aria-label="Open menu"
+        type="button"
       >
         <Menu className={styles.menuIcon} />
-      </Button>
+      </button>
 
       {/* Mobile Menu Overlay */}
       <div className={`${styles.mobileOverlay} ${mobileMenuOpen ? styles.open : ''}`}>
@@ -112,15 +112,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Menu Panel */}
         <div className={styles.mobilePanel}>
           {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setMobileMenuOpen(false)}
             className={styles.closeButton}
             aria-label="Close menu"
+            type="button"
           >
             <X className={styles.closeIcon} />
-          </Button>
+          </button>
 
           {/* Logo */}
           <div className={styles.logoSection}>
@@ -154,23 +153,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Theme & Language Toggle */}
           <div className={styles.controlsSection}>
             {/* Language Toggle */}
-            <Button
-              variant="ghost"
-              onClick={handleLanguageToggle as any}
+            <button
+              onClick={handleLanguageToggle}
               className={styles.controlButton}
+              type="button"
             >
               <Globe className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`} />
               <span className={styles.controlText}>
                 <span className={styles.languageLabel}>{t.language}</span>
                 <span className={styles.languageFull}>({t.languageFull})</span>
               </span>
-            </Button>
+            </button>
 
             {/* Theme Toggle */}
-            <Button
-              variant="ghost"
+            <button
               onClick={handleThemeToggle}
               className={styles.controlButton}
+              type="button"
             >
               {theme === "dark" ? (
                 <Moon className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`} />
@@ -180,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className={styles.controlText}>
                 {theme === "dark" ? t.darkMode : t.lightMode}
               </span>
-            </Button>
+            </button>
 
             <p className={styles.footerText}>
               {t.footerTitle}
@@ -193,8 +192,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : ''} ${className}`}
         data-testid={testId}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
       >
         {/* Logo */}
         <a
@@ -232,26 +229,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Controls */}
         <div className={styles.desktopControls}>
           {/* Language Toggle */}
-          <Button
-            variant="ghost"
-            onClick={handleLanguageToggle as any}
-            className={`${styles.desktopControlButton} ${isOpen ? styles.expanded : ''}`}
+          <button
+            onClick={handleLanguageToggle}
+            className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
+            type="button"
             title={!isOpen ? t.languageFull : undefined}
           >
             <Globe className={`${styles.desktopControlIcon} ${isLangTransitioning ? styles.spinning : ''}`} />
             {isOpen && (
-              <span className={styles.desktopControlText}>
-                <span className={styles.desktopLanguageLabel}>{t.language}</span>
-                <span className={styles.desktopLanguageFull}>({t.languageFull})</span>
+              <span className={styles.sidebarControlText}>
+                <span className={styles.languageLabel}>EN</span>
+                <span className={styles.languageFull}>(English)</span>
               </span>
             )}
-          </Button>
+          </button>
 
           {/* Theme Toggle */}
-          <Button
-            variant="ghost"
+          <button
             onClick={handleThemeToggle}
-            className={`${styles.desktopControlButton} ${isOpen ? styles.expanded : ''}`}
+            className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
+            type="button"
             title={!isOpen ? (theme === "dark" ? t.darkMode : t.lightMode) : undefined}
           >
             {theme === "dark" ? (
@@ -260,11 +257,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Sun className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`} />
             )}
             {isOpen && (
-              <span className={styles.desktopControlText}>
-                {theme === "dark" ? t.darkMode : t.lightMode}
+              <span className={styles.sidebarControlText}>
+                <span className={styles.languageLabel}>{theme === "dark" ? t.darkMode : t.lightMode}</span>
               </span>
             )}
-          </Button>
+          </button>
 
           {/* Expand indicator */}
           <div className={styles.expandIndicator}>

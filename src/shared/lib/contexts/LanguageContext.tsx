@@ -29,8 +29,8 @@ interface LanguageProviderProps {
 
 export const translations = {
   en: {
-    greeting: 'Hello, I\'m',
-    name: 'Konstantin',
+    greeting: 'Hi,',
+    name: 'I\'m Konstantin',
     fullName: 'Atroschenko Konstantin',
     profession: 'Full Stack Developer',
     specialties: 'React, Node.js, TypeScript',

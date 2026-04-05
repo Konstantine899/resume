@@ -106,3 +106,12 @@ $sidebar-mobile-width: 85vw;
 $sidebar-mobile-max-width: 400px;
 $sidebar-transition: 0.3s ease;
 $sidebar-z-index: 100;
+
+$sidebar-mobile-width-sm: 18rem;      // 288px (для xs breakpoint)
+$transition-fast: 0.2s;               // Для быстрых переходов
+$burger-size: 3rem;                   // 48px
+$nav-item-height: 2.5rem;             // 40px
+
+$sidebar-mobile-width: 16rem;      // 256px
+$sidebar-mobile-width-sm: 18rem;   // 288px
+$transition-fast: 0.2s;
