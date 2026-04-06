@@ -33,7 +33,7 @@ export const translations = {
     name: 'I\'m Konstantin',
     fullName: 'Atroschenko Konstantin',
     profession: 'Full Stack Developer',
-    specialties: 'React, Node.js, TypeScript',
+    specialties: 'React, Node.js, TypeScript, React, Node.js, TypeScript, React, Node.js, TypeScript',
     skillsLabel: 'Modern Web Technologies',
     yearsOfExperience: 'yearsOfExperience',
     age: 'age',

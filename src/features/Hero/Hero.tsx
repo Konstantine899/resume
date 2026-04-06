@@ -51,7 +51,7 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Code content */}
             <div className={styles.codeContent}>
               <pre>
-                <span className={styles.keyword}>maximus</span>
+                <span className={styles.keyword}>kosmos</span>
                 <span className={styles.punctuation}> = {'{'}</span>
                 {'\n\n'}
                 <span className={styles.property}>fullName:</span>

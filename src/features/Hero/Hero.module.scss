@@ -150,17 +150,18 @@
   padding-bottom: $spacing-sm;
 
   &::-webkit-scrollbar {
-    height: 4px;
+    height: 12px;
   }
 
   &::-webkit-scrollbar-track {
-    background: transparent;
+     background: var(--background-secondary);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(244, 179, 119, 0.3);
+     background: var(--primary-dark);
     border-radius: 2px;
   }
+
 
   pre {
     font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
