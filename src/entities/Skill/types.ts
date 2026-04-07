@@ -2,6 +2,12 @@
 // Skill Entity - TypeScript Types
 // ============================================
 
+export interface SkillItem {
+  name: string;
+  icon: string;
+  iconAlt?: string;
+}
+
 /**
  * Skill category types
  */

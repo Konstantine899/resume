@@ -2,103 +2,54 @@
 // Card Component - TypeScript Types
 // ============================================
 
-import { ReactNode } from 'react';
+import { HTMLAttributes, ReactNode } from 'react';
 
-/**
- * Card variant types
- */
-export type CardVariant = 
-  | 'default'     // Default card style
-  | 'elevated'    // Elevated with shadow
-  | 'outline'     // Outline only
-  | 'filled';     // Filled background
+export type CardVariant =
+  | 'default'       // Default card style
+  | 'project'       // MyWork project cards
+  | 'workHistory'   // WorkHistory job cards
+  | 'skill'        // Skills container
+  | 'about'         // About section card
+  | 'codeBlock';    // Hero code block
 
-/**
- * Card size types
- */
-export type CardSize = 
-  | 'sm'          // Small card
-  | 'md'          // Medium card (default)
-  | 'lg';         // Large card
+export interface TechIcon {
+  name?: string;
+  url: string;
+  invertInDark?: boolean;
+}
+
+
+export type CardSize =
+  | 'compact'       // Compact (small content)
+  | 'default'       // Standard card
+  | 'large';        // Large (Hero, About)
+
+  export type CardRadius =
+  | 'rounded'       // 0.5rem
+  | 'roundedXl'     // 0.75rem
+  | 'rounded2xl';   // 1rem (responsive)
+
 
 /**
  * Card props interface
  */
-export interface CardProps {
-  /**
-   * Card content
-   */
-  children: ReactNode;
-  
-  /**
-   * Card variant style
-   * @default 'default'
-   */
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
-  
-  /**
-   * Card size
-   * @default 'md'
-   */
+  title?: string;
+  children: ReactNode;
   size?: CardSize;
-  
-  /**
-   * Additional CSS class
-   */
+  radius?: CardRadius;
+  fullWidth?: boolean;
   className?: string;
-  
-  /**
-   * Padding size
-   * @default 'md'
-   */
-  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  
-  /**
-   * Hover effect
-   * @default false
-   */
   hoverable?: boolean;
-  
-  /**
-   * Click handler
-   */
-  onClick?: () => void;
-  
-  /**
-   * Card header
-   */
-  header?: ReactNode;
-  
-  /**
-   * Card footer
-   */
-  footer?: ReactNode;
-  
-  /**
-   * Card image URL
-   */
+  backgroundImage?: string;
+  description?: string;
+  techIcons?: TechIcon[];
+  link?: string | null;
   image?: string;
-  
-  /**
-   * Image alt text
-   */
-  imageAlt?: string;
-  
-  /**
-   * Image position
-   * @default 'top'
-   */
-  imagePosition?: 'top' | 'bottom' | 'left' | 'right';
-  
-  /**
-   * Border radius override
-   */
-  borderRadius?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
-  
-  /**
-   * HTML div attributes
-   */
-  [key: string]: any;
+  theme?: 'dark' | 'light';
+  builtUsingLabel?: string;
+  linkLabel?: string;
 }
 
 /**

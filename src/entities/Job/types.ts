@@ -2,6 +2,14 @@
 // Job Entity - TypeScript Types
 // ============================================
 
+export interface JobItem {
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  technologies?: string[];
+}
+
 /**
  * Job employment type
  */

@@ -6,18 +6,14 @@ import React from 'react';
 import styles from './Card.module.scss';
 import type { CardProps } from './types';
 
-/**
- * Card Component
- * 
- * A flexible card component with multiple variants and states.
- * Follows FSD architecture - reusable UI component.
- */
 export const Card: React.FC<CardProps> = ({
   variant = 'default',
-  size = 'md',
+  size = 'default',
+  radius = 'roundedXl',
+  fullWidth = false,
+  hoverable = true,
+  backgroundImage,
   className = '',
-  hoverable = false,
-  clickable = false,
   children,
   ...props
 }) => {
@@ -26,8 +22,9 @@ export const Card: React.FC<CardProps> = ({
     styles.card,
     styles[variant],
     styles[size],
-    hoverable && styles.hoverable,
-    clickable && styles.clickable,
+    styles[radius],
+    fullWidth && styles.fullWidth,
+    !hoverable && styles.noHover,
     className,
   ]
     .filter(Boolean)
@@ -38,7 +35,27 @@ export const Card: React.FC<CardProps> = ({
       className={cardClasses}
       {...props}
     >
-      {children}
+      {/* Background image overlay (for project cards) */}
+      {backgroundImage && (
+        <div
+          className={styles.backgroundImage}
+          style={{ backgroundImage: `url('${backgroundImage}')` }}
+        />
+      )}
+
+      {/* Gradient overlay (for project cards) */}
+      {variant === 'project' && (
+        <div className={styles.gradientOverlay} />
+      )}
+
+      {/* Content wrapper (for project cards) */}
+      {variant === 'project' ? (
+        <div className={styles.content}>
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 };

@@ -4,8 +4,7 @@
 
 // Types
 export type {
-  CreateJobDto, EmploymentType, Job, JobFilters,
-  JobKey, JobLevel, UpdateJobDto
+  CreateJobDto, EmploymentType, Job, JobFilters, JobItem, JobKey, JobLevel, UpdateJobDto
 } from './types';
 
 // Constants

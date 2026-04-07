@@ -2,13 +2,7 @@
 // Project Entity - Public API
 // ============================================
 
-// Types
-export type {
-  CreateProjectDto, Project,
-  ProjectCategory, ProjectFilters,
-  ProjectKey, ProjectStatus,
-  TechIcon, UpdateProjectDto
-} from './types';
+export type { Project, ProjectCategory, ProjectFilters, ProjectStatus } from './types';
 
 // Constants
 export {

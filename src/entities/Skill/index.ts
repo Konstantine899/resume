@@ -5,8 +5,7 @@
 // Types
 export type {
   CreateSkillDto, Skill,
-  SkillCategory, SkillFilters,
-  SkillKey, SkillLevel, UpdateSkillDto
+  SkillCategory, SkillFilters, SkillKey, SkillLevel, UpdateSkillDto
 } from './types';
 
 // Constants & Mappings

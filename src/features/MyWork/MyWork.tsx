@@ -11,12 +11,6 @@ import React from 'react';
 import styles from './MyWork.module.scss';
 import type { MyWorkProps } from './types';
 
-/**
- * MyWork Feature Component
- *
- * Displays portfolio projects with filtering and animations.
- * Follows FSD architecture - features layer for user scenarios.
- */
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
   onProjectClick,
@@ -32,45 +26,51 @@ export const MyWork: React.FC<MyWorkProps> = ({
   return (
     <section
       id="work"
-      className={`${styles.myWork} ${className}`}
+      className={`${styles.section} ${className}`}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.sectionTitle}>{t.myWork}</h2>
+        <h2 className={styles.title}>{t.myWork}</h2>
       </AnimatedSection>
 
       <div className={styles.projectsGrid}>
         {PROJECTS.map((project, index) => (
           <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
             <Card
-              className={styles.projectCard}
-              onClick={() => handleProjectClick(project.id)}
-              hoverable
+               variant="about" size="default" backgroundImage={project.image}
             >
-              <div className={styles.projectContent}>
+              <div
+                className={styles.backgroundImage}
+                style={{
+                  backgroundImage: `url('${project.image}')`,
+                }}
+              />
+
+              <div className={styles.gradientOverlay} />
+
+              <div className={styles.content}>
                 <h3 className={styles.projectTitle}>
                   {project.title}
                 </h3>
+
                 <p className={styles.projectDescription}>
                   {project.description[t.language as 'en' | 'ru']}
                 </p>
 
-                {/* Tech icons */}
-                <div className={styles.techStack}>
+                {/* Tech Icons Row */}
+                <div className={styles.techRow}>
                   <span className={styles.techLabel}>{t.builtUsing}</span>
-                  <div className={styles.techIcons}>
-                    {project.techIcons.map((tech, techIndex) => (
-                      <img
-                        key={techIndex}
-                        src={tech.url}
-                        alt={tech.name}
-                        className={`${styles.techIcon} ${tech.invertInDark && theme === "dark" ? styles.inverted : ''}`}
-                      />
-                    ))}
-                  </div>
+                  {project.techIcons.map((tech, techIndex) => (
+                    <img
+                      key={techIndex}
+                      src={tech.url}
+                      alt={tech.name || 'Technology'}
+                      className={`${styles.techIcon} ${tech.invertInDark && theme === 'dark' ? styles.invert : ''}`}
+                    />
+                  ))}
                 </div>
 
-                {/* Link */}
+                {/* Project Link */}
                 {project.link && (
                   <div className={styles.projectLink}>
                     <span className={styles.linkLabel}>{t.link}</span>
@@ -90,6 +90,14 @@ export const MyWork: React.FC<MyWorkProps> = ({
           </AnimatedSection>
         ))}
       </div>
+
+      {/* Empty State */}
+      {PROJECTS.length === 0 && (
+        <div className={styles.emptyState}>
+          <div className={styles.icon}>📁</div>
+          <p>No projects yet</p>
+        </div>
+      )}
     </section>
   );
 };

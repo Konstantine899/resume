@@ -172,6 +172,11 @@
   }
 }
 
+@mixin card-gradient {
+  @include card;
+}
+
+
 @mixin work-history-card {
   background: rgba(41, 39, 38, 0.8);
   border-left: 4px solid #f4b377;

@@ -1,5 +1,5 @@
 import { PROJECTS } from '../constants';
-import type { Project, ProjectCategory, ProjectFilters, ProjectStatus } from '../types';
+import { Project, ProjectCategory, ProjectFilters, ProjectStatus } from '../types';
 
 /**
  * Filter projects by category

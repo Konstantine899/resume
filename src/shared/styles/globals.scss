@@ -85,19 +85,6 @@ button {
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-// Card gradient utility
-.card-gradient {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 20px var(--shadow-color);
-  transition: all 0.4s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px var(--shadow-color);
-  }
-}
 
 // Custom Scrollbar
 ::-webkit-scrollbar {

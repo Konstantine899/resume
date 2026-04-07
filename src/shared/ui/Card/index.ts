@@ -3,12 +3,8 @@
 // ============================================
 
 export { Card } from './Card';
-export type { 
-  CardProps, 
-  CardVariant, 
-  CardSize, 
-  CardHeaderProps, 
-  CardBodyProps, 
-  CardFooterProps, 
-  CardImageProps 
+export type {
+  CardBodyProps, CardFooterProps, CardHeaderProps,
+  CardImageProps, CardProps, CardRadius, CardSize, CardVariant, TechIcon
 } from './types';
+
