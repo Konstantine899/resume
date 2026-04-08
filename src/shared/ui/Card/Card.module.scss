@@ -18,7 +18,6 @@ $card-accent-border: var(--primary);
   @include card-gradient;
   position: relative;
   overflow: hidden;
-  // border-radius: $radius-lg;
   padding: $spacing-md;
   width: 100%;
   transition: all $transition-duration $transition-easing;
@@ -37,10 +36,6 @@ $card-accent-border: var(--primary);
     @include md {
       transform: scale(1.01);
     }
-  }
-// Variant модификаторы
-  &.project {
-    // Стили по умолчанию (как в MyWork)
   }
 
   &.workHistory {
@@ -68,6 +63,60 @@ $card-accent-border: var(--primary);
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+  }
+    // Size модификаторы
+  &.compact {
+    padding: $spacing-sm;
+  }
+  &.default {
+    padding: $spacing-md;
+  }
+
+  &.large {
+    padding: $spacing-xl;
+
+    @include sm {
+      padding: $spacing-1;
+    }
+  }
+
+  // Radius модификаторы
+  &.rounded {
+    border-radius: $border-radius-md;
+  }
+
+  &.roundedXl {
+    border-radius: $radius-xl;
+  }
+
+  &.rounded2xl {
+    border-radius: $border-radius-lg;
+
+    @include sm {
+      border-radius: $radius-xl;
+    }
+  }
+
+  // fullWidth модификатор
+  &.fullWidth {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  // noHover модификатор
+  &.noHover {
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--card-border);
+    }
+  }
+
+  // codeBlock variant
+  &.codeBlock {
+    @include code-block;
+    padding: $spacing-lg;
+    font-family: 'Fira Code', monospace;
   }
 }
 

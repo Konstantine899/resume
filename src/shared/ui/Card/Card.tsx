@@ -9,7 +9,7 @@ import type { CardProps } from './types';
 export const Card: React.FC<CardProps> = ({
   variant = 'default',
   size = 'default',
-  radius = 'roundedXl',
+  radius = '',
   fullWidth = false,
   hoverable = true,
   backgroundImage,

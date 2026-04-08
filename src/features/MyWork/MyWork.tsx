@@ -17,7 +17,8 @@ export const MyWork: React.FC<MyWorkProps> = ({
   'data-testid': testId = 'my-work'
 }) => {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t , language} = useLanguage();
+
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
@@ -37,7 +38,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         {PROJECTS.map((project, index) => (
           <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
             <Card
-               variant="about" size="default" backgroundImage={project.image}
+               variant="project" size="default" backgroundImage={project.image}
             >
               <div
                 className={styles.backgroundImage}
@@ -54,7 +55,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 </h3>
 
                 <p className={styles.projectDescription}>
-                  {project.description[t.language as 'en' | 'ru']}
+                  {language == "en" ? project.description.en: project.description.ru}
                 </p>
 
                 {/* Tech Icons Row */}

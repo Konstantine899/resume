@@ -163,9 +163,9 @@
 @mixin card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
   transition: box-shadow 0.2s ease;
+  height: 220px;
 
   &:hover {
     box-shadow: $shadow-md;

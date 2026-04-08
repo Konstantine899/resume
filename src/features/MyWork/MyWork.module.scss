@@ -363,20 +363,6 @@ $bg-image-hover-opacity: 0.25;
   }
 }
 
-// ============================================
-// RESPONSIVE ADJUSTMENTS
-// ============================================
-
-@include xs {
-  .section {
-    padding-left: $spacing-3;
-    padding-right: $spacing-3;
-  }
-
-  .projectCard {
-    padding: $spacing-3;
-  }
-}
 
 // ============================================
 // ACCESSIBILITY
