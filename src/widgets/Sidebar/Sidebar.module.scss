@@ -1,13 +1,16 @@
 // ============================================
+
 // Sidebar Widget - SCSS Module
+
 // ============================================
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/styles/animations' as *;
 
-
 // ============================================
+
 // MOBILE BURGER BUTTON
+
 // ============================================
 .mobileMenuButton {
   position: fixed;
@@ -26,47 +29,43 @@
 }
 
 // ============================================
+
 // MOBILE MENU OVERLAY
+
 // ============================================
 .mobileOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: $sidebar-z-index;
-  opacity: 0;
   visibility: hidden;
+  opacity: 0;
   transition: all $sidebar-transition;
 
   &.open {
-    opacity: 1;
     visibility: visible;
+    opacity: 1;
   }
 }
 
 .backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
   backdrop-filter: blur(4px);
 }
 
 .mobilePanel {
   position: absolute;
   top: 0;
-  left: 0;
   bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
   width: $sidebar-mobile-width;
   max-width: $sidebar-mobile-max-width;
   background: var(--background);
   transform: translateX(-100%);
   transition: transform $sidebar-transition;
-  display: flex;
-  flex-direction: column;
 
   .mobileOverlay.open & {
     transform: translateX(0);
@@ -86,7 +85,9 @@
 }
 
 // ============================================
+
 // MOBILE PANEL CONTENT
+
 // ============================================
 .logoSection {
   padding: $spacing-20 $spacing-lg $spacing-xl;
@@ -101,32 +102,31 @@
   font-size: 1.5rem;
   font-weight: 700;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .mobileNav {
-  flex: 1;
-  padding: $spacing-xl;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: $spacing-2;
+  padding: $spacing-xl;
 }
 
 .mobileNavItem {
   display: flex;
-  align-items: center;
   gap: $spacing-3;
+  align-items: center;
   padding: $spacing-3 $spacing-4;
-  text-decoration: none;
   color: var(--foreground);
+  text-decoration: none;
   border-radius: $border-radius-md;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(244, 179, 119, 0.1);
     color: #f4b377;
+    background: rgb(244 179 119 / 0.1);
   }
 }
 
@@ -140,20 +140,20 @@
 }
 
 .controlsSection {
-  padding: $spacing-xl;
-  border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
+  padding: $spacing-xl;
+  border-top: 1px solid var(--card-border);
 }
 
 .controlButton {
   display: flex;
-  align-items: center;
   gap: $spacing-3;
-  padding: $spacing-2 $spacing-3;
-  width: 100%;
+  align-items: center;
   justify-content: flex-start;
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
 }
 
 .controlIcon {
@@ -169,13 +169,13 @@
 .controlText {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
+  align-items: flex-start;
 }
 
 .languageLabel {
-  font-weight: 500;
   font-size: $font-size-base;
+  font-weight: 500;
 }
 
 .languageFull {
@@ -184,30 +184,32 @@
 }
 
 .footerText {
+  margin-top: $spacing-4;
   font-size: $font-size-xs;
   color: var(--foreground-muted);
   text-align: center;
-  margin-top: $spacing-4;
 }
 
 // ============================================
+
 // DESKTOP SIDEBAR
+
 // ============================================
 .desktopSidebar {
   position: fixed;
   top: 0;
-  left: 0;
   bottom: 0;
-  width: $sidebar-width-collapsed;
-  background: var(--card-bg);
-  backdrop-filter: blur(4px);
-  align-items: center;
-  padding: $spacing-12 0;
-  border-right: 1px solid var(--card-border);
-  transition: width $sidebar-transition;
+  left: 0;
   z-index: $sidebar-z-index;
   display: none;
   flex-direction: column;
+  align-items: center;
+  width: $sidebar-width-collapsed;
+  padding: $spacing-12 0;
+  background: var(--card-bg);
+  border-right: 1px solid var(--card-border);
+  backdrop-filter: blur(4px);
+  transition: width $sidebar-transition;
 
   @include md {
     display: flex;
@@ -223,13 +225,13 @@
   align-items: center;
   justify-content: center;
   height: 4rem;
-  border-bottom: 1px solid var(--card-border);
+  margin-bottom: $spacing-8;
   text-decoration: none;
+  border-bottom: 1px solid var(--card-border);
   transition: all $sidebar-transition;
-   margin-bottom: $spacing-8;
 
   &:hover {
-    background: rgba(244, 179, 119, 0.05);
+    background: rgb(244 179 119 / 0.05);
   }
 }
 
@@ -237,21 +239,19 @@
   font-size: 1.25rem;
   font-weight: 700;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .desktopLogoTextFull {
+  margin-left: $spacing-2;
   font-size: 1.125rem;
   font-weight: 700;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-left: $spacing-2;
   opacity: 0;
   transition: opacity $sidebar-transition;
+  -webkit-text-fill-color: transparent;
 
   .desktopSidebar.expanded & {
     opacity: 1;
@@ -259,31 +259,33 @@
 }
 
 .desktopNav {
-  flex: 1;
-  padding: $spacing-4 0;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: flex-start;
   gap: $spacing-4;
+  align-items: flex-start;
   width: 100%;
+  padding: $spacing-4 0;
 }
 
 .desktopNavItem {
   display: flex;
+  gap: $spacing-3;
   align-items: center;
   justify-content: center;
-  gap: $spacing-3;
   padding: $spacing-2 $spacing-3;
   margin: 0 $spacing-2;
-  text-decoration: none;
   color: var(--foreground-muted);
-  transition: all $transition-fast, color $transition-duration;
   white-space: nowrap;
+  text-decoration: none;
+  transition:
+    all $transition-fast,
+    color $transition-duration;
 
   &:hover {
-   background: rgba(244, 179, 119, 0.05);
-   width: 100%;
-   color: #f4b377;
+    width: 100%;
+    color: #f4b377;
+    background: rgb(244 179 119 / 0.05);
   }
 
   &.expanded {
@@ -292,9 +294,9 @@
 }
 
 .desktopNavIcon {
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
-  flex-shrink: 0;
 }
 
 .desktopNavLabel {
@@ -308,59 +310,57 @@
 }
 
 .desktopControls {
-  padding: $spacing-4 $spacing-2;
-  border-top: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
+  width: 100%;
+  padding: $spacing-4 $spacing-2;
   margin-top: auto;
   margin-bottom: $spacing-2;
-  width: 100%;
+  border-top: 1px solid var(--card-border);
 }
 
 .sidebarControlButton {
   display: flex;
+  gap: $spacing-3;
   align-items: center;
   justify-content: center;
-  gap: $spacing-3;
+  width: 100%;
+  max-width: 100%;
   padding: $spacing-2 $spacing-3;
+  margin: auto $spacing-3 $spacing-2;
+  overflow-x: hidden;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  cursor: pointer;
   background: transparent;
   border: none;
-  color: var(--foreground-muted);
-  cursor: pointer;
   border-radius: $border-radius-lg;
-  transition: all $transition-fast, color $transition-duration;
-  white-space: nowrap;
-  max-width: 100%;
-  overflow-x: hidden;
-  width: 100%;
-
-  margin-left: $spacing-3;
-  margin-right: $spacing-3;
-  margin-top: auto;
-  margin-bottom: $spacing-2;
+  transition:
+    all $transition-fast,
+    color $transition-duration;
 
   &:hover {
-    background: rgba(244, 179, 119, 0.05);
     color: #f4b377;
+    background: rgb(244 179 119 / 0.05);
   }
 
   &.expanded {
     justify-content: flex-start;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: $spacing-3;
     padding-right: $spacing-3;
+    padding-left: $spacing-3;
+    margin-right: 0;
+    margin-left: 0;
   }
 }
 
 .sidebarControlText {
   display: flex;
-  align-items: center;
   gap: $spacing-1;
+  align-items: center;
+  overflow: hidden;
   font-size: $font-size-sm;
   white-space: nowrap;
-  overflow: hidden;
 
   .languageLabel {
     font-weight: 600;
@@ -374,21 +374,23 @@
 
 .desktopControlButton {
   display: flex;
+  gap: $spacing-3;
   align-items: center;
   justify-content: center;
-  gap: $spacing-3;
+  max-width: 100%;
   padding: $spacing-2 $spacing-3;
+  overflow-x: hidden;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  cursor: pointer;
   background: transparent;
   border: none;
-  color: var(--foreground-muted);
-  cursor: pointer;
-  max-width: 100%;
-  overflow-x: hidden;
-  transition: all $transition-fast, color $transition-duration;
-  white-space: nowrap;
+  transition:
+    all $transition-fast,
+    color $transition-duration;
 
   &:hover {
-    background: rgba(244, 179, 119, 0.05);
+    background: rgb(244 179 119 / 0.05);
   }
 
   &.expanded {
@@ -396,12 +398,10 @@
   }
 }
 
-
-
 .desktopControlIcon {
+  flex-shrink: 0;
   width: 18px;
   height: 18px;
-  flex-shrink: 0;
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   &.spinning {
@@ -412,8 +412,8 @@
 .desktopControlText {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
+  align-items: flex-start;
   opacity: 0;
   transition: opacity $sidebar-transition;
 
@@ -423,8 +423,8 @@
 }
 
 .desktopLanguageLabel {
-  font-weight: 500;
   font-size: $font-size-base;
+  font-weight: 500;
 }
 
 .desktopLanguageFull {
@@ -437,8 +437,8 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-2;
-  color: var(--foreground-muted);
   margin-bottom: $spacing-4;
+  color: var(--foreground-muted);
 }
 
 .expandIcon {
@@ -452,7 +452,9 @@
 }
 
 // ============================================
+
 // DESKTOP SPACER (CRITICAL FIX)
+
 // ============================================
 .desktopSpacer {
   display: none;

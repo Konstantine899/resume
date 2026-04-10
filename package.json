@@ -9,7 +9,16 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint:styles": "stylelint \"**/*.scss\"",
+    "lint:styles:fix": "stylelint \"**/*.scss\" --fix",
+    "lint:all": "npm run lint && npm run lint:styles",
+    "lint:all:fix": "npm run lint:fix && npm run lint:styles:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate": "npm run type-check && npm run lint:all",
+    "validate:fix": "npm run type-check && npm run lint:all:fix && npm run format",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -24,18 +33,42 @@
     "@vitejs/plugin-react": "^5.1.4",
     "babel-plugin-react-remove-properties": "^0.3.1",
     "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
     "rollup-plugin-visualizer": "^7.0.1",
     "sass": "^1.97.3",
+    "stylelint": "^17.6.0",
+    "stylelint-config-recess-order": "^7.7.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-order": "^8.1.1",
+    "stylelint-scss": "^7.0.0",
+    "typescript-eslint": "^8.58.1",
     "vite": "^7.3.1",
     "vite-plugin-checker": "^0.12.0",
     "vite-plugin-static-copy": "^3.2.0",
     "vite-plugin-svgr": "^4.5.0"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.scss": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
   "dependencies": {
+    "lucide-react": "^0.468.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "lucide-react": "^0.468.0"
+    "react-dom": "^19.2.4"
   }
 }

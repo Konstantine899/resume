@@ -8,10 +8,10 @@ import type { ButtonProps } from './types';
 
 /**
  * Button Component
- * 
+ *
  * A flexible button component with multiple variants, sizes, and states.
  * Follows FSD architecture principles - reusable UI component.
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="primary" size="lg" onClick={handleClick}>
@@ -58,17 +58,10 @@ export const Button: React.FC<ButtonProps> = ({
   // Render icon if provided
   const renderIcon = () => {
     if (!icon) return null;
-    
-    const iconClasses = [
-      styles.icon,
-      styles[`icon-${iconPosition}`],
-    ].filter(Boolean).join(' ');
 
-    return (
-      <span className={iconClasses}>
-        {icon}
-      </span>
-    );
+    const iconClasses = [styles.icon, styles[`icon-${iconPosition}`]].filter(Boolean).join(' ');
+
+    return <span className={iconClasses}>{icon}</span>;
   };
 
   return (
@@ -81,16 +74,12 @@ export const Button: React.FC<ButtonProps> = ({
       data-testid="button"
       {...props}
     >
-      {loading && (
-        <span className={styles.spinner} aria-hidden="true" />
-      )}
-      
+      {loading && <span className={styles.spinner} aria-hidden="true" />}
+
       {iconPosition === 'left' && renderIcon()}
-      
-      <span className={styles.content}>
-        {children}
-      </span>
-      
+
+      <span className={styles.content}>{children}</span>
+
       {iconPosition === 'right' && renderIcon()}
     </button>
   );

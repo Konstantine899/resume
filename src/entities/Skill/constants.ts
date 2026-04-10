@@ -120,9 +120,4 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
   'soft-skills',
 ];
 
-export const SKILL_LEVELS: SkillLevel[] = [
-  'beginner',
-  'intermediate',
-  'advanced',
-  'expert',
-];
+export const SKILL_LEVELS: SkillLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];

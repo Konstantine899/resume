@@ -1,57 +1,59 @@
-// ============================================
-// AnimatedSection Component - SCSS Module
-// ============================================
-
 .animatedSection {
   opacity: 0;
-  transform: translateY(20px);
-  transition: all var(--animation-duration, 700ms) ease;
+  transition:
+    opacity var(--animation-duration, 700ms) ease,
+    transform var(--animation-duration, 700ms) ease;
   transition-delay: var(--animation-delay, 0ms);
-  
-  // Animation types
+
+  // Без трансформации, только opacity
   &.fadeIn {
     transform: none;
   }
-  
+
   &.fadeUp {
     transform: translateY(20px);
   }
-  
+
   &.fadeDown {
     transform: translateY(-20px);
   }
-  
+
   &.slideInLeft {
     transform: translateX(-100px);
   }
-  
+
   &.slideInRight {
     transform: translateX(100px);
   }
-  
+
   &.scaleIn {
     transform: scale(0.9);
   }
-  
-  // States
+
+  // Состояния анимации
   &.visible {
     opacity: 1;
     transform: none;
   }
-  
+
+  // animating - добавляется во время проигрывания анимации
   &.animating {
-    // Additional animation states can be added here
+    transition-delay: 0ms;
   }
-  
-  &.animated {
-    // Final state after animation completes
-  }
-  
+
   // Disable animation
   &.none {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  // Для hover триггера - добавляем плавность при наведении
+  &.hoverable {
+    &:hover {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 
@@ -61,6 +63,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -72,6 +75,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -83,6 +87,7 @@
     opacity: 0;
     transform: translateX(-100px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -94,6 +99,7 @@
     opacity: 0;
     transform: translateX(100px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -105,8 +111,21 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+// Показывает границы компонента (для отладки)
+.debug {
+  outline: 1px dashed red;
+}
+
+// Принудительно показывает элемент (игнорирует анимации)
+.forceVisible {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }

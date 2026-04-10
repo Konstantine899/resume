@@ -8,7 +8,7 @@ import type { TextareaProps } from './types';
 
 /**
  * Textarea Component
- * 
+ *
  * A flexible textarea component with multiple variants and states.
  * Follows FSD architecture - reusable UI component.
  */
@@ -39,46 +39,23 @@ export const Textarea: React.FC<TextareaProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  const wrapperClasses = [
-    styles.textareaWrapper,
-    fullWidth && styles.fullWidth,
-  ]
+  const wrapperClasses = [styles.textareaWrapper, fullWidth && styles.fullWidth]
     .filter(Boolean)
     .join(' ');
 
   return (
     <div className={wrapperClasses}>
-      {label && (
-        <label className={styles.label}>
-          {label}
-        </label>
-      )}
-      
+      {label && <label className={styles.label}>{label}</label>}
+
       <div className={styles.textareaContainer}>
-        <textarea
-          className={textareaClasses}
-          rows={rows}
-          {...props}
-        />
-        
-        {loading && (
-          <span className={styles.loadingIndicator}>
-            Loading...
-          </span>
-        )}
+        <textarea className={textareaClasses} rows={rows} {...props} />
+
+        {loading && <span className={styles.loadingIndicator}>Loading...</span>}
       </div>
-      
-      {error && (
-        <span className={styles.errorText}>
-          {error}
-        </span>
-      )}
-      
-      {helperText && !error && (
-        <span className={styles.helperText}>
-          {helperText}
-        </span>
-      )}
+
+      {error && <span className={styles.errorText}>{error}</span>}
+
+      {helperText && !error && <span className={styles.helperText}>{helperText}</span>}
     </div>
   );
 };

@@ -10,13 +10,11 @@ import React from 'react';
 import styles from './Skills.module.scss';
 import type { SkillsProps } from './types';
 
-
 export const Skills: React.FC<SkillsProps> = ({
   className = '',
-  'data-testid': testId = 'skills'
+  'data-testid': testId = 'skills',
 }) => {
-    const { t, language } = useLanguage();
-
+  const { t, language } = useLanguage();
 
   // ✅ Получаем featured навыки и группируем их
   const featuredSkills = getFeaturedSkills(SKILLS);
@@ -35,37 +33,23 @@ export const Skills: React.FC<SkillsProps> = ({
     return map[category] || category;
   };
 
-   return (
-    <section
-      id="skills"
-      className={`${styles.skills} ${className}`}
-      data-testid={testId}
-    >
+  return (
+    <section id="skills" className={`${styles.skills} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.skills}</h2>
       </AnimatedSection>
 
       <div className={styles.skillsGrid}>
         {(Object.keys(skillsByCategory) as SkillCategory[]).map((category, index) => (
-          <AnimatedSection
-            key={category}
-            animation="fadeUp"
-            delay={index * 100}
-          >
+          <AnimatedSection key={category} animation="fadeUp" delay={index * 100}>
             <Card className={styles.skillCategory}>
-              <h3 className={styles.categoryTitle}>
-                {getCategoryTitle(category)}
-              </h3>
+              <h3 className={styles.categoryTitle}>{getCategoryTitle(category)}</h3>
 
               <div className={styles.skillsList}>
                 {skillsByCategory[category]?.map((skill: Skill) => (
                   <div key={skill.id} className={styles.skillItem}>
                     {skill.iconUrl && (
-                      <img
-                        src={skill.iconUrl}
-                        alt={skill.name}
-                        className={styles.skillIcon}
-                      />
+                      <img src={skill.iconUrl} alt={skill.name} className={styles.skillIcon} />
                     )}
                     <span className={styles.skillName}>{skill.name}</span>
                     <span className={styles.skillLevel}>{skill.level}</span>

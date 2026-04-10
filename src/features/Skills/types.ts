@@ -10,7 +10,7 @@ export interface SkillsProps {
    * Additional CSS class
    */
   className?: string;
-  
+
   /**
    * Test ID for testing
    */

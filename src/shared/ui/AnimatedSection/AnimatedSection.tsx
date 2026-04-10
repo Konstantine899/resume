@@ -1,24 +1,7 @@
-// ============================================
-// AnimatedSection Component
-// ============================================
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './AnimatedSection.module.scss';
 import type { AnimatedSectionProps, AnimationState } from './types';
 
-/**
- * AnimatedSection Component
- * 
- * A wrapper component that adds scroll-triggered animations to its children.
- * Uses Intersection Observer API for performance.
- * 
- * @example
- * ```tsx
- * <AnimatedSection animation="fadeUp" delay={100}>
- *   <div>Content to animate</div>
- * </AnimatedSection>
- * ```
- */
 export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   children,
   animation = 'fadeUp',
@@ -38,42 +21,81 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     hasAnimated: false,
     isAnimating: false,
   });
-  
+
   const elementRef = useRef<HTMLElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const completionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Используем refs для актуальных значений без ре-рендеров
+  const hasAnimatedRef = useRef(false);
+  const isAnimatingRef = useRef(false);
+  const animateRef = useRef(animate);
+
+  // Синхронизируем refs с props
+  useEffect(() => {
+    animateRef.current = animate;
+  }, [animate]);
+
+  // Обновляем refs при изменении состояния
+  useEffect(() => {
+    hasAnimatedRef.current = animationState.hasAnimated;
+    isAnimatingRef.current = animationState.isAnimating;
+  }, [animationState.hasAnimated, animationState.isAnimating]);
+
+  // Очищаем все таймеры
+  const clearAllTimeouts = () => {
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+    if (completionTimeoutRef.current) {
+      clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
+    }
+  };
 
   // Handle animation start
   const handleAnimationStart = () => {
-    setAnimationState(prev => ({ ...prev, isAnimating: true }));
+    if (isAnimatingRef.current) return;
+
+    setAnimationState((prev) => ({ ...prev, isAnimating: true }));
     onAnimationStart?.();
-    
-    // Set timeout for animation completion
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    timeoutRef.current = setTimeout(() => {
-      setAnimationState(prev => ({ 
-        ...prev, 
-        isAnimating: false, 
-        hasAnimated: true 
+
+    clearAllTimeouts();
+
+    completionTimeoutRef.current = setTimeout(() => {
+      setAnimationState((prev) => ({
+        ...prev,
+        isAnimating: false,
+        hasAnimated: true,
       }));
       onAnimationComplete?.();
     }, duration);
   };
 
+  // Запуск анимации с задержкой
+  const startAnimationWithDelay = () => {
+    if (hasAnimatedRef.current) return;
+
+    setAnimationState((prev) => ({ ...prev, isVisible: true }));
+
+    animationTimeoutRef.current = setTimeout(() => {
+      handleAnimationStart();
+    }, delay);
+  };
+
   // Handle intersection observer callback
   const handleIntersection = (entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
-    
-    if (entry.isIntersecting && !animationState.hasAnimated) {
-      setAnimationState(prev => ({ ...prev, isVisible: true }));
-      
-      // Start animation after delay
-      setTimeout(() => {
-        handleAnimationStart();
-      }, delay);
+
+    if (entry.isIntersecting && !hasAnimatedRef.current) {
+      startAnimationWithDelay();
+
+      // Отключаем observer после первой анимации
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     }
   };
 
@@ -94,41 +116,46 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearAllTimeouts();
     };
-  }, [trigger, threshold, delay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trigger, threshold]);
 
   // Handle manual animation trigger
   useEffect(() => {
-    if (trigger === 'manual' && animate && !animationState.hasAnimated) {
-      setAnimationState(prev => ({ ...prev, isVisible: true }));
-      
-      setTimeout(() => {
-        handleAnimationStart();
-      }, delay);
+    if (trigger === 'manual' && animateRef.current && !hasAnimatedRef.current) {
+      startAnimationWithDelay();
     }
-  }, [trigger, animate, delay]);
+  }, [trigger, delay, animate]);
 
-  // Handle onMount trigger
+  // Handle onMount trigger - только при маунте
   useEffect(() => {
-    if (trigger === 'onMount' && !animationState.hasAnimated) {
-      setAnimationState(prev => ({ ...prev, isVisible: true }));
-      
-      setTimeout(() => {
-        handleAnimationStart();
-      }, delay);
+    if (trigger === 'onMount' && !hasAnimatedRef.current) {
+      startAnimationWithDelay();
     }
+
+    return () => {
+      clearAllTimeouts();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trigger, delay]);
 
   // Handle hover trigger
   const handleMouseEnter = () => {
-    if (trigger === 'onHover' && !animationState.hasAnimated) {
-      setAnimationState(prev => ({ ...prev, isVisible: true }));
-      handleAnimationStart();
+    if (trigger === 'onHover' && !hasAnimatedRef.current) {
+      startAnimationWithDelay();
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearAllTimeouts();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   // Build CSS classes
   const animationClasses = [
@@ -148,7 +175,6 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     '--animation-duration': `${duration}ms`,
   } as React.CSSProperties;
 
-  // Create the component with proper typing
   const ComponentElement = Component as React.ElementType;
 
   return (

@@ -3,9 +3,7 @@ import { BuildOptions } from '../types/config';
 export function buildCssModulesConfig({ isDev }: BuildOptions) {
   return {
     modules: {
-      generateScopedName: isDev
-        ? '[path][name]__[local]--[hash:base64:5]'
-        : '[hash:base64:8]',
+      generateScopedName: isDev ? '[path][name]__[local]--[hash:base64:5]' : '[hash:base64:8]',
       localsConvention: 'camelCaseOnly' as const,
     },
     preprocessorOptions: {

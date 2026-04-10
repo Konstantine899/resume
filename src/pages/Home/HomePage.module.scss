@@ -1,37 +1,42 @@
 // ============================================
+
 // Home Page - SCSS Module
+
 // ============================================
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 
 // ============================================
+
 // PAGE CONTAINER (was .homePage)
+
 // ============================================
 .homePage {
+  position: relative;
   display: flex;
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
-  position: relative;
   background: var(--background);
   transition: background-color $transition-duration $transition-easing;
 }
 
 // ============================================
+
 // MAIN CONTENT
+
 // ============================================
 .mainContent {
+  position: relative;
+  z-index: 1; // Below sidebar (z-index: 50)
   flex: 1;
   width: 100%;
   min-width: 0; // Prevent flex overflow
-  overflow-x: hidden;
-  position: relative;
-  z-index: 1; // Below sidebar (z-index: 50)
 
   // Mobile: no margin (sidebar is overlay)
   margin-left: 0;
-
+  overflow-x: hidden;
 
   // Desktop: spacer handles the offset
   @include md {
@@ -40,15 +45,17 @@
 }
 
 // ============================================
+
 // SECTION STYLES (for individual features)
+
 // ============================================
 .section {
-  min-height: 100vh;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   padding: $spacing-20 $spacing-md;
-  position: relative;
 
   @include sm {
     padding: $spacing-20 $spacing-lg;
@@ -60,18 +67,20 @@
 }
 
 // ============================================
+
 // SMOOTH SCROLL
+
 // ============================================
 html {
   scroll-behavior: smooth;
   scroll-padding-top: $spacing-20;
 }
 
-#home,
-#work,
-#about,
-#contact,
-#skills {
+.home,
+.work,
+.about,
+.contact,
+.skills {
   scroll-margin-top: $spacing-20;
 
   @include md {
@@ -80,7 +89,9 @@ html {
 }
 
 // ============================================
+
 // LOADING STATE
+
 // ============================================
 .loading {
   display: flex;
@@ -93,51 +104,57 @@ html {
 }
 
 // ============================================
+
 // ERROR STATE
+
 // ============================================
 .error {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  padding: $spacing-20;
   font-size: $font-size-xl;
   color: #dc3545;
   text-align: center;
-  padding: $spacing-20;
   background: var(--background);
 }
 
 // ============================================
+
 // ACCESSIBILITY
+
 // ============================================
 .skipToMain {
   position: absolute;
-  left: -9999px;
   top: auto;
+  left: -9999px;
+  z-index: -999;
   width: 1px;
   height: 1px;
   overflow: hidden;
-  z-index: -999;
 
   &:focus {
     position: absolute;
-    left: $spacing-md;
     top: $spacing-md;
+    left: $spacing-md;
+    z-index: 9999;
     width: auto;
     height: auto;
-    overflow: visible;
-    z-index: 9999;
     padding: $spacing-md $spacing-lg;
-    background: var(--primary);
-    color: #ffffff;
+    overflow: visible;
     font-weight: 600;
-    border-radius: $border-radius-md;
+    color: #fff;
     text-decoration: none;
+    background: var(--primary);
+    border-radius: $border-radius-md;
   }
 }
 
 // ============================================
+
 // REDUCED MOTION
+
 // ============================================
 @media (prefers-reduced-motion: reduce) {
   html {

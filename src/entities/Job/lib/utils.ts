@@ -4,20 +4,14 @@ import type { EmploymentType, Job, JobFilters, JobLevel } from '../types';
 /**
  * Filter jobs by level
  */
-export const filterJobsByLevel = (
-  jobs: Job[],
-  level: JobLevel
-): Job[] => {
+export const filterJobsByLevel = (jobs: Job[], level: JobLevel): Job[] => {
   return jobs.filter((job) => job.level === level);
 };
 
 /**
  * Filter jobs by employment type
  */
-export const filterJobsByEmploymentType = (
-  jobs: Job[],
-  employmentType: EmploymentType
-): Job[] => {
+export const filterJobsByEmploymentType = (jobs: Job[], employmentType: EmploymentType): Job[] => {
   return jobs.filter((job) => job.employmentType === employmentType);
 };
 
@@ -38,27 +32,20 @@ export const getFeaturedJobs = (jobs: Job[]): Job[] => {
 /**
  * Search jobs by company or position
  */
-export const searchJobs = (
-  jobs: Job[],
-  query: string,
-  language: 'en' | 'ru' = 'en'
-): Job[] => {
+export const searchJobs = (jobs: Job[], query: string, language: 'en' | 'ru' = 'en'): Job[] => {
   const lowerQuery = query.toLowerCase();
   return jobs.filter(
     (job) =>
       job.company.toLowerCase().includes(lowerQuery) ||
       job.position.toLowerCase().includes(lowerQuery) ||
-      job.description[language].some((desc:any) => desc.toLowerCase().includes(lowerQuery))
+      job.description[language].some((desc: any) => desc.toLowerCase().includes(lowerQuery))
   );
 };
 
 /**
  * Apply multiple filters to jobs
  */
-export const applyJobFilters = (
-  jobs: Job[],
-  filters: JobFilters
-): Job[] => {
+export const applyJobFilters = (jobs: Job[], filters: JobFilters): Job[] => {
   let result = [...jobs];
 
   if (filters.level) {

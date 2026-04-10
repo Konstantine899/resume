@@ -1,5 +1,7 @@
 // ============================================
+
 // MyWork Feature - SCSS Module
+
 // ============================================
 
 @use '@/shared/styles/variables' as *;
@@ -7,12 +9,21 @@
 @use '@/shared/styles/animations' as *;
 
 // ============================================
+
 // SECTION CONTAINER
+
 // ============================================
 
 .section {
-  padding-top: $spacing-12;
-  padding-bottom: $spacing-12;
+  width: 100%;
+  max-width: 100%;
+  padding: $spacing-12 $spacing-4 $spacing-12 $spacing-4;
+
+  // px-4 sm:px-6 md:px-12 lg:px-20 xl:px-24
+  overflow: hidden;
+
+  // theme-bg overflow-hidden w-full max-w-full
+  background-color: var(--background);
 
   @include sm {
     padding-top: $spacing-16;
@@ -24,44 +35,37 @@
     padding-bottom: $spacing-20;
   }
 
-  // px-4 sm:px-6 md:px-12 lg:px-20 xl:px-24
-  padding-left: $spacing-4;
-  padding-right: $spacing-4;
-
   @include sm {
-    padding-left: $spacing-6;
     padding-right: $spacing-6;
+    padding-left: $spacing-6;
   }
 
   @include md {
-    padding-left: $spacing-12;
     padding-right: $spacing-12;
+    padding-left: $spacing-12;
   }
 
   @include lg {
-    padding-left: $spacing-20;
     padding-right: $spacing-20;
+    padding-left: $spacing-20;
   }
 
   @include xl {
-    padding-left: $spacing-24;
     padding-right: $spacing-24;
+    padding-left: $spacing-24;
   }
-
-  // theme-bg overflow-hidden w-full max-w-full
-  background-color: var(--background);
-  overflow: hidden;
-  width: 100%;
-  max-width: 100%;
 }
 
 // ============================================
+
 // SECTION TITLE
+
 // ============================================
 
 .title {
   // section-title mb-8 sm:mb-10 md:mb-12
   @include section-title;
+
   margin-bottom: $spacing-8;
 
   @include sm {
@@ -74,7 +78,9 @@
 }
 
 // ============================================
+
 // PROJECTS GRID
+
 // ============================================
 
 .projectsGrid {
@@ -91,47 +97,47 @@
 }
 
 // ============================================
+
 // CARD-SPECIFIC VARIABLES
+
 // ============================================
 
 $project-card-hover-scale: 1.01;
-$project-card-hover-border: rgba(251, 146, 60, 0.3); // orange-500/30
-$project-card-hover-shadow: rgba(251, 146, 60, 0.1); // orange-500/10
+$project-card-hover-border: rgb(251 146 60 / 0.3); // orange-500/30
+$project-card-hover-shadow: rgb(251 146 60 / 0.1); // orange-500/10
 $project-card-transition: 0.3s $transition-easing;
 $bg-image-transition: 0.5s $transition-easing;
-
-$tech-icon-size-base: 1rem;      // w-4 h-4 (16px)
-$tech-icon-size-sm: 1.25rem;     // sm:w-5 sm:h-5 (20px)
-$tech-icon-size-md: 1.5rem;      // md:w-6 md:h-6 (24px)
+$tech-icon-size-base: 1rem; // w-4 h-4 (16px)
+$tech-icon-size-sm: 1.25rem; // sm:w-5 sm:h-5 (20px)
+$tech-icon-size-md: 1.5rem; // md:w-6 md:h-6 (24px)
 
 $project-link-color: #d94744;
 $project-link-hover: #f4b377;
-
 $bg-image-opacity: 0.1;
 $bg-image-hover-opacity: 0.25;
 
-
-
 // ============================================
+
 // BACKGROUND IMAGE OVERLAY
+
 // ============================================
 
 .backgroundImage {
   // absolute inset-0 opacity-10 group-hover:opacity-25
   position: absolute;
   inset: 0;
+  z-index: 1;
+
+  // pointer-events-none (не блокирует клики)
+  pointer-events: none;
+  background-position: right center;
+
+  // background-size: cover background-position: right center
+  background-size: cover;
   opacity: $bg-image-opacity;
 
   // transition-opacity duration-500
   transition: opacity $bg-image-transition;
-
-  // background-size: cover background-position: right center
-  background-size: cover;
-  background-position: right center;
-
-  // pointer-events-none (не блокирует клики)
-  pointer-events: none;
-  z-index: 1;
 
   .projectCard:hover & {
     opacity: $bg-image-hover-opacity;
@@ -139,32 +145,34 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // GRADIENT OVERLAY (Text Contrast)
+
 // ============================================
 
 .gradientOverlay {
   position: absolute;
   inset: 0;
-  transition: background $bg-image-transition;
-  pointer-events: none;
   z-index: 2;
-
-  background: linear-gradient(to right, rgb(41, 39, 38), rgba(41, 39, 38, 0.9), transparent);
-
+  pointer-events: none;
+  background: linear-gradient(to right, rgb(41 39 38), rgb(41 39 38 / 0.9), transparent);
+  transition: background $bg-image-transition;
 
   // Light theme override
-  [data-theme="light"] & {
+  [data-theme='light'] & {
     background: linear-gradient(
       to right,
-      rgb(245, 243, 240) 0%,
-      rgba(245, 243, 240, 0.95) 50%,
-      rgba(245, 243, 240, 0.7) 100%
+      rgb(245 243 240) 0%,
+      rgb(245 243 240 / 0.95) 50%,
+      rgb(245 243 240 / 0.7) 100%
     );
   }
 }
 
 // ============================================
+
 // PROJECT CONTENT
+
 // ============================================
 
 .content {
@@ -175,7 +183,9 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // PROJECT TITLE
+
 // ============================================
 
 .projectTitle {
@@ -191,16 +201,17 @@ $bg-image-hover-opacity: 0.25;
     @include text-2xl;
   }
 
+  margin-bottom: $spacing-2;
+
   // theme-text mb-2 sm:mb-3
   color: var(--foreground);
-  margin-bottom: $spacing-2;
+
+  // group-hover:text-[#f4b377] transition-colors
+  transition: color $project-card-transition;
 
   @include sm {
     margin-bottom: $spacing-3;
   }
-
-  // group-hover:text-[#f4b377] transition-colors
-  transition: color $project-card-transition;
 
   .projectCard:hover & {
     color: #f4b377;
@@ -208,18 +219,22 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // PROJECT DESCRIPTION
+
 // ============================================
 
 .projectDescription {
+  max-width: 42rem; // max-w-2xl
+  margin-bottom: $spacing-3;
+
   // theme-text-muted mb-3 sm:mb-4 max-w-2xl text-sm sm:text-base break-words
   color: var(--foreground-muted);
-  margin-bottom: $spacing-3;
-  max-width: 42rem; // max-w-2xl
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 
   @include sm {
     @include text-sm;
+
     margin-bottom: $spacing-4;
   }
 
@@ -229,15 +244,17 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // TECH ICONS ROW
+
 // ============================================
 
 .techRow {
   // flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: $spacing-2;
+  align-items: center;
   margin-bottom: $spacing-3;
 
   @include sm {
@@ -246,13 +263,16 @@ $bg-image-hover-opacity: 0.25;
   }
 
   .techLabel {
+    margin-right: $spacing-1;
+
     // theme-text-muted mr-1 sm:mr-2 text-xs sm:text-sm md:text-base
     color: var(--foreground-muted);
-    margin-right: $spacing-1;
+
     @include text-xs;
 
     @include sm {
       margin-right: $spacing-2;
+
       @include text-sm;
     }
 
@@ -266,6 +286,9 @@ $bg-image-hover-opacity: 0.25;
     width: $tech-icon-size-base;
     height: $tech-icon-size-base;
 
+    // hover:scale-125 transition-transform
+    transition: transform $transition-fast;
+
     @include sm {
       width: $tech-icon-size-sm;
       height: $tech-icon-size-sm;
@@ -275,9 +298,6 @@ $bg-image-hover-opacity: 0.25;
       width: $tech-icon-size-md;
       height: $tech-icon-size-md;
     }
-
-    // hover:scale-125 transition-transform
-    transition: transform $transition-fast;
 
     &:hover {
       transform: scale(1.25);
@@ -291,15 +311,17 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // PROJECT LINK
+
 // ============================================
 
 .projectLink {
   // flex flex-wrap items-center gap-1 sm:gap-2
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: $spacing-1;
+  align-items: center;
 
   @include sm {
     gap: $spacing-2;
@@ -308,6 +330,7 @@ $bg-image-hover-opacity: 0.25;
   .linkLabel {
     // theme-text-muted text-xs sm:text-sm md:text-base
     color: var(--foreground-muted);
+
     @include text-xs;
 
     @include sm {
@@ -320,18 +343,21 @@ $bg-image-hover-opacity: 0.25;
   }
 
   .linkUrl {
+    max-width: 100%;
+
     // text-[#d94744] hover:text-[#f4b377] transition-colors
     color: $project-link-color;
+    word-break: break-all;
     text-decoration: none;
-    transition: color $transition-fast, text-decoration $transition-fast;
 
     // underline-offset-4 hover:underline
     text-underline-offset: 4px;
+    transition:
+      color $transition-fast,
+      text-decoration $transition-fast;
 
     // text-xs sm:text-sm md:text-base break-all max-w-full
     @include text-xs;
-    word-break: break-all;
-    max-width: 100%;
 
     @include sm {
       @include text-sm;
@@ -349,12 +375,14 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // ANIMATION WRAPPER (AnimatedSection)
+
 // ============================================
 
 .animatedWrapper {
   &.fadeUp {
-    @include animate-fade-up();
+    @include animate-fade-up;
 
     &.visible {
       opacity: 1;
@@ -363,9 +391,10 @@ $bg-image-hover-opacity: 0.25;
   }
 }
 
-
 // ============================================
+
 // ACCESSIBILITY
+
 // ============================================
 
 .projectLink .linkUrl:focus-visible {
@@ -393,29 +422,34 @@ $bg-image-hover-opacity: 0.25;
 }
 
 // ============================================
+
 // THEME ADJUSTMENTS
+
 // ============================================
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   .techIcon.invert {
     filter: invert(1);
   }
 }
 
-[data-theme="light"] {
+[data-theme='light'] {
   .techIcon.invert {
     filter: none;
   }
 }
 
 // ============================================
+
 // EMPTY STATE (Optional)
+
 // ============================================
 
 .emptyState {
-  text-align: center;
   padding: $spacing-12;
   color: var(--foreground-muted);
+  text-align: center;
+
   @include text-lg;
 
   .icon {

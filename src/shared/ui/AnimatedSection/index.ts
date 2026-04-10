@@ -3,9 +3,9 @@
 // ============================================
 
 export { AnimatedSection } from './AnimatedSection';
-export type { 
-  AnimatedSectionProps, 
-  AnimationType, 
-  AnimationTrigger, 
-  AnimationState 
+export type {
+  AnimatedSectionProps,
+  AnimationType,
+  AnimationTrigger,
+  AnimationState,
 } from './types';

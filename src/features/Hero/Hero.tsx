@@ -18,26 +18,18 @@ export const Hero: React.FC<HeroProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section
-      id="home"
-      className={`${styles.hero} ${className}`}
-      data-testid={testId}
-    >
+    <section id="home" className={`${styles.hero} ${className}`} data-testid={testId}>
       {/* Gradient Background */}
       <div className={styles.gradientBackground} />
 
       {/* Overlay for better text contrast */}
       <div className={styles.overlay} />
-        <div className={styles.content}>
+      <div className={styles.content}>
         {/* Left side - Text content */}
         <div className={styles.leftContent}>
           {/* Greeting */}
-          <h1 className={styles.greeting}>
-            {t.greeting}
-          </h1>
-          <h2 className={styles.name}>
-            {t.name}
-          </h2>
+          <h1 className={styles.greeting}>{t.greeting}</h1>
+          <h2 className={styles.name}>{t.name}</h2>
 
           {/* Code Block */}
           <div className={styles.codeBlock}>
@@ -58,23 +50,23 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className={styles.string}>'{t.fullName}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}>  profession:</span>
+                <span className={styles.property}> profession:</span>
                 <span className={styles.string}>'{t.profession}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}>  specialties:</span>
+                <span className={styles.property}> specialties:</span>
                 <span className={styles.string}>'{t.specialties}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}>  skills:</span>
+                <span className={styles.property}> skills:</span>
                 <span className={styles.string}>'{t.skillsLabel}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}>  {t.yearsOfExperience}:</span>
+                <span className={styles.property}> {t.yearsOfExperience}:</span>
                 <span className={styles.number}>6</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}>  {t.age}:</span>
+                <span className={styles.property}> {t.age}:</span>
                 <span className={styles.number}>20</span>
                 {'\n\n'}
                 <span className={styles.punctuation}>{'};'}</span>

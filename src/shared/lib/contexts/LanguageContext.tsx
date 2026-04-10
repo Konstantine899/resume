@@ -2,11 +2,13 @@
 // Language Context (Shared Layer)
 // ============================================
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 type Language = 'en' | 'ru';
 
- export interface LanguageContextType {
+const TRANSITION_DURATION = 300;
+
+export interface LanguageContextType {
   language: Language;
   toggleLanguage: () => void;
   t: Record<string, string>;
@@ -23,6 +25,23 @@ export const useLanguage = () => {
   return context;
 };
 
+const getInitialLanguage = (): Language => {
+  // SSR guard
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
+  // Проверяем localStorage
+  const savedLanguage = localStorage.getItem('language');
+
+  if (savedLanguage === 'en' || savedLanguage === 'ru') {
+    return savedLanguage as Language;
+  }
+
+  // Язык по умолчанию
+  return 'en';
+};
+
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
@@ -30,10 +49,11 @@ interface LanguageProviderProps {
 export const translations = {
   en: {
     greeting: 'Hi,',
-    name: 'I\'m Konstantin',
+    name: "I'm Konstantin",
     fullName: 'Atroschenko Konstantin',
     profession: 'Full Stack Developer',
-    specialties: 'React, Node.js, TypeScript, React, Node.js, TypeScript, React, Node.js, TypeScript',
+    specialties:
+      'React, Node.js, TypeScript, React, Node.js, TypeScript, React, Node.js, TypeScript',
     skillsLabel: 'Modern Web Technologies',
     yearsOfExperience: 'yearsOfExperience',
     age: 'age',
@@ -54,7 +74,8 @@ export const translations = {
     link: 'Link',
     workHistory: 'Work History',
     present: 'Present',
-    aboutDescription: 'Passionate full stack developer with 6+ years of experience creating modern web applications.',
+    aboutDescription:
+      'Passionate full stack developer with 6+ years of experience creating modern web applications.',
     getInTouch: 'Get in Touch',
     email: 'Email',
     sendMessage: 'Send Message',
@@ -64,7 +85,7 @@ export const translations = {
     sent: 'Sent!',
     technologies: 'Technologies',
     tools: 'Tools',
-    languages: 'Languages'
+    languages: 'Languages',
   },
   ru: {
     greeting: 'Привет, я',
@@ -92,7 +113,8 @@ export const translations = {
     link: 'Ссылка',
     workHistory: 'История Работы',
     present: 'Настоящее время',
-    aboutDescription: 'Увлеченный full stack разработчик с 6+ годами опыта создания современных веб-приложений.',
+    aboutDescription:
+      'Увлеченный full stack разработчик с 6+ годами опыта создания современных веб-приложений.',
     getInTouch: 'Связаться',
     email: 'Email',
     sendMessage: 'Отправить Сообщение',
@@ -102,33 +124,42 @@ export const translations = {
     sent: 'Отправлено!',
     technologies: 'Технологии',
     tools: 'Инструменты',
-    languages: 'Языки'
-  }
+    languages: 'Языки',
+  },
 };
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(getInitialLanguage);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-    }
-  }, []);
-
+  // Эффект только для синхронизации с DOM и localStorage
   useEffect(() => {
     document.documentElement.lang = language;
     localStorage.setItem('language', language);
   }, [language]);
 
-  const toggleLanguage = () => {
-    setIsTransitioning(true);
-    setLanguage(prev => prev === 'en' ? 'ru' : 'en');
+  // Cleanup при unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    setTimeout(() => {
+  const toggleLanguage = () => {
+    // Очищаем предыдущий таймер
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+
+    setIsTransitioning(true);
+    setLanguage((prev) => (prev === 'en' ? 'ru' : 'en'));
+
+    transitionTimeoutRef.current = setTimeout(() => {
       setIsTransitioning(false);
-    }, 300);
+    }, TRANSITION_DURATION);
   };
 
   const t = translations[language];

@@ -1,5 +1,7 @@
 // ============================================
+
 // WorkHistory Feature - SCSS Module (Simplified)
+
 // ============================================
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
@@ -9,11 +11,12 @@
 }
 
 .sectionTitle {
-   @include section-title;
+  @include section-title;
 }
 
 .timeline {
   @include flex-col;
+
   gap: $spacing-6;
   max-width: 800px;
   margin: 0 auto;
@@ -28,7 +31,8 @@
 }
 
 .jobHeader {
-   @include flex-between;
+  @include flex-between;
+
   align-items: flex-start;
   margin-bottom: $spacing-3;
 
@@ -40,26 +44,30 @@
 .jobPosition {
   @include text-xl;
   @include font-bold;
+
   margin: 0;
   color: var(--foreground);
 }
 
 .jobCompany {
-   @include text-lg;
+  @include text-lg;
   @include font-medium;
-  color: $primary-color;
+
   margin: 0;
+  color: $primary-color;
 }
 
 .jobPeriod {
-   @include text-sm;
-  color: var(--foreground-muted);
+  @include text-sm;
+
   margin-bottom: $spacing-3;
+  color: var(--foreground-muted);
 }
 
 .jobDescription {
   @include text-base;
-  color: var(--foreground-muted);
-  line-height: $line-height-base;
+
   margin: 0;
+  line-height: $line-height-base;
+  color: var(--foreground-muted);
 }

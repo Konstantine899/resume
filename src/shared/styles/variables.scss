@@ -1,5 +1,7 @@
 // ============================================
+
 // SASS Variables (Modern Module System)
+
 // ============================================
 
 // Colors
@@ -11,7 +13,11 @@ $warning-color: #ffc107 !default;
 $info-color: #17a2b8 !default;
 
 // Typography
-$font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !default;
+$font-family-base:
+  'Inter',
+  -apple-system,
+  blinkmacsystemfont,
+  sans-serif !default;
 $font-size-base: 1rem !default;
 $line-height-base: 1.5 !default;
 
@@ -57,10 +63,10 @@ $radius-xl: 0.75rem !default;
 $radius-full: 9999px !default;
 
 // Shadows
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !default;
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !default;
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !default;
-$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !default;
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05) !default;
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1) !default;
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1) !default;
+$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1) !default;
 
 // Theme colors for portfolio
 $primary-light: #f4b377 !default;
@@ -73,7 +79,7 @@ $text-secondary: #4b5563 !default;
 $text-muted: #9ca3af !default;
 
 // Background colors
-$background: #ffffff !default;
+$background: #fff !default;
 $background-alt: #f5f3f0 !default;
 
 // Border colors
@@ -100,17 +106,16 @@ $font-size-8xl: 6rem !default;
 $font-size-9xl: 7.5rem !default;
 
 // Sidebar-specific variables
-$sidebar-width-collapsed: 4rem;   // 64px
-$sidebar-width-expanded: 12rem;   // 192px
+$sidebar-width-collapsed: 4rem; // 64px
+$sidebar-width-expanded: 12rem; // 192px
 $sidebar-mobile-max-width: 400px;
 $sidebar-transition: 0.3s ease;
 $sidebar-z-index: 100;
+$sidebar-mobile-width-sm: 18rem; // 288px (для xs breakpoint)
+$transition-fast: 0.2s; // Для быстрых переходов
+$burger-size: 3rem; // 48px
+$nav-item-height: 2.5rem; // 40px
 
-$sidebar-mobile-width-sm: 18rem;      // 288px (для xs breakpoint)
-$transition-fast: 0.2s;               // Для быстрых переходов
-$burger-size: 3rem;                   // 48px
-$nav-item-height: 2.5rem;             // 40px
-
-$sidebar-mobile-width: 16rem;      // 256px
-$sidebar-mobile-width-sm: 18rem;   // 288px
+$sidebar-mobile-width: 16rem; // 256px
+$sidebar-mobile-width-sm: 18rem; // 288px
 $transition-fast: 0.2s;

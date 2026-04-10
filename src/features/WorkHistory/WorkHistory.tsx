@@ -17,23 +17,19 @@ import type { WorkHistoryProps } from './types';
  */
 export const WorkHistory: React.FC<WorkHistoryProps> = ({
   className = '',
-  'data-testid': testId = 'work-history'
+  'data-testid': testId = 'work-history',
 }) => {
-  const { t, language  } = useLanguage();
+  const { t, language } = useLanguage();
 
   const jobs = sortJobsByDate(JOBS);
 
-   const getDescription = (job: Job): string[] => {
+  const getDescription = (job: Job): string[] => {
     const lang = language === 'ru' ? 'ru' : 'en';
     return job.description[lang] || job.description.en || [];
   };
 
   return (
-    <section
-      id="experience"
-      className={`${styles.workHistory} ${className}`}
-      data-testid={testId}
-    >
+    <section id="experience" className={`${styles.workHistory} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.workHistory}</h2>
       </AnimatedSection>
@@ -50,11 +46,9 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
                 {job.period} {/* ✅ Используем готовый период из сущности */}
                 {job.current && <span className={styles.currentBadge}> {t.present}</span>}
               </div>
-               <div className={styles.jobLocation}>
-                📍 {job.location}
-              </div>
+              <div className={styles.jobLocation}>📍 {job.location}</div>
 
-             <ul className={styles.jobDescription}>
+              <ul className={styles.jobDescription}>
                 {getDescription(job).map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
@@ -63,7 +57,9 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
               {/* ✅ Технологии */}
               <div className={styles.technologies}>
                 {job.technologies.map((tech) => (
-                  <span key={tech} className={styles.techTag}>{tech}</span>
+                  <span key={tech} className={styles.techTag}>
+                    {tech}
+                  </span>
                 ))}
               </div>
             </Card>

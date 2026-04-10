@@ -14,10 +14,7 @@ export const filterProjectsByCategory = (
 /**
  * Filter projects by status
  */
-export const filterProjectsByStatus = (
-  projects: Project[],
-  status: ProjectStatus
-): Project[] => {
+export const filterProjectsByStatus = (projects: Project[], status: ProjectStatus): Project[] => {
   return projects.filter((project) => project.status === status);
 };
 
@@ -47,10 +44,7 @@ export const searchProjects = (
 /**
  * Apply multiple filters to projects
  */
-export const applyProjectFilters = (
-  projects: Project[],
-  filters: ProjectFilters
-): Project[] => {
+export const applyProjectFilters = (projects: Project[], filters: ProjectFilters): Project[] => {
   let result = [...projects];
 
   if (filters.category) {

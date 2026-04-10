@@ -7,20 +7,20 @@ import { ReactNode } from 'react';
 /**
  * Button variant types
  */
-export type ButtonVariant = 
-  | 'primary'     // Primary action button
-  | 'secondary'   // Secondary action button
-  | 'outline'     // Outline style button
-  | 'ghost'       // Minimal style button
-  | 'danger';     // Destructive action button
+export type ButtonVariant =
+  | 'primary' // Primary action button
+  | 'secondary' // Secondary action button
+  | 'outline' // Outline style button
+  | 'ghost' // Minimal style button
+  | 'danger'; // Destructive action button
 
 /**
  * Button size types
  */
-export type ButtonSize = 
-  | 'sm'          // Small button
-  | 'md'          // Medium button (default)
-  | 'lg';         // Large button
+export type ButtonSize =
+  | 'sm' // Small button
+  | 'md' // Medium button (default)
+  | 'lg'; // Large button
 
 /**
  * Button props interface
@@ -30,64 +30,64 @@ export interface ButtonProps {
    * Button content
    */
   children: ReactNode;
-  
+
   /**
    * Button variant style
    * @default 'primary'
    */
   variant?: ButtonVariant;
-  
+
   /**
    * Button size
    * @default 'md'
    */
   size?: ButtonSize;
-  
+
   /**
    * Click handler
    */
   onClick?: () => void;
-  
+
   /**
    * Disabled state
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Additional CSS class
    */
   className?: string;
-  
+
   /**
    * Button type attribute
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
-  
+
   /**
    * Full width button
    * @default false
    */
   fullWidth?: boolean;
-  
+
   /**
    * Loading state
    * @default false
    */
   loading?: boolean;
-  
+
   /**
    * Icon to display before text
    */
   icon?: ReactNode;
-  
+
   /**
    * Icon position
    * @default 'left'
    */
   iconPosition?: 'left' | 'right';
-  
+
   /**
    * HTML button attributes
    */
@@ -112,12 +112,12 @@ export interface IconButtonProps extends Omit<ButtonProps, 'children' | 'icon' |
    * Icon to display
    */
   icon: ReactNode;
-  
+
   /**
    * Accessible label for the button
    */
   'aria-label': string;
-  
+
   /**
    * Icon size
    * @default 'md'

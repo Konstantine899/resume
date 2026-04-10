@@ -1,6 +1,7 @@
 # 🤝 GitHub Workflow для FSD проектов
 
 ## 🎯 Цель
+
 Настроить эффективный процесс командной разработки с использованием GitHub, оптимизированный для Feature-Sliced Design архитектуры.
 
 ## 🚀 Быстрый старт
@@ -39,6 +40,7 @@ gh repo create my-project --public --description "Project with FSD architecture"
 ### 2. Настройка базовых файлов
 
 #### .gitignore для FSD проекта:
+
 ```gitignore
 # Dependencies
 node_modules/
@@ -126,7 +128,7 @@ fix/fsd-shared-styles-fix
 feature/fsd-entities-user-model
 feature/fsd-entities-product-types
 
-# Features layer  
+# Features layer
 feature/fsd-features-auth-implementation
 feature/fsd-features-dashboard-widgets
 
@@ -171,7 +173,7 @@ feat(shared/ui): add Button component with variants
 fix(shared/styles): correct color variables
 docs(shared): update component usage examples
 
-# Entities layer  
+# Entities layer
 feat(entities/user): implement User type definitions
 fix(entities/api): resolve data fetching issue
 
@@ -219,16 +221,20 @@ gh pr create \
 ## 🎯 Что сделано
 
 ### FSD Changes
+
 **Layer: Features**
+
 - Добавлена форма логина в `features/auth/ui/LoginForm.tsx`
 - Реализована логика аутентификации в `features/auth/hooks/useAuth.ts`
 - Добавлены типы в `features/auth/types.ts`
 
 **Layer: Shared**
+
 - Обновлен Button компонент для поддержки auth states
 - Добавлены новые иконки в `shared/ui/Icons`
 
 ### Changes Summary
+
 - ✅ Добавлена аутентификация пользователей
 - ✅ Интегрирована с API
 - ✅ Добавлена валидация форм
@@ -237,18 +243,21 @@ gh pr create \
 ## 🧪 Тестирование
 
 ### Manual Testing
+
 - [ ] Логин с корректными данными работает
 - [ ] Логин с некорректными данными показывает ошибку
 - [ ] Logout корректно очищает сессию
 - [ ] Protected routes перенаправляют на логин
 
 ### Automated Testing
+
 - [ ] Unit tests для useAuth хука
 - [ ] Component tests для LoginForm
 - [ ] Integration tests для auth flow
 
 ## 📁 Changed Files
 ```
+
 features/auth/
 ├── ui/LoginForm.tsx
 ├── hooks/useAuth.ts
@@ -257,7 +266,8 @@ features/auth/
 
 shared/ui/Button/Button.tsx
 shared/ui/Icons/
-```
+
+````
 
 ## 🔍 Code Review Checklist
 
@@ -298,19 +308,19 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: TypeScript check
         run: npm run type-check
-      
+
       - name: ESLint
         run: npm run lint
-      
+
       - name: Tests
         run: npm run test:ci
-      
+
       - name: Build
         run: npm run build
 
@@ -318,7 +328,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Validate FSD structure
         run: |
           # Проверка что все слои существуют
@@ -327,12 +337,12 @@ jobs:
           if [ ! -d "src/features" ]; then echo "Missing features layer"; exit 1; fi
           if [ ! -d "src/widgets" ]; then echo "Missing widgets layer"; exit 1; fi
           if [ ! -d "src/pages" ]; then echo "Missing pages layer"; exit 1; fi
-          
+
       - name: Check import boundaries
         run: |
           npm install -g madge
           madge --circular --extensions ts,tsx ./src
-```
+````
 
 ### Auto-assign по FSD слоям:
 
@@ -379,16 +389,16 @@ gh label create "good first issue" --description "Good for newcomers" --color "7
 
 ```yaml
 # .github/projects/fsd-workflow.yml
-name: "FSD Development Workflow"
+name: 'FSD Development Workflow'
 columns:
-  - "Backlog"
-  - "Shared Layer"
-  - "Entities Layer" 
-  - "Features Layer"
-  - "Widgets Layer"
-  - "Pages Layer"
-  - "Review"
-  - "Done"
+  - 'Backlog'
+  - 'Shared Layer'
+  - 'Entities Layer'
+  - 'Features Layer'
+  - 'Widgets Layer'
+  - 'Pages Layer'
+  - 'Review'
+  - 'Done'
 ```
 
 ### Автоматизация с GitHub Actions:
@@ -418,7 +428,7 @@ jobs:
 ### VS Code расширения:
 
 - **GitLens** - enhanced Git capabilities
-- **GitHub Pull Requests** - PR management in IDE  
+- **GitHub Pull Requests** - PR management in IDE
 - **Conventional Commits** - commit message helper
 - **Error Lens** - inline error display
 
@@ -463,15 +473,17 @@ npx husky add .husky/pre-commit "npm run lint-staged"
 ### Частые проблемы и решения:
 
 #### PR не проходит проверки:
+
 ```bash
 # Локально проверь перед PR
 npm run type-check
-npm run lint  
+npm run lint
 npm run test
 npm run build
 ```
 
 #### Конфликты при мерже:
+
 ```bash
 # Обнови ветку
 git pull origin develop
@@ -484,6 +496,7 @@ git commit -m "fix: resolve merge conflicts"
 ```
 
 #### GitHub Actions падают:
+
 ```bash
 # Проверь логи в Actions tab
 # Локально воспроизведи проблему
@@ -493,6 +506,7 @@ git commit -m "fix: resolve merge conflicts"
 ## 📈 Метрики успеха
 
 ### Отслеживай через GitHub Insights:
+
 - **Code Frequency** - активность по FSD слоям
 - **Pull Requests** - время review, количество comments
 - **Issues** - время resolution, распределение по типам

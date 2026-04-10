@@ -12,20 +12,14 @@ export const getSkillLevelValue = (level: SkillLevel): number => {
 /**
  * Filter skills by category
  */
-export const filterSkillsByCategory = (
-  skills: Skill[],
-  category: SkillCategory
-): Skill[] => {
+export const filterSkillsByCategory = (skills: Skill[], category: SkillCategory): Skill[] => {
   return skills.filter((skill) => skill.category === category);
 };
 
 /**
  * Filter skills by level
  */
-export const filterSkillsByLevel = (
-  skills: Skill[],
-  level: SkillLevel
-): Skill[] => {
+export const filterSkillsByLevel = (skills: Skill[], level: SkillLevel): Skill[] => {
   return skills.filter((skill) => skill.level === level);
 };
 
@@ -39,41 +33,29 @@ export const getFeaturedSkills = (skills: Skill[]): Skill[] => {
 /**
  * Search skills by name
  */
-export const searchSkills = (
-  skills: Skill[],
-  query: string
-): Skill[] => {
+export const searchSkills = (skills: Skill[], query: string): Skill[] => {
   const lowerQuery = query.toLowerCase();
-  return skills.filter((skill) =>
-    skill.name.toLowerCase().includes(lowerQuery)
-  );
+  return skills.filter((skill) => skill.name.toLowerCase().includes(lowerQuery));
 };
 
 /**
  * Sort skills by level (highest first)
  */
 export const sortSkillsByLevel = (skills: Skill[]): Skill[] => {
-  return [...skills].sort(
-    (a, b) => getSkillLevelValue(b.level) - getSkillLevelValue(a.level)
-  );
+  return [...skills].sort((a, b) => getSkillLevelValue(b.level) - getSkillLevelValue(a.level));
 };
 
 /**
  * Sort skills by years of experience (highest first)
  */
 export const sortSkillsByExperience = (skills: Skill[]): Skill[] => {
-  return [...skills].sort(
-    (a, b) => b.yearsOfExperience - a.yearsOfExperience
-  );
+  return [...skills].sort((a, b) => b.yearsOfExperience - a.yearsOfExperience);
 };
 
 /**
  * Apply multiple filters to skills
  */
-export const applySkillFilters = (
-  skills: Skill[],
-  filters: SkillFilters
-): Skill[] => {
+export const applySkillFilters = (skills: Skill[], filters: SkillFilters): Skill[] => {
   let result = [...skills];
 
   if (filters.category) {
@@ -103,9 +85,7 @@ export const getAllSkills = (): Skill[] => SKILLS;
 /**
  * Get skills grouped by category
  */
-export const getSkillsByCategory = (
-  skills: Skill[]
-): Record<SkillCategory, Skill[]> => {
+export const getSkillsByCategory = (skills: Skill[]): Record<SkillCategory, Skill[]> => {
   return skills.reduce(
     (acc, skill) => {
       if (!acc[skill.category]) {

@@ -5,12 +5,12 @@
 import { HTMLAttributes, ReactNode } from 'react';
 
 export type CardVariant =
-  | 'default'       // Default card style
-  | 'project'       // MyWork project cards
-  | 'workHistory'   // WorkHistory job cards
-  | 'skill'        // Skills container
-  | 'about'         // About section card
-  | 'codeBlock';    // Hero code block
+  | 'default' // Default card style
+  | 'project' // MyWork project cards
+  | 'workHistory' // WorkHistory job cards
+  | 'skill' // Skills container
+  | 'about' // About section card
+  | 'codeBlock'; // Hero code block
 
 export interface TechIcon {
   name?: string;
@@ -18,17 +18,15 @@ export interface TechIcon {
   invertInDark?: boolean;
 }
 
-
 export type CardSize =
-  | 'compact'       // Compact (small content)
-  | 'default'       // Standard card
-  | 'large';        // Large (Hero, About)
+  | 'compact' // Compact (small content)
+  | 'default' // Standard card
+  | 'large'; // Large (Hero, About)
 
-  export type CardRadius =
-  | 'rounded'       // 0.5rem
-  | 'roundedXl'     // 0.75rem
-  | 'rounded2xl';   // 1rem (responsive)
-
+export type CardRadius =
+  | 'rounded' // 0.5rem
+  | 'roundedXl' // 0.75rem
+  | 'rounded2xl'; // 1rem (responsive)
 
 /**
  * Card props interface

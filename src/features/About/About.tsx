@@ -17,16 +17,12 @@ import type { AboutProps } from './types';
  */
 export const About: React.FC<AboutProps> = ({
   className = '',
-  'data-testid': testId = 'about'
+  'data-testid': testId = 'about',
 }) => {
   const { t } = useLanguage();
 
   return (
-    <section
-      id="about"
-      className={`${styles.about} ${className}`}
-      data-testid={testId}
-    >
+    <section id="about" className={`${styles.about} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.about}</h2>
       </AnimatedSection>
@@ -34,9 +30,7 @@ export const About: React.FC<AboutProps> = ({
       <AnimatedSection animation="fadeUp" delay={100}>
         <Card className={styles.aboutCard}>
           <div className={styles.aboutContent}>
-            <p className={styles.aboutDescription}>
-              {t.aboutDescription}
-            </p>
+            <p className={styles.aboutDescription}>{t.aboutDescription}</p>
 
             <div className={styles.stats}>
               <div className={styles.stat}>

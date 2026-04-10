@@ -31,10 +31,7 @@ export const Card: React.FC<CardProps> = ({
     .join(' ');
 
   return (
-    <div
-      className={cardClasses}
-      {...props}
-    >
+    <div className={cardClasses} {...props}>
       {/* Background image overlay (for project cards) */}
       {backgroundImage && (
         <div
@@ -44,18 +41,10 @@ export const Card: React.FC<CardProps> = ({
       )}
 
       {/* Gradient overlay (for project cards) */}
-      {variant === 'project' && (
-        <div className={styles.gradientOverlay} />
-      )}
+      {variant === 'project' && <div className={styles.gradientOverlay} />}
 
       {/* Content wrapper (for project cards) */}
-      {variant === 'project' ? (
-        <div className={styles.content}>
-          {children}
-        </div>
-      ) : (
-        children
-      )}
+      {variant === 'project' ? <div className={styles.content}>{children}</div> : children}
     </div>
   );
 };

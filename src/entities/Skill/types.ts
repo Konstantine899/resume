@@ -22,11 +22,7 @@ export type SkillCategory =
 /**
  * Skill proficiency levels
  */
-export type SkillLevel =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
-  | 'expert';
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
 /**
  * Skill interface

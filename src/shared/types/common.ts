@@ -40,17 +40,17 @@ export type PromiseOrValue<T> = T | Promise<T>;
 /**
  * CSS units type
  */
-export type CSSUnit = 
-  | number 
-  | `${number}px` 
-  | `${number}rem` 
-  | `${number}em` 
-  | `${number}%` 
-  | `${number}vh` 
-  | `${number}vw` 
-  | 'auto' 
-  | 'inherit' 
-  | 'initial' 
+export type CSSUnit =
+  | number
+  | `${number}px`
+  | `${number}rem`
+  | `${number}em`
+  | `${number}%`
+  | `${number}vh`
+  | `${number}vw`
+  | 'auto'
+  | 'inherit'
+  | 'initial'
   | 'unset';
 
 /**
@@ -76,13 +76,7 @@ export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 /**
  * Color variants
  */
-export type ColorVariant = 
-  | 'primary' 
-  | 'secondary' 
-  | 'success' 
-  | 'warning' 
-  | 'error' 
-  | 'info';
+export type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
 
 /**
  * API response wrapper
@@ -237,11 +231,10 @@ export interface ComponentWithTestId {
 /**
  * Common component props
  */
-export type CommonProps = 
-  & ComponentWithChildren 
-  & ComponentWithClassName 
-  & ComponentWithStyle 
-  & ComponentWithTestId;
+export type CommonProps = ComponentWithChildren &
+  ComponentWithClassName &
+  ComponentWithStyle &
+  ComponentWithTestId;
 
 /**
  * Make specific properties optional
@@ -256,12 +249,11 @@ export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 /**
  * Extract component props type
  */
-export type ComponentProps<T extends React.ComponentType<any>> = 
+export type ComponentProps<T extends React.ComponentType<any>> =
   T extends React.ComponentType<infer P> ? P : never;
 
 /**
  * Extract component props type from component that uses forwardRef
  */
-export type ForwardRefComponentProps<
-  T extends React.ForwardRefExoticComponent<any>
-> = T extends React.ForwardRefExoticComponent<infer P> ? P : never;
+export type ForwardRefComponentProps<T extends React.ForwardRefExoticComponent<any>> =
+  T extends React.ForwardRefExoticComponent<infer P> ? P : never;

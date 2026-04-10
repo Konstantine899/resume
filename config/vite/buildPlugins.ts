@@ -10,7 +10,6 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
   const { isDev, paths, analyze } = options;
   const isProd = !isDev;
 
-
   const plugins: PluginOption[] = [
     // 1. Обработка SVG
     buildSvgPlugin(),
@@ -29,8 +28,8 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     viteStaticCopy({
       targets: [
         {
-           src: paths.locales,
-           dest: paths.buildLocales,
+          src: paths.locales,
+          dest: paths.buildLocales,
         },
       ],
     }),
@@ -48,5 +47,5 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     );
   }
 
-   return plugins.filter(Boolean) as PluginOption[];
+  return plugins.filter(Boolean) as PluginOption[];
 }

@@ -10,7 +10,7 @@ import '@/shared/styles/globals.scss';
 
 /**
  * Main App Component
- * 
+ *
  * This component will be replaced by the FSD structure.
  * Currently serves as a bridge during migration.
  */

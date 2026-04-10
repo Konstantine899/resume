@@ -10,7 +10,7 @@ export interface AboutProps {
    * Additional CSS class
    */
   className?: string;
-  
+
   /**
    * Test ID for testing
    */

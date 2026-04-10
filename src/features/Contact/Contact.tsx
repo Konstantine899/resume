@@ -20,13 +20,13 @@ import type { ContactProps } from './types';
  */
 export const Contact: React.FC<ContactProps> = ({
   className = '',
-  'data-testid': testId = 'contact'
+  'data-testid': testId = 'contact',
 }) => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,18 +43,14 @@ export const Contact: React.FC<ContactProps> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   return (
-    <section
-      id="contact"
-      className={`${styles.contact} ${className}`}
-      data-testid={testId}
-    >
+    <section id="contact" className={`${styles.contact} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t.contact}</h2>
       </AnimatedSection>
@@ -96,13 +92,7 @@ export const Contact: React.FC<ContactProps> = ({
                 rows={5}
                 required
               />
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                loading={isSubmitting}
-                fullWidth
-              >
+              <Button type="submit" variant="primary" size="lg" loading={isSubmitting} fullWidth>
                 {isSubmitting ? t.sending : t.sendMessage}
               </Button>
             </form>

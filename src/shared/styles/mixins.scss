@@ -1,37 +1,55 @@
 // ============================================
+
 // SASS Mixins and Utilities (Complete)
+
 // ============================================
 @use 'variables' as *;
 
 // --------------------------------------------
+
 // 1. Responsive Mixins (xxl standard)
+
 // --------------------------------------------
 @mixin xs {
-  @media (min-width: #{$breakpoint-xs}) { @content; }
+  @media (min-width: #{$breakpoint-xs}) {
+    @content;
+  }
 }
 
 @mixin sm {
-  @media (min-width: #{$breakpoint-sm}) { @content; }
+  @media (min-width: #{$breakpoint-sm}) {
+    @content;
+  }
 }
 
 @mixin md {
-  @media (min-width: #{$breakpoint-md}) { @content; }
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
 }
 
 @mixin lg {
-  @media (min-width: #{$breakpoint-lg}) { @content; }
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
 }
 
 @mixin xl {
-  @media (min-width: #{$breakpoint-xl}) { @content; }
+  @media (min-width: #{$breakpoint-xl}) {
+    @content;
+  }
 }
 
 @mixin xxl {
-  @media (min-width: #{$breakpoint-2xl}) { @content; }
+  @media (min-width: #{$breakpoint-2xl}) {
+    @content;
+  }
 }
 
 // --------------------------------------------
+
 // 2. Layout & Flex Utilities
+
 // --------------------------------------------
 @mixin flex-center {
   display: flex;
@@ -58,20 +76,36 @@
 
 @mixin container {
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: $spacing-md;
   padding-right: $spacing-md;
+  padding-left: $spacing-md;
+  margin-right: auto;
+  margin-left: auto;
 
-  @include sm { max-width: $container-sm; }
-  @include md { max-width: $container-md; }
-  @include lg { max-width: $container-lg; }
-  @include xl { max-width: $container-xl; }
-  @include xxl { max-width: $container-2xl; }
+  @include sm {
+    max-width: $container-sm;
+  }
+
+  @include md {
+    max-width: $container-md;
+  }
+
+  @include lg {
+    max-width: $container-lg;
+  }
+
+  @include xl {
+    max-width: $container-xl;
+  }
+
+  @include xxl {
+    max-width: $container-2xl;
+  }
 }
 
 // --------------------------------------------
+
 // 3. Grid Utilities
+
 // --------------------------------------------
 @mixin grid-cols($cols) {
   display: grid;
@@ -83,16 +117,18 @@
 }
 
 // --------------------------------------------
+
 // 3. Section Mixins (CRITICAL FIX)
+
 // --------------------------------------------
 @mixin section-base {
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: $spacing-md;
-  padding-right: $spacing-md;
-  padding: $spacing-20 0;
   max-width: $container-2xl;
+  padding: $spacing-20 0;
+  padding-right: $spacing-md;
+  padding-left: $spacing-md;
+  margin-right: auto;
+  margin-left: auto;
 
   @include sm {
     padding: $spacing-24 0;
@@ -100,18 +136,19 @@
 }
 
 @mixin section-title {
+  margin-bottom: $spacing-12;
   font-size: $font-size-3xl;
   font-weight: 700;
   text-align: center;
-  margin-bottom: $spacing-12;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // --------------------------------------------
+
 // 4. Typography Mixins
+
 // --------------------------------------------
 @mixin text-xs {
   font-size: $font-size-xs;
@@ -143,14 +180,30 @@
   line-height: $line-height-base;
 }
 
-@mixin font-light { font-weight: 300; }
-@mixin font-normal { font-weight: 400; }
-@mixin font-medium { font-weight: 500; }
-@mixin font-semibold { font-weight: 600; }
-@mixin font-bold { font-weight: 700; }
+@mixin font-light {
+  font-weight: 300;
+}
+
+@mixin font-normal {
+  font-weight: 400;
+}
+
+@mixin font-medium {
+  font-weight: 500;
+}
+
+@mixin font-semibold {
+  font-weight: 600;
+}
+
+@mixin font-bold {
+  font-weight: 700;
+}
 
 // --------------------------------------------
+
 // 5. Theme & Card Mixins
+
 // --------------------------------------------
 @mixin theme-transition {
   transition:
@@ -161,11 +214,11 @@
 }
 
 @mixin card {
+  height: 220px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: $shadow-sm;
   transition: box-shadow 0.2s ease;
-  height: 220px;
 
   &:hover {
     box-shadow: $shadow-md;
@@ -176,64 +229,73 @@
   @include card;
 }
 
-
 @mixin work-history-card {
-  background: rgba(41, 39, 38, 0.8);
+  background: rgb(41 39 38 / 0.8);
   border-left: 4px solid #f4b377;
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
   transition: background-color 0.4s ease;
 
-  [data-theme="light"] & {
-    background: rgba(255, 255, 255, 0.9);
+  [data-theme='light'] & {
+    background: rgb(255 255 255 / 0.9);
   }
 }
 
 // --------------------------------------------
+
 // 6. Animation & Hover Mixins
+
 // --------------------------------------------
 @mixin hover-lift {
-  transition: transform $transition-duration $transition-easing,
-              box-shadow $transition-duration $transition-easing;
+  transition:
+    transform $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
 
   &:hover {
-    transform: translateY(-4px);
     box-shadow: $shadow-xl;
+    transform: translateY(-4px);
   }
 }
 
 @mixin hover-slide {
-  transition: transform $transition-duration $transition-easing,
-              box-shadow $transition-duration $transition-easing;
+  transition:
+    transform $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
 
   &:hover {
-    transform: translateX(4px);
     box-shadow: $shadow-lg;
+    transform: translateX(4px);
   }
 }
 
 @mixin hover-scale($amount: 1.05) {
   transition: transform $transition-duration $transition-easing;
-  &:hover { transform: scale($amount); }
+
+  &:hover {
+    transform: scale($amount);
+  }
 }
 
 // --------------------------------------------
+
 // 7. Component Mixins
+
 // --------------------------------------------
 @mixin button-base {
   @include flex-center;
-  border: none;
-  border-radius: $border-radius-md;
+
   font-family: $font-family-base;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
   text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
 
   &:disabled {
-    opacity: 0.5;
     cursor: not-allowed;
+    opacity: 0.5;
   }
 
   &:focus-visible {
@@ -245,12 +307,12 @@
 @mixin input-base {
   width: 100%;
   padding: $spacing-sm $spacing-md;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-md;
   font-family: $font-family-base;
   font-size: $font-size-base;
-  transition: border-color 0.2s ease;
   outline: none;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: border-color 0.2s ease;
 
   &:focus {
     border-color: $primary-color;
@@ -258,13 +320,15 @@
   }
 
   &:disabled {
-    background-color: #f9fafb;
     cursor: not-allowed;
+    background-color: #f9fafb;
   }
 }
 
 // --------------------------------------------
+
 // 8. Terminal Dots
+
 // --------------------------------------------
 @mixin terminal-dot {
   width: 0.75rem;
@@ -274,47 +338,68 @@
 
 @mixin terminal-dot-red {
   @include terminal-dot;
+
   background-color: #ff5f56;
 }
 
 @mixin terminal-dot-yellow {
   @include terminal-dot;
+
   background-color: #ffbd2e;
 }
 
 @mixin terminal-dot-green {
   @include terminal-dot;
+
   background-color: #27ca40;
 }
 
 // ============================================
+
 // 9. Specialized Components
+
 // ============================================
 @mixin code-block {
-  background: var(--code-bg, rgba(41, 39, 38, 0.95));
-  border: 1px solid rgba(244, 179, 119, 0.2);
+  overflow: hidden;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  color: #fff;
+  background: var(--code-bg, rgb(41 39 38 / 0.95));
+  border: 1px solid rgb(244 179 119 / 0.2);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  overflow: hidden;
 }
 
 // ============================================
+
 // 10. Max-width breakpoints (для мобильной адаптации)
+
 // ============================================
 @mixin max-xs {
-  @media (max-width: #{$breakpoint-xs - 1}) { @content; }
+  @media (max-width: #{$breakpoint-xs - 1}) {
+    @content;
+  }
 }
+
 @mixin max-sm {
-  @media (max-width: #{$breakpoint-sm - 1}) { @content; }
+  @media (max-width: #{$breakpoint-sm - 1}) {
+    @content;
+  }
 }
+
 @mixin max-md {
-  @media (max-width: #{$breakpoint-md - 1}) { @content; }
+  @media (max-width: #{$breakpoint-md - 1}) {
+    @content;
+  }
 }
+
 @mixin max-lg {
-  @media (max-width: #{$breakpoint-lg - 1}) { @content; }
+  @media (max-width: #{$breakpoint-lg - 1}) {
+    @content;
+  }
 }
+
 @mixin max-xl {
-  @media (max-width: #{$breakpoint-xl - 1}) { @content; }
+  @media (max-width: #{$breakpoint-xl - 1}) {
+    @content;
+  }
 }

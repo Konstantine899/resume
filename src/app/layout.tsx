@@ -16,12 +16,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Maximus Dayton - Full Stack Developer</title>
-        <meta name="description" content="Portfolio of Maximus Dayton, a full stack developer specializing in React, Node.js, and modern web technologies." />
+        <meta
+          name="description"
+          content="Portfolio of Maximus Dayton, a full stack developer specializing in React, Node.js, and modern web technologies."
+        />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

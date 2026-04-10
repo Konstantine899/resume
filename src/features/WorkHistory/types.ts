@@ -10,7 +10,7 @@ export interface WorkHistoryProps {
    * Additional CSS class
    */
   className?: string;
-  
+
   /**
    * Test ID for testing
    */

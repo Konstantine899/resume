@@ -10,7 +10,7 @@ export interface ContactProps {
    * Additional CSS class
    */
   className?: string;
-  
+
   /**
    * Test ID for testing
    */

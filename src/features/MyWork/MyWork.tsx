@@ -14,22 +14,17 @@ import type { MyWorkProps } from './types';
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
   onProjectClick,
-  'data-testid': testId = 'my-work'
+  'data-testid': testId = 'my-work',
 }) => {
   const { theme } = useTheme();
-  const { t , language} = useLanguage();
-
+  const { t, language } = useLanguage();
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
   };
 
   return (
-    <section
-      id="work"
-      className={`${styles.section} ${className}`}
-      data-testid={testId}
-    >
+    <section id="work" className={`${styles.section} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.title}>{t.myWork}</h2>
       </AnimatedSection>
@@ -37,9 +32,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
       <div className={styles.projectsGrid}>
         {PROJECTS.map((project, index) => (
           <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
-            <Card
-               variant="project" size="default" backgroundImage={project.image}
-            >
+            <Card variant="project" size="default" backgroundImage={project.image}>
               <div
                 className={styles.backgroundImage}
                 style={{
@@ -50,12 +43,10 @@ export const MyWork: React.FC<MyWorkProps> = ({
               <div className={styles.gradientOverlay} />
 
               <div className={styles.content}>
-                <h3 className={styles.projectTitle}>
-                  {project.title}
-                </h3>
+                <h3 className={styles.projectTitle}>{project.title}</h3>
 
                 <p className={styles.projectDescription}>
-                  {language == "en" ? project.description.en: project.description.ru}
+                  {language == 'en' ? project.description.en : project.description.ru}
                 </p>
 
                 {/* Tech Icons Row */}

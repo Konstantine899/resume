@@ -2,9 +2,11 @@
 // Theme Context (Shared Layer)
 // ============================================
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 type Theme = 'light' | 'dark';
+
+const TRANSITION_DURATION = 400;
 
 export interface ThemeContextType {
   theme: Theme;
@@ -22,36 +24,59 @@ export const useTheme = () => {
   return context;
 };
 
+// Функция для получения начальной темы
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+  // Проверяем localStorage
+  const savedTheme = localStorage.getItem('theme');
+
+  // ✅ Явная проверка на валидное значение Theme
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme as Theme;
+  }
+
+  // Системные настройки
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
+};
+
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
-  }, []);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setIsTransitioning(true);
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  // Cleanup при unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    setTimeout(() => {
+  const toggleTheme = () => {
+    // Очищаем предыдущий таймер для предотвращения гонок
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+
+    setIsTransitioning(true);
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+
+    transitionTimeoutRef.current = setTimeout(() => {
       setIsTransitioning(false);
-    }, 400);
+    }, TRANSITION_DURATION);
   };
 
   return (
