@@ -3,7 +3,8 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import { buildSvgPlugin } from './loaders/buildSvgPlugin';
+import { buildPurgeCssPlugin } from './plugins/buildPurgeCssPlugin';
+import { buildSvgPlugin } from './plugins/buildSvgPlugin';
 import { BuildOptions } from './types/config';
 
 export function buildPlugins(options: BuildOptions): PluginOption[] {
@@ -45,6 +46,7 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
         brotliSize: true,
       })
     );
+    plugins.push(buildPurgeCssPlugin(isDev));
   }
 
   return plugins.filter(Boolean) as PluginOption[];
