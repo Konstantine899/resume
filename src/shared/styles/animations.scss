@@ -109,24 +109,3 @@
     animation-fill-mode: forwards;
   }
 }
-
-@mixin animate-scale-in($delay: 0s) {
-  opacity: 0;
-  transform: scale(0.95);
-
-  &.visible {
-    animation-name: scaleIn;
-    animation-duration: 0.7s;
-    animation-timing-function: ease-out;
-    animation-delay: $delay;
-    animation-fill-mode: forwards;
-  }
-}
-
-@mixin icon-theme-spin {
-  animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-@mixin icon-globe-spin {
-  animation: globe-rotate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}

@@ -149,13 +149,9 @@
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
 
+  // padding: $spacing-lg;
   @include sm {
-    // padding: $spacing-lg;
     margin-bottom: $spacing-xl;
-  }
-
-  @include md {
-    // padding: $spacing-8;
   }
 }
 

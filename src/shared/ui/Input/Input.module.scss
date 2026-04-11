@@ -1,9 +1,3 @@
-// ============================================
-
-// Input Component - SCSS Module (Simplified)
-
-// ============================================
-
 .inputWrapper {
   display: flex;
   flex-direction: column;
@@ -45,11 +39,6 @@
   &:disabled {
     cursor: not-allowed;
     background-color: #f9fafb;
-  }
-
-  // Variants
-  &.default {
-    // Uses default input-base styles
   }
 
   &.outline {

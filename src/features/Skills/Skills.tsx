@@ -14,7 +14,7 @@ export const Skills: React.FC<SkillsProps> = ({
   className = '',
   'data-testid': testId = 'skills',
 }) => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   // ✅ Получаем featured навыки и группируем их
   const featuredSkills = getFeaturedSkills(SKILLS);

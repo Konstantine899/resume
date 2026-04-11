@@ -35,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, isTransitioning } = useTheme();
-  const { language, toggleLanguage, t, isTransitioning: isLangTransitioning } = useLanguage();
+  const { toggleLanguage, t, isTransitioning: isLangTransitioning } = useLanguage();
 
   const isOpen = true;
 

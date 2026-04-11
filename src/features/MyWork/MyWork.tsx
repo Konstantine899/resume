@@ -20,6 +20,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
   const { t, language } = useLanguage();
 
   const handleProjectClick = (projectId: string) => {
+    console.log(projectId);
     onProjectClick?.(projectId);
   };
 
@@ -38,6 +39,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 style={{
                   backgroundImage: `url('${project.image}')`,
                 }}
+                onClick={() => handleProjectClick}
               />
 
               <div className={styles.gradientOverlay} />

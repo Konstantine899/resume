@@ -86,5 +86,13 @@
       }
     }
   ],
-  "ignoreFiles": ["**/node_modules/**", "**/dist/**", "**/build/**"]
+  "ignoreFiles": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx"
+  ]
 }

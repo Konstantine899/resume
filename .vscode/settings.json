@@ -6,17 +6,30 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"
   },
-
   "stylelint.enable": true,
   "stylelint.validate": ["css", "scss", "postcss"],
   "stylelint.configFile": "./.stylelintrc.json",
-
   "prettier.enable": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-
   "files.associations": {
     "*.module.scss": "scss",
     "*.scss": "scss"
+  },
+
+  // --- Визуализация неиспользуемого кода (TypeScript + CSS) ---
+  "editor.showUnused": true,
+  "editor.showDeprecated": true,
+
+  // Подсветка неиспользуемых классов в SCSS (серым цветом)
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "entity.other.attribute-name.class.css",
+        "settings": {
+          "fontStyle": ""
+        }
+      }
+    ]
   }
 }

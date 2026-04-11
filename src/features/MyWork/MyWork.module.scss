@@ -63,7 +63,6 @@
 // ============================================
 
 .title {
-  // section-title mb-8 sm:mb-10 md:mb-12
   @include section-title;
 
   margin-bottom: $spacing-8;
@@ -84,7 +83,6 @@
 // ============================================
 
 .projectsGrid {
-  // grid gap-4 sm:gap-6 w-full max-w-full
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-4;
@@ -123,7 +121,6 @@ $bg-image-hover-opacity: 0.25;
 // ============================================
 
 .backgroundImage {
-  // absolute inset-0 opacity-10 group-hover:opacity-25
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -176,7 +173,6 @@ $bg-image-hover-opacity: 0.25;
 // ============================================
 
 .content {
-  // relative z-10 min-w-0
   position: relative;
   z-index: 10;
   min-width: 0; // Prevent flex overflow
@@ -189,7 +185,6 @@ $bg-image-hover-opacity: 0.25;
 // ============================================
 
 .projectTitle {
-  // text-lg sm:text-xl md:text-2xl font-semibold
   @include text-lg;
   @include font-semibold;
 
@@ -250,7 +245,6 @@ $bg-image-hover-opacity: 0.25;
 // ============================================
 
 .techRow {
-  // flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-2;
@@ -282,7 +276,6 @@ $bg-image-hover-opacity: 0.25;
   }
 
   .techIcon {
-    // w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6
     width: $tech-icon-size-base;
     height: $tech-icon-size-base;
 
@@ -317,7 +310,6 @@ $bg-image-hover-opacity: 0.25;
 // ============================================
 
 .projectLink {
-  // flex flex-wrap items-center gap-1 sm:gap-2
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-1;
@@ -328,7 +320,6 @@ $bg-image-hover-opacity: 0.25;
   }
 
   .linkLabel {
-    // theme-text-muted text-xs sm:text-sm md:text-base
     color: var(--foreground-muted);
 
     @include text-xs;
