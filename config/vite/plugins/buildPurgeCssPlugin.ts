@@ -1,12 +1,12 @@
 import purgecss from '@fullhuman/postcss-purgecss';
 import type { PluginOption } from 'vite';
 
-export function buildPurgeCssPlugin(isProd: boolean): PluginOption {
+export function buildPurgeCssPlugin(isDev: boolean): PluginOption {
   // В dev режиме не применяем PurgeCSS для сохранения HMR производительности
-  if (!isProd) {
+  if (isDev) {
     return {
       name: 'purgecss-dev-disabled',
-      apply: 'serve',
+      apply: 'build',
     };
   }
 
@@ -19,9 +19,9 @@ export function buildPurgeCssPlugin(isProd: boolean): PluginOption {
         postcss: {
           plugins: [
             purgecss({
-              // Пути к файлам с контентом (где используются классы)
-              content: ['./src/**/*.{ts,tsx,js,jsx}'],
-              // Игнорируем динамические классы и служебные селекторы
+              // ✅ Пути к контенту
+              content: ['./src/**/*.{ts,tsx,js,jsx}', './index.html'],
+              // ✅ Safelist для тем и динамических классов
               safelist: {
                 standard: [
                   // Глобальные классы тем
@@ -33,6 +33,8 @@ export function buildPurgeCssPlugin(isProd: boolean): PluginOption {
                   'body',
                   'html',
                   '__variable-font__',
+                  'root',
+                  /emailjs-.*/,
                 ],
                 // Паттерны для динамических классов
                 greedy: [
@@ -42,16 +44,24 @@ export function buildPurgeCssPlugin(isProd: boolean): PluginOption {
                   /^state-.*/,
                   /^type-.*/,
                   /.*active.*/,
+                  /.*hover.*/,
+                  /.*focus.*/,
                 ],
               },
               // Настройка экстрактора для поддержки CSS Modules и шаблонных строк
               defaultExtractor: (content) => {
                 const matches = content.match(/[\w-/:]+(?<!:)/g);
-                return matches ? matches : [];
+                const objectMatches = content.match(/styles\[['"]([^'"]+)['"]\]/g) || [];
+
+                return matches
+                  ? [...matches, ...objectMatches.map((m) => m.replace(/styles\[['"]|['"]\]/g, ''))]
+                  : [];
               },
               // Игнорируем keyframes и CSS переменные
               keyframes: false,
               variables: false,
+              // 🆕 Для внутренней отладки (не выводится в консоль)
+              rejected: true,
             }),
           ],
         },
