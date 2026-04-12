@@ -87,6 +87,9 @@ export const translations = {
     technologies: 'Technologies',
     tools: 'Tools',
     languages: 'Languages',
+    letsWorkTogether: "Let's Work Together",
+    contactDescription:
+      "I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.",
   },
   ru: {
     greeting: 'Привет, я',
@@ -127,6 +130,9 @@ export const translations = {
     technologies: 'Технологии',
     tools: 'Инструменты',
     languages: 'Языки',
+    letsWorkTogether: 'Давайте работать вместе',
+    contactDescription:
+      'Я всегда открыт для обсуждения новых проектов, творческих идей или возможностей стать частью вашего видения.',
   },
 };
 
