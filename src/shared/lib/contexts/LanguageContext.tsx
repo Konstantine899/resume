@@ -55,6 +55,7 @@ export const translations = {
     specialties:
       'React, Node.js, TypeScript, React, Node.js, TypeScript, React, Node.js, TypeScript',
     skillsLabel: 'Modern Web Technologies',
+    mySkills: 'My Skills',
     yearsOfExperience: 'yearsOfExperience',
     age: 'age',
     getResume: 'Get Resume',
@@ -94,6 +95,7 @@ export const translations = {
     profession: 'Full Stack Разработчик',
     specialties: 'React, Node.js, TypeScript',
     skillsLabel: 'Современные Веб-Технологии',
+    mySkills: 'Мои Навыки',
     yearsOfExperience: 'летОпыта',
     age: 'возраст',
     getResume: 'Скачать Резюме',
