@@ -2,93 +2,25 @@
 // useScrollAnimation Hook
 // ============================================
 
-import { useState, useEffect, useRef, RefObject } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
-/**
- * Options for the useScrollAnimation hook
- */
 export interface UseScrollAnimationOptions {
-  /**
-   * Threshold for intersection (0-1)
-   * @default 0.1
-   */
   threshold?: number;
-
-  /**
-   * Root margin for intersection observer
-   * @default '0px 0px -50px 0px'
-   */
   rootMargin?: string;
-
-  /**
-   * Animation delay in milliseconds
-   * @default 0
-   */
   delay?: number;
-
-  /**
-   * Whether to trigger animation only once
-   * @default true
-   */
   triggerOnce?: boolean;
-
-  /**
-   * Whether to disable the animation
-   * @default false
-   */
   disabled?: boolean;
 }
 
-/**
- * Return type for useScrollAnimation hook
- */
 export interface UseScrollAnimationReturn {
-  /**
-   * Ref to attach to the element
-   */
   ref: RefObject<HTMLElement | null>;
-
-  /**
-   * Whether the element is visible
-   */
   isVisible: boolean;
-
-  /**
-   * Whether the animation has been triggered
-   */
   hasAnimated: boolean;
-
-  /**
-   * Whether the animation is currently running
-   */
   isAnimating: boolean;
-
-  /**
-   * Manually trigger the animation
-   */
   triggerAnimation: () => void;
-
-  /**
-   * Reset the animation state
-   */
   resetAnimation: () => void;
 }
 
-/**
- * A hook that triggers animations when an element scrolls into view
- * Uses Intersection Observer API for performance
- *
- * @example
- * ```tsx
- * const { ref, isVisible } = useScrollAnimation();
- *
- * return (
- *   <div ref={ref} className={isVisible ? 'visible' : ''}>
- *     Content
- *   </div>
- * );
- * ```
- */
 export const useScrollAnimation = ({
   threshold = 0.1,
   rootMargin = '0px 0px -50px 0px',
@@ -104,31 +36,48 @@ export const useScrollAnimation = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Handle intersection observer callback
-  const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-    const [entry] = entries;
+  // Memoize callback to avoid re-creation on each render
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (!entry) return;
 
-    if (entry.isIntersecting && !hasAnimated) {
-      setIsVisible(true);
+      if (entry.isIntersecting) {
+        // Apply delay before triggering animation
+        if (delay > 0) {
+          timeoutRef.current = setTimeout(() => {
+            setIsVisible(true);
+            setIsAnimating(true);
 
-      // Start animation after delay
-      timeoutRef.current = setTimeout(() => {
-        setIsAnimating(true);
+            setTimeout(() => {
+              setIsAnimating(false);
+              if (triggerOnce) {
+                setHasAnimated(true);
+              }
+            }, 700); // Match animation duration
+          }, delay);
+        } else {
+          setIsVisible(true);
+          setIsAnimating(true);
 
-        // Mark as animated after animation completes
-        setTimeout(() => {
-          setIsAnimating(false);
-          if (triggerOnce) {
-            setHasAnimated(true);
-          }
-        }, 700); // Default animation duration
-      }, delay);
-    } else if (!entry.isIntersecting && !triggerOnce) {
-      setIsVisible(false);
-      setHasAnimated(false);
-      setIsAnimating(false);
-    }
-  };
+          setTimeout(() => {
+            setIsAnimating(false);
+            if (triggerOnce) {
+              setHasAnimated(true);
+            }
+          }, 700);
+        }
+
+        // Unobserve if triggerOnce is enabled
+        if (triggerOnce && elementRef.current && observerRef.current) {
+          observerRef.current.unobserve(elementRef.current);
+        }
+      } else if (!triggerOnce) {
+        setIsVisible(false);
+      }
+    },
+    [delay, triggerOnce]
+  );
 
   // Initialize intersection observer
   useEffect(() => {
@@ -151,10 +100,10 @@ export const useScrollAnimation = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [threshold, rootMargin, delay, triggerOnce, disabled]);
+  }, [handleIntersection, threshold, rootMargin, disabled]);
 
   // Manually trigger animation
-  const triggerAnimation = () => {
+  const triggerAnimation = useCallback(() => {
     if (!hasAnimated) {
       setIsVisible(true);
       setIsAnimating(true);
@@ -166,10 +115,10 @@ export const useScrollAnimation = ({
         }
       }, 700);
     }
-  };
+  }, [hasAnimated, triggerOnce]);
 
   // Reset animation state
-  const resetAnimation = () => {
+  const resetAnimation = useCallback(() => {
     setIsVisible(false);
     setHasAnimated(false);
     setIsAnimating(false);
@@ -177,7 +126,7 @@ export const useScrollAnimation = ({
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-  };
+  }, []);
 
   return {
     ref: elementRef,

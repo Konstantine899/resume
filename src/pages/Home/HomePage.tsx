@@ -2,7 +2,6 @@
 // Home Page
 // ============================================
 import { About } from '@/features/About';
-import { Contact } from '@/features/Contact';
 import { Hero } from '@/features/Hero';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
@@ -33,7 +32,6 @@ export const HomePage: React.FC = () => {
         <WorkHistory />
         <About />
         <Skills />
-        <Contact />
       </main>
     </div>
   );
