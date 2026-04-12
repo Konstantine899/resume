@@ -1,38 +1,173 @@
-// ============================================
-
-// WorkHistory Feature - SCSS Module (Simplified)
-
-// ============================================
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 
+// ============================================
+
+// Section Container
+
+// ============================================
 .workHistory {
   @include section-base;
-}
 
-.sectionTitle {
-  @include section-title;
-}
+  width: 100%;
+  max-width: 100%;
+  padding: $spacing-12 0;
+  overflow: hidden;
+  background-color: var(--background);
 
-.timeline {
-  @include flex-col;
-
-  gap: $spacing-6;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.jobCard {
   @include theme-transition;
 
-  &:hover {
-    @include hover-slide;
+  @include sm {
+    padding: $spacing-16 0;
+  }
+
+  @include md {
+    padding: $spacing-20 0;
   }
 }
 
+// Padding container (px-4 sm:px-6 md:px-12 lg:px-20 xl:px-24)
+.sectionPadding {
+  padding-right: $spacing-4;
+  padding-left: $spacing-4;
+
+  @include sm {
+    padding-right: $spacing-6;
+    padding-left: $spacing-6;
+  }
+
+  @include md {
+    padding-right: $spacing-12;
+    padding-left: $spacing-12;
+  }
+
+  @include lg {
+    padding-right: $spacing-20;
+    padding-left: $spacing-20;
+  }
+
+  @include xl {
+    padding-right: $spacing-24;
+    padding-left: $spacing-24;
+  }
+}
+
+// ============================================
+
+// Gradient Container (work-history-gradient)
+
+// ============================================
+.gradientContainer {
+  width: 100%;
+  max-width: 56rem; // max-w-4xl
+  padding: $spacing-4;
+  margin: 0 auto;
+  background: var(
+    --gradient-work-history,
+    linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%)
+  );
+  border-radius: $radius-xl;
+
+  @include sm {
+    padding: $spacing-6;
+    border-radius: $radius-xl;
+  }
+
+  @include md {
+    padding: $spacing-8;
+  }
+
+  @include lg {
+    padding: $spacing-12;
+  }
+}
+
+// ============================================
+
+// Title
+
+// ============================================
+.sectionTitle {
+  margin-bottom: $spacing-4;
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: #fff;
+
+  @include sm {
+    margin-bottom: $spacing-6;
+    font-size: $font-size-2xl;
+  }
+
+  @include md {
+    margin-bottom: $spacing-8;
+    font-size: $font-size-3xl;
+  }
+
+  @include lg {
+    margin-bottom: $spacing-10;
+    font-size: $font-size-4xl;
+  }
+
+  @include xl {
+    font-size: $font-size-5xl;
+  }
+}
+
+// ============================================
+
+// Timeline / Jobs List
+
+// ============================================
+.timeline {
+  @include flex-col;
+
+  gap: $spacing-3;
+
+  @include sm {
+    gap: $spacing-4;
+  }
+
+  @include md {
+    gap: $spacing-6;
+  }
+}
+
+// ============================================
+
+// Job Card
+
+// ============================================
+.jobCard {
+  padding: $spacing-3;
+  background-color: rgb(41 39 38 / 0.8);
+  border-left: 4px solid #f4b377;
+  border-radius: $radius-xl;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.5s ease;
+
+  @include sm {
+    padding: $spacing-4;
+  }
+
+  @include md {
+    padding: $spacing-6;
+  }
+
+  // Light theme override
+  [data-theme='light'] & {
+    background-color: rgb(255 255 255 / 0.9);
+  }
+}
+
+// ============================================
+
+// Job Header (Position + Company)
+
+// ============================================
 .jobHeader {
   @include flex-between;
 
+  gap: $spacing-4;
   align-items: flex-start;
   margin-bottom: $spacing-3;
 
@@ -42,32 +177,139 @@
 }
 
 .jobPosition {
-  @include text-xl;
-  @include font-bold;
-
   margin: 0;
-  color: var(--foreground);
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: #f4b377;
+
+  @include sm {
+    font-size: $font-size-base;
+  }
+
+  @include md {
+    font-size: $font-size-lg;
+  }
+
+  @include lg {
+    font-size: $font-size-xl;
+  }
 }
 
 .jobCompany {
-  @include text-lg;
-  @include font-medium;
-
   margin: 0;
-  color: $primary-color;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: #f4b377;
+  white-space: nowrap;
+
+  @include sm {
+    font-size: $font-size-base;
+  }
 }
 
+// ============================================
+
+// Job Period
+
+// ============================================
 .jobPeriod {
-  @include text-sm;
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  margin-bottom: $spacing-2;
+  font-size: $font-size-xs;
+  color: #d1d5db; // gray-300
 
-  margin-bottom: $spacing-3;
-  color: var(--foreground-muted);
+  @include sm {
+    margin-bottom: $spacing-3;
+    font-size: $font-size-sm;
+  }
 }
 
-.jobDescription {
-  @include text-base;
+.currentBadge {
+  @include flex-center;
 
+  padding: $spacing-1 $spacing-2;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: #f4b377;
+  background: rgb(244 179 119 / 0.2);
+  border: 1px solid #f4b377;
+  border-radius: $radius-full;
+}
+
+// ============================================
+
+// Job Location
+
+// ============================================
+.jobLocation {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  margin-bottom: $spacing-3;
+  font-size: $font-size-xs;
+  color: #d1d5db;
+
+  @include sm {
+    font-size: $font-size-sm;
+  }
+}
+
+// ============================================
+
+// Job Description
+
+// ============================================
+.jobDescription {
+  padding-left: $spacing-4;
   margin: 0;
+  font-size: $font-size-xs;
   line-height: $line-height-base;
-  color: var(--foreground-muted);
+  color: #e5e7eb; // gray-200
+
+  @include sm {
+    font-size: $font-size-sm;
+  }
+
+  @include md {
+    font-size: $font-size-base;
+  }
+
+  li {
+    margin-bottom: $spacing-2;
+  }
+}
+
+// ============================================
+
+// Technologies
+
+// ============================================
+.technologies {
+  @include flex-start;
+
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  padding-top: $spacing-3;
+  margin-top: $spacing-3;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.techTag {
+  @include flex-center;
+
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-xs;
+  font-weight: 500;
+  color: #f4b377;
+  background: rgb(244 179 119 / 0.1);
+  border: 1px solid rgb(244 179 119 / 0.3);
+  border-radius: $radius-full;
+  transition: all $transition-duration $transition-easing;
+
+  &:hover {
+    background: rgb(244 179 119 / 0.2);
+    transform: translateY(-2px);
+  }
 }
