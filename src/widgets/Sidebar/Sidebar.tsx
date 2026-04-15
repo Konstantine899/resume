@@ -243,11 +243,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
-        {/* ref на панель */}
-        <div className={styles.mobilePanel} ref={mobileMenuRef}></div>
 
         {/* Menu Panel */}
-        <div className={styles.mobilePanel}>
+        <div className={styles.mobilePanel} ref={mobileMenuRef}>
           {/* Close Button */}
           <button
             onClick={() => setMobileMenuOpen(false)}
@@ -329,7 +327,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={handleLanguageToggle}
               className={styles.controlButton}
               type="button"
-              aria-label={`Switch language to ${language === 'en' ? 'Russian' : 'English'}`}
+              aria-label={`Switch language to ${language === 'ru' ? 'RU' : 'EN'}`}
             >
               <Globe
                 className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
@@ -418,7 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={handleLanguageToggle}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
-            aria-label={`Switch language to ${language === 'en' ? 'Russian' : 'English'}`}
+            aria-label={`Switch language to ${language === 'ru' ? 'RU' : 'EN'}`}
             title={!isOpen ? t.languageFull : undefined}
           >
             <Globe
