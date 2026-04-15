@@ -33,11 +33,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigation,
   'data-testid': testId = 'sidebar',
 }) => {
+  const [isOpen, setIsOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, isTransitioning } = useTheme();
-  const { toggleLanguage, t, isTransitioning: isLangTransitioning } = useLanguage();
-
-  const isOpen = true;
+  const { toggleLanguage, t, isTransitioning: isLangTransitioning, language } = useLanguage();
 
   const navItems = [
     { icon: Home, href: '#home', label: t.home },
@@ -87,6 +86,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleThemeToggle = () => {
     toggleTheme();
+  };
+
+  const handleToggleSidebar = () => {
+    setIsOpen((prev) => !prev);
   };
 
   return (
@@ -183,8 +186,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Desktop Sidebar */}
       <aside
-        className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : ''} ${className}`}
+        className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${className}`}
         data-testid={testId}
+        aria-expanded={isOpen}
       >
         {/* Logo */}
         <a
@@ -206,7 +210,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 href={item.href}
                 onClick={() => handleDesktopNavClick(item.href)}
                 className={`${styles.desktopNavItem} ${isOpen ? styles.expanded : ''}`}
-                title={!isOpen ? item.label : undefined}
+                aria-label={item.label}
+                title={item.label}
               >
                 <Icon className={styles.desktopNavIcon} />
                 {isOpen && <span className={styles.desktopNavLabel}>{item.label}</span>}
@@ -229,8 +234,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
             {isOpen && (
               <span className={styles.sidebarControlText}>
-                <span className={styles.languageLabel}>EN</span>
-                <span className={styles.languageFull}>(English)</span>
+                <span className={styles.languageLabel}>{language == 'ru' ? 'RU' : 'EN'}</span>
+                <span className={styles.languageFull}>
+                  {language == 'ru' ? '(Русский)' : '(English)'}
+                </span>
               </span>
             )}
           </button>
@@ -261,7 +268,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           {/* Expand indicator */}
-          <div className={styles.expandIndicator}>
+          <div
+            className={styles.expandIndicator}
+            onClick={handleToggleSidebar}
+            role="button"
+            tabIndex={0}
+            aria-expanded={isOpen}
+            aria-label={isOpen ? t.collapseSidebar : t.expandSidebar}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleToggleSidebar();
+              }
+            }}
+          >
             <ChevronRight className={`${styles.expandIcon} ${isOpen ? styles.rotated : ''}`} />
           </div>
         </div>

@@ -48,6 +48,8 @@ interface LanguageProviderProps {
 
 export const translations = {
   en: {
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     greeting: 'Hi,',
     name: "I'm Konstantin",
     fullName: 'Atroschenko Konstantin',
@@ -92,6 +94,8 @@ export const translations = {
       "I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.",
   },
   ru: {
+    collapseSidebar: 'Свернуть панель',
+    expandSidebar: 'Развернуть панель',
     greeting: 'Привет, я',
     name: 'Константин',
     fullName: 'Атрощенко Константин',

@@ -204,19 +204,33 @@
   display: none;
   flex-direction: column;
   align-items: center;
-  width: $sidebar-width-collapsed;
+  width: $sidebar-width-expanded; // Базовая ширина
   padding: $spacing-12 0;
   background: var(--card-bg);
   border-right: 1px solid var(--card-border);
   backdrop-filter: blur(4px);
+  transform-origin: left;
   transition: width $sidebar-transition;
 
   @include md {
     display: flex;
   }
 
+  // ✅ Состояние expanded
   &.expanded {
     width: $sidebar-width-expanded;
+  }
+
+  &.collapsed {
+    width: $sidebar-width-collapsed;
+
+    .desktopNavLabel,
+    .sidebarControlText,
+    .desktopLogoTextFull {
+      position: absolute; // Дополнительно: убрать из flow
+      pointer-events: none;
+      opacity: 0;
+    }
   }
 }
 
@@ -284,12 +298,16 @@
 
   &:hover {
     width: 100%;
-    color: #f4b377;
+    color: $primary-light;
     background: rgb(244 179 119 / 0.05);
   }
 
   &.expanded {
     justify-content: flex-start;
+  }
+
+  &.collapsed {
+    justify-content: center;
   }
 }
 
@@ -328,7 +346,6 @@
   width: 100%;
   max-width: 100%;
   padding: $spacing-2 $spacing-3;
-  margin: auto $spacing-3 $spacing-2;
   overflow-x: hidden;
   color: var(--foreground-muted);
   white-space: nowrap;
@@ -439,6 +456,19 @@
   padding: $spacing-2;
   margin-bottom: $spacing-4;
   color: var(--foreground-muted);
+  cursor: pointer;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #f4b377;
+    background: rgb(244 179 119 / 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #f4b377;
+    outline-offset: 2px;
+  }
 }
 
 .expandIcon {
@@ -467,6 +497,10 @@
 
     &.expanded {
       width: $sidebar-width-expanded;
+    }
+
+    &.collapsed {
+      width: $sidebar-width-collapsed;
     }
   }
 }
