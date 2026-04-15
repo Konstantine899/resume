@@ -296,6 +296,7 @@
 }
 
 .desktopNavItem {
+  position: relative;
   display: flex;
   gap: $spacing-3;
   align-items: center;
@@ -313,6 +314,10 @@
     width: 100%;
     color: $primary-light;
     background: rgb(244 179 119 / 0.05);
+  }
+
+  &[title] {
+    cursor: pointer;
   }
 
   &.expanded {

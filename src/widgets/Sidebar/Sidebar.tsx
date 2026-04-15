@@ -397,7 +397,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => handleDesktopNavClick(item.href)}
                 className={`${styles.desktopNavItem} ${isOpen ? styles.expanded : ''}`}
                 aria-label={item.label}
-                title={item.label}
+                title={!isOpen ? item.label : undefined}
                 role="menuitem"
                 tabIndex={0}
                 onKeyDown={(e) => handleDesktopKeyDown(e, index, navItems.length)}
