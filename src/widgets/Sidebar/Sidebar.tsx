@@ -374,12 +374,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-expanded={isOpen}
         role="navigation"
         aria-label="Main navigation"
+        onClick={handleToggleSidebar}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleToggleSidebar();
+          }
+        }}
+        tabIndex={0}
       >
         {/* Logo */}
         <a
           href="#home"
           className={styles.desktopLogo}
-          onClick={() => handleDesktopNavClick('#home')}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDesktopNavClick('#home');
+          }}
           aria-label="Go to homepage"
         >
           <span className={styles.desktopLogoText}>A</span>
@@ -394,7 +405,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <a
                 key={index}
                 href={item.href}
-                onClick={() => handleDesktopNavClick(item.href)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDesktopNavClick(item.href);
+                }}
                 className={`${styles.desktopNavItem} ${isOpen ? styles.expanded : ''}`}
                 aria-label={item.label}
                 title={!isOpen ? item.label : undefined}
@@ -413,7 +427,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className={styles.desktopControls}>
           {/* Language Toggle */}
           <button
-            onClick={handleLanguageToggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLanguageToggle(e);
+            }}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
             aria-label={`Switch language to ${language === 'ru' ? 'RU' : 'EN'}`}
@@ -435,7 +452,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Theme Toggle */}
           <button
-            onClick={handleThemeToggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleThemeToggle();
+            }}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -464,7 +484,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Expand indicator */}
           <div
             className={styles.expandIndicator}
-            onClick={handleToggleSidebar}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleSidebar();
+            }}
             role="button"
             tabIndex={0}
             aria-expanded={isOpen}

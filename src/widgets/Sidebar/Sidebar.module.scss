@@ -219,6 +219,7 @@
   width: $sidebar-width-expanded; // Базовая ширина
   padding: $spacing-12 0;
   contain: layout;
+  cursor: pointer;
   background: var(--card-bg);
   border-right: 1px solid var(--card-border);
   backdrop-filter: blur(4px);
@@ -232,6 +233,7 @@
   // ✅ Состояние expanded
   &.expanded {
     width: $sidebar-width-expanded;
+    cursor: default;
   }
 
   &.collapsed {
@@ -244,6 +246,16 @@
       pointer-events: none;
       opacity: 0;
     }
+  }
+
+  &.collapsed:hover {
+    background: var(--card-bg-hover, rgb(244 179 119 / 0.02));
+    border-right-color: $primary-light;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: -2px;
   }
 }
 
@@ -501,6 +513,11 @@
   &:focus-visible {
     outline: 2px solid #f4b377;
     outline-offset: 2px;
+  }
+
+  .desktopSidebar.collapsed:hover & {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.15);
   }
 }
 
