@@ -134,6 +134,12 @@
     outline-offset: -2px;
     background: rgb(244 179 119 / 0.15);
   }
+
+  &[aria-current='page'] {
+    font-weight: 600;
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.15);
+  }
 }
 
 .navIcon {
@@ -320,6 +326,15 @@
     outline: 2px solid #f4b377;
     outline-offset: -2px;
     background: rgb(244 179 119 / 0.1);
+  }
+
+  &[aria-current='page'] {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.1);
+
+    &:focus-visible {
+      outline: 2px solid $primary-light;
+    }
   }
 }
 
@@ -522,5 +537,37 @@
   &:focus-visible {
     outline: 2px solid #f4b377;
     outline-offset: 2px;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+// Skip Link
+.skipLink {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  z-index: 9999;
+  padding: $spacing-3 $spacing-4;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  background: $primary-light;
+  border-radius: $border-radius-md;
+  transform: translateX(-50%);
+  transition: top 0.2s ease;
+
+  &:focus {
+    top: $spacing-md;
   }
 }

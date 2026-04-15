@@ -37,6 +37,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, isTransitioning } = useTheme();
   const { toggleLanguage, t, isTransitioning: isLangTransitioning, language } = useLanguage();
+  const [activeSection, setActiveSection] = useState<string>('#home');
+
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
@@ -47,6 +49,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { icon: Sparkles, href: '#skills', label: t.skills },
     { icon: Monitor, href: '/uses', label: t.uses },
   ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['#home', '#work', '#about', '#contact', '#skills'];
+      const scrollPosition = window.scrollY + 100;
+
+      for (const section of sections) {
+        const element = document.querySelector(section) as HTMLElement | null;
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Проверить при монтировании
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Focus trap useEffect
   useEffect(() => {
@@ -182,14 +207,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
+      {/* ✅ Skip Link */}
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to main content
+      </a>
+
+      {/* ✅ Live region для announce */}
+      <div role="status" aria-live="polite" aria-atomic="true" className={styles.srOnly}>
+        {mobileMenuOpen ? 'Navigation menu opened' : 'Navigation menu closed'}
+        {!mobileMenuOpen && (isOpen ? 'Sidebar expanded' : 'Sidebar collapsed')}
+      </div>
+
       {/* Mobile Burger Button */}
       <button
         onClick={() => setMobileMenuOpen(true)}
         className={styles.mobileMenuButton}
         aria-label="Open menu"
         type="button"
+        aria-expanded={mobileMenuOpen}
       >
-        <Menu className={styles.menuIcon} />
+        <Menu className={styles.menuIcon} aria-hidden="true" />
       </button>
 
       {/* Mobile Menu Overlay */}
@@ -198,9 +235,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
+        aria-hidden={!mobileMenuOpen}
       >
         {/* Backdrop */}
-        <div className={styles.backdrop} onClick={() => setMobileMenuOpen(false)} />
+        <div
+          className={styles.backdrop}
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
         {/* ref на панель */}
         <div className={styles.mobilePanel} ref={mobileMenuRef}></div>
 
@@ -229,7 +271,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Navigation */}
-          <nav className={styles.mobileNav}>
+          <nav className={styles.mobileNav} role="navigation" aria-label="Main navigation">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -239,6 +281,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleMobileNavClick(item.href)}
                   className={styles.mobileNavItem}
                   role="menuitem"
+                  aria-current={activeSection === item.href ? 'page' : undefined}
                   tabIndex={mobileMenuOpen ? 0 : -1}
                   onKeyDown={(e) => {
                     // Arrow keys для мобильного меню
@@ -272,7 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }
                   }}
                 >
-                  <Icon className={styles.navIcon} />
+                  <Icon className={styles.navIcon} aria-hidden="true" />
                   <span className={styles.navLabel}>{item.label}</span>
                 </a>
               );
@@ -282,9 +325,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Theme & Language Toggle */}
           <div className={styles.controlsSection}>
             {/* Language Toggle */}
-            <button onClick={handleLanguageToggle} className={styles.controlButton} type="button">
+            <button
+              onClick={handleLanguageToggle}
+              className={styles.controlButton}
+              type="button"
+              aria-label={`Switch language to ${language === 'en' ? 'Russian' : 'English'}`}
+            >
               <Globe
                 className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
+                aria-hidden="true"
               />
               <span className={styles.controlText}>
                 <span className={styles.languageLabel}>{t.language}</span>
@@ -293,14 +342,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
 
             {/* Theme Toggle */}
-            <button onClick={handleThemeToggle} className={styles.controlButton} type="button">
+            <button
+              onClick={handleThemeToggle}
+              className={styles.controlButton}
+              type="button"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
               {theme === 'dark' ? (
                 <Moon
                   className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                  aria-hidden="true"
                 />
               ) : (
                 <Sun
                   className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                  aria-hidden="true"
                 />
               )}
               <span className={styles.controlText}>
@@ -326,13 +382,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           href="#home"
           className={styles.desktopLogo}
           onClick={() => handleDesktopNavClick('#home')}
+          aria-label="Go to homepage"
         >
           <span className={styles.desktopLogoText}>A</span>
           {isOpen && <span className={styles.desktopLogoTextFull}>KONSTANTIN</span>}
         </a>
 
         {/* Navigation */}
-        <nav className={styles.desktopNav}>
+        <nav className={styles.desktopNav} role="menubar" aria-label="Main navigation">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -361,10 +418,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={handleLanguageToggle}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
+            aria-label={`Switch language to ${language === 'en' ? 'Russian' : 'English'}`}
             title={!isOpen ? t.languageFull : undefined}
           >
             <Globe
               className={`${styles.desktopControlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
+              aria-hidden="true"
             />
             {isOpen && (
               <span className={styles.sidebarControlText}>
@@ -381,19 +440,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={handleThemeToggle}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={!isOpen ? (theme === 'dark' ? t.darkMode : t.lightMode) : undefined}
           >
             {theme === 'dark' ? (
               <Moon
                 className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                aria-hidden="true"
               />
             ) : (
               <Sun
                 className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                aria-hidden="true"
               />
             )}
             {isOpen && (
-              <span className={styles.sidebarControlText}>
+              <span className={styles.sidebarControlText} aria-hidden="true">
                 <span className={styles.languageLabel}>
                   {theme === 'dark' ? t.darkMode : t.lightMode}
                 </span>
@@ -420,7 +482,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }
             }}
           >
-            <ChevronRight className={`${styles.expandIcon} ${isOpen ? styles.rotated : ''}`} />
+            <ChevronRight
+              className={`${styles.expandIcon} ${isOpen ? styles.rotated : ''}`}
+              aria-hidden="true"
+            />
           </div>
         </div>
       </aside>
