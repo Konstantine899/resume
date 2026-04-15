@@ -18,7 +18,7 @@ import {
   Sun,
   X,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Sidebar.module.scss';
 import type { SidebarProps } from './types';
 
@@ -37,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, isTransitioning } = useTheme();
   const { toggleLanguage, t, isTransitioning: isLangTransitioning, language } = useLanguage();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { icon: Home, href: '#home', label: t.home },
@@ -46,6 +47,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { icon: Sparkles, href: '#skills', label: t.skills },
     { icon: Monitor, href: '/uses', label: t.uses },
   ];
+
+  // Focus trap useEffect
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const focusableElements = mobileMenuRef.current?.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements?.[0] as HTMLElement;
+    const lastElement = focusableElements?.[focusableElements.length - 1] as HTMLElement;
+
+    // Фокус на первый элемент при открытии
+    firstElement?.focus();
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+    return () => document.removeEventListener('keydown', handleTabKey);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleEscape);
+    }
+
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -69,6 +119,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
       document.body.style.overflow = 'unset';
     };
   }, [mobileMenuOpen]);
+
+  // Для десктопной навигации
+  const handleDesktopKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number, totalItems: number) => {
+      const navItems = document.querySelectorAll(`.${styles.desktopNavItem}`);
+
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowRight':
+          e.preventDefault();
+          {
+            const nextIndex = (index + 1) % totalItems;
+            (navItems[nextIndex] as HTMLElement)?.focus();
+          }
+          break;
+
+        case 'ArrowUp':
+        case 'ArrowLeft':
+          e.preventDefault();
+          {
+            const prevIndex = (index - 1 + totalItems) % totalItems;
+            (navItems[prevIndex] as HTMLElement)?.focus();
+          }
+          break;
+
+        case 'Home':
+          e.preventDefault();
+          (navItems[0] as HTMLElement)?.focus();
+          break;
+
+        case 'End':
+          e.preventDefault();
+          (navItems[totalItems - 1] as HTMLElement)?.focus();
+          break;
+      }
+    },
+    []
+  );
 
   const handleMobileNavClick = (href: string) => {
     setMobileMenuOpen(false);
@@ -105,9 +193,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </button>
 
       {/* Mobile Menu Overlay */}
-      <div className={`${styles.mobileOverlay} ${mobileMenuOpen ? styles.open : ''}`}>
+      <div
+        className={`${styles.mobileOverlay} ${mobileMenuOpen ? styles.open : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
+      >
         {/* Backdrop */}
         <div className={styles.backdrop} onClick={() => setMobileMenuOpen(false)} />
+        {/* ref на панель */}
+        <div className={styles.mobilePanel} ref={mobileMenuRef}></div>
 
         {/* Menu Panel */}
         <div className={styles.mobilePanel}>
@@ -117,6 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={styles.closeButton}
             aria-label="Close menu"
             type="button"
+            tabIndex={mobileMenuOpen ? 0 : -1}
           >
             <X className={styles.closeIcon} />
           </button>
@@ -142,6 +238,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   href={item.href}
                   onClick={() => handleMobileNavClick(item.href)}
                   className={styles.mobileNavItem}
+                  role="menuitem"
+                  tabIndex={mobileMenuOpen ? 0 : -1}
+                  onKeyDown={(e) => {
+                    // Arrow keys для мобильного меню
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                      e.preventDefault();
+                      const nextIndex = (index + 1) % navItems.length;
+                      const nextItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
+                        nextIndex
+                      ];
+                      (nextItem as HTMLElement)?.focus();
+                    }
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                      e.preventDefault();
+                      const prevIndex = (index - 1 + navItems.length) % navItems.length;
+                      const prevItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
+                        prevIndex
+                      ];
+                      (prevItem as HTMLElement)?.focus();
+                    }
+                    if (e.key === 'Home') {
+                      e.preventDefault();
+                      const firstItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[0];
+                      (firstItem as HTMLElement)?.focus();
+                    }
+                    if (e.key === 'End') {
+                      e.preventDefault();
+                      const lastItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
+                        navItems.length - 1
+                      ];
+                      (lastItem as HTMLElement)?.focus();
+                    }
+                  }}
                 >
                   <Icon className={styles.navIcon} />
                   <span className={styles.navLabel}>{item.label}</span>
@@ -189,6 +318,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${className}`}
         data-testid={testId}
         aria-expanded={isOpen}
+        role="navigation"
+        aria-label="Main navigation"
       >
         {/* Logo */}
         <a
@@ -212,6 +343,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={`${styles.desktopNavItem} ${isOpen ? styles.expanded : ''}`}
                 aria-label={item.label}
                 title={item.label}
+                role="menuitem"
+                tabIndex={0}
+                onKeyDown={(e) => handleDesktopKeyDown(e, index, navItems.length)}
               >
                 <Icon className={styles.desktopNavIcon} />
                 {isOpen && <span className={styles.desktopNavLabel}>{item.label}</span>}
@@ -279,6 +413,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 handleToggleSidebar();
+              }
+              if (e.key === 'Escape' && isOpen) {
+                e.preventDefault();
+                setIsOpen(false);
               }
             }}
           >

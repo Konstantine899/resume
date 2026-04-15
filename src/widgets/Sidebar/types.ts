@@ -14,3 +14,8 @@ export interface NavItem {
   href: string;
   label: string;
 }
+
+// Добавить интерфейс для keyboard handlers
+export interface KeyboardNavProps {
+  onKeyDown?: (e: React.KeyboardEvent, index: number, total: number) => void;
+}
