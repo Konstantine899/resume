@@ -1,7 +1,6 @@
 // ============================================
 // Sidebar Widget
 // ============================================
-
 import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import {
@@ -22,23 +21,21 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Sidebar.module.scss';
 import type { SidebarProps } from './types';
 
-/**
- * Sidebar Widget Component
- *
- * Navigation sidebar with theme and language controls.
- * Follows FSD architecture - widgets layer for complex UI blocks.
- */
 export const Sidebar: React.FC<SidebarProps> = ({
   className = '',
   onNavigation,
   'data-testid': testId = 'sidebar',
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isHoverExpanded, setIsHoverExpanded] = useState(false);
+
   const { theme, toggleTheme, isTransitioning } = useTheme();
   const { toggleLanguage, t, isTransitioning: isLangTransitioning, language } = useLanguage();
   const [activeSection, setActiveSection] = useState<string>('#home');
 
+  //  HOVER: Ref для таймера
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
@@ -49,6 +46,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { icon: Sparkles, href: '#skills', label: t.skills },
     { icon: Monitor, href: '/uses', label: t.uses },
   ];
+
+  //  HOVER: Обработчик наведения (задержка 300ms)
+  const handleMouseEnter = useCallback(() => {
+    if (isOpen || isHoverExpanded) return;
+
+    hoverTimerRef.current = setTimeout(() => {
+      setIsHoverExpanded(true);
+    }, 300);
+  }, [isOpen, isHoverExpanded]);
+
+  //  HOVER: Обработчик ухода мыши
+  const handleMouseLeave = useCallback(() => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    setIsHoverExpanded(false);
+  }, []);
+
+  //  HOVER: Cleanup при unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Проверить при монтировании
+    handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -83,20 +107,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const firstElement = focusableElements?.[0] as HTMLElement;
     const lastElement = focusableElements?.[focusableElements.length - 1] as HTMLElement;
 
-    // Фокус на первый элемент при открытии
     firstElement?.focus();
 
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
 
       if (e.shiftKey) {
-        // Shift + Tab
         if (document.activeElement === firstElement) {
           e.preventDefault();
           lastElement?.focus();
         }
       } else {
-        // Tab
         if (document.activeElement === lastElement) {
           e.preventDefault();
           firstElement?.focus();
@@ -203,6 +224,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleToggleSidebar = () => {
     setIsOpen((prev) => !prev);
+    // ✅ HOVER: Сброс при клике
+    setIsHoverExpanded(false);
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+    }
   };
 
   return (
@@ -282,7 +308,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   aria-current={activeSection === item.href ? 'page' : undefined}
                   tabIndex={mobileMenuOpen ? 0 : -1}
                   onKeyDown={(e) => {
-                    // Arrow keys для мобильного меню
                     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
                       e.preventDefault();
                       const nextIndex = (index + 1) % navItems.length;
@@ -369,12 +394,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Desktop Sidebar */}
       <aside
-        className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${className}`}
+        className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${isHoverExpanded ? styles.hoverExpanded : ''} ${className}`}
         data-testid={testId}
-        aria-expanded={isOpen}
+        aria-expanded={isOpen || isHoverExpanded}
         role="navigation"
         aria-label="Main navigation"
         onClick={handleToggleSidebar}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -394,7 +421,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           aria-label="Go to homepage"
         >
           <span className={styles.desktopLogoText}>A</span>
-          {isOpen && <span className={styles.desktopLogoTextFull}>KONSTANTIN</span>}
+          {(isOpen || isHoverExpanded) && (
+            <span className={styles.desktopLogoTextFull}>KONSTANTIN</span>
+          )}
         </a>
 
         {/* Navigation */}
@@ -409,7 +438,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   e.stopPropagation();
                   handleDesktopNavClick(item.href);
                 }}
-                className={`${styles.desktopNavItem} ${isOpen ? styles.expanded : ''}`}
+                className={`${styles.desktopNavItem} ${isOpen || isHoverExpanded ? styles.expanded : ''}`}
                 aria-label={item.label}
                 title={!isOpen ? item.label : undefined}
                 role="menuitem"
@@ -417,7 +446,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onKeyDown={(e) => handleDesktopKeyDown(e, index, navItems.length)}
               >
                 <Icon className={styles.desktopNavIcon} />
-                {isOpen && <span className={styles.desktopNavLabel}>{item.label}</span>}
+                {(isOpen || isHoverExpanded) && (
+                  <span className={styles.desktopNavLabel}>{item.label}</span>
+                )}
               </a>
             );
           })}
@@ -440,7 +471,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`${styles.desktopControlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
               aria-hidden="true"
             />
-            {isOpen && (
+            {(isOpen || isHoverExpanded) && (
               <span className={styles.sidebarControlText}>
                 <span className={styles.languageLabel}>{language == 'ru' ? 'RU' : 'EN'}</span>
                 <span className={styles.languageFull}>
@@ -472,7 +503,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 aria-hidden="true"
               />
             )}
-            {isOpen && (
+            {(isOpen || isHoverExpanded) && (
               <span className={styles.sidebarControlText} aria-hidden="true">
                 <span className={styles.languageLabel}>
                   {theme === 'dark' ? t.darkMode : t.lightMode}
@@ -490,21 +521,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
             }}
             role="button"
             tabIndex={0}
-            aria-expanded={isOpen}
-            aria-label={isOpen ? t.collapseSidebar : t.expandSidebar}
+            aria-expanded={isOpen || isHoverExpanded}
+            aria-label={isOpen || isHoverExpanded ? t.collapseSidebar : t.expandSidebar}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 handleToggleSidebar();
               }
-              if (e.key === 'Escape' && isOpen) {
+              if (e.key === 'Escape' && (isOpen || isHoverExpanded)) {
                 e.preventDefault();
                 setIsOpen(false);
+                setIsHoverExpanded(false);
               }
             }}
           >
             <ChevronRight
-              className={`${styles.expandIcon} ${isOpen ? styles.rotated : ''}`}
+              className={`${styles.expandIcon} ${isOpen || isHoverExpanded ? styles.rotated : ''}`}
               aria-hidden="true"
             />
           </div>
@@ -512,7 +544,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </aside>
 
       {/* Spacer for content - only on desktop */}
-      <div className={`${styles.desktopSpacer} ${isOpen ? styles.expanded : ''}`} />
+      <div
+        className={`${styles.desktopSpacer} ${isOpen || isHoverExpanded ? styles.expanded : ''}`}
+      />
     </>
   );
 };

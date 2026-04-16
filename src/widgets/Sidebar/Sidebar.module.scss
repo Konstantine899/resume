@@ -230,7 +230,7 @@
     display: flex;
   }
 
-  // ✅ Состояние expanded
+  // Состояние expanded
   &.expanded {
     width: $sidebar-width-expanded;
     cursor: default;
@@ -251,6 +251,19 @@
   &.collapsed:hover {
     background: var(--card-bg-hover, rgb(244 179 119 / 0.02));
     border-right-color: $primary-light;
+  }
+
+  &.hoverExpanded {
+    width: $sidebar-width-expanded;
+    cursor: default;
+
+    .desktopNavLabel,
+    .sidebarControlText,
+    .desktopLogoTextFull {
+      position: static;
+      pointer-events: auto;
+      opacity: 1;
+    }
   }
 
   &:focus-visible {
@@ -292,7 +305,8 @@
   transition: opacity $sidebar-transition;
   -webkit-text-fill-color: transparent;
 
-  .desktopSidebar.expanded & {
+  .desktopSidebar.expanded &,
+  .desktopSidebar.hoverExpanded & {
     opacity: 1;
   }
 }
@@ -367,7 +381,8 @@
   opacity: 0;
   transition: opacity $sidebar-transition;
 
-  .desktopSidebar.expanded & {
+  .desktopSidebar.expanded &,
+  .desktopSidebar.hoverExpanded & {
     opacity: 1;
   }
 }
@@ -431,6 +446,10 @@
   .languageFull {
     font-size: $font-size-xs;
     opacity: 0.6;
+  }
+
+  .desktopSidebar.hoverExpanded & {
+    opacity: 1;
   }
 }
 
