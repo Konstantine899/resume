@@ -21,12 +21,26 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Sidebar.module.scss';
 import type { SidebarProps } from './types';
 
+const SIDEBAR_STORAGE_KEY = 'sidebar-expanded';
+
 export const Sidebar: React.FC<SidebarProps> = ({
   className = '',
   onNavigation,
   'data-testid': testId = 'sidebar',
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window === 'undefined') {
+      return true;
+    }
+
+    try {
+      const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch (error) {
+      console.warn('Failed to read sidebar state from localStorage:', error);
+      return true;
+    }
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isHoverExpanded, setIsHoverExpanded] = useState(false);
 
@@ -64,6 +78,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
     setIsHoverExpanded(false);
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isOpen));
+    } catch (error) {
+      console.warn('Failed to save sidebar state to localStorage:', error);
+    }
+  }, [isOpen]);
 
   //  HOVER: Cleanup при unmount
   useEffect(() => {
@@ -223,8 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleToggleSidebar = () => {
-    setIsOpen((prev) => !prev);
-    // ✅ HOVER: Сброс при клике
+    setIsOpen((prev: any) => !prev);
     setIsHoverExpanded(false);
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
