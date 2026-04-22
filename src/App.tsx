@@ -2,12 +2,11 @@
 // Updated App Component with FSD Structure
 // ============================================
 
-import React from 'react';
-import { HomePage } from '@/pages/Home';
-import { ThemeProvider } from '@/app/providers/ThemeProvider';
 import { LanguageProvider } from '@/app/providers/LanguageProvider';
-import '@/shared/styles/globals.scss';
-
+import { ThemeProvider } from '@/app/providers/ThemeProvider';
+import { HomePage } from '@/pages/Home';
+import '@/shared/styles/globals/index.scss';
+import React from 'react';
 /**
  * Main App Component
  *

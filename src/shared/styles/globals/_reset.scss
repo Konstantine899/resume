@@ -1,0 +1,40 @@
+// ============================================
+
+// Reset Styles
+
+// ============================================
+
+@use '../variables/typography' as *;
+@use '../variables/colors' as *;
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+}
+
+body {
+  color: $text-primary;
+  background-color: $background;
+}
+
+// Reset links
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Reset buttons
+button {
+  font-family: inherit;
+}

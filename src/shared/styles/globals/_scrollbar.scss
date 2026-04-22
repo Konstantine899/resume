@@ -1,0 +1,32 @@
+// ============================================
+
+// Custom Scrollbar
+
+// ============================================
+
+@use '../variables/colors' as *;
+@use '../variables/radius' as *;
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-dark);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--primary);
+  }
+}
+
+// Firefox scrollbar
+* {
+  scrollbar-color: var(--primary-dark) var(--background-secondary);
+  scrollbar-width: thin;
+}
