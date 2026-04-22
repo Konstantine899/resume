@@ -1,0 +1,23 @@
+// ============================================
+
+// Sidebar-specific Variables
+
+// ============================================
+
+@use 'spacing' as *;
+@use 'transition' as *;
+
+// Dimensions
+$sidebar-width-collapsed: 4rem !default; // 64px
+$sidebar-width-expanded: 12rem !default; // 192px
+$sidebar-mobile-width: 16rem !default; // 256px
+$sidebar-mobile-width-sm: 18rem !default; // 288px (для xs breakpoint)
+$sidebar-mobile-max-width: 400px !default;
+
+// Behavior
+$sidebar-transition: 0.3s ease !default;
+$sidebar-z-index: 100 !default;
+
+// Components
+$burger-size: 3rem !default; // 48px
+$nav-item-height: 2.5rem !default; // 40px

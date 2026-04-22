@@ -1,0 +1,19 @@
+// ============================================
+
+// Variables Index - Exports all variables
+
+// ============================================
+
+@forward 'colors';
+@forward 'typography';
+@forward 'breakpoints';
+@forward 'spacing';
+@forward 'radius';
+@forward 'shadows';
+@forward 'transition';
+@forward 'sidebar';
+
+// Re-export commonly used modules for convenience
+@use 'colors' as *;
+@use 'spacing' as *;
+@use 'breakpoints' as *;
