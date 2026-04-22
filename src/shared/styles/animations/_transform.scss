@@ -1,0 +1,59 @@
+// ============================================
+
+// Transform Animations (Rotate, Spin)
+
+// ============================================
+
+@keyframes theme-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes globe-rotate {
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes language-fade {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: translateY(-3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Mixins
+@mixin animate-theme-spin {
+  animation: theme-spin 0.6s ease-in-out;
+}
+
+@mixin animate-globe-rotate($duration: 2s) {
+  animation: globe-rotate $duration linear infinite;
+}
+
+@mixin animate-language-fade {
+  animation: language-fade 0.3s ease-in-out;
+}

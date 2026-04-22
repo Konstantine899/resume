@@ -1,0 +1,16 @@
+// ============================================
+
+// Animations Index - Exports all animations
+
+// ============================================
+
+@forward 'fade';
+@forward 'scale';
+@forward 'transform';
+@forward 'pulse';
+
+// Re-export key mixins for convenience
+@use 'fade' as *;
+@use 'scale' as *;
+@use 'transform' as *;
+@use 'pulse' as *;
