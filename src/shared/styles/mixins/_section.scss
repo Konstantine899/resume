@@ -1,0 +1,36 @@
+// ============================================
+
+// Section Mixins
+
+// ============================================
+
+@use '../variables/spacing' as *;
+@use '../variables/typography' as *;
+@use '../variables/breakpoints' as *;
+@use 'responsive' as *;
+
+// Base section
+@mixin section-base {
+  width: 100%;
+  max-width: $container-2xl;
+  padding: $spacing-20 0;
+  padding-right: $spacing-md;
+  padding-left: $spacing-md;
+  margin-right: auto;
+  margin-left: auto;
+
+  @include sm {
+    padding: $spacing-24 0;
+  }
+}
+
+// Section title
+@mixin section-title {
+  margin-bottom: $spacing-12;
+  font-size: $font-size-3xl;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

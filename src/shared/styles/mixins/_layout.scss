@@ -1,0 +1,73 @@
+// ============================================
+
+// Layout & Flex Utilities
+
+// ============================================
+
+@use '../variables/spacing' as *;
+@use '../variables/breakpoints' as *;
+@use '../variables/typography' as *;
+@use 'responsive' as *;
+
+// Flex utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+// Grid utilities
+@mixin grid-cols($cols) {
+  display: grid;
+  grid-template-columns: repeat(#{$cols}, 1fr);
+}
+
+@mixin grid-gap($gap) {
+  gap: $gap;
+}
+
+// Container mixin
+@mixin container {
+  width: 100%;
+  padding-right: $spacing-md;
+  padding-left: $spacing-md;
+  margin-right: auto;
+  margin-left: auto;
+
+  @include sm {
+    max-width: $container-sm;
+  }
+
+  @include md {
+    max-width: $container-md;
+  }
+
+  @include lg {
+    max-width: $container-lg;
+  }
+
+  @include xl {
+    max-width: $container-xl;
+  }
+
+  @include xxl {
+    max-width: $container-2xl;
+  }
+}

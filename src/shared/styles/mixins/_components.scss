@@ -1,0 +1,68 @@
+// ============================================
+
+// Component Mixins
+
+// ============================================
+
+@use '../variables/typography' as *;
+@use '../variables/colors' as *;
+@use '../variables/spacing' as *;
+@use '../variables/radius' as *;
+@use '../variables/transition' as *;
+
+// Button base
+@mixin button-base {
+  @include flex-center;
+
+  font-family: $font-family-base;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Input base
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  outline: none;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: #f9fafb;
+  }
+}
+
+// Code block
+@mixin code-block {
+  overflow: hidden;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  color: #fff;
+  background: var(--code-bg, rgb(41 39 38 / 0.95));
+  border: 1px solid rgb(244 179 119 / 0.2);
+  border-radius: $border-radius-lg;
+  backdrop-filter: blur(8px);
+}

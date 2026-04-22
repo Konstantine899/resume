@@ -1,0 +1,41 @@
+// ============================================
+
+// Hover Effects Mixins
+
+// ============================================
+
+@use '../variables/transition' as *;
+@use '../variables/shadows' as *;
+
+// Lift effect
+@mixin hover-lift {
+  transition:
+    transform $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+
+  &:hover {
+    box-shadow: $shadow-xl;
+    transform: translateY(-4px);
+  }
+}
+
+// Slide effect
+@mixin hover-slide {
+  transition:
+    transform $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateX(4px);
+  }
+}
+
+// Scale effect
+@mixin hover-scale($amount: 1.05) {
+  transition: transform $transition-duration $transition-easing;
+
+  &:hover {
+    transform: scale($amount);
+  }
+}

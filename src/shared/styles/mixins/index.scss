@@ -1,0 +1,20 @@
+// ============================================
+
+// Mixins Index - Exports all mixins
+
+// ============================================
+
+@forward 'responsive';
+@forward 'layout';
+@forward 'typography';
+@forward 'theme';
+@forward 'hover';
+@forward 'components';
+@forward 'section';
+@forward 'utilities';
+
+// Re-export commonly used mixins for convenience
+@use 'responsive' as *;
+@use 'layout' as *;
+@use 'theme' as *;
+@use 'hover' as *;
