@@ -3,8 +3,8 @@
 // ============================================
 
 import { PROJECTS } from '@/entities/Project';
+import { useLanguage } from '@/features/LanguageSwitch';
 import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
-import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
@@ -27,7 +27,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
   return (
     <section id="work" className={`${styles.section} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.title}>{t.myWork}</h2>
+        <h2 className={styles.title}>{t(`myWork`)}</h2>
       </AnimatedSection>
 
       <div className={styles.projectsGrid}>
@@ -53,7 +53,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
 
                 {/* Tech Icons Row */}
                 <div className={styles.techRow}>
-                  <span className={styles.techLabel}>{t.builtUsing}</span>
+                  <span className={styles.techLabel}>{t(`builtUsing`)}</span>
                   {project.techIcons.map((tech, techIndex) => (
                     <img
                       key={techIndex}
@@ -67,7 +67,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 {/* Project Link */}
                 {project.link && (
                   <div className={styles.projectLink}>
-                    <span className={styles.linkLabel}>{t.link}</span>
+                    <span className={styles.linkLabel}>{t(`link`)}</span>
                     <a
                       href={project.link}
                       target="_blank"

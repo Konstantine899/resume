@@ -1,7 +1,7 @@
 'use client';
 
 import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
-import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
+import { useLanguage } from '@/features/LanguageSwitch';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import React from 'react';
 import styles from './WorkHistory.module.scss';
@@ -37,7 +37,7 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
     >
       <div className={styles.gradientContainer}>
         <AnimatedSection animation="fadeUp">
-          <h2 className={styles.sectionTitle}>Work History.</h2>
+          <h2 className={styles.sectionTitle}>{t(`workHistory`)}</h2>
         </AnimatedSection>
 
         <div className={styles.timeline}>
@@ -53,7 +53,7 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
                 {/* Period with current badge */}
                 <div className={styles.jobPeriod}>
                   <time dateTime={job.startDate.toISOString()}>{job.period}</time>
-                  {job.current && <span className={styles.currentBadge}>{t.present}</span>}
+                  {job.current && <span className={styles.currentBadge}>{t(`present`)}</span>}
                 </div>
 
                 {/* Location */}

@@ -1,7 +1,7 @@
 // ============================================
 // Hero Feature
 // ============================================
-import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
+import { useLanguage } from '@/features/LanguageSwitch';
 import React from 'react';
 import styles from './Hero.module.scss';
 import { HeroProps } from './types';
@@ -28,8 +28,8 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Left side - Text content */}
         <div className={styles.leftContent}>
           {/* Greeting */}
-          <h1 className={styles.greeting}>{t.greeting}</h1>
-          <h2 className={styles.name}>{t.name}</h2>
+          <h1 className={styles.greeting}>{t(`greeting`)}</h1>
+          <h2 className={styles.name}>{t(`name`)}</h2>
 
           {/* Code Block */}
           <div className={styles.codeBlock}>
@@ -47,26 +47,26 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className={styles.punctuation}> = {'{'}</span>
                 {'\n\n'}
                 <span className={styles.property}>fullName:</span>
-                <span className={styles.string}>'{t.fullName}'</span>
+                <span className={styles.string}>'{t(`fullName`)}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> profession:</span>
-                <span className={styles.string}>'{t.profession}'</span>
+                <span className={styles.string}>'{t(`profession`)}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> specialties:</span>
-                <span className={styles.string}>'{t.specialties}'</span>
+                <span className={styles.string}>'{t(`specialties`)}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> skills:</span>
-                <span className={styles.string}>'{t.skillsLabel}'</span>
+                <span className={styles.string}>'{t(`skillsLabel`)}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}> {t.yearsOfExperience}:</span>
+                <span className={styles.property}> {t(`yearsOfExperience`)}:</span>
                 <span className={styles.number}>6</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
-                <span className={styles.property}> {t.age}:</span>
+                <span className={styles.property}> {t(`age`)}:</span>
                 <span className={styles.number}>20</span>
                 {'\n\n'}
                 <span className={styles.punctuation}>{'};'}</span>
@@ -83,7 +83,7 @@ export const Hero: React.FC<HeroProps> = ({
               onGetResume?.();
             }}
           >
-            {t.getResume}
+            {t(`getResume`)}
           </a>
         </div>
 

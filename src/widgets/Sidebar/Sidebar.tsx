@@ -1,7 +1,7 @@
 // ============================================
 // Sidebar Widget
 // ============================================
-import { useLanguage } from '@/shared/lib/contexts/LanguageContext';
+import { useLanguage } from '@/features/LanguageSwitch';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import {
   ChevronRight,
@@ -32,7 +32,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (typeof window === 'undefined') {
       return true;
     }
-
     try {
       const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
       return saved !== null ? JSON.parse(saved) : true;
@@ -41,36 +40,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
       return true;
     }
   });
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isHoverExpanded, setIsHoverExpanded] = useState(false);
 
   const { theme, toggleTheme, isTransitioning } = useTheme();
-  const { toggleLanguage, t, isTransitioning: isLangTransitioning, language } = useLanguage();
+  const { toggleLanguage, t, isTransitioning: isLangTransitioning = false } = useLanguage();
+
   const [activeSection, setActiveSection] = useState<string>('#home');
 
-  //  HOVER: Ref для таймера
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
-    { icon: Home, href: '#home', label: t.home },
-    { icon: Code, href: '#work', label: t.work },
-    { icon: FileText, href: '#about', label: t.about },
-    { icon: Mail, href: '#contact', label: t.contact },
-    { icon: Sparkles, href: '#skills', label: t.skills },
-    { icon: Monitor, href: '/uses', label: t.uses },
+    { icon: Home, href: '#home', label: t('home') },
+    { icon: Code, href: '#work', label: t('work') },
+    { icon: FileText, href: '#about', label: t('about') },
+    { icon: Mail, href: '#contact', label: t('contact') },
+    { icon: Sparkles, href: '#skills', label: t('skills') },
+    { icon: Monitor, href: '/uses', label: t('uses') },
   ];
 
-  //  HOVER: Обработчик наведения (задержка 300ms)
   const handleMouseEnter = useCallback(() => {
     if (isOpen || isHoverExpanded) return;
-
     hoverTimerRef.current = setTimeout(() => {
       setIsHoverExpanded(true);
     }, 300);
   }, [isOpen, isHoverExpanded]);
 
-  //  HOVER: Обработчик ухода мыши
   const handleMouseLeave = useCallback(() => {
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
@@ -87,7 +84,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [isOpen]);
 
-  //  HOVER: Cleanup при unmount
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) {
@@ -115,11 +111,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     window.addEventListener('scroll', handleScroll);
     handleScroll();
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Focus trap useEffect
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
@@ -133,7 +127,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
           e.preventDefault();
@@ -161,65 +154,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (mobileMenuOpen) {
       window.addEventListener('keydown', handleEscape);
     }
-
     return () => window.removeEventListener('keydown', handleEscape);
   }, [mobileMenuOpen]);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setMobileMenuOpen(false);
       }
     };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : 'unset';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [mobileMenuOpen]);
 
-  // Для десктопной навигации
   const handleDesktopKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number, totalItems: number) => {
-      const navItems = document.querySelectorAll(`.${styles.desktopNavItem}`);
+      const navElements = document.querySelectorAll(`.${styles.desktopNavItem}`);
 
       switch (e.key) {
         case 'ArrowDown':
         case 'ArrowRight':
           e.preventDefault();
-          {
-            const nextIndex = (index + 1) % totalItems;
-            (navItems[nextIndex] as HTMLElement)?.focus();
-          }
+          (navElements[(index + 1) % totalItems] as HTMLElement)?.focus();
           break;
-
         case 'ArrowUp':
         case 'ArrowLeft':
           e.preventDefault();
-          {
-            const prevIndex = (index - 1 + totalItems) % totalItems;
-            (navItems[prevIndex] as HTMLElement)?.focus();
-          }
+          (navElements[(index - 1 + totalItems) % totalItems] as HTMLElement)?.focus();
           break;
-
         case 'Home':
           e.preventDefault();
-          (navItems[0] as HTMLElement)?.focus();
+          (navElements[0] as HTMLElement)?.focus();
           break;
-
         case 'End':
           e.preventDefault();
-          (navItems[totalItems - 1] as HTMLElement)?.focus();
+          (navElements[totalItems - 1] as HTMLElement)?.focus();
           break;
       }
     },
@@ -235,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onNavigation?.(href);
   };
 
-  const handleLanguageToggle = (e: React.MouseEvent) => {
+  const handleLanguageToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     toggleLanguage();
   };
@@ -245,7 +222,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleToggleSidebar = () => {
-    setIsOpen((prev: any) => !prev);
+    setIsOpen((prev: boolean) => !prev);
     setIsHoverExpanded(false);
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
@@ -254,18 +231,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* ✅ Skip Link */}
       <a href="#main-content" className={styles.skipLink}>
         Skip to main content
       </a>
 
-      {/* ✅ Live region для announce */}
       <div role="status" aria-live="polite" aria-atomic="true" className={styles.srOnly}>
-        {mobileMenuOpen ? 'Navigation menu opened' : 'Navigation menu closed'}
-        {!mobileMenuOpen && (isOpen ? 'Sidebar expanded' : 'Sidebar collapsed')}
+        {mobileMenuOpen ? t('accessibility.menuOpen') : t('accessibility.menuClose')}
+        {!mobileMenuOpen &&
+          (isOpen || isHoverExpanded
+            ? t('accessibility.sidebarExpand')
+            : t('accessibility.sidebarCollapse'))}
       </div>
 
-      {/* Mobile Burger Button */}
       <button
         onClick={() => setMobileMenuOpen(true)}
         className={styles.mobileMenuButton}
@@ -276,7 +253,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <Menu className={styles.menuIcon} aria-hidden="true" />
       </button>
 
-      {/* Mobile Menu Overlay */}
       <div
         className={`${styles.mobileOverlay} ${mobileMenuOpen ? styles.open : ''}`}
         role="dialog"
@@ -284,16 +260,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-label="Mobile navigation menu"
         aria-hidden={!mobileMenuOpen}
       >
-        {/* Backdrop */}
         <div
           className={styles.backdrop}
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
 
-        {/* Menu Panel */}
         <div className={styles.mobilePanel} ref={mobileMenuRef}>
-          {/* Close Button */}
           <button
             onClick={() => setMobileMenuOpen(false)}
             className={styles.closeButton}
@@ -304,60 +277,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <X className={styles.closeIcon} />
           </button>
 
-          {/* Logo */}
           <div className={styles.logoSection}>
             <a
               href="#home"
               onClick={() => handleMobileNavClick('#home')}
               className={styles.logoLink}
             >
-              <span className={styles.logoText}>KONSTANTIN</span>
+              <span className={styles.logoText}>{t('sidebar.logo')}</span>
             </a>
           </div>
 
-          {/* Navigation */}
           <nav className={styles.mobileNav} role="navigation" aria-label="Main navigation">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               return (
                 <a
-                  key={index}
+                  key={`${item.href}-${index}`}
                   href={item.href}
                   onClick={() => handleMobileNavClick(item.href)}
                   className={styles.mobileNavItem}
                   role="menuitem"
                   aria-current={activeSection === item.href ? 'page' : undefined}
                   tabIndex={mobileMenuOpen ? 0 : -1}
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-                      e.preventDefault();
-                      const nextIndex = (index + 1) % navItems.length;
-                      const nextItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
-                        nextIndex
-                      ];
-                      (nextItem as HTMLElement)?.focus();
-                    }
-                    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                      e.preventDefault();
-                      const prevIndex = (index - 1 + navItems.length) % navItems.length;
-                      const prevItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
-                        prevIndex
-                      ];
-                      (prevItem as HTMLElement)?.focus();
-                    }
-                    if (e.key === 'Home') {
-                      e.preventDefault();
-                      const firstItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[0];
-                      (firstItem as HTMLElement)?.focus();
-                    }
-                    if (e.key === 'End') {
-                      e.preventDefault();
-                      const lastItem = document.querySelectorAll(`.${styles.mobileNavItem}`)[
-                        navItems.length - 1
-                      ];
-                      (lastItem as HTMLElement)?.focus();
-                    }
-                  }}
                 >
                   <Icon className={styles.navIcon} aria-hidden="true" />
                   <span className={styles.navLabel}>{item.label}</span>
@@ -366,31 +307,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
 
-          {/* Theme & Language Toggle */}
           <div className={styles.controlsSection}>
-            {/* Language Toggle */}
             <button
               onClick={handleLanguageToggle}
               className={styles.controlButton}
               type="button"
-              aria-label={`Switch language to ${language === 'ru' ? 'RU' : 'EN'}`}
+              aria-label={t('language')}
             >
               <Globe
                 className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
                 aria-hidden="true"
               />
               <span className={styles.controlText}>
-                <span className={styles.languageLabel}>{t.language}</span>
-                <span className={styles.languageFull}>({t.languageFull})</span>
+                <span className={styles.languageLabel}>{t('language.label')}</span>
+                <span className={styles.languageFull}></span>
               </span>
             </button>
 
-            {/* Theme Toggle */}
             <button
               onClick={handleThemeToggle}
               className={styles.controlButton}
               type="button"
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-label={`Switch to ${theme === 'dark' ? t('lightMode') : t('darkMode')}`}
             >
               {theme === 'dark' ? (
                 <Moon
@@ -404,16 +342,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 />
               )}
               <span className={styles.controlText}>
-                {theme === 'dark' ? t.darkMode : t.lightMode}
+                {theme === 'dark' ? t('darkMode') : t('lightMode')}
               </span>
             </button>
-
-            <p className={styles.footerText}>{t.footerTitle}</p>
+            <p className={styles.footerText}>{t('footerTitle')}</p>
           </div>
         </div>
       </div>
 
-      {/* Desktop Sidebar */}
       <aside
         className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${isHoverExpanded ? styles.hoverExpanded : ''} ${className}`}
         data-testid={testId}
@@ -431,7 +367,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }}
         tabIndex={0}
       >
-        {/* Logo */}
         <a
           href="#home"
           className={styles.desktopLogo}
@@ -441,21 +376,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           aria-label="Go to homepage"
         >
-          <span className={styles.desktopLogoText}>A</span>
-          {(isOpen || isHoverExpanded) && (
-            <span className={styles.desktopLogoTextFull}>KONSTANTIN</span>
+          {isOpen || isHoverExpanded ? (
+            <span className={styles.desktopLogoTextFull}>{t('name')}</span>
+          ) : (
+            <span className={styles.desktopLogoText}>K</span>
           )}
         </a>
 
-        {/* Navigation */}
         <nav className={styles.desktopNav} role="menubar" aria-label="Main navigation">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <a
-                key={index}
+                key={`${item.href}-${index}`}
                 href={item.href}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                   e.stopPropagation();
                   handleDesktopNavClick(item.href);
                 }}
@@ -475,18 +410,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </nav>
 
-        {/* Controls */}
         <div className={styles.desktopControls}>
-          {/* Language Toggle */}
           <button
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
               handleLanguageToggle(e);
             }}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
-            aria-label={`Switch language to ${language === 'ru' ? 'RU' : 'EN'}`}
-            title={!isOpen ? t.languageFull : undefined}
+            aria-label={t('language')}
+            title={!isOpen ? t('language') : undefined}
           >
             <Globe
               className={`${styles.desktopControlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
@@ -494,56 +427,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
             {(isOpen || isHoverExpanded) && (
               <span className={styles.sidebarControlText}>
-                <span className={styles.languageLabel}>{language == 'ru' ? 'RU' : 'EN'}</span>
-                <span className={styles.languageFull}>
-                  {language == 'ru' ? '(Русский)' : '(English)'}
+                <span className={styles.languageLabel}>
+                  {t(`language`)} ({t(`languageFull`)})
                 </span>
               </span>
             )}
           </button>
 
-          {/* Theme Toggle */}
           <button
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
               handleThemeToggle();
             }}
             className={`${styles.sidebarControlButton} ${isOpen ? styles.expanded : ''}`}
             type="button"
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            title={!isOpen ? (theme === 'dark' ? t.darkMode : t.lightMode) : undefined}
+            aria-label={`Switch to ${theme === 'dark' ? t('lightMode') : t('darkMode')}`}
+            title={!isOpen ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
           >
             {theme === 'dark' ? (
-              <Moon
-                className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
-                aria-hidden="true"
-              />
+              <>
+                <Moon
+                  className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                  aria-hidden="true"
+                />
+                <span>{t(`darkMode`)}</span>
+              </>
             ) : (
-              <Sun
-                className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
-                aria-hidden="true"
-              />
-            )}
-            {(isOpen || isHoverExpanded) && (
-              <span className={styles.sidebarControlText} aria-hidden="true">
-                <span className={styles.languageLabel}>
-                  {theme === 'dark' ? t.darkMode : t.lightMode}
-                </span>
-              </span>
+              <>
+                <Sun
+                  className={`${styles.desktopControlIcon} ${isTransitioning ? styles.spinning : ''}`}
+                  aria-hidden="true"
+                />
+                <span>{t(`lightMode`)}</span>
+              </>
             )}
           </button>
 
-          {/* Expand indicator */}
-          <div
+          <button
             className={styles.expandIndicator}
             onClick={(e) => {
               e.stopPropagation();
               handleToggleSidebar();
             }}
-            role="button"
-            tabIndex={0}
             aria-expanded={isOpen || isHoverExpanded}
-            aria-label={isOpen || isHoverExpanded ? t.collapseSidebar : t.expandSidebar}
+            aria-label={isOpen || isHoverExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -555,16 +482,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 setIsHoverExpanded(false);
               }
             }}
+            type="button"
           >
             <ChevronRight
               className={`${styles.expandIcon} ${isOpen || isHoverExpanded ? styles.rotated : ''}`}
               aria-hidden="true"
             />
-          </div>
+          </button>
         </div>
       </aside>
 
-      {/* Spacer for content - only on desktop */}
       <div
         className={`${styles.desktopSpacer} ${isOpen || isHoverExpanded ? styles.expanded : ''}`}
       />
@@ -573,5 +500,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
 };
 
 Sidebar.displayName = 'Sidebar';
-
 export default Sidebar;

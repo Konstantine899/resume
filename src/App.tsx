@@ -2,7 +2,7 @@
 // Updated App Component with FSD Structure
 // ============================================
 
-import { LanguageProvider } from '@/app/providers/LanguageProvider';
+import { I18nProvider } from '@/app/providers/I18nProvider';
 import { ThemeProvider } from '@/app/providers/ThemeProvider';
 import { HomePage } from '@/pages/Home';
 import '@/shared/styles/globals/index.scss';
@@ -15,11 +15,11 @@ import React from 'react';
  */
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
+    <I18nProvider>
+      <ThemeProvider>
         <HomePage />
-      </LanguageProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </I18nProvider>
   );
 };
 

@@ -1,4 +1,5 @@
-import { useLanguage, useTheme } from '@/shared/lib/contexts';
+import { useLanguage } from '@/features/LanguageSwitch';
+import { useTheme } from '@/shared/lib/contexts';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import styles from './About.module.scss';
 
@@ -9,7 +10,7 @@ export function About() {
   return (
     <section id="about" className={styles.container}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.sectionTitle}>{t.aboutTitle}</h2>
+        <h2 className={styles.sectionTitle}>{t(`aboutTitle`)}</h2>
       </AnimatedSection>
 
       <AnimatedSection delay={200}>
@@ -26,14 +27,14 @@ export function About() {
           </div>
 
           {/* Title */}
-          <h3 className={styles.title}>{t.whoAmI}</h3>
+          <h3 className={styles.title}>{t(`about`)}</h3>
 
           {/* Description */}
-          <p className={styles.description}>{t.aboutDescription}</p>
+          <p className={styles.description}>{t(`aboutDescription`)}</p>
 
           {/* CTA Button */}
           <a href="#contact" className={styles.ctaButton}>
-            {t.getInTouch}
+            {t(`getInTouch`)}
           </a>
         </div>
       </AnimatedSection>

@@ -1,4 +1,4 @@
-import { useLanguage } from '@/shared/lib/contexts';
+import { useLanguage } from '@/features/LanguageSwitch';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Mail } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -32,7 +32,7 @@ export function Contact() {
   return (
     <section id="contact" className={styles.container}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.title}>{t.contactTitle}</h2>
+        <h2 className={styles.title}>{t(`contact`)}</h2>
       </AnimatedSection>
 
       <div className={styles.grid}>
@@ -42,7 +42,7 @@ export function Contact() {
             <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
               <input
                 type="text"
-                placeholder={t.namePlaceholder}
+                placeholder={t(`namePlaceholder`)}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 disabled={status === 'submitting'}
@@ -51,7 +51,7 @@ export function Contact() {
 
               <input
                 type="email"
-                placeholder={t.emailPlaceholder}
+                placeholder={t(`emailPlaceholder`)}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled={status === 'submitting'}
@@ -59,7 +59,7 @@ export function Contact() {
               />
 
               <textarea
-                placeholder={t.messagePlaceholder}
+                placeholder={t(`messagePlaceholder`)}
                 rows={4}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -72,7 +72,7 @@ export function Contact() {
                 disabled={status === 'submitting'}
                 className={styles.submitButton}
               >
-                {status === 'submitting' ? t.sending : t.sendMessage}
+                {status === 'submitting' ? t(`sending`) : t(`sendMessage`)}
               </button>
 
               {status === 'error' && (
@@ -83,7 +83,7 @@ export function Contact() {
 
               {status === 'success' && (
                 <div className={styles.successMessage}>
-                  <span>{t.messageSent}</span>
+                  <span>{t(`messageSent`)}</span>
                 </div>
               )}
             </form>
@@ -118,8 +118,8 @@ export function Contact() {
                   <div className={styles.iconWrapper}>
                     <Mail className={styles.mailIcon} />
                   </div>
-                  <h3 className={styles.subtitle}>{t.letsWorkTogether}</h3>
-                  <p className={styles.description}>{t.contactDescription}</p>
+                  <h3 className={styles.subtitle}>{t(`contact`)}</h3>
+                  <p className={styles.description}>{t(`contactDescription`)}</p>
                 </div>
               </div>
             </div>

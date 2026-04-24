@@ -1,4 +1,5 @@
-import { useLanguage, useTheme } from '@/shared/lib/contexts';
+import { useLanguage } from '@/features/LanguageSwitch';
+import { useTheme } from '@/shared/lib/contexts';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import styles from './Skills.module.scss';
 
@@ -112,7 +113,7 @@ export function Skills() {
     <section id="skills" className={styles.skillsSection}>
       <AnimatedSection animation="fadeUp">
         <div className={styles.card}>
-          <h3 className={styles.title}>{t.mySkills}</h3>
+          <h3 className={styles.title}>{t(`mySkills`)}</h3>
 
           <div className={styles.skillsGrid}>
             {skills.map((skill, index) => (
