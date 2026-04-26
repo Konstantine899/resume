@@ -1,4 +1,4 @@
-import { useLanguage } from '@/features/LanguageSwitch';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Mail } from 'lucide-react';
 import { useRef, useState } from 'react';

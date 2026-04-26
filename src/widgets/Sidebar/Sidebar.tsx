@@ -1,8 +1,8 @@
 // ============================================
 // Sidebar Widget
 // ============================================
-import { useLanguage } from '@/features/LanguageSwitch';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import {
   ChevronRight,
   Code,

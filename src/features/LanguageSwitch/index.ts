@@ -1,3 +1,2 @@
-export { useLanguage } from './hooks/useLanguage';
-export type { Language } from './model/types';
+export type { Language } from '../../shared/lib/i18n/types/types';
 export { LanguageSwitch } from './ui';

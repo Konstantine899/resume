@@ -1,5 +1,5 @@
-import { useLanguage } from '@/features/LanguageSwitch';
 import { useTheme } from '@/shared/lib/contexts';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import styles from './About.module.scss';
 

@@ -1,4 +1,4 @@
-import '@/features/LanguageSwitch/lib/i18n';
+import '@/shared/lib/i18n/config/i18n';
 import React from 'react';
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

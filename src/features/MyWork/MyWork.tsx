@@ -3,8 +3,8 @@
 // ============================================
 
 import { PROJECTS } from '@/entities/Project';
-import { useLanguage } from '@/features/LanguageSwitch';
 import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';

@@ -1,7 +1,7 @@
 // ============================================
 // Hero Feature
 // ============================================
-import { useLanguage } from '@/features/LanguageSwitch';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import React from 'react';
 import styles from './Hero.module.scss';
 import { HeroProps } from './types';

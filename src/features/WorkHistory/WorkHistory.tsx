@@ -1,7 +1,7 @@
 'use client';
 
 import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
-import { useLanguage } from '@/features/LanguageSwitch';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import React from 'react';
 import styles from './WorkHistory.module.scss';

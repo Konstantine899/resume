@@ -1,5 +1,5 @@
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Button } from '@/shared/ui/Button';
-import { useLanguage } from '../hooks/useLanguage';
 import styles from './LanguageSwitch.module.scss';
 
 export const LanguageSwitch = () => {
