@@ -1,7 +1,7 @@
 // ============================================
 // Sidebar Widget - Main Component
 // ============================================
-import { useTheme } from '@/shared/lib/contexts/ThemeContext';
+import { useTheme } from '@/shared/lib/contexts';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Menu } from 'lucide-react';
 import React from 'react';

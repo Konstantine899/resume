@@ -57,6 +57,8 @@ export const Controls: React.FC<ControlsProps> = ({
         />
         {showText && (
           <span className={styles.controlText}>
+            <span className={styles.languageLabel}>{t('language.label')}</span>
+
             <span className={styles.languageFull}>{t('languageFull')}</span>
           </span>
         )}
