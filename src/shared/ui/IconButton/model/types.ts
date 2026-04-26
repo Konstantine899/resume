@@ -5,6 +5,7 @@ export type IconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 export interface IconButtonProps {
   icon: ReactNode;
+  children?: ReactNode;
   'aria-label': string;
   size?: IconButtonSize;
   variant?: IconButtonVariant;

@@ -1,3 +1,4 @@
+import { IconButton } from '@/shared/ui/IconButton';
 import { Globe, Moon, Sun } from 'lucide-react';
 import React from 'react';
 import styles from './Controls.module.scss';
@@ -44,51 +45,57 @@ export const Controls: React.FC<ControlsProps> = ({
   return (
     <div className={`${styles.controls} ${variant === 'desktop' ? styles.desktop : styles.mobile}`}>
       {/* Language Toggle */}
-      <button
-        onClick={handleLanguageToggle}
-        className={styles.controlButton}
-        type="button"
+      <IconButton
+        icon={
+          <Globe
+            className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
+            aria-hidden="true"
+          />
+        }
         aria-label={t('language')}
+        onClick={handleLanguageToggle}
+        variant="ghost"
+        size={variant === 'mobile' ? 'lg' : 'md'}
+        fullWidth
         title={!showText ? t('language') : undefined}
+        className={styles.controlButton}
       >
-        <Globe
-          className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
-          aria-hidden="true"
-        />
         {showText && (
           <span className={styles.controlText}>
-            <span className={styles.languageLabel}>{t('language.label')}</span>
-
             <span className={styles.languageFull}>{t('languageFull')}</span>
           </span>
         )}
-      </button>
+      </IconButton>
 
       {/* Theme Toggle */}
-      <button
-        onClick={handleThemeToggle}
-        className={styles.controlButton}
-        type="button"
+      <IconButton
+        icon={
+          theme === 'dark' ? (
+            <Moon
+              className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
+              aria-hidden="true"
+            />
+          ) : (
+            <Sun
+              className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
+              aria-hidden="true"
+            />
+          )
+        }
         aria-label={`Switch to ${theme === 'dark' ? t('lightMode') : t('darkMode')}`}
+        onClick={handleThemeToggle}
+        variant="ghost"
+        size={variant === 'mobile' ? 'lg' : 'md'}
+        fullWidth
         title={!showText ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
+        className={styles.controlButton}
       >
-        {theme === 'dark' ? (
-          <Moon
-            className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
-            aria-hidden="true"
-          />
-        ) : (
-          <Sun
-            className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
-            aria-hidden="true"
-          />
-        )}
         {showText && (
           <span className={styles.controlText}>
             {theme === 'dark' ? t('darkMode') : t('lightMode')}
           </span>
         )}
-      </button>
+      </IconButton>
 
       {variant === 'mobile' && <p className={styles.footerText}>{t('footerTitle')}</p>}
     </div>

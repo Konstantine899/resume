@@ -5,6 +5,7 @@ import styles from './IconButton.module.scss';
 export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   'aria-label': ariaLabel,
+  children,
   size = 'md',
   variant = 'ghost',
   onClick,
@@ -50,6 +51,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       >
         {icon}
       </span>
+      {children && <span className={styles.content}>{children}</span>}
     </button>
   );
 };

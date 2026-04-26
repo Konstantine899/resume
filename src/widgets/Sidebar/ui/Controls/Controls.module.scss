@@ -21,30 +21,12 @@
   border-top: 1px solid var(--card-border);
 }
 
-.controlButton {
+.controlWrapper {
   display: flex;
   gap: $spacing-3;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  padding: $spacing-2 $spacing-3;
-  color: var(--foreground-muted);
-  white-space: nowrap;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  border-radius: $border-radius-lg;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.05);
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary-light;
-    outline-offset: 2px;
-  }
 
   .desktop &.expanded {
     justify-content: flex-start;
@@ -88,4 +70,8 @@
   font-size: $font-size-xs;
   color: var(--foreground-muted);
   text-align: center;
+}
+
+.spinning {
+  animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

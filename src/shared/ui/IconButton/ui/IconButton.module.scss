@@ -35,6 +35,7 @@
     height: 32px;
 
     &.fullWidth {
+      justify-content: center;
       width: 100%;
     }
 
@@ -49,6 +50,7 @@
     height: 40px;
 
     &.fullWidth {
+      justify-content: center;
       width: 100%;
     }
 
@@ -63,6 +65,7 @@
     height: 48px;
 
     &.fullWidth {
+      justify-content: center;
       width: 100%;
     }
 
@@ -95,6 +98,15 @@
   &.rotated {
     transform: rotate(180deg);
   }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  margin-left: $spacing-3;
+  overflow: hidden;
 }
 
 @keyframes spin {
