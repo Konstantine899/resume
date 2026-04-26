@@ -3,7 +3,7 @@
 // ============================================
 
 import { PROJECTS } from '@/entities/Project';
-import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
+import { useTheme } from '@/shared/lib/contexts';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
@@ -20,7 +20,6 @@ export const MyWork: React.FC<MyWorkProps> = ({
   const { t, language } = useLanguage();
 
   const handleProjectClick = (projectId: string) => {
-    console.log(projectId);
     onProjectClick?.(projectId);
   };
 

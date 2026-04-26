@@ -16,8 +16,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.1);
+    background: rgb(244 179 119 / 0.15);
   }
 
   &:focus-visible {
@@ -26,7 +25,6 @@
   }
 
   .sidebar-collapsed:hover & {
-    color: $primary-light;
     background: rgb(244 179 119 / 0.15);
   }
 }
