@@ -1,8 +1,8 @@
 {
   "collapseSidebar": "Collapse sidebar",
   "expandSidebar": "Expand sidebar",
-  "greeting": "Hi,",
-  "name": "I'm Konstantin",
+  "greeting": "Hi, I'm",
+  "name": "Konstantin",
   "fullName": "Atroschenko Konstantin",
   "profession": "Full Stack Developer",
   "specialties": "React, Node.js, TypeScript, React, Node.js, TypeScript, React, Node.js, TypeScript",

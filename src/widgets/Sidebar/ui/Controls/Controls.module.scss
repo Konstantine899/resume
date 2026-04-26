@@ -1,0 +1,91 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.desktop {
+  width: 100%;
+  padding: $spacing-4 $spacing-2;
+  margin-top: auto;
+  margin-bottom: $spacing-2;
+  border-top: 1px solid var(--card-border);
+}
+
+.mobile {
+  padding: $spacing-xl;
+  border-top: 1px solid var(--card-border);
+}
+
+.controlButton {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-lg;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
+
+  .desktop &.expanded {
+    justify-content: flex-start;
+  }
+}
+
+.controlIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  &.spinning {
+    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+.controlText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  overflow: hidden;
+  font-size: $font-size-sm;
+
+  .mobile & {
+    font-size: $font-size-base;
+  }
+}
+
+.languageLabel {
+  font-weight: 600;
+}
+
+.languageFull {
+  font-size: $font-size-sm;
+}
+
+.footerText {
+  margin-top: $spacing-4;
+  font-size: $font-size-xs;
+  color: var(--foreground-muted);
+  text-align: center;
+}

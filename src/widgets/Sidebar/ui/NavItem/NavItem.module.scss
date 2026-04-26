@@ -1,0 +1,64 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.navItem {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  padding: $spacing-2 $spacing-3;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: -2px;
+    background: rgb(244 179 119 / 0.1);
+  }
+
+  &.active {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.1);
+
+    &:focus-visible {
+      outline: 2px solid $primary-light;
+    }
+  }
+}
+
+.desktop {
+  justify-content: center;
+  margin: 0 $spacing-2;
+
+  &.expanded {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+.mobile {
+  width: 100%;
+  font-weight: 500;
+
+  &:hover {
+    background: rgb(244 179 119 / 0.1);
+  }
+}
+
+.navIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.navLabel {
+  font-weight: 500;
+  opacity: 1;
+}

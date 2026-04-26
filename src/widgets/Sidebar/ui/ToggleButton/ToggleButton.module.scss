@@ -1,0 +1,42 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: $spacing-2;
+  margin-bottom: $spacing-4;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
+
+  .sidebar-collapsed:hover & {
+    color: $primary-light;
+    background: rgb(244 179 119 / 0.15);
+  }
+}
+
+.expandIcon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}

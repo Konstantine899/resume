@@ -1,6 +1,6 @@
 // ============================================
 
-// Sidebar Widget - SCSS Module
+// Sidebar Widget - Layout Styles Only
 
 // ============================================
 @use '@/shared/styles/variables' as *;
@@ -17,194 +17,46 @@
   top: $spacing-md;
   left: $spacing-md;
   z-index: $sidebar-z-index + 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2;
+  cursor: pointer;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgb(244 179 119 / 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
 
   @include md {
     display: none;
+  }
+
+  // Скрывать когда мобильное меню открыто
+  &.hidden {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
   }
 }
 
 .menuIcon {
   width: 20px;
   height: 20px;
-}
-
-// ============================================
-
-// MOBILE MENU OVERLAY
-
-// ============================================
-.mobileOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: $sidebar-z-index;
-  visibility: hidden;
-  opacity: 0;
-  transition: all $sidebar-transition;
-
-  &.open {
-    visibility: visible;
-    opacity: 1;
-  }
-}
-
-.backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgb(0 0 0 / 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.mobilePanel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  width: $sidebar-mobile-width;
-  max-width: $sidebar-mobile-max-width;
-  background: var(--background);
-  transform: translateX(-100%);
-  transition: transform $sidebar-transition;
-
-  .mobileOverlay.open & {
-    transform: translateX(0);
-  }
-}
-
-.closeButton {
-  position: absolute;
-  top: $spacing-md;
-  right: $spacing-md;
-  z-index: 1;
-}
-
-.closeIcon {
-  width: 20px;
-  height: 20px;
-}
-
-// ============================================
-
-// MOBILE PANEL CONTENT
-
-// ============================================
-.logoSection {
-  padding: $spacing-20 $spacing-lg $spacing-xl;
-  border-bottom: 1px solid var(--card-border);
-}
-
-.logoLink {
-  text-decoration: none;
-}
-
-.logoText {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.mobileNav {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: $spacing-2;
-  padding: $spacing-xl;
-}
-
-.mobileNavItem {
-  display: flex;
-  gap: $spacing-3;
-  align-items: center;
-  padding: $spacing-3 $spacing-4;
   color: var(--foreground);
-  text-decoration: none;
-  border-radius: $border-radius-md;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: #f4b377;
-    background: rgb(244 179 119 / 0.1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid #f4b377;
-    outline-offset: -2px;
-    background: rgb(244 179 119 / 0.15);
-  }
-
-  &[aria-current='page'] {
-    font-weight: 600;
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.15);
-  }
-}
-
-.navIcon {
-  width: 20px;
-  height: 20px;
-}
-
-.navLabel {
-  font-weight: 500;
-}
-
-.controlsSection {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-  padding: $spacing-xl;
-  border-top: 1px solid var(--card-border);
-}
-
-.controlButton {
-  display: flex;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  padding: $spacing-2 $spacing-3;
-}
-
-.controlIcon {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-  &.spinning {
-    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-}
-
-.controlText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
-}
-
-.languageLabel {
-  font-size: $font-size-base;
-  font-weight: 500;
-}
-
-.languageFull {
-  font-size: $font-size-xs;
-  color: var(--foreground-muted);
-}
-
-.footerText {
-  margin-top: $spacing-4;
-  font-size: $font-size-xs;
-  color: var(--foreground-muted);
-  text-align: center;
 }
 
 // ============================================
 
-// DESKTOP SIDEBAR
+// DESKTOP SIDEBAR - LAYOUT ONLY
 
 // ============================================
 .desktopSidebar {
@@ -216,7 +68,6 @@
   display: none;
   flex-direction: column;
   align-items: center;
-  width: $sidebar-width-expanded; // Базовая ширина
   padding: $spacing-12 0;
   contain: layout;
   cursor: pointer;
@@ -230,7 +81,7 @@
     display: flex;
   }
 
-  // Состояние expanded
+  // Width states
   &.expanded {
     width: $sidebar-width-expanded;
     cursor: default;
@@ -238,14 +89,6 @@
 
   &.collapsed {
     width: $sidebar-width-collapsed;
-
-    .desktopNavLabel,
-    .sidebarControlText,
-    .desktopLogoTextFull {
-      position: absolute; // Дополнительно: убрать из flow
-      pointer-events: none;
-      opacity: 0;
-    }
   }
 
   &.collapsed:hover {
@@ -256,14 +99,6 @@
   &.hoverExpanded {
     width: $sidebar-width-expanded;
     cursor: default;
-
-    .desktopNavLabel,
-    .sidebarControlText,
-    .desktopLogoTextFull {
-      position: static;
-      pointer-events: auto;
-      opacity: 1;
-    }
   }
 
   &:focus-visible {
@@ -272,287 +107,9 @@
   }
 }
 
-.desktopLogo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 4rem;
-  margin-bottom: $spacing-8;
-  text-decoration: none;
-  border-bottom: 1px solid var(--card-border);
-  transition: all $sidebar-transition;
-
-  &:hover {
-    background: rgb(244 179 119 / 0.05);
-  }
-}
-
-.desktopLogoText {
-  font-size: 1.25rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.desktopLogoTextFull {
-  margin-left: $spacing-2;
-  font-size: 1.125rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  opacity: 0;
-  transition: opacity $sidebar-transition;
-  -webkit-text-fill-color: transparent;
-
-  .desktopSidebar.expanded &,
-  .desktopSidebar.hoverExpanded & {
-    opacity: 1;
-  }
-}
-
-.desktopNav {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: $spacing-4;
-  align-items: flex-start;
-  width: 100%;
-  padding: $spacing-4 0;
-}
-
-.desktopNavItem {
-  position: relative;
-  display: flex;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-2 $spacing-3;
-  margin: 0 $spacing-2;
-  color: var(--foreground-muted);
-  white-space: nowrap;
-  text-decoration: none;
-  transition:
-    all $transition-fast,
-    color $transition-duration;
-
-  &:hover {
-    width: 100%;
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.05);
-  }
-
-  &[title] {
-    cursor: pointer;
-  }
-
-  &.expanded {
-    justify-content: flex-start;
-  }
-
-  &.collapsed {
-    justify-content: center;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #f4b377;
-    outline-offset: -2px;
-    background: rgb(244 179 119 / 0.1);
-  }
-
-  &[aria-current='page'] {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.1);
-
-    &:focus-visible {
-      outline: 2px solid $primary-light;
-    }
-  }
-}
-
-.desktopNavIcon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-}
-
-.desktopNavLabel {
-  font-weight: 500;
-  opacity: 0;
-  transition: opacity $sidebar-transition;
-
-  .desktopSidebar.expanded &,
-  .desktopSidebar.hoverExpanded & {
-    opacity: 1;
-  }
-}
-
-.desktopControls {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
-  width: 100%;
-  padding: $spacing-4 $spacing-2;
-  margin-top: auto;
-  margin-bottom: $spacing-2;
-  border-top: 1px solid var(--card-border);
-}
-
-.sidebarControlButton {
-  display: flex;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 100%;
-  padding: $spacing-2 $spacing-3;
-  overflow-x: hidden;
-  color: var(--foreground-muted);
-  white-space: nowrap;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  border-radius: $border-radius-lg;
-  transition:
-    all $transition-fast,
-    color $transition-duration;
-
-  &:hover {
-    color: #f4b377;
-    background: rgb(244 179 119 / 0.05);
-  }
-
-  &.expanded {
-    justify-content: flex-start;
-    padding-right: $spacing-3;
-    padding-left: $spacing-3;
-    margin-right: 0;
-    margin-left: 0;
-  }
-}
-
-.sidebarControlText {
-  display: flex;
-  gap: $spacing-1;
-  align-items: center;
-  overflow: hidden;
-  font-size: $font-size-sm;
-  white-space: nowrap;
-
-  .languageLabel {
-    font-weight: 600;
-  }
-
-  .languageFull {
-    font-size: $font-size-xs;
-    opacity: 0.6;
-  }
-
-  .desktopSidebar.hoverExpanded & {
-    opacity: 1;
-  }
-}
-
-.desktopControlButton {
-  display: flex;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: center;
-  max-width: 100%;
-  padding: $spacing-2 $spacing-3;
-  overflow-x: hidden;
-  color: var(--foreground-muted);
-  white-space: nowrap;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  transition:
-    all $transition-fast,
-    color $transition-duration;
-
-  &:hover {
-    background: rgb(244 179 119 / 0.05);
-  }
-
-  &.expanded {
-    justify-content: flex-start;
-  }
-}
-
-.desktopControlIcon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-  &.spinning {
-    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-}
-
-.desktopControlText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
-  opacity: 0;
-  transition: opacity $sidebar-transition;
-
-  .desktopSidebar.expanded & {
-    opacity: 1;
-  }
-}
-
-.desktopLanguageLabel {
-  font-size: $font-size-base;
-  font-weight: 500;
-}
-
-.desktopLanguageFull {
-  font-size: $font-size-xs;
-  color: var(--foreground-muted);
-}
-
-.expandIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-2;
-  margin-bottom: $spacing-4;
-  color: var(--foreground-muted);
-  cursor: pointer;
-  border-radius: $border-radius-md;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: #f4b377;
-    background: rgb(244 179 119 / 0.1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid #f4b377;
-    outline-offset: 2px;
-  }
-
-  .desktopSidebar.collapsed:hover & {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.15);
-  }
-}
-
-.expandIcon {
-  width: 16px;
-  height: 16px;
-  transition: transform $sidebar-transition;
-
-  &.rotated {
-    transform: rotate(180deg);
-  }
-}
-
 // ============================================
 
-// DESKTOP SPACER (CRITICAL FIX)
+// DESKTOP SPACER
 
 // ============================================
 .desktopSpacer {
@@ -567,21 +124,14 @@
     &.expanded {
       width: $sidebar-width-expanded;
     }
-
-    &.collapsed {
-      width: $sidebar-width-collapsed;
-    }
   }
 }
 
-.controlButton,
-.sidebarControlButton {
-  &:focus-visible {
-    outline: 2px solid #f4b377;
-    outline-offset: 2px;
-  }
-}
+// ============================================
 
+// ACCESSIBILITY UTILITIES
+
+// ============================================
 .srOnly {
   position: absolute;
   width: 1px;
