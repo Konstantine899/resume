@@ -21,7 +21,12 @@
     "format:check": "prettier --check .",
     "validate": "npm run type-check && npm run lint:all",
     "validate:fix": "npm run type-check && npm run lint:all:fix && npm run format",
-    "prepare": "husky"
+    "prepare": "husky",
+    "mcp:local-files": "npx -y @modelcontextprotocol/server-filesystem@latest D:/Dev/projects D:/Dev/projects/resume",
+    "mcp:memory": "npx -y @modelcontextprotocol/server-memory@latest",
+    "mcp:context7": "npx -y @upstash/context7-mcp@latest --api-key ctx7sk-5885363f-cc51-420b-9657-2ab63bba8558",
+    "mcp:eslint": "npx @eslint/mcp@latest",
+    "mcp:all": "concurrently \"npm run mcp:local-files\" \"npm run mcp:memory\" \"npm run mcp:context7\" \"npm run mcp:eslint\""
   },
   "keywords": [],
   "author": "",
@@ -36,6 +41,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "@vitejs/plugin-react": "^5.1.4",
     "babel-plugin-react-remove-properties": "^0.3.1",
+    "concurrently": "^9.2.1",
     "css-tree": "^3.2.1",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
