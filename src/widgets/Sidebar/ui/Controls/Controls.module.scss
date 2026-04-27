@@ -6,13 +6,41 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
+
+  &.expanded {
+    .controlButton {
+      justify-content: flex-start;
+    }
+  }
+
+  &.collapsed {
+    .controlButton {
+      justify-content: center;
+    }
+  }
+}
+
+.controlButton {
+  @include flex-center;
+
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &--expanded {
+    justify-content: flex-start;
+  }
+
+  &--collapsed {
+    justify-content: center;
+  }
 }
 
 .desktop {
   width: 100%;
   padding: $spacing-4 $spacing-2;
   margin-top: auto;
-  margin-bottom: $spacing-2;
   border-top: 1px solid var(--card-border);
 }
 
@@ -49,16 +77,15 @@
   flex-direction: column;
   gap: 2px;
   align-items: flex-start;
+  min-width: 0;
   overflow: hidden;
   font-size: $font-size-sm;
+  line-height: 1.2;
+  white-space: nowrap;
 
   .mobile & {
     font-size: $font-size-base;
   }
-}
-
-.languageLabel {
-  font-weight: 600;
 }
 
 .languageFull {

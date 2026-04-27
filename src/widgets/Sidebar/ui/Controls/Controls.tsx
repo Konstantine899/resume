@@ -1,4 +1,7 @@
-import { IconButton } from '@/shared/ui/IconButton';
+// src/widgets/Sidebar/ui/Controls/Controls.tsx
+
+import { classNames } from '@/shared/lib/utils/classNames';
+import { Button } from '@/shared/ui/Button';
 import { Globe, Moon, Sun } from 'lucide-react';
 import React from 'react';
 import styles from './Controls.module.scss';
@@ -28,6 +31,9 @@ export const Controls: React.FC<ControlsProps> = ({
 }) => {
   const showText = !isCollapsed || isHoverExpanded || variant === 'mobile';
 
+  // ✅ Определяем модификатор для состояния sidebar
+  const sidebarMod = isCollapsed && !isHoverExpanded ? 'collapsed' : 'expanded';
+
   const handleLanguageToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (variant === 'desktop') {
       e.stopPropagation();
@@ -42,44 +48,53 @@ export const Controls: React.FC<ControlsProps> = ({
     toggleTheme();
   };
 
+  // Build class names using classNames utility
+  const containerClasses = classNames(
+    styles.controls,
+    styles[sidebarMod], // ✅ Модификатор состояния
+    variant === 'desktop' ? styles.desktop : styles.mobile
+  );
+
+  const languageIconClasses = classNames(
+    styles.controlIcon,
+    isLangTransitioning && styles.spinning
+  );
+
+  const themeIconClasses = classNames(styles.controlIcon, isTransitioning && styles.spinning);
+
+  // ✅ Класс кнопки с модификатором
+  const controlButtonClasses = classNames(
+    styles.controlButton,
+    styles[`controlButton--${sidebarMod}`] // ✅ BEM-модификатор
+  );
+
   return (
-    <div className={`${styles.controls} ${variant === 'desktop' ? styles.desktop : styles.mobile}`}>
+    <div className={containerClasses}>
       {/* Language Toggle */}
-      <IconButton
-        icon={
-          <Globe
-            className={`${styles.controlIcon} ${isLangTransitioning ? styles.spinning : ''}`}
-            aria-hidden="true"
-          />
-        }
+      <Button
+        icon={<Globe className={languageIconClasses} aria-hidden="true" />}
         aria-label={t('language')}
         onClick={handleLanguageToggle}
         variant="ghost"
         size={variant === 'mobile' ? 'lg' : 'md'}
         fullWidth
         title={!showText ? t('language') : undefined}
-        className={styles.controlButton}
+        className={controlButtonClasses}
       >
         {showText && (
           <span className={styles.controlText}>
             <span className={styles.languageFull}>{t('languageFull')}</span>
           </span>
         )}
-      </IconButton>
+      </Button>
 
       {/* Theme Toggle */}
-      <IconButton
+      <Button
         icon={
           theme === 'dark' ? (
-            <Moon
-              className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
-              aria-hidden="true"
-            />
+            <Moon className={themeIconClasses} aria-hidden="true" />
           ) : (
-            <Sun
-              className={`${styles.controlIcon} ${isTransitioning ? styles.spinning : ''}`}
-              aria-hidden="true"
-            />
+            <Sun className={themeIconClasses} aria-hidden="true" />
           )
         }
         aria-label={`Switch to ${theme === 'dark' ? t('lightMode') : t('darkMode')}`}
@@ -88,14 +103,14 @@ export const Controls: React.FC<ControlsProps> = ({
         size={variant === 'mobile' ? 'lg' : 'md'}
         fullWidth
         title={!showText ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
-        className={styles.controlButton}
+        className={controlButtonClasses}
       >
         {showText && (
           <span className={styles.controlText}>
             {theme === 'dark' ? t('darkMode') : t('lightMode')}
           </span>
         )}
-      </IconButton>
+      </Button>
 
       {variant === 'mobile' && <p className={styles.footerText}>{t('footerTitle')}</p>}
     </div>

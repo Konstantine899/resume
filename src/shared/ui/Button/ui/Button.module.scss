@@ -1,0 +1,208 @@
+// src/shared/ui/Button/ui/Button.module.scss
+
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.button {
+  @include flex-center;
+
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: $spacing-sm;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  // ✅ Улучшение 1: Разное выравнивание для разных режимов
+  &:not(.iconOnly) {
+    justify-content: flex-start;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
+
+  // Variants
+  &.primary {
+    color: white;
+    background-color: $primary-light;
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($primary-light, $lightness: -10%);
+    }
+  }
+
+  &.secondary {
+    color: var(--foreground-muted);
+    background-color: transparent;
+    border: 1px solid var(--card-border);
+
+    &:hover:not(:disabled) {
+      background-color: var(--background-secondary);
+    }
+  }
+
+  &.outline {
+    color: $primary-light;
+    background-color: transparent;
+    border: 2px solid $primary-light;
+
+    &:hover:not(:disabled) {
+      background-color: rgb(244 179 119 / 0.1);
+    }
+  }
+
+  &.ghost {
+    color: var(--foreground-muted);
+    background-color: transparent;
+
+    &:hover:not(:disabled) {
+      color: $primary-light;
+      background-color: rgb(244 179 119 / 0.1);
+    }
+  }
+
+  &.danger {
+    color: white;
+    background-color: $danger-color;
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($danger-color, $lightness: -10%);
+    }
+  }
+
+  // Базовые padding для text кнопок
+  &.sm {
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+  }
+
+  &.md {
+    padding: $spacing-md $spacing-lg;
+    font-size: 1rem;
+  }
+
+  &.lg {
+    padding: $spacing-lg $spacing-xl;
+    font-size: 1.125rem;
+  }
+
+  // Размеры иконок (работают для всех режимов)
+  &.sm .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  &.md .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &.lg .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  // Icon-only режим
+  &.iconOnly {
+    padding: 0;
+
+    &.sm {
+      width: 32px;
+      height: 32px;
+    }
+
+    &.md {
+      width: 40px;
+      height: 40px;
+    }
+
+    &.lg {
+      width: 48px;
+      height: 48px;
+    }
+
+    &.fullWidth {
+      width: 100%;
+
+      &.sm {
+        height: 32px;
+      }
+
+      &.md {
+        height: 40px;
+      }
+
+      &.lg {
+        height: 48px;
+      }
+    }
+  }
+
+  // States
+  &.fullWidth {
+    width: 100%;
+  }
+
+  &.loading {
+    .inner {
+      visibility: hidden;
+    }
+
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgb(255 255 255 / 0.3);
+      border-top-color: currentcolor;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+
+  .inner {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+    justify-content: inherit;
+  }
+
+  .text {
+    display: flex;
+    align-items: center;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

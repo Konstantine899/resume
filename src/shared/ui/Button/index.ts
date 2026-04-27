@@ -1,12 +1,14 @@
-// ============================================
-// Button Component - Public API
-// ============================================
+// src/shared/ui/Button/index.ts
 
-export { Button } from './Button';
 export type {
-  ButtonProps,
-  ButtonVariant,
-  ButtonSize,
   ButtonGroupProps,
-  IconButtonProps,
-} from './types';
+  ButtonMode,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+  CombinedButtonProps,
+  IconButtonOnlyProps,
+  IconPosition,
+  TextButtonProps,
+} from './model/types';
+export { Button } from './ui/Button';

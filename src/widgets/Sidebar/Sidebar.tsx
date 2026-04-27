@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Toggle Button */}
         <ToggleButton
           isCollapsed={!isOpen}
-          isHoverExpanded={isHoverExpanded}
+          isHoverExpanded={!isHoverExpanded}
           onToggle={toggleSidebar}
           t={t}
         />

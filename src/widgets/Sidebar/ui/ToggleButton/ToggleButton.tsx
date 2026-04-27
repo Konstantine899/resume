@@ -1,4 +1,4 @@
-import { IconButton } from '@/shared/ui/IconButton';
+import { Button } from '@/shared/ui/Button';
 import { ChevronRight } from 'lucide-react';
 import React from 'react';
 import styles from './ToggleButton.module.scss';
@@ -25,15 +25,15 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   };
 
   return (
-    <IconButton
+    <Button
       icon={<ChevronRight />}
       aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
       onClick={handleClick}
       rotation={isRotated ? 180 : 0}
       size="md"
       variant="ghost"
-      fullWidth
       className={styles.toggleButton}
+      fullWidth
     />
   );
 };
