@@ -1,6 +1,8 @@
 // ============================================
 // Hero Feature
 // ============================================
+import { DEVELOPER_DATA, getDeveloperInitials } from '@/entities/Developer';
+
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import React from 'react';
 import styles from './Hero.module.scss';
@@ -55,7 +57,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> specialties:</span>
-                <span className={styles.string}>'{t(`specialties`)}'</span>
+                <span className={styles.string}>'{DEVELOPER_DATA.specialties.join(', ')}'</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> skills:</span>
@@ -63,11 +65,11 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> {t(`yearsOfExperience`)}:</span>
-                <span className={styles.number}>6</span>
+                <span className={styles.number}>{DEVELOPER_DATA.yearsOfExperience}</span>
                 <span className={styles.punctuation}>,</span>
                 {'\n'}
                 <span className={styles.property}> {t(`age`)}:</span>
-                <span className={styles.number}>20</span>
+                <span className={styles.number}>{DEVELOPER_DATA.age}</span>
                 {'\n\n'}
                 <span className={styles.punctuation}>{'};'}</span>
               </pre>
@@ -97,7 +99,7 @@ export const Hero: React.FC<HeroProps> = ({
             <div className={styles.photoCircle}>
               <div className={styles.photoInner}>
                 {/* Placeholder with initials */}
-                <span className={styles.initial}>M</span>
+                <span className={styles.initial}>{getDeveloperInitials().charAt(1)} </span>
               </div>
             </div>
 
