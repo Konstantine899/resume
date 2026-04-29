@@ -27,7 +27,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   return (
     <Button
       icon={<ChevronRight />}
-      aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
+      aria-label={isExpanded ? t('collapseSidebar') : t('expandSidebar')}
       onClick={handleClick}
       rotation={isRotated ? 180 : 0}
       size="md"

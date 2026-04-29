@@ -15,7 +15,7 @@ export const LanguageSwitch = () => {
       size="sm"
       className={styles.button}
       onClick={toggleLanguage}
-      aria-label={t('language.switch')}
+      aria-label={t('language')}
     >
       {language === 'en' ? '🇺🇸 EN' : '🇷🇺 RU'}
     </Button>
