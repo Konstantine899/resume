@@ -1,7 +1,8 @@
 // ============================================
 // Sidebar Widget - Main Component
 // ============================================
-import { useTheme } from '@/shared/lib/contexts';
+import { LanguageSwitch } from '@/features/LanguageSwitch';
+import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Menu } from 'lucide-react';
 import React from 'react';
@@ -10,7 +11,6 @@ import { useNavigation } from './hooks/useNavigation';
 import { useSidebar } from './hooks/useSidebar';
 import { getNavItems } from './model/constants';
 import type { SidebarProps } from './model/types';
-import { Controls } from './ui/Controls';
 import { MobileMenu } from './ui/MobileMenu';
 import { Navigation } from './ui/Navigation';
 import { SidebarHeader } from './ui/SidebarHeader';
@@ -21,8 +21,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigation,
   'data-testid': testId = 'sidebar',
 }) => {
-  const { theme, toggleTheme, isTransitioning } = useTheme();
-  const { toggleLanguage, t, isTransitioning: isLangTransitioning } = useLanguage();
+  const { t } = useLanguage();
 
   const { isOpen, isHoverExpanded, toggleSidebar, handleMouseEnter, handleMouseLeave } =
     useSidebar();
@@ -65,12 +64,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         items={navItems}
         activeSection={activeSection}
         onNavClick={handleNavClick}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        toggleLanguage={toggleLanguage}
-        isTransitioning={isTransitioning}
-        isLangTransitioning={isLangTransitioning}
-        t={t}
       />
 
       {/* Desktop Sidebar */}
@@ -110,17 +103,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
 
         {/* Controls */}
-        <Controls
-          theme={theme}
-          toggleTheme={toggleTheme}
-          toggleLanguage={toggleLanguage}
-          isCollapsed={!isOpen}
-          isHoverExpanded={isHoverExpanded}
-          variant="desktop"
-          isTransitioning={isTransitioning}
-          isLangTransitioning={isLangTransitioning}
-          t={t}
-        />
+        <div className={styles.controls}>
+          <ThemeSwitch isCollapsed={!isOpen} isHoverExpanded={isHoverExpanded} variant="desktop" />
+          <LanguageSwitch
+            isCollapsed={!isOpen}
+            isHoverExpanded={isHoverExpanded}
+            variant="desktop"
+          />
+        </div>
 
         {/* Toggle Button */}
         <ToggleButton

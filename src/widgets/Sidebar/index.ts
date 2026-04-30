@@ -7,7 +7,6 @@ export type { SidebarProps } from './model/types';
 export { Sidebar } from './Sidebar';
 
 // UI Components (for advanced usage)
-export { Controls } from './ui/Controls';
 export { MobileMenu } from './ui/MobileMenu';
 export { Navigation } from './ui/Navigation';
 export { NavItem } from './ui/NavItem';

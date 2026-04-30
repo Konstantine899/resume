@@ -1,7 +1,9 @@
+import { LanguageSwitch } from '@/features/LanguageSwitch';
+import { ThemeSwitch } from '@/features/ThemeSwitch';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { X } from 'lucide-react';
 import React from 'react';
 import type { NavItem as NavItemType } from '../../model/types';
-import { Controls } from '../Controls';
 import { NavItem } from '../NavItem';
 import { SidebarHeader } from '../SidebarHeader';
 import styles from './MobileMenu.module.scss';
@@ -12,12 +14,6 @@ export interface MobileMenuProps {
   items: NavItemType[];
   activeSection: string;
   onNavClick: (href: string) => void;
-  theme: 'dark' | 'light';
-  toggleTheme: () => void;
-  toggleLanguage: () => void;
-  isTransitioning?: boolean;
-  isLangTransitioning?: boolean;
-  t?: (key: string) => string;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({
@@ -26,13 +22,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   items,
   activeSection,
   onNavClick,
-  theme,
-  toggleTheme,
-  toggleLanguage,
-  isTransitioning = false,
-  isLangTransitioning = false,
-  t = (key: string) => key,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <div
       className={`${styles.overlay} ${isOpen ? styles.open : ''}`}
@@ -75,16 +67,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           ))}
         </nav>
 
-        {/* Controls */}
-        <Controls
-          theme={theme}
-          toggleTheme={toggleTheme}
-          toggleLanguage={toggleLanguage}
-          variant="mobile"
-          isTransitioning={isTransitioning}
-          isLangTransitioning={isLangTransitioning}
-          t={t}
-        />
+        <div className={styles.controls}>
+          <ThemeSwitch variant="mobile" />
+          <LanguageSwitch variant="mobile" />
+          <p className={styles.footerText}>{t('footerTitle')}</p>
+        </div>
       </div>
     </div>
   );
