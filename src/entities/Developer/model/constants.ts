@@ -1,3 +1,4 @@
+import { getInitials } from '@/shared/lib/utils';
 import type { DeveloperProfile } from './types';
 
 export const DEVELOPER_DATA: DeveloperProfile = {
@@ -14,11 +15,8 @@ export const DEVELOPER_DATA: DeveloperProfile = {
 
 /**
  * Получить инициалы разработчика
+ * Использует универсальную функцию getInitials из shared
  */
 export const getDeveloperInitials = (): string => {
-  return DEVELOPER_DATA.fullName
-    .split(' ')
-    .map((name) => name[0])
-    .join('')
-    .toUpperCase();
+  return getInitials(DEVELOPER_DATA.fullName, { maxInitials: 3 });
 };

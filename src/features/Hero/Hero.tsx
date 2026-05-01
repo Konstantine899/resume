@@ -1,9 +1,10 @@
 // ============================================
 // Hero Feature
 // ============================================
-import { DEVELOPER_DATA, getDeveloperInitials } from '@/entities/Developer';
+import { DEVELOPER_DATA } from '@/entities/Developer';
 
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { getInitials } from '@/shared/lib/utils';
 import React from 'react';
 import styles from './Hero.module.scss';
 import { HeroProps } from './types';
@@ -99,7 +100,9 @@ export const Hero: React.FC<HeroProps> = ({
             <div className={styles.photoCircle}>
               <div className={styles.photoInner}>
                 {/* Placeholder with initials */}
-                <span className={styles.initial}>{getDeveloperInitials().charAt(1)} </span>
+                <span className={styles.initial}>
+                  {getInitials(DEVELOPER_DATA.fullName, { maxInitials: 1, index: 1 })}{' '}
+                </span>
               </div>
             </div>
 
