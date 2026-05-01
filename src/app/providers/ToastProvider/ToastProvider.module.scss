@@ -1,0 +1,27 @@
+// ============================================
+
+// Toast Provider Styles
+
+// ============================================
+
+.container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+  pointer-events: none;
+
+  // Allow clicks on toasts
+  > * {
+    pointer-events: auto;
+  }
+
+  @media (width >= 640px) {
+    max-width: 450px;
+  }
+}

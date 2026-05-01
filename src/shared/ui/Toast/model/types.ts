@@ -2,7 +2,7 @@
 // Toast Types
 // ============================================
 
-import { ToastType } from '@/app/providers/ToastProvider';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastProps {
   id: string;

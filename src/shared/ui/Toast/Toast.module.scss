@@ -1,0 +1,128 @@
+// ============================================
+
+// Toast Component Styles
+
+// ============================================
+
+@import '@/shared/styles/variables';
+@import '@/shared/styles/mixins';
+
+.container {
+  position: fixed;
+  top: $spacing-lg;
+  right: $spacing-lg;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+  max-width: 400px;
+
+  @include sm {
+    max-width: 450px;
+  }
+}
+
+.toast {
+  @include flex-between;
+
+  padding: $spacing-md $spacing-lg;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xl;
+  backdrop-filter: blur(8px);
+  animation: slideInRight 0.3s ease-out;
+
+  &.success {
+    border-left: 4px solid #22c55e;
+
+    .icon {
+      color: #22c55e;
+    }
+  }
+
+  &.error {
+    border-left: 4px solid #ef4444;
+
+    .icon {
+      color: #ef4444;
+    }
+  }
+
+  &.info {
+    border-left: 4px solid #3b82f6;
+
+    .icon {
+      color: #3b82f6;
+    }
+  }
+
+  &.warning {
+    border-left: 4px solid #f59e0b;
+
+    .icon {
+      color: #f59e0b;
+    }
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin-right: $spacing-md;
+  }
+
+  .message {
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--foreground);
+    overflow-wrap: break-word;
+  }
+
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xs;
+    margin-left: $spacing-md;
+    color: var(--foreground-muted);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: $radius-md;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--foreground);
+      background: rgb(128 128 128 / 0.1);
+    }
+  }
+}
+
+// Animations
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}

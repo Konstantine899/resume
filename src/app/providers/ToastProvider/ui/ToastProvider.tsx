@@ -3,12 +3,14 @@
 // ============================================
 
 import { Toast } from '@/shared/ui/Toast';
+import { ToastType } from '@/shared/ui/Toast/model/types';
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
-import type { ToastContextType, ToastState, ToastType } from '../model/types';
+import type { ToastContextType, ToastState } from '../model/types';
 import styles from './ToastProvider.module.scss';
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext);
   if (!context) {

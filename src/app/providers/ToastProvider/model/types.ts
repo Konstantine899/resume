@@ -2,7 +2,7 @@
 // Toast Provider Types
 // ============================================
 
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+import { ToastType } from '@/shared/ui/Toast/model/types';
 
 export interface ToastState {
   id: string;
