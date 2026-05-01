@@ -2,5 +2,5 @@
 // WorkHistory Feature - Public API
 // ============================================
 
-export type { WorkHistoryProps, WorkHistoryTranslations } from './types';
-export { WorkHistory } from './WorkHistory';
+export type { WorkHistoryProps, WorkHistoryTranslations } from './model/types';
+export { WorkHistory } from './ui/WorkHistory';

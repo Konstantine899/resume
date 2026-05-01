@@ -6,8 +6,8 @@ import { DEVELOPER_DATA } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { getInitials } from '@/shared/lib/utils';
 import React from 'react';
+import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
-import { HeroProps } from './types';
 
 /**
  * Hero Feature Component

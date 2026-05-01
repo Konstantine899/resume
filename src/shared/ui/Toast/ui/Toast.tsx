@@ -2,10 +2,10 @@
 // Toast Component (Shared Layer)
 // ============================================
 
-import type { ToastType } from '@/app/providers/ToastProvider';
 import { classNames } from '@/shared/lib/utils';
 import { AlertTriangle, CheckCircle, Info, X, XCircle } from 'lucide-react';
 import { memo, useEffect } from 'react';
+import { ToastType } from '../model/types';
 import styles from './Toast.module.scss';
 
 const icons: Record<ToastType, React.ComponentType<{ size?: number }>> = {

@@ -8,8 +8,8 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
 import React from 'react';
+import type { MyWorkProps } from '../model/types';
 import styles from './MyWork.module.scss';
-import type { MyWorkProps } from './types';
 
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',

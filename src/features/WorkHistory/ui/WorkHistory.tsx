@@ -4,8 +4,8 @@ import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import React from 'react';
+import type { WorkHistoryProps } from '../model/types';
 import styles from './WorkHistory.module.scss';
-import type { WorkHistoryProps } from './types';
 
 /**
  * WorkHistory Feature Component

@@ -2,5 +2,5 @@
 // Hero Feature - Public API
 // ============================================
 
-export { Hero } from './Hero';
-export type { HeroProps, HeroState, HeroTranslations } from './types';
+export type { HeroProps, HeroState, HeroTranslations } from './model/types';
+export { Hero } from './ui/Hero';
