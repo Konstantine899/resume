@@ -1,9 +1,6 @@
-import { useTheme } from '@/shared/lib/contexts';
-import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import styles from './Skills.module.scss';
+import type { SkillItem } from './types';
 
-const skills = [
+export const SKILLS_DATA: SkillItem[] = [
   {
     name: 'HTML',
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
@@ -72,7 +69,10 @@ const skills = [
     name: 'GraphQL',
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg',
   },
-  { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+  {
+    name: 'Git',
+    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg',
+  },
   {
     name: 'GitHub',
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
@@ -104,33 +104,3 @@ const skills = [
     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg',
   },
 ];
-
-export function Skills() {
-  const { theme } = useTheme();
-  const { t } = useLanguage();
-
-  return (
-    <section id="skills" className={styles.skillsSection}>
-      <AnimatedSection animation="fadeUp">
-        <div className={styles.card}>
-          <h3 className={styles.title}>{t(`mySkills`)}</h3>
-
-          <div className={styles.skillsGrid}>
-            {skills.map((skill, index) => (
-              <AnimatedSection key={index} animation="fadeIn" delay={index * 30}>
-                <div className={styles.skillItem}>
-                  <img
-                    src={skill.icon}
-                    alt={skill.name}
-                    className={`${styles.icon} ${skill.invertInDark && theme === 'dark' ? styles.invert : ''}`}
-                  />
-                  <span className={styles.label}>{skill.name}</span>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </AnimatedSection>
-    </section>
-  );
-}

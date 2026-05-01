@@ -1,5 +1,2 @@
-// ============================================
-// Skills Feature - Public API
-// ============================================
-
-export { Skills } from './Skills';
+export type { SkillsFeatureProps } from './model/types';
+export { Skills } from './ui/Skills';
