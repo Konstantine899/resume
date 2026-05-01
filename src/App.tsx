@@ -4,8 +4,10 @@
 
 import { I18nProvider } from '@/app/providers/I18nProvider';
 import { ThemeProvider } from '@/app/providers/ThemeProvider';
+import { ToastProvider } from '@/app/providers/ToastProvider';
 import { HomePage } from '@/pages/Home';
 import '@/shared/styles/globals/index.scss';
+
 import React from 'react';
 /**
  * Main App Component
@@ -15,11 +17,13 @@ import React from 'react';
  */
 const App: React.FC = () => {
   return (
-    <I18nProvider>
-      <ThemeProvider>
-        <HomePage />
-      </ThemeProvider>
-    </I18nProvider>
+    <ToastProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </I18nProvider>
+    </ToastProvider>
   );
 };
 

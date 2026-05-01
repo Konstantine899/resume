@@ -2,7 +2,7 @@
 // Home Page
 // ============================================
 import { About } from '@/features/About';
-import { Contact } from '@/features/Contact/Contact';
+import { Contact } from '@/features/Contact/ui/Contact';
 import { Hero } from '@/features/Hero';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';

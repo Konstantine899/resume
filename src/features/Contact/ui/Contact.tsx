@@ -1,97 +1,90 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Mail } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useContactForm } from '../hooks/useContactForm';
+import { SOCIAL_LINKS } from '../model/constants';
 import styles from './Contact.module.scss';
-import { SOCIAL_LINKS } from './constants';
-import type { FormStatus } from './types';
 
 export function Contact() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState<FormStatus>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
   const { t } = useLanguage();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('submitting');
-
-    try {
-      // ... validation and EmailJS logic
-      // Пример:
-      // await emailjs.sendForm(...);
-      setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-    } catch (error) {
-      setStatus('error');
-      setErrorMessage('Failed to send message. Please try again.');
-    }
-  };
+  // ✅ Используем хук формы (внутри уже есть Toast)
+  const { formData, status, setFormData, handleSubmit } = useContactForm();
 
   return (
     <section id="contact" className={styles.container}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.title}>{t(`contact`)}</h2>
+        <h2 className={styles.title}>{t('contact')}</h2>
       </AnimatedSection>
 
       <div className={styles.grid}>
-        {/* Form */}
         <AnimatedSection delay={200}>
           <div className={styles.formContainer}>
-            <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className={styles.form}
+              noValidate // ✅ Браузерная валидация отключена (своя в хуке)
+            >
+              {/* Имя */}
               <input
                 type="text"
-                placeholder={t(`namePlaceholder`)}
+                name="user_name"
+                placeholder={t('namePlaceholder')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 disabled={status === 'submitting'}
                 className={styles.input}
+                required
+                aria-required="true"
               />
 
+              {/* Email */}
               <input
                 type="email"
-                placeholder={t(`emailPlaceholder`)}
+                name="user_email"
+                placeholder={t('emailPlaceholder')}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled={status === 'submitting'}
                 className={styles.input}
+                required
+                aria-required="true"
               />
 
+              {/* Сообщение */}
               <textarea
-                placeholder={t(`messagePlaceholder`)}
+                name="message"
+                placeholder={t('messagePlaceholder')}
                 rows={4}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 disabled={status === 'submitting'}
                 className={styles.textarea}
+                required
+                aria-required="true"
               />
 
+              {/* Кнопка отправки */}
               <button
                 type="submit"
                 disabled={status === 'submitting'}
                 className={styles.submitButton}
+                aria-busy={status === 'submitting'}
               >
-                {status === 'submitting' ? t(`sending`) : t(`sendMessage`)}
+                {status === 'submitting' ? t('sending') : t('sendMessage')}
               </button>
 
-              {status === 'error' && (
-                <div className={styles.errorMessage}>
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
-              {status === 'success' && (
-                <div className={styles.successMessage}>
-                  <span>{t(`messageSent`)}</span>
-                </div>
-              )}
+              {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
+              {/* Теперь уведомления показываются через Toast */}
             </form>
 
-            {/* Social Links */}
+            {/* Социальные ссылки */}
             <div className={styles.socialLinks}>
-              {SOCIAL_LINKS.map((link, index) => {
-                const Icon = link.icon;
+              {SOCIAL_LINKS.map((link, index: number) => {
+                const Icon = link.icon as React.ComponentType<{ className?: string }>;
                 return (
                   <a
                     key={index}
@@ -109,7 +102,7 @@ export function Contact() {
           </div>
         </AnimatedSection>
 
-        {/* Decorative section */}
+        {/* Декоративная секция */}
         <AnimatedSection delay={400}>
           <div className={styles.contactCard}>
             <div className={styles.decorativeSection}>
@@ -118,8 +111,8 @@ export function Contact() {
                   <div className={styles.iconWrapper}>
                     <Mail className={styles.mailIcon} />
                   </div>
-                  <h3 className={styles.subtitle}>{t(`contact`)}</h3>
-                  <p className={styles.description}>{t(`contactDescription`)}</p>
+                  <h3 className={styles.subtitle}>{t('contact')}</h3>
+                  <p className={styles.description}>{t('contactDescription')}</p>
                 </div>
               </div>
             </div>

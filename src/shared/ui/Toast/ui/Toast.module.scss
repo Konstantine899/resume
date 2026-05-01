@@ -1,0 +1,94 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.toast {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-lg;
+  animation: slideIn 0.3s ease-out;
+
+  @include theme-transition;
+
+  &.success {
+    border-left: 4px solid $success-color;
+
+    .icon {
+      color: $success-color;
+    }
+  }
+
+  &.error {
+    border-left: 4px solid $danger-color;
+
+    .icon {
+      color: $danger-color;
+    }
+  }
+
+  &.info {
+    border-left: 4px solid $info-color;
+
+    .icon {
+      color: $info-color;
+    }
+  }
+
+  &.warning {
+    border-left: 4px solid $warning-color;
+
+    .icon {
+      color: $warning-color;
+    }
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .message {
+    flex: 1;
+    font-size: 14px;
+    color: var(--foreground);
+
+    @include theme-transition;
+  }
+
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: var(--foreground-muted);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: $border-radius-sm;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--foreground);
+      background: rgb(0 0 0 / 0.1);
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
