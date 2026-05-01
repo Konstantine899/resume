@@ -9,8 +9,8 @@ export const useSidebar = () => {
     try {
       const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
       return saved !== null ? JSON.parse(saved) : true;
-    } catch (error) {
-      console.warn('Failed to read sidebar state from localStorage:', error);
+    } catch {
+      // Silent fallback to default state if localStorage is unavailable
       return true;
     }
   });
@@ -22,8 +22,8 @@ export const useSidebar = () => {
   useEffect(() => {
     try {
       localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isOpen));
-    } catch (error) {
-      console.warn('Failed to save sidebar state to localStorage:', error);
+    } catch {
+      // Silent fail if localStorage is unavailable (e.g., private browsing)
     }
   }, [isOpen]);
 
