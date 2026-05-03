@@ -2,7 +2,6 @@
 // Card Component - Public API
 // ============================================
 
-export { Card } from './Card';
 export type {
   CardBodyProps,
   CardFooterProps,
@@ -13,4 +12,5 @@ export type {
   CardSize,
   CardVariant,
   TechIcon,
-} from './types';
+} from './model/types';
+export { Card } from './ui/Card';

@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 // eslint.config.js
 import js from '@eslint/js';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -43,5 +46,6 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
-  }
+  },
+  storybook.configs["flat/recommended"]
 );

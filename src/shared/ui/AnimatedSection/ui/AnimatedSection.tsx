@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import type { AnimatedSectionProps, AnimationState } from '../model/types';
 import styles from './AnimatedSection.module.scss';
-import type { AnimatedSectionProps, AnimationState } from './types';
 
 export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   children,

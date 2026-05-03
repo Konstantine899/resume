@@ -1,4 +1,4 @@
-import type { TechIcon } from '@/shared/ui/Card/types';
+import type { TechIcon } from '@/shared/ui/Card/model/types';
 import { Project, ProjectCategory, ProjectStatus } from './types';
 
 // ============================================

@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   const paths: BuildPath = {
     src: normalizePath(path.resolve(__dirname, 'src')),
-    locales: normalizePath(path.resolve(__dirname, 'src', 'shared', 'lib', 'locales')),
+    locales: normalizePath(path.resolve(__dirname, 'src', 'shared', 'lib', 'i18n', 'locales')),
     buildLocales: normalizePath(path.resolve(__dirname, 'public', 'locales')),
     app: normalizePath(path.resolve(__dirname, 'src', 'app')),
     pages: normalizePath(path.resolve(__dirname, 'src', 'pages')),

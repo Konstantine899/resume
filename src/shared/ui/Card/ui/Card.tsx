@@ -3,8 +3,8 @@
 // ============================================
 
 import React from 'react';
+import type { CardProps } from '../model/types';
 import styles from './Card.module.scss';
-import type { CardProps } from './types';
 
 export const Card: React.FC<CardProps> = ({
   variant = 'default',

@@ -2,5 +2,5 @@
 // Textarea Component - Public API
 // ============================================
 
-export { Textarea } from './Textarea';
-export type { TextareaProps, TextareaVariant, TextareaSize } from './types';
+export type { TextareaProps, TextareaSize, TextareaVariant } from './model/types';
+export { Textarea } from './ui/Textarea';

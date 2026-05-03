@@ -2,10 +2,10 @@
 // AnimatedSection Component - Public API
 // ============================================
 
-export { AnimatedSection } from './AnimatedSection';
 export type {
   AnimatedSectionProps,
-  AnimationType,
-  AnimationTrigger,
   AnimationState,
-} from './types';
+  AnimationTrigger,
+  AnimationType,
+} from './model/types';
+export { AnimatedSection } from './ui/AnimatedSection';

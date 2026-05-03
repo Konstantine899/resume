@@ -2,5 +2,5 @@
 // Input Component - Public API
 // ============================================
 
-export { Input } from './Input';
-export type { InputProps, InputVariant, InputSize, InputGroupProps } from './types';
+export type { InputGroupProps, InputProps, InputSize, InputVariant } from './model/types';
+export { Input } from './ui/Input';

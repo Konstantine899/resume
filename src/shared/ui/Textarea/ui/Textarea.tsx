@@ -1,18 +1,18 @@
 // ============================================
-// Input Component
+// Textarea Component
 // ============================================
 
 import React from 'react';
-import styles from './Input.module.scss';
-import type { InputProps } from './types';
+import type { TextareaProps } from '../model/types';
+import styles from './Textarea.module.scss';
 
 /**
- * Input Component
+ * Textarea Component
  *
- * A flexible input component with multiple variants and states.
+ * A flexible textarea component with multiple variants and states.
  * Follows FSD architecture - reusable UI component.
  */
-export const Input: React.FC<InputProps> = ({
+export const Textarea: React.FC<TextareaProps> = ({
   variant = 'default',
   size = 'md',
   className = '',
@@ -20,15 +20,14 @@ export const Input: React.FC<InputProps> = ({
   error,
   success,
   loading,
-  icon,
-  iconAfter,
   fullWidth = false,
   helperText,
+  rows = 3,
   ...props
 }) => {
   // Build CSS classes
-  const inputClasses = [
-    styles.input,
+  const textareaClasses = [
+    styles.textarea,
     styles[variant],
     styles[size],
     error && styles.error,
@@ -40,7 +39,7 @@ export const Input: React.FC<InputProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  const wrapperClasses = [styles.inputWrapper, fullWidth && styles.fullWidth]
+  const wrapperClasses = [styles.textareaWrapper, fullWidth && styles.fullWidth]
     .filter(Boolean)
     .join(' ');
 
@@ -48,12 +47,8 @@ export const Input: React.FC<InputProps> = ({
     <div className={wrapperClasses}>
       {label && <label className={styles.label}>{label}</label>}
 
-      <div className={styles.inputContainer}>
-        {icon && <span className={styles.icon}>{icon}</span>}
-
-        <input className={inputClasses} {...props} />
-
-        {iconAfter && <span className={styles.iconAfter}>{iconAfter}</span>}
+      <div className={styles.textareaContainer}>
+        <textarea className={textareaClasses} rows={rows} {...props} />
 
         {loading && <span className={styles.loadingIndicator}>Loading...</span>}
       </div>
@@ -65,6 +60,6 @@ export const Input: React.FC<InputProps> = ({
   );
 };
 
-Input.displayName = 'Input';
+Textarea.displayName = 'Textarea';
 
-export default Input;
+export default Textarea;
