@@ -1,0 +1,26 @@
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/variables/shadows' as *;
+@use '@/shared/styles/variables/z-index' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-overlay;
+  background-color: rgb(0 0 0 / 0.6);
+  transition: opacity $transition-duration $transition-easing;
+
+  // Blur эффект
+  &.blur {
+    backdrop-filter: blur(4px);
+  }
+
+  // Тёмная версия (более плотная)
+  &.dark {
+    background-color: rgb(0 0 0 / 0.8);
+  }
+
+  // Клик по оверлею
+  &:hover {
+    cursor: pointer;
+  }
+}

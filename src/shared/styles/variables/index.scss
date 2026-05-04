@@ -12,6 +12,7 @@
 @forward 'shadows';
 @forward 'transition';
 @forward 'sidebar';
+@forward 'z-index';
 
 // Re-export commonly used modules for convenience
 @use 'colors' as *;
