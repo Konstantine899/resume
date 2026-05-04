@@ -28,7 +28,9 @@
     "mcp:eslint": "npx @eslint/mcp@latest",
     "mcp:all": "concurrently \"npm run mcp:local-files\" \"npm run mcp:memory\" \"npm run mcp:context7\" \"npm run mcp:eslint\"",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "storybook:test": "test-storybook",
+    "lint:storybook": "eslint .storybook/**/*"
   },
   "keywords": [],
   "author": "",

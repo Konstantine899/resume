@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["../src/**/*.stories.*", "../src/**/*.tsx", "../src/**/*.ts", "./**/*"],
+  "exclude": ["../src/**/*.test.*", "../src/**/*.spec.*"]
+}
