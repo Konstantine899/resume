@@ -3,8 +3,16 @@
   "compilerOptions": {
     "types": ["node"],
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "esModuleInterop": true
   },
-  "include": ["../src/**/*.stories.*", "../src/**/*.tsx", "../src/**/*.ts", "./**/*"],
+  "include": [
+    "../src/**/*.stories.*",
+    "../src/**/*.tsx",
+    "../src/**/*.ts",
+    "./**/*",
+    "../src/vite-env.d.ts"
+  ],
   "exclude": ["../src/**/*.test.*", "../src/**/*.spec.*"]
 }

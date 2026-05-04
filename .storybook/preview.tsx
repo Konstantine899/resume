@@ -1,11 +1,11 @@
-import type { Preview } from '@storybook/react-vite';
+// .storybook/preview.tsx
+import type { Preview } from '@storybook/react';
 import { I18nProvider } from '../src/app/providers/I18nProvider';
 import { ThemeProvider } from '../src/app/providers/ThemeProvider';
 import { ToastProvider } from '../src/app/providers/ToastProvider';
 import '../src/shared/styles/globals/index.scss';
 
-// Декоратор для переключения темы
-const withProviders = (Story: any, context: any) => {
+const withProviders = (Story: React.ComponentType, context: { globals: { theme?: string } }) => {
   const theme = context.globals.theme || 'dark';
 
   return (
@@ -29,12 +29,26 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // A11y конфигурация
     a11y: {
-      test: 'todo',
+      config: {
+        rules: [
+          { id: 'color-contrast', enabled: true },
+          { id: 'aria-required-attr', enabled: true },
+        ],
+      },
+    },
+    // Docs конфигурация
+    docs: {
+      description: {
+        component: 'Компоненты UI Kit для портфолио',
+      },
     },
     backgrounds: {
       disable: true,
     },
+    //Layout для всех stories
+    layout: 'centered',
   },
   decorators: [withProviders],
   globalTypes: {
@@ -44,12 +58,13 @@ const preview: Preview = {
       toolbar: {
         icon: 'paintbrush',
         items: [
-          { value: 'dark', title: 'Dark' },
-          { value: 'light', title: 'Light' },
+          { value: 'dark', title: 'Dark', icon: 'moon' },
+          { value: 'light', title: 'Light', icon: 'sun' },
         ],
       },
     },
   },
+  tags: ['autodocs'], // Авто-документация для всех
 };
 
 export default preview;
