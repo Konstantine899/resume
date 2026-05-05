@@ -1,0 +1,167 @@
+// ============================================
+
+// Modal Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/variables/z-index' as *;
+@use '@/shared/styles/mixins/layout' as *;
+@use '@/shared/styles/mixins/components' as *;
+@use '@/shared/styles/animations/scale' as *;
+@use '@/shared/styles/animations/fade' as *;
+
+// Overlay
+.overlay {
+  z-index: $z-overlay;
+}
+
+// Modal Container (центрирование)
+.modalContainer {
+  @include flex-center;
+
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  padding: $spacing-md;
+  pointer-events: none;
+}
+
+// Modal Base
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  pointer-events: auto;
+  background-color: var(--card-bg, #fff);
+  border: 1px solid var(--card-border, $border-color);
+  border-radius: $radius-2xl;
+  box-shadow: 0 20px 50px var(--shadow-color, rgb(0 0 0 / 0.3));
+
+  // Анимация
+  &:not(.noAnimation) {
+    animation: scaleIn $animation-duration $transition-easing;
+  }
+
+  &.noAnimation {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Sizes
+.modal.sm {
+  max-width: 400px;
+}
+
+.modal.md {
+  max-width: 500px;
+}
+
+.modal.lg {
+  max-width: 640px;
+}
+
+.modal.xl {
+  max-width: 800px;
+}
+
+.modal.full {
+  max-width: calc(100vw - #{$spacing-md * 2});
+  max-height: calc(100vh - #{$spacing-md * 2});
+}
+
+// Header
+.header {
+  @include flex-between;
+
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid var(--card-border, $border-color);
+}
+
+.headerContent {
+  @include flex-col;
+
+  flex: 1;
+  gap: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: var(--foreground, $text-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: var(--foreground-muted, $text-muted);
+}
+
+// Close Button
+.closeButton {
+  @include flex-center;
+
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--foreground-muted, $text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all $transition-fast ease;
+
+  &:hover {
+    color: var(--foreground, $text-primary);
+    background-color: var(--background-alt, $background-alt);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Content
+.content {
+  flex: 1;
+  padding: $spacing-xl;
+  overflow-y: auto;
+  color: var(--foreground, $text-primary);
+}
+
+// Footer
+.footer {
+  @include flex-center;
+
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-xl;
+  background-color: var(--background-alt, $background-alt);
+  border-top: 1px solid var(--card-border, $border-color);
+}
+
+// Адаптивность
+@media (width <= 640px) {
+  .modalContainer {
+    align-items: flex-end;
+    padding: $spacing-sm;
+  }
+
+  .modal {
+    max-height: calc(100vh - #{$spacing-md});
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+
+  .modal.full {
+    max-width: 100%;
+    max-height: calc(100vh - #{$spacing-md});
+  }
+}
