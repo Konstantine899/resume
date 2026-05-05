@@ -1,0 +1,140 @@
+@use '@/shared/styles/variables' as *;
+
+.loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // Размеры
+  &.sm {
+    --loader-size: 16px;
+    --loader-gap: 4px;
+  }
+
+  &.md {
+    --loader-size: 24px;
+    --loader-gap: 6px;
+  }
+
+  &.lg {
+    --loader-size: 32px;
+    --loader-gap: 8px;
+  }
+
+  // Цвета
+  &.primary {
+    --loader-color: #{$primary-light};
+  }
+
+  &.secondary {
+    --loader-color: #{$secondary-color};
+  }
+
+  &.accent {
+    --loader-color: #{$accent};
+  }
+}
+
+// ============================================
+
+// Spinner Variant
+
+// ============================================
+
+.spinner {
+  width: var(--loader-size);
+  height: var(--loader-size);
+
+  .spinnerCircle {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--loader-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================
+
+// Dots Variant
+
+// ============================================
+
+.dots {
+  display: flex;
+  gap: var(--loader-gap);
+
+  .dot {
+    width: var(--loader-size);
+    height: var(--loader-size);
+    background: var(--loader-color);
+    border-radius: 50%;
+    animation: dots-pulse 1.4s ease-in-out infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+@keyframes dots-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ============================================
+
+// Pulse Variant
+
+// ============================================
+
+.pulse {
+  width: var(--loader-size);
+  height: var(--loader-size);
+
+  .pulseCircle {
+    width: 100%;
+    height: 100%;
+    background: var(--loader-color);
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
