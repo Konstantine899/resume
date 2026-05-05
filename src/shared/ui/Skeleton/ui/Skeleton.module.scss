@@ -1,0 +1,55 @@
+// src/shared/ui/Skeleton/ui/Skeleton.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton-base);
+  border-radius: $border-radius-md;
+
+  // Shimmer эффект
+  &::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.5s infinite;
+  }
+
+  // Варианты
+  &.text {
+    display: inline-block;
+    vertical-align: middle;
+
+    .line {
+      display: block;
+      height: 1em;
+      margin-bottom: $spacing-sm;
+      background: var(--skeleton-base);
+      border-radius: $border-radius-sm;
+
+      &.lastLine {
+        width: 60%;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &.circular {
+    border-radius: $radius-full;
+
+    // Pulse анимация убрана - используется только shimmer эффект
+  }
+
+  &.rectangular {
+    border-radius: $border-radius-lg;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

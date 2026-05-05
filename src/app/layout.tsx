@@ -2,7 +2,7 @@
 // App Layout for Vite
 // ============================================
 
-import '@/shared/styles/globals.scss';
+import '@/shared/styles/globals/index.scss';
 import React from 'react';
 
 interface RootLayoutProps {

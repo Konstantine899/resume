@@ -18,6 +18,10 @@
   --primary-dark: #d94744;
   --accent: #50abc5;
   --code-bg: rgb(41 39 38 / 0.95);
+
+  // Skeleton colors
+  --skeleton-base: rgb(200 200 200 / 0.3);
+  --skeleton-highlight: rgb(255 255 255 / 0.4);
 }
 
 [data-theme='dark'] {
@@ -29,6 +33,10 @@
   --shadow-color: rgb(0 0 0 / 0.3);
   --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
   --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+
+  // Skeleton colors for dark theme
+  --skeleton-base: rgb(255 255 255 / 0.1);
+  --skeleton-highlight: rgb(255 255 255 / 0.15);
 }
 
 [data-theme='light'] {
@@ -38,4 +46,8 @@
   --card-bg: rgb(255 255 255 / 0.98);
   --card-border: rgb(0 0 0 / 0.12);
   --shadow-color: rgb(0 0 0 / 0.1);
+
+  // Skeleton colors for light theme
+  --skeleton-base: rgb(0 0 0 / 0.08);
+  --skeleton-highlight: rgb(255 255 255 / 0.6);
 }
