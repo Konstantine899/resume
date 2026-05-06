@@ -1,0 +1,167 @@
+// ============================================
+
+// Avatar Component - SCSS Module
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+// --------------------------------------------
+
+// Avatar Container
+
+// --------------------------------------------
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--background-alt);
+  transition: all $transition-duration $transition-easing;
+
+  // Shapes
+  &.circle {
+    border-radius: $radius-full;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg;
+  }
+
+  // Clickable state
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // Disabled state
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(100%);
+  }
+}
+
+// --------------------------------------------
+
+// Image
+
+// --------------------------------------------
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity $transition-duration $transition-easing;
+
+  &.hidden {
+    position: absolute;
+    opacity: 0;
+  }
+}
+
+// --------------------------------------------
+
+// Fallback с инициалами
+
+// --------------------------------------------
+.fallback {
+  @include flex-center;
+
+  width: 100%;
+  height: 100%;
+  font-weight: 600;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// --------------------------------------------
+
+// Status Indicator
+
+// --------------------------------------------
+.status {
+  position: absolute;
+  width: 20%;
+  min-width: 8px;
+  max-width: 16px;
+  height: 20%;
+  min-height: 8px;
+  max-height: 16px;
+  border: 2px solid var(--background);
+  border-radius: $radius-full;
+  transition: background-color $transition-duration $transition-easing;
+
+  // Status colors
+  &.online {
+    background-color: var(--success);
+  }
+
+  &.offline {
+    background-color: var(--foreground-muted);
+  }
+
+  &.busy {
+    background-color: var(--danger);
+  }
+
+  &.away {
+    background-color: var(--warning);
+  }
+
+  // Position variants
+  &.top-right {
+    top: 0;
+    right: 0;
+  }
+
+  &.bottom-right {
+    right: 0;
+    bottom: 0;
+  }
+
+  &.top-left {
+    top: 0;
+    left: 0;
+  }
+
+  &.bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+}
+
+// --------------------------------------------
+
+// Responsive & Accessibility
+
+// --------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .avatar {
+    transition: none;
+
+    &.clickable:hover {
+      transform: none;
+    }
+  }
+
+  .image,
+  .status {
+    transition: none;
+  }
+}
