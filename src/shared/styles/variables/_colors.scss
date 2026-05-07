@@ -4,6 +4,23 @@
 
 // ============================================
 
+// Tooltip theme variables
+:root {
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #fff;
+  --tooltip-focus: #3b82f6;
+}
+
+[data-theme='light'] {
+  --tooltip-bg: #374151;
+  --tooltip-text: #f9fafb;
+}
+
+[data-theme='dark'] {
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #f3f4f6;
+}
+
 // Standard palette
 $primary-color: #007bff !default;
 $secondary-color: #6c757d !default;
