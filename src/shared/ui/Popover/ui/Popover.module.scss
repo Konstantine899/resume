@@ -1,0 +1,79 @@
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/variables/shadows' as *;
+@use '@/shared/styles/variables/z-index' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/spacing' as *;
+
+.popover {
+  position: fixed;
+  z-index: $z-popover;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--popover-bg, var(--card-bg));
+  border: 1px solid var(--popover-border, var(--card-border));
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity $transition-fast $transition-easing,
+    transform $transition-fast $transition-easing;
+
+  &.visible {
+    pointer-events: auto;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  // Sizes
+  &.sm {
+    width: 200px;
+  }
+
+  &.md {
+    width: 280px;
+  }
+
+  &.lg {
+    width: 360px;
+  }
+
+  &.auto {
+    width: auto;
+    max-width: 400px;
+  }
+
+  // Positions
+  &.top,
+  &.bottom,
+  &.left,
+  &.right,
+  &.center {
+    transform-origin: center;
+  }
+
+  .title {
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    border-bottom: 1px solid var(--popover-border, var(--card-border));
+  }
+
+  .content {
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--foreground);
+  }
+}
+
+.trigger {
+  display: inline-block;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--tooltip-focus);
+    outline-offset: 2px;
+  }
+}
