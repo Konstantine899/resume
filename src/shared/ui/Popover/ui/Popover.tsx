@@ -1,21 +1,21 @@
 import { cn } from '@/shared/lib/utils';
 import { Portal } from '@/shared/ui/Portal';
 import { usePopover } from '../lib/hooks/usePopover';
-import { POPOVER_SIZES } from '../model/constants';
+import { POPOVER_CONSTANTS, POPOVER_SIZES } from '../model/constants';
 import type { PopoverProps } from '../model/types';
 import styles from './Popover.module.scss';
 
 export const Popover: React.FC<PopoverProps> = ({
   content,
-  position = 'top',
-  size = 'md',
+  position = POPOVER_CONSTANTS.DEFAULT_POSITION,
+  size = POPOVER_CONSTANTS.DEFAULT_SIZE,
   children,
   className,
   disabled = false,
   closeOnContentClick = true,
   closeOnClickOutside = true,
   closeOnEsc = true,
-  offset = 8,
+  offset = POPOVER_CONSTANTS.DEFAULT_OFFSET,
   autoAdjust = true,
   title,
   ariaLabel,
@@ -53,6 +53,7 @@ export const Popover: React.FC<PopoverProps> = ({
         aria-haspopup="dialog"
         aria-expanded={isVisible}
         aria-label={ariaLabel}
+        data-testid="popover-trigger"
       >
         {children}
       </span>
@@ -80,6 +81,8 @@ export const Popover: React.FC<PopoverProps> = ({
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
+            data-testid="popover-content"
+            data-position={adjustedPosition}
           >
             {title && <div className={styles.title}>{title}</div>}
             <div className={styles.content}>{content}</div>

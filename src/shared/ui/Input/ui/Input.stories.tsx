@@ -4,7 +4,7 @@ import { CheckCircle, Mail } from 'lucide-react';
 import { Input } from './Input';
 
 const meta = {
-  title: 'Shared/UI/Input',
+  title: 'Shared/Input',
   component: Input,
   parameters: {
     layout: 'centered',

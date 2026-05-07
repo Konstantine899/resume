@@ -4,7 +4,7 @@ import { ArrowRight, Mail, User } from 'lucide-react';
 import { Button } from './Button';
 
 const meta = {
-  title: 'Shared/UI/Button',
+  title: 'Shared/Button',
   component: Button,
   parameters: {
     layout: 'centered',

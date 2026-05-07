@@ -4,7 +4,7 @@ import type { ToastProps } from '../model/types';
 import { Toast } from './Toast';
 
 const meta = {
-  title: 'Shared/UI/Toast',
+  title: 'Shared/Toast',
   component: Toast,
   parameters: {
     layout: 'centered',

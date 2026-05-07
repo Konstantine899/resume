@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 
 const meta = {
-  title: 'Shared/UI/Modal',
+  title: 'Shared/Modal',
   component: Modal,
   parameters: {
     layout: 'fullscreen',

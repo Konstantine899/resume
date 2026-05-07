@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card } from './Card';
 
 const meta = {
-  title: 'Shared/UI/Card',
+  title: 'Shared/Card',
   component: Card,
   parameters: {
     layout: 'centered',

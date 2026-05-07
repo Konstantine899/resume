@@ -3,7 +3,7 @@ import { Info, Settings, User } from 'lucide-react';
 import { Popover } from './Popover';
 
 const meta = {
-  title: 'Shared/UI/Popover',
+  title: 'Shared/Popover',
   component: Popover,
   parameters: {
     layout: 'centered',

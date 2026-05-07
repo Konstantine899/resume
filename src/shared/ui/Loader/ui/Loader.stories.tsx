@@ -5,7 +5,7 @@ import React from 'react';
 import { Loader } from './Loader';
 
 const meta = {
-  title: 'Shared/UI/Loader',
+  title: 'Shared/Loader',
   component: Loader,
   parameters: {
     layout: 'centered',

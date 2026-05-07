@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { AnimatedSection } from './AnimatedSection';
 
 const meta = {
-  title: 'Shared/UI/AnimatedSection',
+  title: 'Shared/AnimatedSection',
   component: AnimatedSection,
   parameters: {
     layout: 'centered',

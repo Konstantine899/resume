@@ -1,12 +1,12 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Avatar } from '../ui/Avatar';
+import { Avatar } from './Avatar';
 
 const DEVELOPER_NAME = DEVELOPER_DATA.fullName;
 
 // Meta конфигурация
 const meta = {
-  title: 'Shared/UI/Avatar',
+  title: 'Shared/Avatar',
   component: Avatar,
   parameters: {
     layout: 'centered',

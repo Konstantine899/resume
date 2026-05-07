@@ -4,7 +4,7 @@ import React from 'react';
 import { Icon } from './Icon';
 
 const meta = {
-  title: 'Shared/UI/Icon',
+  title: 'Shared/Icon',
   component: Icon,
   parameters: {
     layout: 'centered',
