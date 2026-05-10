@@ -1,23 +1,23 @@
 // ============================================
-// Toast Provider (App Layer)
+// Toast Context (Shared Layer)
 // ============================================
 
+import { Portal } from '@/shared/ui/Portal';
 import { Toast } from '@/shared/ui/Toast';
-import { ToastType } from '@/shared/ui/Toast/model/types';
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import type { ToastType } from '@/shared/ui/Toast/model/types';
+import { createContext, useCallback, useState, type ReactNode } from 'react';
 import type { ToastContextType, ToastState } from '../model/types';
-import styles from './ToastProvider.module.scss';
+import styles from './ToastContext.module.scss';
+
+// ============================================
+// Context
+// ============================================
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useToast = (): ToastContextType => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
-};
+// ============================================
+// Provider Component
+// ============================================
 
 interface ToastProviderProps {
   children: ReactNode;
@@ -38,18 +38,21 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       {children}
-      <div className={styles.container} aria-label="Notifications">
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            id={toast.id}
-            message={toast.message}
-            type={toast.type}
-            duration={toast.duration}
-            onClose={removeToast}
-          />
-        ))}
-      </div>
+
+      <Portal>
+        <div className={styles.container} aria-label="Notifications">
+          {toasts.map((toast) => (
+            <Toast
+              key={toast.id}
+              id={toast.id}
+              message={toast.message}
+              type={toast.type}
+              duration={toast.duration}
+              onClose={removeToast}
+            />
+          ))}
+        </div>
+      </Portal>
     </ToastContext.Provider>
   );
 };

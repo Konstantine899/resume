@@ -1,8 +1,8 @@
 // ============================================
-// Toast Provider Types
+// Toast Types (Shared Layer)
 // ============================================
 
-import { ToastType } from '@/shared/ui/Toast/model/types';
+import type { ToastType } from '@/shared/ui/Toast/model/types';
 
 export interface ToastState {
   id: string;

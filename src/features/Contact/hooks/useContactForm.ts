@@ -2,7 +2,7 @@
 // Contact Form Hook with EmailJS & Toast
 // ============================================
 
-import { useToast } from '@/app/providers/ToastProvider'; // ✅ Импорт из App layer
+import { useToast } from '@/shared/lib/contexts/ToastContext';
 import emailjs from '@emailjs/browser';
 import { useState } from 'react';
 import type { ContactFormData, FormStatus } from '../model/types';

@@ -1,87 +1,151 @@
-@use '@/shared/styles/variables' as *;
+// ============================================
+
+// Toast Component Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/z-index' as *;
 @use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/variables/shadows.scss' as *;
 
-.toast {
+.toastContainer {
+  position: fixed;
+  top: $spacing-6;
+  right: $spacing-6;
+  bottom: auto;
+  z-index: $z-toast;
   display: flex;
-  gap: 12px;
-  align-items: center;
-  min-width: 300px;
+  flex-direction: column;
+  gap: $spacing-3;
+  width: fit-content;
   max-width: 400px;
-  padding: 12px 16px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-lg;
-  animation: slideIn 0.3s ease-out;
+  pointer-events: none;
 
-  @include theme-transition;
-
-  &.success {
-    border-left: 4px solid $success-color;
-
-    .icon {
-      color: $success-color;
-    }
+  > * {
+    pointer-events: auto;
   }
 
-  &.error {
-    border-left: 4px solid $danger-color;
-
-    .icon {
-      color: $danger-color;
-    }
-  }
-
-  &.info {
-    border-left: 4px solid $info-color;
-
-    .icon {
-      color: $info-color;
-    }
-  }
-
-  &.warning {
-    border-left: 4px solid $warning-color;
-
-    .icon {
-      color: $warning-color;
-    }
-  }
-
-  .icon {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-  }
-
-  .message {
-    flex: 1;
-    font-size: 14px;
-    color: var(--foreground);
-
-    @include theme-transition;
-  }
-
-  .closeButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    color: var(--foreground-muted);
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    border-radius: $border-radius-sm;
-    transition: all 0.2s ease;
-
-    &:hover {
-      color: var(--foreground);
-      background: rgb(0 0 0 / 0.1);
-    }
+  @media (width <= 640px) {
+    right: $spacing-4;
+    bottom: $spacing-4;
+    left: $spacing-4;
+    max-width: none;
   }
 }
 
-@keyframes slideIn {
+// ============================================
+
+// Toast Item
+
+// ============================================
+.toast {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  width: 100%; /* Растягивается на ширину контейнера (max 400px) */
+  max-width: 100%;
+  padding: $spacing-4 $spacing-4;
+  pointer-events: auto;
+  background: var(--toast-bg, #fff);
+  border: 1px solid var(--toast-border, $border-color);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  transition: all $transition-fast;
+  animation: slideInRight 0.3s ease-out;
+
+  // Темизация
+  @include theme-transition;
+
+  // Типы Toast
+  &.success {
+    color: $success-color;
+    background: rgb(40 167 69 / 0.1);
+    border-color: $success-color;
+  }
+
+  &.error {
+    color: $danger-color;
+    background: rgb(220 53 69 / 0.1);
+    border-color: $danger-color;
+  }
+
+  &.warning {
+    color: $warning-color;
+    background: rgb(255 193 7 / 0.1);
+    border-color: $warning-color;
+  }
+
+  &.info {
+    color: $info-color;
+    background: rgb(23 162 184 / 0.1);
+    border-color: $info-color;
+  }
+
+  // Hover эффект
+  &:hover {
+    box-shadow: $shadow-xl;
+    transform: translateY(-2px);
+  }
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.message {
+  flex: 1;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1.4;
+  color: var(--toast-text, $text-primary);
+  word-break: break-all;
+
+  @include theme-transition;
+}
+
+.closeButton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: $text-muted;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-sm;
+  transition: all $transition-fast;
+
+  &:hover {
+    color: $text-primary;
+    background: rgb(0 0 0 / 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
+}
+
+// ============================================
+
+// Animations
+
+// ============================================
+@keyframes slideInRight {
   from {
     opacity: 0;
     transform: translateX(100%);
@@ -90,5 +154,17 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(100%);
   }
 }

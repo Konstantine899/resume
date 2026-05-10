@@ -1,4 +1,4 @@
-import { useTheme } from '@/shared/lib/contexts';
+import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import type { UseThemeSwitchReturn } from '../model/types';
 
 /**

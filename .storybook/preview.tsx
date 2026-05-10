@@ -2,7 +2,8 @@
 import type { Preview } from '@storybook/react';
 import { I18nProvider } from '../src/app/providers/I18nProvider';
 import { ThemeProvider } from '../src/app/providers/ThemeProvider';
-import { ToastProvider } from '../src/app/providers/ToastProvider';
+
+import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import '../src/shared/styles/globals/index.scss';
 
 const withProviders = (Story: React.ComponentType, context: { globals: { theme?: string } }) => {

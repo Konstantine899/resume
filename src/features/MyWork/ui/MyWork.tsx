@@ -3,7 +3,7 @@
 // ============================================
 
 import { PROJECTS } from '@/entities/Project';
-import { useTheme } from '@/shared/lib/contexts';
+import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Card } from '@/shared/ui/Card';
