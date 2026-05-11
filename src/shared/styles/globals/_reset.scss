@@ -38,3 +38,15 @@ a {
 button {
   font-family: inherit;
 }
+
+// Accessibility: Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+    transition-duration: 0ms;
+    animation-duration: 0ms;
+    animation-iteration-count: 1;
+  }
+}

@@ -1,8 +1,8 @@
 # 📋 Portfolio Middle+ Upgrade Plan
 
-**Проект:** Konstantin Atroshchenko Portfolio
-**Цель:** Превратить портфолио в production-ready проект Middle+ уровня
-**Общее время:** ~20-28 часов работы
+**Проект:** Konstantin Atroshchenko Portfolio  
+**Цель:** Превратить портфолио в production-ready проект Middle+ уровня  
+**Общее время:** ~22-30 часов работы  
 **Технологии:** Redux Toolkit, Storybook, React Testing Library, TypeScript, SASS
 
 ---
@@ -10,20 +10,20 @@
 ## 📊 Общая структура
 
 ```
-Phase 1: UI Kit Components     (4-6 часов)
+Phase 1: UI Kit Components     (5-7 часов)
 Phase 2: Storybook             (3-4 часа)
 Phase 3: React Testing Library (4-6 часов)
 Phase 4: Redux Toolkit         (6-8 часов)
 Phase 5: Admin Mode            (3-4 часа)
 ─────────────────────────────────────────
-Итого: ~20-28 часов работы
+Итого: ~22-30 часов работы
 ```
 
 ---
 
 ## **PHASE 1: UI Kit Components** ⚛️
 
-**Длительность:** 4-6 часов
+**Длительность:** 5-7 часов  
 **Цель:** Создать переиспользуемые компоненты для дизайн-системы
 
 ### Подплан 1.1: Базовые компоненты (2 часа)
@@ -68,7 +68,7 @@ Phase 5: Admin Mode            (3-4 часа)
   - Встроенный Portal + Overlay
   - API: `{ isOpen, onClose, children, title? }`
 
-### Подплан 1.4: Специфичные компоненты (1 час)
+### Подплан 1.4: Специфичные компоненты (1.5 часа)
 
 - [ ] **1.4.1** `Code` — блок кода с подсветкой
   - Интеграция с Prism.js или highlight.js
@@ -78,19 +78,35 @@ Phase 5: Admin Mode            (3-4 часа)
   - External links с иконкой
   - API: `{ href, variant?, external?, icon?, children }`
 
+### Подплан 1.5: Компоненты для форм (1.5 часа)
+
+- [ ] **1.5.1** `Label` — подписи к полям формы
+  - Файлы: `src/shared/ui/Label/Label.tsx`
+  - Тесты: `src/shared/ui/Label/Label.test.tsx`
+  - Story: `src/shared/ui/Label/Label.stories.tsx`
+  - API: `{ htmlFor, children, className?, required?, error? }`
+  - Accessibility: автоматическая связь с input через `htmlFor`
+
+- [ ] **1.5.2** `Checkbox` — чекбокс с label
+  - API: `{ checked, onChange, label, disabled?, error? }`
+
+- [ ] **1.5.3** `Spinner` — индикатор загрузки для кнопок
+  - API: `{ size?, color?, className? }`
+
 ### ✅ Acceptance Criteria Phase 1:
 
-- [ ] Все 11 компонентов созданы
+- [ ] Все 14 компонентов созданы
 - [ ] Каждый компонент имеет `.module.scss` стили
 - [ ] Каждый компонент имеет TypeScript типы
 - [ ] Экспорты через `index.ts` для каждого компонента
 - [ ] Документация в README для каждого компонента
+- [ ] Label интегрирован с Input и Textarea
 
 ---
 
 ## **PHASE 2: Storybook** 📖
 
-**Длительность:** 3-4 часа
+**Длительность:** 3-4 часа  
 **Цель:** Документирование компонентов и визуальное тестирование
 
 ### Подплан 2.1: Настройка Storybook (1.5 часа)
@@ -127,6 +143,7 @@ Phase 5: Admin Mode            (3-4 часа)
   - Portal, Overlay, Skeleton, Loader, Icon, Avatar
   - Tooltip, Popover, Modal
   - Code, Link
+  - **Label, Checkbox, Spinner**
 
 - [ ] **2.2.3** Документация в stories
   - `parameters.docs.description`
@@ -153,7 +170,7 @@ Phase 5: Admin Mode            (3-4 часа)
 ### ✅ Acceptance Criteria Phase 2:
 
 - [ ] Storybook запускается без ошибок
-- [ ] Все 11 компонентов имеют stories
+- [ ] Все 14 компонентов имеют stories
 - [ ] Декораторы работают (Theme, I18n)
 - [ ] Addon-a11y не показывает критических ошибок
 - [ ] Storybook собран и задеплоен
@@ -162,7 +179,7 @@ Phase 5: Admin Mode            (3-4 часа)
 
 ## **PHASE 3: React Testing Library** 🧪
 
-**Длительность:** 4-6 часов
+**Длительность:** 4-6 часов  
 **Цель:** Покрытие тестами критических компонентов
 
 ### Подплан 3.1: Настройка тестирования (1 час)
@@ -203,7 +220,13 @@ Phase 5: Admin Mode            (3-4 часа)
   - Disabled state
   - Label association
 
-- [ ] **3.2.3** Skeleton/Loader тесты
+- [ ] **3.2.3** Label тесты
+  - Рендер с htmlFor
+  - Required индикатор
+  - Error state
+  - Accessibility (aria-describedby)
+
+- [ ] **3.2.4** Skeleton/Loader тесты
   - Рендер всех вариантов
   - Accessibility (aria-busy)
 
@@ -237,6 +260,7 @@ Phase 5: Admin Mode            (3-4 часа)
   - Keyboard navigation
   - Screen reader support
   - Color contrast
+  - **Label-Input association**
 
 - [ ] **3.4.3** CI интеграция
   - Запуск a11y тестов в GitHub Actions
@@ -244,7 +268,7 @@ Phase 5: Admin Mode            (3-4 часа)
 ### ✅ Acceptance Criteria Phase 3:
 
 - [ ] Vitest настроен и работает
-- [ ] 15+ unit тестов для Shared UI
+- [ ] 18+ unit тестов для Shared UI
 - [ ] 5+ integration тестов для Features
 - [ ] Coverage > 70% для критических компонентов
 - [ ] 0 критических a11y ошибок
@@ -254,7 +278,7 @@ Phase 5: Admin Mode            (3-4 часа)
 
 ## **PHASE 4: Redux Toolkit** 🗂️
 
-**Длительность:** 6-8 часов
+**Длительность:** 6-8 часов  
 **Цель:** Управление глобальным состоянием и данными
 
 ### Подплан 4.1: Базовая настройка (1 час)
@@ -360,7 +384,7 @@ Phase 5: Admin Mode            (3-4 часа)
 
 ## **PHASE 5: Admin Mode** 👨‍💻
 
-**Длительность:** 3-4 часа
+**Длительность:** 3-4 часа  
 **Цель:** Режим редактирования контента портфолио
 
 ### Подплан 5.1: Admin Slice (30 мин)
@@ -478,7 +502,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 # 📝 Complete TODO Checklist
 
-## Phase 1: UI Kit Components (11 tasks)
+## Phase 1: UI Kit Components (14 tasks)
 
 ```
 [ ] 1.1.1 Portal component
@@ -492,6 +516,9 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 [ ] 1.3.3 Modal component
 [ ] 1.4.1 Code component
 [ ] 1.4.2 Link component
+[✓] 1.5.1 Label component        ← ДОБАВЛЕНО
+[ ] 1.5.2 Checkbox component
+[ ] 1.5.3 Spinner component
 ```
 
 ## Phase 2: Storybook (10 tasks)
@@ -502,14 +529,14 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 [ ] 2.1.3 Configure main.ts
 [ ] 2.1.4 Configure preview.tsx
 [ ] 2.2.1 Button stories
-[ ] 2.2.2 All UI Kit stories
+[ ] 2.2.2 All UI Kit stories (включая Label)
 [ ] 2.2.3 Documentation in stories
 [ ] 2.3.1 Install addons (a11y, interactions, docs)
 [ ] 2.3.2 Configure npm scripts
 [ ] 2.3.3 Deploy to Netlify
 ```
 
-## Phase 3: React Testing Library (14 tasks)
+## Phase 3: React Testing Library (15 tasks)
 
 ```
 [ ] 3.1.1 Install testing dependencies
@@ -518,7 +545,8 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 [ ] 3.1.4 Configure npm scripts
 [ ] 3.2.1 Button tests
 [ ] 3.2.2 Input tests
-[ ] 3.2.3 Skeleton/Loader tests
+[✓] 3.2.3 Label tests            ← ДОБАВЛЕНО
+[ ] 3.2.4 Skeleton/Loader tests
 [ ] 3.3.1 Contact Form tests
 [ ] 3.3.2 ThemeSwitch tests
 [ ] 3.3.3 LanguageSwitch tests
@@ -566,7 +594,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 [ ] 5.4.3 Admin Mode Indicator
 ```
 
-**Total: 61 individual tasks across 5 phases**
+**Total: 64 individual tasks across 5 phases**
 
 ---
 
@@ -586,17 +614,18 @@ Total Progress            [          ] 0%
 
 # 🚀 Getting Started
 
-## Начать с Phase 1.1:
+## Начать с Phase 1.5.1 (Label):
 
 ```bash
-# 1. Создать директорию для Portal
-mkdir -p src/shared/ui/Portal
+# 1. Создать директорию для Label
+mkdir -p src/shared/ui/Label/{ui,model}
 
 # 2. Создать файлы компонента
-touch src/shared/ui/Portal/Portal.tsx
-touch src/shared/ui/Portal/Portal.module.scss
-touch src/shared/ui/Portal/types.ts
-touch src/shared/ui/Portal/index.ts
+touch src/shared/ui/Label/ui/Label.tsx
+touch src/shared/ui/Label/ui/Label.module.scss
+touch src/shared/ui/Label/ui/Label.stories.tsx
+touch src/shared/ui/Label/model/types.ts
+touch src/shared/ui/Label/index.ts
 
 # 3. Начать реализацию!
 ```
@@ -607,8 +636,10 @@ touch src/shared/ui/Portal/index.ts
 - **Storybook**: https://storybook.js.org/
 - **Testing Library**: https://testing-library.com/
 - **RTK Query**: https://redux-toolkit.js.org/rtk-query/overview
+- **Label Accessibility**: https://www.w3.org/WAI/tutorials/forms/labels/
 
 ---
 
-**Last Updated:** 2025-10-20
-**Status:** Planning Complete, Ready for Implementation
+**Last Updated:** 2025-10-20  
+**Status:** Planning Complete, Ready for Implementation  
+**Changes:** Добавлен Label компонент в Phase 1.5 + соответствующие тесты в Phase 3

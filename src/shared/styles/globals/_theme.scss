@@ -22,6 +22,12 @@
   // Skeleton colors
   --skeleton-base: rgb(200 200 200 / 0.3);
   --skeleton-highlight: rgb(255 255 255 / 0.4);
+
+  // Link colors (default - тёмная тема)
+  --link-primary: #f4b377;
+  --link-primary-hover: #f9c997;
+  --link-secondary: #e8e6e3;
+  --link-secondary-hover: #fff;
 }
 
 [data-theme='dark'] {
@@ -37,6 +43,12 @@
   // Skeleton colors for dark theme
   --skeleton-base: rgb(255 255 255 / 0.1);
   --skeleton-highlight: rgb(255 255 255 / 0.15);
+
+  // Link colors for dark theme (светлые ссылки на тёмном фоне)
+  --link-primary: #f4b377;
+  --link-primary-hover: #f9c997;
+  --link-secondary: #e8e6e3;
+  --link-secondary-hover: #fff;
 }
 
 [data-theme='light'] {
@@ -50,4 +62,10 @@
   // Skeleton colors for light theme
   --skeleton-base: rgb(0 0 0 / 0.08);
   --skeleton-highlight: rgb(255 255 255 / 0.6);
+
+  // Link colors for light theme (тёмные ссылки на светлом фоне)
+  --link-primary: #d97b3d;
+  --link-primary-hover: #b85f2b;
+  --link-secondary: #4b5563;
+  --link-secondary-hover: #1a1716;
 }

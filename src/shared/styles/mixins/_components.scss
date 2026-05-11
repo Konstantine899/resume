@@ -10,6 +10,19 @@
 @use '../variables/radius' as *;
 @use '../variables/transition' as *;
 
+@mixin external-link-icon {
+  &::after {
+    display: inline-block;
+    margin-left: $spacing-1;
+    content: '';
+    transition: transform $transition-fast;
+  }
+
+  &:hover::after {
+    transform: translate(2px, -2px);
+  }
+}
+
 // Button base
 @mixin button-base {
   @include flex-center;

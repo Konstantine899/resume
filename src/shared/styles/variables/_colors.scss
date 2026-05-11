@@ -46,3 +46,15 @@ $background-alt: #f5f3f0 !default;
 // Border colors
 $border-color: #e5e7eb !default;
 $border-color-dark: #d1d5db !default;
+
+// Gradient variables
+$gradient-primary: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%) !default;
+$gradient-text: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%) !default;
+$gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%) !default;
+
+// Gradient map
+$gradients: (
+  primary: $gradient-primary,
+  text: $gradient-text,
+  work-history: $gradient-work-history,
+) !default;

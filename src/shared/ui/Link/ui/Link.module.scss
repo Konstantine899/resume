@@ -1,0 +1,165 @@
+// src/shared/ui/Link/Link.module.scss
+@use 'sass:color';
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/mixins' as *;
+
+.link {
+  display: inline-flex;
+  gap: $spacing-1;
+  align-items: center;
+  font-family: $font-family-base;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  // Sizes
+  &.sm {
+    @include text-xs;
+  }
+
+  &.md {
+    @include text-sm;
+  }
+
+  &.lg {
+    @include text-base;
+  }
+
+  // Variants
+  &.primary {
+    @include font-medium;
+
+    color: var(--link-primary, $primary-light);
+
+    &:hover {
+      color: var(--link-primary-hover, color.adjust($primary-light, $lightness: 10%));
+    }
+  }
+
+  &.secondary {
+    @include font-normal;
+
+    color: var(--link-secondary, $text-muted);
+
+    &:hover {
+      color: var(--link-secondary-hover, $text-primary);
+    }
+  }
+
+  &.ghost {
+    @include font-normal;
+
+    color: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.gradient {
+    @include font-medium;
+
+    background: $gradient-text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
+
+    &:hover {
+      filter: drop-shadow(4px 4px 8px rgb(0 0 0 / 0.6));
+    }
+  }
+
+  // Underline variants
+  &.underlineAlways {
+    text-decoration: underline;
+  }
+
+  &.underlineHover {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.underlineNever {
+    text-decoration: none;
+  }
+
+  // Icons
+  .icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    justify-content: center;
+  }
+
+  .externalIcon {
+    margin-left: $spacing-1;
+    opacity: 0.7;
+    transition:
+      opacity $transition-fast,
+      transform $transition-fast;
+
+    &:hover {
+      opacity: 1;
+      transform: translate(2px, -2px);
+    }
+  }
+
+  // Unstyled
+  &.unstyled {
+    all: unset;
+    cursor: pointer;
+  }
+
+  // Accessibility
+  &:focus-visible {
+    outline: 2px solid var(--link-primary, $primary-light);
+    outline-offset: 2px;
+    border-radius: $border-radius-sm;
+  }
+
+  // Disabled
+  &[aria-disabled='true'] {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // Active
+  &:active {
+    transform: scale(0.98);
+  }
+
+  // Hover lift
+  &.withLift {
+    @include hover-lift;
+  }
+}
+
+// Light theme overrides
+[data-theme='light'] .link {
+  &.primary {
+    color: var(--link-primary-light, $primary-dark);
+
+    &:hover {
+      color: var(--link-primary-light-hover, color.adjust($primary-dark, $lightness: -10%));
+    }
+  }
+
+  &.secondary {
+    color: var(--link-secondary-light, $text-secondary);
+
+    &:hover {
+      color: var(--link-secondary-light-hover, $text-primary);
+    }
+  }
+
+  &:focus-visible {
+    outline-color: var(--link-primary-light, $primary-dark);
+  }
+}
