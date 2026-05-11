@@ -28,6 +28,13 @@
   --link-primary-hover: #f9c997;
   --link-secondary: #e8e6e3;
   --link-secondary-hover: #fff;
+
+  // Form variables (NEW)
+  --form-error: #{$form-error-color};
+  --form-success: #{$form-success-color};
+  --form-warning: #{$form-warning-color};
+  --label-color: var(--foreground);
+  --label-required-color: #{$form-error-color};
 }
 
 [data-theme='dark'] {
@@ -44,11 +51,16 @@
   --skeleton-base: rgb(255 255 255 / 0.1);
   --skeleton-highlight: rgb(255 255 255 / 0.15);
 
-  // Link colors for dark theme (светлые ссылки на тёмном фоне)
+  // Link colors for dark theme
   --link-primary: #f4b377;
   --link-primary-hover: #f9c997;
   --link-secondary: #e8e6e3;
   --link-secondary-hover: #fff;
+
+  // Form variables for dark theme
+  --form-error: #ef4444;
+  --form-success: #22c55e;
+  --form-warning: #f59e0b;
 }
 
 [data-theme='light'] {
@@ -68,4 +80,9 @@
   --link-primary-hover: #b85f2b;
   --link-secondary: #4b5563;
   --link-secondary-hover: #1a1716;
+
+  // Form variables for light theme
+  --form-error: #dc3545;
+  --form-success: #28a745;
+  --form-warning: #ffc107;
 }

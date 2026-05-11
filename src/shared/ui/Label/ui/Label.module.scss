@@ -1,0 +1,108 @@
+// src/shared/ui/Label/ui/Label.module.scss
+
+// ============================================
+
+// Label Component Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/mixins/components' as components;
+
+// Wrapper for label + description
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+// Base label styles
+.label {
+  @include components.label-base;
+
+  cursor: pointer;
+
+  // Size variants
+  &.sm {
+    margin-bottom: $spacing-1;
+    font-size: $font-size-xs;
+  }
+
+  &.md {
+    margin-bottom: $spacing-2;
+    font-size: $font-size-sm;
+  }
+
+  &.lg {
+    margin-bottom: $spacing-3;
+    font-size: $font-size-base;
+  }
+
+  // Visual variants
+  &.error {
+    color: var(--form-error);
+
+    &.required::after {
+      color: var(--form-error);
+    }
+  }
+
+  &.success {
+    color: var(--form-success);
+
+    &.required::after {
+      color: var(--form-error); // Required indicator always red
+    }
+  }
+
+  &.warning {
+    color: var(--form-warning);
+
+    &.required::after {
+      color: var(--form-error);
+    }
+  }
+
+  // Hover state for better UX
+  &:hover {
+    color: var(--foreground);
+  }
+
+  // Focus-visible state for keyboard navigation
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  // Focus-within state (when associated input is focused)
+  &:has(+ input:focus),
+  &:has(+ textarea:focus),
+  &:has(+ select:focus) {
+    color: var(--primary);
+  }
+}
+
+// Description text
+.description {
+  margin-top: -$spacing-1;
+  margin-bottom: $spacing-2;
+  font-size: $font-size-xs;
+  line-height: $line-height-base;
+  color: var(--foreground-muted);
+
+  // Transition for theme changes
+  transition: color $transition-duration $transition-easing;
+}
+
+// Accessibility: Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .label {
+    transition: none;
+  }
+
+  .description {
+    transition: none;
+  }
+}

@@ -47,6 +47,11 @@ $background-alt: #f5f3f0 !default;
 $border-color: #e5e7eb !default;
 $border-color-dark: #d1d5db !default;
 
+// Form colors
+$form-error-color: #dc3545 !default;
+$form-success-color: #22c55e !default;
+$form-warning-color: #f59e0b !default;
+
 // Gradient variables
 $gradient-primary: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%) !default;
 $gradient-text: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%) !default;

@@ -10,6 +10,34 @@
 @use '../variables/radius' as *;
 @use '../variables/transition' as *;
 
+// Label base
+@mixin label-base {
+  display: block;
+  margin-bottom: $spacing-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--label-color);
+  transition: color $transition-fast ease;
+
+  &.required::after {
+    margin-left: $spacing-1;
+    color: var(--form-error);
+    content: ' *';
+  }
+
+  &.error {
+    color: var(--form-error);
+  }
+
+  &.success {
+    color: var(--form-success);
+  }
+
+  &.warning {
+    color: var(--form-warning);
+  }
+}
+
 @mixin external-link-icon {
   &::after {
     display: inline-block;
