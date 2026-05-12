@@ -1,6 +1,9 @@
 import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
+import { Button } from '@/shared/ui/Button';
+import { Overlay } from '@/shared/ui/Overlay';
 import { X } from 'lucide-react';
 import React from 'react';
 import type { NavItem as NavItemType } from '../../model/types';
@@ -25,38 +28,44 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  const handleOverlayClick = () => {
+    onClose();
+  };
+
+  const handleCloseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onClose();
+  };
+
   return (
     <div
-      className={`${styles.overlay} ${isOpen ? styles.open : ''}`}
+      className={classNames(styles.overlay, isOpen && styles.open)}
       role="dialog"
       aria-modal="true"
       aria-label="Mobile navigation menu"
       aria-hidden={!isOpen}
     >
-      {/* Backdrop */}
-      <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
-
-      {/* Panel */}
+      {/* Panel — должен быть ПЕРЕД Overlay в DOM */}
       <div className={styles.panel}>
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className={styles.closeButton}
+        <Button
+          variant="ghost"
+          size="md"
+          icon={<X className={styles.closeIcon} />}
+          onClick={handleCloseClick}
           aria-label="Close menu"
-          type="button"
+          className={styles.closeButton}
           tabIndex={isOpen ? 0 : -1}
-        >
-          <X className={styles.closeIcon} />
-        </button>
+        />
 
         {/* Header */}
         <SidebarHeader variant="mobile" isCollapsed={false} />
 
         {/* Navigation */}
         <nav className={styles.navigation} role="navigation" aria-label="Main navigation">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <NavItem
-              key={`${item.href}-${index}`}
+              key={`${item.href}`}
               icon={item.icon}
               label={item.label}
               href={item.href}
@@ -73,6 +82,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           <p className={styles.footerText}>{t('footerTitle')}</p>
         </div>
       </div>
+
+      {/* Overlay — рендерится ПОСЛЕ panel, но визуально сзади (z-index) */}
+      <Overlay onClick={handleOverlayClick} blur={true} dark={false} className={styles.backdrop} />
     </div>
   );
 };
