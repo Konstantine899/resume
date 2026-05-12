@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './SidebarHeader.module.scss';
 
@@ -29,13 +30,20 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
 
   return (
     <div className={`${styles.header} ${variant === 'desktop' ? styles.desktop : styles.mobile}`}>
-      <a href="#home" onClick={handleClick} className={styles.logoLink} aria-label="Go to homepage">
+      <Link
+        href="#home"
+        variant="ghost"
+        underline="never"
+        onClick={handleClick}
+        className={styles.logoLink}
+        aria-label="Go to homepage"
+      >
         {showFullText ? (
           <span className={styles.logoTextFull}>{t(`name`)}</span>
         ) : (
           <span className={styles.logoTextShort}>K</span>
         )}
-      </a>
+      </Link>
     </div>
   );
 };

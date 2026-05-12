@@ -2,7 +2,7 @@
 
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'sidebar';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 export type IconPosition = 'left' | 'right';
 

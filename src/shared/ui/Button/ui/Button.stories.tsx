@@ -1,6 +1,6 @@
 // src/shared/ui/Button/Button.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ArrowRight, Mail, User } from 'lucide-react';
+import { ArrowRight, Mail, Menu, User } from 'lucide-react';
 import { Button } from './Button';
 
 const meta = {
@@ -18,7 +18,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'outline', 'ghost', 'danger'],
+      options: ['primary', 'secondary', 'outline', 'ghost', 'danger', 'sidebar'],
     },
     size: {
       control: 'select',
@@ -225,4 +225,32 @@ export const IconButtonGallery: Story = {
       <Button icon={<ArrowRight size={18} />} ariaLabel="Next" variant="ghost" />
     </div>
   ),
+};
+
+export const Sidebar: Story = {
+  args: {
+    children: 'Sidebar Button',
+    variant: 'sidebar',
+    size: 'md',
+  },
+};
+
+export const SidebarIconOnly: Story = {
+  args: {
+    icon: <Menu size={20} />,
+    ariaLabel: 'Open menu',
+    variant: 'sidebar',
+    size: 'md',
+  },
+};
+
+export const SidebarWithRotation: Story = {
+  args: {
+    icon: <ArrowRight size={20} />,
+    ariaLabel: 'Toggle sidebar',
+    variant: 'sidebar',
+    size: 'md',
+    rotation: 180,
+    fullWidth: true,
+  },
 };

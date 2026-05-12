@@ -5,7 +5,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  width: 100%;
+  padding: $spacing-md;
+
+  &.desktop {
+    margin-bottom: $spacing-lg;
+  }
+
+  .mobile {
+    .logoTextFull {
+      font-size: $font-size-xl;
+    }
+  }
 }
 
 .desktop {
@@ -29,30 +40,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
+  width: 100%;
+
+  // Переопределяем стили Link для sidebar
+  &:hover {
+    text-decoration: none;
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+    border-radius: $border-radius-md;
+  }
 }
 
 .logoTextShort {
-  font-size: 1.25rem;
+  @include gradient-text;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: $font-size-xl;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--foreground);
+  border-radius: $border-radius-md;
+  transition: opacity 0.2s ease;
 }
 
 .logoTextFull {
-  font-size: 1.5rem;
+  @include gradient-text;
+
+  font-size: $font-size-lg;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  .mobile & {
-    font-size: 1.5rem;
-  }
-
-  .desktop & {
-    margin-left: $spacing-2;
-    font-size: 1.125rem;
-  }
+  color: var(--foreground);
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
 }

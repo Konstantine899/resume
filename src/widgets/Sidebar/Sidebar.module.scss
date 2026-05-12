@@ -17,25 +17,10 @@
   top: $spacing-md;
   left: $spacing-md;
   z-index: $sidebar-z-index + 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-2;
-  cursor: pointer;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: $border-radius-md;
-  transition: all 0.2s ease;
 
-  &:hover {
-    background: rgb(244 179 119 / 0.1);
-  }
+  // Button уже имеет все стили для variant="sidebar"
 
-  &:focus-visible {
-    outline: 2px solid $primary-light;
-    outline-offset: 2px;
-  }
-
+  // Оставляем только позиционирование и hidden состояние
   @include md {
     display: none;
   }
@@ -51,7 +36,7 @@
 .menuIcon {
   width: 20px;
   height: 20px;
-  color: var(--foreground);
+  color: currentcolor; // Наследуем цвет от кнопки
 }
 
 // ============================================
