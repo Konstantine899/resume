@@ -1,0 +1,115 @@
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/mixins/typography' as *;
+@use '@/shared/styles/mixins/theme' as *;
+
+.paragraph {
+  margin: 0;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-base;
+
+  @include theme-transition;
+
+  // Sizes
+  &.xs {
+    @include text-xs;
+  }
+
+  &.s {
+    @include text-sm;
+  }
+
+  &.m {
+    @include text-base;
+  }
+
+  &.l {
+    @include text-lg;
+  }
+
+  &.xl {
+    @include text-xl;
+  }
+
+  &.size-2xl {
+    @include text-2xl;
+  }
+
+  // Themes
+  &.primary {
+    color: var(--foreground);
+  }
+
+  &.muted {
+    color: var(--foreground-muted);
+  }
+
+  &.inverted {
+    color: #fff;
+  }
+
+  &.error {
+    color: var(--form-error);
+  }
+
+  &.success {
+    color: var(--form-success);
+  }
+
+  &.warning {
+    color: var(--form-warning);
+  }
+
+  &.gradient {
+    @include gradient-text;
+  }
+
+  // Align
+  &.left {
+    text-align: left;
+  }
+
+  &.center {
+    text-align: center;
+  }
+
+  &.right {
+    text-align: right;
+  }
+
+  // Line clamp (ограничение строк)
+  &.line-clamp-2 {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    line-clamp: 2; /* Стандартное свойство для совместимости */
+    -webkit-box-orient: vertical;
+  }
+
+  &.line-clamp-3 {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  &.line-clamp-4 {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  &.line-clamp-5 {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+  }
+}

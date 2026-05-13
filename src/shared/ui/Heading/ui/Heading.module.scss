@@ -1,0 +1,85 @@
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/mixins/typography' as *;
+@use '@/shared/styles/mixins/theme' as *;
+
+.heading {
+  margin: 0;
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+
+  @include theme-transition;
+
+  // Sizes
+  &.xs {
+    @include text-xs;
+  }
+
+  &.s {
+    @include text-sm;
+  }
+
+  &.m {
+    @include text-base;
+  }
+
+  &.l {
+    @include text-lg;
+  }
+
+  &.xl {
+    @include text-xl;
+  }
+
+  &.size-2xl {
+    @include text-2xl;
+  }
+
+  &.size-3xl {
+    font-size: $font-size-3xl;
+    line-height: 1.2;
+  }
+
+  &.size-4xl {
+    font-size: $font-size-4xl;
+    line-height: 1.2;
+  }
+
+  &.size-5xl {
+    font-size: $font-size-5xl;
+    line-height: 1.2;
+  }
+
+  // Themes
+  &.primary {
+    color: var(--foreground);
+  }
+
+  &.muted {
+    color: var(--foreground-muted);
+  }
+
+  &.inverted {
+    color: #fff;
+  }
+
+  &.error {
+    color: var(--form-error);
+  }
+
+  &.gradient {
+    @include gradient-text;
+  }
+
+  // Align
+  &.left {
+    text-align: left;
+  }
+
+  &.center {
+    text-align: center;
+  }
+
+  &.right {
+    text-align: right;
+  }
+}
