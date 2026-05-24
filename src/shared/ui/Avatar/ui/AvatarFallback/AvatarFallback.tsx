@@ -1,6 +1,7 @@
 import React from 'react';
 import { FALLBACK_COLORS } from '../../model/constants';
 import { AvatarFallbackProps } from '../../model/types';
+
 import styles from './AvatarFallback.module.scss';
 
 export const AvatarFallback: React.FC<AvatarFallbackProps> = ({

@@ -1,0 +1,41 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--background);
+  border-radius: 50%;
+  transition: all $transition-duration $transition-easing;
+
+  &.dot {
+    min-width: 8px;
+    min-height: 8px;
+  }
+
+  &.number,
+  &.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    min-height: 16px;
+    padding: 2px 4px;
+    border-radius: 12px;
+  }
+}
+
+.count {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  color: white;
+}
+
+.icon {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}

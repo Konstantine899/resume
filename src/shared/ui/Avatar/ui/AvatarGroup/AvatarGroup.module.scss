@@ -1,0 +1,24 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.group {
+  display: flex;
+  align-items: center;
+}
+
+.avatarWrapper {
+  display: inline-flex;
+  transition: margin-left $transition-duration $transition-easing;
+}
+
+.remaining {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--card-bg);
+  border: 2px solid var(--background);
+  border-radius: 50%;
+}

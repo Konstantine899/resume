@@ -1,0 +1,38 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all $transition-duration $transition-easing;
+
+  &.circle {
+    border-radius: $radius-full;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg;
+  }
+
+  // Sizes
+  &.sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  &.md {
+    width: 48px;
+    height: 48px;
+  }
+
+  &.lg {
+    width: 64px;
+    height: 64px;
+  }
+
+  &.xl {
+    width: 96px;
+    height: 96px;
+  }
+}

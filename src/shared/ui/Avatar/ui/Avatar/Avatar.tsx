@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAvatar } from '../../hooks/useAvatar';
 import { AvatarProps } from '../../model/types';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
+import { AvatarImage } from '../AvatarImage/AvatarImage';
 import styles from './Avatar.module.scss';
 
 export const Avatar: React.FC<AvatarProps> = ({
@@ -15,23 +17,20 @@ export const Avatar: React.FC<AvatarProps> = ({
   heroStyle = false,
   showGlow = false,
   showRing = false,
+  children,
 }) => {
-  const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(!!src);
-
-  const handleError = () => {
-    setHasError(true);
-    setIsLoading(false);
-    onError?.();
-  };
-
-  const handleLoad = () => {
-    setHasError(false);
-    setIsLoading(false);
-    onLoad?.();
-  };
-
+  const { hasError, handleError, handleLoad } = useAvatar(); // Убираем isLoading
   const showFallback = !src || hasError;
+
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    handleError();
+    onError?.(event);
+  };
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    handleLoad();
+    onLoad?.(event);
+  };
 
   return (
     <div
@@ -49,18 +48,18 @@ export const Avatar: React.FC<AvatarProps> = ({
           <AvatarFallback name={alt} size={size} />
         ))
       ) : (
-        <img
+        <AvatarImage
           src={src}
           alt={alt}
-          className={styles.image}
-          onError={handleError}
-          onLoad={handleLoad}
-          loading="lazy"
+          size={size}
+          variant={variant}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
         />
       )}
 
       {heroStyle && showRing && <div className={styles.ring} />}
-      {isLoading && <div className={styles.loader} />}
+      {children}
     </div>
   );
 };
