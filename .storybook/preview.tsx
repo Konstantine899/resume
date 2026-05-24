@@ -1,20 +1,33 @@
 // .storybook/preview.tsx
-import type { Preview } from '@storybook/react';
+import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
+import type { Preview } from '@storybook/react-vite';
 import { I18nProvider } from '../src/app/providers/I18nProvider';
 import { ThemeProvider } from '../src/app/providers/ThemeProvider';
-
-import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import '../src/shared/styles/globals/index.scss';
 
 const withProviders = (Story: React.ComponentType, context: { globals: { theme?: string } }) => {
-  const theme = context.globals.theme || 'dark';
+  const theme = context.globals?.theme || 'dark';
 
   return (
     <ThemeProvider>
       <I18nProvider>
         <ToastProvider>
-          <div data-theme={theme} style={{ padding: '2rem' }}>
-            <Story />
+          <div
+            data-theme={theme}
+            style={{
+              background: 'var(--background)',
+              minHeight: '100vh',
+              minWidth: '100vw',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxSizing: 'border-box',
+            }}
+          >
+            <div style={{ padding: '2rem' }}>
+              <Story />
+            </div>
           </div>
         </ToastProvider>
       </I18nProvider>
@@ -30,7 +43,6 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    // A11y конфигурация
     a11y: {
       config: {
         rules: [
@@ -39,7 +51,6 @@ const preview: Preview = {
         ],
       },
     },
-    // Docs конфигурация
     docs: {
       description: {
         component: 'Компоненты UI Kit для портфолио',
@@ -48,7 +59,6 @@ const preview: Preview = {
     backgrounds: {
       disable: true,
     },
-    //Layout для всех stories
     layout: 'centered',
   },
   decorators: [withProviders],
@@ -65,7 +75,7 @@ const preview: Preview = {
       },
     },
   },
-  tags: ['autodocs'], // Авто-документация для всех
+  tags: ['autodocs'],
 };
 
 export default preview;

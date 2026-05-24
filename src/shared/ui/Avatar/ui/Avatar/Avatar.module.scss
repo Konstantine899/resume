@@ -1,0 +1,190 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  transition: all $transition-duration $transition-easing;
+
+  &.circle {
+    border-radius: $radius-full;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg;
+  }
+
+  // Hero-like styles
+  &.heroStyle {
+    padding: $spacing-sm;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    box-shadow: $shadow-xl;
+
+    .image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to bottom right, var(--background), var(--background-secondary));
+      border-radius: 50%;
+      transition: background $transition-duration $transition-easing;
+    }
+  }
+
+  // Sizes
+  &.sm {
+    width: 32px;
+    height: 32px;
+
+    &.heroStyle {
+      width: 3rem;
+      height: 3rem;
+
+      .initial {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+    }
+  }
+
+  &.md {
+    width: 48px;
+    height: 48px;
+
+    .heroStyle {
+      padding: $spacing-sm;
+      background: linear-gradient(
+        135deg,
+        var(--primary) 0%,
+        var(--primary-dark) 50%,
+        var(--accent) 100%
+      );
+      border-radius: 50%;
+      box-shadow: $shadow-xl;
+
+      .image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          to bottom right,
+          var(--background),
+          var(--background-secondary)
+        );
+        border-radius: 50%;
+        transition: background $transition-duration $transition-easing;
+      }
+    }
+  }
+
+  &.lg {
+    width: 64px;
+    height: 64px;
+
+    &.heroStyle {
+      width: 8rem;
+      height: 8rem;
+
+      .initial {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+    }
+  }
+
+  &.xl {
+    width: 96px;
+    height: 96px;
+
+    &.heroStyle {
+      width: 14rem;
+      height: 14rem;
+
+      .initial {
+        font-size: 3.75rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      @include xl {
+        width: 18rem;
+        height: 18rem;
+
+        .initial {
+          font-size: 6rem;
+        }
+      }
+
+      @include xxl {
+        width: 20rem;
+        height: 20rem;
+
+        .initial {
+          font-size: 7.5rem;
+        }
+      }
+    }
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: background $transition-duration $transition-easing;
+}
+
+.loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.2) 50%, transparent 100%);
+  animation: loading 1.5s infinite;
+
+  @keyframes loading {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+// Hero-like additional elements
+.glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 50%,
+    var(--accent) 100%
+  );
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(40px);
+
+  @include pulse-glow;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px solid var(--primary-light);
+  border-radius: 50%;
+  opacity: 0.2;
+  transform: scale(1.1);
+}
