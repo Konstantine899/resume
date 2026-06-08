@@ -10,6 +10,7 @@
 # ============================================
 # These are generated at runtime and should NOT be committed
 
+# Runtime directories (ignore all except config files)
 .opencode/logs/
 .opencode/context/
 .opencode/health/
@@ -17,6 +18,7 @@
 .opencode/backups/
 .opencode/tmp/
 .opencode/cache/
+.opencode/node_modules/
 
 # Log files anywhere in .opencode
 .opencode/**/*.log
@@ -27,6 +29,12 @@
 .opencode/**/*.state
 .opencode/**/*.pid
 .opencode/**/*.lock
+
+# Package files in .opencode (if any)
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/pnpm-lock.yaml
+.opencode/yarn.lock
 
 # ============================================
 # OPENCODE - GLOBAL CONFIG (DO NOT COMMIT)
