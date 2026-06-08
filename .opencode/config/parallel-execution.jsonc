@@ -1,0 +1,241 @@
+{
+  "$schema": "https://opencode.ai/parallel-execution.json",
+
+  "description": "Parallel Execution — параллельное выполнение независимых задач",
+
+  "parallelExecution": {
+    "enabled": true,
+    "maxConcurrent": 3,
+    "strategy": "balanced",
+    "timeout": 300,
+  },
+
+  "parallelGroups": {
+    "test-suite": {
+      "name": "Test Suite Parallel",
+      "description": "Параллельный запуск всех типов тестов",
+      "enabled": true,
+      "maxConcurrent": 3,
+      "tasks": [
+        {
+          "id": "unit-tests",
+          "agent": "test-generation",
+          "task": "run-unit",
+          "timeout": 60,
+          "priority": 1,
+        },
+        {
+          "id": "integration-tests",
+          "agent": "integration-test",
+          "task": "run-integration",
+          "timeout": 90,
+          "priority": 2,
+        },
+        {
+          "id": "e2e-tests",
+          "agent": "integration-test",
+          "task": "run-e2e",
+          "timeout": 120,
+          "priority": 3,
+        },
+      ],
+      "onFail": "continue",
+      "aggregateResults": true,
+      "scheduling": {
+        "respectPriority": true,
+        "startWith": "highest",
+        "stagger": true,
+        "staggerDelay": 5,
+        "resourceAllocation": {
+          "high": { "cpu": 40, "memory": "1GB" },
+          "medium": { "cpu": 30, "memory": "512MB" },
+          "low": { "cpu": 30, "memory": "512MB" },
+        },
+      },
+      "earlyExit": {
+        "enabled": true,
+        "onCriticalFailure": true,
+        "criticalTasks": ["unit-tests"],
+      },
+    },
+
+    "code-review-suite": {
+      "name": "Code Review Parallel",
+      "description": "Параллельные проверки кода",
+      "enabled": true,
+      "maxConcurrent": 2,
+      "tasks": [
+        {
+          "id": "security-audit",
+          "agent": "review",
+          "task": "security-audit",
+          "timeout": 45,
+          "priority": 1,
+        },
+        {
+          "id": "performance-analysis",
+          "agent": "performance-test",
+          "task": "analyze",
+          "timeout": 45,
+          "priority": 2,
+        },
+        {
+          "id": "architecture-validation",
+          "agent": "fsd-validator",
+          "task": "validate",
+          "timeout": 30,
+          "priority": 3,
+        },
+      ],
+      "onFail": "continue",
+      "aggregateResults": true,
+    },
+
+    "component-creation": {
+      "name": "Component Creation Parallel",
+      "description": "Параллельное создание файлов компонента",
+      "enabled": true,
+      "maxConcurrent": 3,
+      "tasks": [
+        {
+          "id": "create-component",
+          "agent": "ui",
+          "task": "create-tsx",
+          "timeout": 30,
+          "priority": 1,
+        },
+        {
+          "id": "create-styles",
+          "agent": "style",
+          "task": "create-scss",
+          "timeout": 20,
+          "priority": 1,
+        },
+        {
+          "id": "create-types",
+          "agent": "ui",
+          "task": "create-types",
+          "timeout": 15,
+          "priority": 1,
+        },
+      ],
+      "onFail": "stop",
+      "aggregateResults": false,
+      "syncPoint": "all-complete",
+    },
+
+    "quality-gate-checks": {
+      "name": "Quality Gate Parallel Checks",
+      "description": "Параллельные проверки quality gates",
+      "enabled": true,
+      "maxConcurrent": 3,
+      "tasks": [
+        {
+          "id": "security-scan",
+          "agent": "review",
+          "task": "security-audit",
+          "timeout": 45,
+          "priority": 1,
+        },
+        {
+          "id": "performance-check",
+          "agent": "performance-test",
+          "task": "analyze",
+          "timeout": 45,
+          "priority": 2,
+        },
+        {
+          "id": "style-validation",
+          "agent": "style",
+          "task": "validate",
+          "timeout": 30,
+          "priority": 3,
+        },
+      ],
+      "onFail": "continue",
+      "aggregateResults": true,
+    },
+
+    "documentation-generation": {
+      "name": "Documentation Parallel",
+      "description": "Параллельная генерация документации",
+      "enabled": true,
+      "maxConcurrent": 2,
+      "tasks": [
+        {
+          "id": "api-docs",
+          "agent": "review",
+          "task": "generate-api-docs",
+          "timeout": 30,
+          "priority": 1,
+        },
+        {
+          "id": "component-docs",
+          "agent": "ui",
+          "task": "generate-component-docs",
+          "timeout": 30,
+          "priority": 1,
+        },
+      ],
+      "onFail": "continue",
+      "aggregateResults": true,
+    },
+  },
+
+  "scheduling": {
+    "strategy": "balanced",
+    "strategies": {
+      "balanced": {
+        "description": "Баланс между скоростью и загрузкой",
+        "maxConcurrent": 3,
+        "prioritize": true,
+        "balanceLoad": true,
+      },
+      "speed": {
+        "description": "Максимальная скорость",
+        "maxConcurrent": 5,
+        "prioritize": true,
+        "balanceLoad": false,
+      },
+      "conservative": {
+        "description": "Минимальная нагрузка",
+        "maxConcurrent": 2,
+        "prioritize": false,
+        "balanceLoad": true,
+      },
+    },
+  },
+
+  "resourceManagement": {
+    "enabled": true,
+    "maxMemory": "2GB",
+    "maxCPU": 80,
+    "throttleOnLimit": true,
+    "priorityTasks": ["security-audit", "integration-tests"],
+  },
+
+  "errorHandling": {
+    "onTaskFail": "continue",
+    "onGroupFail": "continue",
+    "retryFailed": true,
+    "maxRetries": 2,
+    "failFast": false,
+    "aggregateErrors": true,
+  },
+
+  "metrics": {
+    "enabled": true,
+    "trackParallelism": true,
+    "trackSpeedup": true,
+    "trackResourceUsage": true,
+    "logFile": ".opencode/logs/parallel-execution.log",
+  },
+
+  "reporting": {
+    "enabled": true,
+    "format": "markdown",
+    "outputFile": ".opencode/logs/parallel-report.md",
+    "includeTimings": true,
+    "includeSpeedup": true,
+  },
+}

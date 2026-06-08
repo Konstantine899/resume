@@ -1,0 +1,182 @@
+{
+  "$schema": "https://opencode.ai/orchestrator.json",
+
+  "description": "Model Orchestrator — автоматический выбор модели по типу задачи",
+
+  "routing": {
+    "simple": {
+      "description": "Простые задачи — быстрая модель",
+      "tasks": [
+        "fix typo",
+        "explain code",
+        "format",
+        "rename variable",
+        "add comment",
+        "simple refactor",
+      ],
+      "model": "ollama/deepseek-coder:1.3b-instruct-q4_K_M",
+      "maxTokens": 500,
+      "timeout": 10,
+      "temperature": 0.3,
+    },
+
+    "standard": {
+      "description": "Стандартные задачи — баланс скорости и качества",
+      "tasks": [
+        "create component",
+        "write test",
+        "refactor",
+        "fix bug",
+        "add feature",
+        "update types",
+        "style fix",
+      ],
+      "model": "ollama/qwen2.5-coder:7b-instruct-q4_K_M",
+      "maxTokens": 2000,
+      "timeout": 30,
+      "temperature": 0.5,
+    },
+
+    "complex": {
+      "description": "Сложные задачи — мощная локальная модель",
+      "tasks": [
+        "architecture review",
+        "debug complex",
+        "migration",
+        "performance optimization",
+        "integration test",
+        "api integration",
+        "state management",
+      ],
+      "model": "ollama/qwen2.5-coder:32b",
+      "maxTokens": 8000,
+      "timeout": 60,
+      "temperature": 0.7,
+    },
+
+    "expert": {
+      "description": "Экспертные задачи — облачная модель максимального качества",
+      "tasks": [
+        "security audit",
+        "system design",
+        "complex refactoring",
+        "technical debt analysis",
+        "code review final",
+        "production debug",
+      ],
+      "model": "ollama-cloud/deepseek-v3.1:671b-cloud",
+      "maxTokens": 16000,
+      "timeout": 120,
+      "temperature": 0.8,
+    },
+  },
+
+  "fallback": {
+    "enabled": true,
+    "onTimeout": "downgrade",
+    "onError": "retry",
+    "maxRetries": 2,
+    "fallbackChain": ["expert", "complex", "standard", "simple"],
+    "levelSpecificFallback": {
+      "expert": {
+        "onTimeout": "retry",
+        "maxRetries": 3,
+        "minLevel": "complex",
+        "notifyUser": true,
+        "extendedTimeout": 180,
+      },
+      "complex": {
+        "onTimeout": "downgrade",
+        "minLevel": "standard",
+        "maxRetries": 2,
+      },
+      "standard": {
+        "onTimeout": "downgrade",
+        "minLevel": "simple",
+        "maxRetries": 2,
+      },
+      "simple": {
+        "onTimeout": "fail",
+        "maxRetries": 1,
+      },
+    },
+    "taskSpecificFallback": {
+      "security-audit": {
+        "minLevel": "complex",
+        "allowDowngrade": false,
+      },
+      "architecture-review": {
+        "minLevel": "complex",
+        "allowDowngrade": false,
+      },
+      "production-debug": {
+        "minLevel": "expert",
+        "allowDowngrade": false,
+      },
+    },
+  },
+
+  "autoDetect": {
+    "enabled": true,
+    "keywords": {
+      "expert": ["security", "audit", "architecture", "design", "production"],
+      "complex": ["debug", "migration", "optimization", "integration"],
+      "standard": ["create", "write", "fix", "update", "add", "refactor"],
+      "simple": ["typo", "format", "rename", "comment", "explain"],
+    },
+    "filePatterns": {
+      "expert": ["**/*.config.*", "**/package.json"],
+      "complex": ["**/*.test.*", "**/*.spec.*"],
+      "standard": ["**/*.tsx", "**/*.ts"],
+      "simple": ["**/*.md", "**/*.json"],
+    },
+    "combinationStrategy": {
+      "enabled": true,
+      "method": "weighted",
+      "weights": {
+        "keywords": 0.4,
+        "filePatterns": 0.3,
+        "context": 0.3,
+      },
+      "thresholds": {
+        "expert": 0.8,
+        "complex": 0.6,
+        "standard": 0.4,
+      },
+    },
+    "context": {
+      "enabled": true,
+      "factors": ["recentTasks", "projectMemory", "userPreferences"],
+    },
+  },
+
+  "metrics": {
+    "enabled": true,
+    "trackUsage": true,
+    "trackLatency": true,
+    "trackSuccessRate": true,
+    "logFile": ".opencode/logs/orchestrator.log",
+    "healthCheck": {
+      "enabled": true,
+      "interval": 60,
+      "endpoint": ".opencode/health/orchestrator.json",
+      "checks": {
+        "modelAvailability": true,
+        "contextAccess": true,
+        "pipelineExecutor": true,
+        "memoryUsage": true,
+        "queueDepth": true,
+      },
+      "alerts": {
+        "onFailure": true,
+        "onDegradation": true,
+        "thresholds": {
+          "latency": 5000,
+          "errorRate": 0.1,
+          "memoryUsage": 0.8,
+          "queueDepth": 100,
+        },
+      },
+    },
+  },
+}

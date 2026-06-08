@@ -1,0 +1,177 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "username": "Konstantine",
+
+  "orchestrator": {
+    "enabled": true,
+    "config": ".opencode/config/orchestrator.jsonc",
+    "autoRoute": true,
+    "logFile": ".opencode/logs/orchestrator.log"
+  },
+
+  "pipelines": {
+    "enabled": true,
+    "config": ".opencode/config/pipelines.jsonc",
+    "autoTrigger": true,
+    "logFile": ".opencode/logs/pipelines.log"
+  },
+
+  "context": {
+    "enabled": true,
+    "config": ".opencode/config/context.jsonc",
+    "sharedMemory": true,
+    "projectMemory": true,
+    "logFile": ".opencode/logs/context.log"
+  },
+
+  "qualityGates": {
+    "enabled": true,
+    "config": ".opencode/config/quality-gates.jsonc",
+    "preCommit": true,
+    "preMerge": true,
+    "preDeploy": true,
+    "autoFix": true,
+    "logFile": ".opencode/logs/quality-gates.log"
+  },
+
+  "parallelExecution": {
+    "enabled": true,
+    "config": ".opencode/config/parallel-execution.jsonc",
+    "strategy": "balanced",
+    "maxConcurrent": 3,
+    "logFile": ".opencode/logs/parallel-execution.log"
+  },
+
+  "feedbackLoop": {
+    "enabled": true,
+    "config": ".opencode/config/feedback-loop.jsonc",
+    "autoLearn": true,
+    "generateRules": true,
+    "logFile": ".opencode/logs/feedback-loop.log"
+  },
+
+  "model": "ollama/qwen2.5-coder:32b",
+  "small_model": "ollama/qwen2.5-coder:7b-instruct-q4_K_M",
+  "logLevel": "INFO",
+  "snapshot": true,
+  "instructions": [".opencode/docs/AGENTS.md", ".opencode/instructions/orchestrator-guide.md"],
+
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "npm install": "allow",
+      "npm ci": "allow",
+      "npm run build": "allow",
+      "npm run dev": "allow",
+      "npm run test": "allow",
+      "npm run lint": "allow",
+      "npm run type-check": "allow",
+      "npm run format": "allow",
+      "npm run *": "ask",
+      "npx *": "ask",
+      "git status": "allow",
+      "git diff": "allow",
+      "git log *": "allow",
+      "git branch *": "allow",
+      "git checkout *": "allow",
+      "git add *": "allow",
+      "git commit *": "ask",
+      "git push *": "ask",
+      "*": "ask"
+    },
+    "external_directory": {
+      "**/node_modules/**": "deny",
+      "**/.git/**": "deny",
+      "**/*.env*": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/package-lock.json": "deny",
+      "**/pnpm-lock.yaml": "deny",
+      "**/yarn.lock": "deny",
+      "*": "allow"
+    }
+  },
+
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp"],
+      "enabled": true
+    }
+  },
+
+  "formatter": true,
+  "lsp": true,
+
+  "version": "2.0.0",
+  "lastUpdated": "2026-06-08",
+
+  "compaction": {
+    "auto": true,
+    "tail_turns": 10
+  },
+
+  "tool_output": {
+    "max_lines": 300,
+    "max_bytes": 16384
+  },
+
+  "logRotation": {
+    "enabled": true,
+    "strategy": "size",
+    "maxSize": "10MB",
+    "maxFiles": 5,
+    "compress": true,
+    "frequency": "daily"
+  },
+
+  "logLevels": {
+    "file": "debug",
+    "console": "warn",
+    "separate": {
+      "error": ".opencode/logs/error.log",
+      "warn": ".opencode/logs/warn.log",
+      "info": ".opencode/logs/info.log"
+    },
+    "structured": {
+      "enabled": true,
+      "format": "json",
+      "includeMetadata": true
+    }
+  },
+
+  "notifications": {
+    "enabled": true,
+    "channels": ["console", "log"],
+    "routing": {
+      "critical": ["console", "log"],
+      "warning": ["console", "log"],
+      "info": ["log"]
+    }
+  },
+
+  "telemetry": {
+    "enabled": true,
+    "optOut": false,
+    "anonymous": true,
+    "dataCollected": ["usage", "performance", "errors"]
+  },
+
+  "metadata": {
+    "author": "Konstantine",
+    "created": "2026-06-08",
+    "tags": ["react", "fsd", "typescript", "vite"],
+    "projectType": "web-application"
+  },
+
+  "featureFlags": {
+    "mlEnhancement": false,
+    "distributedExecution": false,
+    "advancedCaching": true,
+    "predictiveRouting": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/task-context.json",
+  "version": "1.0.0",
+  "createdAt": "2026-06-08T00:00:00Z",
+  "lastUpdated": "2026-06-08T00:00:00Z",
+  "tasks": [],
+  "metadata": {
+    "totalTasks": 0,
+    "activeTasks": 0,
+    "completedTasks": 0
+  }
+}

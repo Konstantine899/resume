@@ -1,0 +1,264 @@
+{
+  "$schema": "https://opencode.ai/quality-gates.json",
+
+  "description": "Quality Gates — автоматическая проверка качества перед коммитом",
+
+  "gates": {
+    "pre-commit": {
+      "name": "Pre-Commit Quality Gate",
+      "description": "Проверка перед коммитом кода",
+      "enabled": true,
+      "blocking": true,
+      "checks": [
+        {
+          "id": "fsd-validation",
+          "agent": "fsd-validator",
+          "task": "validate",
+          "required": true,
+          "blocking": true,
+          "timeout": 30,
+          "criteria": {
+            "layerCompliance": 100,
+            "noCircularDeps": true,
+            "publicApiCompliance": true,
+          },
+        },
+        {
+          "id": "code-review",
+          "agent": "review",
+          "task": "review",
+          "required": true,
+          "blocking": true,
+          "timeout": 60,
+          "criteria": {
+            "minScore": 7,
+            "noCriticalIssues": true,
+            "blockers": ["security", "types", "architecture"],
+          },
+        },
+        {
+          "id": "test-coverage",
+          "agent": "test-generation",
+          "task": "verify-coverage",
+          "required": true,
+          "blocking": true,
+          "timeout": 45,
+          "criteria": {
+            "minCoverage": 90,
+            "requiredTests": ["render", "interaction", "edge-cases"],
+          },
+        },
+        {
+          "id": "security-scan",
+          "agent": "review",
+          "task": "security-audit",
+          "required": true,
+          "blocking": true,
+          "timeout": 45,
+          "criteria": {
+            "noVulnerabilities": true,
+            "focus": ["xss", "injection", "auth", "data-leak"],
+          },
+        },
+        {
+          "id": "performance-check",
+          "agent": "performance-test",
+          "task": "analyze",
+          "required": false,
+          "blocking": false,
+          "timeout": 45,
+          "criteria": {
+            "renderTime": "< 16ms",
+            "bundleSize": "< 50kb",
+            "memoryUsage": "normal",
+          },
+        },
+        {
+          "id": "style-validation",
+          "agent": "style",
+          "task": "validate",
+          "required": true,
+          "blocking": false,
+          "timeout": 30,
+          "criteria": {
+            "sassArchitecture": true,
+            "cssModules": true,
+            "noGlobalStyles": true,
+          },
+        },
+      ],
+    },
+
+    "pre-merge": {
+      "name": "Pre-Merge Quality Gate",
+      "description": "Проверка перед мержем в основную ветку",
+      "enabled": true,
+      "blocking": true,
+      "checks": [
+        {
+          "id": "full-review",
+          "agent": "review",
+          "task": "comprehensive-review",
+          "required": true,
+          "blocking": true,
+          "timeout": 90,
+          "criteria": {
+            "minScore": 8,
+            "noCriticalIssues": true,
+            "noMajorIssues": true,
+          },
+        },
+        {
+          "id": "integration-tests",
+          "agent": "integration-test",
+          "task": "run-all",
+          "required": true,
+          "blocking": true,
+          "timeout": 120,
+          "criteria": {
+            "passRate": 100,
+            "coverage": 95,
+          },
+        },
+        {
+          "id": "architecture-review",
+          "agent": "fsd-validator",
+          "task": "full-audit",
+          "required": true,
+          "blocking": true,
+          "timeout": 60,
+          "criteria": {
+            "layerCompliance": 100,
+            "noCircularDeps": true,
+            "publicApiCompliance": true,
+            "architectureScore": 9,
+          },
+        },
+        {
+          "id": "security-audit",
+          "agent": "review",
+          "task": "full-security-audit",
+          "required": true,
+          "blocking": true,
+          "timeout": 90,
+          "criteria": {
+            "noVulnerabilities": true,
+            "securityScore": 9,
+          },
+        },
+        {
+          "id": "performance-budget",
+          "agent": "performance-test",
+          "task": "budget-check",
+          "required": true,
+          "blocking": true,
+          "timeout": 60,
+          "criteria": {
+            "bundleSize": "< 500kb",
+            "loadTime": "< 3s",
+            "firstContentfulPaint": "< 1.5s",
+          },
+        },
+      ],
+    },
+
+    "pre-deploy": {
+      "name": "Pre-Deploy Quality Gate",
+      "description": "Проверка перед деплоем в production",
+      "enabled": true,
+      "blocking": true,
+      "checks": [
+        {
+          "id": "production-review",
+          "agent": "review",
+          "task": "production-ready",
+          "required": true,
+          "blocking": true,
+          "timeout": 60,
+          "criteria": {
+            "productionReady": true,
+            "noConsoleLogs": true,
+            "errorHandling": true,
+          },
+        },
+        {
+          "id": "e2e-tests",
+          "agent": "integration-test",
+          "task": "e2e-run",
+          "required": true,
+          "blocking": true,
+          "timeout": 180,
+          "criteria": {
+            "passRate": 100,
+            "criticalFlows": true,
+          },
+        },
+        {
+          "id": "security-final",
+          "agent": "review",
+          "task": "final-security-check",
+          "required": true,
+          "blocking": true,
+          "timeout": 45,
+          "criteria": {
+            "noVulnerabilities": true,
+            "envVariables": true,
+            "apiKeys": true,
+          },
+        },
+        {
+          "id": "performance-production",
+          "agent": "performance-test",
+          "task": "production-budget",
+          "required": true,
+          "blocking": true,
+          "timeout": 60,
+          "criteria": {
+            "lighthouse": "> 90",
+            "coreWebVitals": "good",
+          },
+        },
+      ],
+    },
+  },
+
+  "autoFix": {
+    "enabled": true,
+    "maxIterations": 3,
+    "agent": "review",
+    "fixableIssues": ["style", "types", "minor-bugs"],
+    "skipFixFor": ["security", "architecture", "major-bugs"],
+  },
+
+  "notifications": {
+    "onPass": true,
+    "onFail": true,
+    "onWarning": true,
+    "channels": ["console", "log"],
+    "includeDetails": true,
+  },
+
+  "reporting": {
+    "enabled": true,
+    "format": "markdown",
+    "outputFile": ".opencode/logs/quality-report.md",
+    "includeMetrics": true,
+    "includeSuggestions": true,
+  },
+
+  "metrics": {
+    "enabled": true,
+    "trackPassRate": true,
+    "trackFailReasons": true,
+    "trackFixTime": true,
+    "logFile": ".opencode/logs/quality-gates.log",
+  },
+
+  "globalSettings": {
+    "timeout": 300,
+    "retryOnFail": false,
+    "parallelChecks": true,
+    "failFast": false,
+    "logLevel": "INFO",
+  },
+}

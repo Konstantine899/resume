@@ -30,7 +30,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "storybook:test": "test-storybook",
-    "lint:storybook": "eslint .storybook/**/*"
+    "lint:storybook": "eslint .storybook/**/*",
+    "validate:continue": "continue validate --fsd --style --test --quick"
   },
   "keywords": [],
   "author": "",

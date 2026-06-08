@@ -1,49 +1,267 @@
-# Dependencies
-node_modules/
-.pnpm-store/
+# ============================================
+# OPENCODE CONFIGURATION
+# ============================================
+# Author: Konstantine
+# Project: Resume
+# Updated: 2026-06-08
 
-# Build outputs
+# ============================================
+# OPENCODE - RUNTIME FILES (DO NOT COMMIT)
+# ============================================
+# These are generated at runtime and should NOT be committed
+
+.opencode/logs/
+.opencode/context/
+.opencode/health/
+.opencode/telemetry/
+.opencode/backups/
+.opencode/tmp/
+.opencode/cache/
+
+# Log files anywhere in .opencode
+.opencode/**/*.log
+.opencode/**/*.log.*
+.opencode/**/*.jsonl
+
+# Runtime state files
+.opencode/**/*.state
+.opencode/**/*.pid
+.opencode/**/*.lock
+
+# ============================================
+# OPENCODE - GLOBAL CONFIG (DO NOT COMMIT)
+# ============================================
+# Global OpenCode config is in user's home directory
+# This should never be committed
+
+C:/Users/Konstantine/.config/opencode/
+**/.config/opencode/
+
+# ============================================
+# ENVIRONMENT / SECRETS (DO NOT COMMIT)
+# ============================================
+# API keys, passwords, tokens, etc.
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+*.env
+!.env.example
+
+# Secret files
+*.key
+*.pem
+*.crt
+*.secret
+secrets.json
+credentials.json
+
+# ============================================
+# COMPILE / BUILD (DO NOT COMMIT)
+# ============================================
+# Build outputs and dependencies
+
+node_modules/
+bower_components/
+jspm_packages/
 dist/
 build/
-*.local
+out/
+output/
+.next/
+.nuxt/
+.output/
 
-# Logs
-logs/
+# Build artifacts
+*.dll
+*.exe
+*.so
+*.dylib
+
+# ============================================
+# IDE / EDITOR (DO NOT COMMIT)
+# ============================================
+# Editor settings and temporary files
+
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Editor files
+*.swp
+*.swo
+*.swn
+*~
+.#*
+*.bak
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# TESTING (DO NOT COMMIT)
+# ============================================
+# Test outputs and coverage reports
+
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+jest-results/
+mocha-output/
+
+# ============================================
+# TEMPORARY FILES (DO NOT COMMIT)
+# ============================================
+# Cache and temporary files
+
+tmp/
+temp/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+tslint-cache
+.rpt2_cache/
+.fusebox/
+
+# ============================================
+# LOCK FILES (COMMIT - for reproducible builds)
+# ============================================
+# These SHOULD be committed for consistent builds
+
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# DOCUMENTATION (COMMIT)
+# ============================================
+# Documentation SHOULD be committed
+
+*.md
+!CHANGELOG.md
+
+# ============================================
+# OPENCODE - COMMIT THESE (Configuration)
+# ============================================
+# These SHOULD be committed as they are part of the project
+
+# Main config
+.opencode/opencode.json
+
+# Config files
+.opencode/config/*.json
+.opencode/config/*.jsonc
+
+# Documentation
+.opencode/docs/*.md
+.opencode/README.md
+
+# Project-specific configurations
+.opencode/instructions/
+.opencode/rules/
+.opencode/agents/
+.opencode/skills/
+.opencode/commands/
+
+# ============================================
+# TYPESCRIPT / JAVASCRIPT
+# ============================================
+# Build artifacts and type definitions
+
+*.tsbuildinfo
+*.js
+*.jsx
+*.map
+!*.d.ts
+
+# ============================================
+# GIT
+# ============================================
+# Git files and directories
+
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+
+# Git hooks
+.git/hooks/
+.husky/
+
+# ============================================
+# CI / CD
+# ============================================
+# Continuous integration outputs
+
+.circleci/
+.travis.yml
+.github/workflows/
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Build logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+lerna-debug.log*
 
-# IDE
-.idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
+# ============================================
+# PERFORMANCE
+# ============================================
+# Profiling and performance data
 
-# OS
-.DS_Store
-Thumbs.db
+*.prof
+*.gcda
+*.gcno
+*.gcov
 
-# Environment
-.env
-.env.local
-.env.*.local
+# ============================================
+# MISCELLANEOUS
+# ============================================
+# Other common files to ignore
 
-# Testing
-coverage/
+*.orig
+*.patch
+*.diff
+*.rej
+*.pyc
+*.pyo
+__pycache__/
+*.class
+*.jar
+*.war
+*.ear
 
-# TypeScript
-*.tsbuildinfo
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.mdb
+*.accdb
 
-# Continue IDE
-.continue/
-
-# Misc
-.cache/
-.temp/
-
-*storybook.log
-storybook-static
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
