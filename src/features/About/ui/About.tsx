@@ -1,7 +1,6 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
-import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { getInitials } from '@/shared/lib/utils';
+import { AvatarAbout } from '@/shared/ui/Avatar';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import type { AboutFeatureProps } from '../model/types';
 import styles from './About.module.scss';
@@ -10,7 +9,6 @@ export const About: React.FC<AboutFeatureProps> = ({
   className = '',
   'data-testid': testId = 'about',
 }) => {
-  const { theme } = useTheme();
   const { t } = useLanguage();
 
   return (
@@ -22,13 +20,7 @@ export const About: React.FC<AboutFeatureProps> = ({
       <AnimatedSection delay={200}>
         <div className={styles.content}>
           <div className={styles.avatarContainer}>
-            <div className={styles.avatarWrapper}>
-              <div
-                className={`${styles.avatarInner} ${theme === 'dark' ? styles.dark : styles.light}`}
-              >
-                {getInitials(DEVELOPER_DATA.fullName, { maxInitials: 2 })}
-              </div>
-            </div>
+            <AvatarAbout alt={DEVELOPER_DATA.fullName} size="lg" maxInitials={2} />
           </div>
 
           <h3 className={styles.title}>{t('about')}</h3>

@@ -1,0 +1,111 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.avatarAbout {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // Sizes
+  &.sm {
+    width: 3rem; // 48px
+    height: 3rem;
+
+    .avatarCircle {
+      padding: 1px; // Очень тонкая рамка
+    }
+
+    .initial {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f4b377;
+    }
+  }
+
+  &.md {
+    width: 4rem; // 64px
+    height: 4rem;
+
+    .avatarCircle {
+      padding: 2px; // Тонкая рамка
+    }
+
+    .initial {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f4b377;
+    }
+  }
+
+  &.lg {
+    width: 6rem; // 96px (для About)
+    height: 6rem;
+
+    .avatarCircle {
+      padding: 2px; // Тонкая рамка
+    }
+
+    .initial {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f4b377;
+    }
+
+    @media (min-width: #{$breakpoint-sm}) {
+      width: 6rem; // 96px
+      height: 6rem;
+
+      .initial {
+        font-size: 2rem;
+      }
+    }
+
+    @media (min-width: #{$breakpoint-md}) {
+      width: 8rem; // 128px
+      height: 8rem;
+
+      .initial {
+        font-size: 2.5rem;
+      }
+    }
+  }
+
+  // Circle (тонкая градиентная рамка)
+  .avatarCircle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
+    border-radius: 50%;
+  }
+
+  // Inner (тёмный/светлый фон)
+  .avatarInner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: #292726;
+    border-radius: 50%;
+    transition: background $transition-duration $transition-easing;
+
+    [data-theme='light'] & {
+      background: #f5f3f0;
+    }
+
+    .initial {
+      line-height: 1;
+    }
+  }
+
+  // Image variant
+  .avatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}

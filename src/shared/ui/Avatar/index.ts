@@ -1,4 +1,5 @@
 export type {
+  AvatarAboutProps,
   AvatarBadgeProps,
   AvatarBadgeVariant,
   AvatarGroupProps,
@@ -11,6 +12,7 @@ export type {
   AvatarVariant,
 } from './model/types';
 export { Avatar } from './ui/Avatar/Avatar';
+export { AvatarAbout } from './ui/AvatarAbout/AvatarAbout';
 export { AvatarHero } from './ui/AvatarHero/AvatarHero';
 export { AvatarBadge } from './ui/AvatarBadge/AvatarBadge';
 export { AvatarFallback } from './ui/AvatarFallback/AvatarFallback';

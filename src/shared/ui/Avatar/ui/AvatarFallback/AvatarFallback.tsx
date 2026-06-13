@@ -1,26 +1,22 @@
 import React from 'react';
 import { FALLBACK_COLORS } from '../../model/constants';
 import { AvatarFallbackProps } from '../../model/types';
+import { getInitials } from '@/shared/lib/utils';
 
 import styles from './AvatarFallback.module.scss';
 
 export const AvatarFallback: React.FC<AvatarFallbackProps> = ({
   name = 'U',
   size = 'md',
+  maxInitials = 2,
   className = '',
 }) => {
-  const getInitials = (name: string): string => {
-    const names = name.split(' ');
-    if (names.length === 1) return name.charAt(0).toUpperCase();
-    return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
-  };
-
   const getColor = (name: string): string => {
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
   };
 
-  const initials = getInitials(name);
+  const initials = getInitials(name, { maxInitials });
   const backgroundColor = getColor(name);
 
   return (

@@ -21,6 +21,7 @@ export interface AvatarProps {
 export interface AvatarFallbackProps {
   name?: string;
   size?: AvatarSize;
+  maxInitials?: number;
   className?: string;
 }
 
@@ -61,5 +62,14 @@ export interface AvatarHeroProps {
   className?: string;
   showGlow?: boolean;
   showRing?: boolean;
+  maxInitials?: number;
   children?: React.ReactNode;
+}
+
+export interface AvatarAboutProps {
+  src?: string;
+  alt: string;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+  maxInitials?: number;
 }

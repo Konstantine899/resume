@@ -14,39 +14,31 @@ export const Avatar: React.FC<AvatarProps> = ({
   className = '',
   onError,
   onLoad,
-  heroStyle = false,
-  showGlow = false,
-  showRing = false,
   children,
 }) => {
-  const { hasError, handleError, handleLoad } = useAvatar(); // Убираем isLoading
+  const { hasError, handleError, handleLoad } = useAvatar();
   const showFallback = !src || hasError;
 
-  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    handleError();
-    onError?.(event);
-  };
+  const handleImageError = React.useCallback(
+    (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      handleError();
+      onError?.(event);
+    },
+    [handleError, onError]
+  );
 
-  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    handleLoad();
-    onLoad?.(event);
-  };
+  const handleImageLoad = React.useCallback(
+    (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      handleLoad();
+      onLoad?.(event);
+    },
+    [handleLoad, onLoad]
+  );
 
   return (
-    <div
-      className={`${styles.avatar} ${styles[size]} ${styles[variant]} ${heroStyle ? styles.heroStyle : ''} ${className}`}
-    >
-      {heroStyle && showGlow && <div className={styles.glow} />}
-
+    <div className={`${styles.avatar} ${styles[size]} ${styles[variant]} ${className}`}>
       {showFallback ? (
-        fallback ||
-        (heroStyle ? (
-          <div className={styles.image}>
-            <span className={styles.initial}>{alt.charAt(0).toUpperCase()}</span>
-          </div>
-        ) : (
-          <AvatarFallback name={alt} size={size} />
-        ))
+        fallback || <AvatarFallback name={alt} size={size} />
       ) : (
         <AvatarImage
           src={src}
@@ -57,8 +49,6 @@ export const Avatar: React.FC<AvatarProps> = ({
           onLoad={handleImageLoad}
         />
       )}
-
-      {heroStyle && showRing && <div className={styles.ring} />}
       {children}
     </div>
   );
