@@ -40,3 +40,19 @@ $spacing-scale: (
   20: $spacing-20,
   24: $spacing-24,
 ) !default;
+
+// Avatar hero sizes (Hero component style)
+$avatar-hero-sm: 3rem !default;
+$avatar-hero-md: 5rem !default;
+$avatar-hero-lg: 8rem !default;
+$avatar-hero-xl: 14rem !default;
+$avatar-hero-2xl: 18rem !default;
+$avatar-hero-3xl: 20rem !default;
+
+// Avatar photo sizes (alias for hero sizes)
+$avatar-photo-sm: $avatar-hero-sm !default;
+$avatar-photo-md: $avatar-hero-md !default;
+$avatar-photo-lg: $avatar-hero-lg !default;
+$avatar-photo-xl: $avatar-hero-xl !default;
+$avatar-photo-2xl: $avatar-hero-2xl !default;
+$avatar-photo-3xl: $avatar-hero-3xl !default;

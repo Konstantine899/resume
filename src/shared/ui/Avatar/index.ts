@@ -1,7 +1,8 @@
 export type {
-  AvatarBadgeProps, // Переименовываем тип
+  AvatarBadgeProps,
   AvatarBadgeVariant,
   AvatarGroupProps,
+  AvatarHeroProps,
   AvatarImageProps,
   AvatarProps,
   AvatarSize,
@@ -10,6 +11,7 @@ export type {
   AvatarVariant,
 } from './model/types';
 export { Avatar } from './ui/Avatar/Avatar';
+export { AvatarHero } from './ui/AvatarHero/AvatarHero';
 export { AvatarBadge } from './ui/AvatarBadge/AvatarBadge';
 export { AvatarFallback } from './ui/AvatarFallback/AvatarFallback';
 export { AvatarGroup } from './ui/AvatarGroup/AvatarGroup';

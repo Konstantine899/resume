@@ -53,3 +53,13 @@ export interface AvatarStatusProps {
   status: AvatarStatus;
   className?: string;
 }
+
+export interface AvatarHeroProps {
+  src?: string;
+  alt: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
+  showGlow?: boolean;
+  showRing?: boolean;
+  children?: React.ReactNode;
+}

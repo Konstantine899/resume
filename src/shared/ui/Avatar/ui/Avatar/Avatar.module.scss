@@ -20,7 +20,7 @@
     border-radius: $border-radius-lg;
   }
 
-  // Hero-like styles
+  // Hero-like styles (base)
   &.heroStyle {
     padding: $spacing-sm;
     background: var(--gradient-primary);
@@ -31,13 +31,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(to bottom right, var(--background), var(--background-secondary));
+      background: linear-gradient(to bottom right, #1a1918, #292726);
       border-radius: 50%;
       transition: background $transition-duration $transition-easing;
+
+      [data-theme='light'] & {
+        background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+      }
     }
   }
 
-  // Sizes
+  // Hero-like sizes with proportional border thickness
   &.sm {
     width: 32px;
     height: 32px;
@@ -45,11 +49,12 @@
     &.heroStyle {
       width: 3rem;
       height: 3rem;
+      padding: 2px; // Тонкая рамка для маленьких размеров
 
       .initial {
         font-size: 1rem;
         font-weight: 700;
-        color: var(--primary);
+        color: #f4b377; // Фиксированный оранжевый
       }
     }
   }
@@ -58,14 +63,11 @@
     width: 48px;
     height: 48px;
 
-    .heroStyle {
-      padding: $spacing-sm;
-      background: linear-gradient(
-        135deg,
-        var(--primary) 0%,
-        var(--primary-dark) 50%,
-        var(--accent) 100%
-      );
+    &.heroStyle {
+      width: 5rem;
+      height: 5rem;
+      padding: 3px; // Среднее кольцо
+      background: var(--gradient-primary);
       border-radius: 50%;
       box-shadow: $shadow-xl;
 
@@ -73,13 +75,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(
-          to bottom right,
-          var(--background),
-          var(--background-secondary)
-        );
+        background: linear-gradient(to bottom right, #1a1918, #292726);
         border-radius: 50%;
         transition: background $transition-duration $transition-easing;
+
+        [data-theme='light'] & {
+          background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+        }
+      }
+
+      .initial {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #f4b377;
       }
     }
   }
@@ -91,11 +99,12 @@
     &.heroStyle {
       width: 8rem;
       height: 8rem;
+      padding: 4px; // Более толстое кольцо
 
       .initial {
         font-size: 2.5rem;
         font-weight: 700;
-        color: var(--primary);
+        color: #f4b377;
       }
     }
   }
@@ -107,11 +116,12 @@
     &.heroStyle {
       width: 14rem;
       height: 14rem;
+      padding: $spacing-sm; // Оригинальная толщина (8px)
 
       .initial {
         font-size: 3.75rem;
         font-weight: 700;
-        color: var(--primary);
+        color: #f4b377;
       }
 
       @include xl {
