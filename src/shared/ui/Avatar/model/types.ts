@@ -15,6 +15,8 @@ export interface AvatarProps {
   heroStyle?: boolean;
   showGlow?: boolean;
   showRing?: boolean;
+  showSkeleton?: boolean;
+  forceLoading?: boolean;
   children?: React.ReactNode;
 }
 

@@ -1,9 +1,20 @@
+import { classNames } from '@/shared/lib/utils/classNames';
+
 import React from 'react';
+import { Skeleton } from '@/shared/ui/Skeleton';
+
 import { useAvatar } from '../../hooks/useAvatar';
 import { AvatarProps } from '../../model/types';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import styles from './Avatar.module.scss';
+
+const sizeMap: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
+  sm: '32px',
+  md: '48px',
+  lg: '64px',
+  xl: '96px',
+};
 
 export const Avatar: React.FC<AvatarProps> = ({
   src,
@@ -11,13 +22,17 @@ export const Avatar: React.FC<AvatarProps> = ({
   size = 'md',
   variant = 'circle',
   fallback,
+  showSkeleton = true,
+  forceLoading = false,
   className = '',
   onError,
   onLoad,
   children,
 }) => {
-  const { hasError, handleError, handleLoad } = useAvatar();
+  const { isLoading, hasError, handleError, handleLoad } = useAvatar(src, forceLoading);
+
   const showFallback = !src || hasError;
+  const showSkeletonState = showSkeleton && isLoading && !hasError;
 
   const handleImageError = React.useCallback(
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -36,8 +51,21 @@ export const Avatar: React.FC<AvatarProps> = ({
   );
 
   return (
-    <div className={`${styles.avatar} ${styles[size]} ${styles[variant]} ${className}`}>
-      {showFallback ? (
+    <div
+      className={classNames(styles.avatar, styles[size], styles[variant], className)}
+      data-loading={isLoading}
+      data-error={hasError}
+    >
+      {showSkeletonState ? (
+        <div className={styles.skeletonWrapper}>
+          <Skeleton
+            variant="circular"
+            width={sizeMap[size]}
+            height={sizeMap[size]}
+            className={styles.skeleton}
+          />
+        </div>
+      ) : showFallback ? (
         fallback || <AvatarFallback name={alt} size={size} />
       ) : (
         <AvatarImage
