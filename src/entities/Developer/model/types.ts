@@ -8,4 +8,10 @@ export interface DeveloperProfile {
   email?: string;
   location?: string;
   avatarUrl?: string;
+  avatars?: {
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+  };
 }

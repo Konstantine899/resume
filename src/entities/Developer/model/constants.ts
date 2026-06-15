@@ -8,9 +8,15 @@ export const DEVELOPER_DATA: DeveloperProfile = {
   skillsLabel: 'Современные Веб-Технологии',
   yearsOfExperience: 6,
   age: 20,
-  email: undefined, // Заполните при необходимости
-  location: undefined, // Заполните при необходимости
-  avatarUrl: undefined, // Заполните если есть фото
+  email: undefined,
+  location: undefined,
+  avatarUrl: '/avatars/kosmos-avatar-xl.webp',
+  avatars: {
+    sm: '/avatars/kosmos-avatar-sm.webp',
+    md: '/avatars/kosmos-avatar-md.webp',
+    lg: '/avatars/kosmos-avatar-lg.webp',
+    xl: '/avatars/kosmos-avatar-xl.webp',
+  },
 };
 
 /**

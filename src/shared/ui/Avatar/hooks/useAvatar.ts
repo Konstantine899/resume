@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export const useAvatar = (src?: string, forceLoading?: boolean) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,29 +17,40 @@ export const useAvatar = (src?: string, forceLoading?: boolean) => {
     const img = new Image();
     img.src = src;
 
+    const cleanup = () => {
+      img.src = '';
+      img.onload = null;
+      img.onerror = null;
+    };
+
     if (img.complete) {
       queueMicrotask(() => setIsLoading(false));
+    } else {
+      img.onload = () => cleanup();
+      img.onerror = () => cleanup();
     }
+
+    return cleanup;
   }, [src, forceLoading]);
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     if (!forceLoading) {
       setIsLoading(false);
       setHasError(true);
     }
-  };
+  }, [forceLoading]);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     if (!forceLoading) {
       setIsLoading(false);
       setHasError(false);
     }
-  };
+  }, [forceLoading]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setIsLoading(true);
     setHasError(false);
-  };
+  }, []);
 
   return {
     isLoading,
