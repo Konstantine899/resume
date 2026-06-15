@@ -1,5 +1,5 @@
 @use '@/shared/styles/variables' as *;
-@use '../mixins/avatar' as *;
+@use '@/shared/styles/mixins/avatar' as *;
 
 .avatarAbout {
   position: relative;
