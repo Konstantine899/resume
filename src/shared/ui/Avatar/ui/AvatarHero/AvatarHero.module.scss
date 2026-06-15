@@ -1,6 +1,5 @@
 @use '@/shared/styles/variables' as *;
-@use '@/shared/styles/mixins' as *;
-@use '@/shared/styles/animations' as *;
+@use '../mixins/avatar' as *;
 
 .avatarHero {
   position: relative;
@@ -14,13 +13,12 @@
     height: $avatar-photo-sm;
 
     .photoCircle {
-      padding: 2px; // Тонкая рамка для маленьких размеров
+      padding: 2px;
     }
 
     .initial {
       font-size: 1rem;
-      font-weight: 700;
-      color: #f4b377; // Фиксированный оранжевый цвет
+      @include avatar-initial;
     }
   }
 
@@ -29,13 +27,12 @@
     height: $avatar-photo-md;
 
     .photoCircle {
-      padding: 3px; // Среднее кольцо
+      padding: 3px;
     }
 
     .initial {
       font-size: 1.75rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
   }
 
@@ -44,13 +41,12 @@
     height: $avatar-photo-lg;
 
     .photoCircle {
-      padding: 4px; // Более толстое кольцо
+      padding: 4px;
     }
 
     .initial {
       font-size: 2.5rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
   }
 
@@ -59,13 +55,12 @@
     height: $avatar-photo-xl;
 
     .photoCircle {
-      padding: $spacing-sm; // Оригинальная толщина (8px)
+      padding: $spacing-sm;
     }
 
     .initial {
       font-size: 3.75rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
 
     @include xl {
@@ -87,138 +82,38 @@
     }
   }
 
-  // Glow effect (outer pulsing glow) - самый внешний слой
+  // Effects
   .photoGlow {
-    position: absolute;
-    inset: 0;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    opacity: 0.3;
-    filter: blur(40px);
-
-    @include pulse-glow;
+    @include avatar-glow;
   }
 
-  // Ring effect (decorative outer ring) - тонкое кольцо
   .photoRing {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border: 2px solid rgb(244 179 119 / 0.2);
-    border-radius: 50%;
-    transform: scale(1.1);
+    @include avatar-ring;
   }
 
-  // Photo circle (gradient border) - видимое оранжевое кольцо
   .photoCircle {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    padding: $spacing-sm;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    box-shadow: $shadow-xl;
+    @include avatar-circle;
   }
 
-  // Inner (dark background + initials) - тёмный круг с инициалом
   .photoInner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom right, #1a1918, #292726);
-    border-radius: 50%;
-    transition: background $transition-duration $transition-easing;
-
-    [data-theme='light'] & {
-      background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
-    }
+    @include avatar-inner;
 
     .initial {
-      line-height: 1;
-      color: #f4b377; // Фиксированный оранжевый цвет (не зависит от темы)
+      @include avatar-initial;
     }
   }
 
-  // Image variant (for photo src)
   .photoImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+    @include avatar-image;
   }
 
-  // Skeleton wrapper with dark background
   .skeletonWrapper {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(to bottom right, #1a1918, #292726);
-    border-radius: 50%;
-
-    [data-theme='light'] & {
-      background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
-    }
-  }
-
-  // Skeleton with ripple animation
-  .skeleton {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-
-    &::before {
-      position: absolute;
-      inset: -4px;
-      content: '';
-      border: 2px solid var(--primary-light);
-      border-radius: 50%;
-      opacity: 0;
-      animation: ripple 2s ease-out infinite;
-    }
-
-    &::after {
-      position: absolute;
-      inset: -8px;
-      content: '';
-      border: 1px solid var(--primary-light);
-      border-radius: 50%;
-      opacity: 0;
-      animation: ripple 2s ease-out 0.5s infinite;
-    }
-  }
-}
-
-@keyframes ripple {
-  0% {
-    opacity: 0.6;
-    transform: scale(0);
-  }
-
-  50% {
-    opacity: 0.4;
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(2);
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  .photoGlow {
-    animation: none;
+    @include avatar-skeleton-wrapper;
   }
 
   .skeleton {
-    &::before,
-    &::after {
-      animation: none;
-    }
+    @include avatar-skeleton;
   }
+
+  @include avatar-reduced-motion;
 }

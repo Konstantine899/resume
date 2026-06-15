@@ -1,5 +1,5 @@
 @use '@/shared/styles/variables' as *;
-@use '@/shared/styles/mixins' as *;
+@use '../mixins/avatar' as *;
 
 .avatarAbout {
   position: relative;
@@ -9,51 +9,48 @@
 
   // Sizes
   &.sm {
-    width: 3rem; // 48px
+    width: 3rem;
     height: 3rem;
 
     .avatarCircle {
-      padding: 1px; // Очень тонкая рамка
+      padding: 1px;
     }
 
     .initial {
       font-size: 1rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
   }
 
   &.md {
-    width: 4rem; // 64px
+    width: 4rem;
     height: 4rem;
 
     .avatarCircle {
-      padding: 2px; // Тонкая рамка
+      padding: 2px;
     }
 
     .initial {
       font-size: 1.5rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
   }
 
   &.lg {
-    width: 6rem; // 96px (для About)
+    width: 6rem;
     height: 6rem;
 
     .avatarCircle {
-      padding: 2px; // Тонкая рамка
+      padding: 2px;
     }
 
     .initial {
       font-size: 2rem;
-      font-weight: 700;
-      color: #f4b377;
+      @include avatar-initial;
     }
 
     @media (min-width: #{$breakpoint-sm}) {
-      width: 6rem; // 96px
+      width: 6rem;
       height: 6rem;
 
       .initial {
@@ -62,7 +59,7 @@
     }
 
     @media (min-width: #{$breakpoint-md}) {
-      width: 8rem; // 128px
+      width: 8rem;
       height: 8rem;
 
       .initial {
@@ -73,108 +70,40 @@
 
   // Circle (тонкая градиентная рамка)
   .avatarCircle {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    padding: 2px;
+    @include avatar-circle(2px);
     background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
-    border-radius: 50%;
   }
 
-  // Inner (тёмный/светлый фон)
+  // Inner
   .avatarInner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+    @include avatar-inner;
     background: #292726;
-    border-radius: 50%;
-    transition: background $transition-duration $transition-easing;
 
     [data-theme='light'] & {
       background: #f5f3f0;
     }
 
     .initial {
-      line-height: 1;
+      @include avatar-initial;
     }
   }
 
-  // Image variant
   .avatarImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+    @include avatar-image;
   }
 
-  // Skeleton wrapper with dark background
   .skeletonWrapper {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include avatar-skeleton-wrapper;
     background: #292726;
-    border-radius: 50%;
 
     [data-theme='light'] & {
       background: #f5f3f0;
     }
   }
 
-  // Skeleton with ripple animation
   .skeleton {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-
-    &::before {
-      position: absolute;
-      inset: -4px;
-      content: '';
-      border: 2px solid var(--primary-light);
-      border-radius: 50%;
-      opacity: 0;
-      animation: ripple 2s ease-out infinite;
-    }
-
-    &::after {
-      position: absolute;
-      inset: -8px;
-      content: '';
-      border: 1px solid var(--primary-light);
-      border-radius: 50%;
-      opacity: 0;
-      animation: ripple 2s ease-out 0.5s infinite;
-    }
-  }
-}
-
-@keyframes ripple {
-  0% {
-    opacity: 0.6;
-    transform: scale(0);
+    @include avatar-skeleton;
   }
 
-  50% {
-    opacity: 0.4;
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(2);
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  .skeleton {
-    &::before,
-    &::after {
-      animation: none;
-    }
-  }
+  @include avatar-reduced-motion;
 }
