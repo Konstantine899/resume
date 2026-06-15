@@ -532,4 +532,24 @@ describe('AnimatedSection: Edge Cases', () => {
 
     expect(handleComplete).toHaveBeenCalledTimes(1);
   });
+
+  it('должен рендериться с animation="none"', () => {
+    const { container } = render(
+      <AnimatedSection animation="none">
+        <div>Content</div>
+      </AnimatedSection>
+    );
+
+    expect(container.firstChild).toHaveClass(styles.none);
+  });
+
+  it('должен применять threshold для IntersectionObserver', () => {
+    render(
+      <AnimatedSection trigger="onScroll" threshold={0.5}>
+        <div>Content</div>
+      </AnimatedSection>
+    );
+
+    expect(mockObserve).toHaveBeenCalled();
+  });
 });
