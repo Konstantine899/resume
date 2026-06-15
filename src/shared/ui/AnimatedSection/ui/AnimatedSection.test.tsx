@@ -14,7 +14,7 @@ let mockObserve = vi.fn();
 class MockIntersectionObserver {
   constructor(
     callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void,
-    options?: IntersectionObserverInit
+    _options?: IntersectionObserverInit
   ) {
     mockObserverCallback = callback;
   }
@@ -255,7 +255,7 @@ describe('AnimatedSection: Trigger - onHover', () => {
   it('не должен запускать анимацию повторно при повторном наведении', async () => {
     const handleStart = vi.fn();
 
-    const { container } = render(
+    render(
       <AnimatedSection trigger="onHover" delay={100} onAnimationStart={handleStart}>
         <div>Content</div>
       </AnimatedSection>
@@ -493,7 +493,7 @@ describe('AnimatedSection: State Classes', () => {
 
 describe('AnimatedSection: Edge Cases', () => {
   it('должен работать без children', () => {
-    const { container } = render(<AnimatedSection />);
+    const { container } = render(<AnimatedSection>{null}</AnimatedSection>);
 
     expect(container.firstChild).toBeInTheDocument();
   });
