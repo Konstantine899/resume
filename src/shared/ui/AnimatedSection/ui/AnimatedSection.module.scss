@@ -1,3 +1,6 @@
+$animation-offset-sm: 20px;
+$animation-offset-lg: 100px;
+
 .animatedSection {
   opacity: 0;
   transition:
@@ -5,125 +8,50 @@
     transform var(--animation-duration, 700ms) ease;
   transition-delay: var(--animation-delay, 0ms);
 
-  // Без трансформации, только opacity
   &.fadeIn {
     transform: none;
   }
 
   &.fadeUp {
-    transform: translateY(20px);
+    transform: translateY($animation-offset-sm);
   }
 
   &.fadeDown {
-    transform: translateY(-20px);
+    transform: translateY(-$animation-offset-sm);
   }
 
   &.slideInLeft {
-    transform: translateX(-100px);
+    transform: translateX(-$animation-offset-lg);
   }
 
   &.slideInRight {
-    transform: translateX(100px);
+    transform: translateX($animation-offset-lg);
   }
 
   &.scaleIn {
     transform: scale(0.9);
   }
 
-  // Состояния анимации
   &.visible {
     opacity: 1;
     transform: none;
   }
 
-  // animating - добавляется во время проигрывания анимации
   &.animating {
     transition-delay: 0ms;
   }
 
-  // Disable animation
   &.none {
     opacity: 1;
     transform: none;
     transition: none;
   }
-
-  // Для hover триггера - добавляем плавность при наведении
-  &.hoverable {
-    &:hover {
-      opacity: 1;
-      transform: none;
-    }
-  }
 }
 
-// Keyframe animations for more complex effects
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-100px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-// Показывает границы компонента (для отладки)
 .debug {
   outline: 1px dashed red;
 }
 
-// Принудительно показывает элемент (игнорирует анимации)
 .forceVisible {
   opacity: 1;
   transform: none;

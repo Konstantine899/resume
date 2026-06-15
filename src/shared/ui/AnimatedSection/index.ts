@@ -5,6 +5,7 @@
 export type {
   AnimatedSectionProps,
   AnimationState,
+  AnimationAction,
   AnimationTrigger,
   AnimationType,
 } from './model/types';

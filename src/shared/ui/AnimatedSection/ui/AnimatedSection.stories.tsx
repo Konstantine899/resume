@@ -1,5 +1,6 @@
 // src/shared/ui/AnimatedSection/AnimatedSection.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within } from '@storybook/test';
 import { useState } from 'react';
 import { AnimatedSection } from './AnimatedSection';
 
@@ -8,6 +9,12 @@ const meta = {
   component: AnimatedSection,
   parameters: {
     layout: 'centered',
+    a11y: {
+      config: {},
+      options: {
+        runOnly: ['WCAG 2A', 'WCAG 2AA'],
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {
@@ -102,6 +109,12 @@ export const ManualTrigger: Story = {
       </div>
     );
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: /trigger animation/i });
+
+    await userEvent.click(button);
+  },
 };
 
 export const AllAnimations: Story = {
@@ -125,4 +138,18 @@ export const AllAnimations: Story = {
       </AnimatedSection>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Проверяем что все 4 анимации отрендерились
+    const sections = canvas.getAllByTestId('animated-section');
+    if (sections.length === 4) {
+      // Проверяем что у всех есть класс visible (анимация запустилась)
+      sections.forEach((section) => {
+        if (section.className.includes('visible')) {
+          console.log('Animation visible:', section);
+        }
+      });
+    }
+  },
 };

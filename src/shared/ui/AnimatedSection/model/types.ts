@@ -93,7 +93,7 @@ export interface AnimatedSectionProps {
   /**
    * HTML attributes
    */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -104,6 +104,15 @@ export interface AnimationState {
   hasAnimated: boolean;
   isAnimating: boolean;
 }
+
+/**
+ * Animation actions for reducer
+ */
+export type AnimationAction =
+  | { type: 'SET_VISIBLE' }
+  | { type: 'START' }
+  | { type: 'COMPLETE' }
+  | { type: 'RESET' };
 
 /**
  * Intersection observer options
