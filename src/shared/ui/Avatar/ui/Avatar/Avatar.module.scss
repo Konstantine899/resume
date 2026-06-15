@@ -2,6 +2,12 @@
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/styles/animations' as *;
 
+// Mixin для hero-style initial text
+@mixin hero-initial {
+  font-weight: 700;
+  color: var(--avatar-initial-color, #f4b377);
+}
+
 .avatar {
   position: relative;
   display: inline-flex;
@@ -53,8 +59,8 @@
 
       .initial {
         font-size: 1rem;
-        font-weight: 700;
-        color: #f4b377; // Фиксированный оранжевый
+
+        @include hero-initial;
       }
     }
   }
@@ -86,8 +92,8 @@
 
       .initial {
         font-size: 1.75rem;
-        font-weight: 700;
-        color: #f4b377;
+
+        @include hero-initial;
       }
     }
   }
@@ -103,8 +109,8 @@
 
       .initial {
         font-size: 2.5rem;
-        font-weight: 700;
-        color: #f4b377;
+
+        @include hero-initial;
       }
     }
   }
@@ -120,8 +126,8 @@
 
       .initial {
         font-size: 3.75rem;
-        font-weight: 700;
-        color: #f4b377;
+
+        @include hero-initial;
       }
 
       @include xl {
@@ -130,6 +136,8 @@
 
         .initial {
           font-size: 6rem;
+
+          @include hero-initial;
         }
       }
 
@@ -139,6 +147,8 @@
 
         .initial {
           font-size: 7.5rem;
+
+          @include hero-initial;
         }
       }
     }

@@ -1,20 +1,15 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 
 import React from 'react';
+// FSD-compliant: Skeleton is in shared/ui (same layer)
 import { Skeleton } from '@/shared/ui/Skeleton';
 
-import { useAvatar } from '../../hooks/useAvatar';
+import { SIZE_MAP } from '../../model/constants';
 import { AvatarProps } from '../../model/types';
+import { useAvatar } from '../../hooks/useAvatar';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import styles from './Avatar.module.scss';
-
-const sizeMap: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
-  sm: '32px',
-  md: '48px',
-  lg: '64px',
-  xl: '96px',
-};
 
 export const Avatar: React.FC<AvatarProps> = ({
   src,
@@ -29,9 +24,13 @@ export const Avatar: React.FC<AvatarProps> = ({
   onLoad,
   children,
 }) => {
-  const { isLoading, hasError, handleError, handleLoad } = useAvatar(src, forceLoading);
+  const normalizedSrc = src === '' ? undefined : src;
+  const { isLoading, hasError, handleError, handleLoad } = useAvatar(
+    normalizedSrc ?? '',
+    forceLoading
+  );
 
-  const showFallback = !src || hasError;
+  const showFallback = !normalizedSrc || hasError;
   const showSkeletonState = showSkeleton && isLoading && !hasError;
 
   const handleImageError = React.useCallback(
@@ -53,6 +52,8 @@ export const Avatar: React.FC<AvatarProps> = ({
   return (
     <div
       className={classNames(styles.avatar, styles[size], styles[variant], className)}
+      role="img"
+      aria-label={alt}
       data-loading={isLoading}
       data-error={hasError}
     >
@@ -60,8 +61,8 @@ export const Avatar: React.FC<AvatarProps> = ({
         <div className={styles.skeletonWrapper}>
           <Skeleton
             variant="circular"
-            width={sizeMap[size]}
-            height={sizeMap[size]}
+            width={SIZE_MAP[size]}
+            height={SIZE_MAP[size]}
             className={styles.skeleton}
           />
         </div>
@@ -69,7 +70,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         fallback || <AvatarFallback name={alt} size={size} />
       ) : (
         <AvatarImage
-          src={src}
+          src={normalizedSrc}
           alt={alt}
           size={size}
           variant={variant}

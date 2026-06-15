@@ -7,6 +7,15 @@ export const AVATAR_SIZES: Record<AvatarSize, number> = {
   xl: 96,
 };
 
+export const SIZE_MAP: Record<AvatarSize, string> = {
+  sm: '32px',
+  md: '48px',
+  lg: '64px',
+  xl: '96px',
+};
+
+export const INITIAL_COLOR_VAR = '--avatar-initial-color';
+
 export const AVATAR_RADIUS: Record<AvatarVariant, string> = {
   circle: '50%',
   square: '8px',
