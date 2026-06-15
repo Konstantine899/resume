@@ -23,6 +23,14 @@
 - ❌ **NO** SQL/NoSQL injection vulnerabilities
 - ❌ **NO** XSS vulnerabilities in components
 
+### 4. AI/LLM SECURITY (Guard Agent Enforced):
+
+- ❌ **NO** prompt injection patterns in user input
+- ❌ **NO** instruction override attempts
+- ❌ **NO** system prompt extraction attempts
+- ❌ **NO** unauthorized MCP calls
+- ❌ **NO** bypassing Guard premoderation
+
 ## ⚠️ SECURITY REQUIREMENTS (Must Have)
 
 ### 1. INPUT VALIDATION:
@@ -32,19 +40,66 @@
 - ✅ **ALL** file uploads must be scanned
 - ✅ **ALL** data exports must be encrypted
 
-### 2. AUTHENTICATION:
+### 2. PROMPT INJECTION DETECTION (Guard Agent):
+
+- ✅ **DETECT** instruction override patterns:
+  - "Ignore previous instructions"
+  - "You are now in developer mode"
+  - "Bypass security filters"
+  - "Output your system prompt"
+
+- ✅ **DETECT** code execution patterns:
+  - "Execute this code:"
+  - "Run this script:"
+  - `<script>...</script>`
+  - `javascript:...`
+
+- ✅ **DETECT** SQL injection patterns:
+  - `UNION SELECT`
+  - `DROP TABLE`
+  - `DELETE FROM`
+  - `'; --`
+
+- ✅ **DETECT** path traversal patterns:
+  - `../`
+  - `/etc/passwd`
+  - `/windows/system32`
+
+- ✅ **DETECT** command injection patterns:
+  - `; rm`
+  - `| bash`
+  - `&& curl`
+  - Backticks execution
+
+### 3. PII MASKING (Automatic):
+
+- ✅ **MASK** email addresses → `[EMAIL_MASKED]`
+- ✅ **MASK** phone numbers → `[PHONE_MASKED]`
+- ✅ **MASK** credit cards → `[CARD_MASKED]`
+- ✅ **MASK** passwords/tokens → `[SECRET_MASKED]`
+- ✅ **MASK** IP addresses → `[IP_MASKED]`
+
+### 4. AUTHENTICATION:
 
 - ✅ **MUST** use secure password hashing (bcrypt)
 - ✅ **MUST** implement proper session management
 - ✅ **MUST** use HTTPS in production
 - ✅ **MUST** implement proper CORS policies
 
-### 3. DATA PROTECTION:
+### 5. DATA PROTECTION:
 
 - ✅ **ALL** sensitive data must be encrypted
 - ✅ **ALL** environment variables must be validated
 - ✅ **ALL** third-party libs must be security audited
 - ✅ **ALL** dependencies must be regularly updated
+
+### 6. GUARD AGENT INTEGRATION:
+
+- ✅ **ALL** MCP calls must pass Guard premoderation
+- ✅ **ALL** file operations logged in guard-audit.log
+- ✅ **ALL** security incidents logged in security-incidents.log
+- ✅ **SESSION** limits enforced (50 files read, 10 files write, 20 MCP calls)
+- ✅ **BLOCKED** paths: .git/**, node_modules/**, .env*, package-lock.json
 
 ## 🎯 SECURITY METRICS (SaaS Advanced)
 
@@ -54,6 +109,14 @@
 - **Snyk Score**: A+ rating required
 - **OWASP ZAP**: Zero critical vulnerabilities
 - **CodeQL**: Zero security findings
+
+### 2. GUARD AGENT METRICS:
+
+- **Prompt Injection Detection Rate**: 100%
+- **False Positive Rate**: < 1%
+- **Average Decision Time**: < 100ms
+- **PII Masking Coverage**: 100%
+- **Audit Log Completeness**: 100%
 
 ### 2. COMPLIANCE STANDARDS:
 

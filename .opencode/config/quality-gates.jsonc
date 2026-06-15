@@ -86,6 +86,18 @@
             "noGlobalStyles": true,
           },
         },
+        {
+          "id": "judge-score",
+          "agent": "judge",
+          "task": "score",
+          "required": true,
+          "blocking": true,
+          "timeout": 30,
+          "criteria": {
+            "minScore": 7,
+            "categories": ["correctness", "completeness", "security", "maintainability"]
+          },
+        },
       ],
     },
 

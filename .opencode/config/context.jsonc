@@ -9,7 +9,6 @@
     "ttl": 3600,
     "maxSize": 10485760,
     "shareBetween": [
-      "orchestrator",
       "review",
       "fsd-validator",
       "integration-test",

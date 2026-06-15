@@ -13,7 +13,6 @@
 ├── opencode.json              # Главный конфиг (корень)
 │
 ├── config/                    # ← КОНФИГУРАЦИЯ
-│   ├── orchestrator.jsonc     # Роутинг моделей
 │   ├── pipelines.jsonc        # Пайплайны
 │   ├── context.jsonc          # Контекст
 │   ├── quality-gates.jsonc    # Quality gates
@@ -46,7 +45,6 @@
 ```
 .opencode/
 ├── opencode.json
-├── orchestrator.jsonc
 ├── pipelines.jsonc
 ├── context.jsonc
 ├── quality-gates.jsonc
@@ -146,7 +144,6 @@
 
 | Файл                       | Откуда       | Куда                |
 | -------------------------- | ------------ | ------------------- |
-| `orchestrator.jsonc`       | `.opencode/` | `.opencode/config/` |
 | `pipelines.jsonc`          | `.opencode/` | `.opencode/config/` |
 | `context.jsonc`            | `.opencode/` | `.opencode/config/` |
 | `quality-gates.jsonc`      | `.opencode/` | `.opencode/config/` |
@@ -164,12 +161,7 @@
 **Файл:** `opencode.json`
 
 ```jsonc
-// ❌ БЫЛО
-"orchestrator": { "config": ".opencode/orchestrator.jsonc" }
-"instructions": [".opencode/AGENTS.md"]
-
 // ✅ СТАЛО
-"orchestrator": { "config": ".opencode/config/orchestrator.jsonc" }
 "instructions": [".opencode/docs/AGENTS.md"]
 ```
 
@@ -215,7 +207,6 @@ ls .opencode/rules/
 ### Конфигурация
 
 - [opencode.json](../opencode.json) — Главный конфиг
-- [config/orchestrator.jsonc](./config/orchestrator.jsonc) — Роутинг
 - [config/pipelines.jsonc](./config/pipelines.jsonc) — Пайплайны
 - [config/context.jsonc](./config/context.jsonc) — Контекст
 - [config/quality-gates.jsonc](./config/quality-gates.jsonc) — Quality gates

@@ -1,18 +1,22 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  "model": "ollama/qwen2.5-coder:7b-instruct-q4_K_M",
-  "small_model": "ollama/deepseek-coder:1.3b-instruct-q4_K_M",
+  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+  "small_model": "deepseek-coder:1.3b-instruct-q4_K_M",
   "logLevel": "INFO",
   "snapshot": true,
-  "instructions": [".opencode/docs/AGENTS.md", ".opencode/instructions/orchestrator-guide.md"],
+  "instructions": [".opencode/docs/AGENTS.md"],
 
   "skills": {
     "paths": [".opencode/skills"]
   },
 
   "permission": {
-    "*": "ask"
+    "*": { "action": "ask" },
+    "filesystem:read": { "action": "allow" },
+    "filesystem:write": { "action": "allow" },
+    "filesystem:delete": { "action": "deny" },
+    "shell:dangerous": { "action": "deny" }
   },
 
   "mcp": {
@@ -45,6 +49,13 @@
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp"],
       "enabled": true
+    },
+    "rag": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-server-rg"],
+      "args": ["--root", "D:/Dev/projects/resume/.opencode"],
+      "enabled": false,
+      "timeout": 120000
     }
   },
 
