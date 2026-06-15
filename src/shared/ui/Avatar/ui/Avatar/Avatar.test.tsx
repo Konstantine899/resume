@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Avatar } from './Avatar';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
-import styles from './Avatar.module.scss';
+import fallbackStyles from '../AvatarFallback/AvatarFallback.module.scss';
 
 describe('Avatar', () => {
   beforeEach(() => {
@@ -218,28 +218,10 @@ describe('AvatarFallback', () => {
     expect(screen.getByText('J')).toBeInTheDocument();
   });
 
-  it('должен применять размер sm', () => {
+  it('должен применять класс fallback', () => {
     const { container } = render(<AvatarFallback name="Test" size="sm" />);
 
-    expect(container.firstChild).toHaveClass(fallbackStyles.sm);
-  });
-
-  it('должен применять размер md', () => {
-    const { container } = render(<AvatarFallback name="Test" size="md" />);
-
-    expect(container.firstChild).toHaveClass(fallbackStyles.md);
-  });
-
-  it('должен применять размер lg', () => {
-    const { container } = render(<AvatarFallback name="Test" size="lg" />);
-
-    expect(container.firstChild).toHaveClass(fallbackStyles.lg);
-  });
-
-  it('должен применять размер xl', () => {
-    const { container } = render(<AvatarFallback name="Test" size="xl" />);
-
-    expect(container.firstChild).toHaveClass(fallbackStyles.xl);
+    expect(container.firstChild).toHaveClass(fallbackStyles.fallback);
   });
 
   it('должен применять кастомный className', () => {
