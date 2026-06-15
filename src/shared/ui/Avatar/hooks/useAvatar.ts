@@ -10,6 +10,8 @@ export const useAvatar = (src?: string, forceLoading?: boolean) => {
     }
 
     if (!src) {
+      // Используем queueMicrotask для синхронного обновления состояния
+      // без ожидания следующего рендера
       queueMicrotask(() => setIsLoading(false));
       return;
     }

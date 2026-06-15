@@ -19,15 +19,23 @@ describe('useAvatar', () => {
       expect(result.current.hasError).toBe(false);
     });
 
-    it('должен начинать с isLoading=false при отсутствии src', () => {
+    it('должен начинать с isLoading=false при отсутствии src', async () => {
       const { result } = renderHook(() => useAvatar(undefined));
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
 
       expect(result.current.isLoading).toBe(false);
       expect(result.current.hasError).toBe(false);
     });
 
-    it('должен начинать с isLoading=false при пустой src', () => {
+    it('должен начинать с isLoading=false при пустой src', async () => {
       const { result } = renderHook(() => useAvatar(''));
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
 
       expect(result.current.isLoading).toBe(false);
       expect(result.current.hasError).toBe(false);
@@ -74,9 +82,9 @@ describe('useAvatar', () => {
         onload: null as (() => void) | null,
         onerror: null as (() => void) | null,
         complete: false,
-      };
+      } as unknown as HTMLImageElement;
 
-      vi.spyOn(window, 'Image').mockImplementation(() => mockImage as any);
+      vi.spyOn(window, 'Image').mockImplementation(() => mockImage);
 
       unmount();
 

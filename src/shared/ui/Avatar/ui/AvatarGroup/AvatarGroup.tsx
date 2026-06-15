@@ -16,13 +16,14 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
   const hiddenCount = totalAvatars - max;
 
   return (
-    <div className={`${styles.group} ${className}`}>
+    <div className={`${styles.group} ${className}`} role="group" aria-label="Avatar group">
       {visibleAvatars.map((avatar, index) => {
         const avatarElement = avatar as React.ReactElement<AvatarProps>;
         return (
           <div
             key={index}
             className={styles.avatarWrapper}
+            data-testid="avatar-wrapper"
             style={{
               marginLeft: index > 0 ? `${GROUP_SPACING[size]}px` : '0',
               zIndex: visibleAvatars.length - index,

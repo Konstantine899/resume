@@ -1,8 +1,7 @@
-import { classNames } from '@/shared/lib/utils/classNames';
-
 import React from 'react';
 // FSD-compliant: Skeleton is in shared/ui (same layer)
 import { Skeleton } from '@/shared/ui/Skeleton';
+import { classNames } from '@/shared/lib/utils/classNames';
 
 import { SIZE_MAP } from '../../model/constants';
 import { AvatarProps } from '../../model/types';

@@ -48,6 +48,8 @@ export const AvatarHero: React.FC<AvatarHeroProps> = ({
   return (
     <div
       className={classNames(styles.avatarHero, styles[size], className)}
+      role="img"
+      aria-label={alt}
       data-loading={isLoading}
       data-error={hasError}
     >

@@ -142,37 +142,22 @@ export interface AvatarStatusProps {
 /**
  * Props для компонента AvatarHero (геройская версия аватара)
  */
-export interface AvatarHeroProps {
-  /** URL изображения */
-  src?: string;
-  /** Альтернативный текст (обязателен) */
-  alt: string;
-  /** Размер аватара */
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  /** Дополнительный CSS класс */
-  className?: string;
+export interface AvatarHeroProps extends Omit<
+  AvatarProps,
+  'variant' | 'fallback' | 'onError' | 'onLoad'
+> {
   /** Показать эффект свечения */
   showGlow?: boolean;
   /** Показать декоративное кольцо */
   showRing?: boolean;
-  /** Максимальное количество инициалей */
-  maxInitials?: number;
-  /** Дочерние элементы */
-  children?: React.ReactNode;
 }
 
 /**
  * Props для компонента AvatarAbout (версия для секции About)
  */
-export interface AvatarAboutProps {
-  /** URL изображения */
-  src?: string;
-  /** Альтернативный текст (обязателен) */
-  alt: string;
-  /** Размер аватара */
+export interface AvatarAboutProps extends Omit<
+  AvatarProps,
+  'variant' | 'fallback' | 'onError' | 'onLoad' | 'showGlow' | 'showRing'
+> {
   size?: 'sm' | 'md' | 'lg';
-  /** Дополнительный CSS класс */
-  className?: string;
-  /** Максимальное количество инициалей */
-  maxInitials?: number;
 }

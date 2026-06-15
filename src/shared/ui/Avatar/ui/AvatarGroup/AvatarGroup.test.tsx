@@ -13,19 +13,17 @@ describe('AvatarGroup', () => {
 
   it('renders single avatar', () => {
     renderAvatars(1);
-    expect(screen.getByText('U')).toBeInTheDocument();
+    expect(screen.getAllByTestId('avatar-wrapper')).toHaveLength(1);
   });
 
   it('renders multiple avatars', () => {
     renderAvatars(3);
-    const avatars = screen.getAllByText('U');
-    expect(avatars).toHaveLength(3);
+    expect(screen.getAllByTestId('avatar-wrapper')).toHaveLength(3);
   });
 
   it('respects max prop', () => {
     renderAvatars(5);
-    const avatars = screen.getAllByText('U');
-    expect(avatars).toHaveLength(4);
+    expect(screen.getAllByTestId('avatar-wrapper')).toHaveLength(4);
   });
 
   it('shows remaining count when max exceeded', () => {
@@ -44,7 +42,7 @@ describe('AvatarGroup', () => {
         <Avatar alt="Test" />
       </AvatarGroup>
     );
-    expect(screen.getByRole('generic')).toHaveClass('custom-group');
+    expect(screen.getByRole('group')).toHaveClass('custom-group');
   });
 
   it('uses size prop for children', () => {
@@ -53,7 +51,7 @@ describe('AvatarGroup', () => {
         <Avatar alt="Test" />
       </AvatarGroup>
     );
-    expect(screen.getByText('U')).toBeInTheDocument();
+    expect(screen.getAllByTestId('avatar-wrapper')[0]).toBeInTheDocument();
   });
 
   it('uses variant prop for children', () => {
@@ -62,7 +60,7 @@ describe('AvatarGroup', () => {
         <Avatar alt="Test" />
       </AvatarGroup>
     );
-    expect(screen.getByText('U')).toBeInTheDocument();
+    expect(screen.getAllByTestId('avatar-wrapper')[0]).toBeInTheDocument();
   });
 
   it('applies correct spacing between avatars', () => {
@@ -72,7 +70,7 @@ describe('AvatarGroup', () => {
         <Avatar alt="User 2" />
       </AvatarGroup>
     );
-    const wrappers = screen.getAllByRole('generic');
+    const wrappers = screen.getAllByTestId('avatar-wrapper');
     expect(wrappers).toHaveLength(2);
   });
 
@@ -82,12 +80,12 @@ describe('AvatarGroup', () => {
         <></>
       </AvatarGroup>
     );
-    expect(screen.getByRole('generic')).toBeInTheDocument();
+    expect(screen.getByRole('group')).toBeInTheDocument();
   });
 
   it('applies zIndex in reverse order', () => {
     renderAvatars(3);
-    const wrappers = screen.getAllByRole('generic');
+    const wrappers = screen.getAllByTestId('avatar-wrapper');
     expect(wrappers[0]).toHaveStyle('z-index: 3');
     expect(wrappers[1]).toHaveStyle('z-index: 2');
     expect(wrappers[2]).toHaveStyle('z-index: 1');

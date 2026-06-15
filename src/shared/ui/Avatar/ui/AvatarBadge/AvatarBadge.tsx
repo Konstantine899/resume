@@ -22,6 +22,12 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+    }
+  };
+
   return (
     <div
       className={`${styles.badge} ${styles[variant]} ${styles[status]} ${className}`}
@@ -30,6 +36,10 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
         width: variant === 'dot' ? BADGE_SIZES.md : 'auto',
         height: variant === 'dot' ? BADGE_SIZES.md : 'auto',
       }}
+      role="status"
+      aria-label={`Status: ${status}`}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
     >
       {getBadgeContent()}
     </div>
