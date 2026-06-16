@@ -1,38 +1,57 @@
-// src/shared/ui/Button/types.ts
+// src/shared/ui/Button/model/types.ts
 
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'sidebar';
 export type ButtonSize = 'sm' | 'md' | 'lg';
-export type IconPosition = 'left' | 'right';
+export type LoadingVariant = 'spinner' | 'skeleton';
 
-export type ButtonMode = 'text' | 'icon' | 'combined';
-
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: ReactNode;
-  icon?: ReactNode;
+// ============================================
+// Base props для всех кнопок
+// ============================================
+interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  iconPosition?: IconPosition;
-  rotation?: number;
   disabled?: boolean;
   loading?: boolean;
+  loadingVariant?: LoadingVariant;
   fullWidth?: boolean;
-  ariaLabel?: string;
+  className?: string;
 }
 
-export type IconButtonOnlyProps = Omit<ButtonProps, 'children'> & {
+// ============================================
+// Button — только текст
+// ============================================
+export interface ButtonProps extends BaseButtonProps {
+  children: ReactNode;
+  leftIcon?: undefined;
+  rightIcon?: undefined;
+  ariaLabel?: undefined;
+}
+
+// ============================================
+// IconButton — только иконка
+// ============================================
+export interface IconButtonProps extends BaseButtonProps {
   icon: ReactNode;
+  ariaLabel: string; // Обязательно для accessibility
   children?: undefined;
-  ariaLabel: string;
-};
+  leftIcon?: undefined;
+  rightIcon?: undefined;
+}
 
-export type TextButtonProps = Omit<ButtonProps, 'icon' | 'iconPosition' | 'rotation'> & {
+// ============================================
+// ButtonWithIcon — текст + иконка
+// ============================================
+export interface ButtonWithIconProps extends BaseButtonProps {
   children: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   icon?: undefined;
-};
+  ariaLabel?: undefined;
+}
 
-export type CombinedButtonProps = ButtonProps & {
-  icon: ReactNode;
-  children: ReactNode;
-};
+// ============================================
+// Union type для экспорта
+// ============================================
+export type ButtonComponentProps = ButtonProps | IconButtonProps | ButtonWithIconProps;

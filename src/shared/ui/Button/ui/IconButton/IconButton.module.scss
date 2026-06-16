@@ -1,0 +1,164 @@
+// src/shared/ui/Button/ui/IconButton/IconButton.module.scss
+
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.button {
+  @include flex-center;
+
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+  }
+
+  // Variants
+  &.primary {
+    color: white;
+    background-color: $primary-light;
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($primary-light, $lightness: -10%);
+    }
+  }
+
+  &.secondary {
+    color: var(--foreground-muted);
+    background-color: transparent;
+    border: 1px solid var(--card-border);
+
+    &:hover:not(:disabled) {
+      background-color: var(--background-secondary);
+    }
+  }
+
+  &.outline {
+    color: $primary-light;
+    background-color: transparent;
+    border: 2px solid $primary-light;
+
+    &:hover:not(:disabled) {
+      background-color: rgb(244 179 119 / 0.1);
+    }
+  }
+
+  &.ghost {
+    color: var(--foreground-muted);
+    background-color: transparent;
+
+    &:hover:not(:disabled) {
+      color: $primary-light;
+      background-color: rgb(244 179 119 / 0.1);
+    }
+  }
+
+  &.sidebar {
+    color: var(--foreground);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+
+    &:focus-visible {
+      outline: 2px solid $primary-light;
+      outline-offset: 2px;
+    }
+  }
+
+  &.danger {
+    color: white;
+    background-color: $danger-color;
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($danger-color, $lightness: -10%);
+    }
+  }
+
+  // Sizes - icon only buttons have fixed dimensions
+  &.sm {
+    width: 32px;
+    height: 32px;
+
+    .content {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &.md {
+    width: 40px;
+    height: 40px;
+
+    .content {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &.lg {
+    width: 48px;
+    height: 48px;
+
+    .content {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  // States
+  &.fullWidth {
+    width: 100%;
+  }
+
+  &.loading {
+    .content {
+      visibility: hidden;
+    }
+
+    .loader,
+    .skeleton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .skeleton {
+      width: 50%;
+      height: 50%;
+    }
+  }
+
+  .content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .skeleton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
