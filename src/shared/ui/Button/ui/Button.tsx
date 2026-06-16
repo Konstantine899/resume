@@ -1,7 +1,7 @@
 // src/shared/ui/Button/ui/Button.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import React, { forwardRef, useCallback, useMemo } from 'react';
+import React, { forwardRef, useCallback, useMemo, useEffect } from 'react';
 import type { ButtonProps } from '../model/types';
 import styles from './Button.module.scss';
 
@@ -28,13 +28,16 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const isIconOnly = useMemo(() => !!icon && !children, [icon, children]);
-    const hasIcon = useMemo(() => !!icon, [icon]);
-    const hasText = useMemo(() => !!children, [children]);
+    const isIconOnly = !!icon && !children;
+    const hasIcon = !!icon;
+    const hasText = !!children;
 
-    useMemo(() => {
+    useEffect(() => {
       if (isIconOnly && !ariaLabel) {
-        console.warn('Button: ariaLabel is required for icon-only buttons');
+        console.error(
+          'Button: ariaLabel is required for icon-only buttons for accessibility. ' +
+            'Example: <Button icon={<Icon />} ariaLabel="Submit form" />'
+        );
       }
     }, [isIconOnly, ariaLabel]);
 
