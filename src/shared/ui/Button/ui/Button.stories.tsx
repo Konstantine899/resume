@@ -1,5 +1,6 @@
 // src/shared/ui/Button/Button.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { ArrowRight, Mail, Menu, User } from 'lucide-react';
 import { Button } from './Button';
 
@@ -36,7 +37,7 @@ const meta = {
     },
   },
   args: {
-    onClick: () => console.log('Clicked!'),
+    onClick: fn(),
   },
 } satisfies Meta<typeof Button>;
 
@@ -52,6 +53,14 @@ export const Primary: Story = {
     children: 'Primary Button',
     variant: 'primary',
     size: 'md',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    const onClick = fn(args.onClick);
+    button.onclick = onClick;
+    await userEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(1);
   },
 };
 
@@ -144,6 +153,15 @@ export const IconOnly: Story = {
     variant: 'primary',
     size: 'md',
   },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toHaveAttribute('aria-label', 'Send email');
+    const onClick = fn(args.onClick);
+    button.onclick = onClick;
+    await userEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  },
 };
 
 export const IconRotation: Story = {
@@ -166,6 +184,12 @@ export const Disabled: Story = {
     disabled: true,
     variant: 'primary',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+  },
 };
 
 export const Loading: Story = {
@@ -173,6 +197,12 @@ export const Loading: Story = {
     children: 'Loading',
     loading: true,
     variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
   },
 };
 

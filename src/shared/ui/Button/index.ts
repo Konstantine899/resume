@@ -1,7 +1,6 @@
 // src/shared/ui/Button/index.ts
 
 export type {
-  ButtonGroupProps,
   ButtonMode,
   ButtonProps,
   ButtonSize,

@@ -36,10 +36,3 @@ export type CombinedButtonProps = ButtonProps & {
   icon: ReactNode;
   children: ReactNode;
 };
-
-export interface ButtonGroupProps {
-  children: ReactNode;
-  className?: string;
-  vertical?: boolean;
-  gap?: 'sm' | 'md' | 'lg';
-}
