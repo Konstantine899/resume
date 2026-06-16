@@ -1,6 +1,7 @@
 // src/shared/ui/Button/ui/Button.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Loader } from '@/shared/ui/Loader';
 import React, { forwardRef, useCallback, useMemo, useEffect } from 'react';
 import type { ButtonProps } from '../model/types';
 import styles from './Button.module.scss';
@@ -99,7 +100,11 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
           {renderIcon('right')}
         </span>
 
-        {loading && <span className={styles.spinner} aria-hidden="true" />}
+        {loading && (
+          <div className={styles.loaderWrapper}>
+            <Loader variant="spinner" size="sm" color="secondary" label="Loading" />
+          </div>
+        )}
       </button>
     );
   }

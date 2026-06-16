@@ -174,18 +174,11 @@
       visibility: hidden;
     }
 
-    .spinner {
+    .loaderWrapper {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 16px;
-      height: 16px;
-      color: inherit;
-      border: 2px solid rgb(255 255 255 / 0.3);
-      border-top-color: currentcolor;
-      border-radius: 50%;
       transform: translate(-50%, -50%);
-      animation: spin 1s linear infinite;
     }
   }
 
@@ -207,15 +200,5 @@
   .text {
     display: flex;
     align-items: center;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
   }
 }

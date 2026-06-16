@@ -153,12 +153,15 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен показывать спиннер при loading=true', () => {
+    it('должен показывать Loader при loading=true', () => {
       render(<Button loading>Loading</Button>);
 
       expect(screen.getByRole('button')).toHaveClass(buttonStyles.loading);
-      const spinner = screen.getByRole('button').querySelector(`.${buttonStyles.spinner}`);
-      expect(spinner).toBeInTheDocument();
+      const loaderWrapper = screen
+        .getByRole('button')
+        .querySelector(`.${buttonStyles.loaderWrapper}`);
+      expect(loaderWrapper).toBeInTheDocument();
+      expect(screen.getByLabelText('Loading')).toBeInTheDocument();
     });
 
     it('должен скрывать контент при loading=true', () => {
