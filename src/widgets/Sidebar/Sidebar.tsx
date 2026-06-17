@@ -5,7 +5,7 @@ import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/Button';
 import { Menu } from 'lucide-react';
 import React from 'react';
 import styles from './Sidebar.module.scss';
@@ -49,12 +49,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Mobile Menu Button */}
-      <Button
+      <IconButton
         variant="sidebar"
         size="lg"
         icon={<Menu className={styles.menuIcon} aria-hidden="true" />}
         onClick={() => setMobileMenuOpen(true)}
-        aria-label="Open menu"
+        ariaLabel="Open menu"
         aria-expanded={mobileMenuOpen}
         className={classNames(styles.mobileMenuButton, mobileMenuOpen && styles.hidden)}
         type="button"

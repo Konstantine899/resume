@@ -1,6 +1,6 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
+import { ButtonWithIcon } from '@/shared/ui/Button';
 import { Moon, Sun } from 'lucide-react';
 import React from 'react';
 import { useThemeSwitch } from '../hooks/useThemeSwitch';
@@ -41,18 +41,17 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
   );
 
   return (
-    <Button
-      icon={
+    <ButtonWithIcon
+      leftIcon={
         theme === 'dark' ? (
           <Moon className={themeIconClasses} aria-hidden="true" />
         ) : (
           <Sun className={themeIconClasses} aria-hidden="true" />
         )
       }
-      aria-label={theme === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')}
       onClick={handleThemeToggle}
       variant="ghost"
-      size={'md'}
+      size="md"
       fullWidth
       title={!showText ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
       className={`${controlButtonClasses} ${className}`}
@@ -60,10 +59,10 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
     >
       {showText && (
         <span className={styles.controlText}>
-          {theme === 'dark' ? t(`darkMode`) : t(`lightMode`)}
+          {theme === 'dark' ? t('darkMode') : t('lightMode')}
         </span>
       )}
-    </Button>
+    </ButtonWithIcon>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/Button';
 import { ChevronRight } from 'lucide-react';
 import React from 'react';
 import styles from './ToggleButton.module.scss';
@@ -17,7 +17,6 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   t = (key: string) => key,
 }) => {
   const isExpanded = isCollapsed ? false : isHoverExpanded;
-  const isRotated = isExpanded;
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -25,11 +24,10 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   };
 
   return (
-    <Button
+    <IconButton
       icon={<ChevronRight />}
-      aria-label={isExpanded ? t('collapseSidebar') : t('expandSidebar')}
+      ariaLabel={isExpanded ? t('collapseSidebar') : t('expandSidebar')}
       onClick={handleClick}
-      rotation={isRotated ? 180 : 0}
       size="md"
       variant="ghost"
       className={styles.toggleButton}

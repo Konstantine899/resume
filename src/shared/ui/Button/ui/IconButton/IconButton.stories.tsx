@@ -169,13 +169,16 @@ export const SidebarToggle: Story = {
 
 export const IconButtonGallery: Story = {
   args: {
+    icon: <User size={18} />,
+    ariaLabel: 'User',
     variant: 'ghost',
+    size: 'md',
   },
-  render: (args) => (
+  render: () => (
     <div style={{ display: 'flex', gap: '12px' }}>
-      <IconButton {...args} icon={<User size={18} />} ariaLabel="User" />
-      <IconButton {...args} icon={<Mail size={18} />} ariaLabel="Email" />
-      <IconButton {...args} icon={<ArrowRight size={18} />} ariaLabel="Next" />
+      <IconButton variant="ghost" size="md" icon={<User size={18} />} ariaLabel="User" />
+      <IconButton variant="ghost" size="md" icon={<Mail size={18} />} ariaLabel="Email" />
+      <IconButton variant="ghost" size="md" icon={<ArrowRight size={18} />} ariaLabel="Next" />
     </div>
   ),
 };

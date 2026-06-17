@@ -216,6 +216,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   args: {
+    children: 'Button',
     variant: 'primary',
     leftIcon: <Mail size={18} />,
   },

@@ -192,6 +192,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   args: {
+    children: 'Button',
     variant: 'primary',
   },
   render: (args) => (

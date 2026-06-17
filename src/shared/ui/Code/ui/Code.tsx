@@ -1,6 +1,6 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { cn } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
+import { ButtonWithIcon } from '@/shared/ui/Button';
 import { Check, Copy } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useCopyCode } from '../lib/hooks/useCopyCode';
@@ -98,10 +98,10 @@ export const Code: React.FC<CodeProps> = ({
           )}
 
           {copyable && !disabled && (
-            <Button
+            <ButtonWithIcon
               variant="ghost"
               size={copyButtonSize}
-              icon={isCopied ? <CopiedIcon size={14} /> : <CopyIcon size={14} />}
+              leftIcon={isCopied ? <CopiedIcon size={14} /> : <CopyIcon size={14} />}
               onClick={handleCopy}
               onKeyDown={handleKeyDown}
               aria-label={isCopied ? 'Copied!' : 'Copy code'}
@@ -109,7 +109,7 @@ export const Code: React.FC<CodeProps> = ({
               className={cn(isCopied && styles.copied)}
             >
               {isCopied ? 'Copied!' : 'Copy'}
-            </Button>
+            </ButtonWithIcon>
           )}
         </div>
       )}

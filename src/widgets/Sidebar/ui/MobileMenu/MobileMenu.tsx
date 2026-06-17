@@ -2,7 +2,7 @@ import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
+import { IconButton } from '@/shared/ui/Button';
 import { Overlay } from '@/shared/ui/Overlay';
 import { X } from 'lucide-react';
 import React from 'react';
@@ -48,12 +48,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       {/* Panel — должен быть ПЕРЕД Overlay в DOM */}
       <div className={styles.panel}>
         {/* Close Button */}
-        <Button
+        <IconButton
           variant="ghost"
           size="md"
           icon={<X className={styles.closeIcon} />}
           onClick={handleCloseClick}
-          aria-label="Close menu"
+          ariaLabel="Close menu"
           className={styles.closeButton}
           tabIndex={isOpen ? 0 : -1}
         />
