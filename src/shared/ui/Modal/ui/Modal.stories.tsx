@@ -5,6 +5,7 @@
 import { useModal } from '@/shared/lib/hooks/useModal';
 import { Button } from '@/shared/ui/Button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, within } from '@storybook/test';
 import { useState } from 'react';
 import { Modal } from './Modal';
 
@@ -227,6 +228,19 @@ export const WithFooter: Story = {
       <p style={{ marginTop: '12px' }}>Футер автоматически стилизуется и прижимается к низу.</p>
     </ModalWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const openButton = canvas.getByRole('button', { name: /открыть/i });
+    await userEvent.click(openButton);
+
+    const dialog = await canvas.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+
+    const closeButton = canvas.getByRole('button', { name: /закрыть/i });
+    await userEvent.click(closeButton);
+
+    await expect(dialog).not.toBeInTheDocument();
+  },
 };
 
 // ============================================

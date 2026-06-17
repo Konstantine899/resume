@@ -17,7 +17,13 @@ export const Overlay = ({
   );
 
   return (
-    <div className={overlayClassName} onClick={onClick} role="presentation" data-testid="overlay">
+    <div
+      className={overlayClassName}
+      onClick={onClick}
+      role="presentation"
+      data-testid="overlay"
+      aria-hidden="true"
+    >
       {children}
     </div>
   );

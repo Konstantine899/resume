@@ -15,6 +15,9 @@
 @use '@/shared/styles/animations/scale' as *;
 @use '@/shared/styles/animations/fade' as *;
 
+// Constants
+$icon-button-size: 32px;
+
 // Overlay
 .overlay {
   z-index: $z-overlay;
@@ -52,6 +55,13 @@
   &.noAnimation {
     opacity: 1;
     transform: none;
+  }
+}
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    animation: none;
   }
 }
 
@@ -109,8 +119,8 @@
 .closeButton {
   @include flex-center;
 
-  width: 32px;
-  height: 32px;
+  width: $icon-button-size;
+  height: $icon-button-size;
   padding: 0;
   color: var(--foreground-muted, $text-muted);
   cursor: pointer;

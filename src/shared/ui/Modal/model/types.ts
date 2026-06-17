@@ -23,48 +23,134 @@ export type ModalSize = keyof typeof MODAL_SIZES;
 // ============================================
 
 export interface ModalProps {
-  /** Контент модального окна */
+  /**
+   * Контент модального окна
+   * @required
+   */
   children: ReactNode;
 
-  /** Состояние открытия */
+  /**
+   * Состояние открытия модального окна
+   * @required
+   */
   isOpen: boolean;
 
-  /** Callback при закрытии */
+  /**
+   * Callback при закрытии модального окна
+   * @required
+   */
   onClose: () => void;
 
-  /** Заголовок */
+  /**
+   * Заголовок модального окна
+   * @description Отображается в шапке модального окна
+   */
   title?: string;
 
-  /** Подзаголовок */
+  /**
+   * Подзаголовок (дополнительное описание)
+   * @description Отображается под заголовком меньшим шрифтом
+   */
   subtitle?: string;
 
-  /** Футер с кнопками */
+  /**
+   * Футер с кнопками действий
+   * @description Обычно содержит кнопки "Сохранить" и "Отмена"
+   */
   footer?: ReactNode;
 
-  /** Размер модального окна */
+  /**
+   * Размер модального окна
+   * @default 'md'
+   * @description Предопределённые размеры: sm (400px), md (500px), lg (640px), xl (800px), full (100%)
+   */
   size?: ModalSize;
 
-  /** Показывать overlay */
+  /**
+   * Показывать затемняющий overlay
+   * @default true
+   */
   overlay?: boolean;
 
-  /** Закрытие по клику на overlay */
+  /**
+   * Закрытие по клику на overlay
+   * @default true
+   */
   closeOnOverlayClick?: boolean;
 
-  /** Закрытие по ESC */
+  /**
+   * Закрытие по нажатию ESC
+   * @default true
+   */
   closeOnEsc?: boolean;
 
-  /** Блокировка скролла body */
+  /**
+   * Блокировка скролла body при открытом модальном окне
+   * @default true
+   */
   blockScroll?: boolean;
 
-  /** Дополнительные классы */
+  /**
+   * Дополнительные CSS-классы
+   */
   className?: string;
 
-  /** Показывать кнопку закрытия */
+  /**
+   * Показывать кнопку закрытия (крестик)
+   * @default true
+   */
   showCloseButton?: boolean;
 
-  /** ARIA label */
+  /**
+   * ARIA label для доступности
+   * @default 'Modal dialog'
+   */
   ariaLabel?: string;
 
-  /** Отключить анимацию */
+  /**
+   * Отключить анимацию появления
+   * @default false
+   */
   disableAnimation?: boolean;
+
+  /**
+   * Callback вызывается после завершения анимации открытия
+   * @description Полезно для фокуса или аналитики
+   */
+  onOpened?: () => void;
+
+  /**
+   * Callback вызывается после завершения анимации закрытия
+   * @description Полезно для очистки состояния или аналитики
+   */
+  onClosed?: () => void;
+
+  /**
+   * Разрешает или запрещает закрытие модального окна
+   * @default true
+   * @description Может быть булевым значением или функцией, возвращающей boolean
+   * @example canClose={false} — запретить закрытие
+   * @example canClose={() => !hasUnsavedChanges} — запретить при несохранённых изменениях
+   */
+  canClose?: boolean | (() => boolean);
+
+  /**
+   * Автоматический фокус на первый фокусируемый элемент
+   * @default true
+   * @description Если true, фокус перемещается на первый интерактивный элемент внутри модалки
+   */
+  autoFocus?: boolean;
+
+  /**
+   * Возвращать фокус на предыдущий элемент при закрытии
+   * @default true
+   */
+  restoreFocus?: boolean;
+
+  /**
+   * Включить trap фокуса (удержание фокуса внутри модалки)
+   * @default true
+   * @description Если true, клавиша Tab циклически перемещает фокус внутри модалки
+   */
+  trapFocus?: boolean;
 }
