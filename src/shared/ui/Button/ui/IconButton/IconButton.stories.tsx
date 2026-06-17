@@ -139,6 +139,7 @@ export const LoadingWithSpinner: Story = {
     const button = canvas.getByRole('button');
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(canvas.getByLabelText('Loading')).toBeInTheDocument();
   },
 };
 
@@ -149,6 +150,23 @@ export const LoadingWithSkeleton: Story = {
     loading: true,
     loadingVariant: 'skeleton',
     variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+  },
+};
+
+export const SidebarLoading: Story = {
+  args: {
+    icon: <Menu size={20} />,
+    ariaLabel: 'Loading menu',
+    loading: true,
+    loadingVariant: 'spinner',
+    variant: 'sidebar',
+    size: 'lg',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

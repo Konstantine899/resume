@@ -58,6 +58,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-expanded={mobileMenuOpen}
         className={classNames(styles.mobileMenuButton, mobileMenuOpen && styles.hidden)}
         type="button"
+        loading={false}
+        loadingVariant="spinner"
       />
 
       {/* Mobile Menu */}
