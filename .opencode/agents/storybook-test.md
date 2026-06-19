@@ -1,7 +1,7 @@
 ---
 name: storybook-test
 description: Storybook тестирование с interaction tests и a11y проверками
-model: ollama/qwen2.5-coder:7b-instruct-q4_K_M
+model: ollama-cloud/gpt-oss:20b-cloud
 ---
 
 # 📚 Senior Storybook Test Agent

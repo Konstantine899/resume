@@ -1,7 +1,7 @@
 ---
 name: review
 description: Code review для React 19 + TypeScript + Vite + Redux Toolkit + FSD
-model: ollama/qwen2.5-coder:32b
+model: ollama-cloud/gpt-oss:20b-cloud
 ---
 
 # 🔍 Senior FSD Code Review Agent

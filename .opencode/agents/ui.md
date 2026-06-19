@@ -1,7 +1,7 @@
 ---
 name: ui
 description: Создание UI компонентов React 19 + TypeScript + FSD
-model: ollama/qwen2.5-coder:7b-instruct-q4_K_M
+model: ollama-cloud/gpt-oss:20b-cloud
 ---
 
 # 🎭 Senior UI Components Architect

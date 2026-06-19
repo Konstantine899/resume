@@ -1,7 +1,7 @@
 ---
 name: integration-test
 description: Интеграционное тестирование FSD слоев с MSW мокингом
-model: ollama/qwen2.5-coder:7b-instruct-q4_K_M
+model: ollama-cloud/gpt-oss:20b-cloud
 ---
 
 # 🧪 Senior Integration Test Agent
