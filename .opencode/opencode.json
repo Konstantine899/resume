@@ -1,6 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
+  "plugin": ["./plugins/metrics-logger"],
+
   "model": "qwen2.5-coder:7b-instruct-q4_K_M",
   "small_model": "deepseek-coder:1.3b-instruct-q4_K_M",
   "logLevel": "INFO",

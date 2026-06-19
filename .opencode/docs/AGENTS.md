@@ -2,7 +2,22 @@
 
 > **Проект:** Resume Portfolio  
 > **Версия:** 1.0.0  
-> **Дата:** 2026-06-14
+> **Дата:** 2026-06-19  
+> **Обновлено:** Добавлена конфигурация Ollama Cloud metrics
+
+---
+
+## 📊 Ollama Cloud Metrics
+
+**Модель:** `ollama-cloud/qwen3.5:397b-cloud` (Tier 4, 397B параметров)
+
+**Автоматический сбор метрик:**
+- Плагин: `metrics-logger` (глобальный + локальный)
+- Логи: `D:\Dev\tools\DBObsidian\resume-app\logs\metrics-YYYY-MM-DD.md`
+- Baseline: `D:\Dev\projects\resume\.opencode\logs\baseline-metrics.json` (7 дней)
+- Task Scheduler: Ежедневно в 22:05
+
+**Документация:** [[ollama-cloud-metrics]] в Obsidian vault
 
 ---
 
