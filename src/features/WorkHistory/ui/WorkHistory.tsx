@@ -3,6 +3,7 @@
 import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { WorkHistoryCard } from '@/shared/ui/Card';
 import React from 'react';
 import type { WorkHistoryProps } from '../model/types';
 import styles from './WorkHistory.module.scss';
@@ -43,45 +44,15 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
         <div className={styles.timeline}>
           {jobs.map((job: Job, index) => (
             <AnimatedSection key={job.id} animation="fadeUp" delay={index * 150}>
-              <article className={styles.jobCard}>
-                {/* Header: Position + Company */}
-                <div className={styles.jobHeader}>
-                  <h3 className={styles.jobPosition}>{job.position}</h3>
-                  <span className={styles.jobCompany}>{job.company}</span>
-                </div>
-
-                {/* Period with current badge */}
-                <div className={styles.jobPeriod}>
-                  <time dateTime={job.startDate.toISOString()}>{job.period}</time>
-                  {job.current && <span className={styles.currentBadge}>{t(`present`)}</span>}
-                </div>
-
-                {/* Location */}
-                {job.location && (
-                  <div className={styles.jobLocation}>
-                    <span>📍</span>
-                    <span>{job.location}</span>
-                  </div>
-                )}
-
-                {/* Description list */}
-                <ul className={styles.jobDescription}>
-                  {getDescription(job).map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-
-                {/* Technologies */}
-                {job.technologies.length > 0 && (
-                  <div className={styles.technologies}>
-                    {job.technologies.map((tech) => (
-                      <span key={tech} className={styles.techTag}>
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </article>
+              <WorkHistoryCard
+                title={job.position}
+                company={job.company}
+                period={job.period}
+                periodBadge={job.current ? t(`present`) : undefined}
+                location={job.location}
+                achievements={getDescription(job)}
+                techStack={job.technologies}
+              />
             </AnimatedSection>
           ))}
         </div>

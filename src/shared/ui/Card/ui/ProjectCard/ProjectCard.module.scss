@@ -1,0 +1,101 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.projectCard {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.75rem;
+
+  .backgroundImage {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.3;
+  }
+
+  .gradientOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgb(45 45 45 / 0.95) 0%,
+      rgb(45 45 45 / 0.85) 50%,
+      rgb(45 45 45 / 0.6) 100%
+    );
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    padding: 1.5rem;
+
+    @include lg {
+      padding: 2rem;
+    }
+  }
+
+  .title {
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .description {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .techSection {
+    margin-bottom: 1.5rem;
+  }
+
+  .techLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .techIcons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .techIcon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .linkSection {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .linkLabel {
+    font-size: 0.9rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .link {
+    font-size: 0.9rem;
+    color: #e85d5d;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

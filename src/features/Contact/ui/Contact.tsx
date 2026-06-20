@@ -1,5 +1,6 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { ContactCard } from '@/shared/ui/Card';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
@@ -104,19 +105,9 @@ export function Contact() {
 
         {/* Декоративная секция */}
         <AnimatedSection delay={400}>
-          <div className={styles.contactCard}>
-            <div className={styles.decorativeSection}>
-              <div className={styles.decorativeCard}>
-                <div className={styles.content}>
-                  <div className={styles.iconWrapper}>
-                    <Mail className={styles.mailIcon} />
-                  </div>
-                  <h3 className={styles.subtitle}>{t('contact')}</h3>
-                  <p className={styles.description}>{t('contactDescription')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ContactCard title={t('contact')} icon={<Mail />}>
+            <p>{t('contactDescription')}</p>
+          </ContactCard>
         </AnimatedSection>
       </div>
     </section>

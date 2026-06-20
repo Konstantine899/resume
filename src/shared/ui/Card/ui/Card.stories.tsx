@@ -1,6 +1,9 @@
-// src/shared/ui/Card/Card.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card } from './Card';
+import { ProjectCard } from './ProjectCard';
+import { WorkHistoryCard } from './WorkHistoryCard';
+import { ContactCard } from './ContactCard';
+import { Mail } from 'lucide-react';
 
 const meta = {
   title: 'Shared/Card',
@@ -9,20 +12,6 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: ['default', 'project', 'workHistory', 'skill', 'about', 'codeBlock'],
-    },
-    size: {
-      control: 'select',
-      options: ['compact', 'default', 'large'],
-    },
-    radius: {
-      control: 'select',
-      options: ['rounded', 'roundedXl', 'rounded2xl'],
-    },
-  },
 } satisfies Meta<typeof Card>;
 
 export default meta;
@@ -42,58 +31,84 @@ export const Default: Story = {
 };
 
 export const Project: Story = {
-  args: {
-    children: (
-      <div>
-        <h3>Project Card</h3>
-        <p>Portfolio project with gradient overlay</p>
-      </div>
-    ),
-    variant: 'project',
-    backgroundImage: 'https://via.placeholder.com/400x300',
-  },
+  render: () => (
+    <ProjectCard
+      title="Dragonfly"
+      description="Dragonfly — полностью вертикально интегрированная компания по производству каннабиса, управляющая продуктом от семени до продажи, первая медицинская каннабис-компания в Юте!"
+      backgroundImage="https://via.placeholder.com/600x400"
+      techIcons={[
+        {
+          name: 'React',
+          url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+        },
+        {
+          name: 'Next.js',
+          url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+        },
+        {
+          name: 'Tailwind',
+          url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
+        },
+        {
+          name: 'Figma',
+          url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg',
+        },
+      ]}
+      link="https://dragonflyprocessing.com"
+    />
+  ),
 };
 
 export const WorkHistory: Story = {
-  args: {
-    children: (
-      <div>
-        <h3>Senior Developer</h3>
-        <p>Company Name • 2020-2024</p>
-        <ul>
-          <li>Developed features</li>
-          <li>Led team</li>
-        </ul>
-      </div>
-    ),
-    variant: 'workHistory',
-  },
+  render: () => (
+    <WorkHistoryCard
+      title="Senior Full-Stack Developer"
+      company="Tech Corp International"
+      period="2022 — Present"
+      periodBadge="Настоящее время"
+      location="Remote"
+      achievements={[
+        'Руководил разработкой микросервисной архитектуры для 1M+ пользователей',
+        'Наставлял команду из 5 junior разработчиков',
+        'Внедрил CI/CD пайплайны, сократив время деплоя на 60%',
+        'Спроектировал систему обработки данных в реальном времени',
+      ]}
+      techStack={['React', 'Node.js', 'AWS', 'Docker', 'PostgreSQL', 'Redis']}
+    />
+  ),
+};
+
+export const Contact: Story = {
+  render: () => (
+    <ContactCard title="Контакты" icon={<Mail />}>
+      <p>
+        Я всегда открыт для обсуждения новых проектов, творческих идей или возможностей стать частью
+        вашего видения.
+      </p>
+    </ContactCard>
+  ),
 };
 
 export const AllVariants: Story = {
-  args: {
-    children: <p>Card Variant</p>,
-  },
   render: () => (
     <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(2, 1fr)' }}>
       <Card variant="default">
         <p>Default</p>
       </Card>
-      <Card variant="project">
-        <p>Project</p>
-      </Card>
-      <Card variant="workHistory">
-        <p>Work History</p>
-      </Card>
+      <ProjectCard title="Project" description="Project description" techIcons={[]} />
+      <WorkHistoryCard
+        title="Work History"
+        company="Company"
+        achievements={['Achievement 1']}
+        techStack={['React']}
+      />
       <Card variant="skill">
         <p>Skill</p>
       </Card>
       <Card variant="about">
         <p>About</p>
       </Card>
-      <Card variant="codeBlock">
-        <p>Code Block</p>
-      </Card>
+      <ContactCard title="Contact" />
     </div>
   ),
 };

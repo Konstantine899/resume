@@ -10,7 +10,8 @@ export type CardVariant =
   | 'workHistory' // WorkHistory job cards
   | 'skill' // Skills container
   | 'about' // About section card
-  | 'codeBlock'; // Hero code block
+  | 'codeBlock' // Hero code block
+  | 'contact'; // Contact card
 
 export interface TechIcon {
   name?: string;
@@ -34,7 +35,7 @@ export type CardRadius =
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
   title?: string;
-  children: ReactNode;
+  children?: ReactNode;
   size?: CardSize;
   radius?: CardRadius;
   fullWidth?: boolean;
@@ -48,6 +49,13 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   theme?: 'dark' | 'light';
   builtUsingLabel?: string;
   linkLabel?: string;
+  company?: string;
+  period?: string;
+  periodBadge?: string;
+  location?: string;
+  achievements?: string[];
+  techStack?: string[];
+  icon?: ReactNode;
 }
 
 /**

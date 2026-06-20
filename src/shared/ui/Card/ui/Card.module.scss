@@ -5,24 +5,12 @@ $card-hover-lift: 2px;
 $card-transition: $transition-duration;
 $card-accent-border: var(--primary);
 $card-hover-scale: 1.01;
-$card-hover-lift: 2px;
-$card-transition: $transition-duration;
-$card-accent-border: var(--primary);
 
 .card {
   @include card-gradient;
 
   position: relative;
   width: 100%;
-
-  &.workHistory {
-    background: var(--work-history-bg);
-    border-left: 4px solid $primary-light;
-
-    .cardTitle {
-      color: $primary-light;
-    }
-  }
 
   &.skill {
     max-width: 64rem;
@@ -40,6 +28,20 @@ $card-accent-border: var(--primary);
     margin-right: auto;
     margin-left: auto;
     text-align: center;
+
+    .centeredContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .iconWrapper {
+      margin-bottom: $spacing-md;
+    }
+
+    .title {
+      margin-bottom: $spacing-md;
+    }
   }
 
   // Size модификаторы
@@ -97,6 +99,357 @@ $card-accent-border: var(--primary);
 
     padding: $spacing-lg;
     font-family: 'Fira Code', monospace;
+  }
+
+  // contact variant
+  &.contact {
+    padding: 1.5rem;
+    overflow: hidden;
+    background-color: rgb(41 39 38 / 0.125);
+    border: 4px solid rgb(217 71 68 / 0.5);
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    backdrop-filter: blur(4px);
+    transition:
+      background-color 0.4s,
+      border-color 0.4s,
+      color 0.4s,
+      box-shadow 0.4s;
+
+    @include lg {
+      padding: 2rem;
+    }
+
+    .centeredContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .iconWrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 5rem;
+      height: 5rem;
+      margin: 0 auto 1rem;
+      background: linear-gradient(135deg, rgb(255 255 255 / 0.2) 0%, rgb(255 255 255 / 0.05) 100%);
+      border-radius: 50%;
+
+      @include lg {
+        width: 6rem;
+        height: 6rem;
+      }
+
+      svg,
+      .icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        color: white;
+
+        @include lg {
+          width: 3rem;
+          height: 3rem;
+        }
+      }
+    }
+
+    .title {
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+
+      @include lg {
+        font-size: 1.5rem;
+      }
+    }
+
+    p {
+      max-width: 20rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: rgb(255 255 255 / 0.8);
+      text-align: center;
+
+      @include lg {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  // workHistory variant
+  &.workHistory {
+    position: relative;
+    padding: $spacing-3;
+    background-color: rgb(41 39 38 / 0.8);
+    border-left: 4px solid #f4b377;
+    border-radius: $radius-xl;
+    backdrop-filter: blur(4px);
+    transition: background-color 0.5s ease;
+
+    @include sm {
+      padding: $spacing-4;
+    }
+
+    @include md {
+      padding: $spacing-6;
+    }
+
+    // Light theme override
+    [data-theme='light'] & {
+      background-color: rgb(255 255 255 / 0.9);
+    }
+
+    .workHistoryContent {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-4;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: $spacing-3;
+
+      @include sm {
+        align-items: center;
+      }
+    }
+
+    .titleSection {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .title {
+      margin: 0;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: #f4b377;
+
+      @include sm {
+        font-size: $font-size-base;
+      }
+
+      @include md {
+        font-size: $font-size-lg;
+      }
+
+      @include lg {
+        font-size: $font-size-xl;
+      }
+    }
+
+    .company {
+      margin: 0;
+      font-size: $font-size-sm;
+      font-weight: 500;
+      color: #f4b377;
+      white-space: nowrap;
+
+      @include sm {
+        font-size: $font-size-base;
+      }
+    }
+
+    .periodSection {
+      display: flex;
+      gap: $spacing-2;
+      align-items: center;
+      margin-bottom: $spacing-2;
+      font-size: $font-size-xs;
+      color: #d1d5db;
+
+      @include sm {
+        margin-bottom: $spacing-3;
+        font-size: $font-size-sm;
+      }
+    }
+
+    .period {
+      color: inherit;
+    }
+
+    .periodBadge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $spacing-1 $spacing-2;
+      font-size: $font-size-xs;
+      font-weight: 600;
+      color: #f4b377;
+      background: rgb(244 179 119 / 0.2);
+      border: 1px solid #f4b377;
+      border-radius: $radius-full;
+    }
+
+    .location {
+      display: flex;
+      gap: $spacing-2;
+      align-items: center;
+      margin-bottom: $spacing-3;
+      font-size: $font-size-xs;
+      color: #d1d5db;
+
+      @include sm {
+        font-size: $font-size-sm;
+      }
+
+      .locationIcon {
+        font-size: inherit;
+      }
+    }
+
+    .achievements {
+      padding-left: $spacing-4;
+      margin: 0;
+      font-size: $font-size-xs;
+      line-height: $line-height-base;
+      color: #e5e7eb;
+
+      @include sm {
+        font-size: $font-size-sm;
+      }
+
+      @include md {
+        font-size: $font-size-base;
+      }
+
+      li {
+        margin-bottom: $spacing-2;
+      }
+    }
+
+    .techStack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      padding-top: $spacing-3;
+      margin-top: $spacing-3;
+      border-top: 1px solid rgb(255 255 255 / 0.1);
+    }
+
+    .techBadge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $spacing-1 $spacing-3;
+      font-size: $font-size-xs;
+      font-weight: 500;
+      color: #f4b377;
+      background: rgb(244 179 119 / 0.1);
+      border: 1px solid rgb(244 179 119 / 0.3);
+      border-radius: $radius-full;
+      transition: all $transition-duration $transition-easing;
+
+      &:hover {
+        background: rgb(244 179 119 / 0.2);
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  // project variant
+  &.project {
+    min-height: 280px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 0.75rem;
+
+    .backgroundImage {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background-position: center;
+      background-size: cover;
+      opacity: 0.3;
+    }
+
+    .gradientOverlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        rgb(45 45 45 / 0.95) 0%,
+        rgb(45 45 45 / 0.85) 50%,
+        rgb(45 45 45 / 0.6) 100%
+      );
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem;
+
+      @include lg {
+        padding: 2rem;
+      }
+    }
+
+    .title {
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .description {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgb(255 255 255 / 0.7);
+    }
+
+    .techSection {
+      margin-bottom: 1.5rem;
+    }
+
+    .techLabel {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: rgb(255 255 255 / 0.6);
+    }
+
+    .techIcons {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .techIcon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .linkSection {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .linkLabel {
+      font-size: 0.9rem;
+      color: rgb(255 255 255 / 0.6);
+    }
+
+    .link {
+      font-size: 0.9rem;
+      color: #e85d5d;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
