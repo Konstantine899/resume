@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Check, Copy, Terminal } from 'lucide-react';
-import type { CodeProps } from '../model/types';
 import { Code } from './Code';
 
 const meta = {
@@ -19,18 +17,11 @@ const meta = {
       control: 'radio',
       options: ['sm', 'md', 'lg'],
     },
-    copyButtonSize: {
-      control: 'radio',
-      options: ['sm', 'md', 'lg'],
-    },
-    children: {
-      control: 'text',
-    },
     language: {
       control: 'text',
     },
-    icons: {
-      control: 'object',
+    title: {
+      control: 'text',
     },
   },
 } satisfies Meta<typeof Code>;
@@ -38,17 +29,94 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Пример кода
-const sampleCode = `function greet(name: string): string {
-  return \`Hello, \${name}!\`;
-}
+const sampleCode = (
+  <>
+    <span className="keyword">function</span> <span className="property">greet</span>(
+    <span className="property">name</span>: <span className="keyword">string</span>):{' '}
+    <span className="keyword">string</span> {'{'}
+    {'\n'}
+    {'  '}
+    <span className="keyword">return</span>{' '}
+    <span className="string">
+      `Hello, ${'{'}name{'}'}!`
+    </span>
+    ;{'\n'}
+    {'}'}
+    {'\n\n'}
+    <span className="keyword">const</span> <span className="property">message</span> ={' '}
+    <span className="property">greet</span>(<span className="string">'World'</span>);
+    {'\n'}
+    <span className="property">console</span>.<span className="property">log</span>(
+    <span className="property">message</span>);
+  </>
+);
 
-const message = greet('World');
-console.log(message);`;
+const skillsCode = (
+  <>
+    <span className="property">kosmos</span> <span className="punctuation">=</span>{' '}
+    <span className="punctuation">{'{'}</span>
+    {'\n'}
+    {'  '}
+    <span className="property">fullName</span>:{' '}
+    <span className="string">'Атрощенко Константин'</span>,{'\n'}
+    {'  '}
+    <span className="property">profession</span>:{' '}
+    <span className="string">'Full Stack Developer'</span>,{'\n'}
+    {'  '}
+    <span className="property">specialties</span>:{' '}
+    <span className="string">'React, Node.js, TypeScript'</span>,{'\n'}
+    {'  '}
+    <span className="property">skills</span>:{' '}
+    <span className="string">'Современные Веб-Технологии'</span>,{'\n'}
+    {'  '}
+    <span className="property">yearsOfExperience</span>: <span className="number">6</span>,{'\n'}
+    {'  '}
+    <span className="property">age</span>: <span className="number">20</span>
+    {'\n'}
+    <span className="punctuation">{'};'}</span>
+  </>
+);
 
-// ============================================
-// Inline Stories
-// ============================================
+const longCode = (
+  <>
+    <span className="keyword">function</span> <span className="property">greet</span>(
+    <span className="property">name</span>: <span className="keyword">string</span>):{' '}
+    <span className="keyword">string</span> {'{'}
+    {'\n'}
+    {'  '}
+    <span className="keyword">return</span>{' '}
+    <span className="string">
+      `Hello, ${'{'}name{'}'}!`
+    </span>
+    ;{'\n'}
+    {'}'}
+    {'\n\n'}
+    <span className="keyword">const</span> <span className="property">message</span> ={' '}
+    <span className="property">greet</span>(<span className="string">'World'</span>);
+    {'\n'}
+    <span className="property">console</span>.<span className="property">log</span>(
+    <span className="property">message</span>);
+    {'\n\n'}
+    <span className="keyword">function</span> <span className="property">add</span>(
+    <span className="property">a</span>: <span className="keyword">number</span>,{' '}
+    <span className="property">b</span>: <span className="keyword">number</span>):{' '}
+    <span className="keyword">number</span> {'{'}
+    {'\n'}
+    {'  '}
+    <span className="keyword">return</span> <span className="property">a</span>{' '}
+    <span className="punctuation">+</span> <span className="property">b</span>;{'\n'}
+    {'}'}
+    {'\n\n'}
+    <span className="keyword">const</span> <span className="property">result</span> ={' '}
+    <span className="property">add</span>(<span className="number">5</span>,{' '}
+    <span className="number">10</span>);
+    {'\n'}
+    <span className="property">console</span>.<span className="property">log</span>(
+    <span className="property">result</span>);
+  </>
+);
+
+const veryLongLineCode = `const veryLongVariableNameThatShouldTriggerHorizontalScrolling = 'This is a very long string that should cause horizontal scrolling when the code block is not wide enough to display it on a single line without wrapping';`;
 
 /** Inline код по умолчанию */
 export const Inline: Story = {
@@ -62,19 +130,19 @@ export const Inline: Story = {
 /** Inline с разными размерами */
 export const InlineSizes: Story = {
   args: {
-    children: 'const x = 10;',
     variant: 'inline',
+    children: 'const x = 10;',
   },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <Code {...args} size="sm">
-        const x = 10; // Small
+        const x = 10;
       </Code>
       <Code {...args} size="md">
-        const x = 10; // Medium
+        const x = 10;
       </Code>
       <Code {...args} size="lg">
-        const x = 10; // Large
+        const x = 10;
       </Code>
     </div>
   ),
@@ -89,18 +157,13 @@ export const InlineCopyable: Story = {
   },
 };
 
-// ============================================
-// Block Stories
-// ============================================
-
-/** Block код с заголовком */
+/** Block код с заголовком и terminal dots */
 export const BlockWithTitle: Story = {
   args: {
     children: sampleCode,
     variant: 'block',
     title: 'greet.ts',
     language: 'TypeScript',
-    size: 'md',
   },
 };
 
@@ -115,7 +178,7 @@ export const BlockWithLineNumbers: Story = {
   },
 };
 
-/** Block с копированием (Button) */
+/** Block с копированием */
 export const BlockCopyable: Story = {
   args: {
     children: sampleCode,
@@ -127,37 +190,21 @@ export const BlockCopyable: Story = {
   },
 };
 
-/** Block с разным размером кнопки копирования */
-export const BlockCopyButtonSizes: Story = {
+/** Block с навыками (как в Hero) с подсветкой синтаксиса */
+export const BlockWithSkills: Story = {
   args: {
-    children: sampleCode,
+    children: skillsCode,
     variant: 'block',
-    title: 'button-sizes.ts',
+    title: 'kosmos.ts',
     language: 'TypeScript',
     copyable: true,
   },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Code {...args} copyButtonSize="sm">
-        {sampleCode}
-        {/* Кнопка копирования - Small */}
-      </Code>
-      <Code {...args} copyButtonSize="md">
-        {sampleCode}
-        {/* Кнопка копирования - Medium */}
-      </Code>
-      <Code {...args} copyButtonSize="lg">
-        {sampleCode}
-        {/* Кнопка копирования - Large */}
-      </Code>
-    </div>
-  ),
 };
 
-/** Block с ограничением высоты */
+/** Block с ограничением высоты и вертикальным скроллом */
 export const BlockWithMaxHeight: Story = {
   args: {
-    children: Array(20).fill(sampleCode).join('\n\n'),
+    children: longCode,
     variant: 'block',
     title: 'Long file.ts',
     language: 'TypeScript',
@@ -167,88 +214,67 @@ export const BlockWithMaxHeight: Story = {
   },
 };
 
-/** Disabled состояние */
-export const Disabled: Story = {
+/** Block с длинной строкой (горизонтальный скролл) */
+export const BlockWithLongLine: Story = {
   args: {
-    children: sampleCode,
+    children: veryLongLineCode,
     variant: 'block',
-    copyable: true,
-    disabled: true,
-  },
-};
-
-// ============================================
-// Custom Icons Stories
-// ============================================
-
-/** Block с кастомными иконками */
-export const BlockWithCustomIcons: Story = {
-  args: {
-    children: sampleCode,
-    variant: 'block',
-    title: 'custom-icons.tsx',
+    title: 'long-line.ts',
     language: 'TypeScript',
     copyable: true,
-    showLineNumbers: true,
-    icons: {
-      copy: Copy,
-      copied: Check,
-    },
   },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '400px', maxWidth: '100%' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
-
-/** Block с тематической иконкой (Terminal для CLI команд) */
-export const BlockWithTerminalIcon: Story = {
-  args: {
-    children: 'npm run build && npm run deploy',
-    variant: 'block',
-    title: 'bash',
-    language: 'Bash',
-    copyable: true,
-    icons: {
-      copy: Terminal,
-      copied: Check,
-    },
-  },
-};
-
-// ============================================
-// All Types Demo
-// ============================================
 
 /** Все варианты использования */
 export const AllVariants: Story = {
   args: {
-    children: sampleCode,
     variant: 'block',
-    title: 'demo.ts',
-    language: 'TypeScript',
-    copyable: true,
-    showLineNumbers: true,
-    copyButtonSize: 'sm',
+    children: sampleCode,
   },
-  render: (args: CodeProps) => (
+  render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <h3 style={{ marginBottom: '8px' }}>Inline Variants</h3>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-        <Code variant="inline" size="sm">
-          const x = 10;
-        </Code>
-        <Code variant="inline" size="md">
-          const y = 20;
-        </Code>
-        <Code variant="inline" size="lg">
-          const z = 30;
-        </Code>
-        <Code variant="inline" copyable>
-          npm install package
-        </Code>
-      </div>
+      <section>
+        <h3 style={{ marginBottom: '12px', fontSize: '1.25rem' }}>Inline Variants</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          <Code variant="inline" size="sm">
+            const x = 10;
+          </Code>
+          <Code variant="inline" size="md">
+            const y = 20;
+          </Code>
+          <Code variant="inline" size="lg">
+            const z = 30;
+          </Code>
+          <Code variant="inline" copyable>
+            npm install package
+          </Code>
+        </div>
+      </section>
 
-      <h3 style={{ marginBottom: '8px' }}>Block Variants</h3>
-      <Code {...args} title="Basic Block" />
-      <Code {...args} title="With Line Numbers" showLineNumbers />
-      <Code {...args} title="With Max Height" maxHeight="200px" />
+      <section>
+        <h3 style={{ marginBottom: '12px', fontSize: '1.25rem' }}>Block Variants</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <Code variant="block" title="Basic Block" language="TypeScript">
+            {sampleCode}
+          </Code>
+          <Code variant="block" title="With Line Numbers" language="TS" showLineNumbers>
+            {sampleCode}
+          </Code>
+          <Code variant="block" title="With Copy" language="TypeScript" copyable>
+            {sampleCode}
+          </Code>
+          <Code variant="block" title="Skills" language="TypeScript" copyable>
+            {skillsCode}
+          </Code>
+        </div>
+      </section>
     </div>
   ),
 };

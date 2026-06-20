@@ -1,5 +1,6 @@
 import type { ToastType } from '@/shared/ui/Toast/model/types';
 import { useCallback, useState } from 'react';
+import { extractTextFromNode } from '../utils/extractTextFromNode';
 
 interface UseCopyCodeOptions {
   showToastOnSuccess?: boolean;
@@ -20,11 +21,17 @@ interface UseCopyCodeReturn {
  * Хук для копирования кода в буфер обмена
  * С интеграцией Toast уведомлений
  */
-export const useCopyCode = (code: string, options: UseCopyCodeOptions = {}): UseCopyCodeReturn => {
+export const useCopyCode = (
+  code: React.ReactNode,
+  options: UseCopyCodeOptions = {}
+): UseCopyCodeReturn => {
   const { showToastOnSuccess = false, showToastOnError = true, addToast, onCopy } = options;
 
   const [isCopied, setIsCopied] = useState(false);
   const [isError, setIsError] = useState(false);
+
+  // Извлекаем текст из JSX для копирования
+  const codeText = extractTextFromNode(code);
 
   const copyWithFallback = useCallback((text: string): boolean => {
     const textArea = document.createElement('textarea');
@@ -39,7 +46,7 @@ export const useCopyCode = (code: string, options: UseCopyCodeOptions = {}): Use
       const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
       return successful;
-    } catch (err) {
+    } catch {
       document.body.removeChild(textArea);
       return false;
     }
@@ -50,9 +57,9 @@ export const useCopyCode = (code: string, options: UseCopyCodeOptions = {}): Use
 
     try {
       if (navigator.clipboard) {
-        await navigator.clipboard.writeText(code);
+        await navigator.clipboard.writeText(codeText);
       } else {
-        const success = copyWithFallback(code);
+        const success = copyWithFallback(codeText);
         if (!success) throw new Error('Copy failed');
       }
 
@@ -67,8 +74,8 @@ export const useCopyCode = (code: string, options: UseCopyCodeOptions = {}): Use
       setTimeout(() => {
         setIsCopied(false);
       }, 2000);
-    } catch (error) {
-      const success = copyWithFallback(code);
+    } catch {
+      const success = copyWithFallback(codeText);
 
       if (success) {
         setIsCopied(true);
@@ -90,7 +97,7 @@ export const useCopyCode = (code: string, options: UseCopyCodeOptions = {}): Use
         }
       }
     }
-  }, [code, showToastOnSuccess, showToastOnError, addToast, onCopy, copyWithFallback]);
+  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy, copyWithFallback]);
 
   const reset = useCallback(() => {
     setIsCopied(false);

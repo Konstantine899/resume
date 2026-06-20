@@ -20,9 +20,49 @@ export interface CodeIcons {
   copied?: LucideIcon;
 }
 
+export interface CodeInlineProps {
+  /** Код для отображения */
+  children: React.ReactNode;
+  /** Размер */
+  size?: CodeSize;
+  /** Копировать по клику */
+  copyable?: boolean;
+  /** Дополнительный класс */
+  className?: string;
+  /** Отключить копирование */
+  disabled?: boolean;
+}
+
+export interface CodeBlockProps {
+  /** Код для отображения */
+  children: React.ReactNode;
+  /** Размер */
+  size?: CodeSize;
+  /** Язык программирования */
+  language?: CodeLanguage;
+  /** Показать нумерацию строк */
+  showLineNumbers?: boolean;
+  /** Копировать по клику */
+  copyable?: boolean;
+  /** Максимальная высота */
+  maxHeight?: string;
+  /** Дополнительный класс */
+  className?: string;
+  /** Заголовок */
+  title?: string;
+  /** Отключить копирование */
+  disabled?: boolean;
+  /** Accessibility label */
+  ariaLabel?: string;
+  /** Кастомные иконки */
+  icons?: CodeIcons;
+  /** Размер кнопки копирования */
+  copyButtonSize?: ButtonSize;
+}
+
 export interface CodeProps {
   /** Код для отображения */
-  children: string;
+  children: React.ReactNode;
   /** Вариант отображения */
   variant?: CodeVariant;
   /** Размер */

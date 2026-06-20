@@ -1,31 +1,15 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import { cn } from '@/shared/lib/utils/classNames';
-import { ButtonWithIcon } from '@/shared/ui/Button';
-import { Check, Copy } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
-import { useCopyCode } from '../lib/hooks/useCopyCode';
+import { useCallback } from 'react';
 import type { CodeProps } from '../model/types';
-import styles from './Code.module.scss';
+import { useCopyCode } from '../lib/hooks/useCopyCode';
+import { CodeInlineUi } from './CodeInline';
+import { CodeBlockUi } from './CodeBlock';
 
 /**
- * Code компонент для отображения кода
+ * Code Component
+ * Универсальный компонент для отображения кода (inline и block)
  */
-export const Code: React.FC<CodeProps> = ({
-  children,
-  variant = 'inline',
-  size = 'md',
-  language,
-  showLineNumbers = false,
-  copyable = false,
-  maxHeight,
-  className,
-  title,
-  onCopy,
-  disabled = false,
-  ariaLabel,
-  icons,
-  copyButtonSize = 'sm',
-}) => {
+export const Code: React.FC<CodeProps> = ({ children, variant = 'inline', onCopy, ...props }) => {
   // Получаем Toast контекст из shared
   const { addToast } = useToast();
 
@@ -37,113 +21,29 @@ export const Code: React.FC<CodeProps> = ({
     onCopy,
   });
 
-  // Оптимизация: разбиваем на строки только для block с нумерацией
-  const lines = useMemo(() => {
-    if (variant !== 'block' || !showLineNumbers) return [];
-    return children.split('\n');
-  }, [children, variant, showLineNumbers]);
-
-  const hasMultipleLines = lines.length > 1;
-
-  // Иконки по умолчанию
-  const CopyIcon = icons?.copy ?? Copy;
-  const CopiedIcon = icons?.copied ?? Check;
-
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (copyable && !disabled && (event.key === 'Enter' || event.key === ' ')) {
+      if (props.copyable && !props.disabled && (event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
         handleCopy();
       }
     },
-    [copyable, disabled, handleCopy]
+    [props.copyable, props.disabled, handleCopy]
   );
 
-  const codeClassName = cn(
-    styles.code,
-    styles[variant],
-    styles[size],
-    copyable && styles.copyable,
-    isCopied && styles.copied,
-    className
-  );
+  if (variant === 'inline') {
+    return (
+      <CodeInlineUi {...props} isCopied={isCopied} onCopy={handleCopy} onKeyDown={handleKeyDown}>
+        {children}
+      </CodeInlineUi>
+    );
+  }
 
-  const renderInlineCode = () => (
-    <code
-      className={codeClassName}
-      onClick={copyable && !disabled ? handleCopy : undefined}
-      onKeyDown={copyable && !disabled ? handleKeyDown : undefined}
-      tabIndex={copyable && !disabled ? 0 : undefined}
-      role={copyable && !disabled ? 'button' : undefined}
-      aria-label={ariaLabel || (copyable ? 'Click to copy code' : undefined)}
-      data-testid="code-inline"
-    >
+  return (
+    <CodeBlockUi {...props} isCopied={isCopied} onCopy={handleCopy} onKeyDown={handleKeyDown}>
       {children}
-    </code>
+    </CodeBlockUi>
   );
-
-  const renderBlockCode = () => (
-    <div
-      className={cn(styles.blockContainer, className)}
-      data-testid="code-block"
-      aria-label={ariaLabel}
-    >
-      {(title || copyable) && (
-        <div className={styles.blockHeader}>
-          {title && (
-            <div className={styles.blockTitle}>
-              {language && <span className={styles.language}>{language}</span>}
-              {title}
-            </div>
-          )}
-
-          {copyable && !disabled && (
-            <ButtonWithIcon
-              variant="ghost"
-              size={copyButtonSize}
-              leftIcon={isCopied ? <CopiedIcon size={14} /> : <CopyIcon size={14} />}
-              onClick={handleCopy}
-              onKeyDown={handleKeyDown}
-              aria-label={isCopied ? 'Copied!' : 'Copy code'}
-              data-testid="code-copy-button"
-              className={cn(isCopied && styles.copied)}
-            >
-              {isCopied ? 'Copied!' : 'Copy'}
-            </ButtonWithIcon>
-          )}
-        </div>
-      )}
-
-      <div
-        className={cn(
-          styles.blockContent,
-          showLineNumbers && hasMultipleLines && styles.withLineNumbers
-        )}
-        style={{ maxHeight }}
-      >
-        {showLineNumbers && hasMultipleLines ? (
-          <>
-            <div className={styles.lineNumbers} aria-hidden="true">
-              {lines.map((_, index) => (
-                <div key={index} className={styles.lineNumber}>
-                  {index + 1}
-                </div>
-              ))}
-            </div>
-            <pre className={styles.pre}>
-              <code className={styles.code}>{children}</code>
-            </pre>
-          </>
-        ) : (
-          <pre className={styles.pre}>
-            <code className={styles.code}>{children}</code>
-          </pre>
-        )}
-      </div>
-    </div>
-  );
-
-  return variant === 'inline' ? renderInlineCode() : renderBlockCode();
 };
 
 Code.displayName = 'Code';

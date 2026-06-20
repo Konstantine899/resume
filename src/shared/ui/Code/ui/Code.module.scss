@@ -1,39 +1,40 @@
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/mixins/components' as *;
-@use '@/shared/styles/mixins/utilities' as *;
-@use '@/shared/styles/variables/breakpoints.scss' as *;
-
 // ============================================
 
-// Base Code Styles (используем миксин code-block)
+// Code Component - SCSS Module
 
 // ============================================
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+// --------------------------------------------
+
+// Base Code Styles
+
+// --------------------------------------------
 .code {
-  @include code-block;
-
-  padding: 20px;
-  font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
-  font-size: $font-size-base;
-  line-height: 1.6;
-  transition: all $transition-fast;
+  overflow: hidden;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  color: #fff;
+  background: var(--code-bg, rgb(41 39 38 / 0.95));
+  border: 1px solid rgb(244 179 119 / 0.2);
+  border-radius: $border-radius-lg;
+  backdrop-filter: blur(8px);
+  transition: all $transition-duration $transition-easing;
 
   // Sizes
   &.sm {
-    padding: $spacing-xs $spacing-sm;
+    padding: $spacing-sm $spacing-md;
     font-size: $font-size-xs;
   }
 
   &.md {
-    padding: $spacing-sm $spacing-md;
+    padding: $spacing-md $spacing-lg;
     font-size: $font-size-sm;
   }
 
   &.lg {
-    padding: $spacing-md $spacing-lg;
+    padding: $spacing-lg $spacing-xl;
     font-size: $font-size-base;
   }
 
@@ -54,7 +55,7 @@
 
   // Copied state
   &.copied {
-    border-color: $success-color;
+    border-color: $form-success-color;
     box-shadow: 0 0 0 3px rgb(40 167 69 / 0.2);
   }
 
@@ -64,7 +65,7 @@
     white-space: nowrap;
   }
 
-  // Block variant - внутри pre должен быть на всю ширину
+  // Block variant
   &:not(.inline) {
     display: block;
     width: 100%;
@@ -72,27 +73,38 @@
   }
 }
 
-// ============================================
+// --------------------------------------------
 
 // Block Variant
 
-// ============================================
+// --------------------------------------------
 .blockContainer {
   width: 80%;
+  max-width: 100%;
   overflow: hidden;
   background: var(--code-bg, rgb(41 39 38 / 0.95));
   border: 1px solid rgb(244 179 119 / 0.2);
-  border-radius: $radius-xl;
+  border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
+
+  @include sm {
+    width: 100%;
+  }
 }
 
 .blockHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-2 $spacing-4;
+  padding: $spacing-md $spacing-lg;
   background: rgb(41 39 38 / 0.5);
   border-bottom: 1px solid rgb(244 179 119 / 0.1);
+}
+
+.blockHeaderLeft {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
 }
 
 .blockTitle {
@@ -114,22 +126,29 @@
   border-radius: $border-radius-sm;
 }
 
-.copyIcon {
+.terminalDots {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: $spacing-sm;
 
-  svg {
-    width: 0.875rem;
-    height: 0.875rem;
+  .dot {
+    @include terminal-dot;
+
+    &.red {
+      @include terminal-dot-red;
+    }
+
+    &.yellow {
+      @include terminal-dot-yellow;
+    }
+
+    &.green {
+      @include terminal-dot-green;
+    }
   }
 }
 
-.copyText {
-  white-space: nowrap;
-}
-
 .blockContent {
+  width: 100%;
   max-height: 400px;
   overflow: hidden;
 
@@ -165,53 +184,96 @@
   width: 100%;
   min-width: 0;
   max-height: inherit;
-  padding: $spacing-4;
+  padding: $spacing-lg;
   margin: 0;
   overflow: auto;
   font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  font-size: $font-size-sm;
+  font-size: 0.625rem;
   line-height: 1.6;
   color: #fff;
   white-space: pre;
   scrollbar-color: rgb(244 179 119 / 0.3) rgb(41 39 38 / 0.3);
+
+  @include xs {
+    font-size: 0.75rem;
+  }
+
+  @include sm {
+    font-size: 0.875rem;
+  }
+
+  @include md {
+    font-size: 1rem;
+  }
 
   // Firefox scrollbar support
   scrollbar-width: thin;
 
   // Webkit scrollbar (Chrome, Safari, Edge)
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    height: 12px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(41 39 38 / 0.3);
-    border-radius: $border-radius-sm;
+    background: var(--background-secondary);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(244 179 119 / 0.3);
-    border-radius: $border-radius-sm;
-
-    &:hover {
-      background: rgb(244 179 119 / 0.5);
-    }
+    background: var(--primary-dark);
+    border-radius: 2px;
   }
 
   // Код внутри pre должен занимать всю ширину
-  .code {
+  code {
     display: block;
     width: 100%;
     min-width: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background: transparent;
+    border: none;
+
+    &.code {
+      // Reset inline code styles when inside pre
+      display: block;
+      width: 100%;
+    }
+  }
+
+  // Syntax highlighting colors (matching Hero codeBlock)
+  .keyword {
+    color: #9ca3af;
+  }
+
+  .string {
+    color: var(--primary);
+  }
+
+  .number {
+    color: var(--accent);
+  }
+
+  .punctuation {
+    color: #fff;
+  }
+
+  .property {
+    color: #9ca3af;
   }
 }
 
-// ============================================
+// --------------------------------------------
 
 // Responsive
 
-// ============================================
-@media (max-width: $breakpoint-sm) {
+// --------------------------------------------
+@include sm {
+  .blockContainer {
+    width: 100%;
+  }
+
   .blockHeader {
     flex-direction: column;
     gap: $spacing-2;
@@ -221,5 +283,16 @@
   .copyButton {
     justify-content: center;
     width: 100%;
+  }
+}
+
+// --------------------------------------------
+
+// Accessibility
+
+// --------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .code {
+    transition: none;
   }
 }

@@ -5,9 +5,78 @@ import { DEVELOPER_DATA } from '@/entities/Developer';
 
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { getInitials } from '@/shared/lib/utils';
+import { Code } from '@/shared/ui/Code';
 import React from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
+
+const SkillsCode: React.FC = () => {
+  const skills = DEVELOPER_DATA.skills;
+
+  return (
+    <>
+      <span className="keyword">const</span> <span className="property">developer</span> ={' '}
+      <span className="punctuation">{'{'}</span>
+      {'\n'}
+      {'  '}
+      <span className="property">fullName</span>:{' '}
+      <span className="string">&apos;{DEVELOPER_DATA.fullName}&apos;</span>,{'\n'}
+      {'  '}
+      <span className="property">profession</span>:{' '}
+      <span className="string">&apos;{DEVELOPER_DATA.profession}&apos;</span>,{'\n'}
+      {'  '}
+      <span className="property">yearsOfExperience</span>:{' '}
+      <span className="number">{DEVELOPER_DATA.yearsOfExperience}</span>,{'\n'}
+      {'  '}
+      <span className="property">age</span>: <span className="number">{DEVELOPER_DATA.age}</span>,
+      {'\n'}
+      {'  '}
+      <span className="property">skills</span>: <span className="punctuation">{'{'}</span>
+      {'\n'}
+      {'    '}
+      <span className="property">frontend</span>: <span className="punctuation">[</span>
+      {skills?.frontend.map((skill, i) => (
+        <React.Fragment key={skill}>
+          <span className="string">&apos;{skill}&apos;</span>
+          <span className="punctuation">{i < skills.frontend.length - 1 ? ', ' : ''}</span>
+        </React.Fragment>
+      ))}
+      <span className="punctuation">]</span>,{'\n'}
+      {'    '}
+      <span className="property">backend</span>: <span className="punctuation">[</span>
+      {skills?.backend.map((skill, i) => (
+        <React.Fragment key={skill}>
+          <span className="string">&apos;{skill}&apos;</span>
+          <span className="punctuation">{i < skills.backend.length - 1 ? ', ' : ''}</span>
+        </React.Fragment>
+      ))}
+      <span className="punctuation">]</span>,{'\n'}
+      {'    '}
+      <span className="property">testing</span>: <span className="punctuation">[</span>
+      {skills?.testing.map((skill, i) => (
+        <React.Fragment key={skill}>
+          <span className="string">&apos;{skill}&apos;</span>
+          <span className="punctuation">{i < skills.testing.length - 1 ? ', ' : ''}</span>
+        </React.Fragment>
+      ))}
+      <span className="punctuation">]</span>,{'\n'}
+      {'    '}
+      <span className="property">devops</span>: <span className="punctuation">[</span>
+      {skills?.devops.map((skill, i) => (
+        <React.Fragment key={skill}>
+          <span className="string">&apos;{skill}&apos;</span>
+          <span className="punctuation">{i < skills.devops.length - 1 ? ', ' : ''}</span>
+        </React.Fragment>
+      ))}
+      <span className="punctuation">]</span>
+      {'\n'}
+      {'  '}
+      <span className="punctuation">{'}'}</span>
+      {'\n'}
+      <span className="punctuation">{'};'}</span>
+    </>
+  );
+};
 
 /**
  * Hero Feature Component
@@ -34,48 +103,17 @@ export const Hero: React.FC<HeroProps> = ({
           <h1 className={styles.greeting}>{t(`greeting`)}</h1>
           <h2 className={styles.name}>{t(`name`)}</h2>
 
-          {/* Code Block */}
-          <div className={styles.codeBlock}>
-            {/* Terminal dots */}
-            <div className={styles.terminalDots}>
-              <div className={`${styles.dot} ${styles.red}`} />
-              <div className={`${styles.dot} ${styles.yellow}`} />
-              <div className={`${styles.dot} ${styles.green}`} />
-            </div>
-
-            {/* Code content */}
-            <div className={styles.codeContent}>
-              <pre>
-                <span className={styles.keyword}>kosmos</span>
-                <span className={styles.punctuation}> = {'{'}</span>
-                {'\n\n'}
-                <span className={styles.property}>fullName:</span>
-                <span className={styles.string}>'{t(`fullName`)}'</span>
-                <span className={styles.punctuation}>,</span>
-                {'\n'}
-                <span className={styles.property}> profession:</span>
-                <span className={styles.string}>'{t(`profession`)}'</span>
-                <span className={styles.punctuation}>,</span>
-                {'\n'}
-                <span className={styles.property}> specialties:</span>
-                <span className={styles.string}>'{DEVELOPER_DATA.specialties.join(', ')}'</span>
-                <span className={styles.punctuation}>,</span>
-                {'\n'}
-                <span className={styles.property}> skills:</span>
-                <span className={styles.string}>'{t(`skillsLabel`)}'</span>
-                <span className={styles.punctuation}>,</span>
-                {'\n'}
-                <span className={styles.property}> {t(`yearsOfExperience`)}:</span>
-                <span className={styles.number}>{DEVELOPER_DATA.yearsOfExperience}</span>
-                <span className={styles.punctuation}>,</span>
-                {'\n'}
-                <span className={styles.property}> {t(`age`)}:</span>
-                <span className={styles.number}>{DEVELOPER_DATA.age}</span>
-                {'\n\n'}
-                <span className={styles.punctuation}>{'};'}</span>
-              </pre>
-            </div>
-          </div>
+          {/* Code Block с навыками */}
+          <Code
+            variant="block"
+            title="developer.ts"
+            language="TypeScript"
+            copyable
+            showLineNumbers
+            className={styles.codeBlock}
+          >
+            <SkillsCode />
+          </Code>
 
           {/* Resume Button */}
           <a
