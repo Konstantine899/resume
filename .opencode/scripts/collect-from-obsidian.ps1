@@ -22,6 +22,7 @@ try {
     $totalTokens = 0
     $totalRequests = 0
     $agentStats = @{}
+    $modelStats = @{}
     
     if ($todayFile) {
         $content = Get-Content $todayFile.FullName -Raw
@@ -44,6 +45,13 @@ try {
             }
             $agentStats[$agent].tokens += $tokens
             $agentStats[$agent].requests++
+            
+            # Track per-model stats
+            if (!$modelStats.ContainsKey($model)) {
+                $modelStats[$model] = @{tokens = 0; requests = 0}
+            }
+            $modelStats[$model].tokens += $tokens
+            $modelStats[$model].requests++
         }
         
         Write-Host "[obsidian-collect] Found $totalRequests agent calls, $totalTokens tokens" -ForegroundColor Gray
@@ -73,6 +81,19 @@ try {
         # Show top agents
         Write-Host "`n[obsidian-collect] Top agents by token usage:" -ForegroundColor Yellow
         $agentStats.GetEnumerator() | Sort-Object { $_.Value.tokens } -Descending | Select-Object -First 5 | ForEach-Object {
+            Write-Host "  $($_.Key): $($_.Value.tokens) tokens, $($_.Value.requests) requests" -ForegroundColor Gray
+        }
+    }
+    
+    # Save model statistics
+    $modelStatsFile = "$metricsPath\models-$today.json"
+    if ($modelStats.Count -gt 0) {
+        $modelStats | ConvertTo-Json -Depth 5 | Out-File $modelStatsFile -Encoding UTF8
+        Write-Host "[obsidian-collect] Model stats saved: $modelStatsFile" -ForegroundColor Green
+        
+        # Show top models
+        Write-Host "`n[obsidian-collect] Top models by token usage:" -ForegroundColor Yellow
+        $modelStats.GetEnumerator() | Sort-Object { $_.Value.tokens } -Descending | Select-Object -First 10 | ForEach-Object {
             Write-Host "  $($_.Key): $($_.Value.tokens) tokens, $($_.Value.requests) requests" -ForegroundColor Gray
         }
     }
