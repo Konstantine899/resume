@@ -1,0 +1,74 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "model": "ollama-cloud/gpt-oss:20b-cloud",
+  "small_model": "ollama-local/qwen2.5-coder:7b-instruct-q4_K_M",
+  "logLevel": "INFO",
+  "snapshot": true,
+  "instructions": [".opencode/docs/AGENTS.md"],
+
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+
+  "permission": {
+    "*": { "action": "ask" },
+    "filesystem:read": { "action": "allow" },
+    "filesystem:write": { "action": "allow" },
+    "filesystem:delete": { "action": "deny" },
+    "shell:dangerous": { "action": "deny" }
+  },
+
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
+      "args": ["D:/Dev/projects", "D:/Dev/tools"],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "args": ["--db-path", "D:/Dev/memory.db"],
+      "enabled": true,
+      "timeout": 120000
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "args": ["--api-key", "${CONTEXT7_API_KEY}"],
+      "enabled": true,
+      "timeout": 120000
+    },
+    "eslint": {
+      "type": "local",
+      "command": ["npx", "-y", "@eslint/mcp"],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp"],
+      "enabled": true
+    },
+    "rag": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-server-rg"],
+      "args": ["--root", "D:/Dev/projects/resume/.opencode"],
+      "enabled": false,
+      "timeout": 120000
+    }
+  },
+
+  "formatter": true,
+  "lsp": true,
+
+  "compaction": {
+    "auto": true,
+    "tail_turns": 10
+  },
+
+  "tool_output": {
+    "max_lines": 300,
+    "max_bytes": 16384
+  }
+}
