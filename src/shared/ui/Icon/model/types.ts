@@ -21,7 +21,11 @@ export interface IconProps {
   /** Отключить интерактивность */
   disabled?: boolean;
   /** Обработчик клика */
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
+  /** Состояние нажатия для toggle иконок */
+  isPressed?: boolean;
+  /** HTML id для якорных ссылок */
+  id?: string;
 }
 
 /**

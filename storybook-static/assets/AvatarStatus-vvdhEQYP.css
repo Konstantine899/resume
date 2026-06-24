@@ -1,0 +1,1 @@
+:root{--tooltip-bg: #1f2937;--tooltip-text: #fff;--tooltip-focus: #3b82f6}[data-theme=light]{--tooltip-bg: #374151;--tooltip-text: #f9fafb}[data-theme=dark]{--tooltip-bg: #1f2937;--tooltip-text: #f3f4f6}.src-shared-ui-Avatar-ui-AvatarStatus-AvatarStatus-module__status--K-0RT{width:10px;height:10px;border:2px solid var(--background);border-radius:50%;transition:all .4s ease}

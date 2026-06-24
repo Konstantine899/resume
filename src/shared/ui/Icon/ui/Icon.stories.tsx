@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AlertCircle, Check, Code, Globe, Home, Mail, Moon, Sun, X } from 'lucide-react';
+import { AlertCircle, Check, Code, Globe, Heart, Home, Mail, Moon, Sun, X } from 'lucide-react';
 import React from 'react';
 import { Icon } from './Icon';
 
@@ -15,24 +15,28 @@ const meta = {
 
 ## Возможности:
 - Любая иконка из lucide-react
-- Предопределённые размеры (xs/sm/md/lg/xl)
-- Предопределённые цвета (primary/secondary/accent/etc.)
+- Предопределённые размеры (xs/sm/md/lg/xl) или custom number (например, size={48})
+- Предопределённые цвета (primary/secondary/accent/etc.) или любой CSS color
 - Контроль толщины линий (1, 1.5, 2, 2.5, 3)
 - Accessibility (aria-label, role="img", keyboard support)
-- Интерактивность (onClick, disabled, focus-visible)
+- Интерактивность (onClick, disabled, focus-visible, isPressed для toggle)
 
 ## Размеры:
-- **xs** (12px), **sm** (16px), **md** (20px), **lg** (24px), **xl** (32px)
+- **preset:** xs (12px), sm (16px), md (20px), lg (24px), xl (32px)
+- **custom:** любое число в пикселях (например, size={48})
 
 ## Цвета:
-- **primary**, **secondary**, **accent**, **success**, **danger**, **warning**
-- **foreground**, **foreground-muted**, **inherit**
+- **preset:** primary, secondary, accent, success, danger, warning
+- **system:** foreground, foreground-muted, inherit
+- **custom:** любой CSS color (например, "#ff5733", "rgb(255,0,0)")
 
 ## Примеры:
 \`\`\`tsx
 <Icon name={Home} size={24} color="primary" />
 <Icon name={Mail} size="md" color="accent" strokeWidth={2.5} />
 <Icon name={Check} size="lg" color="success" onClick={handleClick} ariaLabel="Confirm" />
+<Icon name={Moon} size="md" isPressed={true} onClick={toggleTheme} ariaLabel="Toggle theme" />
+<Icon name={Heart} size={48} color="#ff5733" />
 \`\`\`
         `,
       },
@@ -50,7 +54,7 @@ const meta = {
       control: 'select',
       options: ['xs', 'sm', 'md', 'lg', 'xl'],
       defaultValue: 'md',
-      description: 'Размер иконки',
+      description: 'Размер иконки (preset) или custom number',
     },
     color: {
       control: 'select',
@@ -66,7 +70,7 @@ const meta = {
         'inherit',
       ],
       defaultValue: 'foreground',
-      description: 'Цвет иконки',
+      description: 'Цвет иконки (preset) или любой CSS color',
     },
     strokeWidth: {
       control: 'number',
@@ -74,12 +78,15 @@ const meta = {
       max: 3,
       step: 0.5,
       defaultValue: 2,
-      description: 'Толщина линий',
+      description: 'Толщина линий (1-3)',
     },
     ariaLabel: { control: 'text', description: 'Текст для скринридеров' },
-    decorative: { control: 'boolean', description: 'Декоративная иконка' },
+    decorative: { control: 'boolean', description: 'Декоративная иконка (скрыть от скринридеров)' },
     disabled: { control: 'boolean', description: 'Отключить интерактивность' },
-    onClick: { control: false, description: 'Обработчик клика' },
+    onClick: { control: false, description: 'Обработчик клика (добавляет keyboard support)' },
+    isPressed: { control: 'boolean', description: 'Состояние нажатия для toggle иконок' },
+    className: { control: 'text', description: 'Дополнительный CSS класс' },
+    id: { control: 'text', description: 'HTML id для якорных ссылок' },
   },
   args: {
     name: Home,
@@ -118,11 +125,14 @@ const Grid = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-// Basic
+// ============================================
+// Basic Stories
+// ============================================
+
 export const Default: Story = {
   render: () => (
     <ThemeContainer>
-      <Icon name={Home} size="md" color="foreground" />
+      <Icon name={Home} size="md" color="foreground" ariaLabel="Home" />
     </ThemeContainer>
   ),
 };
@@ -144,16 +154,29 @@ export const Decorative: Story = {
   },
 };
 
-// Sizes
+// ============================================
+// Size Variants
+// ============================================
+
 export const AllSizes: Story = {
   render: () => (
     <ThemeContainer>
       <Grid>
         {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
           <div key={size} style={{ textAlign: 'center' }}>
-            <Icon name={Home} size={size} color="foreground" />
+            <Icon name={Home} size={size} color="foreground" ariaLabel={size} />
             <p style={{ fontSize: '10px', marginTop: '4px', color: 'var(--foreground-muted)' }}>
-              {size.toUpperCase()}
+              {size.toUpperCase()} (
+              {size === 'xs'
+                ? '12'
+                : size === 'sm'
+                  ? '16'
+                  : size === 'md'
+                    ? '20'
+                    : size === 'lg'
+                      ? '24'
+                      : '32'}
+              px)
             </p>
           </div>
         ))}
@@ -162,7 +185,26 @@ export const AllSizes: Story = {
   ),
 };
 
-// Colors
+export const CustomSize: Story = {
+  args: {
+    name: Home,
+    size: 48,
+    color: 'primary',
+    ariaLabel: 'Custom size icon',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Демонстрация custom numeric size (48px вместо preset)',
+      },
+    },
+  },
+};
+
+// ============================================
+// Color Variants
+// ============================================
+
 export const AllColors: Story = {
   render: () => (
     <ThemeContainer>
@@ -176,9 +218,10 @@ export const AllColors: Story = {
           { color: 'warning', icon: AlertCircle },
           { color: 'foreground', icon: Home },
           { color: 'foreground-muted', icon: Home },
+          { color: 'inherit', icon: Home },
         ].map(({ color, icon }) => (
           <div key={color} style={{ textAlign: 'center' }}>
-            <Icon name={icon} size="md" color={color} />
+            <Icon name={icon} size="md" color={color} ariaLabel={color} />
             <p style={{ fontSize: '10px', marginTop: '4px', color: 'var(--foreground-muted)' }}>
               {color}
             </p>
@@ -189,14 +232,39 @@ export const AllColors: Story = {
   ),
 };
 
-// Stroke Width
+export const CustomColor: Story = {
+  args: {
+    name: Heart,
+    size: 'lg',
+    color: '#ff5733',
+    ariaLabel: 'Custom color icon',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Демонстрация custom CSS color (#ff5733)',
+      },
+    },
+  },
+};
+
+// ============================================
+// Stroke Width Variants
+// ============================================
+
 export const StrokeWidths: Story = {
   render: () => (
     <ThemeContainer>
       <Grid>
         {([1, 1.5, 2, 2.5, 3] as const).map((width) => (
           <div key={width} style={{ textAlign: 'center' }}>
-            <Icon name={Home} size="lg" strokeWidth={width} color="foreground" />
+            <Icon
+              name={Home}
+              size="lg"
+              strokeWidth={width}
+              color="foreground"
+              ariaLabel={`Stroke width ${width}`}
+            />
             <p style={{ fontSize: '10px', marginTop: '4px', color: 'var(--foreground-muted)' }}>
               {width}
             </p>
@@ -207,7 +275,10 @@ export const StrokeWidths: Story = {
   ),
 };
 
-// Interactive
+// ============================================
+// Interactive States
+// ============================================
+
 export const Clickable: Story = {
   args: {
     name: Mail,
@@ -215,6 +286,14 @@ export const Clickable: Story = {
     color: 'primary',
     onClick: () => alert('Icon clicked!'),
     ariaLabel: 'Отправить письмо',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '**Keyboard support:** Icon поддерживает клавиатурную навигацию. Используйте Enter или Space для активации.',
+      },
+    },
   },
 };
 
@@ -226,7 +305,111 @@ export const Disabled: Story = {
   },
 };
 
-// Real-world
+export const ToggleState: Story = {
+  args: {
+    name: Moon,
+    size: 'md',
+    color: 'primary',
+    isPressed: true,
+    onClick: () => console.log('Toggle theme'),
+    ariaLabel: 'Toggle theme',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '**isPressed** prop добавляет aria-pressed для toggle иконок (например, переключатель темы).',
+      },
+    },
+  },
+};
+
+export const HoverStates: Story = {
+  render: () => (
+    <ThemeContainer>
+      <Grid>
+        {[
+          { state: 'Default', onClick: undefined },
+          { state: 'Hover (наведите)', onClick: () => {} },
+          { state: 'Active (клик)', onClick: () => {} },
+        ].map(({ state, onClick }) => (
+          <div key={state} style={{ textAlign: 'center' }}>
+            <Icon name={Home} size="lg" color="primary" onClick={onClick} ariaLabel={state} />
+            <p style={{ fontSize: '10px', marginTop: '4px', color: 'var(--foreground-muted)' }}>
+              {state}
+            </p>
+          </div>
+        ))}
+      </Grid>
+    </ThemeContainer>
+  ),
+};
+
+export const FocusStates: Story = {
+  render: () => (
+    <ThemeContainer>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ marginBottom: '16px', color: 'var(--foreground-muted)' }}>
+          Нажмите Tab для фокуса
+        </p>
+        <Icon name={Mail} size="lg" color="primary" onClick={() => {}} ariaLabel="Focus test" />
+        <p style={{ fontSize: '10px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          focus-visible outline
+        </p>
+      </div>
+    </ThemeContainer>
+  ),
+};
+
+// ============================================
+// Custom Styling
+// ============================================
+
+export const CustomStyling: Story = {
+  args: {
+    name: Home,
+    size: 'lg',
+    color: 'primary',
+    className: 'custom-icon-class',
+    ariaLabel: 'Custom styled icon',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: '**className** prop добавляет дополнительные CSS классы для кастомизации.',
+      },
+    },
+  },
+};
+
+// ============================================
+// Accessibility
+// ============================================
+
+export const AnchorLinks: Story = {
+  render: () => (
+    <ThemeContainer>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <Icon
+          name={Home}
+          size="md"
+          color="primary"
+          id="home-link"
+          ariaLabel="Navigate to home"
+          onClick={() => console.log('Navigate home')}
+        />
+        <p style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+          Icon с id="home-link" для якорных ссылок
+        </p>
+      </nav>
+    </ThemeContainer>
+  ),
+};
+
+// ============================================
+// Real-world Examples
+// ============================================
+
 export const NavigationIcons: Story = {
   render: () => (
     <ThemeContainer>
@@ -249,7 +432,7 @@ export const NavigationIcons: Story = {
               borderRadius: '8px',
             }}
           >
-            <Icon name={icon} size="sm" color="inherit" />
+            <Icon name={icon} size="sm" color="inherit" ariaLabel={label} />
             <span>{label}</span>
           </a>
         ))}
@@ -281,33 +464,73 @@ export const ContactExample: Story = {
   ),
 };
 
-// Theme
+// ============================================
+// Combined Props
+// ============================================
+
+export const AllPropsCombined: Story = {
+  args: {
+    name: Home,
+    size: 'lg',
+    color: 'primary',
+    strokeWidth: 2.5,
+    className: 'combined-example',
+    ariaLabel: 'Combined props example',
+    id: 'combined-icon',
+    onClick: () => console.log('Clicked combined icon'),
+    isPressed: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Пример использования всех props вместе.',
+      },
+    },
+  },
+};
+
+// ============================================
+// Theme Comparison (Fixed)
+// ============================================
+
 export const ThemeComparison: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '32px' }}>
       <div
-        data-theme="light"
         style={{
           backgroundColor: 'var(--background)',
+          color: 'var(--foreground)',
           padding: '32px',
           borderRadius: '12px',
           display: 'flex',
           justifyContent: 'center',
+          border: '1px solid var(--card-border)',
         }}
       >
-        <Icon name={Home} size="xl" color="primary" />
+        <div>
+          <Icon name={Home} size="xl" color="primary" ariaLabel="Home" />
+          <p style={{ marginTop: '8px', fontSize: '12px', textAlign: 'center' }}>
+            Light Theme (var)
+          </p>
+        </div>
       </div>
       <div
-        data-theme="dark"
         style={{
-          backgroundColor: 'var(--background)',
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff',
           padding: '32px',
           borderRadius: '12px',
           display: 'flex',
           justifyContent: 'center',
+          border: '1px solid #333',
         }}
       >
-        <Icon name={Home} size="xl" color="primary" />
+        <div>
+          <Icon name={Home} size="xl" color="primary" ariaLabel="Home" />
+          <p style={{ marginTop: '8px', fontSize: '12px', textAlign: 'center' }}>
+            Dark Theme (hardcoded)
+          </p>
+        </div>
       </div>
     </div>
   ),

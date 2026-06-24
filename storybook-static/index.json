@@ -73,7 +73,7 @@
       "title": "Shared/AnimatedSection",
       "importPath": "./src/shared/ui/AnimatedSection/ui/AnimatedSection.stories.tsx",
       "componentPath": "./src/shared/ui/AnimatedSection/ui/AnimatedSection.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
       "exportName": "ManualTrigger"
     },
     "shared-animatedsection--all-animations": {
@@ -84,7 +84,7 @@
       "title": "Shared/AnimatedSection",
       "importPath": "./src/shared/ui/AnimatedSection/ui/AnimatedSection.stories.tsx",
       "componentPath": "./src/shared/ui/AnimatedSection/ui/AnimatedSection.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
       "exportName": "AllAnimations"
     },
     "shared-ui-avatar--docs": {
@@ -314,6 +314,145 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "SingleInitial"
     },
+    "shared-avatar-avatarbadge--docs": {
+      "id": "shared-avatar-avatarbadge--docs",
+      "title": "Shared/Avatar/AvatarBadge",
+      "name": "Docs",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "type": "docs",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "storiesImports": []
+    },
+    "shared-avatar-avatarbadge--dot": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--dot",
+      "name": "Dot",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Dot"
+    },
+    "shared-avatar-avatarbadge--number": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--number",
+      "name": "Number",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Number"
+    },
+    "shared-avatar-avatarbadge--busy": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--busy",
+      "name": "Busy",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Busy"
+    },
+    "shared-avatar-avatarbadge--away": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--away",
+      "name": "Away",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Away"
+    },
+    "shared-avatar-avatarbadge--offline": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--offline",
+      "name": "Offline",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Offline"
+    },
+    "shared-avatar-avatarbadge--all-variants": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarbadge--all-variants",
+      "name": "All Variants",
+      "title": "Shared/Avatar/AvatarBadge",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarBadge/AvatarBadge.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AllVariants"
+    },
+    "shared-avatar-avatargroup--docs": {
+      "id": "shared-avatar-avatargroup--docs",
+      "title": "Shared/Avatar/AvatarGroup",
+      "name": "Docs",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "type": "docs",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "storiesImports": []
+    },
+    "shared-avatar-avatargroup--default": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatargroup--default",
+      "name": "Default",
+      "title": "Shared/Avatar/AvatarGroup",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Default"
+    },
+    "shared-avatar-avatargroup--with-max": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatargroup--with-max",
+      "name": "With Max",
+      "title": "Shared/Avatar/AvatarGroup",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "WithMax"
+    },
+    "shared-avatar-avatargroup--small": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatargroup--small",
+      "name": "Small",
+      "title": "Shared/Avatar/AvatarGroup",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Small"
+    },
+    "shared-avatar-avatargroup--large": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatargroup--large",
+      "name": "Large",
+      "title": "Shared/Avatar/AvatarGroup",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Large"
+    },
+    "shared-avatar-avatargroup--square": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatargroup--square",
+      "name": "Square",
+      "title": "Shared/Avatar/AvatarGroup",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarGroup/AvatarGroup.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Square"
+    },
     "shared-ui-avatar-hero--docs": {
       "id": "shared-ui-avatar-hero--docs",
       "title": "Shared/UI/Avatar/Hero",
@@ -422,245 +561,569 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "WithoutEffects"
     },
-    "shared-button--docs": {
-      "id": "shared-button--docs",
-      "title": "Shared/Button",
+    "shared-avatar-avatarstatus--docs": {
+      "id": "shared-avatar-avatarstatus--docs",
+      "title": "Shared/Avatar/AvatarStatus",
       "name": "Docs",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
       "type": "docs",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "storiesImports": []
     },
-    "shared-button--primary": {
+    "shared-avatar-avatarstatus--online": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--primary",
-      "name": "Primary",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "id": "shared-avatar-avatarstatus--online",
+      "name": "Online",
+      "title": "Shared/Avatar/AvatarStatus",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Online"
+    },
+    "shared-avatar-avatarstatus--offline": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarstatus--offline",
+      "name": "Offline",
+      "title": "Shared/Avatar/AvatarStatus",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Offline"
+    },
+    "shared-avatar-avatarstatus--busy": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarstatus--busy",
+      "name": "Busy",
+      "title": "Shared/Avatar/AvatarStatus",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Busy"
+    },
+    "shared-avatar-avatarstatus--away": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarstatus--away",
+      "name": "Away",
+      "title": "Shared/Avatar/AvatarStatus",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Away"
+    },
+    "shared-avatar-avatarstatus--all-statuses": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-avatar-avatarstatus--all-statuses",
+      "name": "All Statuses",
+      "title": "Shared/Avatar/AvatarStatus",
+      "importPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.stories.tsx",
+      "componentPath": "./src/shared/ui/Avatar/ui/AvatarStatus/AvatarStatus.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AllStatuses"
+    },
+    "shared-button-button--docs": {
+      "id": "shared-button-button--docs",
+      "title": "Shared/Button/Button",
+      "name": "Docs",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "type": "docs",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "storiesImports": []
+    },
+    "shared-button-button--primary": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-button--primary",
+      "name": "Primary",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
       "exportName": "Primary"
     },
-    "shared-button--secondary": {
+    "shared-button-button--secondary": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--secondary",
+      "id": "shared-button-button--secondary",
       "name": "Secondary",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Secondary"
     },
-    "shared-button--outline": {
+    "shared-button-button--outline": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--outline",
+      "id": "shared-button-button--outline",
       "name": "Outline",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Outline"
     },
-    "shared-button--ghost": {
+    "shared-button-button--ghost": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--ghost",
+      "id": "shared-button-button--ghost",
       "name": "Ghost",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Ghost"
     },
-    "shared-button--danger": {
+    "shared-button-button--danger": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--danger",
+      "id": "shared-button-button--danger",
       "name": "Danger",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Danger"
     },
-    "shared-button--small": {
+    "shared-button-button--small": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--small",
+      "id": "shared-button-button--small",
       "name": "Small",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Small"
     },
-    "shared-button--medium": {
+    "shared-button-button--medium": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--medium",
+      "id": "shared-button-button--medium",
       "name": "Medium",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Medium"
     },
-    "shared-button--large": {
+    "shared-button-button--large": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--large",
+      "id": "shared-button-button--large",
       "name": "Large",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Large"
     },
-    "shared-button--icon-left": {
+    "shared-button-button--disabled": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--icon-left",
-      "name": "Icon Left",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "IconLeft"
-    },
-    "shared-button--icon-right": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--icon-right",
-      "name": "Icon Right",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "IconRight"
-    },
-    "shared-button--icon-only": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--icon-only",
-      "name": "Icon Only",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "IconOnly"
-    },
-    "shared-button--icon-rotation": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--icon-rotation",
-      "name": "Icon Rotation",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "IconRotation"
-    },
-    "shared-button--disabled": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--disabled",
+      "id": "shared-button-button--disabled",
       "name": "Disabled",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
       "exportName": "Disabled"
     },
-    "shared-button--loading": {
+    "shared-button-button--loading-with-spinner": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--loading",
-      "name": "Loading",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Loading"
+      "id": "shared-button-button--loading-with-spinner",
+      "name": "Loading With Spinner",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSpinner"
     },
-    "shared-button--full-width": {
+    "shared-button-button--loading-with-skeleton": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--full-width",
+      "id": "shared-button-button--loading-with-skeleton",
+      "name": "Loading With Skeleton",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSkeleton"
+    },
+    "shared-button-button--full-width": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-button--full-width",
       "name": "Full Width",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "FullWidth"
     },
-    "shared-button--all-variants": {
+    "shared-button-button--all-variants": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--all-variants",
+      "id": "shared-button-button--all-variants",
       "name": "All Variants",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllVariants"
     },
-    "shared-button--all-sizes": {
+    "shared-button-button--all-sizes": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--all-sizes",
+      "id": "shared-button-button--all-sizes",
       "name": "All Sizes",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/Button",
+      "importPath": "./src/shared/ui/Button/ui/Button/Button.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/Button/Button.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllSizes"
     },
-    "shared-button--icon-button-gallery": {
+    "shared-button-buttonwithicon--docs": {
+      "id": "shared-button-buttonwithicon--docs",
+      "title": "Shared/Button/ButtonWithIcon",
+      "name": "Docs",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "type": "docs",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "storiesImports": []
+    },
+    "shared-button-buttonwithicon--primary-with-left-icon": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--icon-button-gallery",
+      "id": "shared-button-buttonwithicon--primary-with-left-icon",
+      "name": "Primary With Left Icon",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "PrimaryWithLeftIcon"
+    },
+    "shared-button-buttonwithicon--primary-with-right-icon": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--primary-with-right-icon",
+      "name": "Primary With Right Icon",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "PrimaryWithRightIcon"
+    },
+    "shared-button-buttonwithicon--primary-with-both-icons": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--primary-with-both-icons",
+      "name": "Primary With Both Icons",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "PrimaryWithBothIcons"
+    },
+    "shared-button-buttonwithicon--secondary": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--secondary",
+      "name": "Secondary",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Secondary"
+    },
+    "shared-button-buttonwithicon--outline": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--outline",
+      "name": "Outline",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Outline"
+    },
+    "shared-button-buttonwithicon--ghost": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--ghost",
+      "name": "Ghost",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Ghost"
+    },
+    "shared-button-buttonwithicon--small": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--small",
+      "name": "Small",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Small"
+    },
+    "shared-button-buttonwithicon--medium": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--medium",
+      "name": "Medium",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Medium"
+    },
+    "shared-button-buttonwithicon--large": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--large",
+      "name": "Large",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Large"
+    },
+    "shared-button-buttonwithicon--disabled": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--disabled",
+      "name": "Disabled",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "Disabled"
+    },
+    "shared-button-buttonwithicon--loading-with-spinner": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--loading-with-spinner",
+      "name": "Loading With Spinner",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSpinner"
+    },
+    "shared-button-buttonwithicon--loading-with-skeleton": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--loading-with-skeleton",
+      "name": "Loading With Skeleton",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSkeleton"
+    },
+    "shared-button-buttonwithicon--full-width": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--full-width",
+      "name": "Full Width",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "FullWidth"
+    },
+    "shared-button-buttonwithicon--all-variants": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--all-variants",
+      "name": "All Variants",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AllVariants"
+    },
+    "shared-button-buttonwithicon--all-sizes": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-buttonwithicon--all-sizes",
+      "name": "All Sizes",
+      "title": "Shared/Button/ButtonWithIcon",
+      "importPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AllSizes"
+    },
+    "shared-button-iconbutton--docs": {
+      "id": "shared-button-iconbutton--docs",
+      "title": "Shared/Button/IconButton",
+      "name": "Docs",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "type": "docs",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "storiesImports": []
+    },
+    "shared-button-iconbutton--primary": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--primary",
+      "name": "Primary",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "Primary"
+    },
+    "shared-button-iconbutton--secondary": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--secondary",
+      "name": "Secondary",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Secondary"
+    },
+    "shared-button-iconbutton--ghost": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--ghost",
+      "name": "Ghost",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Ghost"
+    },
+    "shared-button-iconbutton--danger": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--danger",
+      "name": "Danger",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Danger"
+    },
+    "shared-button-iconbutton--small": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--small",
+      "name": "Small",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Small"
+    },
+    "shared-button-iconbutton--medium": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--medium",
+      "name": "Medium",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Medium"
+    },
+    "shared-button-iconbutton--large": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--large",
+      "name": "Large",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Large"
+    },
+    "shared-button-iconbutton--disabled": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--disabled",
+      "name": "Disabled",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "Disabled"
+    },
+    "shared-button-iconbutton--loading-with-spinner": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--loading-with-spinner",
+      "name": "Loading With Spinner",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSpinner"
+    },
+    "shared-button-iconbutton--loading-with-skeleton": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--loading-with-skeleton",
+      "name": "Loading With Skeleton",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "LoadingWithSkeleton"
+    },
+    "shared-button-iconbutton--sidebar-loading": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--sidebar-loading",
+      "name": "Sidebar Loading",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
+      "exportName": "SidebarLoading"
+    },
+    "shared-button-iconbutton--sidebar-toggle": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--sidebar-toggle",
+      "name": "Sidebar Toggle",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "SidebarToggle"
+    },
+    "shared-button-iconbutton--icon-button-gallery": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-button-iconbutton--icon-button-gallery",
       "name": "Icon Button Gallery",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "IconButtonGallery"
     },
-    "shared-button--sidebar": {
+    "shared-button-iconbutton--all-sizes": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-button--sidebar",
-      "name": "Sidebar",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
+      "id": "shared-button-iconbutton--all-sizes",
+      "name": "All Sizes",
+      "title": "Shared/Button/IconButton",
+      "importPath": "./src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx",
+      "componentPath": "./src/shared/ui/Button/ui/IconButton/IconButton.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Sidebar"
-    },
-    "shared-button--sidebar-icon-only": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--sidebar-icon-only",
-      "name": "Sidebar Icon Only",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SidebarIconOnly"
-    },
-    "shared-button--sidebar-with-rotation": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-button--sidebar-with-rotation",
-      "name": "Sidebar With Rotation",
-      "title": "Shared/Button",
-      "importPath": "./src/shared/ui/Button/ui/Button.stories.tsx",
-      "componentPath": "./src/shared/ui/Button/ui/Button.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SidebarWithRotation"
+      "exportName": "AllSizes"
     },
     "shared-card--docs": {
       "id": "shared-card--docs",
@@ -703,6 +1166,17 @@
       "componentPath": "./src/shared/ui/Card/ui/Card.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "WorkHistory"
+    },
+    "shared-card--contact": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-card--contact",
+      "name": "Contact",
+      "title": "Shared/Card",
+      "importPath": "./src/shared/ui/Card/ui/Card.stories.tsx",
+      "componentPath": "./src/shared/ui/Card/ui/Card.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "Contact"
     },
     "shared-card--all-variants": {
       "type": "story",
@@ -790,16 +1264,16 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "BlockCopyable"
     },
-    "shared-code--block-copy-button-sizes": {
+    "shared-code--block-with-skills": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-code--block-copy-button-sizes",
-      "name": "Block Copy Button Sizes",
+      "id": "shared-code--block-with-skills",
+      "name": "Block With Skills",
       "title": "Shared/Code",
       "importPath": "./src/shared/ui/Code/ui/Code.stories.tsx",
       "componentPath": "./src/shared/ui/Code/ui/Code.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "BlockCopyButtonSizes"
+      "exportName": "BlockWithSkills"
     },
     "shared-code--block-with-max-height": {
       "type": "story",
@@ -812,38 +1286,16 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "BlockWithMaxHeight"
     },
-    "shared-code--disabled": {
+    "shared-code--block-with-long-line": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-code--disabled",
-      "name": "Disabled",
+      "id": "shared-code--block-with-long-line",
+      "name": "Block With Long Line",
       "title": "Shared/Code",
       "importPath": "./src/shared/ui/Code/ui/Code.stories.tsx",
       "componentPath": "./src/shared/ui/Code/ui/Code.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Disabled"
-    },
-    "shared-code--block-with-custom-icons": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-code--block-with-custom-icons",
-      "name": "Block With Custom Icons",
-      "title": "Shared/Code",
-      "importPath": "./src/shared/ui/Code/ui/Code.stories.tsx",
-      "componentPath": "./src/shared/ui/Code/ui/Code.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "BlockWithCustomIcons"
-    },
-    "shared-code--block-with-terminal-icon": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-code--block-with-terminal-icon",
-      "name": "Block With Terminal Icon",
-      "title": "Shared/Code",
-      "importPath": "./src/shared/ui/Code/ui/Code.stories.tsx",
-      "componentPath": "./src/shared/ui/Code/ui/Code.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "BlockWithTerminalIcon"
+      "exportName": "BlockWithLongLine"
     },
     "shared-code--all-variants": {
       "type": "story",
@@ -865,71 +1317,27 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "storiesImports": []
     },
-    "shared-heading--h-1": {
+    "shared-heading--default": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--h-1",
-      "name": "H 1",
+      "id": "shared-heading--default",
+      "name": "Default",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H1"
+      "exportName": "Default"
     },
-    "shared-heading--h-2": {
+    "shared-heading--all-levels": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--h-2",
-      "name": "H 2",
+      "id": "shared-heading--all-levels",
+      "name": "All Levels",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H2"
-    },
-    "shared-heading--h-3": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--h-3",
-      "name": "H 3",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H3"
-    },
-    "shared-heading--h-4": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--h-4",
-      "name": "H 4",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H4"
-    },
-    "shared-heading--h-5": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--h-5",
-      "name": "H 5",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H5"
-    },
-    "shared-heading--h-6": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--h-6",
-      "name": "H 6",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "H6"
+      "exportName": "AllLevels"
     },
     "shared-heading--all-sizes": {
       "type": "story",
@@ -942,105 +1350,6 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllSizes"
     },
-    "shared-heading--size-xs": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-xs",
-      "name": "Size XS",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SizeXS"
-    },
-    "shared-heading--size-s": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-s",
-      "name": "Size S",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SizeS"
-    },
-    "shared-heading--size-m": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-m",
-      "name": "Size M",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SizeM"
-    },
-    "shared-heading--size-l": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-l",
-      "name": "Size L",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SizeL"
-    },
-    "shared-heading--size-xl": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-xl",
-      "name": "Size XL",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SizeXL"
-    },
-    "shared-heading--size-2-xl": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-2-xl",
-      "name": "Size 2 XL",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Size2XL"
-    },
-    "shared-heading--size-3-xl": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-3-xl",
-      "name": "Size 3 XL",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Size3XL"
-    },
-    "shared-heading--size-4-xl": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-4-xl",
-      "name": "Size 4 XL",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Size4XL"
-    },
-    "shared-heading--size-5-xl": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--size-5-xl",
-      "name": "Size 5 XL",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "Size5XL"
-    },
     "shared-heading--all-themes": {
       "type": "story",
       "subtype": "story",
@@ -1052,159 +1361,82 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllThemes"
     },
-    "shared-heading--theme-primary": {
+    "shared-heading--all-aligns": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--theme-primary",
-      "name": "Theme Primary",
+      "id": "shared-heading--all-aligns",
+      "name": "All Aligns",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "ThemePrimary"
+      "exportName": "AllAligns"
     },
-    "shared-heading--theme-muted": {
+    "shared-heading--gradient-theme": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--theme-muted",
-      "name": "Theme Muted",
+      "id": "shared-heading--gradient-theme",
+      "name": "Gradient Theme",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "ThemeMuted"
+      "exportName": "GradientTheme"
     },
-    "shared-heading--theme-inverted": {
+    "shared-heading--accessibility": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--theme-inverted",
-      "name": "Theme Inverted",
+      "id": "shared-heading--accessibility",
+      "name": "Accessibility",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "ThemeInverted"
+      "exportName": "Accessibility"
     },
-    "shared-heading--theme-error": {
+    "shared-heading--hero-section": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--theme-error",
-      "name": "Theme Error",
+      "id": "shared-heading--hero-section",
+      "name": "Hero Section",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "ThemeError"
+      "exportName": "HeroSection"
     },
-    "shared-heading--theme-gradient": {
+    "shared-heading--section-title": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--theme-gradient",
-      "name": "Theme Gradient",
+      "id": "shared-heading--section-title",
+      "name": "Section Title",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "ThemeGradient"
+      "exportName": "SectionTitle"
     },
-    "shared-heading--all-alignments": {
+    "shared-heading--subsection-title": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--all-alignments",
-      "name": "All Alignments",
+      "id": "shared-heading--subsection-title",
+      "name": "Subsection Title",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "AllAlignments"
+      "exportName": "SubsectionTitle"
     },
-    "shared-heading--align-left": {
+    "shared-heading--error-state": {
       "type": "story",
       "subtype": "story",
-      "id": "shared-heading--align-left",
-      "name": "Align Left",
+      "id": "shared-heading--error-state",
+      "name": "Error State",
       "title": "shared/Heading",
       "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
       "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "AlignLeft"
-    },
-    "shared-heading--align-center": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--align-center",
-      "name": "Align Center",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "AlignCenter"
-    },
-    "shared-heading--align-right": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--align-right",
-      "name": "Align Right",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "AlignRight"
-    },
-    "shared-heading--with-jsx-children": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--with-jsx-children",
-      "name": "With JSX Children",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "WithJSXChildren"
-    },
-    "shared-heading--semantic-vs-visual": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--semantic-vs-visual",
-      "name": "Semantic Vs Visual",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "SemanticVsVisual"
-    },
-    "shared-heading--in-card": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--in-card",
-      "name": "In Card",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "InCard"
-    },
-    "shared-heading--heading-hierarchy": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--heading-hierarchy",
-      "name": "Heading Hierarchy",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "HeadingHierarchy"
-    },
-    "shared-heading--with-custom-class": {
-      "type": "story",
-      "subtype": "story",
-      "id": "shared-heading--with-custom-class",
-      "name": "With Custom Class",
-      "title": "shared/Heading",
-      "importPath": "./src/shared/ui/Heading/ui/Heading.stories.tsx",
-      "componentPath": "./src/shared/ui/Heading/ui/Heading.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
-      "exportName": "WithCustomClass"
+      "exportName": "ErrorState"
     },
     "shared-icon--docs": {
       "id": "shared-icon--docs",
@@ -1259,6 +1491,17 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllSizes"
     },
+    "shared-icon--custom-size": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--custom-size",
+      "name": "Custom Size",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "CustomSize"
+    },
     "shared-icon--all-colors": {
       "type": "story",
       "subtype": "story",
@@ -1269,6 +1512,17 @@
       "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "AllColors"
+    },
+    "shared-icon--custom-color": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--custom-color",
+      "name": "Custom Color",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "CustomColor"
     },
     "shared-icon--stroke-widths": {
       "type": "story",
@@ -1303,6 +1557,61 @@
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "Disabled"
     },
+    "shared-icon--toggle-state": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--toggle-state",
+      "name": "Toggle State",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "ToggleState"
+    },
+    "shared-icon--hover-states": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--hover-states",
+      "name": "Hover States",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "HoverStates"
+    },
+    "shared-icon--focus-states": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--focus-states",
+      "name": "Focus States",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "FocusStates"
+    },
+    "shared-icon--custom-styling": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--custom-styling",
+      "name": "Custom Styling",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "CustomStyling"
+    },
+    "shared-icon--anchor-links": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--anchor-links",
+      "name": "Anchor Links",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AnchorLinks"
+    },
     "shared-icon--navigation-icons": {
       "type": "story",
       "subtype": "story",
@@ -1335,6 +1644,17 @@
       "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
       "tags": ["dev", "test", "manifest", "autodocs"],
       "exportName": "ContactExample"
+    },
+    "shared-icon--all-props-combined": {
+      "type": "story",
+      "subtype": "story",
+      "id": "shared-icon--all-props-combined",
+      "name": "All Props Combined",
+      "title": "Shared/Icon",
+      "importPath": "./src/shared/ui/Icon/ui/Icon.stories.tsx",
+      "componentPath": "./src/shared/ui/Icon/ui/Icon.tsx",
+      "tags": ["dev", "test", "manifest", "autodocs"],
+      "exportName": "AllPropsCombined"
     },
     "shared-icon--theme-comparison": {
       "type": "story",
@@ -1939,7 +2259,7 @@
       "title": "Shared/Modal",
       "importPath": "./src/shared/ui/Modal/ui/Modal.stories.tsx",
       "componentPath": "./src/shared/ui/Modal/ui/Modal.tsx",
-      "tags": ["dev", "test", "manifest", "autodocs"],
+      "tags": ["dev", "test", "manifest", "autodocs", "play-fn"],
       "exportName": "WithFooter"
     },
     "shared-modal--no-animation": {

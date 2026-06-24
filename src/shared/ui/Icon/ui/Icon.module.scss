@@ -21,6 +21,12 @@
       outline-offset: 2px;
       border-radius: 4px;
     }
+
+    &.focused {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
   }
 
   &.disabled {

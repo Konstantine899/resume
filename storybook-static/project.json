@@ -1,5 +1,5 @@
 {
-  "generatedAt": 1781443408729,
+  "generatedAt": 1782321345221,
   "userSince": 1777671412132,
   "hasCustomBabel": false,
   "hasCustomWebpack": false,
@@ -9,10 +9,14 @@
   "knownPackages": {
     "testPackages": {
       "@storybook/addon-vitest": "10.3.6",
-      "vitest": "4.1.5",
-      "playwright": "1.59.1",
+      "@testing-library/dom": "10.4.1",
+      "@testing-library/jest-dom": "6.9.1",
+      "@testing-library/react": "16.3.2",
+      "@testing-library/user-event": "^14.6.1",
       "@vitest/browser-playwright": "4.1.5",
-      "@vitest/coverage-v8": "4.1.5"
+      "@vitest/coverage-v8": "4.1.5",
+      "playwright": "1.59.1",
+      "vitest": "4.1.5"
     },
     "stylingPackages": { "sass": "^1.97.3" },
     "i18nPackages": {
@@ -31,11 +35,12 @@
   "applicationFileCount": 3,
   "storybookVersion": "10.3.6",
   "storybookVersionSpecifier": "^10.3.6",
-  "language": "javascript",
+  "language": "typescript",
   "storybookPackages": {
-    "storybook": {},
     "@storybook/react-vite": { "version": "10.3.6" },
-    "eslint-plugin-storybook": { "version": "10.3.6" }
+    "@storybook/test": { "version": "8.6.15" },
+    "eslint-plugin-storybook": { "version": "10.3.6" },
+    "storybook": {}
   },
   "addons": {
     "@chromatic-com/storybook": { "version": "5.1.2" },
