@@ -1,6 +1,6 @@
-// src/shared/ui/Input/Input.stories.tsx
+// Input Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CheckCircle, Mail } from 'lucide-react';
+import { CheckCircle, Mail, Search } from 'lucide-react';
 import { Input } from './Input';
 
 const meta = {
@@ -13,7 +13,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'outline', 'filled'],
+      options: ['default', 'outline', 'filled', 'floating'],
     },
     size: {
       control: 'select',
@@ -168,7 +168,7 @@ export const Clearable: Story = {
 export const WithClearAndIcon: Story = {
   args: {
     label: 'Search',
-    icon: <Mail size={18} />,
+    icon: <Search size={18} />,
     clearable: true,
     defaultValue: 'Search...',
   },
