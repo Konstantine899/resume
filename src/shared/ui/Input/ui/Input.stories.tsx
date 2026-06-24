@@ -138,3 +138,38 @@ export const Password: Story = {
     placeholder: 'Enter password',
   },
 };
+
+export const FloatingLabel: Story = {
+  args: {
+    label: 'Email Address',
+    variant: 'floating',
+    type: 'email',
+    placeholder: 'your@email.com',
+  },
+};
+
+export const WithCharacterCounter: Story = {
+  args: {
+    label: 'Bio',
+    maxLength: 100,
+    showCounter: true,
+    defaultValue: 'Software developer with 5 years of experience',
+  },
+};
+
+export const Clearable: Story = {
+  args: {
+    label: 'Search',
+    clearable: true,
+    defaultValue: 'Test search query',
+  },
+};
+
+export const WithClearAndIcon: Story = {
+  args: {
+    label: 'Search',
+    icon: <Mail size={18} />,
+    clearable: true,
+    defaultValue: 'Search...',
+  },
+};

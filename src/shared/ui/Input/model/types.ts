@@ -10,7 +10,8 @@ import { InputHTMLAttributes } from 'react';
 export type InputVariant =
   | 'default' // Default input style
   | 'outline' // Outline style
-  | 'filled'; // Filled background
+  | 'filled' // Filled background
+  | 'floating'; // Floating label
 
 /**
  * Input size types
@@ -86,6 +87,21 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
    * Required field indicator
    */
   required?: boolean;
+
+  /**
+   * Show character counter (requires maxLength)
+   */
+  showCounter?: boolean;
+
+  /**
+   * Show clear button to reset input
+   */
+  clearable?: boolean;
+
+  /**
+   * Callback when clear button is clicked
+   */
+  onClear?: () => void;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Mail } from 'lucide-react';
 import { Input } from './Input';
 
@@ -443,6 +444,93 @@ describe('Input', () => {
       expect(input).toHaveAttribute('required');
       expect(screen.getByText('*')).toBeInTheDocument();
       expect(screen.getByText('Invalid email')).toHaveAttribute('role', 'alert');
+    });
+  });
+
+  describe('Character Counter', () => {
+    it('shows character counter when showCounter and maxLength are provided', () => {
+      render(<Input showCounter maxLength={100} defaultValue="Hello" />);
+      expect(screen.getByTestId('counter')).toBeInTheDocument();
+      expect(screen.getByText('5')).toBeInTheDocument();
+      expect(screen.getByText('/100')).toBeInTheDocument();
+    });
+
+    it('updates counter as user types', async () => {
+      render(<Input showCounter maxLength={10} />);
+      const input = screen.getByRole('textbox');
+      await userEvent.type(input, 'Hello');
+      expect(screen.getByTestId('counter')).toHaveTextContent('5/10');
+    });
+
+    it('shows warning style when approaching max length', () => {
+      render(<Input showCounter maxLength={10} defaultValue="123456789" />);
+      const counter = screen.getByTestId('counter');
+      const countElement = counter.querySelector('span');
+      expect(countElement?.className).toContain('warning');
+    });
+
+    it('includes counter in aria-describedby', () => {
+      render(<Input showCounter maxLength={100} label="Test" />);
+      const input = screen.getByLabelText('Test');
+      expect(input).toHaveAttribute('aria-describedby');
+    });
+  });
+
+  describe('Clear Button', () => {
+    it('shows clear button when clearable is true and has value', () => {
+      render(<Input clearable defaultValue="Test" />);
+      expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+    });
+
+    it('hides clear button when input is empty', () => {
+      render(<Input clearable />);
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument();
+    });
+
+    it('hides clear button when disabled', () => {
+      render(<Input clearable disabled defaultValue="Test" />);
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument();
+    });
+
+    it('hides clear button when readOnly', () => {
+      render(<Input clearable readOnly defaultValue="Test" />);
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument();
+    });
+
+    it('hides clear button when loading', () => {
+      render(<Input clearable loading defaultValue="Test" />);
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument();
+    });
+
+    it('calls onClear when clicked', async () => {
+      const onClear = vi.fn();
+      render(<Input clearable defaultValue="Test" onClear={onClear} />);
+      await userEvent.click(screen.getByRole('button', { name: /clear/i }));
+      expect(onClear).toHaveBeenCalledTimes(1);
+    });
+
+    it('clears input value when clicked', async () => {
+      render(<Input clearable defaultValue="Test" />);
+      await userEvent.click(screen.getByRole('button', { name: /clear/i }));
+      expect(screen.getByRole('textbox')).toHaveValue('');
+    });
+  });
+
+  describe('Floating Label', () => {
+    it('renders floating label variant', () => {
+      render(<Input variant="floating" label="Email" />);
+      expect(screen.getByText('Email')).toBeInTheDocument();
+    });
+
+    it('has transparent placeholder for floating label', () => {
+      render(<Input variant="floating" label="Email" />);
+      const input = screen.getByLabelText('Email');
+      expect(input).toHaveAttribute('placeholder', ' ');
+    });
+
+    it('renders icon with floating label', () => {
+      render(<Input variant="floating" label="Email" icon={<Mail aria-hidden="true" />} />);
+      expect(screen.getByTestId('icon-floating')).toBeInTheDocument();
     });
   });
 });

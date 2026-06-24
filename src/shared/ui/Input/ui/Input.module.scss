@@ -30,29 +30,38 @@
   display: flex;
   align-items: center;
 
+  // Icon padding using CSS variables
+  --icon-spacing: 0.75rem;
+  --icon-spacing-sm: 0.5rem;
+  --icon-spacing-lg: 1rem;
+
   &:has(.icon) .input {
-    padding-left: 2.5rem;
+    padding-left: calc(var(--icon-spacing) * 2 + 1rem);
   }
 
   &:has(.iconAfter) .input {
-    padding-right: 2.5rem;
+    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+  }
+
+  &:has(.clearButton) .input {
+    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
   }
 
   // Size variations for icon padding
   &:has(.icon) .input.sm {
-    padding-left: 2rem;
+    padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
   }
 
   &:has(.iconAfter) .input.sm {
-    padding-right: 2rem;
+    padding-right: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
   }
 
   &:has(.icon) .input.lg {
-    padding-left: 3rem;
+    padding-left: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
   }
 
   &:has(.iconAfter) .input.lg {
-    padding-right: 3rem;
+    padding-right: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
   }
 }
 
@@ -97,6 +106,7 @@
 
     &:focus {
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
     }
   }
 
@@ -194,6 +204,49 @@
   align-items: center;
 }
 
+.clearButton {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .input.sm ~ & {
+    right: 0.5rem;
+  }
+}
+
+.counter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+
+  .warning {
+    font-weight: 600;
+    color: var(--form-warning);
+  }
+
+  @include theme-transition;
+}
+
 .errorText {
   font-size: 0.875rem;
   color: var(--form-error);
@@ -206,6 +259,88 @@
   color: var(--foreground-muted);
 
   @include theme-transition;
+}
+
+// Floating Label styles
+.floatingLabelWrapper {
+  position: relative;
+
+  .input {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:not(:placeholder-shown) + .floatingLabel,
+    &:focus::placeholder {
+      color: var(--primary);
+      transform: translateY(-1.75rem) scale(0.85);
+    }
+
+    &:focus + .floatingLabel {
+      color: var(--primary);
+    }
+
+    &:disabled + .floatingLabel {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+.floatingLabel {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem;
+  font-size: 1rem;
+  color: var(--foreground-muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+
+  .required {
+    color: var(--form-error);
+  }
+
+  .input.sm + & {
+    top: 0.25rem;
+    font-size: 0.875rem;
+
+    &:not(:placeholder-shown) + &,
+    :focus ~ & {
+      transform: translateY(-1.5rem) scale(0.75);
+    }
+  }
+
+  .input.lg + & {
+    top: 0.75rem;
+    font-size: 1.125rem;
+
+    &:not(:placeholder-shown) + &,
+    :focus ~ & {
+      transform: translateY(-2rem) scale(0.9);
+    }
+  }
+}
+
+.iconFloating {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+
+  .input.sm ~ & {
+    left: 0.5rem;
+  }
+
+  .input.lg ~ & {
+    left: 1rem;
+  }
 }
 
 @keyframes loading {
