@@ -15,7 +15,7 @@ export const InputGroup: React.FC<InputGroupProps> & {
   Addon: typeof InputGroupAddon;
 } = ({ children, className, 'data-testid': dataTestId }) => {
   return (
-    <div className={styles.inputGroup} data-testid={dataTestId}>
+    <div className={className || styles.inputGroup} data-testid={dataTestId}>
       {children}
     </div>
   );
