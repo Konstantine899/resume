@@ -75,3 +75,66 @@ export const AllSizes: Story = {
     </div>
   ),
 };
+
+export const Filled: Story = {
+  args: {
+    label: 'Search',
+    variant: 'filled',
+    placeholder: 'Type to search...',
+  },
+};
+
+export const Outline: Story = {
+  args: {
+    label: 'Website',
+    variant: 'outline',
+    placeholder: 'https://example.com',
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    label: 'Disabled Field',
+    disabled: true,
+    defaultValue: 'Cannot edit this',
+  },
+};
+
+export const ReadOnly: Story = {
+  args: {
+    label: 'Read Only',
+    readOnly: true,
+    defaultValue: 'Pre-filled value',
+  },
+};
+
+export const WithHelperText: Story = {
+  args: {
+    label: 'Password',
+    type: 'password',
+    helperText: 'Must be at least 8 characters',
+  },
+};
+
+export const FullWidth: Story = {
+  args: {
+    label: 'Full Width Input',
+    placeholder: 'Takes full width',
+    fullWidth: true,
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '100%', maxWidth: '500px' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const Password: Story = {
+  args: {
+    label: 'Password',
+    type: 'password',
+    placeholder: 'Enter password',
+  },
+};

@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Input > Basic Rendering > matches snapshot for default props 1`] = `
+<div>
+  <div
+    class="_inputWrapper_07e557"
+    data-testid="input-wrapper"
+  >
+    <div
+      class="_inputContainer_07e557"
+    >
+      <input
+        aria-invalid="false"
+        class="_input_07e557 _default_07e557 _md_07e557"
+        id="_r_4_"
+        placeholder="Snapshot test"
+      />
+    </div>
+  </div>
+</div>
+`;

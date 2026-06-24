@@ -2,15 +2,20 @@
 // Input Component
 // ============================================
 
-import React from 'react';
+import React, { useId } from 'react';
 import type { InputProps } from '../model/types';
+import { Loader } from '@/shared/ui/Loader';
 import styles from './Input.module.scss';
 
 /**
- * Input Component
+ * Input Component — универсальный компонент поля ввода
  *
- * A flexible input component with multiple variants and states.
- * Follows FSD architecture - reusable UI component.
+ * @example
+ * ```tsx
+ * <Input label="Email" type="email" placeholder="your@email.com" />
+ * <Input label="Password" type="password" error="Invalid password" />
+ * <Input label="Search" icon={<Search />} />
+ * ```
  */
 export const Input: React.FC<InputProps> = ({
   variant = 'default',
@@ -24,8 +29,18 @@ export const Input: React.FC<InputProps> = ({
   iconAfter,
   fullWidth = false,
   helperText,
+  id,
+  disabled,
+  readOnly,
+  required,
   ...props
 }) => {
+  // Генерация уникальных ID для accessibility
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+  const helperId = `${inputId}-helper`;
+
   // Build CSS classes
   const inputClasses = [
     styles.input,
@@ -44,23 +59,61 @@ export const Input: React.FC<InputProps> = ({
     .filter(Boolean)
     .join(' ');
 
+  // Accessibility props
+  const describedBy = error ? errorId : helperText ? helperId : undefined;
+
   return (
-    <div className={wrapperClasses}>
-      {label && <label className={styles.label}>{label}</label>}
+    <div className={wrapperClasses} data-testid="input-wrapper">
+      {label && (
+        <label htmlFor={inputId} className={styles.label}>
+          {required && <span className={styles.required}>*</span>}
+          {label}
+        </label>
+      )}
 
       <div className={styles.inputContainer}>
-        {icon && <span className={styles.icon}>{icon}</span>}
+        {icon && (
+          <span className={styles.icon} aria-hidden="true">
+            {icon}
+          </span>
+        )}
 
-        <input className={inputClasses} {...props} />
+        <input
+          id={inputId}
+          className={inputClasses}
+          disabled={disabled}
+          readOnly={readOnly}
+          required={required}
+          aria-invalid={!!error}
+          aria-busy={loading}
+          aria-describedby={describedBy}
+          {...props}
+        />
 
-        {iconAfter && <span className={styles.iconAfter}>{iconAfter}</span>}
+        {iconAfter && !loading && (
+          <span className={styles.iconAfter} aria-hidden="true">
+            {iconAfter}
+          </span>
+        )}
 
-        {loading && <span className={styles.loadingIndicator}>Loading...</span>}
+        {loading && (
+          <span className={styles.loadingIndicator}>
+            <Loader size="sm" />
+          </span>
+        )}
       </div>
 
-      {error && <span className={styles.errorText}>{error}</span>}
+      {error && (
+        <span id={errorId} className={styles.errorText} role="alert">
+          {error}
+        </span>
+      )}
 
-      {helperText && !error && <span className={styles.helperText}>{helperText}</span>}
+      {helperText && !error && (
+        <span id={helperId} className={styles.helperText}>
+          {helperText}
+        </span>
+      )}
     </div>
   );
 };

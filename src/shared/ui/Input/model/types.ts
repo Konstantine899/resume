@@ -81,6 +81,11 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
    * Helper text
    */
   helperText?: string;
+
+  /**
+   * Required field indicator
+   */
+  required?: boolean;
 }
 
 /**
