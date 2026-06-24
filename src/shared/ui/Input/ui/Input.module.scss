@@ -352,3 +352,47 @@
     background-position: -200% 0;
   }
 }
+
+// InputGroup styles
+.inputGroup {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  .input {
+    flex: 1;
+    border-radius: 0.375rem 0 0 0.375rem;
+
+    &:first-child {
+      border-radius: 0.375rem 0 0 0.375rem;
+    }
+
+    &:last-child {
+      border-radius: 0 0.375rem 0.375rem 0;
+    }
+  }
+}
+
+.addonStart,
+.addonEnd {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  background-color: var(--background-alt);
+  border: 1px solid var(--border-color);
+
+  @include theme-transition;
+}
+
+.addonStart {
+  border-right: none;
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.addonEnd {
+  border-left: none;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
