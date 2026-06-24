@@ -29,6 +29,31 @@
   position: relative;
   display: flex;
   align-items: center;
+
+  &:has(.icon) .input {
+    padding-left: 2.5rem;
+  }
+
+  &:has(.iconAfter) .input {
+    padding-right: 2.5rem;
+  }
+
+  // Size variations for icon padding
+  &:has(.icon) .input.sm {
+    padding-left: 2rem;
+  }
+
+  &:has(.iconAfter) .input.sm {
+    padding-right: 2rem;
+  }
+
+  &:has(.icon) .input.lg {
+    padding-left: 3rem;
+  }
+
+  &:has(.iconAfter) .input.lg {
+    padding-right: 3rem;
+  }
 }
 
 .input {
@@ -98,40 +123,16 @@
   &.sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
-
-    &:has(~ .icon) {
-      padding-left: 2rem;
-    }
-
-    &:has(~ .iconAfter) {
-      padding-right: 2rem;
-    }
   }
 
   &.md {
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
-
-    &:has(~ .icon) {
-      padding-left: 2.5rem;
-    }
-
-    &:has(~ .iconAfter) {
-      padding-right: 2.5rem;
-    }
   }
 
   &.lg {
     padding: 0.75rem 1rem;
     font-size: 1.125rem;
-
-    &:has(~ .icon) {
-      padding-left: 3rem;
-    }
-
-    &:has(~ .iconAfter) {
-      padding-right: 3rem;
-    }
   }
 
   // States
