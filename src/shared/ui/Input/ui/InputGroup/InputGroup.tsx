@@ -26,10 +26,15 @@ const InputGroupAddon: React.FC<{
   children: React.ReactNode;
   position?: 'start' | 'end';
   className?: string;
-}> = ({ children, position = 'start', className }) => {
+  'data-testid'?: string;
+}> = ({ children, position = 'start', className, 'data-testid': dataTestId }) => {
   const addonClass = position === 'start' ? styles.addonStart : styles.addonEnd;
 
-  return <span className={className || addonClass}>{children}</span>;
+  return (
+    <span className={className || addonClass} data-testid={dataTestId}>
+      {children}
+    </span>
+  );
 };
 
 InputGroup.Addon = InputGroupAddon;
