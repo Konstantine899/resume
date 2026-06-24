@@ -67,6 +67,15 @@
     background-color: var(--background-alt);
   }
 
+  // Icon padding
+  &:has(~ .icon) {
+    padding-left: 2.5rem;
+  }
+
+  &:has(~ .iconAfter) {
+    padding-right: 2.5rem;
+  }
+
   &.outline {
     border: 2px solid var(--border-color);
 
@@ -89,16 +98,40 @@
   &.sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
+
+    &:has(~ .icon) {
+      padding-left: 2rem;
+    }
+
+    &:has(~ .iconAfter) {
+      padding-right: 2rem;
+    }
   }
 
   &.md {
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
+
+    &:has(~ .icon) {
+      padding-left: 2.5rem;
+    }
+
+    &:has(~ .iconAfter) {
+      padding-right: 2.5rem;
+    }
   }
 
   &.lg {
     padding: 0.75rem 1rem;
     font-size: 1.125rem;
+
+    &:has(~ .icon) {
+      padding-left: 3rem;
+    }
+
+    &:has(~ .iconAfter) {
+      padding-right: 3rem;
+    }
   }
 
   // States
