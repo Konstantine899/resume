@@ -92,15 +92,6 @@
     background-color: var(--background-alt);
   }
 
-  // Icon padding
-  &:has(~ .icon) {
-    padding-left: 2.5rem;
-  }
-
-  &:has(~ .iconAfter) {
-    padding-right: 2.5rem;
-  }
-
   &.outline {
     border: 2px solid var(--border-color);
 
