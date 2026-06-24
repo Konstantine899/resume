@@ -1,85 +1,116 @@
 @use '@/shared/styles/variables/typography' as *;
 @use '@/shared/styles/mixins/typography' as *;
 @use '@/shared/styles/mixins/theme' as *;
+@use '@/shared/styles/mixins/responsive' as *;
+
+// ============================================
+
+// Heading Component
+
+// ============================================
+
+// BEM: .heading, .heading--size-*, .heading--theme-*, .heading--align-*
+
+// ============================================
 
 .heading {
   margin: 0;
   font-weight: $font-weight-bold;
-  line-height: 1.2;
+  line-height: $line-height-base;
+  color: var(--foreground);
 
   @include theme-transition;
 
-  // Sizes
-  &.xs {
+  // ============================================
+
+  // Sizes (BEM: .heading--size-*)
+
+  // ============================================
+
+  &--xs {
     @include text-xs;
   }
 
-  &.s {
+  &--s {
     @include text-sm;
   }
 
-  &.m {
+  &--m {
     @include text-base;
   }
 
-  &.l {
+  &--l {
     @include text-lg;
   }
 
-  &.xl {
+  &--xl {
     @include text-xl;
   }
 
-  &.size-2xl {
+  &--size-2xl {
     @include text-2xl;
   }
 
-  &.size-3xl {
+  &--size-3xl {
     font-size: $font-size-3xl;
-    line-height: 1.2;
+    line-height: $line-height-base;
   }
 
-  &.size-4xl {
+  &--size-4xl {
     font-size: $font-size-4xl;
-    line-height: 1.2;
+    line-height: $line-height-base;
   }
 
-  &.size-5xl {
+  &--size-5xl {
     font-size: $font-size-5xl;
-    line-height: 1.2;
+    line-height: $line-height-base;
+
+    @include lg {
+      font-size: $font-size-6xl;
+    }
   }
 
-  // Themes
-  &.primary {
+  // ============================================
+
+  // Themes (BEM: .heading--theme-*)
+
+  // ============================================
+
+  &--primary {
     color: var(--foreground);
   }
 
-  &.muted {
+  &--muted {
     color: var(--foreground-muted);
   }
 
-  &.inverted {
+  &--inverted {
     color: #fff;
   }
 
-  &.error {
+  &--error {
     color: var(--form-error);
   }
 
-  &.gradient {
+  &--gradient {
     @include gradient-text;
   }
 
-  // Align
-  &.left {
+  // ============================================
+
+  // Align (BEM: .heading--align-*)
+
+  // ============================================
+
+  &--left {
     text-align: left;
   }
 
-  &.center {
+  &--center {
     text-align: center;
   }
 
-  &.right {
+  &--right {
     text-align: right;
   }
 }

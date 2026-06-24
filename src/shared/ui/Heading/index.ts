@@ -7,6 +7,8 @@ export {
   isValidHeadingLevel,
   isValidHeadingSize,
   isValidHeadingTheme,
+  mapHeadingSize,
+  mapSizeToClass,
 } from './model/const';
 export type {
   HeadingAlign,

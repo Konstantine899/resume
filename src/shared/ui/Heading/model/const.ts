@@ -67,3 +67,26 @@ export const isValidHeadingTheme = (theme: unknown): theme is HeadingTheme => {
 export const isValidHeadingAlign = (align: unknown): align is HeadingAlign => {
   return HEADING_ALIGNS.includes(align as HeadingAlign);
 };
+
+/**
+ * Маппинг размеров для Heading компонента
+ * Алиас на общую утилиту mapSizeToClass
+ *
+ * @example
+ * ```ts
+ * mapHeadingSize('xs')    // 'xs'
+ * mapHeadingSize('2xl')   // 'size-2xl'
+ * mapHeadingSize('5xl')   // 'size-5xl'
+ * ```
+ */
+export const mapHeadingSize = (size: string): string => {
+  if (/^\d/.test(size)) {
+    return `size-${size}`;
+  }
+  return size;
+};
+
+/**
+ * Алиас для mapHeadingSize (для совместимости)
+ */
+export const mapSizeToClass = mapHeadingSize;
