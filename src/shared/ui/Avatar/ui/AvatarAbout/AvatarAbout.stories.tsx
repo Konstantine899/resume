@@ -176,3 +176,70 @@ export const SingleInitial: Story = {
     },
   },
 };
+
+export const ThemeVariants: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)', alignItems: 'center' }}>
+      <div style={{ padding: '16px', background: '#fff', borderRadius: '8px' }}>
+        <p style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>Light Theme</p>
+        <AvatarAbout alt="Konstantine" size="lg" src={avatar1} />
+      </div>
+      <div style={{ padding: '16px', background: '#1a1a1a', borderRadius: '8px' }}>
+        <p style={{ marginBottom: '8px', fontSize: '14px', color: '#999' }}>Dark Theme</p>
+        <AvatarAbout alt="Konstantine" size="lg" src={avatar1} />
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'AvatarAbout in light and dark themes with CSS variables (--card-bg, --foreground).',
+      },
+    },
+  },
+};
+
+export const WithGradientBorder: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)', alignItems: 'center' }}>
+      <AvatarAbout alt="Loading State" size="lg" forceLoading showSkeleton />
+      <AvatarAbout alt="Error State" size="lg" src="invalid.jpg" showSkeleton={false} />
+      <AvatarAbout alt="Image Loaded" size="lg" src={avatar1} showSkeleton={false} />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'AvatarAbout with gradient border visible in all states (loading, error, loaded). Uses avatar-circle mixin.',
+      },
+    },
+  },
+};
+
+export const ResponsiveSizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <AvatarAbout alt="SM" size="sm" />
+        <span style={{ fontSize: '14px', color: '#666' }}>sm — 100px (3rem)</span>
+      </div>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <AvatarAbout alt="MD" size="md" />
+        <span style={{ fontSize: '14px', color: '#666' }}>md — 200px (5rem)</span>
+      </div>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <AvatarAbout alt="LG" size="lg" />
+        <span style={{ fontSize: '14px', color: '#666' }}>lg — 300px (8rem)</span>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'AvatarAbout responsive sizes with labels. Proportional padding: sm=2px, md=4px, lg=6px.',
+      },
+    },
+  },
+};
