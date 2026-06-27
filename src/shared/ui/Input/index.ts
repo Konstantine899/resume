@@ -17,4 +17,4 @@ export { InputAddon } from './ui/InputAddon/InputAddon';
 export type { InputAddonProps } from './ui/InputAddon/InputAddon';
 
 export { InputGroup } from './ui/InputGroup/InputGroup';
-export type { InputGroupProps } from './ui/InputGroup/InputGroup';
+export type { InputGroupProps, InputGroupAddonProps } from './ui/InputGroup/InputGroup';

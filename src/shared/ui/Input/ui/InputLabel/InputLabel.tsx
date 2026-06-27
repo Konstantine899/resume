@@ -13,28 +13,24 @@ export interface InputLabelProps {
   className?: string;
 }
 
-export const InputLabel: React.FC<InputLabelProps> = ({
-  htmlFor,
-  children,
-  required,
-  floating,
-  className,
-}) => {
-  if (floating) {
+export const InputLabel = React.memo(
+  ({ htmlFor, children, required, floating, className }: InputLabelProps) => {
+    if (floating) {
+      return (
+        <label htmlFor={htmlFor} className={styles.floatingLabel}>
+          {required && <span className={styles.required}>*</span>}
+          {children}
+        </label>
+      );
+    }
+
     return (
-      <label htmlFor={htmlFor} className={styles.floatingLabel}>
+      <label htmlFor={htmlFor} className={className || styles.label}>
         {required && <span className={styles.required}>*</span>}
         {children}
       </label>
     );
   }
-
-  return (
-    <label htmlFor={htmlFor} className={className || styles.label}>
-      {required && <span className={styles.required}>*</span>}
-      {children}
-    </label>
-  );
-};
+);
 
 InputLabel.displayName = 'InputLabel';

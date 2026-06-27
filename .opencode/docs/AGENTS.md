@@ -55,13 +55,29 @@ Integration и e2e тесты (Playwright, MSW)
 
 ---
 
-## Правила
+##  Правило: Все операции через Orchestrator
 
-- TypeScript strict mode (никаких any)
-- FSD архитектура (layer dependencies)
-- CSS Modules (нет глобальных стилей)
-- Accessibility (ARIA, keyboard navigation)
-- Тесты coverage ≥ 90%
+**ВСЕГДА использовать Orchestrator для:**
+
+1. **Git операции** (commit, push, pull, merge, rebase)
+2. **Мульти-агентные задачи** (координация между агентами)
+3. **Сложные задачи** (требующие нескольких шагов/агентов)
+4. **Публичные изменения** (commit, push, PR)
+
+**НЕЛЬЗЯ:**
+- ❌ Вызывать агентов напрямую (git, ui, test, и т.д.)
+- ❌ Делать git операции через bash
+- ❌ Принимать решения о коммитах самостоятельно
+
+**Workflow:**
+```
+User Request → Orchestrator → Агент(ы) → Orchestrator → User
+```
+
+**Исключения:**
+- ✅ Прямые запросы к инструментам (filesystem, grep, glob)
+- ✅ Чтение/запись файлов
+- ✅ Поиск по коду
 
 ---
 

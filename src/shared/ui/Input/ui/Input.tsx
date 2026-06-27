@@ -5,7 +5,9 @@
 import React, { useId } from 'react';
 import type { InputProps } from '../model/types';
 import { Loader } from '@/shared/ui/Loader';
+import { Eye, EyeOff } from 'lucide-react';
 import styles from './Input.module.scss';
+import { InputLabel } from './InputLabel/InputLabel';
 
 /**
  * Input Component — универсальный компонент поля ввода
@@ -36,6 +38,7 @@ export const Input: React.FC<InputProps> = ({
   showCounter = false,
   clearable = false,
   onClear,
+  showPasswordToggle = false,
   ...props
 }) => {
   // Генерация уникальных ID для accessibility
@@ -45,23 +48,39 @@ export const Input: React.FC<InputProps> = ({
   const helperId = `${inputId}-helper`;
   const counterId = `${inputId}-counter`;
 
-  // State для clearable input
-  const [value, setValue] = React.useState(props.defaultValue || props.value);
+  // Ref для input
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Определяем controlled/uncontrolled
+  const isControlled = props.value !== undefined;
+  const [internalValue, setInternalValue] = React.useState<string>(() =>
+    String(props.defaultValue ?? '')
+  );
+  const value = isControlled ? props.value : internalValue;
+
+  // State для password visibility toggle
+  const [showPassword, setShowPassword] = React.useState(false);
+  const isPassword = props.type === 'password';
+  const inputType =
+    isPassword && showPasswordToggle ? (showPassword ? 'text' : 'password') : props.type;
 
   // Обработчик изменения значения
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    if (!isControlled) {
+      setInternalValue(e.target.value);
+    }
     props.onChange?.(e);
   };
 
   // Обработчик очистки
   const handleClear = () => {
-    setValue('');
+    if (!isControlled) {
+      setInternalValue('');
+    }
     onClear?.();
-    const input = document.getElementById(inputId);
-    if (input) {
-      input.focus();
-      input.dispatchEvent(new Event('input', { bubbles: true }));
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
     }
   };
 
@@ -101,21 +120,27 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className={wrapperClasses} data-testid="input-wrapper">
       {label && (
-        <label htmlFor={inputId} className={styles.label}>
-          {required && <span className={styles.required}>*</span>}
+        <InputLabel htmlFor={inputId} required={required} floating={variant === 'floating'}>
           {label}
-        </label>
+        </InputLabel>
       )}
 
       <div className={styles.inputContainer}>
-        {icon && (
+        {icon && variant === 'floating' ? (
           <span className={styles.iconFloating} aria-hidden="true" data-testid="icon-floating">
             {icon}
           </span>
+        ) : (
+          icon && (
+            <span className={styles.icon} aria-hidden="true" data-testid="icon">
+              {icon}
+            </span>
+          )
         )}
 
         <input
           id={inputId}
+          ref={inputRef}
           className={inputClasses}
           disabled={disabled}
           readOnly={readOnly}
@@ -127,7 +152,20 @@ export const Input: React.FC<InputProps> = ({
           onChange={handleChange}
           placeholder={variant === 'floating' ? ' ' : props.placeholder}
           {...props}
+          type={inputType}
         />
+
+        {showPasswordToggle && isPassword && (
+          <button
+            type="button"
+            className={styles.passwordToggle}
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        )}
 
         {clearable && currentValue.length > 0 && !disabled && !readOnly && !loading && (
           <button

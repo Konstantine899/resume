@@ -102,6 +102,11 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
    * Callback when clear button is clicked
    */
   onClear?: () => void;
+
+  /**
+   * Show password visibility toggle (for type="password")
+   */
+  showPasswordToggle?: boolean;
 }
 
 /**

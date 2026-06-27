@@ -25,23 +25,31 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    placeholder: 'Enter text...',
-    variant: 'default',
-    size: 'md',
-  },
+// 1. Все варианты (Variants)
+export const Variants: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '300px' }}>
+      <Input variant="default" label="Default" placeholder="Default variant" />
+      <Input variant="outline" label="Outline" placeholder="Outline variant" />
+      <Input variant="filled" label="Filled" placeholder="Filled variant" />
+      <Input variant="floating" label="Floating" placeholder="Floating variant" />
+    </div>
+  ),
 };
 
-export const WithLabel: Story = {
-  args: {
-    label: 'Email',
-    placeholder: 'your@email.com',
-    type: 'email',
-  },
+// 2. Все размеры (Sizes)
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Input size="sm" placeholder="Small (0.875rem)" />
+      <Input size="md" placeholder="Medium (1rem)" />
+      <Input size="lg" placeholder="Large (1.125rem)" />
+    </div>
+  ),
 };
 
-export const WithError: Story = {
+// 3. Error state
+export const Error: Story = {
   args: {
     label: 'Email',
     error: 'Invalid email format',
@@ -49,6 +57,17 @@ export const WithError: Story = {
   },
 };
 
+// 4. Disabled & ReadOnly states
+export const States: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '300px' }}>
+      <Input label="Disabled" disabled defaultValue="Cannot edit this" />
+      <Input label="ReadOnly" readOnly defaultValue="Read only value" />
+    </div>
+  ),
+};
+
+// 5. С иконкой
 export const WithIcon: Story = {
   args: {
     label: 'Email',
@@ -57,6 +76,7 @@ export const WithIcon: Story = {
   },
 };
 
+// 6. Success state
 export const Success: Story = {
   args: {
     label: 'Username',
@@ -66,49 +86,38 @@ export const Success: Story = {
   },
 };
 
-export const AllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Input size="sm" placeholder="Small" />
-      <Input size="md" placeholder="Medium" />
-      <Input size="lg" placeholder="Large" />
-    </div>
-  ),
+// 7. Password с toggle
+export const PasswordToggle: Story = {
+  args: {
+    label: 'Password',
+    type: 'password',
+    showPasswordToggle: true,
+    placeholder: 'Enter password',
+  },
 };
 
-export const Filled: Story = {
+// 8. Clearable input
+export const Clearable: Story = {
   args: {
     label: 'Search',
-    variant: 'filled',
-    placeholder: 'Type to search...',
+    clearable: true,
+    icon: <Search size={18} />,
+    defaultValue: 'Test search query',
   },
 };
 
-export const Outline: Story = {
+// 9. Character counter
+export const CharacterCounter: Story = {
   args: {
-    label: 'Website',
-    variant: 'outline',
-    placeholder: 'https://example.com',
+    label: 'Bio',
+    maxLength: 100,
+    showCounter: true,
+    defaultValue: 'Software developer with 5 years of experience',
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Field',
-    disabled: true,
-    defaultValue: 'Cannot edit this',
-  },
-};
-
-export const ReadOnly: Story = {
-  args: {
-    label: 'Read Only',
-    readOnly: true,
-    defaultValue: 'Pre-filled value',
-  },
-};
-
-export const WithHelperText: Story = {
+// 10. Helper text
+export const HelperText: Story = {
   args: {
     label: 'Password',
     type: 'password',
@@ -116,6 +125,7 @@ export const WithHelperText: Story = {
   },
 };
 
+// 11. Full width layout
 export const FullWidth: Story = {
   args: {
     label: 'Full Width Input',
@@ -129,47 +139,4 @@ export const FullWidth: Story = {
       </div>
     ),
   ],
-};
-
-export const Password: Story = {
-  args: {
-    label: 'Password',
-    type: 'password',
-    placeholder: 'Enter password',
-  },
-};
-
-export const FloatingLabel: Story = {
-  args: {
-    label: 'Email Address',
-    variant: 'floating',
-    type: 'email',
-    placeholder: 'your@email.com',
-  },
-};
-
-export const WithCharacterCounter: Story = {
-  args: {
-    label: 'Bio',
-    maxLength: 100,
-    showCounter: true,
-    defaultValue: 'Software developer with 5 years of experience',
-  },
-};
-
-export const Clearable: Story = {
-  args: {
-    label: 'Search',
-    clearable: true,
-    defaultValue: 'Test search query',
-  },
-};
-
-export const WithClearAndIcon: Story = {
-  args: {
-    label: 'Search',
-    icon: <Search size={18} />,
-    clearable: true,
-    defaultValue: 'Search...',
-  },
 };

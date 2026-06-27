@@ -12,19 +12,16 @@ export interface InputAddonProps {
   'data-testid'?: string;
 }
 
-export const InputAddon: React.FC<InputAddonProps> = ({
-  children,
-  position = 'start',
-  className,
-  'data-testid': dataTestId,
-}) => {
-  const addonClass = position === 'start' ? styles.icon : styles.iconAfter;
+export const InputAddon = React.memo(
+  ({ children, position = 'start', className, 'data-testid': dataTestId }: InputAddonProps) => {
+    const addonClass = position === 'start' ? styles.icon : styles.iconAfter;
 
-  return (
-    <span className={className || addonClass} aria-hidden="true" data-testid={dataTestId}>
-      {children}
-    </span>
-  );
-};
+    return (
+      <span className={className || addonClass} aria-hidden="true" data-testid={dataTestId}>
+        {children}
+      </span>
+    );
+  }
+);
 
 InputAddon.displayName = 'InputAddon';

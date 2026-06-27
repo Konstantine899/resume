@@ -124,7 +124,7 @@ describe('Input', () => {
     });
 
     it('hides icons from screen readers with aria-hidden', () => {
-      render(<Input label="Email" icon={<Mail data-testid="icon" aria-hidden="true" />} />);
+      render(<Input label="Email" icon={<Mail aria-hidden="true" />} />);
       const icon = screen.getByTestId('icon');
       expect(icon).toHaveAttribute('aria-hidden', 'true');
     });
@@ -531,6 +531,54 @@ describe('Input', () => {
     it('renders icon with floating label', () => {
       render(<Input variant="floating" label="Email" icon={<Mail aria-hidden="true" />} />);
       expect(screen.getByTestId('icon-floating')).toBeInTheDocument();
+    });
+  });
+
+  describe('Password Toggle', () => {
+    it('shows password toggle button when showPasswordToggle is true', () => {
+      render(<Input type="password" showPasswordToggle />);
+      expect(screen.getByRole('button', { name: /show password/i })).toBeInTheDocument();
+    });
+
+    it('has correct initial type=password', () => {
+      render(<Input type="password" showPasswordToggle />);
+      const input = document.querySelector('input');
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('changes icon from Eye to EyeOff', async () => {
+      render(<Input type="password" showPasswordToggle />);
+      const toggle = screen.getByRole('button', { name: /show password/i });
+      expect(toggle).toBeInTheDocument();
+      await userEvent.click(toggle);
+      expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+    });
+
+    it('does not show toggle for non-password types', () => {
+      render(<Input type="text" showPasswordToggle />);
+      expect(screen.queryByRole('button', { name: /password/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Controlled/Uncontrolled', () => {
+    it('works as uncontrolled with defaultValue', () => {
+      render(<Input defaultValue="test" />);
+      const input = document.querySelector('input');
+      expect(input).toHaveValue('test');
+    });
+
+    it('works as controlled with value', () => {
+      render(<Input value="controlled" onChange={() => {}} />);
+      const input = document.querySelector('input');
+      expect(input).toHaveValue('controlled');
+    });
+
+    it('handles clear in uncontrolled mode', async () => {
+      render(<Input clearable defaultValue="test" />);
+      const clearButton = screen.getByRole('button', { name: /clear/i });
+      await userEvent.click(clearButton);
+      const input = document.querySelector('input');
+      expect(input).toHaveValue('');
     });
   });
 });

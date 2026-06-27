@@ -11,31 +11,43 @@ export interface InputGroupProps {
   'data-testid'?: string;
 }
 
-export const InputGroup: React.FC<InputGroupProps> & {
-  Addon: typeof InputGroupAddon;
-} = ({ children, className, 'data-testid': dataTestId }) => {
-  return (
-    <div className={className || styles.inputGroup} data-testid={dataTestId}>
-      {children}
-    </div>
-  );
-};
-
-// Sub-component for addons
-const InputGroupAddon: React.FC<{
+export interface InputGroupAddonProps {
   children: React.ReactNode;
   position?: 'start' | 'end';
   className?: string;
   'data-testid'?: string;
-}> = ({ children, position = 'start', className, 'data-testid': dataTestId }) => {
-  const addonClass = position === 'start' ? styles.addonStart : styles.addonEnd;
+}
 
-  return (
-    <span className={className || addonClass} data-testid={dataTestId}>
-      {children}
-    </span>
-  );
-};
+// Sub-component for addons
+const InputGroupAddon = React.memo(
+  ({
+    children,
+    position = 'start',
+    className,
+    'data-testid': dataTestId,
+  }: InputGroupAddonProps) => {
+    const addonClass = position === 'start' ? styles.addonStart : styles.addonEnd;
 
-InputGroup.Addon = InputGroupAddon;
-InputGroup.displayName = 'InputGroup';
+    return (
+      <span className={className || addonClass} data-testid={dataTestId}>
+        {children}
+      </span>
+    );
+  }
+);
+
+InputGroupAddon.displayName = 'InputGroupAddon';
+
+export const InputGroup = Object.assign(
+  React.memo(({ children, className, 'data-testid': dataTestId }: InputGroupProps) => {
+    return (
+      <div className={className || styles.inputGroup} data-testid={dataTestId}>
+        {children}
+      </div>
+    );
+  }),
+  {
+    Addon: InputGroupAddon,
+    displayName: 'InputGroup',
+  }
+);
