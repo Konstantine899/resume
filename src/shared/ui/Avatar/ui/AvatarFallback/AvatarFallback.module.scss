@@ -8,7 +8,15 @@
   font-weight: $font-weight-semibold;
   color: white;
   user-select: none;
-  border-radius: 50%;
+
+  // Variant shapes
+  &.circle {
+    border-radius: 50%;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg;
+  }
 
   // Sizes
   &.sm {

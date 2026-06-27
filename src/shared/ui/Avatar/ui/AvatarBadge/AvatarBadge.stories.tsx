@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AvatarBadge } from './AvatarBadge';
 
 const meta = {
-  title: 'Shared/Avatar/AvatarBadge',
+  title: 'Shared/Avatar/Badge',
   component: AvatarBadge,
   parameters: {
     layout: 'centered',
@@ -42,49 +42,38 @@ export const Number: Story = {
   },
 };
 
-export const Busy: Story = {
-  args: {
-    variant: 'dot',
-    status: 'busy',
-  },
-};
-
-export const Away: Story = {
-  args: {
-    variant: 'dot',
-    status: 'away',
-  },
-};
-
-export const Offline: Story = {
-  args: {
-    variant: 'dot',
-    status: 'offline',
-  },
-};
-
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '24px' }}>
-      <div>
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)' }}>
+      <div style={{ textAlign: 'center' }}>
         <AvatarBadge variant="dot" status="online" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Online</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Online
+        </p>
       </div>
-      <div>
+      <div style={{ textAlign: 'center' }}>
         <AvatarBadge variant="dot" status="busy" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Busy</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Busy
+        </p>
       </div>
-      <div>
+      <div style={{ textAlign: 'center' }}>
         <AvatarBadge variant="dot" status="away" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Away</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Away
+        </p>
       </div>
-      <div>
+      <div style={{ textAlign: 'center' }}>
         <AvatarBadge variant="dot" status="offline" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Offline</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Offline
+        </p>
       </div>
-      <div>
+      <div style={{ textAlign: 'center' }}>
         <AvatarBadge variant="number" count={9} />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Number</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Number
+        </p>
       </div>
     </div>
   ),

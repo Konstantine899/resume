@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { AvatarBadge } from './AvatarBadge';
 
 describe('AvatarBadge', () => {
@@ -67,5 +67,31 @@ describe('AvatarBadge', () => {
     const { container } = render(<AvatarBadge variant="dot" />);
     const badge = container.firstChild as HTMLElement;
     expect(badge).toHaveStyle({ width: '10px', height: '10px' });
+  });
+
+  it('has correct role and aria-label', () => {
+    render(<AvatarBadge status="online" />);
+    const badge = screen.getByRole('status');
+    expect(badge).toHaveAttribute('aria-label', 'Status: online');
+  });
+
+  it('has tabIndex for keyboard accessibility', () => {
+    render(<AvatarBadge />);
+    const badge = screen.getByRole('status');
+    expect(badge).toHaveAttribute('tabIndex', '0');
+  });
+
+  it('handles Enter key press', () => {
+    render(<AvatarBadge />);
+    const badge = screen.getByRole('status');
+    fireEvent.keyDown(badge, { key: 'Enter' });
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('handles Space key press', () => {
+    render(<AvatarBadge />);
+    const badge = screen.getByRole('status');
+    fireEvent.keyDown(badge, { key: ' ' });
+    expect(badge).toBeInTheDocument();
   });
 });

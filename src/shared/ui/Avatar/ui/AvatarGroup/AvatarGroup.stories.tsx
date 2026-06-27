@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Avatar } from '../Avatar/Avatar';
 import { AvatarGroup } from './AvatarGroup';
+import avatar1 from '../Avatar/assets/avatar.jpg';
+import avatar2 from '../Avatar/assets/avatar001.jpg';
+import avatar3 from '../Avatar/assets/avatar003.jpg';
 
 const meta = {
-  title: 'Shared/Avatar/AvatarGroup',
+  title: 'Shared/Avatar/Group',
   component: AvatarGroup,
   parameters: {
     layout: 'centered',
@@ -36,9 +39,9 @@ export const Default: Story = {
     variant: 'circle',
     children: (
       <>
-        <Avatar alt="User 1" />
-        <Avatar alt="User 2" />
-        <Avatar alt="User 3" />
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
         <Avatar alt="User 4" />
         <Avatar alt="User 5" />
       </>
@@ -53,9 +56,9 @@ export const WithMax: Story = {
     variant: 'circle',
     children: (
       <>
-        <Avatar alt="User 1" />
-        <Avatar alt="User 2" />
-        <Avatar alt="User 3" />
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
         <Avatar alt="User 4" />
         <Avatar alt="User 5" />
       </>
@@ -70,9 +73,9 @@ export const Small: Story = {
     variant: 'circle',
     children: (
       <>
-        <Avatar alt="User 1" />
-        <Avatar alt="User 2" />
-        <Avatar alt="User 3" />
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
       </>
     ),
   },
@@ -85,9 +88,9 @@ export const Large: Story = {
     variant: 'circle',
     children: (
       <>
-        <Avatar alt="User 1" />
-        <Avatar alt="User 2" />
-        <Avatar alt="User 3" />
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
       </>
     ),
   },
@@ -100,9 +103,9 @@ export const Square: Story = {
     variant: 'square',
     children: (
       <>
-        <Avatar alt="User 1" />
-        <Avatar alt="User 2" />
-        <Avatar alt="User 3" />
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
       </>
     ),
   },

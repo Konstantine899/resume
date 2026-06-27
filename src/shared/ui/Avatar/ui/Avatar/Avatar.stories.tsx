@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Avatar } from './Avatar';
+import { AvatarBadge } from '../AvatarBadge/AvatarBadge';
+import { AvatarStatus } from '../AvatarStatus/AvatarStatus';
+import { AvatarGroup } from '../AvatarGroup/AvatarGroup';
+import avatar1 from './assets/avatar.jpg';
+import avatar2 from './assets/avatar001.jpg';
+import avatar3 from './assets/avatar003.jpg';
 
 const meta: Meta<typeof Avatar> = {
-  title: 'Shared/UI/Avatar',
+  title: 'Shared/Avatar',
   component: Avatar,
   parameters: {
     layout: 'centered',
@@ -69,164 +75,109 @@ const meta: Meta<typeof Avatar> = {
 export default meta;
 type Story = StoryObj<typeof Avatar>;
 
+/**
+ * Quick start: Basic avatar with initials.
+ * For more variants, see AvatarHero, AvatarAbout subcomponents.
+ */
 export const Default: Story = {
   args: {
-    alt: 'Avatar',
+    alt: 'User',
     size: 'md',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Default avatar with fallback initials.',
-      },
-    },
-  },
-};
-
-export const WithImage: Story = {
-  args: {
-    src: 'https://i.pravatar.cc/150?img=1',
-    alt: 'User Avatar',
-    size: 'md',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Avatar with image source.',
-      },
-    },
-  },
-};
-
-export const AllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-      <Avatar alt="SM" size="sm" />
-      <Avatar alt="MD" size="md" />
-      <Avatar alt="LG" size="lg" />
-      <Avatar alt="XL" size="xl" />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'All avatar sizes: sm (32px), md (48px), lg (64px), xl (96px).',
-      },
-    },
-  },
-};
-
-export const Loading: Story = {
-  args: {
-    alt: 'Loading...',
-    size: 'md',
-    showSkeleton: true,
-    forceLoading: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Avatar with skeleton loading state. Shows ripple animation while image is loading.',
-      },
-    },
-  },
-};
-
-export const LoadingAllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-      <Avatar alt="SM" size="sm" showSkeleton forceLoading />
-      <Avatar alt="MD" size="md" showSkeleton forceLoading />
-      <Avatar alt="LG" size="lg" showSkeleton forceLoading />
-      <Avatar alt="XL" size="xl" showSkeleton forceLoading />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'All avatar sizes with skeleton loading state.',
-      },
-    },
-  },
-};
-
-export const WithoutSkeleton: Story = {
-  args: {
-    alt: 'No Skeleton',
-    size: 'md',
-    showSkeleton: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Avatar with skeleton disabled. Shows fallback immediately if no src.',
-      },
-    },
-  },
-};
-
-export const Error: Story = {
-  args: {
-    src: 'invalid-url.jpg',
-    alt: 'Error State',
-    size: 'md',
-    showSkeleton: false,
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Avatar with invalid image URL. Shows fallback (initials) after image fails to load.',
+          'Quick start: Basic avatar with initials (48px). For hero variants with effects, see AvatarHero. For About section variants, see AvatarAbout.',
       },
     },
   },
 };
 
-export const LoadingThenError: Story = {
-  args: {
-    src: 'invalid-url.jpg',
-    alt: 'Loading Then Error',
-    size: 'md',
-    showSkeleton: true,
-  },
+/**
+ * Avatar with status badge composition.
+ * Shows how to use AvatarBadge inside Avatar.
+ */
+export const WithBadge: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)' }}>
+      <Avatar src={avatar1} alt="User" size="md">
+        <AvatarBadge variant="dot" status="online" />
+      </Avatar>
+      <Avatar src={avatar2} alt="User" size="md">
+        <AvatarBadge variant="dot" status="busy" />
+      </Avatar>
+      <Avatar src={avatar3} alt="User" size="md">
+        <AvatarBadge variant="number" count={5} />
+      </Avatar>
+    </div>
+  ),
   parameters: {
     docs: {
       description: {
         story:
-          'Avatar showing loading skeleton first, then fallback after image fails to load. Demonstrates full loading → error flow.',
+          'Avatar with badge (status indicator or notification count). Badge is positioned automatically.',
       },
     },
   },
 };
 
-export const HeroStyle: Story = {
-  args: {
-    alt: 'Hero Avatar',
-    size: 'xl',
-    heroStyle: true,
-    showGlow: true,
-    showRing: true,
-  },
+/**
+ * Avatar with status indicator composition.
+ * Shows how to use AvatarStatus inside Avatar.
+ */
+export const WithStatus: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)' }}>
+      <Avatar src={avatar1} alt="Online User" size="md">
+        <AvatarStatus status="online" />
+      </Avatar>
+      <Avatar src={avatar2} alt="Busy User" size="md">
+        <AvatarStatus status="busy" />
+      </Avatar>
+      <Avatar src={avatar3} alt="Away User" size="md">
+        <AvatarStatus status="away" />
+      </Avatar>
+      <Avatar alt="Offline User" size="md">
+        <AvatarStatus status="offline" />
+      </Avatar>
+    </div>
+  ),
   parameters: {
     docs: {
       description: {
-        story: 'Hero variant with gradient border, glow effect, and decorative ring.',
+        story: 'Avatar with status indicator. Shows user availability status.',
       },
     },
   },
 };
 
-export const SquareVariant: Story = {
-  args: {
-    alt: 'Square Avatar',
-    size: 'md',
-    variant: 'square',
-    showSkeleton: true,
-  },
+/**
+ * Avatar in group composition.
+ * Shows how to use Avatar inside AvatarGroup.
+ */
+export const InGroup: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg, 24px)' }}>
+      <AvatarGroup max={4} size="md">
+        <Avatar src={avatar1} alt="User 1" />
+        <Avatar src={avatar2} alt="User 2" />
+        <Avatar src={avatar3} alt="User 3" />
+        <Avatar alt="User 4" />
+        <Avatar alt="User 5" />
+      </AvatarGroup>
+      <AvatarGroup max={2} size="sm">
+        <Avatar alt="A" />
+        <Avatar alt="B" />
+        <Avatar alt="C" />
+      </AvatarGroup>
+    </div>
+  ),
   parameters: {
     docs: {
       description: {
-        story: 'Square variant with rounded corners.',
+        story:
+          'Avatar used in AvatarGroup. Shows overflow indicator (+N) when more avatars than max.',
       },
     },
   },

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AvatarStatus } from './AvatarStatus';
 
 const meta = {
-  title: 'Shared/Avatar/AvatarStatus',
+  title: 'Shared/Avatar/Status',
   component: AvatarStatus,
   parameters: {
     layout: 'centered',
@@ -45,22 +45,30 @@ export const Away: Story = {
 
 export const AllStatuses: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)', alignItems: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <AvatarStatus status="online" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Online</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Online
+        </p>
       </div>
       <div style={{ textAlign: 'center' }}>
         <AvatarStatus status="busy" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Busy</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Busy
+        </p>
       </div>
       <div style={{ textAlign: 'center' }}>
         <AvatarStatus status="away" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Away</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Away
+        </p>
       </div>
       <div style={{ textAlign: 'center' }}>
         <AvatarStatus status="offline" />
-        <p style={{ marginTop: '8px', fontSize: '12px' }}>Offline</p>
+        <p style={{ marginTop: 'var(--spacing-xs, 8px)', fontSize: 'var(--font-size-xs, 12px)' }}>
+          Offline
+        </p>
       </div>
     </div>
   ),

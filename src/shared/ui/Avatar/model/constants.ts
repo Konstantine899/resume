@@ -1,17 +1,17 @@
 import { AvatarSize, AvatarStatus, AvatarVariant } from './types';
 
 export const AVATAR_SIZES: Record<AvatarSize, number> = {
-  sm: 32,
-  md: 48,
-  lg: 64,
-  xl: 96,
+  sm: 100,
+  md: 200,
+  lg: 300,
+  xl: 300,
 };
 
 export const SIZE_MAP: Record<AvatarSize, string> = {
-  sm: '32px',
-  md: '48px',
-  lg: '64px',
-  xl: '96px',
+  sm: '100px',
+  md: '200px',
+  lg: '300px',
+  xl: '300px',
 };
 
 export const INITIAL_COLOR_VAR = '--avatar-initial-color';

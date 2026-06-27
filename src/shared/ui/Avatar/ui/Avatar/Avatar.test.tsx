@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { Avatar } from './Avatar';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
 import fallbackStyles from '../AvatarFallback/AvatarFallback.module.scss';
@@ -197,6 +197,24 @@ describe('Avatar', () => {
       );
 
       expect(container.firstChild).toHaveAttribute('data-loading', 'true');
+    });
+  });
+
+  describe('Callbacks', () => {
+    it('calls onError when image fails to load', () => {
+      const onError = vi.fn();
+      render(<Avatar src="invalid.jpg" onError={onError} showSkeleton={false} />);
+      const img = document.querySelector('img');
+      fireEvent.error(img!);
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('calls onLoad when image loads successfully', () => {
+      const onLoad = vi.fn();
+      render(<Avatar src="valid.jpg" onLoad={onLoad} showSkeleton={false} />);
+      const img = document.querySelector('img');
+      fireEvent.load(img!);
+      expect(onLoad).toHaveBeenCalled();
     });
   });
 });

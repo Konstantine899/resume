@@ -73,6 +73,8 @@ export interface AvatarFallbackProps {
   name?: string;
   /** Размер аватара */
   size?: AvatarSize;
+  /** Форма аватара */
+  variant?: AvatarVariant;
   /** Максимальное количество инициалей (по умолчанию 2) */
   maxInitials?: number;
   /** Дополнительный CSS класс */

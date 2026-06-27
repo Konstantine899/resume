@@ -10,74 +10,89 @@ import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import styles from './Avatar.module.scss';
 
-export const Avatar: React.FC<AvatarProps> = ({
-  src,
-  alt = 'Avatar',
-  size = 'md',
-  variant = 'circle',
-  fallback,
-  showSkeleton = true,
-  forceLoading = false,
-  className = '',
-  onError,
-  onLoad,
-  children,
-}) => {
-  const normalizedSrc = src === '' ? undefined : src;
-  const { isLoading, hasError, handleError, handleLoad } = useAvatar(
-    normalizedSrc ?? '',
-    forceLoading
-  );
+export const Avatar = React.memo(
+  ({
+    src,
+    alt = 'Avatar',
+    size = 'md',
+    variant = 'circle',
+    fallback,
+    showSkeleton = true,
+    forceLoading = false,
+    className = '',
+    onError,
+    onLoad,
+    heroStyle,
+    showGlow,
+    showRing,
+    children,
+  }: AvatarProps) => {
+    const normalizedSrc = src === '' ? undefined : src;
+    const { isLoading, hasError, handleError, handleLoad } = useAvatar(
+      normalizedSrc ?? '',
+      forceLoading
+    );
 
-  const showFallback = !normalizedSrc || hasError;
-  const showSkeletonState = showSkeleton && isLoading && !hasError;
+    const showFallback = !normalizedSrc || hasError;
+    const showSkeletonState = showSkeleton && isLoading && !hasError;
 
-  const handleImageError = React.useCallback(
-    (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      handleError();
-      onError?.(event);
-    },
-    [handleError, onError]
-  );
+    const handleImageError = React.useCallback(
+      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        handleError();
+        onError?.(event);
+      },
+      [handleError, onError]
+    );
 
-  const handleImageLoad = React.useCallback(
-    (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      handleLoad();
-      onLoad?.(event);
-    },
-    [handleLoad, onLoad]
-  );
+    const handleImageLoad = React.useCallback(
+      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        handleLoad();
+        onLoad?.(event);
+      },
+      [handleLoad, onLoad]
+    );
 
-  return (
-    <div
-      className={classNames(styles.avatar, styles[size], styles[variant], className)}
-      role="img"
-      aria-label={alt}
-      data-loading={isLoading}
-      data-error={hasError}
-    >
-      {showSkeletonState ? (
-        <div className={styles.skeletonWrapper}>
-          <Skeleton
-            variant="circular"
-            width={SIZE_MAP[size]}
-            height={SIZE_MAP[size]}
-            className={styles.skeleton}
+    return (
+      <div
+        className={classNames(styles.avatar, styles[size], styles[variant], className, {
+          [styles.heroStyle]: heroStyle,
+        })}
+        role="img"
+        aria-label={alt}
+        data-loading={isLoading}
+        data-error={hasError}
+      >
+        {showGlow && <div className={styles.glow} />}
+        {showRing && <div className={styles.ring} />}
+        {showSkeletonState ? (
+          <div className={styles.skeletonWrapper}>
+            <Skeleton
+              variant="circular"
+              width={SIZE_MAP[size]}
+              height={SIZE_MAP[size]}
+              className={styles.skeleton}
+            />
+          </div>
+        ) : showFallback ? (
+          fallback || (
+            <div className={styles.fallback}>
+              <AvatarFallback name={alt} size={size} variant={variant} />
+            </div>
+          )
+        ) : (
+          <AvatarImage
+            src={normalizedSrc}
+            alt={alt}
+            size={size}
+            variant={variant}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
           />
-        </div>
-      ) : showFallback ? (
-        fallback || <AvatarFallback name={alt} size={size} />
-      ) : (
-        <AvatarImage
-          src={normalizedSrc}
-          alt={alt}
-          size={size}
-          variant={variant}
-          onError={handleImageError}
-          onLoad={handleImageLoad}
-        />
-      )}
-      {children}
-    </div>
-  );
-};
+        )}
+        {children}
+      </div>
+    );
+  }
+);
+
+Avatar.displayName = 'Avatar';

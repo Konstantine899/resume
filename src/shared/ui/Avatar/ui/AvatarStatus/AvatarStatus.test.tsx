@@ -31,19 +31,22 @@ describe('AvatarStatus', () => {
   it('applies correct background color for online', () => {
     const { container } = render(<AvatarStatus status="online" />);
     const status = container.firstChild as HTMLElement;
-    expect(status).toHaveStyle({ backgroundColor: 'rgb(34, 197, 94)' });
+    expect(status.className).toContain('online');
+    // Background color is now applied via CSS classes, not inline styles
   });
 
   it('applies correct background color for offline', () => {
     const { container } = render(<AvatarStatus status="offline" />);
     const status = container.firstChild as HTMLElement;
-    expect(status).toHaveStyle({ backgroundColor: 'rgb(156, 163, 175)' });
+    expect(status.className).toContain('offline');
+    // Background color is now applied via CSS classes, not inline styles
   });
 
   it('applies correct background color for busy', () => {
     const { container } = render(<AvatarStatus status="busy" />);
     const status = container.firstChild as HTMLElement;
-    expect(status).toHaveStyle({ backgroundColor: 'rgb(239, 68, 68)' });
+    expect(status.className).toContain('busy');
+    // Background color is now applied via CSS classes, not inline styles
   });
 
   it('renders with custom className', () => {

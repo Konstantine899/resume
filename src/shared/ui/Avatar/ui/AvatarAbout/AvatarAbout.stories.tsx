@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import avatar1 from '../Avatar/assets/avatar003.jpg';
 import { AvatarAbout } from './AvatarAbout';
 
 const meta: Meta<typeof AvatarAbout> = {
-  title: 'Shared/UI/Avatar/About',
+  title: 'Shared/Avatar/About',
   component: AvatarAbout,
   parameters: {
     layout: 'centered',
@@ -77,15 +78,16 @@ export const Default: Story = {
 
 export const WithImage: Story = {
   args: {
-    src: 'https://i.pravatar.cc/150?img=1',
+    src: avatar1,
     alt: 'User Avatar',
     size: 'lg',
     maxInitials: 2,
+    showSkeleton: false,
   },
   parameters: {
     docs: {
       description: {
-        story: 'AvatarAbout with image source.',
+        story: 'AvatarAbout with image source and gradient border.',
       },
     },
   },
@@ -93,7 +95,7 @@ export const WithImage: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)', alignItems: 'center' }}>
       <AvatarAbout alt="SM" size="sm" maxInitials={2} />
       <AvatarAbout alt="MD" size="md" maxInitials={2} />
       <AvatarAbout alt="LG" size="lg" maxInitials={2} />
@@ -102,7 +104,7 @@ export const AllSizes: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All AvatarAbout sizes: sm (3rem), md (4rem), lg (6-8rem responsive).',
+        story: 'All AvatarAbout sizes: sm (100px), md (200px), lg (300px).',
       },
     },
   },
@@ -121,23 +123,6 @@ export const Loading: Story = {
       description: {
         story:
           'AvatarAbout with skeleton loading state. Shows ripple animation while image is loading.',
-      },
-    },
-  },
-};
-
-export const LoadingAllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <AvatarAbout alt="SM" size="sm" showSkeleton maxInitials={2} forceLoading />
-      <AvatarAbout alt="MD" size="md" showSkeleton maxInitials={2} forceLoading />
-      <AvatarAbout alt="LG" size="lg" showSkeleton maxInitials={2} forceLoading />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'All AvatarAbout sizes with skeleton loading state.',
       },
     },
   },
@@ -172,24 +157,6 @@ export const Error: Story = {
       description: {
         story:
           'AvatarAbout with invalid image URL. Shows fallback (initials) after image fails to load.',
-      },
-    },
-  },
-};
-
-export const LoadingThenError: Story = {
-  args: {
-    src: 'invalid-url.jpg',
-    alt: 'Loading Then Error',
-    size: 'lg',
-    maxInitials: 2,
-    showSkeleton: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'AvatarAbout showing loading skeleton first, then fallback after image fails to load. Demonstrates full loading → error flow.',
       },
     },
   },

@@ -8,113 +8,157 @@
   align-items: center;
   justify-content: center;
 
-  // Sizes with proportional border thickness
+  // Sizes
   &.sm {
-    width: $avatar-photo-sm;
-    height: $avatar-photo-sm;
+    width: 100px;
+    height: 100px;
 
-    .photoCircle {
+    .photo-circle {
       padding: 2px;
     }
 
     .initial {
-      font-size: 1rem;
+      font-size: 2.5rem;
+
       @include avatar-initial;
     }
   }
 
   &.md {
-    width: $avatar-photo-md;
-    height: $avatar-photo-md;
+    width: 200px;
+    height: 200px;
 
-    .photoCircle {
-      padding: 3px;
+    .photo-circle {
+      padding: 4px;
     }
 
     .initial {
-      font-size: 1.75rem;
+      font-size: 4rem;
+
       @include avatar-initial;
     }
   }
 
   &.lg {
-    width: $avatar-photo-lg;
-    height: $avatar-photo-lg;
+    width: 300px;
+    height: 300px;
 
-    .photoCircle {
-      padding: 4px;
+    .photo-circle {
+      padding: 6px;
     }
 
     .initial {
-      font-size: 2.5rem;
+      font-size: 6rem;
+
       @include avatar-initial;
     }
   }
 
   &.xl {
-    width: $avatar-photo-xl;
-    height: $avatar-photo-xl;
+    width: 300px;
+    height: 300px;
 
-    .photoCircle {
-      padding: $spacing-sm;
+    .photo-circle {
+      padding: 6px;
     }
 
     .initial {
-      font-size: 3.75rem;
+      font-size: 6rem;
+
       @include avatar-initial;
-    }
-
-    @include xl {
-      width: $avatar-photo-2xl;
-      height: $avatar-photo-2xl;
-
-      .initial {
-        font-size: 6rem;
-      }
-    }
-
-    @include xxl {
-      width: $avatar-photo-3xl;
-      height: $avatar-photo-3xl;
-
-      .initial {
-        font-size: 7.5rem;
-      }
     }
   }
 
   // Effects
-  .photoGlow {
+  .photo-glow {
     @include avatar-glow;
   }
 
-  .photoRing {
+  .photo-ring {
     @include avatar-ring;
   }
 
-  .photoCircle {
-    @include avatar-circle;
-  }
+  .photo-circle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: $spacing-sm;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    box-shadow: $shadow-xl;
 
-  .photoInner {
-    @include avatar-inner;
+    // Внутренний контейнер для контента
+    .photo-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--card-bg, #292726);
+      border-radius: 50%;
 
-    .initial {
-      @include avatar-initial;
+      [data-theme='light'] & {
+        background: var(--card-bg-light, #f5f3f0);
+      }
+
+      .initial {
+        @include avatar-initial;
+      }
     }
   }
 
-  .photoImage {
+  .photo-image {
     @include avatar-image;
   }
 
-  .skeletonWrapper {
+  .skeleton-wrapper {
     @include avatar-skeleton-wrapper;
   }
 
+  // Hero использует ripple анимацию (вместо shimmer)
   .skeleton {
-    @include avatar-skeleton;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    &::before {
+      position: absolute;
+      inset: -4px;
+      content: '';
+      border: 2px solid var(--primary-light);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ripple 2s ease-out infinite;
+    }
+
+    &::after {
+      position: absolute;
+      inset: -8px;
+      content: '';
+      border: 1px solid var(--primary-light);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ripple 2s ease-out 0.5s infinite;
+    }
   }
 
   @include avatar-reduced-motion;
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 0.6;
+    transform: scale(0);
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
 }

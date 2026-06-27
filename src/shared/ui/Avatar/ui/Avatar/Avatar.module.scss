@@ -33,79 +33,30 @@
     border-radius: 50%;
     box-shadow: $shadow-xl;
 
-    .image {
+    .image,
+    .fallback {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(to bottom right, #1a1918, #292726);
+      background: var(--card-bg, #292726);
       border-radius: 50%;
       transition: background $transition-duration $transition-easing;
 
       [data-theme='light'] & {
-        background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+        background: var(--card-bg-light, #f5f3f0);
       }
     }
   }
 
-  // Hero-like sizes with proportional border thickness
+  // Sizes
   &.sm {
-    width: 32px;
-    height: 32px;
+    width: 100px;
+    height: 100px;
 
     &.heroStyle {
-      width: 3rem;
-      height: 3rem;
-      padding: 2px; // Тонкая рамка для маленьких размеров
-
-      .initial {
-        font-size: 1rem;
-
-        @include hero-initial;
-      }
-    }
-  }
-
-  &.md {
-    width: 48px;
-    height: 48px;
-
-    &.heroStyle {
-      width: 5rem;
-      height: 5rem;
-      padding: 3px; // Среднее кольцо
-      background: var(--gradient-primary);
-      border-radius: 50%;
-      box-shadow: $shadow-xl;
-
-      .image {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(to bottom right, #1a1918, #292726);
-        border-radius: 50%;
-        transition: background $transition-duration $transition-easing;
-
-        [data-theme='light'] & {
-          background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
-        }
-      }
-
-      .initial {
-        font-size: 1.75rem;
-
-        @include hero-initial;
-      }
-    }
-  }
-
-  &.lg {
-    width: 64px;
-    height: 64px;
-
-    &.heroStyle {
-      width: 8rem;
-      height: 8rem;
-      padding: 4px; // Более толстое кольцо
+      width: 100px;
+      height: 100px;
+      padding: 2px;
 
       .initial {
         font-size: 2.5rem;
@@ -115,17 +66,67 @@
     }
   }
 
-  &.xl {
-    width: 96px;
-    height: 96px;
+  &.md {
+    width: 200px;
+    height: 200px;
 
     &.heroStyle {
-      width: 14rem;
-      height: 14rem;
-      padding: $spacing-sm; // Оригинальная толщина (8px)
+      width: 200px;
+      height: 200px;
+      padding: 4px;
+      background: var(--gradient-primary);
+      border-radius: 50%;
+      box-shadow: $shadow-xl;
+
+      .image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-bg, #292726);
+        border-radius: 50%;
+        transition: background $transition-duration $transition-easing;
+
+        [data-theme='light'] & {
+          background: var(--card-bg-light, #f5f3f0);
+        }
+      }
 
       .initial {
-        font-size: 3.75rem;
+        font-size: 4rem;
+
+        @include hero-initial;
+      }
+    }
+  }
+
+  &.lg {
+    width: 300px;
+    height: 300px;
+
+    &.heroStyle {
+      width: 300px;
+      height: 300px;
+      padding: 6px;
+
+      .initial {
+        font-size: 6rem;
+
+        @include hero-initial;
+      }
+    }
+  }
+
+  &.xl {
+    width: 300px;
+    height: 300px;
+
+    &.heroStyle {
+      width: 300px;
+      height: 300px;
+      padding: 6px;
+
+      .initial {
+        font-size: 6rem;
 
         @include hero-initial;
       }
@@ -182,18 +183,19 @@
   }
 }
 
-// Skeleton with ripple animation
-.skeletonWrapper {
+// Skeleton with shimmer animation
+.skeleton-wrapper {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom right, #1a1918, #292726);
+  overflow: hidden;
+  background: var(--card-bg, #292726);
   border-radius: 50%;
 
   [data-theme='light'] & {
-    background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+    background: var(--card-bg-light, #f5f3f0);
   }
 }
 
@@ -201,42 +203,24 @@
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: visible;
-
-  &::before {
-    position: absolute;
-    inset: -4px;
-    content: '';
-    border: 2px solid var(--primary-light);
-    border-radius: 50%;
-    opacity: 0;
-    animation: ripple 2s ease-out infinite;
-  }
-
-  &::after {
-    position: absolute;
-    inset: -8px;
-    content: '';
-    border: 1px solid var(--primary-light);
-    border-radius: 50%;
-    opacity: 0;
-    animation: ripple 2s ease-out 0.5s infinite;
-  }
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base, rgb(255 255 255 / 0.1)) 0%,
+    var(--skeleton-highlight, rgb(255 255 255 / 0.2)) 50%,
+    var(--skeleton-base, rgb(255 255 255 / 0.1)) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 50%;
+  animation: shimmer 1.5s infinite;
 }
 
-@keyframes ripple {
+@keyframes shimmer {
   0% {
-    opacity: 0.6;
-    transform: scale(0);
-  }
-
-  50% {
-    opacity: 0.4;
+    background-position: -200% 0;
   }
 
   100% {
-    opacity: 0;
-    transform: scale(2);
+    background-position: 200% 0;
   }
 }
 
@@ -265,4 +249,14 @@
   border-radius: 50%;
   opacity: 0.2;
   transform: scale(1.1);
+}
+
+// Badge and Status positioning
+> .badge,
+> .status {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  transform: translate(25%, 25%);
 }

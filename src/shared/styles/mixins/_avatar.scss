@@ -1,4 +1,5 @@
 // Avatar Mixins
+
 // Общие стили для всех Avatar компонентов
 
 @use '@/shared/styles/variables' as *;
@@ -9,37 +10,38 @@
  */
 @mixin avatar-initial {
   font-weight: 700;
-  color: #f4b377; // Фиксированный оранжевый цвет (не зависит от темы)
   line-height: 1;
+  color: #f4b377; // Фиксированный оранжевый цвет (не зависит от темы)
 }
 
 /**
- * Миксин для skeleton с ripple анимацией
+ * Миксин для skeleton с shimmer анимацией
  */
 @mixin avatar-skeleton {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0.1) 0%,
+    rgb(255 255 255 / 0.2) 50%,
+    rgb(255 255 255 / 0.1) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 50%;
+  animation: shimmer 1.5s infinite;
+}
 
-  &::before {
-    position: absolute;
-    inset: -4px;
-    content: '';
-    border: 2px solid var(--primary-light);
-    border-radius: 50%;
-    opacity: 0;
-    animation: ripple 2s ease-out infinite;
+/**
+ * Миксин для shimmer анимации
+ */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
   }
 
-  &::after {
-    position: absolute;
-    inset: -8px;
-    content: '';
-    border: 1px solid var(--primary-light);
-    border-radius: 50%;
-    opacity: 0;
-    animation: ripple 2s ease-out 0.5s infinite;
+  100% {
+    background-position: 200% 0;
   }
 }
 
@@ -52,12 +54,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom right, #1a1918, #292726);
-  border-radius: 50%;
-
-  [data-theme='light'] & {
-    background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
-  }
 }
 
 /**
@@ -107,12 +103,11 @@
 /**
  * Миксин для gradient border (видимое кольцо)
  */
-@mixin avatar-circle($padding: $spacing-sm) {
+@mixin avatar-circle($padding: null) {
   position: relative;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: $padding;
-  background: var(--gradient-primary);
   border-radius: 50%;
   box-shadow: $shadow-xl;
 }
@@ -132,11 +127,13 @@
  */
 @mixin avatar-reduced-motion {
   @media (prefers-reduced-motion: reduce) {
-    .photoGlow {
+    .photo-glow {
       animation: none;
     }
 
     .skeleton {
+      animation: none;
+
       &::before,
       &::after {
         animation: none;

@@ -1,5 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Skeleton } from '@/shared/ui/Skeleton';
+import { AvatarSpinner } from '../AvatarSpinner/AvatarSpinner';
 import React from 'react';
 
 import { useAvatar } from '../../hooks/useAvatar';
@@ -18,52 +18,52 @@ export interface AvatarHeroProps {
   children?: React.ReactNode;
 }
 
-export const AvatarHero: React.FC<AvatarHeroProps> = ({
-  src,
-  alt = 'Avatar',
-  size = 'xl',
-  className = '',
-  showGlow = false,
-  showRing = false,
-  showSkeleton = true,
-  forceLoading = false,
-  children,
-}) => {
-  const { isLoading, hasError, handleError, handleLoad } = useAvatar(src, forceLoading);
+export const AvatarHero = React.memo(
+  ({
+    src,
+    alt = 'Avatar',
+    size = 'xl',
+    className = '',
+    showGlow = false,
+    showRing = false,
+    showSkeleton = true,
+    forceLoading = false,
+    children,
+  }: AvatarHeroProps) => {
+    const { isLoading, hasError, handleError, handleLoad } = useAvatar(src, forceLoading);
 
-  const showFallback = !src || hasError;
-  const showSkeletonState = showSkeleton && isLoading && !hasError;
+    const showFallback = !src || hasError;
+    const showSkeletonState = showSkeleton && isLoading && !hasError;
 
-  const handleImageError = React.useCallback(
-    (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      handleError();
-    },
-    [handleError]
-  );
+    const handleImageError = React.useCallback(
+      (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        handleError();
+      },
+      [handleError]
+    );
 
-  const handleImageLoad = React.useCallback(() => {
-    handleLoad();
-  }, [handleLoad]);
+    const handleImageLoad = React.useCallback(() => {
+      handleLoad();
+    }, [handleLoad]);
 
-  return (
-    <div
-      className={classNames(styles.avatarHero, styles[size], className)}
-      role="img"
-      aria-label={alt}
-      data-loading={isLoading}
-      data-error={hasError}
-    >
-      {showGlow && <div className={styles.photoGlow} />}
-      {showRing && <div className={styles.photoRing} />}
+    return (
+      <div
+        className={classNames(styles.avatarHero, styles[size], className)}
+        role="img"
+        aria-label={alt}
+        data-loading={isLoading}
+        data-error={hasError}
+      >
+        {showGlow && <div className={styles.photoGlow} />}
+        {showRing && <div className={styles.photoRing} />}
 
-      <div className={styles.photoCircle}>
-        {showSkeletonState ? (
-          <div className={styles.skeletonWrapper}>
-            <Skeleton variant="circular" className={styles.skeleton} />
-          </div>
-        ) : (
+        <div className={styles.photoCircle}>
           <div className={styles.photoInner}>
-            {showFallback ? (
+            {showSkeletonState ? (
+              <div className={styles.skeletonWrapper}>
+                <AvatarSpinner size={size} />
+              </div>
+            ) : showFallback ? (
               <span className={styles.initial}>
                 {getInitials(alt, { maxInitials: 1, index: 1 })}
               </span>
@@ -80,10 +80,12 @@ export const AvatarHero: React.FC<AvatarHeroProps> = ({
               />
             )}
           </div>
-        )}
-      </div>
+        </div>
 
-      {children}
-    </div>
-  );
-};
+        {children}
+      </div>
+    );
+  }
+);
+
+AvatarHero.displayName = 'AvatarHero';

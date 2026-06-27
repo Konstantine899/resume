@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import avatar1 from '../Avatar/assets/avatar003.jpg';
 import { AvatarHero } from './AvatarHero';
 
 const meta: Meta<typeof AvatarHero> = {
-  title: 'Shared/UI/Avatar/Hero',
+  title: 'Shared/Avatar/Hero',
   component: AvatarHero,
   parameters: {
     layout: 'centered',
@@ -85,16 +86,17 @@ export const Default: Story = {
 
 export const WithImage: Story = {
   args: {
-    src: 'https://i.pravatar.cc/150?img=1',
+    src: avatar1,
     alt: 'Hero Avatar',
     size: 'xl',
     showGlow: true,
     showRing: true,
+    showSkeleton: false,
   },
   parameters: {
     docs: {
       description: {
-        story: 'AvatarHero with image source.',
+        story: 'AvatarHero with image source and hero effects (gradient border, glow, ring).',
       },
     },
   },
@@ -102,7 +104,7 @@ export const WithImage: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--spacing-lg, 24px)', alignItems: 'center' }}>
       <AvatarHero alt="SM" size="sm" showGlow showRing />
       <AvatarHero alt="MD" size="md" showGlow showRing />
       <AvatarHero alt="LG" size="lg" showGlow showRing />
@@ -137,28 +139,12 @@ export const Loading: Story = {
   },
 };
 
-export const LoadingAllSizes: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-      <AvatarHero alt="SM" size="sm" showSkeleton forceLoading />
-      <AvatarHero alt="MD" size="md" showSkeleton forceLoading />
-      <AvatarHero alt="LG" size="lg" showSkeleton forceLoading />
-      <AvatarHero alt="XL" size="xl" showSkeleton forceLoading />
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'All AvatarHero sizes with skeleton loading state.',
-      },
-    },
-  },
-};
-
 export const WithoutSkeleton: Story = {
   args: {
     alt: 'No Skeleton',
     size: 'xl',
+    showGlow: true,
+    showRing: true,
     showSkeleton: false,
   },
   parameters: {
@@ -184,25 +170,6 @@ export const Error: Story = {
       description: {
         story:
           'AvatarHero with invalid image URL. Shows fallback (initials) after image fails to load.',
-      },
-    },
-  },
-};
-
-export const LoadingThenError: Story = {
-  args: {
-    src: 'invalid-url.jpg',
-    alt: 'Loading Then Error',
-    size: 'xl',
-    showGlow: true,
-    showRing: true,
-    showSkeleton: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'AvatarHero showing loading skeleton first, then fallback after image fails to load. Demonstrates full loading → error flow with effects.',
       },
     },
   },

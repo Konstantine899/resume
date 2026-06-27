@@ -1,3 +1,15 @@
+/**
+ * Custom hook for avatar image loading state management.
+ *
+ * @param src - Image URL to load
+ * @param forceLoading - Force loading state (useful for skeleton demonstrations)
+ * @returns Object with loading state, error state, and handlers:
+ *   - isLoading: boolean - true while the image is loading
+ *   - hasError: boolean - true if the image failed to load
+ *   - handleError: () => void - called internally when the image fails
+ *   - handleLoad: () => void - called internally when the image loads
+ *   - reset: () => void - reset loading state
+ */
 import { useEffect, useState, useCallback } from 'react';
 
 export const useAvatar = (src?: string, forceLoading?: boolean) => {
