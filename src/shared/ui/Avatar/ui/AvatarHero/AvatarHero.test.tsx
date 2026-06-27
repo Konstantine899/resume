@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { AvatarHero } from './AvatarHero';
 
 describe('AvatarHero', () => {
@@ -77,6 +77,41 @@ describe('AvatarHero', () => {
   it('has data-loading attribute when loading', () => {
     const { container } = render(<AvatarHero alt="Test" forceLoading />);
     const avatar = container.firstChild as HTMLElement;
+    expect(avatar).toHaveAttribute('data-loading', 'true');
+  });
+
+  it('calls handleError on image error', () => {
+    const testSrc = 'test-image.jpg';
+    const { container, rerender } = render(
+      <AvatarHero alt="Test" src={testSrc} showSkeleton={false} />
+    );
+    const img = container.querySelector('img') as HTMLImageElement;
+    fireEvent.error(img);
+    rerender(<AvatarHero alt="Test" src={testSrc} showSkeleton={false} />);
+    const avatar = container.firstChild as HTMLElement;
+    expect(avatar).toHaveAttribute('data-error', 'true');
+  });
+
+  it('calls handleLoad on image load', () => {
+    const testSrc = 'test-image.jpg';
+    const { container, rerender } = render(
+      <AvatarHero alt="Test" src={testSrc} showSkeleton={false} />
+    );
+    const img = container.querySelector('img') as HTMLImageElement;
+    fireEvent.load(img);
+    rerender(<AvatarHero alt="Test" src={testSrc} showSkeleton={false} />);
+    const avatar = container.firstChild as HTMLElement;
+    expect(avatar).toHaveAttribute('data-loading', 'false');
+  });
+
+  it('shows skeleton on initial load', () => {
+    render(<AvatarHero alt="Test" src="/test.jpg" />);
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('shows initial loading state', () => {
+    render(<AvatarHero alt="Test" src="/test.jpg" />);
+    const avatar = document.querySelector('[role="img"]') as HTMLElement;
     expect(avatar).toHaveAttribute('data-loading', 'true');
   });
 });
