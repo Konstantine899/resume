@@ -4,8 +4,8 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
 
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { getInitials } from '@/shared/lib/utils';
 import { Code } from '@/shared/ui/Code';
+import { AvatarHero } from '@/shared/ui/Avatar';
 import React from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
@@ -130,23 +130,13 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Right side - Photo */}
         <div className={styles.rightContent}>
-          <div className={styles.photoContainer}>
-            {/* Outer glow effect */}
-            <div className={styles.photoGlow} />
-
-            {/* Photo circle */}
-            <div className={styles.photoCircle}>
-              <div className={styles.photoInner}>
-                {/* Placeholder with initials */}
-                <span className={styles.initial}>
-                  {getInitials(DEVELOPER_DATA.fullName, { maxInitials: 1, index: 1 })}{' '}
-                </span>
-              </div>
-            </div>
-
-            {/* Decorative ring */}
-            <div className={styles.photoRing} />
-          </div>
+          <AvatarHero
+            alt={DEVELOPER_DATA.fullName}
+            size="xl"
+            showGlow
+            showRing
+            showSkeleton={false}
+          />
         </div>
       </div>
     </section>
