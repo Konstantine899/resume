@@ -4,79 +4,15 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
 
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import avatarImage from '@/shared/ui/Avatar/ui/Avatar/assets/avatar003.jpg';
 import { Code } from '@/shared/ui/Code';
-import { AvatarHero } from '@/shared/ui/Avatar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
+import { HeroAvatar } from './HeroAvatar';
+import SkillsCode from './SkillsCode/SkillsCode';
 
-const SkillsCode: React.FC = () => {
-  const skills = DEVELOPER_DATA.skills;
-
-  return (
-    <>
-      <span className="keyword">const</span> <span className="property">developer</span> ={' '}
-      <span className="punctuation">{'{'}</span>
-      {'\n'}
-      {'  '}
-      <span className="property">fullName</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.fullName}&apos;</span>,{'\n'}
-      {'  '}
-      <span className="property">profession</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.profession}&apos;</span>,{'\n'}
-      {'  '}
-      <span className="property">yearsOfExperience</span>:{' '}
-      <span className="number">{DEVELOPER_DATA.yearsOfExperience}</span>,{'\n'}
-      {'  '}
-      <span className="property">age</span>: <span className="number">{DEVELOPER_DATA.age}</span>,
-      {'\n'}
-      {'  '}
-      <span className="property">skills</span>: <span className="punctuation">{'{'}</span>
-      {'\n'}
-      {'    '}
-      <span className="property">frontend</span>: <span className="punctuation">[</span>
-      {skills?.frontend.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.frontend.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">backend</span>: <span className="punctuation">[</span>
-      {skills?.backend.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.backend.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">testing</span>: <span className="punctuation">[</span>
-      {skills?.testing.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.testing.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">devops</span>: <span className="punctuation">[</span>
-      {skills?.devops.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.devops.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>
-      {'\n'}
-      {'  '}
-      <span className="punctuation">{'}'}</span>
-      {'\n'}
-      <span className="punctuation">{'};'}</span>
-    </>
-  );
-};
+type AvatarState = 'loading' | 'loaded' | 'error';
 
 /**
  * Hero Feature Component
@@ -88,6 +24,19 @@ export const Hero: React.FC<HeroProps> = ({
   'data-testid': testId = 'hero',
 }) => {
   const { t } = useLanguage();
+  const [avatarState, setAvatarState] = useState<AvatarState>('loading');
+
+  // Имитация загрузки аватара (для демонстрации состояний)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Можно переключать состояния для тестирования:
+      // 'loaded' — успех
+      // 'error' — ошибка
+      setAvatarState('loaded');
+    }, 2000); // 2 секунды имитация загрузки
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section id="home" className={`${styles.hero} ${className}`} data-testid={testId}>
@@ -129,15 +78,11 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Right side - Photo */}
-        <div className={styles.rightContent}>
-          <AvatarHero
-            alt={DEVELOPER_DATA.fullName}
-            size="xl"
-            showGlow
-            showRing
-            showSkeleton={false}
-          />
-        </div>
+        <HeroAvatar
+          state={avatarState}
+          fullName={DEVELOPER_DATA.fullName}
+          avatarImage={avatarImage}
+        />
       </div>
     </section>
   );
