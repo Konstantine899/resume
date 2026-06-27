@@ -2,7 +2,6 @@ export type {
   AvatarAboutProps,
   AvatarBadgeProps,
   AvatarBadgeVariant,
-  AvatarGroupProps,
   AvatarHeroProps,
   AvatarImageProps,
   AvatarProps,
@@ -16,6 +15,5 @@ export { AvatarAbout } from './ui/AvatarAbout/AvatarAbout';
 export { AvatarHero } from './ui/AvatarHero/AvatarHero';
 export { AvatarBadge } from './ui/AvatarBadge/AvatarBadge';
 export { AvatarFallback } from './ui/AvatarFallback/AvatarFallback';
-export { AvatarGroup } from './ui/AvatarGroup/AvatarGroup';
 export { AvatarImage } from './ui/AvatarImage/AvatarImage';
 export { AvatarStatus } from './ui/AvatarStatus/AvatarStatus';

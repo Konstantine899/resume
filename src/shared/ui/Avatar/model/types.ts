@@ -96,22 +96,6 @@ export interface AvatarBadgeProps {
 }
 
 /**
- * Props для компонента AvatarGroup (группа аватаров)
- */
-export interface AvatarGroupProps {
-  /** Дочерние Avatar компоненты */
-  children: React.ReactNode;
-  /** Максимальное количество отображаемых аватаров (остальные скрываются) */
-  max?: number;
-  /** Размер аватаров в группе */
-  size?: AvatarSize;
-  /** Форма аватаров */
-  variant?: AvatarVariant;
-  /** Дополнительный CSS класс */
-  className?: string;
-}
-
-/**
  * Props для компонента AvatarImage (изображение аватара)
  */
 export interface AvatarImageProps {
