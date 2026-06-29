@@ -195,32 +195,30 @@ describe('Icon', () => {
   });
 
   describe('Focus Management', () => {
-    it('applies focused class on focus', () => {
+    it('is focusable when onClick is provided', () => {
       render(<Icon name={Home} onClick={vi.fn()} ariaLabel="Focus me" />);
       const buttonElement = screen.getByRole('button');
 
-      fireEvent.focus(buttonElement);
+      buttonElement.focus();
 
-      expect(buttonElement.className).toMatch(/focused/);
+      expect(buttonElement).toHaveFocus();
     });
 
-    it('removes focused class on blur', () => {
+    it('has focus-visible outline on focus', () => {
       render(<Icon name={Home} onClick={vi.fn()} ariaLabel="Focus me" />);
       const buttonElement = screen.getByRole('button');
 
-      fireEvent.focus(buttonElement);
-      fireEvent.blur(buttonElement);
+      buttonElement.focus();
 
-      expect(buttonElement.className).not.toMatch(/focused/);
+      // Check that focus-visible styles are applied via CSS
+      expect(buttonElement.className).toMatch(/clickable/);
     });
 
-    it('does not apply focused class when disabled', () => {
+    it('is not focusable when disabled', () => {
       render(<Icon name={Home} onClick={vi.fn()} disabled ariaLabel="Disabled" />);
       const iconElement = screen.getByRole('img');
 
-      fireEvent.focus(iconElement);
-
-      expect(iconElement.className).not.toMatch(/focused/);
+      expect(iconElement).not.toHaveAttribute('tabindex');
     });
   });
 

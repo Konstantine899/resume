@@ -1,9 +1,14 @@
+// Focus styles
+$icon-focus-outline: 2px solid var(--primary);
+$icon-focus-radius: 4px;
+$icon-transition: 0.2s ease;
+
 .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   vertical-align: middle;
-  transition: opacity 0.2s ease;
+  transition: opacity $icon-transition;
 
   &.clickable {
     cursor: pointer;
@@ -17,15 +22,9 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: $icon-focus-outline;
       outline-offset: 2px;
-      border-radius: 4px;
-    }
-
-    &.focused {
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
-      border-radius: 4px;
+      border-radius: $icon-focus-radius;
     }
   }
 
