@@ -1,10 +1,10 @@
 import type { HTMLAttributes } from 'react';
 
-export type LoaderVariant = 'spinner' | 'dots' | 'pulse';
+export type LoaderVariant = 'spinner' | 'dots' | 'pulse' | 'double-ring';
 
-export type LoaderSize = 'sm' | 'md' | 'lg';
+export type LoaderSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
-export type LoaderColor = 'primary' | 'secondary' | 'accent';
+export type LoaderColor = 'primary' | 'secondary' | 'accent' | 'orange';
 
 export interface LoaderProps extends HTMLAttributes<HTMLDivElement> {
   /** Вариант лоадера */

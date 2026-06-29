@@ -18,19 +18,22 @@ const meta = {
 - **spinner** - классический крутящийся индикатор
 - **dots** - три пульсирующие точки
 - **pulse** - пульсирующий круг
+- **double-ring** - два вращающихся кольца (внешнее по часовой, внутреннее против)
 
 ## Размеры:
-- **sm** (16px), **md** (24px), **lg** (32px)
+- **xs** (12px), **sm** (24px), **md** (32px), **lg** (48px), **xl** (64px), **xxl** (96px)
 
 ## Цвета:
-- **primary** - основной цвет темы (#f4b377)
+- **primary** - основной цвет загрузчика (#de8041)
 - **secondary** - вторичный цвет (#6c757d)
 - **accent** - акцентный цвет (#50abc5)
+- **orange** - оранжевый (#f4b377)
 
 ## Accessibility:
 - \`role="status"\` - объявляет состояние загрузки скринридерам
 - \`aria-busy="true"\` - указывает на активный процесс загрузки
 - \`aria-label\` - текстовое описание для ассистивных технологий
+- \`prefers-reduced-motion\` - автоматическое отключение анимации
 
 ## Примеры использования:
 
@@ -38,6 +41,7 @@ const meta = {
 <Loader variant="spinner" size="md" color="primary" />
 <Loader variant="dots" size="lg" color="accent" />
 <Loader variant="pulse" size="sm" color="secondary" />
+<Loader variant="double-ring" size="xl" color="primary" /> // Для Avatar
 \`\`\`
         `,
       },
@@ -52,17 +56,17 @@ const meta = {
   argTypes: {
     variant: {
       control: 'radio',
-      options: ['spinner', 'dots', 'pulse'],
+      options: ['spinner', 'dots', 'pulse', 'double-ring'],
       description: 'Вариант лоадера',
     },
     size: {
       control: 'radio',
-      options: ['sm', 'md', 'lg'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
       description: 'Размер лоадера',
     },
     color: {
       control: 'radio',
-      options: ['primary', 'secondary', 'accent'],
+      options: ['primary', 'secondary', 'accent', 'orange'],
       description: 'Цвет лоадера',
     },
     label: {
@@ -126,6 +130,22 @@ export const Pulse: Story = {
   ),
 };
 
+export const DoubleRing: Story = {
+  render: () => (
+    <ThemeContainer>
+      <Loader variant="double-ring" size="md" color="primary" />
+    </ThemeContainer>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Два вращающихся кольца — внешний по часовой стрелке, внутренний против. Используется в Avatar компонентах.',
+      },
+    },
+  },
+};
+
 // ============================================
 // Sizes
 // ============================================
@@ -154,6 +174,22 @@ export const Large: Story = {
   ),
 };
 
+export const ExtraLarge: Story = {
+  render: () => (
+    <ThemeContainer>
+      <Loader variant="spinner" size="xl" color="primary" />
+    </ThemeContainer>
+  ),
+};
+
+export const DoubleExtraLarge: Story = {
+  render: () => (
+    <ThemeContainer>
+      <Loader variant="spinner" size="xxl" color="primary" />
+    </ThemeContainer>
+  ),
+};
+
 // ============================================
 // Colors
 // ============================================
@@ -178,6 +214,14 @@ export const Accent: Story = {
   render: () => (
     <ThemeContainer>
       <Loader variant="spinner" size="md" color="accent" />
+    </ThemeContainer>
+  ),
+};
+
+export const Orange: Story = {
+  render: () => (
+    <ThemeContainer>
+      <Loader variant="spinner" size="md" color="orange" />
     </ThemeContainer>
   ),
 };
@@ -243,7 +287,7 @@ export const FullScreen: Story = {
 export const AllVariants: Story = {
   render: () => (
     <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ textAlign: 'center' }}>
           <Loader variant="spinner" size="md" color="primary" />
           <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
@@ -262,6 +306,12 @@ export const AllVariants: Story = {
             Pulse
           </p>
         </div>
+        <div style={{ textAlign: 'center' }}>
+          <Loader variant="double-ring" size="md" color="primary" />
+          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+            Double Ring
+          </p>
+        </div>
       </div>
     </ThemeContainer>
   ),
@@ -274,18 +324,30 @@ export const AllVariants: Story = {
 export const AllSizes: Story = {
   render: () => (
     <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>SM (16px)</span>
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>XS (12px)</span>
+          <Loader variant="spinner" size="xs" color="primary" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>SM (24px)</span>
           <Loader variant="spinner" size="sm" color="primary" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>MD (24px)</span>
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>MD (32px)</span>
           <Loader variant="spinner" size="md" color="primary" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>LG (32px)</span>
-          <Loader variant="spinner" size="lg" color="primary" />
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>LG (48px)</span>
+          <Loader variant="double-ring" size="lg" color="primary" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>XL (64px)</span>
+          <Loader variant="double-ring" size="xl" color="primary" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>XXL (96px)</span>
+          <Loader variant="double-ring" size="xxl" color="primary" />
         </div>
       </div>
     </ThemeContainer>
@@ -327,4 +389,81 @@ export const ThemeComparison: Story = {
       </div>
     </div>
   ),
+};
+
+// ============================================
+// Avatar Use Case
+// ============================================
+
+export const AvatarLoading: Story = {
+  render: () => (
+    <div
+      style={{
+        display: 'flex',
+        gap: '32px',
+        alignItems: 'center',
+        padding: '32px',
+        backgroundColor: 'var(--background)',
+      }}
+    >
+      {/* Avatar About (lg) */}
+      <div style={{ textAlign: 'center' }}>
+        <Loader variant="double-ring" size="lg" color="primary" label="Loading avatar" />
+        <p style={{ fontSize: '12px', marginTop: '16px', color: 'var(--foreground-muted)' }}>
+          Avatar About (LG)
+        </p>
+      </div>
+
+      {/* Avatar Hero (xl) */}
+      <div style={{ textAlign: 'center' }}>
+        <Loader variant="double-ring" size="xl" color="primary" label="Loading avatar" />
+        <p style={{ fontSize: '12px', marginTop: '16px', color: 'var(--foreground-muted)' }}>
+          Avatar Hero (XL)
+        </p>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Использование Loader в Avatar компонентах. Double-ring variant с primary цветом (#DE8041) для консистентности с дизайном.',
+      },
+    },
+  },
+};
+
+// ============================================
+// Reduced Motion Demo
+// ============================================
+
+export const ReducedMotion: Story = {
+  render: () => (
+    <ThemeContainer>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+        <p style={{ fontSize: '14px', color: 'var(--foreground-muted)', marginBottom: '8px' }}>
+          При включении <code>prefers-reduced-motion</code> в ОС анимация автоматически отключается
+        </p>
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+          <Loader variant="spinner" size="md" color="primary" />
+          <Loader variant="dots" size="md" color="primary" />
+          <Loader variant="pulse" size="md" color="primary" />
+          <Loader variant="double-ring" size="md" color="primary" />
+        </div>
+      </div>
+    </ThemeContainer>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Accessibility фича — при включении `prefers-reduced-motion` в настройках ОС все анимации автоматически отключаются.',
+      },
+    },
+    a11y: {
+      config: {
+        rules: [{ id: 'color-contrast', enabled: true }],
+      },
+    },
+  },
 };

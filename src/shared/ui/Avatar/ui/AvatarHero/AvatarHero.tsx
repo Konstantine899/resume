@@ -1,5 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { AvatarSpinner } from '../AvatarSpinner/AvatarSpinner';
+import { Loader } from '@/shared/ui/Loader';
 import React from 'react';
 
 import { useAvatar } from '../../hooks/useAvatar';
@@ -61,7 +61,7 @@ export const AvatarHero = React.memo(
           <div className={styles.photoInner}>
             {showSkeletonState ? (
               <div className={styles.skeletonWrapper}>
-                <AvatarSpinner size={size} />
+                <Loader variant="double-ring" size={size} color="primary" label="Loading avatar" />
               </div>
             ) : showFallback ? (
               <span className={styles.initial}>

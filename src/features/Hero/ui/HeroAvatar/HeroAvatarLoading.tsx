@@ -1,5 +1,5 @@
-import React from 'react';
 import { AvatarHero } from '@/shared/ui/Avatar';
+import React from 'react';
 
 interface HeroAvatarLoadingProps {
   fullName: string;

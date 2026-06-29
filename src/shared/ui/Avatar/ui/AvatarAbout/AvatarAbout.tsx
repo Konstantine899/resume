@@ -1,5 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { AvatarSpinner } from '../AvatarSpinner/AvatarSpinner';
+import { Loader } from '@/shared/ui/Loader';
 import React from 'react';
 
 import { useAvatar } from '../../hooks/useAvatar';
@@ -9,7 +9,7 @@ import styles from './AvatarAbout.module.scss';
 export interface AvatarAboutProps {
   alt: string;
   src?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   maxInitials?: number;
   showSkeleton?: boolean;
@@ -53,7 +53,7 @@ export const AvatarAbout = React.memo(
         <div className={styles.avatarCircle}>
           {showSkeletonState ? (
             <div className={styles.skeletonWrapper}>
-              <AvatarSpinner size={size} />
+              <Loader variant="double-ring" size="lg" color="primary" label="Loading avatar" />
             </div>
           ) : (
             <div className={styles.avatarInner}>

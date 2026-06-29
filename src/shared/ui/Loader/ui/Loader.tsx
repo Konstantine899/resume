@@ -3,12 +3,18 @@ import { memo } from 'react';
 import type { LoaderProps } from '../model/types';
 import styles from './Loader.module.scss';
 
+// Accessibility props для screen readers
+const accessibilityProps = {
+  role: 'status' as const,
+  'aria-busy': 'true' as const,
+};
+
 export const Loader = memo((props: LoaderProps) => {
   const {
     variant = 'spinner',
     size = 'md',
     color = 'primary',
-    label = 'Загрузка...',
+    label = 'Loading',
     className = '',
     ...restProps
   } = props;
@@ -25,14 +31,14 @@ export const Loader = memo((props: LoaderProps) => {
     switch (variant) {
       case 'spinner':
         return (
-          <div className={styles.spinner} role="status" aria-label={label} aria-busy="true">
+          <div className={styles.spinner} {...accessibilityProps} aria-label={label}>
             <div className={styles.spinnerCircle} />
           </div>
         );
 
       case 'dots':
         return (
-          <div className={styles.dots} role="status" aria-label={label} aria-busy="true">
+          <div className={styles.dots} {...accessibilityProps} aria-label={label}>
             <span className={styles.dot} />
             <span className={styles.dot} />
             <span className={styles.dot} />
@@ -41,13 +47,23 @@ export const Loader = memo((props: LoaderProps) => {
 
       case 'pulse':
         return (
-          <div className={styles.pulse} role="status" aria-label={label} aria-busy="true">
+          <div className={styles.pulse} {...accessibilityProps} aria-label={label}>
             <div className={styles.pulseCircle} />
           </div>
         );
 
+      case 'double-ring':
+        return (
+          <div className={styles.doubleRing} {...accessibilityProps} aria-label={label}>
+            <div className={styles.outerRing} />
+            <div className={styles.innerRing} />
+          </div>
+        );
+
       default:
-        return null;
+        throw new Error(
+          `Unknown variant: ${variant}. Valid variants: spinner, dots, pulse, double-ring`
+        );
     }
   };
 
