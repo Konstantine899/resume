@@ -44,16 +44,3 @@
     transform: translateY(0);
   }
 }
-
-// Mixins
-@mixin animate-theme-spin {
-  animation: theme-spin 0.6s ease-in-out;
-}
-
-@mixin animate-globe-rotate($duration: 2s) {
-  animation: globe-rotate $duration linear infinite;
-}
-
-@mixin animate-language-fade {
-  animation: language-fade 0.3s ease-in-out;
-}

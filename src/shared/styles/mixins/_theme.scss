@@ -36,16 +36,3 @@
 @mixin card-gradient {
   @include card;
 }
-
-// Work history card
-@mixin work-history-card {
-  background: rgb(41 39 38 / 0.8);
-  border-left: 4px solid $primary-light;
-  border-radius: $border-radius-lg;
-  backdrop-filter: blur(8px);
-  transition: background-color 0.4s ease;
-
-  [data-theme='light'] & {
-    background: rgb(255 255 255 / 0.9);
-  }
-}

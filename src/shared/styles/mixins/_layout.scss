@@ -33,16 +33,6 @@
   flex-direction: column;
 }
 
-// Grid utilities
-@mixin grid-cols($cols) {
-  display: grid;
-  grid-template-columns: repeat(#{$cols}, 1fr);
-}
-
-@mixin grid-gap($gap) {
-  gap: $gap;
-}
-
 // Container mixin
 @mixin container {
   width: 100%;
