@@ -154,3 +154,87 @@ export interface ModalProps {
    */
   trapFocus?: boolean;
 }
+
+// ============================================
+// Sub-components Props
+// ============================================
+
+export interface ModalHeaderProps {
+  /**
+   * Заголовок модального окна
+   */
+  title?: string;
+
+  /**
+   * Подзаголовок
+   */
+  subtitle?: string;
+
+  /**
+   * Показывать кнопку закрытия
+   * @default true
+   */
+  showCloseButton?: boolean;
+
+  /**
+   * Callback при закрытии
+   */
+  onClose: () => void;
+
+  /**
+   * ID заголовка для aria-labelledby
+   */
+  titleId?: string;
+
+  /**
+   * ID подзаголовка для aria-describedby
+   */
+  subtitleId?: string;
+}
+
+export interface ModalContentProps {
+  /**
+   * Контент модального окна
+   */
+  children: ReactNode;
+
+  /**
+   * Дополнительные CSS-классы
+   */
+  className?: string;
+}
+
+export interface ModalFooterProps {
+  /**
+   * Контент футера (кнопки)
+   */
+  children: ReactNode;
+
+  /**
+   * Дополнительные CSS-классы
+   */
+  className?: string;
+}
+
+export interface ModalCloseButtonProps {
+  /**
+   * Callback при клике
+   */
+  onClose: () => void;
+
+  /**
+   * ARIA label
+   * @default 'Закрыть модальное окно'
+   */
+  ariaLabel?: string;
+}
+
+export interface ModalRootProps extends Omit<
+  ModalProps,
+  'title' | 'subtitle' | 'footer' | 'showCloseButton'
+> {
+  /**
+   * Контент (обычно Modal.Header + Modal.Content + Modal.Footer)
+   */
+  children: ReactNode;
+}

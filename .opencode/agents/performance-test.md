@@ -1,7 +1,7 @@
 ---
 name: performance-test
 description: Performance тестирование React компонентов и FSD архитектуры
-model: ollama-cloud/glm-4.6:cloud
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # ⚡ Senior Performance Test Agent

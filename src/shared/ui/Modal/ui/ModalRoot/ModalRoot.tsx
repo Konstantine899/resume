@@ -1,31 +1,29 @@
 // ============================================
-// Modal Component
+// Modal Root Component (основная логика)
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
 import { Overlay } from '@/shared/ui/Overlay';
 import { Portal } from '@/shared/ui/Portal';
-import { X } from 'lucide-react';
-import { memo, useEffect, useId, useLayoutEffect, useRef } from 'react';
-import type { ModalProps } from '../model/types';
-import styles from './Modal.module.scss';
+import { memo, useCallback, useEffect, useId, useLayoutEffect, useRef } from 'react';
+import type { ModalRootProps } from '../../model/types';
+import styles from '../../Modal.module.scss';
 
-export const Modal = memo((props: ModalProps) => {
+// Global counter for multiple modals scroll blocking (используем useRef для атомарности и SSR safety)
+let openCount = 0;
+
+export const ModalRoot = memo((props: ModalRootProps) => {
   const {
     children,
     isOpen,
     onClose,
-    title,
-    subtitle,
-    footer,
     size = 'md',
     overlay = true,
     closeOnOverlayClick = true,
     closeOnEsc = true,
     blockScroll = true,
     className = '',
-    showCloseButton = true,
     ariaLabel = 'Modal dialog',
     disableAnimation = false,
     onOpened,
@@ -40,38 +38,50 @@ export const Modal = memo((props: ModalProps) => {
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const focusTimeoutRef = useRef<number | null>(null);
   const untrapFocusRef = useRef<(() => void) | null>(null);
+  const wasOpenedRef = useRef<boolean>(false);
   const titleId = useId();
-  const isOpenRef = useRef(isOpen);
+  const subtitleId = useId();
 
-  // Блокировка скролла body (useLayoutEffect для избежания мигания)
+  // Блокировка скролла body с поддержкой множественных модалок (SSR-safe)
   useLayoutEffect(() => {
-    if (!blockScroll || !isOpen) return;
+    // SSR guard — useLayoutEffect не должен выполняться на сервере
+    if (typeof window === 'undefined') return;
+    if (!blockScroll) return;
 
-    document.body.style.overflow = 'hidden';
+    if (isOpen) {
+      openCount++;
+      if (openCount === 1) {
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
     return () => {
-      document.body.style.overflow = '';
+      openCount--;
+      if (openCount === 0) {
+        document.body.style.overflow = '';
+      }
     };
   }, [isOpen, blockScroll]);
 
-  // Проверка canClose
-  const canCloseModal = (): boolean => {
+  // Проверка canClose (useCallback для оптимизации)
+  const canCloseModal = useCallback((): boolean => {
     if (typeof canClose === 'boolean') return canClose;
     return canClose();
-  };
+  }, [canClose]);
 
-  // Обработчик ESC
-  const handleEscKey = () => {
+  // Обработчик ESC (useCallback для оптимизации)
+  const handleEscKey = useCallback(() => {
     if (canCloseModal()) {
       onClose();
     }
-  };
+  }, [canCloseModal, onClose]);
 
-  // Закрытие по ESC
+  // Закрытие по ESC (с проверкой defaultPrevented)
   useEffect(() => {
     if (!isOpen || !closeOnEsc) return;
 
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         handleEscKey();
       }
     };
@@ -80,9 +90,9 @@ export const Modal = memo((props: ModalProps) => {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, closeOnEsc, handleEscKey]);
 
-  // Focus Trap
+  // Focus Trap (с проверкой modalRef.current)
   useEffect(() => {
-    if (!isOpen || !trapFocus) return;
+    if (!isOpen || !trapFocus || !modalRef.current) return;
 
     untrapFocusRef.current = focusTrap(modalRef.current);
 
@@ -92,11 +102,16 @@ export const Modal = memo((props: ModalProps) => {
     };
   }, [isOpen, trapFocus]);
 
-  // Auto-focus и управление фокусом
+  // Auto-focus и управление фокусом (с очисткой таймера)
   useEffect(() => {
-    isOpenRef.current = isOpen;
+    // Очистка предыдущего таймера
+    if (focusTimeoutRef.current) {
+      clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = null;
+    }
 
     if (isOpen) {
+      wasOpenedRef.current = true;
       previousActiveElement.current = document.activeElement as HTMLElement;
 
       // Фокус на первый интерактивный элемент или на модалку
@@ -108,56 +123,49 @@ export const Modal = memo((props: ModalProps) => {
           } else {
             modalRef.current.focus();
           }
-        } else {
-          modalRef.current?.focus();
+        } else if (modalRef.current) {
+          modalRef.current.focus();
         }
 
         // Callback после открытия
         onOpened?.();
       }, 0);
-    } else {
-      // Возвращаем фокус
-      if (restoreFocus && previousActiveElement.current) {
-        previousActiveElement.current.focus();
-      }
-
-      // Callback после закрытия
-      onClosed?.();
     }
 
+    // Cleanup при закрытии или unmount
     return () => {
       if (focusTimeoutRef.current) {
         clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+
+      // Вызываем onClosed только если модалка была открыта
+      if (wasOpenedRef.current && previousActiveElement.current) {
+        if (restoreFocus) {
+          previousActiveElement.current.focus();
+        }
+        onClosed?.();
+        wasOpenedRef.current = false;
       }
     };
   }, [isOpen, autoFocus, restoreFocus, onOpened, onClosed]);
 
-  // Обработка клика на overlay
-  const handleOverlayClick = () => {
+  // Обработка клика на overlay (useCallback для оптимизации)
+  const handleOverlayClick = useCallback(() => {
     if (closeOnOverlayClick && canCloseModal()) {
-      try {
-        onClose();
-      } catch (error) {
-        console.error('Modal onClose error:', error);
-      }
-    }
-  };
-
-  // Обработка клика на кнопку закрытия
-  const handleCloseClick = () => {
-    if (canCloseModal()) {
       onClose();
     }
-  };
+  }, [closeOnOverlayClick, canCloseModal, onClose]);
 
-  if (!isOpen) return null;
-
+  // Вычисляем className напрямую (classNames очень быстрая)
   const modalClassName = classNames(
     styles.modal,
-    styles[size],
+    styles[`modal--${size}`],
     disableAnimation && styles.noAnimation,
     className
   );
+
+  if (!isOpen) return null;
 
   return (
     <Portal>
@@ -177,46 +185,18 @@ export const Modal = memo((props: ModalProps) => {
           className={modalClassName}
           role="dialog"
           aria-modal="true"
-          aria-labelledby={title ? titleId : undefined}
+          aria-labelledby={titleId}
+          aria-describedby={subtitleId}
           aria-label={ariaLabel}
-          tabIndex={-1}
+          tabIndex={0}
         >
-          {/* Header */}
-          {(title || showCloseButton) && (
-            <header className={styles.header}>
-              {title && (
-                <div className={styles.headerContent}>
-                  <h2 id={titleId} className={styles.title}>
-                    {title}
-                  </h2>
-                  {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
-                </div>
-              )}
-
-              {showCloseButton && (
-                <button
-                  type="button"
-                  className={styles.closeButton}
-                  onClick={handleCloseClick}
-                  aria-label="Закрыть модальное окно"
-                >
-                  <X size={20} />
-                </button>
-              )}
-            </header>
-          )}
-
-          {/* Content */}
-          <div className={styles.content}>{children}</div>
-
-          {/* Footer */}
-          {footer && <footer className={styles.footer}>{footer}</footer>}
+          {children}
         </div>
       </div>
     </Portal>
   );
 });
 
-Modal.displayName = 'Modal';
+ModalRoot.displayName = 'ModalRoot';
 
-export default Modal;
+export default ModalRoot;

@@ -1,7 +1,7 @@
 ---
 name: fsd-validator
 description: Валидация FSD архитектуры с автоматическим исправлением нарушений
-model: ollama/qwen2.5-coder:32b
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # 🛡️ FSD Validator Agent - Senior Grade

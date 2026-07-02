@@ -1,7 +1,7 @@
 ---
 name: critic
 description: Адверсариальный code review, поиск уязвимостей и edge cases
-model: ollama-cloud/qwen3-coder:480b-cloud
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # 🔍 Critic Agent — Адверсариальный Code Review

@@ -1,7 +1,7 @@
 ---
 name: test-generation
 description: Генерация unit и integration тестов (Vitest)
-model: ollama-cloud/gpt-oss:20b-cloud
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # Test Generation Agent — Генерация тестов

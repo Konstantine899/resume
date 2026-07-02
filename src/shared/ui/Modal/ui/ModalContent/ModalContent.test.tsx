@@ -1,0 +1,40 @@
+// ============================================
+// Modal Content Component Tests
+// ============================================
+
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { ModalContent } from './ModalContent';
+
+describe('ModalContent', () => {
+  it('должен рендерить children', () => {
+    render(<ModalContent>Test Content</ModalContent>);
+    expect(screen.getByText('Test Content')).toBeInTheDocument();
+  });
+
+  it('должен рендерить сложные children', () => {
+    render(
+      <ModalContent>
+        <div>
+          <h2>Header</h2>
+          <p>Paragraph</p>
+        </div>
+      </ModalContent>
+    );
+    expect(screen.getByText('Header')).toBeInTheDocument();
+    expect(screen.getByText('Paragraph')).toBeInTheDocument();
+  });
+
+  it('должен применять кастомный className', () => {
+    render(<ModalContent className="custom-class">Content</ModalContent>);
+    const content = screen.getByText('Content');
+    expect(content).toHaveClass('custom-class');
+  });
+
+  it('должен иметь default className из styles', () => {
+    render(<ModalContent>Content</ModalContent>);
+    const content = screen.getByText('Content');
+    expect(content.className).toContain('content');
+  });
+});
