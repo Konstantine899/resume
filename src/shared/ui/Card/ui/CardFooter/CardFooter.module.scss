@@ -1,0 +1,16 @@
+@use '@/shared/styles/variables' as *;
+
+.cardFooter {
+  padding-top: $spacing-md;
+  margin-top: $spacing-md;
+
+  &.withBorder {
+    border-top: 1px solid var(--card-border);
+  }
+
+  &:first-child {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: none;
+  }
+}

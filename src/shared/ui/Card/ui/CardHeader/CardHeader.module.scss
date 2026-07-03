@@ -1,0 +1,14 @@
+@use '@/shared/styles/variables' as *;
+
+.cardHeader {
+  margin-bottom: $spacing-md;
+
+  &.withBorder {
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
