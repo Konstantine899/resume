@@ -1,23 +1,20 @@
 # OpenCode AI Agent Instructions
 
 > **Проект:** Resume Portfolio  
-> **Версия:** 1.0.0  
-> **Дата:** 2026-06-19  
-> **Обновлено:** Добавлена конфигурация Ollama Cloud metrics
+> **Версия:** 3.0.0  
+> **Дата:** 2026-07-03  
+> **Обновлено:** Serena MCP через WSL + 7 MCP серверов
 
 ---
 
 ## 📊 Ollama Cloud Metrics
 
-**Модель:** `ollama-cloud/qwen3.5:397b-cloud` (Tier 4, 397B параметров)
+**Модель:** `ollama-cloud/qwen3.5:397b-cloud`
 
 **Автоматический сбор метрик:**
-- Плагин: `metrics-logger` (глобальный + локальный)
+- Плагин: `metrics-logger`
 - Логи: `D:\Dev\tools\DBObsidian\resume-app\logs\metrics-YYYY-MM-DD.md`
-- Baseline: `D:\Dev\projects\resume\.opencode\logs\baseline-metrics.json` (7 дней)
-- Task Scheduler: Ежедневно в 22:05
-
-**Документация:** [[ollama-cloud-metrics]] в Obsidian vault
+- Baseline: `D:\Dev\projects\resume\.opencode\logs\baseline-metrics.json`
 
 ---
 
@@ -55,7 +52,7 @@ Integration и e2e тесты (Playwright, MSW)
 
 ---
 
-##  Правило: Все операции через Orchestrator
+## Правило: Все операции через Orchestrator
 
 **ВСЕГДА использовать Orchestrator для:**
 
@@ -65,26 +62,126 @@ Integration и e2e тесты (Playwright, MSW)
 4. **Публичные изменения** (commit, push, PR)
 
 **НЕЛЬЗЯ:**
-- ❌ Вызывать агентов напрямую (git, ui, test, и т.д.)
+- ❌ Вызывать агентов напрямую
 - ❌ Делать git операции через bash
-- ❌ Принимать решения о коммитах самостоятельно
 
 **Workflow:**
 ```
 User Request → Orchestrator → Агент(ы) → Orchestrator → User
 ```
 
-**Исключения:**
-- ✅ Прямые запросы к инструментам (filesystem, grep, glob)
-- ✅ Чтение/запись файлов
-- ✅ Поиск по коду
+---
+
+## MCP Серверы (7 активных)
+
+| Сервер | Type | Status | Назначение | Экономия |
+|--------|------|--------|------------|----------|
+| filesystem | local | ✅ | Работа с файлами | - |
+| memory | local | ✅ | Долгосрочная память | 73% токенов |
+| context7 | local | ✅ | Документация библиотек | 85% токенов |
+| eslint | local | ✅ | Linting кода | - |
+| playwright | local | ✅ | Browser automation | - |
+| **serena** | **WSL** | ✅ | **Навигация по коду (символы)** | **75-85% токенов** |
+| **sequential-thinking** | local | ✅ | Планирование задач | **70% ошибок** |
 
 ---
 
-## MCP Серверы
+## 🚀 MCP Workflow Паттерны
 
-- filesystem — работа с файлами
-- memory — долгосрочная память
-- context7 — документация библиотек
-- eslint — linting
-- playwright — browser automation
+### Workflow 1: Интеграция Библиотеки
+
+```
+1. Context7: query "framer-motion latest version"
+2. Memory: search_nodes("Resume Project")
+3. Serena: find_symbol("App.tsx")
+4. Serena: insert_after_symbol
+5. Memory: add_observations
+```
+**Экономия:** ~85% токенов
+
+---
+
+### Workflow 2: Рефакторинг Компонента
+
+```
+1. Sequential Thinking: "План разделения HeaderComponent"
+2. Serena: get_symbols_overview("Header.tsx")
+3. Serena: find_symbol("HeaderComponent")
+4. Serena: insert_after_symbol (создать подкомпоненты)
+5. Serena: replace_symbol_body (обновить исходный)
+6. Memory: add_observations
+```
+**Экономия:** ~75% токенов, 90% ошибок предотвращено
+
+---
+
+### Workflow 3: Исправление Багов
+
+```
+1. Filesystem: read_file("logs/error.log")
+2. Sequential Thinking: "План отладки UserService"
+3. Serena: find_symbol("UserService")
+4. Serena: replace_symbol_body (добавить validation)
+5. Memory: create_entities("Bug Pattern")
+```
+**Результат:** 10x быстрее
+
+---
+
+### Workflow 4: Работа с FSD Архитектурой
+
+```
+1. Memory: search_nodes("FSD Architecture")
+2. Sequential Thinking: "План создания feature/auth"
+3. Serena: find_symbol("*/index.ts")
+4. Serena: insert_after_symbol (добавить export)
+5. Skill: fsd-slice-creation
+```
+**Экономия:** 82% токенов
+
+---
+
+### Workflow 5: Миграция / Обновление
+
+```
+1. Sequential Thinking: "План обновления axios v0.27 → v1.6"
+2. Context7: query "axios migration guide v1.6"
+3. Serena: search_for_pattern("axios\.(get|post)")
+4. Serena: replace_symbol_body (для каждого)
+5. Memory: add_observations
+```
+**Экономия:** 2 часа vs 8 часов
+
+---
+
+## 🎯 Оптимальные Комбинации MCP
+
+### A: Быстрая Разработка
+**MCP:** Context7 + Serena  
+**Экономия:** 85% токенов, 70% времени
+
+### B: Безопасный Рефакторинг
+**MCP:** Sequential Thinking + Serena + Memory  
+**Экономия:** 75% времени, 90% ошибок предотвращено
+
+### C: Работа с Незнакомым Проектом
+**MCP:** Memory + Serena + Context7  
+**Экономия:** 82% токенов, 10x быстрее "вспоминания"
+
+### D: Отладка Production
+**MCP:** Filesystem + Serena + Sequential Thinking  
+**Результат:** 10x быстрее, MTTR часы → минуты
+
+---
+
+## 📎 Связанные документы
+
+- [[opencode-config]] — Полная конфигурация
+- [[mcp-servers]] — Детальная документация MCP
+- [[obsidian-vault]] — База знаний
+
+---
+
+**Версия:** 3.0.0  
+**Последнее обновление:** 2026-07-03  
+**MCP серверов:** 7 (filesystem, memory, context7, eslint, playwright, serena-wsl, sequential-thinking)

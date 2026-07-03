@@ -50,11 +50,22 @@
       "command": ["npx", "-y", "@playwright/mcp"],
       "enabled": true
     },
-    "rag": {
+    "sequential-thinking": {
       "type": "local",
-      "command": ["npx", "-y", "mcp-server-rg"],
-      "args": ["--root", "D:/Dev/projects/resume/.opencode", "D:/Dev/tools/DBObsidian"],
-      "enabled": false,
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": true,
+      "timeout": 120000
+    },
+    "serena": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "wsl",
+        "--exec",
+        "bash",
+        "-c",
+        "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"
+      ],
       "timeout": 120000
     }
   },
