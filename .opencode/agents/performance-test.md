@@ -4,6 +4,31 @@ description: Performance тестирование React компонентов �
 model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('performance-test');
+logger.startSpan('task-execution');
+logger.endSpan('task-execution', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'performance-test', duration, {
+  status: 'success',
+  task: 'execution'
+});
+```
+
 # ⚡ Senior Performance Test Agent
 
 **Роль:** Principal Performance Test Architect со специализацией в производительности React компонентов и FSD архитектуры

@@ -6,6 +6,46 @@ model: ollama-cloud/qwen3.5:397b-cloud
 
 # 🔍 Senior FSD Code Review Agent
 
+---
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('review-agent');
+logger.startSpan('code-review', 'serena');
+logger.info('Reviewing', { files: fileCount, agent: context.agent });
+logger.endSpan('code-review', duration, 'success', { issues: issues.length });
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'review', duration, {
+  status: 'success',
+  task: 'code-review',
+  issuesFound: issues.length,
+  filesReviewed: fileCount
+});
+```
+
+**Guard Tiers:**
+```javascript
+// Review читает файлы — low tier (sampling)
+const decision = await guard.check('filesystem:read', filePath, {
+  agent: 'review',
+  context: 'Code review'
+});
+```
+
+---
+
 **Роль:** Principal Frontend Architect со специализацией в FSD, React 19, TypeScript, Redux Toolkit и Storybook
 
 ## 🎯 Технологический стек

@@ -6,7 +6,6 @@
   "logLevel": "INFO",
   "snapshot": true,
   "instructions": [".opencode/docs/AGENTS.md"],
-
   "skills": {
     "paths": [".opencode/skills"]
   },
@@ -20,41 +19,79 @@
   },
 
   "mcp": {
+    "circuitBreaker": {
+      "enabled": true,
+      "threshold": 3,
+      "resetTimeout": 60000,
+      "halfOpenMax": 2,
+      "alertOnOpen": true,
+      "plugin": ".opencode/plugins/circuit-breaker.js"
+    },
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
       "args": ["D:/Dev/projects", "D:/Dev/tools"],
-      "enabled": true
+      "enabled": true,
+      "timeout": 30000,
+      "operationTimeout": {
+        "read": 10000,
+        "write": 15000,
+        "search": 20000
+      }
     },
     "memory": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
       "args": ["--db-path", "D:/Dev/memory.db"],
       "enabled": true,
-      "timeout": 120000
+      "timeout": 30000,
+      "operationTimeout": {
+        "read": 2000,
+        "write": 3000,
+        "search": 5000
+      }
     },
     "context7": {
       "type": "local",
       "command": ["npx", "-y", "@upstash/context7-mcp"],
       "args": ["--api-key", "${CONTEXT7_API_KEY}"],
       "enabled": true,
-      "timeout": 120000
+      "timeout": 15000,
+      "operationTimeout": {
+        "query": 10000,
+        "resolve": 5000
+      },
+      "cache": {
+        "enabled": true,
+        "type": "memory",
+        "maxSize": 100,
+        "ttl": 3600,
+        "plugin": ".opencode/plugins/context7-cache.js",
+        "persistToFile": true,
+        "memoryPath": ".opencode/context/context7-cache.json"
+      }
     },
     "eslint": {
       "type": "local",
       "command": ["npx", "-y", "@eslint/mcp"],
-      "enabled": true
+      "enabled": true,
+      "timeout": 30000
     },
     "playwright": {
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp"],
-      "enabled": true
+      "enabled": true,
+      "timeout": 60000
     },
     "sequential-thinking": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
       "enabled": true,
-      "timeout": 120000
+      "timeout": 90000,
+      "operationTimeout": {
+        "simple": 30000,
+        "complex": 90000
+      }
     },
     "serena": {
       "type": "local",
@@ -66,7 +103,19 @@
         "-c",
         "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"
       ],
-      "timeout": 120000
+      "timeout": 60000,
+      "operationTimeout": {
+        "find_symbol": 30000,
+        "replace_symbol_body": 45000,
+        "get_symbols_overview": 20000,
+        "find_referencing_symbols": 30000
+      },
+      "fallback": {
+        "enabled": true,
+        "strategy": "filesystem_grep",
+        "maxFiles": 50,
+        "alertOnFallback": true
+      }
     }
   },
 

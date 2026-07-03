@@ -4,6 +4,31 @@ description: Интеграционное тестирование FSD слое�
 model: ollama-cloud/gpt-oss:20b-cloud
 ---
 
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('integration-test');
+logger.startSpan('task-execution');
+logger.endSpan('task-execution', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'integration-test', duration, {
+  status: 'success',
+  task: 'execution'
+});
+```
+
 # 🧪 Senior Integration Test Agent
 
 **Роль:** Principal Integration Test Architect со специализацией в тестировании межслойного взаимодействия FSD

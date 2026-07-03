@@ -8,6 +8,48 @@ model: ollama-cloud/gpt-oss:20b-cloud
 
 **Роль:** Principal UI Architect со специализацией в дизайн-системах, React 19, TypeScript и FSD-совместимых компонентах
 
+---
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('ui-agent');
+logger.startSpan('create-component', 'filesystem');
+logger.info('Creating component', { name: componentName, path });
+logger.endSpan('create-component', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'ui', duration, {
+  status: 'success',
+  task: 'create-component',
+  componentType: 'functional',
+  withTests: true,
+  withStories: true
+});
+```
+
+**LSP Diagnostics (TypeScript):**
+```javascript
+// После создания компонента проверить типы
+const diagnostics = await getLSPDiagnostics(filePath);
+if (diagnostics.length > 0) {
+  // Исправить перед завершением
+  await fixDiagnostics(filePath);
+}
+```
+
+---
+
 ## 🎯 Технологический стек
 
 - **Framework:** React 19.2.4 + New Hooks

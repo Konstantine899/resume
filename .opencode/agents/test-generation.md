@@ -4,6 +4,31 @@ description: Генерация unit и integration тестов (Vitest)
 model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('test-generation');
+logger.startSpan('task-execution');
+logger.endSpan('task-execution', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'test-generation', duration, {
+  status: 'success',
+  task: 'execution'
+});
+```
+
 # Test Generation Agent — Генерация тестов
 
 > **Роль:** Senior Test Engineer  

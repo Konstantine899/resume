@@ -4,6 +4,31 @@ description: Адверсариальный code review, поиск уязвим
 model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('critic');
+logger.startSpan('task-execution');
+logger.endSpan('task-execution', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'critic', duration, {
+  status: 'success',
+  task: 'execution'
+});
+```
+
 # 🔍 Critic Agent — Адверсариальный Code Review
 
 **Роль:** Senior Code Critic со специализацией в поиске уязвимостей, edge cases и архитектурных проблем

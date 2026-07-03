@@ -6,6 +6,36 @@ model: ollama/qwen2.5-coder:7b-instruct-q4_K_M
 
 # 🔍 FSD Prompt Refinement Agent
 
+---
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('prompt-refinement');
+logger.startSpan('refine-prompt');
+logger.info('Refining prompt', { originalLength, refinedLength });
+logger.endSpan('refine-prompt', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'prompt-refinement', duration, {
+  status: 'success',
+  task: 'refine-prompt',
+  improvement: qualityScore
+});
+```
+
+---
+
 **Роль:** Senior технический архитектор со специализацией в React 19, TypeScript 5, Vite и FSD архитектуре
 
 ## 🎯 Технологический контекст

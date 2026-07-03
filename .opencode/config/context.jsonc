@@ -39,6 +39,20 @@
   "projectMemory": {
     "enabled": true,
     "storage": ".opencode/context/project-memory.json",
+    "schemaVersion": "1.0.0",
+    "migrations": {
+      "enabled": true,
+      "plugin": ".opencode/plugins/memory-versioning.js",
+      "path": ".opencode/context/migrations/",
+      "autoApply": true
+    },
+    "atomicWrite": {
+      "enabled": true,
+      "plugin": ".opencode/plugins/memory-atomic.js",
+      "lockTimeout": 5000,
+      "maxRetries": 3,
+      "retryDelay": 100
+    },
     "categories": {
       "decisions": {
         "enabled": true,
@@ -108,5 +122,41 @@
     "trackHits": true,
     "trackMisses": true,
     "logFile": ".opencode/logs/context.log",
+  },
+
+  "alerts": {
+    "enabled": true,
+    "rules": [
+      {
+        "name": "HighAgentLatency",
+        "condition": "agent:p99_latency_ms > 30000",
+        "severity": "warning",
+        "channels": ["console", "log"]
+      },
+      {
+        "name": "MCPCircuitOpen",
+        "condition": "mcp:circuit_state == 'OPEN'",
+        "severity": "critical",
+        "channels": ["console", "log"]
+      },
+      {
+        "name": "LowCacheHitRate",
+        "condition": "cache:hit_rate < 0.5",
+        "severity": "info",
+        "channels": ["log"]
+      },
+      {
+        "name": "HighMemoryUsage",
+        "condition": "memory:write_queue_size > 100",
+        "severity": "warning",
+        "channels": ["console", "log"]
+      },
+      {
+        "name": "SerenaFallbackActivated",
+        "condition": "serena:fallback_active == true",
+        "severity": "warning",
+        "channels": ["console", "log"]
+      }
+    ]
   },
 }

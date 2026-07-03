@@ -6,6 +6,46 @@ model: ollama/qwen2.5-coder:32b
 
 # 🛡️ FSD Import Validator Agent
 
+---
+
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+logger.startTrace('fsd-import-validator');
+logger.startSpan('validate-imports', 'filesystem');
+logger.info('Validating imports', { path, layer });
+logger.endSpan('validate-imports', duration, 'success', { errors: errors.length });
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'fsd-import-validator', duration, {
+  status: 'success',
+  task: 'validate-imports',
+  filesChecked: fileCount,
+  errorsFound: errors.length
+});
+```
+
+**Guard Tiers:**
+```javascript
+// Валидация читает файлы — low tier (sampling)
+const decision = await guard.check('filesystem:read', filePath, {
+  agent: 'fsd-import-validator',
+  context: 'FSD import validation'
+});
+```
+
+---
+
 ## 🎯 Назначение
 Автоматическая валидация импортов между слоями FSD архитектуры с детальными отчетами об ошибках.
 

@@ -12,6 +12,48 @@ model: ollama/qwen2.5-coder:32b
 
 ---
 
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging (обязательно для guard):**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+// Каждая проверка логируется
+logger.startSpan('guard-check', 'filesystem');
+logger.info('Guard check', { operation, path, agent: context.agent });
+
+// Результат
+if (decision.approved) {
+  logger.endSpan('guard-check', duration, 'approved');
+} else {
+  logger.endSpan('guard-check', duration, 'blocked', { reason });
+}
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('guard_check', operation, duration, {
+  decision: decision.approved ? 'approved' : 'blocked',
+  tier: decision.tier,
+  agent: context.agent
+});
+```
+
+**Guard Tiers (использует сам себя):**
+```javascript
+// Guard использует tiered security для своих проверок
+const decision = await this.check(operation, path, {
+  agent: 'guard',
+  context: 'Self-check'
+});
+```
+
+---
+
 ## 🎯 Назначение
 
 Guard Agent — это защитный слой между агентами и MCP-серверами. Каждое действие, требующее доступа к файлам, памяти или внешним API, проходит премодерацию через Guard.

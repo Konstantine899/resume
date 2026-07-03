@@ -75,7 +75,12 @@
         },
       ],
       "settings": {
-        "parallel": false,
+        "parallel": true,
+        "parallelGroups": [
+          ["1-create"],
+          ["2-review", "3-fsd"],
+          ["4-test", "5-story"]
+        ],
         "stopOnFail": true,
         "autoCommit": false,
         "notifyOnComplete": true,
@@ -361,7 +366,14 @@
     "maxConcurrentPipelines": 3,
     "defaultTimeout": 300,
     "retryOnFail": true,
-    "maxRetries": 2,
+    "maxRetries": 3,
+    "retryStrategy": {
+      "type": "exponential_backoff_jitter",
+      "baseDelay": 1000,
+      "maxDelay": 30000,
+      "multiplier": 2,
+      "jitter": 0.2
+    },
     "adaptiveConcurrency": {
       "enabled": true,
       "min": 2,

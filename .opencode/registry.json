@@ -1,0 +1,874 @@
+{
+  "version": "1.0.0",
+  "schema": "https://opencode.ai/registry.json",
+  "lastUpdated": "2026-07-03T17:00:00Z",
+  "project": {
+    "name": "Resume Portfolio",
+    "version": "3.0.0",
+    "architecture": "FSD (Feature-Sliced Design)"
+  },
+
+  "mcpServers": {
+    "filesystem": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @modelcontextprotocol/server-filesystem",
+      "roots": ["D:/Dev/projects", "D:/Dev/tools"],
+      "timeout": 30000,
+      "capabilities": ["read", "write", "search", "list"],
+      "dependencies": []
+    },
+    "memory": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @modelcontextprotocol/server-memory",
+      "dbPath": "D:/Dev/memory.db",
+      "timeout": 30000,
+      "capabilities": ["read", "write", "search", "create_entities", "create_relations"],
+      "dependencies": []
+    },
+    "context7": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @upstash/context7-mcp",
+      "timeout": 15000,
+      "capabilities": ["query_docs", "resolve_library_id"],
+      "dependencies": []
+    },
+    "eslint": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @eslint/mcp",
+      "timeout": 30000,
+      "capabilities": ["lint_files"],
+      "dependencies": ["filesystem"]
+    },
+    "playwright": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @playwright/mcp",
+      "timeout": 60000,
+      "capabilities": ["browser_automation", "snapshot", "testing"],
+      "dependencies": []
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "status": "active",
+      "command": "npx -y @modelcontextprotocol/server-sequential-thinking",
+      "timeout": 90000,
+      "capabilities": ["step_by_step_planning", "dependency_tracking", "risk_analysis"],
+      "dependencies": []
+    },
+    "serena": {
+      "type": "wsl",
+      "status": "active",
+      "command": "wsl --exec bash -c 'source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume'",
+      "timeout": 60000,
+      "capabilities": [
+        "find_symbol",
+        "insert_after_symbol",
+        "insert_before_symbol",
+        "replace_symbol_body",
+        "get_symbols_overview",
+        "search_for_pattern",
+        "find_referencing_symbols",
+        "find_implementations"
+      ],
+      "dependencies": [],
+      "fallback": "filesystem_grep"
+    }
+  },
+
+  "agents": [
+    {
+      "name": "orchestrator",
+      "file": "agents/orchestrator.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": [
+        "coordination",
+        "git-ops",
+        "multi-agent",
+        "task-decomposition",
+        "conflict-resolution"
+      ],
+      "dependencies": ["guard", "memory"],
+      "maxConcurrentTasks": 5,
+      "priority": "critical"
+    },
+    {
+      "name": "guard",
+      "file": "agents/guard.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": [
+        "premoderation",
+        "prompt-injection-detection",
+        "pii-masking",
+        "access-control",
+        "audit-logging"
+      ],
+      "dependencies": ["structured-logging"],
+      "priority": "critical"
+    },
+    {
+      "name": "ui",
+      "file": "agents/ui.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["component-creation", "styling", "typing", "accessibility"],
+      "dependencies": ["component-boilerplate"],
+      "priority": "high"
+    },
+    {
+      "name": "review",
+      "file": "agents/review.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["code-review", "bug-detection", "security-audit", "refactoring"],
+      "dependencies": ["eslint"],
+      "priority": "high"
+    },
+    {
+      "name": "test-generation",
+      "file": "agents/test-generation.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["unit-tests", "integration-tests", "mocking", "coverage-analysis"],
+      "dependencies": ["test-generation-skill"],
+      "priority": "high"
+    },
+    {
+      "name": "fsd-validator",
+      "file": "agents/fsd-validator.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["layer-validation", "circular-deps-detection", "public-api-check"],
+      "dependencies": ["fsd-rules"],
+      "priority": "medium"
+    },
+    {
+      "name": "fsd-import-validator",
+      "file": "agents/fsd-import-validator.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["import-validation", "layer-compliance"],
+      "dependencies": ["fsd-validator"],
+      "priority": "medium"
+    },
+    {
+      "name": "integration-test",
+      "file": "agents/integration-test.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["msw-mocking", "playwright-e2e", "api-testing"],
+      "dependencies": ["playwright"],
+      "priority": "medium"
+    },
+    {
+      "name": "performance-test",
+      "file": "agents/performance-test.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["render-time-analysis", "bundle-size-check", "memory-profiling"],
+      "dependencies": [],
+      "priority": "medium"
+    },
+    {
+      "name": "storybook-test",
+      "file": "agents/storybook-test.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["story-creation", "interaction-tests", "accessibility-checks"],
+      "dependencies": ["storybook-setup-skill"],
+      "priority": "medium"
+    },
+    {
+      "name": "style",
+      "file": "agents/style.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["sass-validation", "css-modules-check", "consistency-analysis"],
+      "dependencies": ["style-guide"],
+      "priority": "low"
+    },
+    {
+      "name": "critic",
+      "file": "agents/critic.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["adversarial-review", "vulnerability-detection", "edge-case-analysis"],
+      "dependencies": ["review"],
+      "priority": "high"
+    },
+    {
+      "name": "judge",
+      "file": "agents/judge.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["quality-scoring", "llm-as-judge", "comparison-analysis"],
+      "dependencies": ["review", "critic"],
+      "priority": "medium"
+    },
+    {
+      "name": "prompt-refinement",
+      "file": "agents/prompt-refinement.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["prompt-optimization", "context-reduction", "clarity-improvement"],
+      "dependencies": [],
+      "priority": "low"
+    },
+    {
+      "name": "git",
+      "file": "agents/git.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["git-operations", "commit-management", "branch-handling"],
+      "dependencies": [],
+      "priority": "high",
+      "restricted": true
+    },
+    {
+      "name": "git-improvements",
+      "file": "agents/git-improvements.md",
+      "version": "3.0.0",
+      "status": "active",
+      "capabilities": ["git-workflow-improvements", "hook-management"],
+      "dependencies": ["git"],
+      "priority": "low",
+      "restricted": true
+    }
+  ],
+
+  "plugins": [
+    {
+      "name": "structured-logging",
+      "file": "plugins/structured-logging.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": [
+        "init",
+        "startTrace",
+        "startSpan",
+        "endSpan",
+        "endTrace",
+        "getMetrics",
+        "shutdown"
+      ],
+      "dependencies": [],
+      "priority": "critical",
+      "description": "JSON logging с trace ID и sampling"
+    },
+    {
+      "name": "circuit-breaker",
+      "file": "plugins/circuit-breaker.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "call", "getState", "forceState", "resetMetrics", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "critical",
+      "description": "Circuit Breaker для MCP серверов"
+    },
+    {
+      "name": "memory-atomic",
+      "file": "plugins/memory-atomic.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "write", "read", "health", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "critical",
+      "description": "Atomic Write с file locking"
+    },
+    {
+      "name": "serena-fallback",
+      "file": "plugins/serena-fallback.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "fallback", "health", "shutdown"],
+      "dependencies": ["structured-logging", "circuit-breaker"],
+      "priority": "high",
+      "description": "Fallback на filesystem grep при отказе Serena"
+    },
+    {
+      "name": "context7-cache",
+      "file": "plugins/context7-cache.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "get", "set", "invalidate", "persist", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "high",
+      "description": "LRU Cache для Context7 с persist to file"
+    },
+    {
+      "name": "guard-tiered-security",
+      "file": "plugins/guard-tiered-security.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "check", "premoderate", "postmoderate", "sample", "shutdown"],
+      "dependencies": ["structured-logging", "circuit-breaker"],
+      "priority": "critical",
+      "description": "3-tier Guard (High/Medium/Low)"
+    },
+    {
+      "name": "agent-metrics",
+      "file": "plugins/agent-metrics.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "record", "getStats", "exportSummary", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "high",
+      "description": "Metrics Dashboard с p50/p95/p99"
+    },
+    {
+      "name": "memory-versioning",
+      "file": "plugins/memory-versioning.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "migrate", "validate", "backup", "restore", "shutdown"],
+      "dependencies": ["memory-atomic", "structured-logging"],
+      "priority": "medium",
+      "description": "Schema Versioning + migrations"
+    },
+    {
+      "name": "encrypted-audit-logs",
+      "file": "plugins/encrypted-audit-logs.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "encrypt", "decrypt", "write", "rotate", "shutdown"],
+      "dependencies": ["structured-logging", "memory-atomic"],
+      "priority": "high",
+      "description": "AES-256-GCM encryption для audit logs"
+    },
+    {
+      "name": "adaptive-parallel-mcp",
+      "file": "plugins/adaptive-parallel-mcp.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "adjustConcurrency", "monitor", "shutdown"],
+      "dependencies": ["structured-logging", "agent-metrics"],
+      "priority": "medium",
+      "description": "Adaptive concurrency 2-5 на основе resource usage"
+    },
+    {
+      "name": "request-deduplication",
+      "file": "plugins/request-deduplication.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "deduplicate", "cancel", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "medium",
+      "description": "Request deduplication 1s window"
+    },
+    {
+      "name": "graceful-degradation",
+      "file": "plugins/graceful-degradation.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "degrade", "recover", "getStatus", "shutdown"],
+      "dependencies": ["structured-logging", "circuit-breaker", "agent-metrics"],
+      "priority": "medium",
+      "description": "4-level degradation (full/reduced/minimal/offline)"
+    },
+    {
+      "name": "mcp-connection-pool",
+      "file": "plugins/mcp-connection-pool.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "acquire", "release", "health", "shutdown"],
+      "dependencies": ["structured-logging", "circuit-breaker"],
+      "priority": "medium",
+      "description": "Connection pooling 2-10 connections"
+    },
+    {
+      "name": "dependency-graph",
+      "file": "plugins/dependency-graph.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "health", "computeOrder", "shutdown"],
+      "dependencies": ["structured-logging"],
+      "priority": "critical",
+      "description": "Topological sort для порядка загрузки плагинов"
+    },
+    {
+      "name": "agent-integration",
+      "file": "plugins/agent-integration.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "startTrace", "endTrace", "guardCheck", "shutdown"],
+      "dependencies": ["structured-logging", "agent-metrics", "guard-tiered-security"],
+      "priority": "critical",
+      "description": "Unified interface для интеграции плагинов в агентов"
+    },
+    {
+      "name": "health-dashboard",
+      "file": "plugins/health-dashboard.js",
+      "version": "1.0.0",
+      "status": "active",
+      "lifecycle": ["init", "health", "checkAll", "getAlerts", "shutdown"],
+      "dependencies": ["structured-logging", "agent-metrics"],
+      "priority": "critical",
+      "description": "Unified health monitoring для всех плагинов, MCP серверов и агентов"
+    }
+  ],
+
+  "skills": [
+    {
+      "name": "component-boilerplate",
+      "file": "skills/component-boilerplate/SKILL.md",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": ["component-creation", "typing", "styling", "testing", "storybook"],
+      "dependencies": [],
+      "description": "Создание React компонентов с правильной структурой"
+    },
+    {
+      "name": "fsd-slice-creation",
+      "file": "skills/fsd-slice-creation/SKILL.md",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": ["entity-creation", "feature-creation", "public-api"],
+      "dependencies": ["fsd-rules"],
+      "description": "Создание FSD slice (entity/feature)"
+    },
+    {
+      "name": "storybook-setup",
+      "file": "skills/storybook-setup/SKILL.md",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": ["story-creation", "interaction-tests", "accessibility"],
+      "dependencies": [],
+      "description": "Настройка Storybook stories"
+    },
+    {
+      "name": "test-generation",
+      "file": "skills/test-generation/SKILL.md",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": ["unit-tests", "integration-tests", "mocking", "edge-cases"],
+      "dependencies": [],
+      "description": "Создание Vitest тестов"
+    },
+    {
+      "name": "customize-opencode",
+      "file": "<built-in>",
+      "version": "1.0.0",
+      "status": "active",
+      "capabilities": ["config-editing", "agent-management", "skill-management"],
+      "dependencies": [],
+      "description": "Настройка конфигурации opencode"
+    }
+  ],
+
+  "rules": [
+    {
+      "name": "code-style-rules",
+      "file": "rules/code-style-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "style",
+      "enforcedBy": ["review", "style", "eslint"]
+    },
+    {
+      "name": "fsd-rules",
+      "file": "rules/fsd-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "architecture",
+      "enforcedBy": ["fsd-validator", "fsd-import-validator"]
+    },
+    {
+      "name": "guard-rules",
+      "file": "rules/guard-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "security",
+      "enforcedBy": ["guard"]
+    },
+    {
+      "name": "performance-rules",
+      "file": "rules/performance-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "performance",
+      "enforcedBy": ["performance-test"]
+    },
+    {
+      "name": "security-rules",
+      "file": "rules/security-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "security",
+      "enforcedBy": ["guard", "review", "critic"]
+    },
+    {
+      "name": "strict-rules",
+      "file": "rules/strict-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "general",
+      "enforcedBy": ["review", "guard"]
+    },
+    {
+      "name": "testing-rules",
+      "file": "rules/testing-rules.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "testing",
+      "enforcedBy": ["test-generation", "integration-test"]
+    }
+  ],
+
+  "commands": [
+    {
+      "name": "add-story",
+      "file": "commands/add-story.md",
+      "version": "1.0.0",
+      "status": "active",
+      "agent": "storybook-test",
+      "description": "Добавление Storybook stories"
+    },
+    {
+      "name": "code-review",
+      "file": "commands/code-review.md",
+      "version": "1.0.0",
+      "status": "active",
+      "agent": "review",
+      "description": "Code review компонента"
+    },
+    {
+      "name": "generate-component",
+      "file": "commands/generate-component.md",
+      "version": "1.0.0",
+      "status": "active",
+      "agent": "ui",
+      "description": "Генерация React компонента"
+    },
+    {
+      "name": "run-tests",
+      "file": "commands/run-tests.md",
+      "version": "1.0.0",
+      "status": "active",
+      "agent": "test-generation",
+      "description": "Запуск тестов"
+    },
+    {
+      "name": "validate-fsd",
+      "file": "commands/validate-fsd.md",
+      "version": "1.0.0",
+      "status": "active",
+      "agent": "fsd-validator",
+      "description": "Валидация FSD архитектуры"
+    }
+  ],
+
+  "configs": [
+    {
+      "name": "context",
+      "file": "config/context.jsonc",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "memory",
+      "managedBy": ["memory-atomic", "memory-versioning"]
+    },
+    {
+      "name": "feedback-loop",
+      "file": "config/feedback-loop.jsonc",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "quality",
+      "managedBy": ["review", "critic"]
+    },
+    {
+      "name": "parallel-execution",
+      "file": "config/parallel-execution.jsonc",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "performance",
+      "managedBy": ["adaptive-parallel-mcp"]
+    },
+    {
+      "name": "pipelines",
+      "file": "config/pipelines.jsonc",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "orchestration",
+      "managedBy": ["orchestrator"]
+    },
+    {
+      "name": "quality-gates",
+      "file": "config/quality-gates.jsonc",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "quality",
+      "managedBy": ["review", "judge"]
+    }
+  ],
+
+  "instructions": [
+    {
+      "name": "eslint-config",
+      "file": "instructions/eslint-config.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "configuration"
+    },
+    {
+      "name": "fsd-architecture",
+      "file": "instructions/fsd-architecture.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "architecture"
+    },
+    {
+      "name": "project-structure",
+      "file": "instructions/project-structure.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "structure"
+    },
+    {
+      "name": "review-guidelines",
+      "file": "instructions/review-guidelines.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "process"
+    },
+    {
+      "name": "style-guide",
+      "file": "instructions/style-guide.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "style"
+    }
+  ],
+
+  "docs": [
+    {
+      "name": "AGENTS",
+      "file": "docs/AGENTS.md",
+      "version": "3.0.0",
+      "status": "active",
+      "category": "agents",
+      "description": "Основная инструкция по агентам"
+    },
+    {
+      "name": "AGENTS_GUIDE",
+      "file": "docs/AGENTS_GUIDE.md",
+      "version": "3.0.0",
+      "status": "active",
+      "category": "agents",
+      "description": "Полное руководство по агентам"
+    },
+    {
+      "name": "ALERT_RULES",
+      "file": "docs/ALERT_RULES.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "monitoring",
+      "description": "Правила алертинга"
+    },
+    {
+      "name": "CONFIGURATION",
+      "file": "docs/CONFIGURATION.md",
+      "version": "3.0.0",
+      "status": "active",
+      "category": "configuration",
+      "description": "Полная конфигурация системы"
+    },
+    {
+      "name": "IMPROVEMENT_COMPLETE",
+      "file": "docs/IMPROVEMENT_COMPLETE.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "improvements",
+      "description": "Отчет о завершении улучшений MCP"
+    },
+    {
+      "name": "IMPROVEMENT_PLAN",
+      "file": "docs/IMPROVEMENT_PLAN.md",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "improvements",
+      "description": "План улучшений"
+    },
+    {
+      "name": "QUICK_START",
+      "file": "docs/QUICK_START.md",
+      "version": "3.0.0",
+      "status": "active",
+      "category": "getting-started",
+      "description": "Быстрый старт"
+    },
+    {
+      "name": "TROUBLESHOOTING",
+      "file": "docs/TROUBLESHOOTING.md",
+      "version": "3.0.0",
+      "status": "active",
+      "category": "support",
+      "description": "Диагностика проблем"
+    }
+  ],
+
+  "artifacts": {
+    "context": {
+      "path": "artifacts/context/",
+      "status": "active",
+      "description": "Контекст сессий"
+    },
+    "decisions": {
+      "path": "artifacts/decisions/",
+      "status": "active",
+      "description": "Архитектурные решения"
+    },
+    "sessions": {
+      "path": "artifacts/sessions/",
+      "status": "active",
+      "description": "Артефакты сессий"
+    }
+  },
+
+  "logs": {
+    "metrics": {
+      "path": "logs/metrics/",
+      "status": "active",
+      "managedBy": "agent-metrics"
+    },
+    "traces": {
+      "path": "logs/traces/",
+      "status": "active",
+      "managedBy": "structured-logging"
+    },
+    "baseline": {
+      "path": "logs/baseline-metrics.json",
+      "status": "active",
+      "managedBy": "agent-metrics"
+    },
+    "opencode": {
+      "path": "logs/opencode.jsonl",
+      "status": "active",
+      "managedBy": "structured-logging"
+    }
+  },
+
+  "scripts": [
+    {
+      "name": "collect-from-obsidian",
+      "file": "scripts/collect-from-obsidian.ps1",
+      "version": "1.0.0",
+      "status": "active",
+      "type": "powershell",
+      "description": "Сбор данных из Obsidian vault"
+    },
+    {
+      "name": "start-serena-wsl",
+      "file": "scripts/start-serena-wsl.sh",
+      "version": "1.0.0",
+      "status": "active",
+      "type": "bash",
+      "description": "Запуск Serena MCP в WSL"
+    }
+  ],
+
+  "dependencyGraph": {
+    "nodes": [
+      "structured-logging",
+      "circuit-breaker",
+      "memory-atomic",
+      "serena-fallback",
+      "context7-cache",
+      "guard-tiered-security",
+      "agent-metrics",
+      "memory-versioning",
+      "encrypted-audit-logs",
+      "adaptive-parallel-mcp",
+      "request-deduplication",
+      "graceful-degradation",
+      "mcp-connection-pool"
+    ],
+    "edges": [
+      { "from": "circuit-breaker", "to": "structured-logging" },
+      { "from": "memory-atomic", "to": "structured-logging" },
+      { "from": "serena-fallback", "to": "structured-logging" },
+      { "from": "serena-fallback", "to": "circuit-breaker" },
+      { "from": "context7-cache", "to": "structured-logging" },
+      { "from": "guard-tiered-security", "to": "structured-logging" },
+      { "from": "guard-tiered-security", "to": "circuit-breaker" },
+      { "from": "agent-metrics", "to": "structured-logging" },
+      { "from": "memory-versioning", "to": "memory-atomic" },
+      { "from": "memory-versioning", "to": "structured-logging" },
+      { "from": "encrypted-audit-logs", "to": "structured-logging" },
+      { "from": "encrypted-audit-logs", "to": "memory-atomic" },
+      { "from": "adaptive-parallel-mcp", "to": "structured-logging" },
+      { "from": "adaptive-parallel-mcp", "to": "agent-metrics" },
+      { "from": "request-deduplication", "to": "structured-logging" },
+      { "from": "graceful-degradation", "to": "structured-logging" },
+      { "from": "graceful-degradation", "to": "circuit-breaker" },
+      { "from": "graceful-degradation", "to": "agent-metrics" },
+      { "from": "mcp-connection-pool", "to": "structured-logging" },
+      { "from": "mcp-connection-pool", "to": "circuit-breaker" }
+    ],
+    "loadOrder": [
+      "structured-logging",
+      "circuit-breaker",
+      "memory-atomic",
+      "serena-fallback",
+      "context7-cache",
+      "guard-tiered-security",
+      "agent-metrics",
+      "memory-versioning",
+      "encrypted-audit-logs",
+      "adaptive-parallel-mcp",
+      "request-deduplication",
+      "graceful-degradation",
+      "mcp-connection-pool",
+      "dependency-graph"
+    ]
+  },
+
+  "healthStatus": {
+    "overall": "healthy",
+    "lastCheck": "2026-07-03T17:00:00Z",
+    "plugins": {
+      "structured-logging": { "status": "healthy", "latency": 5 },
+      "circuit-breaker": { "status": "healthy", "latency": 2 },
+      "memory-atomic": { "status": "healthy", "latency": 10 },
+      "serena-fallback": { "status": "healthy", "latency": 3 },
+      "context7-cache": { "status": "healthy", "latency": 4 },
+      "guard-tiered-security": { "status": "healthy", "latency": 8 },
+      "agent-metrics": { "status": "healthy", "latency": 6 },
+      "memory-versioning": { "status": "healthy", "latency": 7 },
+      "encrypted-audit-logs": { "status": "healthy", "latency": 9 },
+      "adaptive-parallel-mcp": { "status": "healthy", "latency": 5 },
+      "request-deduplication": { "status": "healthy", "latency": 3 },
+      "graceful-degradation": { "status": "healthy", "latency": 4 },
+      "mcp-connection-pool": { "status": "healthy", "latency": 6 }
+    },
+    "mcp": {
+      "filesystem": { "status": "healthy", "latency": 15 },
+      "memory": { "status": "healthy", "latency": 20 },
+      "context7": { "status": "healthy", "latency": 25 },
+      "eslint": { "status": "healthy", "latency": 30 },
+      "playwright": { "status": "healthy", "latency": 50 },
+      "sequential-thinking": { "status": "healthy", "latency": 40 },
+      "serena": { "status": "healthy", "latency": 35 }
+    },
+    "agents": {
+      "orchestrator": { "status": "healthy" },
+      "guard": { "status": "healthy" },
+      "ui": { "status": "healthy" },
+      "review": { "status": "healthy" },
+      "test-generation": { "status": "healthy" },
+      "fsd-validator": { "status": "healthy" },
+      "critic": { "status": "healthy" },
+      "judge": { "status": "healthy" },
+      "integration-test": { "status": "healthy" },
+      "performance-test": { "status": "healthy" },
+      "storybook-test": { "status": "healthy" },
+      "style": { "status": "healthy" },
+      "prompt-refinement": { "status": "healthy" },
+      "git": { "status": "healthy" },
+      "git-improvements": { "status": "healthy" }
+    }
+  }
+}

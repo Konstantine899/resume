@@ -12,6 +12,51 @@ model: ollama/qwen2.5-coder:32b
 
 ---
 
+## 🔌 Интеграция с Плагинами
+
+**Structured Logging:**
+```javascript
+const { getLogger } = require('../plugins/structured-logging.js');
+const logger = getLogger();
+
+// Начало задачи
+logger.startTrace('orchestrator');
+logger.startSpan('decompose-task');
+
+// Выполнение
+// ...
+
+// Завершение
+logger.endSpan('decompose-task', duration, 'success');
+logger.endTrace('success');
+```
+
+**Agent Metrics:**
+```javascript
+const { getCollector } = require('../plugins/agent-metrics.js');
+const metrics = getCollector();
+
+metrics.record('agent_call', 'orchestrator', duration, {
+  status: 'success',
+  task: 'decompose',
+  subtasks: subtasks.length
+});
+```
+
+**Guard Tiers:**
+```javascript
+const { GuardTieredSecurity } = require('../plugins/guard-tiered-security.js');
+const guard = new GuardTieredSecurity();
+
+// Перед MCP вызовом
+const decision = await guard.check(operation, path, {
+  agent: 'orchestrator',
+  context: 'Coordinating subtasks'
+});
+```
+
+---
+
 ## 🎯 Назначение
 
 Orchestrator Agent — это «главный агент» который координирует работу других агентов для решения сложных задач. Он не выполняет работу сам, а разбивает задачу на подзадачи, распределяет их между субагентами и собирает результаты.

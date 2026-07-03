@@ -1,0 +1,3 @@
+{"timestamp":1783101083045,"type":"agent_call","name":"test-agent","value":150,"metadata":{"status":"success","task":"test"}}
+{"timestamp":1783101092957,"type":"agent_call","name":"test-agent","value":150,"metadata":{"status":"success","task":"test"}}
+{"timestamp":1783101449783,"type":"agent_call","name":"test-agent","value":109,"metadata":{"status":"success","task":"test-task","test":true}}
