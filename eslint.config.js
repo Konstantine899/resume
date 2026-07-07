@@ -8,6 +8,11 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import { createRequire } from 'module';
+
+// Local FSD imports plugin
+const require = createRequire(import.meta.url);
+const fsdImports = require('./.opencode/plugins/eslint-plugin-fsd-imports');
 
 // Strict mode rules for P0 security enforcement
 const strictRules = {
@@ -54,6 +59,7 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'unused-imports': unusedImports,
+      'fsd-imports': fsdImports,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -72,7 +78,7 @@ export default tseslint.config(
       ...strictRules,
     },
   },
-  // Strict mode override for src/ directory
+  // FSD Architecture validation
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
@@ -83,6 +89,16 @@ export default tseslint.config(
       'no-implicit-coercion': 'error',
       'no-new-func': 'error',
       'no-script-url': 'error',
+      // FSD Architecture rules
+      'fsd-imports/layer-dependency': 'error',
+      'fsd-imports/no-circular': 'error',
+      'fsd-imports/public-api-only': [
+        'error',
+        {
+          allowInternal: ['lib', 'constants', 'types', 'model'],
+          disallowPatterns: ['**/ui/**', '**/api/**'],
+        },
+      ],
     },
   },
   storybook.configs["flat/recommended"]
