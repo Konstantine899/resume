@@ -70,22 +70,82 @@ const INJECTION_PATTERNS = {
   ],
   
   commandInjection: [
+    // Basic command injection
     /;\s*['"]?(?:rm|curl|wget|bash|sh|cmd|powershell|node|python|perl|ruby|php|nc|netcat)['"]?/i,
     /\|\s*['"]?(?:bash|sh|cmd|powershell|node|python)['"]?/i,
     /&&\s*['"]?(?:rm|curl|wget|bash|sh|cmd)['"]?/i,
+    
+    // Code evaluation
+    /\beval\s*\(/i,
+    /\bexec\s*\(/i,
+    /\bFunction\s*\(/i,
+    /\bsetTimeout\s*\([^,]*['"](?:[^'"]*['"]){2}/i,
+    /\bsetInterval\s*\([^,]*['"](?:[^'"]*['"]){2}/i,
+    
+    // Substitution
     /\$\([^)]*\)/i,
     /`[^`]*`/i,
     /\$\{[^}]*\}/i,
+    
+    // Encoding bypass
     /(?:atob|btoa|Buffer\.from|Buffer\.alloc)\s*\(/i,
     /base64\s+(?:-d|--decode)/i,
     /\\x[0-9a-f]{2}(\\x[0-9a-f]{2})+/i,
+    /\\u[0-9a-f]{4}(\\u[0-9a-f]{4})+/i,
+    /(?:decodeURI|decodeURIComponent)\s*\(/i,
+    
+    // File inclusion
+    /\$\{file:[^}]+\}/i,
+    /require\s*\(['"]https?:\/\//i,
+    /import\s*\(['"]https?:\/\//i,
+    /fs\.readFileSync/i,
+    /fs\.createReadStream/i,
+    
+    // Process spawning
+    /child_process\s*\./i,
+    /spawn\s*\(/i,
+    /execSync\s*\(/i,
+    /fork\s*\(/i,
+    
+    // Advanced bypass
+    /[\u200B-\u200D]/i, // Zero-width chars
+    /%[0-9a-f]{2}/i, // URL encoding
+    /&#x[0-9a-f]+;/i, // HTML entity encoding
   ],
   
   credentialsAccess: [
-    /process\.env\.[A-Z_]*(?:SECRET|KEY|TOKEN|PASSWORD|CREDENTIAL)[A-Z_]*/i,
-    /import\.meta\.env\.[A-Z_]*(?:SECRET|KEY|TOKEN)[A-Z_]*/i,
-    /localStorage\.(?:getItem|setItem)\s*\(['"][^'"]*(?:auth|token|secret|key)[^'"]*['"]\)/i,
-    /crypto\.(?:createHash|createCipher|privateKey)/i,
+    // Environment variables
+    /process\.env\.[A-Z_]*(?:SECRET|KEY|TOKEN|PASSWORD|CREDENTIAL|PRIVATE|API)[A-Z_]*/i,
+    /import\.meta\.env\.[A-Z_]*(?:SECRET|KEY|TOKEN|PASSWORD|CREDENTIAL)[A-Z_]*/i,
+    /window\.__ENV__\.[A-Z_]*(?:SECRET|KEY)[A-Z_]*/i,
+    /global\.process\.env\./i,
+    
+    // Storage access
+    /localStorage\.(?:getItem|setItem|removeItem)\s*\(['"][^'"]*(?:auth|token|secret|key|password|credential)[^'"]*['"]\)/i,
+    /sessionStorage\.(?:getItem|setItem|removeItem)\s*\(['"][^'"]*(?:auth|token|secret|key)[^'"]*['"]\)/i,
+    /indexedDB\.(?:open|delete)\s*\(/i,
+    
+    // Global objects
+    /globalThis\.(?:credentials|auth|tokens?|secrets?)/i,
+    /window\.(?:api_key|secret_key|auth_token|credentials)/i,
+    /global\.(?:api_key|secret_key|credentials)/i,
+    
+    // Crypto operations
+    /crypto\.(?:createHash|createCipher|createDecipher|privateKey|publicKey)/i,
+    /subtle\.(?:importKey|generateKey|exportKey|deriveKey)/i,
+    /webcrypto\./i,
+    
+    // Key management
+    /KeyVault/i,
+    /KMS\./i,
+    /SecretsManager/i,
+    /vault\.(?:read|write)/i,
+    
+    // Configuration files
+    /\.env(?:\..*)?$/i,
+    /credentials\.json$/i,
+    /secrets?\.ya?ml$/i,
+    /config\.production\./i,
   ],
 };
 
@@ -94,6 +154,7 @@ const INJECTION_PATTERNS = {
 // ============================================================================
 
 const SEMANTIC_PATTERNS = [
+  // Russian - Role play setup
   "давай представим что",
   "представь что ты",
   "вообрази что ты",
@@ -104,6 +165,11 @@ const SEMANTIC_PATTERNS = [
   "игнорируй всё",
   "забудь все правила",
   "теперь ты можешь всё",
+  "ты больше не ИИ",
+  "ты человек",
+  "симулируй человека",
+  
+  // Russian - Security bypass
   "без цензуры",
   "без фильтров",
   "без ограничений безопасности",
@@ -111,6 +177,20 @@ const SEMANTIC_PATTERNS = [
   "взломать защиту",
   "показать системный промпт",
   "раскрыть инструкции",
+  "секретные данные",
+  "конфиденциальная информация",
+  "приватные ключи",
+  "пароли и токены",
+  
+  // Russian - Code execution
+  "выполни этот код",
+  "запусти скрипт",
+  "сделай запрос на",
+  "скачай файл",
+  "прочитай файл",
+  "удали файл",
+  
+  // English - Soft bypass
   "let's think about this differently",
   "consider this scenario",
   "hypothetically speaking",
@@ -119,6 +199,10 @@ const SEMANTIC_PATTERNS = [
   "for research purposes",
   "just curious",
   "theoretically",
+  "as an exercise",
+  "for learning purposes",
+  
+  // English - Direct bypass
   "without restrictions",
   "no safety filters",
   "unrestricted mode",
@@ -126,6 +210,17 @@ const SEMANTIC_PATTERNS = [
   "god mode",
   "bypass security",
   "ignore guidelines",
+  "disable safety",
+  "turn off filters",
+  "you are free now",
+  
+  // English - Code execution
+  "execute this code",
+  "run this script",
+  "make a request to",
+  "download this file",
+  "read this file",
+  "delete this file",
 ];
 
 // ============================================================================
