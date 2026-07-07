@@ -1,20 +1,20 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  
+
   "logLevel": "INFO",
   "snapshot": true,
-  
+
   "instructions": [".opencode/docs/AGENTS.md"],
-  
+
   "skills": {
     "paths": [".opencode/skills"]
   },
-  
+
   "mcp": {
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
-      "args": ["D:/Dev/projects/resume", "D:/Dev/tools"],
+      "args": ["D:/Dev/projects/resume", "D:/Dev/tools", "D:/Dev/tools/DBObsidian/resume-app"],
       "enabled": true,
       "timeout": 30000
     },
@@ -43,7 +43,7 @@
       }
     }
   },
-  
+
   "permission": {
     "*": { "action": "ask" },
     "filesystem:read": { "action": "allow" },
@@ -51,7 +51,7 @@
     "filesystem:delete": { "action": "deny" },
     "shell:dangerous": { "action": "deny" }
   },
-  
+
   "plugin": [
     "./plugins/circuit-breaker.js",
     "./plugins/context7-cache.js",
@@ -67,15 +67,15 @@
     "./plugins/graceful-degradation.js",
     "./plugins/mcp-connection-pool.js"
   ],
-  
+
   "formatter": true,
   "lsp": true,
-  
+
   "compaction": {
     "auto": true,
     "tail_turns": 10
   },
-  
+
   "tool_output": {
     "max_lines": 300,
     "max_bytes": 16384
