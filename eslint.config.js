@@ -9,8 +9,35 @@ import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+// Strict mode rules for P0 security enforcement
+const strictRules = {
+  // Type safety - NO any types
+  '@typescript-eslint/no-explicit-any': 'error',
+  '@typescript-eslint/no-implicit-any': 'error',
+  '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+  
+  // Security - NO console.log in production
+  'no-console': 'error',
+  
+  // React best practices
+  'react-hooks/exhaustive-deps': 'error',
+  'react-hooks/rules-of-hooks': 'error',
+  'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
+  
+  // No direct state mutations (caught by no-param-reassign + immutability checks)
+  'no-param-reassign': ['error', { props: true }],
+  
+  // Error boundaries required
+  'no-eval': 'error',
+  'no-implied-eval': 'error',
+  
+  // Import style
+  'no-default-export': 'error',
+  'import/no-default-export': 'error',
+};
+
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage', '*.config.*', 'config'] },
+  { ignores: ['dist', 'node_modules', 'coverage', '*.config.*', 'config', 'storybook-static'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -30,11 +57,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
-        'warn',
+        'error',
         {
           vars: 'all',
           varsIgnorePattern: '^_',
@@ -42,9 +68,21 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
         },
       ],
-      'no-console': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // Override with strict rules for production code
+      ...strictRules,
+    },
+  },
+  // Strict mode override for src/ directory
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      ...strictRules,
+      // Extra strict for security-critical code
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-var-requires': 'error',
+      'no-implicit-coercion': 'error',
+      'no-new-func': 'error',
+      'no-script-url': 'error',
     },
   },
   storybook.configs["flat/recommended"]

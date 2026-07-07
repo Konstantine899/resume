@@ -1,0 +1,106 @@
+name: Strict Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  strict-validation:
+    name: Strict Validation (TypeScript + ESLint)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type Check (Strict)
+        run: npm run type-check:strict
+        continue-on-error: false
+      
+      - name: Lint (Strict)
+        run: npm run lint:strict
+        continue-on-error: false
+      
+      - name: Validate All (Strict)
+        run: npm run validate:strict
+        continue-on-error: false
+      
+      - name: Upload ESLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: eslint-report.json
+          retention-days: 7
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: false
+      
+      - name: Run Snyk Security Test
+        if: env.SNYK_TOKEN
+        run: npx snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: false
+
+  bundle-size:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build with analysis
+        run: npm run build:analyze
+      
+      - name: Check bundle size
+        uses: preactjs/compressed-size-action@v2
+        with:
+          pattern: './dist/**/*.js'
+          limit: '100KB'
+          exclude: '**/node_modules/**'
