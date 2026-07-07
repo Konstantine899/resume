@@ -172,6 +172,145 @@ module.exports = {
   run: npm run test -- --coverage --fail-on-fake
 ```
 
+---
+
+## 🔧 FLAKY TEST AUTOMATION v2.0
+
+### Реализация
+
+**Плагин:** `.opencode/plugins/vitest-plugin-flaky-test-detection.ts`  
+**CLI:** `.opencode/plugins/flaky-test-detector.ts`
+
+### Что Детектируется
+
+**❌ Flaky Tests:**
+- Тесты с non-deterministic поведением
+- Тесты с order dependency
+- Тесты с timing issues
+- Тесты с shared state
+
+**Примеры Flaky Tests:**
+```typescript
+// ❌ FLAKY: Order dependency
+let sharedState = 0;
+
+test('increments state', () => {
+  sharedState++;
+  expect(sharedState).toBe(1); // Fails if run alone
+});
+
+// ❌ FLAKY: Timing issue
+test('loads data', async () => {
+  const data = await fetchData(); // Network request
+  expect(data).toBeDefined(); // May timeout
+});
+
+// ❌ FLAKY: Random values
+test('generates random ID', () => {
+  const id = generateRandomId();
+  expect(id).toMatch(/abc/); // Random, may fail
+});
+
+// ✅ OK: Deterministic
+test('adds numbers', () => {
+  const result = add(2, 3);
+  expect(result).toBe(5); // Always passes
+});
+```
+
+### Конфигурация Vitest
+
+```typescript
+// vitest.config.ts
+import { defineFlakyTestConfig } from './.opencode/plugins/vitest-plugin-flaky-test-detection';
+
+export default defineFlakyTestConfig({
+  retryCount: 3, // Re-run failed tests 3 times
+  flakinessThreshold: 0.01, // 1% max flakiness
+  minTestRuns: 10, // Minimum runs before marking as flaky
+  failBuild: true,
+  showDetails: true,
+});
+```
+
+### Vitest Built-in Features
+
+```typescript
+// vitest.config.ts
+export default {
+  test: {
+    // Auto-retry flaky tests
+    retry: 3,
+    
+    // Fail if tests are flaky
+    failFlakyTests: true,
+    
+    // Isolate tests (no shared state)
+    isolate: true,
+    
+    // Shuffle test order to detect order dependency
+    sequence: {
+      shuffle: true,
+    },
+  },
+};
+```
+
+### CLI Tool
+
+```bash
+# Run flaky test detector
+npx tsx .opencode/plugins/flaky-test-detector.ts \
+  --runs=10 \
+  --threshold=0.01 \
+  --output=.opencode/logs/flaky-tests.md
+```
+
+### Weekly Report
+
+```yaml
+# .github/workflows/flaky-report.yml
+name: Weekly Flaky Report
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Every Sunday
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Flaky Detector
+        run: npx tsx .opencode/plugins/flaky-test-detector.ts --runs=10
+      
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: flaky-report
+          path: .opencode/logs/flaky-tests.md
+```
+
+### Developer Accountability
+
+```typescript
+// Track flaky tests per developer
+interface FlakyTestRecord {
+  testId: string;
+  author: string;
+  date: string;
+  flakinessRate: number;
+  fixed: boolean;
+}
+
+// Block developer if > 3 flaky tests created
+if (developerFlakyCount > 3) {
+  console.warn('⚠️ Developer has too many flaky tests!');
+  // Require code review for future test changes
+}
+```
+
 ## 🔧 TESTING AUTOMATION
 
 ### 1. PRE-COMMIT CHECKS:
