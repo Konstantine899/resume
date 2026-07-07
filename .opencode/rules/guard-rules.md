@@ -538,7 +538,19 @@ if (user.blockedActions >= 3 ||
 
 ---
 
-## 📊 Audit Logging Requirements
+## 📊 Audit Logging Requirements v2.0
+
+### Secure Audit Logger
+
+**Реализация:** `.opencode/plugins/secure-audit-logger.js`
+
+**Features:**
+- ✅ AES-256-GCM шифрование для PII данных
+- ✅ HMAC-SHA256 для каждой записи
+- ✅ Hash chaining (blockchain-like integrity)
+- ✅ Key rotation каждые 30 дней
+- ✅ External SIEM интеграция
+- ✅ PII masking перед шифрованием
 
 ### Обязательно логировать
 
@@ -557,11 +569,33 @@ if (user.blockedActions >= 3 ||
 }
 ```
 
+### Формат Зашифрованной Записи
+
+```json
+{
+  "timestamp": "2026-07-07T10:30:00Z",
+  "trace_id": "550e8400-e29b-41d4-a716-446655440000",
+  "level": "info",
+  "event": "audit_log",
+  "data": {
+    "ciphertext": "a1b2c3d4...",
+    "iv": "1234567890abcdef",
+    "authTag": "fedcba0987654321",
+    "keyId": "key-uuid-here"
+  },
+  "maskedFields": ["email", "token"],
+  "previousHash": "sha256-of-previous-entry",
+  "hash": "sha256-of-current-entry",
+  "hmac": "hmac-sha256-signature"
+}
+```
+
 ### Лог файлы
 
-**📁 Guard Audit Log:**
+**📁 Guard Audit Log (Encrypted):**
 ```
 .opencode/logs/guard-audit.log
+.opencode/logs/guard-audit.log.chain (hash chain)
 ```
 
 **📁 Security Incidents:**
@@ -572,6 +606,72 @@ if (user.blockedActions >= 3 ||
 **📁 PII Masking Log:**
 ```
 .opencode/logs/pii-masking.log
+```
+
+**📁 Key Storage (Restricted Access):**
+```
+.opencode/.audit-key (mode 0600)
+.opencode/.audit-key.*.archive (rotated keys)
+```
+
+### Encryption Specifications
+
+| Параметр | Значение |
+|----------|----------|
+| Algorithm | AES-256-GCM |
+| Key Size | 256 bits (32 bytes) |
+| IV Size | 96 bits (12 bytes) |
+| HMAC | SHA-256 |
+| Hash Chain | SHA-256 |
+| Key Rotation | 30 days |
+| File Permissions | 0600 (owner only) |
+
+### Integrity Verification
+
+```javascript
+const { SecureAuditLogger } = require('./plugins/secure-audit-logger');
+
+const logger = new SecureAuditLogger();
+
+// Verify entire log integrity
+const results = logger.verifyIntegrity();
+
+if (results.chainBroken) {
+  console.error('Log tampering detected!');
+  console.error('First error:', results.firstError);
+}
+
+console.log(`Verified ${results.verifiedEntries}/${results.totalEntries} entries`);
+```
+
+### SIEM Integration
+
+**Поддерживаемые SIEM:**
+- Splunk (HEC endpoint)
+- ELK Stack (HTTP output)
+- Datadog (Logs API)
+- Grafana Loki (Push API)
+
+**Конфигурация:**
+```javascript
+const logger = new SecureAuditLogger({
+  siemEnabled: true,
+  siemEndpoint: 'https://splunk.example.com:8088/services/collector',
+  siemToken: process.env.SIEM_TOKEN,
+});
+```
+
+### Key Rotation
+
+**Автоматическая ротация:**
+- Каждые 30 дней
+- Старые ключи архивируются
+- Логирование ротации
+- Бесшовная миграция
+
+**Ручная ротация:**
+```javascript
+logger.rotateKey();
 ```
 
 ---
