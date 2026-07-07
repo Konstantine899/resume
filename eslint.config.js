@@ -18,7 +18,6 @@ const fsdImports = require('./.opencode/plugins/eslint-plugin-fsd-imports');
 const strictRules = {
   // Type safety - NO any types
   '@typescript-eslint/no-explicit-any': 'error',
-  '@typescript-eslint/no-implicit-any': 'error',
   '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   
   // Security - NO console.log in production
@@ -35,10 +34,6 @@ const strictRules = {
   // Error boundaries required
   'no-eval': 'error',
   'no-implied-eval': 'error',
-  
-  // Import style
-  'no-default-export': 'error',
-  'import/no-default-export': 'error',
 };
 
 export default tseslint.config(
