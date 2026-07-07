@@ -461,6 +461,13 @@ const summary = await mcp.call('orchestrator:aggregate', {
 
 | Агент | Статус | Интеграция |
 |-------|--------|------------|
+| **Git Family** | | |
+| `git-commit` | ✅ Active | Commit operations, pre-commit validation |
+| `git-branch` | ✅ Active | Branch/merge/rebase operations |
+| `git-remote` | ✅ Active | Remote/fetch/pull operations |
+| `git-automation` | ✅ Active | Hooks, changelog, PR description, tags |
+| `git-advanced` | ✅ Active | Bisect, worktree, LFS, submodule |
+| **Core Agents** | | |
 | `ui` | ✅ Active | Component creation |
 | `review` | ✅ Active | Code review, security audit |
 | `test-generation` | ✅ Active | Unit/Integration tests |
@@ -470,8 +477,8 @@ const summary = await mcp.call('orchestrator:aggregate', {
 | `storybook-test` | ✅ Active | Story creation |
 | `style` | ✅ Active | Style validation |
 | `guard` | ✅ Active | Security premoderation |
-| `critic` | ⏳ Future | Adversarial review |
-| `judge` | ⏳ Future | Quality scoring |
+| `critic` | ✅ Active | Adversarial review |
+| `judge` | ✅ Active | Quality scoring |
 
 ### Конфигурация
 

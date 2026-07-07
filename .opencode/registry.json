@@ -519,49 +519,6 @@
     }
   ],
 
-  "commands": [
-    {
-      "name": "add-story",
-      "file": "commands/add-story.md",
-      "version": "1.0.0",
-      "status": "active",
-      "agent": "storybook-test",
-      "description": "Добавление Storybook stories"
-    },
-    {
-      "name": "code-review",
-      "file": "commands/code-review.md",
-      "version": "1.0.0",
-      "status": "active",
-      "agent": "review",
-      "description": "Code review компонента"
-    },
-    {
-      "name": "generate-component",
-      "file": "commands/generate-component.md",
-      "version": "1.0.0",
-      "status": "active",
-      "agent": "ui",
-      "description": "Генерация React компонента"
-    },
-    {
-      "name": "run-tests",
-      "file": "commands/run-tests.md",
-      "version": "1.0.0",
-      "status": "active",
-      "agent": "test-generation",
-      "description": "Запуск тестов"
-    },
-    {
-      "name": "validate-fsd",
-      "file": "commands/validate-fsd.md",
-      "version": "1.0.0",
-      "status": "active",
-      "agent": "fsd-validator",
-      "description": "Валидация FSD архитектуры"
-    }
-  ],
-
   "configs": [
     {
       "name": "context",

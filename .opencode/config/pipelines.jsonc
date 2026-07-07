@@ -181,7 +181,11 @@
         "stopOnFail": false,
         "autoCommit": false,
         "notifyOnComplete": true,
-        "artifactStorage": ".opencode/artifacts/sessions/",
+        "memoryIntegration": {
+          "enabled": true,
+          "saveSession": true,
+          "contextTTL": 86400
+        }
       },
     },
 

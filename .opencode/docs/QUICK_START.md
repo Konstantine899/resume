@@ -180,13 +180,13 @@ MCP Servers:
 
 ```bash
 # Code review файла
-/code-review src/shared/ui/Button/Button.tsx
+/review src/shared/ui/Button/Button.tsx
 
 # Code review директории
-/code-review src/shared/ui
+/review src/shared/ui
 
 # Security audit
-/security-audit src/features/auth
+/review src/features/auth --focus security
 ```
 
 ### Тесты
@@ -309,7 +309,7 @@ export const Button: React.FC<ButtonProps> = ({
 **Введите команду:**
 
 ```
-/code-review src/shared/ui/Button
+/review src/shared/ui/Button
 ```
 
 **Ожидаемый результат:**
@@ -429,25 +429,25 @@ npm run test:coverage
 
 ```bash
 # Создать компонент
-/create-component <name> --layer <layer>
+/ui create <name> --layer <layer>
 
 # Code review
-/code-review <path>
+/review <path>
 
 # Исправить баг
-/fix-bug "<description>"
+/review <path> --fix
 
 # Рефакторинг
-/refactor <path>
+/review <path> --refactor
 
 # Валидация FSD
-/validate-fsd <path>
+/fsd-validator <path>
 
 # Проверка безопасности
-/security-audit <path>
+/review <path> --focus security
 
 # Проверка производительности
-/perf-check <path>
+/performance-test <path>
 ```
 
 ### Команды для работы с агентами
@@ -501,7 +501,7 @@ npm run test:coverage
 **Задача 2: Code review существующего кода**
 
 ```
-/code-review src/features/auth
+/review src/features/auth
 ```
 
 **Задача 3: Рефакторинг компонента**

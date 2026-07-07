@@ -20,6 +20,21 @@
 
 ## Агенты
 
+### Git Family (5 субагентов)
+
+| Агент | Назначение | Модель |
+|-------|------------|--------|
+| `git-commit` | Создание коммитов, pre-commit валидация | qwen3.5:397b-cloud |
+| `git-branch` | Ветки, merge, rebase, конфликты | qwen3.5:397b-cloud |
+| `git-remote` | Remote, fetch, pull, push инструкции | qwen2.5-coder:32b |
+| `git-automation` | Hooks, CHANGELOG, PR, tags | qwen3.5:397b-cloud |
+| `git-advanced` | Bisect, worktree, LFS, submodule | qwen3.5:397b-cloud |
+
+**Документация:** `GIT-SUBAGENTS-README.md`  
+**Общие конвенции:** `git-base-conventions.md`
+
+### Core Agents
+
 ### ui
 Создание UI компонентов (React 19 + TypeScript + CSS Modules)
 

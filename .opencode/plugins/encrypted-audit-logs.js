@@ -310,4 +310,83 @@ class EncryptedAuditLogger {
     
     // Маскирование PII
     const patterns = [
-      { regex: /p
+      { regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, replacement: '[EMAIL_MASKED]' },
+      { regex: /\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b/g, replacement: '[CARD_MASKED]' },
+      { regex: /\b\d{3}[- ]?\d{3}[- ]?\d{4}\b/g, replacement: '[PHONE_MASKED]' },
+      { regex: /\b[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d?[A-Z]{2}\b/gi, replacement: '[POSTCODE_MASKED]' },
+      { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, replacement: '[IP_MASKED]' }
+    ];
+    
+    let result = masked;
+    for (const pattern of patterns) {
+      result = result.replace(pattern.regex, pattern.replacement);
+    }
+    
+    try {
+      return JSON.parse(result);
+    } catch (error) {
+      return data;
+    }
+  }
+  
+  /**
+   * Получение метрик
+   */
+  getMetrics() {
+    return {
+      ...this.metrics,
+      keyGenerated: !!this.key,
+      logFileExists: fs.existsSync(this.logFile)
+    };
+  }
+}
+
+class DecryptionError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'DecryptionError';
+  }
+}
+
+// Plugin interface
+module.exports = {
+  name: 'encrypted-audit-logs',
+  version: '1.0.0',
+  init: (api) => {
+    const logger = new EncryptedAuditLogger();
+    
+    api.on('guard:action', (data) => {
+      logger.logGuardAction(
+        data.agent,
+        data.action,
+        data.path,
+        data.decision,
+        data.reason
+      );
+    });
+    
+    api.on('security:incident', (data) => {
+      logger.logSecurityIncident(
+        data.type,
+        data.severity,
+        data.details
+      );
+    });
+    
+    api.on('pii:access', (data) => {
+      logger.logPIIAccess(
+        data.type,
+        data.context,
+        data.masked
+      );
+    });
+    
+    console.log('[EncryptedAudit] Plugin registered');
+    
+    return {
+      logger,
+      exportLogs: (options) => logger.exportForAudit(options),
+      getMetrics: () => logger.getMetrics()
+    };
+  }
+};

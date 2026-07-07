@@ -115,9 +115,10 @@
 │   ├── quality-gates.log            # Логи Quality Gates
 │   └── pipelines.log                # Логи пайплайнов
 │
-└── artifacts/                       # Артефакты выполнения
-    ├── README.md                    # Описание артефактов
-    └── STANDARD.md                  # Стандарт артефактов
+└── logs/                            # Runtime логи
+    ├── guard-audit.log              # Аудит Guard
+    ├── quality-gates.log            # Quality Gates
+    └── pipelines.log                # Пайплайны
 ```
 
 ---
@@ -549,7 +550,7 @@ CONTEXT7_API_KEY=your-api-key-here
 **Все действия проходят через Guard:**
 
 #### Blocked (Auto-block)
-- ❌ Удаление файлов (кроме /tmp/, /artifacts/)
+- ❌ Удаление файлов (кроме /tmp/)
 - ❌ Запись в .git/, node_modules/, .env*
 - ❌ Shell: rm -rf, sudo, curl | bash
 - ❌ Prompt injection patterns
