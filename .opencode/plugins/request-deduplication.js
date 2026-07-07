@@ -135,7 +135,10 @@ class RequestDeduplicator {
     
     this.pendingRequests.set(hash, pending);
     
-    this._cleanupOldPending();
+    // Cleanup вынесен в timer (не в горячем пути)
+    if (!this._cleanupTimer) {
+      this._cleanupTimer = setInterval(() => this._cleanupOldPending(), this.windowMs);
+    }
     
     try {
       const result = await fn();
@@ -185,23 +188,29 @@ class RequestDeduplicator {
   _cleanupOldPending() {
     const now = Date.now();
     const cutoff = now - this.windowMs;
+    let cleaned = 0;
     
     for (const [hash, pending] of this.pendingRequests) {
       if (pending.createdAt < cutoff) {
         this.pendingRequests.delete(hash);
-        console.warn('[RequestDedup] Cleaned up stale pending request: ' + pending.operation);
+        cleaned++;
       }
+    }
+    
+    if (cleaned > 0) {
+      console.log('[RequestDedup] Cleaned up ' + cleaned + ' stale pending requests');
     }
     
     if (this.pendingRequests.size > this.maxPending) {
       const entries = Array.from(this.pendingRequests.entries());
-      const toRemove = entries.slice(0, entries.length - this.maxPending);
+      const sorted = entries.sort((a, b) => a[1].createdAt - b[1].createdAt);
+      const toRemoveCount = sorted.length - this.maxPending;
       
-      for (const [hash] of toRemove) {
-        this.pendingRequests.delete(hash);
+      for (let i = 0; i < toRemoveCount; i++) {
+        this.pendingRequests.delete(sorted[i][0]);
       }
       
-      console.warn('[RequestDedup] Trimmed pending queue to ' + this.maxPending);
+      console.log('[RequestDedup] Trimmed pending queue to ' + this.maxPending);
     }
   }
   
@@ -247,6 +256,13 @@ class RequestDeduplicator {
     try {
       const startTime = Date.now();
       
+      // Остановка timer
+      if (this._cleanupTimer) {
+        clearInterval(this._cleanupTimer);
+        this._cleanupTimer = null;
+      }
+      
+      // Reject всех pending requests
       for (const [hash, pending] of this.pendingRequests) {
         pending.reject(new Error('Shutdown'));
       }

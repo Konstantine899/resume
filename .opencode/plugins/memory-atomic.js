@@ -127,7 +127,7 @@ class MemoryAtomicWriter {
     }
   }
   
-  _waitForLock() {
+  async _waitForLock() {
     const startTime = Date.now();
     
     while (Date.now() - startTime < this.lockTimeout) {
@@ -138,8 +138,8 @@ class MemoryAtomicWriter {
       this.metrics.lockContentions++;
       const delay = Math.min(this.retryDelay * (1 + Math.random()), 500);
       
-      const start = Date.now();
-      while (Date.now() - start < delay) {}
+      // Async delay вместо blocking
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
     
     this.metrics.lockTimeouts++;

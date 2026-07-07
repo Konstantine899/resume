@@ -182,11 +182,39 @@ class SerenaFallbackManager {
   }
   
   async _serenaHealthCheck() {
+    const { execSync } = require('child_process');
+    
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new Error('Serena health check timeout'));
+        reject(new Error('Serena health check timeout (5s)'));
       }, 5000);
-      resolve({ healthy: true });
+      
+      try {
+        // Проверка доступности WSL
+        execSync('wsl --list --verbose', { 
+          encoding: 'utf8',
+          timeout: 4000,
+          stdio: 'pipe'
+        });
+        
+        // Проверка Serena в WSL
+        execSync('wsl -e bash -c "source $HOME/.local/bin/env && which serena"', {
+          encoding: 'utf8',
+          timeout: 4000,
+          stdio: 'pipe'
+        });
+        
+        clearTimeout(timeout);
+        resolve({ healthy: true, source: 'wsl_serena_available' });
+        
+      } catch (error) {
+        clearTimeout(timeout);
+        resolve({ 
+          healthy: false, 
+          error: error.message,
+          source: 'health_check_failed'
+        });
+      }
     });
   }
   

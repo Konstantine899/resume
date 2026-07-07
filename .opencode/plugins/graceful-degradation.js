@@ -17,6 +17,12 @@ class GracefulDegradationManager {
       OFFLINE: 'offline'
     };
     
+    // Configurable thresholds
+    this.thresholds = {
+      reduced: options.reducedThreshold || 0.3,
+      minimal: options.minimalThreshold || 0.7
+    };
+    
     this.initialized = false;
     this.currentLevel = this.degradationLevels.FULL;
     this.disabledFeatures = new Set();
@@ -175,11 +181,12 @@ class GracefulDegradationManager {
     
     const oldLevel = this.currentLevel;
     
+    // Используем конфигурируемые thresholds
     if (healthRatio === 0) {
       this.currentLevel = this.degradationLevels.FULL;
-    } else if (healthRatio < 0.3) {
+    } else if (healthRatio < this.thresholds.reduced) {
       this.currentLevel = this.degradationLevels.REDUCED;
-    } else if (healthRatio < 0.7) {
+    } else if (healthRatio < this.thresholds.minimal) {
       this.currentLevel = this.degradationLevels.MINIMAL;
     } else {
       this.currentLevel = this.degradationLevels.OFFLINE;

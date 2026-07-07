@@ -135,7 +135,7 @@ class HealthDashboard {
         }
       };
       
-      // Check plugins
+      // Check plugins (cached instances to avoid init/shutdown overhead)
       const plugins = [
         'structured-logging',
         'circuit-breaker',
@@ -154,18 +154,23 @@ class HealthDashboard {
         'agent-integration'
       ];
       
-      for (const pluginName of plugins) {
-        try {
-          const PluginClass = require(`./${pluginName}.js`);
-          const plugin = new PluginClass();
-          
-          // Инициализация перед health check
+      // Инициализация только при первом запуске
+      if (!this.pluginInstances) {
+        this.pluginInstances = new Map();
+        for (const pluginName of plugins) {
           try {
-            await plugin.init();
-          } catch (initError) {
-            // Игнорируем ошибки инициализации (плагин может быть уже инициализирован)
+            const PluginClass = require(`./${pluginName}.js`);
+            const plugin = new PluginClass();
+            this.pluginInstances.set(pluginName, plugin);
+          } catch (error) {
+            console.warn('[HealthDashboard] Plugin load failed: ' + pluginName, error.message);
           }
-          
+        }
+      }
+      
+      // Health check без инициализации/shutdown
+      for (const [pluginName, plugin] of this.pluginInstances) {
+        try {
           const health = await plugin.health();
           
           result.plugins[pluginName] = health;
@@ -182,8 +187,6 @@ class HealthDashboard {
             result.summary.unhealthy++;
             result.overall = 'unhealthy';
           }
-          
-          await plugin.shutdown();
           
         } catch (error) {
           result.plugins[pluginName] = {

@@ -37,6 +37,9 @@ class AdaptiveParallelMCP {
     this.recentLatencies = [];
     this.errorRates = {};
     
+    // Event emitter для slot availability
+    this._slotWaiters = [];
+    
     this.monitoringInterval = options.monitoringInterval || 5000;
   }
   
@@ -126,11 +129,15 @@ class AdaptiveParallelMCP {
       this._recordLatency(mcpServer, duration);
       this.activeConnections--;
       
+      // Уведомление ожидающих о доступном слоте
+      this._notifySlotAvailable();
+      
       return result;
       
     } catch (error) {
       this._recordError(mcpServer, error);
       this.activeConnections--;
+      this._notifySlotAvailable();
       throw error;
     }
   }
@@ -154,17 +161,28 @@ class AdaptiveParallelMCP {
     return results;
   }
   
-  _waitForSlot() {
+  async _waitForSlot() {
+    // Event-based waiting вместо polling
     return new Promise(resolve => {
-      const check = () => {
-        if (this.activeConnections < this.currentConcurrency) {
-          resolve();
-        } else {
-          setTimeout(check, 50);
+      const onSlotAvailable = () => {
+        const index = this._slotWaiters.indexOf(onSlotAvailable);
+        if (index > -1) {
+          this._slotWaiters.splice(index, 1);
         }
+        resolve();
       };
-      check();
+      this._slotWaiters.push(onSlotAvailable);
     });
+  }
+  
+  _notifySlotAvailable() {
+    // Уведомляем первого ожидающего
+    if (this._slotWaiters.length > 0) {
+      const waiter = this._slotWaiters.shift();
+      if (waiter) {
+        waiter();
+      }
+    }
   }
   
   _recordLatency(mcpServer, duration) {

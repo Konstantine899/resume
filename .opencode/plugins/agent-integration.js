@@ -140,8 +140,25 @@ function getAgentIntegration(agentName) {
   return instances.get(agentName);
 }
 
+// Cleanup всех инстансов при shutdown
+async function shutdownAll() {
+  const results = [];
+  for (const [name, instance] of instances) {
+    try {
+      const result = await instance.shutdown();
+      results.push({ name, ...result });
+    } catch (error) {
+      results.push({ name, error: error.message });
+    }
+  }
+  instances.clear();
+  console.log('[AgentIntegration] All instances shutdown complete');
+  return results;
+}
+
 module.exports = {
   AgentIntegration,
   createAgentIntegration,
-  getAgentIntegration
+  getAgentIntegration,
+  shutdownAll
 };

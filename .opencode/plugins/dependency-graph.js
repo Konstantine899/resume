@@ -96,11 +96,17 @@ class DependencyGraph {
   
   _loadRegistry() {
     if (!fs.existsSync(this.registryPath)) {
-      throw new Error('Registry not found: ' + this.registryPath);
+      console.warn('[DependencyGraph] Registry not found, using empty registry');
+      return { plugins: [], mcpServers: {}, agents: [] };
     }
     
-    const content = fs.readFileSync(this.registryPath, 'utf8');
-    return JSON.parse(content);
+    try {
+      const content = fs.readFileSync(this.registryPath, 'utf8');
+      return JSON.parse(content);
+    } catch (error) {
+      console.error('[DependencyGraph] Registry parse failed:', error.message);
+      return { plugins: [], mcpServers: {}, agents: [] };
+    }
   }
   
   _buildGraph() {

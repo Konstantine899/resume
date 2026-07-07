@@ -65,8 +65,30 @@ class EncryptedAuditLogger {
     
     try {
       fs.writeFileSync(this.keyFile, this.key.toString('hex'), 'utf8');
-      fs.chmodSync(this.keyFile, 0o600); // Только владелец может читать
-      console.log('[EncryptedAudit] Key generated and secured (chmod 600)');
+      
+      // OS-aware key protection
+      const isWindows = process.platform === 'win32';
+      
+      if (isWindows) {
+        // Windows: Use icacls для установки прав
+        try {
+          const { execSync } = require('child_process');
+          const username = process.env.USERNAME || process.env.USER || 'Administrators';
+          // Запретить наследование, дать права только текущему пользователю
+          execSync(`icacls "${this.keyFile}" /inheritance:r /grant:r "${username}:(R)" 2>nul`, {
+            stdio: 'ignore',
+            windowsHide: true
+          });
+          console.log('[EncryptedAudit] Key secured with icacls (Windows)');
+        } catch (chmodError) {
+          console.warn('[EncryptedAudit] icacls failed, key saved without ACL:', chmodError.message);
+        }
+      } else {
+        // Unix/Linux/macOS: стандартный chmod
+        fs.chmodSync(this.keyFile, 0o600);
+        console.log('[EncryptedAudit] Key secured with chmod 600 (Unix)');
+      }
+      
     } catch (error) {
       console.error('[EncryptedAudit] Key save failed:', error.message);
     }

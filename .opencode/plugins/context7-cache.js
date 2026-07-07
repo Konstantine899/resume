@@ -203,7 +203,7 @@ class Context7Cache {
     }, 60000);
   }
   
-  _saveCache() {
+  async _saveCache() {
     try {
       const dir = path.dirname(this.memoryPath);
       if (!fs.existsSync(dir)) {
@@ -216,8 +216,10 @@ class Context7Cache {
       }
       
       const tempPath = this.memoryPath + '.tmp.' + Date.now();
-      fs.writeFileSync(tempPath, JSON.stringify(cacheObj, null, 2), 'utf8');
-      fs.renameSync(tempPath, this.memoryPath);
+      
+      // Async I/O для неблокирующей записи
+      await fs.promises.writeFile(tempPath, JSON.stringify(cacheObj, null, 2), 'utf8');
+      await fs.promises.rename(tempPath, this.memoryPath);
       
     } catch (error) {
       console.warn('[Context7Cache] Save failed:', error.message);
