@@ -1,0 +1,46 @@
+{
+  "version": "1.0.0",
+  "description": "Performance budgets for bundle size enforcement",
+  "budgets": {
+    "chunks": {
+      "default": {
+        "maxSize": 102400,
+        "maxSizeGzip": 30720,
+        "description": "Default chunk size limit (100kb raw, 30kb gzip)"
+      },
+      "vendor": {
+        "maxSize": 204800,
+        "maxSizeGzip": 61440,
+        "description": "Vendor chunk limit (200kb raw, 60kb gzip)"
+      },
+      "main": {
+        "maxSize": 153600,
+        "maxSizeGzip": 46080,
+        "description": "Main chunk limit (150kb raw, 45kb gzip)"
+      }
+    },
+    "total": {
+      "maxSize": 512000,
+      "maxSizeGzip": 153600,
+      "description": "Total bundle size limit (500kb raw, 150kb gzip)"
+    },
+    "assets": {
+      "maxSize": 102400,
+      "description": "Individual asset limit (100kb)"
+    }
+  },
+  "patterns": {
+    "vendor": ["node_modules", "vendor"],
+    "main": ["index", "main", "app"],
+    "chunk": [".chunk."]
+  },
+  "thresholds": {
+    "warning": 0.8,
+    "error": 1.0
+  },
+  "enforcement": {
+    "failBuild": true,
+    "showDetails": true,
+    "compareWithPrevious": true
+  }
+}
