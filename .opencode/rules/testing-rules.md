@@ -54,6 +54,7 @@
 - **Flakiness Rate**: < 1% flaky tests
 - **Test Speed**: < 30s full test suite
 - **Maintainability**: < 10% test code duplication
+- **Fake Test Rate**: 0% (enforced by coverage-fake-protection)
 
 ### 2. COVERAGE METRICS:
 
@@ -61,6 +62,7 @@
 - **Branch Coverage**: > 85%
 - **Function Coverage**: > 95%
 - **Statement Coverage**: > 90%
+- **Assertion Coverage**: 100% (all tests must have assertions)
 
 ### 3. PERFORMANCE METRICS:
 
@@ -68,6 +70,107 @@
 - **Integration Test Speed**: < 200ms per test
 - **E2E Test Speed**: < 2s per test
 - **Memory Usage**: < 50MB per test suite
+
+---
+
+## 🔧 COVERAGE FAKE PROTECTION v2.0
+
+### Реализация
+
+**Плагин:** `.opencode/plugins/vitest-plugin-coverage-fake-protection.ts`  
+**Setup:** `.opencode/plugins/coverage-fake-setup.ts`
+
+### Что Детектируется
+
+**❌ Fake Tests:**
+- Tests без assertions
+- Tests с пустым телом
+- Tests без expect()/assert()
+- Tests где тело — просто значение
+
+**Примеры Fake Tests:**
+```typescript
+// ❌ FAKE: No assertions
+test('should work', () => {
+  const result = someFunction();
+  // No expect() call
+});
+
+// ❌ FAKE: Empty body
+test('should do something', () => {});
+
+// ❌ FAKE: Just a value
+test('returns true', () => true);
+
+// ✅ OK: Has assertion
+test('should return true', () => {
+  const result = someFunction();
+  expect(result).toBe(true);
+});
+```
+
+### Конфигурация Vitest
+
+```typescript
+// vitest.config.ts
+import { defineFakeCoverageConfig } from './.opencode/plugins/vitest-plugin-coverage-fake-protection';
+
+export default defineFakeCoverageConfig({
+  minAssertions: 1,
+  assertFunctionNames: ['expect', 'assert', 'should'],
+  failBuild: true,
+  showDetails: true,
+});
+```
+
+### Coverage Thresholds
+
+```typescript
+// vitest.config.ts
+export default {
+  test: {
+    coverage: {
+      thresholds: {
+        lines: 90,
+        branches: 85,
+        functions: 95,
+        statements: 90,
+      },
+      // Require actual assertions
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        '**/__tests__/**',
+        '**/node_modules/**',
+      ],
+    },
+  },
+};
+```
+
+### ESLint Integration
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  rules: {
+    // Require expect-expect pattern
+    'testing-library/expect-expect': [
+      'error',
+      { assertFunctionNames: ['expect', 'assert'] }
+    ],
+  },
+};
+```
+
+### CI/CD Enforcement
+
+```yaml
+# .github/workflows/test-quality.yml
+- name: Check Test Quality
+  run: npm run test -- --coverage --fail-on-fake
+```
 
 ## 🔧 TESTING AUTOMATION
 
