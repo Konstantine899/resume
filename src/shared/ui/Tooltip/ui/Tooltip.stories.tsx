@@ -1,5 +1,6 @@
 import { Icon } from '@/shared/ui/Icon';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, userEvent, waitFor, within } from '@storybook/test';
 import { HelpCircle, Info } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 
@@ -101,6 +102,25 @@ export const Default: Story = {
     trigger: 'hover',
     children: <button style={{ padding: '0.5rem 1rem' }}>Hover me</button>,
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Hover me' });
+
+    // Hover to show
+    await userEvent.hover(button);
+    const tooltip = await canvas.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('Это всплывающая подсказка');
+
+    // Unhover to hide
+    await userEvent.unhover(button);
+    await waitFor(
+      () => {
+        expect(tooltip).not.toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
+  },
 };
 
 /**
@@ -149,6 +169,22 @@ export const ClickTrigger: Story = {
     trigger: 'click',
     position: 'bottom',
     children: <button style={{ padding: '0.5rem 1rem' }}>Click me</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Click me' });
+
+    // Click to open
+    await userEvent.click(button);
+    const tooltip = await canvas.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('Нажмите ещё раз чтобы закрыть');
+
+    // Click to close
+    await userEvent.click(button);
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -345,6 +381,21 @@ export const KeyboardNavigation: Story = {
     trigger: 'click',
     position: 'bottom',
     children: <button style={{ padding: '0.5rem 1rem' }}>Click + Escape</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Click + Escape' });
+
+    // Click to open
+    await userEvent.click(button);
+    const tooltip = await canvas.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+
+    // Press Escape to close
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   },
 };
 

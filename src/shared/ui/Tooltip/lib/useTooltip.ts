@@ -1,8 +1,12 @@
 import { debounce } from '@/shared/lib/utils/debounce';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { TOOLTIP_CONSTANTS } from '../model/constants';
-import type { TooltipPosition, TooltipProps } from '../model/types';
+import type { TooltipPosition, TooltipProps, TooltipTrigger } from '../model/types';
 import { calculateTooltipPosition } from './utils/tooltipPosition';
+
+// Valid values for runtime validation
+const VALID_POSITIONS: TooltipPosition[] = ['top', 'bottom', 'left', 'right'];
+const VALID_TRIGGERS: TooltipTrigger[] = ['hover', 'focus', 'click'];
 
 interface UseTooltipReturn {
   isVisible: boolean;
@@ -51,16 +55,62 @@ export const useTooltip = ({
   const triggerRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-  // Debounced show/hide
+  // Runtime validation in development mode
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      if (!VALID_POSITIONS.includes(position)) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Tooltip: invalid position "${position}". Valid values: ${VALID_POSITIONS.join(', ')}`
+        );
+      }
+      if (!VALID_TRIGGERS.includes(trigger)) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Tooltip: invalid trigger "${trigger}". Valid values: ${VALID_TRIGGERS.join(', ')}`
+        );
+      }
+    }
+  }, [position, trigger]);
+
+  // Track pending debounce functions for cleanup
+  type DebouncedFn = {
+    (): void;
+    cancel?: () => void;
+  };
+  const pendingShowRef = useRef<DebouncedFn | null>(null);
+  const pendingHideRef = useRef<DebouncedFn | null>(null);
+
+  // Debounced show/hide with cleanup
   const debouncedShow = useCallback(() => {
-    const fn = debounce(() => setIsVisible(true), showDelay);
+    if (pendingShowRef.current?.cancel) {
+      pendingShowRef.current.cancel();
+    }
+    const fn = debounce(() => setIsVisible(true), showDelay) as DebouncedFn;
+    pendingShowRef.current = fn;
     fn();
   }, [showDelay]);
 
   const debouncedHide = useCallback(() => {
-    const fn = debounce(() => setIsVisible(false), hideDelay);
+    if (pendingHideRef.current?.cancel) {
+      pendingHideRef.current.cancel();
+    }
+    const fn = debounce(() => setIsVisible(false), hideDelay) as DebouncedFn;
+    pendingHideRef.current = fn;
     fn();
   }, [hideDelay]);
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingShowRef.current?.cancel) {
+        pendingShowRef.current.cancel();
+      }
+      if (pendingHideRef.current?.cancel) {
+        pendingHideRef.current.cancel();
+      }
+    };
+  }, []);
 
   // Вычисление позиции
   const updatePosition = useCallback(() => {
@@ -186,20 +236,26 @@ export const useTooltip = ({
     return undefined;
   }, [trigger, isVisible]);
 
-  return {
-    isVisible,
-    calculatedStyle,
-    adjustedPosition,
-    triggerRef,
-    tooltipRef,
-    handlers: {
+  // Memoize handlers object to prevent recreation on every render
+  const handlers = useMemo(
+    () => ({
       handleMouseEnter,
       handleMouseLeave,
       handleFocus,
       handleBlur,
       handleClick,
       handleKeyDown,
-    },
+    }),
+    [handleMouseEnter, handleMouseLeave, handleFocus, handleBlur, handleClick, handleKeyDown]
+  );
+
+  return {
+    isVisible,
+    calculatedStyle,
+    adjustedPosition,
+    triggerRef,
+    tooltipRef,
+    handlers,
     shouldRender: isVisible && !disabled,
   };
 };

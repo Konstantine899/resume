@@ -3,6 +3,19 @@
 
 // ============================================
 
+// CSS Custom Properties (Variables)
+
+// ============================================
+
+$tooltip-transition-duration: 200ms;
+$tooltip-transition-timing: ease;
+$tooltip-focus-outline: 2px solid var(--tooltip-focus, #3b82f6);
+$tooltip-focus-offset: 2px;
+$tooltip-scale-hidden: 0.95;
+$tooltip-scale-visible: 1;
+
+// ============================================
+
 // Tooltip Component Styles
 
 // ============================================
@@ -31,16 +44,23 @@
 
   // Animation
   opacity: 0;
-  transform: scale(0.95);
+  transform: scale($tooltip-scale-hidden);
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity $tooltip-transition-duration $tooltip-transition-timing,
+    transform $tooltip-transition-duration $tooltip-transition-timing;
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transform: scale($tooltip-scale-visible);
+    transition: none;
+  }
 
   // Visible state
   &.visible {
     pointer-events: auto;
     opacity: 1;
-    transform: scale(1);
+    transform: scale($tooltip-scale-visible);
 
     @include animate-fade-in;
   }
@@ -95,7 +115,7 @@
 
   // Accessibility focus
   &:focus-visible {
-    outline: 2px solid var(--tooltip-focus, #3b82f6);
-    outline-offset: 2px;
+    outline: $tooltip-focus-outline;
+    outline-offset: $tooltip-focus-offset;
   }
 }
