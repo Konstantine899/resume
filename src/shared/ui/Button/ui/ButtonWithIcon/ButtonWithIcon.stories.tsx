@@ -2,7 +2,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from '@storybook/test';
-import { Mail, ArrowRight, User, Download } from 'lucide-react';
+import { ArrowRight, Download, Mail, User } from 'lucide-react';
 import { ButtonWithIcon } from './ButtonWithIcon';
 
 const meta = {

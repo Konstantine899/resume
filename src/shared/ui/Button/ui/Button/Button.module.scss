@@ -4,6 +4,17 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 
+// ============================================
+
+// CSS Custom Properties (Variables)
+
+// ============================================
+
+$button-transition-duration: 200ms;
+$button-transition-timing: ease;
+$button-focus-outline: 2px solid $primary-light;
+$button-focus-offset: 2px;
+
 .button {
   @include flex-center;
 
@@ -17,7 +28,12 @@
   outline: none;
   border: none;
   border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  transition: all $button-transition-duration $button-transition-timing;
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   &:disabled {
     cursor: not-allowed;
@@ -25,11 +41,16 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-light;
-    outline-offset: 2px;
+    outline: $button-focus-outline;
+    outline-offset: $button-focus-offset;
   }
 
+  // ============================================
+
   // Variants
+
+  // ============================================
+
   &.primary {
     color: white;
     background-color: $primary-light;
@@ -74,9 +95,14 @@
     background-color: var(--card-bg);
     border: 1px solid var(--card-border);
 
+    &:hover:not(:disabled) {
+      background-color: var(--background-secondary);
+      border-color: var(--foreground-muted);
+    }
+
     &:focus-visible {
-      outline: 2px solid $primary-light;
-      outline-offset: 2px;
+      outline: $button-focus-outline;
+      outline-offset: $button-focus-offset;
     }
   }
 
@@ -89,7 +115,12 @@
     }
   }
 
+  // ============================================
+
   // Sizes
+
+  // ============================================
+
   &.sm {
     padding: $spacing-sm $spacing-md;
     font-size: 0.875rem;
@@ -105,7 +136,12 @@
     font-size: 1.125rem;
   }
 
-  // States
+  // ============================================
+
+  // States & Modifiers
+
+  // ============================================
+
   &.fullWidth {
     width: 100%;
   }
@@ -128,6 +164,12 @@
       height: 60%;
     }
   }
+
+  // ============================================
+
+  // Internal Elements
+
+  // ============================================
 
   .content {
     display: flex;

@@ -12,7 +12,7 @@ import { createRequire } from 'module';
 
 // Local FSD imports plugin
 const require = createRequire(import.meta.url);
-const fsdImports = require('./.opencode/plugins/eslint-plugin-fsd-imports');
+const fsdImports = require('./.opencode/plugins/eslint-plugin-fsd-imports.js');
 
 // Strict mode rules for P0 security enforcement
 const strictRules = {

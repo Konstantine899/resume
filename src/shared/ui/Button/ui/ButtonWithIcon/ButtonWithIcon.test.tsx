@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Mail, ArrowRight } from 'lucide-react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { ArrowRight, Mail } from 'lucide-react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ButtonWithIcon } from './ButtonWithIcon';
 import buttonWithIconStyles from './ButtonWithIcon.module.scss';
 
