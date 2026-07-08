@@ -1,7 +1,7 @@
 ---
 name: prompt-refinement
 description: Улучшение промптов для React 19 + TypeScript + Vite + FSD
-model: ollama/qwen2.5-coder:7b-instruct-q4_K_M
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # 🔍 FSD Prompt Refinement Agent

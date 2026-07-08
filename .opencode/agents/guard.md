@@ -1,7 +1,7 @@
 ---
 name: guard
 description: Премодерация MCP-вызовов, prompt injection detection, PII masking, access control
-model: ollama/qwen2.5-coder:32b
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # 🛡️ Guard Agent — Защитный слой безопасности

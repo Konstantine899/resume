@@ -1,7 +1,7 @@
 ---
 name: integration-test
 description: Интеграционное тестирование FSD слоев с MSW мокингом
-model: ollama-cloud/gpt-oss:20b-cloud
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 

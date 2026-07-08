@@ -1,7 +1,7 @@
 ---
 name: orchestrator
 description: Координация агентов, декомпозиция задач, сбор результатов
-model: ollama/qwen2.5-coder:32b
+model: ollama-cloud/qwen3.5:397b-cloud
 ---
 
 # 🎯 Orchestrator Agent — Координатор мульти-агентных систем
