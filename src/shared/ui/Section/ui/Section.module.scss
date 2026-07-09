@@ -63,7 +63,8 @@
     margin-right: auto;
   }
 
-  &.2xl {
+  // Escape sequence для класса начинающегося с цифры (\32 = '2')
+  &.\32 xl {
     max-width: 1536px;
     margin-left: auto;
     margin-right: auto;
