@@ -190,33 +190,35 @@ describe('Divider', () => {
       consoleWarnSpy.mockRestore();
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     it('должен предупреждать о невалидном orientation', () => {
-      render(<Divider orientation={'invalid' as any} />);
+      // @ts-expect-error Testing invalid prop value
+      render(<Divider orientation="invalid" />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Divider: invalid orientation "invalid"')
       );
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     it('должен предупреждать о невалидном variant', () => {
-      render(<Divider variant={'invalid' as any} />);
+      // @ts-expect-error Testing invalid prop value
+      render(<Divider variant="invalid" />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Divider: invalid variant "invalid"')
       );
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     it('должен предупреждать о thickness < 1', () => {
-      render(<Divider thickness={0 as any} />);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const invalidProps: any = { thickness: 0 };
+      render(<Divider {...invalidProps} />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Divider: invalid thickness "0"')
       );
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     it('должен предупреждать о thickness > 10', () => {
-      render(<Divider thickness={15 as any} />);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const invalidProps: any = { thickness: 15 };
+      render(<Divider {...invalidProps} />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Divider: invalid thickness "15"')
       );

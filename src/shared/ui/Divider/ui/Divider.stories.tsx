@@ -100,42 +100,52 @@ const Container = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const HorizontalContainer = ({ children }: { children: React.ReactNode }) => (
+const ContentContainer = ({ children }: { children: React.ReactNode }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>{children}</div>
 );
 
-const VerticalContainer = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100px' }}>
-    {children}
-  </div>
-);
-
 // ============================================
-// Basic Variants
+// Basic Variants (с args и контекстом)
 // ============================================
 
 export const Solid: Story = {
-  render: () => (
+  render: (args) => (
     <Container>
-      <Divider variant="solid" />
+      <div style={{ marginBottom: '16px' }}>
+        <h4 style={{ margin: 0 }}>Section Above</h4>
+        <p style={{ margin: '8px 0 0', color: 'var(--foreground)', opacity: 0.8 }}>
+          Content above the divider
+        </p>
+      </div>
+      <Divider {...args} />
+      <div style={{ marginTop: '16px' }}>
+        <h4 style={{ margin: 0 }}>Section Below</h4>
+        <p style={{ margin: '8px 0 0', color: 'var(--foreground)', opacity: 0.8 }}>
+          Content below the divider
+        </p>
+      </div>
     </Container>
   ),
+  args: {
+    variant: 'solid',
+    thickness: 1,
+  },
 };
 
 export const Dashed: Story = {
-  render: () => (
-    <Container>
-      <Divider variant="dashed" />
-    </Container>
-  ),
+  ...Solid,
+  args: {
+    variant: 'dashed',
+    thickness: 2,
+  },
 };
 
 export const Dotted: Story = {
-  render: () => (
-    <Container>
-      <Divider variant="dotted" />
-    </Container>
-  ),
+  ...Solid,
+  args: {
+    variant: 'dotted',
+    thickness: 2,
+  },
 };
 
 // ============================================
@@ -143,21 +153,31 @@ export const Dotted: Story = {
 // ============================================
 
 export const Horizontal: Story = {
-  render: () => (
-    <Container>
-      <Divider orientation="horizontal" />
-    </Container>
-  ),
+  ...Solid,
+  args: {
+    orientation: 'horizontal',
+    variant: 'solid',
+    thickness: 1,
+  },
 };
 
 export const Vertical: Story = {
-  render: () => (
-    <VerticalContainer>
-      <span>Left</span>
-      <Divider orientation="vertical" fullHeight />
-      <span>Right</span>
-    </VerticalContainer>
+  render: (args) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100px' }}>
+      <div style={{ textAlign: 'center', padding: '8px' }}>
+        <strong>Left Panel</strong>
+      </div>
+      <Divider {...args} fullHeight />
+      <div style={{ textAlign: 'center', padding: '8px' }}>
+        <strong>Right Panel</strong>
+      </div>
+    </div>
   ),
+  args: {
+    orientation: 'vertical',
+    variant: 'solid',
+    thickness: 1,
+  },
 };
 
 // ============================================
@@ -165,27 +185,47 @@ export const Vertical: Story = {
 // ============================================
 
 export const Thickness1px: Story = {
-  render: () => (
-    <Container>
-      <Divider thickness={1} />
-    </Container>
+  render: (args) => (
+    <ContentContainer>
+      <Container>
+        <span>1px thickness</span>
+        <Divider {...args} thickness={1} />
+      </Container>
+      <Container>
+        <span>2px thickness</span>
+        <Divider {...args} thickness={2} />
+      </Container>
+      <Container>
+        <span>3px thickness</span>
+        <Divider {...args} thickness={3} />
+      </Container>
+      <Container>
+        <span>5px thickness</span>
+        <Divider {...args} thickness={5} />
+      </Container>
+      <Container>
+        <span>10px thickness</span>
+        <Divider {...args} thickness={10} />
+      </Container>
+    </ContentContainer>
   ),
+  args: {
+    variant: 'solid',
+  },
 };
 
 export const Thickness2px: Story = {
-  render: () => (
-    <Container>
-      <Divider thickness={2} />
-    </Container>
-  ),
+  ...Solid,
+  args: {
+    thickness: 2,
+  },
 };
 
 export const Thickness5px: Story = {
-  render: () => (
-    <Container>
-      <Divider thickness={5} />
-    </Container>
-  ),
+  ...Solid,
+  args: {
+    thickness: 5,
+  },
 };
 
 // ============================================
@@ -193,83 +233,139 @@ export const Thickness5px: Story = {
 // ============================================
 
 export const AllVariants: Story = {
-  render: () => (
-    <HorizontalContainer>
+  render: (args) => (
+    <ContentContainer>
       <Container>
-        <h4>Solid</h4>
-        <Divider variant="solid" />
+        <h4 style={{ marginBottom: '12px' }}>Solid</h4>
+        <Divider {...args} variant="solid" />
       </Container>
       <Container>
-        <h4>Dashed</h4>
-        <Divider variant="dashed" />
+        <h4 style={{ marginBottom: '12px' }}>Dashed</h4>
+        <Divider {...args} variant="dashed" />
       </Container>
       <Container>
-        <h4>Dotted</h4>
-        <Divider variant="dotted" />
+        <h4 style={{ marginBottom: '12px' }}>Dotted</h4>
+        <Divider {...args} variant="dotted" />
       </Container>
-    </HorizontalContainer>
+    </ContentContainer>
   ),
 };
 
 export const AllThicknesses: Story = {
-  render: () => (
-    <HorizontalContainer>
-      <Container>
-        <h4>1px</h4>
-        <Divider thickness={1} />
-      </Container>
-      <Container>
-        <h4>2px</h4>
-        <Divider thickness={2} />
-      </Container>
-      <Container>
-        <h4>3px</h4>
-        <Divider thickness={3} />
-      </Container>
-      <Container>
-        <h4>5px</h4>
-        <Divider thickness={5} />
-      </Container>
-      <Container>
-        <h4>10px</h4>
-        <Divider thickness={10} />
-      </Container>
-    </HorizontalContainer>
+  render: (args) => (
+    <ContentContainer>
+      {[1, 2, 3, 5, 10].map((thickness) => (
+        <Container key={thickness}>
+          <div style={{ marginBottom: '8px', fontSize: '14px' }}>{thickness}px thickness</div>
+          <Divider {...args} thickness={thickness} />
+        </Container>
+      ))}
+    </ContentContainer>
   ),
 };
 
 export const ContentSeparation: Story = {
-  render: () => (
+  render: (args) => (
     <Container>
-      <div style={{ marginBottom: '16px' }}>
-        <h3>Section 1</h3>
-        <p>Content above divider</p>
-      </div>
-      <Divider />
-      <div style={{ marginTop: '16px' }}>
-        <h3>Section 2</h3>
+      <section>
+        <h3 style={{ marginBottom: '8px' }}>Section 1</h3>
+        <p style={{ marginBottom: '16px' }}>Content above divider</p>
+        <Divider {...args} />
+        <h3 style={{ marginTop: '16px', marginBottom: '8px' }}>Section 2</h3>
         <p>Content below divider</p>
-      </div>
+      </section>
     </Container>
   ),
 };
 
-export const VerticalLayout: Story = {
-  render: () => (
-    <VerticalContainer>
-      <div style={{ textAlign: 'center' }}>
+export const VerticalLayoutStory: Story = {
+  render: (args) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '120px' }}>
+      <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 1</strong>
       </div>
-      <Divider orientation="vertical" fullHeight variant="solid" />
-      <div style={{ textAlign: 'center' }}>
+      <Divider {...args} orientation="vertical" fullHeight />
+      <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 2</strong>
       </div>
-      <Divider orientation="vertical" fullHeight variant="dashed" />
-      <div style={{ textAlign: 'center' }}>
+      <Divider {...args} orientation="vertical" fullHeight variant="dashed" />
+      <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 3</strong>
       </div>
-    </VerticalContainer>
+    </div>
   ),
+  args: {
+    variant: 'solid',
+    thickness: 1,
+  },
+};
+
+// ============================================
+// Theme Comparison
+// ============================================
+
+export const ThemeComparison: Story = {
+  render: (args) => (
+    <div
+      style={{
+        display: 'flex',
+        gap: '32px',
+        padding: '20px',
+      }}
+    >
+      <div
+        data-theme="light"
+        style={{
+          flex: 1,
+          padding: '24px',
+          backgroundColor: '#ffffff',
+          borderRadius: '12px',
+          border: '1px solid #e0e0e0',
+        }}
+      >
+        <h4 style={{ marginBottom: '16px', color: '#333' }}>Light Theme</h4>
+        <Divider {...args} />
+        <p style={{ marginTop: '16px', color: '#666', fontSize: '14px' }}>
+          Divider on light background
+        </p>
+      </div>
+      <div
+        data-theme="dark"
+        style={{
+          flex: 1,
+          padding: '24px',
+          backgroundColor: '#1a1a1a',
+          borderRadius: '12px',
+          border: '1px solid #333',
+        }}
+      >
+        <h4 style={{ marginBottom: '16px', color: '#fff' }}>Dark Theme</h4>
+        <Divider {...args} />
+        <p style={{ marginTop: '16px', color: '#999', fontSize: '14px' }}>
+          Divider on dark background
+        </p>
+      </div>
+    </div>
+  ),
+};
+
+// ============================================
+// Playground (для демонстрации Controls)
+// ============================================
+
+export const Playground: Story = {
+  render: (args) => (
+    <Container>
+      <Divider {...args} />
+    </Container>
+  ),
+  args: {
+    orientation: 'horizontal',
+    variant: 'solid',
+    thickness: 1,
+    fullWidth: false,
+    fullHeight: false,
+  },
 };
 
 // ============================================
@@ -277,18 +373,18 @@ export const VerticalLayout: Story = {
 // ============================================
 
 export const Interactive: Story = {
-  render: () => (
-    <HorizontalContainer>
+  render: (args) => (
+    <ContentContainer>
       <Container>
-        <Divider data-testid="divider-horizontal" />
+        <Divider {...args} data-testid="divider-horizontal" />
       </Container>
-      <VerticalContainer>
-        <Divider orientation="vertical" fullHeight data-testid="divider-vertical" />
-      </VerticalContainer>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100px' }}>
+        <Divider {...args} orientation="vertical" fullHeight data-testid="divider-vertical" />
+      </div>
       <Container>
-        <Divider variant="dashed" thickness={2} data-testid="divider-dashed" />
+        <Divider {...args} variant="dashed" thickness={2} data-testid="divider-dashed" />
       </Container>
-    </HorizontalContainer>
+    </ContentContainer>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
