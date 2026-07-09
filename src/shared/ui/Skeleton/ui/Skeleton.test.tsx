@@ -220,14 +220,16 @@ describe('Skeleton', () => {
     });
 
     it('должен предупреждать о невалидном variant', () => {
-      render(<Skeleton {...({ variant: 'invalid' } as any)} />);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render(<Skeleton variant={'invalid' as any} />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Skeleton: invalid variant "invalid"')
       );
     });
 
     it('должен предупреждать о lines < 1', () => {
-      render(<Skeleton {...({ lines: 0 } as any)} />);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render(<Skeleton lines={0 as any} />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Skeleton: invalid lines "0"')
       );

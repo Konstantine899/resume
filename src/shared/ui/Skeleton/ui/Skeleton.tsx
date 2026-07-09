@@ -1,21 +1,22 @@
 // src/shared/ui/Skeleton/ui/Skeleton.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useEffect, useMemo } from 'react';
-import type { SkeletonProps, SkeletonVariant } from '../model/types';
+import { memo, useMemo } from 'react';
+import type { SkeletonProps } from '../model/types';
+import { SKELETON_CONSTANTS } from '../model/constants';
 import styles from './Skeleton.module.scss';
-
-// Valid values for runtime validation
-const VALID_VARIANTS: SkeletonVariant[] = ['text', 'circular', 'rectangular'];
-const MAX_LINES = 10;
-const MIN_LINES = 1;
 
 /**
  * Runtime validation for Skeleton props (development only)
  */
-const validateSkeletonProps = (props: SkeletonProps) => {
+const validateSkeletonProps = (
+  variant: SkeletonProps['variant'],
+  lines: SkeletonProps['lines'],
+  delay: SkeletonProps['delay'],
+  duration: SkeletonProps['duration']
+) => {
   if (process.env.NODE_ENV === 'development') {
-    const { variant, lines, delay, duration } = props;
+    const { VALID_VARIANTS, MIN_LINES, MAX_LINES } = SKELETON_CONSTANTS;
 
     if (variant && !VALID_VARIANTS.includes(variant)) {
       // eslint-disable-next-line no-console
@@ -53,10 +54,10 @@ export const Skeleton = memo((props: SkeletonProps) => {
     ...restProps
   } = props;
 
-  // Runtime validation in development mode
-  useEffect(() => {
-    validateSkeletonProps(props);
-  }, [props]);
+  // Runtime validation in development mode (only for props that can be invalid)
+  if (process.env.NODE_ENV === 'development') {
+    validateSkeletonProps(variant, lines, delay, duration);
+  }
 
   const skeletonClassName = classNames(styles.skeleton, styles[variant], className);
 
@@ -69,8 +70,8 @@ export const Skeleton = memo((props: SkeletonProps) => {
     return Array.from({ length: lines }).map((_, index) => ({
       index,
       isLast: index === lines - 1,
-      // Round to avoid floating point precision issues (0.1 + 0.2 = 0.30000000000000004)
-      delay: Math.round((delay + index * 0.1) * 100) / 100,
+      // Round to 3 decimal places to avoid floating point precision issues
+      delay: Math.round((delay + index * 0.1) * 1000) / 1000,
     }));
   }, [variant, lines, delay]);
 
