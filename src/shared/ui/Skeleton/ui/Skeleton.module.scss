@@ -18,6 +18,13 @@
     animation: shimmer 1.5s infinite;
   }
 
+  // Reduced motion: отключаем анимацию для пользователей с prefers-reduced-motion
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+    }
+  }
+
   // Варианты
   &.text {
     display: inline-block;

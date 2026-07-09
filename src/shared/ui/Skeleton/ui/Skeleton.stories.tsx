@@ -1,6 +1,7 @@
 // src/shared/ui/Skeleton/ui/Skeleton.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { Skeleton } from './Skeleton';
 
 const meta = {
@@ -323,4 +324,71 @@ export const ThemeComparison: Story = {
       </div>
     </div>
   ),
+};
+
+// ============================================
+// Interaction Tests
+// ============================================
+
+export const Interactive: Story = {
+  render: () => (
+    <ThemeContainer>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div>
+          <h4>Text Variant</h4>
+          <Skeleton variant="text" width="200px" height="20px" data-testid="skeleton-text" />
+        </div>
+        <div>
+          <h4>Circular Variant</h4>
+          <Skeleton variant="circular" width="60px" height="60px" data-testid="skeleton-circular" />
+        </div>
+        <div>
+          <h4>Rectangular Variant</h4>
+          <Skeleton
+            variant="rectangular"
+            width="150px"
+            height="100px"
+            data-testid="skeleton-rectangular"
+          />
+        </div>
+        <div>
+          <h4>Multiple Lines</h4>
+          <Skeleton variant="text" lines={4} data-testid="skeleton-lines" />
+        </div>
+      </div>
+    </ThemeContainer>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Test 1: Verify all variants render with role="status"
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(4);
+
+    // Test 2: Verify accessibility labels
+    skeletons.forEach((skeleton) => {
+      expect(skeleton).toHaveAttribute('aria-label', 'Загрузка...');
+    });
+
+    // Test 3: Verify text variant
+    const textSkeleton = canvas.getByTestId('skeleton-text');
+    expect(textSkeleton).toBeInTheDocument();
+
+    // Test 4: Verify circular variant
+    const circularSkeleton = canvas.getByTestId('skeleton-circular');
+    expect(circularSkeleton).toBeInTheDocument();
+
+    // Test 5: Verify rectangular variant
+    const rectangularSkeleton = canvas.getByTestId('skeleton-rectangular');
+    expect(rectangularSkeleton).toBeInTheDocument();
+
+    // Test 6: Verify multiple lines render
+    const linesSkeleton = canvas.getByTestId('skeleton-lines');
+    const lines = linesSkeleton.querySelectorAll('[data-testid^="skeleton-line"]');
+    expect(lines).toHaveLength(4);
+
+    // Test 7: Verify last line has special marker
+    const lastLine = canvas.getByTestId('skeleton-line-last');
+    expect(lastLine).toBeInTheDocument();
+  },
 };
