@@ -1,6 +1,6 @@
 // src/shared/ui/Container/ui/Container.test.tsx
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Container } from './Container';
 
@@ -224,7 +224,7 @@ describe('Container', () => {
   // ============================================
 
   describe('Accessibility', () => {
-    it('должен передавать aria атрибуты', () => {
+    it('должен передавать aria-label', () => {
       render(
         <Container aria-label="Test container" data-testid="container">
           Content
@@ -242,6 +242,42 @@ describe('Container', () => {
       );
       const container = screen.getByTestId('container');
       expect(container).toHaveAttribute('role', 'region');
+    });
+
+    it('должен передавать aria-labelledby', () => {
+      render(
+        <Container aria-labelledby="section-title" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container).toHaveAttribute('aria-labelledby', 'section-title');
+    });
+  });
+
+  // ============================================
+  // Ref Forwarding
+  // ============================================
+
+  describe('Ref Forwarding', () => {
+    it('должен передавать ref на DOM элемент', () => {
+      const mockRef = vi.fn();
+      render(
+        <Container ref={mockRef} data-testid="container">
+          Content
+        </Container>
+      );
+      expect(mockRef).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+    });
+
+    it('должен работать с useRef', () => {
+      const testRef = { current: null as HTMLDivElement | null };
+      render(
+        <Container ref={testRef} data-testid="container">
+          Content
+        </Container>
+      );
+      expect(testRef.current).toBeInstanceOf(HTMLDivElement);
     });
   });
 

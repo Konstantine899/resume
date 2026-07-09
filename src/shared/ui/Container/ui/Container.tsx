@@ -1,7 +1,7 @@
 // src/shared/ui/Container/ui/Container.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useMemo } from 'react';
+import { forwardRef, memo, useMemo } from 'react';
 import { CONTAINER_CONSTANTS } from '../model/constants';
 import type { ContainerProps } from '../model/types';
 import styles from './Container.module.scss';
@@ -30,37 +30,49 @@ const validateContainerProps = (
   }
 };
 
-export const Container = memo((props: ContainerProps) => {
-  const {
-    size = 'lg',
-    centered = true,
-    className = '',
-    fullWidth = false,
-    padding = 'md',
-    ...restProps
-  } = props;
+export const Container = memo(
+  forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
+    const {
+      size = 'lg',
+      centered = true,
+      className = '',
+      fullWidth = false,
+      padding = 'md',
+      role,
+      'aria-label': ariaLabel,
+      ...restProps
+    } = props;
 
-  // Runtime validation in development mode
-  if (process.env.NODE_ENV === 'development') {
-    validateContainerProps(size, padding);
-  }
+    // Runtime validation in development mode
+    if (process.env.NODE_ENV === 'development') {
+      validateContainerProps(size, padding);
+    }
 
-  // Memoize className calculation
-  const containerClassName = useMemo(
-    () =>
-      classNames(
-        styles.container,
-        styles[size],
-        styles[`padding-${padding}`],
-        centered && styles.centered,
-        fullWidth && styles.fullWidth,
-        className
-      ),
-    [size, centered, fullWidth, padding, className]
-  );
+    // Memoize className calculation
+    const containerClassName = useMemo(
+      () =>
+        classNames(
+          styles.container,
+          styles[size],
+          styles[`padding-${padding}`],
+          centered && styles.centered,
+          fullWidth && styles.fullWidth,
+          className
+        ),
+      [size, centered, fullWidth, padding, className]
+    );
 
-  return <div className={containerClassName} {...restProps} />;
-});
+    return (
+      <div
+        ref={ref}
+        className={containerClassName}
+        role={role}
+        aria-label={ariaLabel}
+        {...restProps}
+      />
+    );
+  })
+);
 
 Container.displayName = 'Container';
 
