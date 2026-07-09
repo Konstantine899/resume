@@ -1,0 +1,70 @@
+// src/shared/ui/Container/ui/Container.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+.container {
+  // Базовые стили
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+
+  // Размеры (max-width)
+  &.sm {
+    max-width: 640px;
+  }
+
+  &.md {
+    max-width: 768px;
+  }
+
+  &.lg {
+    max-width: 1024px;
+  }
+
+  &.xl {
+    max-width: 1280px;
+  }
+
+  &.full {
+    max-width: 100%;
+  }
+
+  // Центрирование
+  &.centered {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Полная ширина
+  &.fullWidth {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  // Padding
+  &.padding-none {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  &.padding-sm {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  &.padding-md {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  &.padding-lg {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  &.padding-xl {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
