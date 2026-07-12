@@ -82,7 +82,10 @@
     "./plugins/request-deduplication.js",
     "./plugins/graceful-degradation.js",
     "./plugins/mcp-connection-pool.js",
-    "list"
+    "./plugins/agent-integration.js",
+    "./plugins/dependency-graph.js",
+    "./plugins/eslint-plugin-fsd-imports.js",
+    "./plugins/health-dashboard.js"
   ],
   "formatter": true,
   "lsp": true,

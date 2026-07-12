@@ -132,6 +132,7 @@ coverage/
 test-results/
 playwright-report/
 playwright/.cache/
+.playwright-mcp/
 jest-results/
 mocha-output/
 
