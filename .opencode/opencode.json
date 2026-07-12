@@ -1,20 +1,28 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
   "logLevel": "INFO",
   "snapshot": true,
-
-  "instructions": [".opencode/docs/AGENTS.md"],
-
+  "instructions": [
+    ".opencode/docs/AGENTS.md"
+  ],
   "skills": {
-    "paths": [".opencode/skills"]
+    "paths": [
+      ".opencode/skills"
+    ]
   },
-
   "mcp": {
     "filesystem": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
-      "args": ["D:/Dev/projects/resume", "D:/Dev/tools", "D:/Dev/tools/DBObsidian/resume-app"],
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem"
+      ],
+      "args": [
+        "D:/Dev/projects/resume",
+        "D:/Dev/tools",
+        "D:/Dev/tools/DBObsidian/resume-app"
+      ],
       "enabled": true,
       "timeout": 30000
     },
@@ -43,15 +51,23 @@
       }
     }
   },
-
   "permission": {
-    "*": { "action": "ask" },
-    "filesystem:read": { "action": "allow" },
-    "filesystem:write": { "action": "allow" },
-    "filesystem:delete": { "action": "deny" },
-    "shell:dangerous": { "action": "deny" }
+    "*": {
+      "action": "ask"
+    },
+    "filesystem:read": {
+      "action": "allow"
+    },
+    "filesystem:write": {
+      "action": "allow"
+    },
+    "filesystem:delete": {
+      "action": "deny"
+    },
+    "shell:dangerous": {
+      "action": "deny"
+    }
   },
-
   "plugin": [
     "./plugins/circuit-breaker.js",
     "./plugins/context7-cache.js",
@@ -65,19 +81,62 @@
     "./plugins/adaptive-parallel-mcp.js",
     "./plugins/request-deduplication.js",
     "./plugins/graceful-degradation.js",
-    "./plugins/mcp-connection-pool.js"
+    "./plugins/mcp-connection-pool.js",
+    "list"
   ],
-
   "formatter": true,
   "lsp": true,
-
   "compaction": {
     "auto": true,
     "tail_turns": 10
   },
-
   "tool_output": {
     "max_lines": 300,
     "max_bytes": 16384
+  },
+  "provider": {
+    "qwen": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Qwen Code",
+      "options": {
+        "baseURL": "https://portal.qwen.ai/v1"
+      },
+      "models": {
+        "coder-model": {
+          "id": "coder-model",
+          "name": "Qwen Coder",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          }
+        },
+        "vision-model": {
+          "id": "vision-model",
+          "name": "Qwen Vision",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "attachment": true
+        }
+      }
+    }
   }
 }
