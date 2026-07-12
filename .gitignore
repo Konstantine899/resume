@@ -189,7 +189,7 @@ pnpm-lock.yaml
 .opencode/rules/
 .opencode/agents/
 .opencode/skills/
-.opencode/commands/
+!.opencode/commands/
 
 # ============================================
 # TYPESCRIPT / JAVASCRIPT
