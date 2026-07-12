@@ -141,6 +141,8 @@ mocha-output/
 # ============================================
 # Cache and temporary files
 
+.atl/
+.vite/
 tmp/
 temp/
 .cache/
@@ -214,7 +216,7 @@ pnpm-lock.yaml
 
 # Git hooks
 .git/hooks/
-.husky/
+.husky/_/
 
 # ============================================
 # CI / CD
