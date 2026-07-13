@@ -37,6 +37,8 @@ const config: StorybookConfig = {
             locales: path.resolve(__dirname, '../src/shared/lib/i18n/locales'),
             buildLocales: path.resolve(__dirname, '../public/locales'),
           },
+          // Storybook viteFinal type doesn't perfectly match buildResolvers() return
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any),
       },
       plugins: [
@@ -47,6 +49,9 @@ const config: StorybookConfig = {
       css: buildCssModulesConfig({
         isDev: true,
         project: 'storybook',
+        // Storybook viteFinal expects a subset of Vite.UserConfig; the returned
+        // CSSOptions is a valid subset but the merged type is narrower. Runtime-safe.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any),
       define: {
         __IS_DEV__: 'true',

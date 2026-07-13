@@ -28,7 +28,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "storybook:test": "test-storybook",
-    "lint:storybook": "eslint .storybook/**/*",
+    "lint:storybook": "eslint .storybook/**/* --max-warnings 0",
     "validate:continue": "continue validate --fsd --style --test --quick"
   },
   "keywords": [],
