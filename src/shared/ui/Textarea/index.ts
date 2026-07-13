@@ -4,3 +4,4 @@
 
 export type { TextareaProps, TextareaSize, TextareaVariant } from './model/types';
 export { Textarea } from './ui/Textarea';
+export { TEXTAREA_CONSTANTS } from './model/constants';

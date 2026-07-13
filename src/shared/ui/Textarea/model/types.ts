@@ -2,79 +2,58 @@
 // Textarea Component - TypeScript Types
 // ============================================
 
-import { TextareaHTMLAttributes } from 'react';
+import { type TextareaHTMLAttributes } from 'react';
+import type React from 'react';
 
 /**
  * Textarea variant types
  */
-export type TextareaVariant =
-  | 'default' // Default textarea style
-  | 'outline' // Outline style
-  | 'filled'; // Filled background
+export type TextareaVariant = 'default' | 'outline' | 'filled';
 
 /**
  * Textarea size types
  */
-export type TextareaSize =
-  | 'sm' // Small textarea
-  | 'md' // Medium textarea (default)
-  | 'lg'; // Large textarea
+export type TextareaSize = 'sm' | 'md' | 'lg';
 
 /**
  * Textarea props interface
  */
-export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
-  /**
-   * Textarea variant style
-   * @default 'default'
-   */
+export interface TextareaProps extends Omit<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  'size' | 'id'
+> {
+  /** Variant style */
   variant?: TextareaVariant;
-
-  /**
-   * Textarea size
-   * @default 'md'
-   */
+  /** Size preset */
   size?: TextareaSize;
-
-  /**
-   * Additional CSS class
-   */
+  /** Additional CSS class */
   className?: string;
-
-  /**
-   * Label text
-   */
+  /** Label text */
   label?: string;
-
-  /**
-   * Error message
-   */
+  /** Error message (also sets aria-invalid) */
   error?: string;
-
-  /**
-   * Success state
-   */
+  /** Success state */
   success?: boolean;
-
-  /**
-   * Loading state
-   */
+  /** Loading state — shows Loader spinner */
   loading?: boolean;
-
-  /**
-   * Full width textarea
-   * @default false
-   */
+  /** Full width textarea */
   fullWidth?: boolean;
-
-  /**
-   * Helper text
-   */
+  /** Helper text (hidden when error is present) */
   helperText?: string;
-
-  /**
-   * Number of rows
-   * @default 3
-   */
+  /** Number of visible rows */
   rows?: number;
+  /** Show clear button when textarea has value */
+  clearable?: boolean;
+  /** Callback when clear button is clicked */
+  onClear?: () => void;
+  /** Show character counter (requires maxLength on textarea) */
+  showCounter?: boolean;
+  /** Enable auto-resize height based on content */
+  autoResize?: boolean;
+  /** Custom id for accessibility linking */
+  id?: string;
+  /** Icon before textarea content */
+  icon?: React.ReactNode;
+  /** Icon after textarea content */
+  iconAfter?: React.ReactNode;
 }

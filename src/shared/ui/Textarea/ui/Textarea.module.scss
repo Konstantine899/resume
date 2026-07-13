@@ -1,7 +1,14 @@
+// ============================================
+
+// Textarea Component Styles
+
+// ============================================
+
+@use '@/shared/styles/mixins/theme' as *;
+
 .textareaWrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
 
   &.fullWidth {
     width: 100%;
@@ -12,7 +19,14 @@
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1a1716;
+  color: var(--foreground);
+
+  @include theme-transition;
+}
+
+.required {
+  margin-right: 0.25rem;
+  color: var(--form-error);
 }
 
 .textareaContainer {
@@ -23,40 +37,57 @@
   width: 100%;
   min-height: 80px;
   padding: 0.5rem 0.75rem;
-  font-family: Inter, sans-serif;
+  font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
+  color: var(--foreground);
   resize: vertical;
   outline: none;
-  border: 1px solid #e5e7eb;
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
   border-radius: 0.375rem;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  @include theme-transition;
+
+  &::placeholder {
+    color: var(--foreground-muted);
+  }
 
   &:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgb(0 123 255 / 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
   }
 
   &:disabled {
     cursor: not-allowed;
-    background-color: #f9fafb;
+    background-color: var(--background-alt);
+    opacity: 0.6;
   }
 
+  &[readonly] {
+    cursor: default;
+    background-color: var(--background-alt);
+  }
+
+  // Variants
   &.outline {
-    border: 2px solid #e5e7eb;
+    border-width: 2px;
 
     &:focus {
-      border-color: #007bff;
+      border-color: var(--primary);
     }
   }
 
   &.filled {
-    background-color: #f9fafb;
+    background-color: var(--background-alt);
     border: none;
 
     &:focus {
-      background-color: white;
-      box-shadow: 0 0 0 2px rgb(0 123 255 / 0.1);
+      background-color: var(--background);
+      box-shadow: 0 0 0 2px rgb(244 179 119 / 0.2);
     }
   }
 
@@ -78,53 +109,193 @@
 
   // States
   &.error {
-    border-color: #dc3545;
+    border-color: var(--form-error);
 
     &:focus {
-      border-color: #dc3545;
-      box-shadow: 0 0 0 3px rgb(220 53 69 / 0.1);
+      border-color: var(--form-error);
+      box-shadow: 0 0 0 3px rgb(220 53 69 / 0.2);
     }
   }
 
   &.success {
-    border-color: #28a745;
+    border-color: var(--form-success);
 
     &:focus {
-      border-color: #28a745;
-      box-shadow: 0 0 0 3px rgb(40 167 69 / 0.1);
+      border-color: var(--form-success);
+      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
     }
   }
 
   &.loading {
-    background-image: linear-gradient(90deg, #f9fafb 25%, #f3f4f6 50%, #f9fafb 75%);
+    background-image: linear-gradient(
+      90deg,
+      var(--background-alt) 25%,
+      var(--background) 50%,
+      var(--background-alt) 75%
+    );
     background-size: 200% 100%;
-    animation: loading 1.5s infinite;
+    animation: textareaLoading 1.5s infinite;
   }
 
-  &.fullWidth {
-    width: 100%;
+  // Auto-resize: hide overflow when enabled
+  &.autoResize {
+    overflow: hidden;
+    resize: none;
+  }
+
+  // Icon padding via has()
+  .icon ~ & {
+    padding-left: calc(0.75rem * 2 + 1rem);
+  }
+
+  .iconAfter ~ & {
+    padding-right: calc(0.75rem * 2 + 1rem);
+  }
+
+  .clearButton ~ & {
+    padding-right: calc(0.75rem * 2 + 1rem);
+  }
+
+  // Size-specific icon padding
+  .icon ~ &.sm {
+    padding-left: calc(0.5rem * 2 + 0.75rem);
+  }
+
+  .iconAfter ~ &.sm {
+    padding-right: calc(0.5rem * 2 + 0.75rem);
+  }
+
+  .icon ~ &.lg {
+    padding-left: calc(1rem * 2 + 1.25rem);
+  }
+
+  .iconAfter ~ &.lg {
+    padding-right: calc(1rem * 2 + 1.25rem);
   }
 }
 
+// Icon styles
+.icon {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+
+  .sm & {
+    top: 0.25rem;
+    left: 0.5rem;
+  }
+
+  .lg & {
+    top: 1rem;
+    left: 1rem;
+  }
+}
+
+.iconAfter {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+
+  .sm & {
+    top: 0.25rem;
+    right: 0.5rem;
+  }
+
+  .lg & {
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+// Loading indicator
 .loadingIndicator {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  font-size: 0.875rem;
-  color: #9ca3af;
+  display: flex;
+  align-items: center;
 }
 
+// Clear button
+.clearButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .sm & {
+    top: 0.25rem;
+    right: 0.5rem;
+  }
+
+  .lg & {
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+// Character counter
+.counter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+
+  .warning {
+    font-weight: 600;
+    color: var(--form-warning);
+  }
+
+  @include theme-transition;
+}
+
+// Error text
 .errorText {
+  margin-top: 0.25rem;
   font-size: 0.875rem;
-  color: #dc3545;
+  color: var(--form-error);
+
+  @include theme-transition;
 }
 
+// Helper text
 .helperText {
+  margin-top: 0.25rem;
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: var(--foreground-muted);
+
+  @include theme-transition;
 }
 
-@keyframes loading {
+// Loading skeleton animation
+@keyframes textareaLoading {
   0% {
     background-position: 200% 0;
   }
