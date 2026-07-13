@@ -10,6 +10,12 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { createRequire } from 'module';
 
+// Prettier interoperability — disables formatting rules that conflict with Prettier
+import prettierConfig from 'eslint-config-prettier';
+
+// React-specific lint rules (JSX semantics, a11y, key propping)
+import reactPlugin from 'eslint-plugin-react';
+
 // Local FSD imports plugin
 const require = createRequire(import.meta.url);
 const fsdImports = require('./.opencode/plugins/eslint-plugin-fsd-imports.js');
@@ -37,7 +43,7 @@ const strictRules = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage', '*.config.*', 'config', 'storybook-static'] },
+  { ignores: ['dist', 'node_modules', 'coverage', 'config', 'storybook-static'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -51,10 +57,16 @@ export default tseslint.config(
       },
     },
     plugins: {
+      'react': reactPlugin,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'unused-imports': unusedImports,
       'fsd-imports': fsdImports,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -69,6 +81,8 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
         },
       ],
+      // React JSX semantics (works with React 19 automatic JSX runtime)
+      ...reactPlugin.configs.flat['jsx-runtime'].rules,
       // Override with strict rules for production code
       ...strictRules,
     },
@@ -96,5 +110,7 @@ export default tseslint.config(
       ],
     },
   },
-  storybook.configs["flat/recommended"]
+  storybook.configs["flat/recommended"],
+  // Prettier — must be LAST to override formatting rules
+  prettierConfig,
 );

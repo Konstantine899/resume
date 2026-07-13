@@ -210,13 +210,14 @@ pnpm-lock.yaml
 # Git files and directories
 
 .git/
-.gitignore
-.gitattributes
 .gitmodules
 
 # Git hooks
 .git/hooks/
 .husky/_/
+
+# Serena MCP workspace cache
+.serena/
 
 # ============================================
 # CI / CD

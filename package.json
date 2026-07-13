@@ -12,9 +12,9 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "type-check:strict": "tsc --noEmit --maxNodeModuleJsDepth 0 --skipLibCheck false",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "lint:strict": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "lint:dev": "eslint . --ext .ts,.tsx",
     "lint:styles": "stylelint \"**/*.scss\"",
     "lint:styles:fix": "stylelint \"**/*.scss\" --fix",
     "lint:all": "npm run lint && npm run lint:styles",
@@ -23,7 +23,7 @@
     "format:check": "prettier --check .",
     "validate": "npm run type-check && npm run lint:all",
     "validate:fix": "npm run type-check && npm run lint:all:fix && npm run format",
-    "validate:strict": "npm run type-check:strict && npm run lint:strict",
+    "validate:strict": "npm run type-check:strict && npm run lint",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -95,7 +95,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --max-warnings 0",
+      "eslint --max-warnings 0 --no-warn-ignored",
       "prettier --write"
     ],
     "*.scss": [
