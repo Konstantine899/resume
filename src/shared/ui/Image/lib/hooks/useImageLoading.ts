@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseImageLoadingConfig, UseImageLoadingReturn } from '../../model/types';
 import { INTERSECTION_OBSERVER_CONFIG } from '../../model/constants';
 
@@ -23,7 +23,7 @@ import { INTERSECTION_OBSERVER_CONFIG } from '../../model/constants';
  * });
  */
 export function useImageLoading({
-  src,
+  src: _src,
   lazyMode,
   threshold = INTERSECTION_OBSERVER_CONFIG.threshold,
   root = null,
@@ -39,20 +39,21 @@ export function useImageLoading({
   const imageRef = useRef<HTMLImageElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const hasLoadedRef = useRef(false);
+  const hasStartedRef = useRef(false);
 
-  // Вычисляемые значения
-  const isLoaded = useMemo(() => loadingStatus === 'loaded', [loadingStatus]);
-  const isError = useMemo(() => loadingStatus === 'error', [loadingStatus]);
-  const isLoading = useMemo(() => loadingStatus === 'loading', [loadingStatus]);
+  // Вычисляемые значения (plain const — no useMemo needed)
+  const isLoaded = loadingStatus === 'loaded';
+  const isError = loadingStatus === 'error';
+  const isLoading = loadingStatus === 'loading';
 
-  // Обработчик успешной загрузки
-  const handleLoad = useCallback(() => {
+  // Обработчик успешной загрузки (React event callback — LOAD-2)
+  const onLoad = useCallback((_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setLoadingStatus('loaded');
     hasLoadedRef.current = true;
   }, []);
 
-  // Обработчик ошибки загрузки
-  const handleError = useCallback(() => {
+  // Обработчик ошибки загрузки (React event callback — LOAD-2)
+  const onError = useCallback((_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setLoadingStatus('error');
   }, []);
 
@@ -63,37 +64,22 @@ export function useImageLoading({
     }
 
     setLoadingStatus('loading');
-
-    // Если у нас есть ref к изображению, начинаем загрузку
-    if (imageRef.current && src) {
-      const img = imageRef.current;
-
-      // Очищаем старые обработчики
-      img.onload = null;
-      img.onerror = null;
-
-      // Устанавливаем новые обработчики
-      img.onload = handleLoad;
-      img.onerror = handleError;
-
-      // Начинаем загрузку
-      img.src = src;
-    }
-  }, [loadingStatus, src, handleLoad, handleError]);
+  }, [loadingStatus]);
 
   // Функция сброса состояния
   const reset = useCallback(() => {
     setLoadingStatus('idle');
     hasLoadedRef.current = false;
-
-    if (imageRef.current) {
-      imageRef.current.onload = null;
-      imageRef.current.onerror = null;
-    }
+    hasStartedRef.current = false;
   }, []);
 
-  // Эффект для Intersection Observer
+  // Эффект для Intersection Observer (с hasStartedRef guard — no set-state-in-effect)
   useEffect(() => {
+    if (hasStartedRef.current) {
+      return;
+    }
+    hasStartedRef.current = true;
+
     // Если priority или eager mode, загружаем сразу
     if (priority || lazyMode === 'eager') {
       startLoading();
@@ -141,25 +127,21 @@ export function useImageLoading({
         observerRef.current.disconnect();
       }
     };
-  }, [lazyMode, priority, startLoading, threshold, root, rootMargin]);
+    // NOTE: startLoading intentionally omitted — hasStartedRef prevents re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lazyMode, priority, threshold, root, rootMargin]);
 
-  // Возвращаем ref для внешнего использования
-  const externalRef = useRef<HTMLImageElement | null>(null);
-
-  // Синхронизируем internal и external ref
-  useEffect(() => {
-    externalRef.current = imageRef.current;
-  }, []);
-
-  // Возвращаем объект с правильным типом
+  // Возвращаем imageRef напрямую (без externalRef indirection)
   return {
     loadingStatus,
     isLoaded,
     isError,
     isLoading,
-    ref: externalRef,
+    ref: imageRef,
     startLoading,
     reset,
+    onLoad,
+    onError,
   } as UseImageLoadingReturn;
 }
 
@@ -177,17 +159,14 @@ export function useImageLoading({
 export function useImageLoadingSimple(
   src: string,
   options?: { priority?: boolean; lazy?: boolean }
-): Omit<UseImageLoadingReturn, 'ref' | 'startLoading' | 'reset'> {
+): Omit<UseImageLoadingReturn, 'ref' | 'startLoading' | 'reset' | 'onLoad' | 'onError'> {
   const { priority = false, lazy = true } = options ?? {};
 
-  const config: UseImageLoadingConfig = useMemo(
-    () => ({
-      src,
-      lazyMode: priority ? 'eager' : lazy ? 'native' : 'eager',
-      priority,
-    }),
-    [src, priority, lazy]
-  );
+  const config: UseImageLoadingConfig = {
+    src,
+    lazyMode: priority ? 'eager' : lazy ? 'native' : 'eager',
+    priority,
+  };
 
   const { loadingStatus, isLoaded, isError, isLoading } = useImageLoading(config);
 

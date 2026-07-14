@@ -161,6 +161,7 @@ export function logValidationWarnings(props: Partial<ImageProps>, componentName 
   if (process.env.NODE_ENV !== 'development') return;
   const { warnings } = validateImageProps(props, true);
   if (warnings.length > 0) {
+    // eslint-disable-next-line no-console
     console.warn(`[${componentName}] Validation warnings:`, warnings.join('\n'));
   }
 }

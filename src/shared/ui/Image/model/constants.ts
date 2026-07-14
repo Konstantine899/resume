@@ -15,12 +15,7 @@ export const IMAGE_VARIANTS: readonly ImageVariant[] = [
  * Доступные размеры изображения
  * @description Константы для валидации size prop
  */
-export const IMAGE_SIZES: readonly ImageSize[] = [
-  'sm',
-  'md',
-  'lg',
-  'full',
-] as const;
+export const IMAGE_SIZES: readonly ImageSize[] = ['sm', 'md', 'lg', 'full'] as const;
 
 /**
  * Доступные режимы object-fit
@@ -42,6 +37,7 @@ export const IMAGE_PLACEHOLDERS: readonly ImagePlaceholder[] = [
   'blur',
   'skeleton',
   'color',
+  'spinner',
 ] as const;
 
 /**
@@ -139,15 +135,15 @@ export const SUPPORTED_IMAGE_TYPES = [
  * @description Локализованные сообщения для валидации
  */
 export const VALIDATION_MESSAGES = {
-  INVALID_VARIANT: (value: string) => 
+  INVALID_VARIANT: (value: string) =>
     `Invalid variant "${value}". Valid values: ${IMAGE_VARIANTS.join(', ')}`,
-  INVALID_SIZE: (value: string) => 
+  INVALID_SIZE: (value: string) =>
     `Invalid size "${value}". Valid values: ${IMAGE_SIZES.join(', ')}`,
-  INVALID_OBJECT_FIT: (value: string) => 
+  INVALID_OBJECT_FIT: (value: string) =>
     `Invalid objectFit "${value}". Valid values: ${IMAGE_OBJECT_FITS.join(', ')}`,
-  INVALID_PLACEHOLDER: (value: string) => 
+  INVALID_PLACEHOLDER: (value: string) =>
     `Invalid placeholder "${value}". Valid values: ${IMAGE_PLACEHOLDERS.join(', ')}`,
-  INVALID_LAZY_MODE: (value: string) => 
+  INVALID_LAZY_MODE: (value: string) =>
     `Invalid lazyMode "${value}". Valid values: ${IMAGE_LAZY_MODES.join(', ')}`,
   MISSING_ALT: 'Missing required "alt" prop for non-decorative image',
   INVALID_SRC: 'Invalid "src" prop: must be a non-empty string or object with src property',

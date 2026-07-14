@@ -38,7 +38,7 @@ export type ImageObjectFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down
  * @example placeholder="skeleton" — анимированный скелетон
  * @example placeholder="color" — сплошной цвет фона
  */
-export type ImagePlaceholder = 'blur' | 'skeleton' | 'color';
+export type ImagePlaceholder = 'blur' | 'skeleton' | 'color' | 'spinner';
 
 /**
  * Режимы lazy loading
@@ -122,8 +122,13 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
   lazyMode?: ImageLazyMode;
 
   /**
-   * Fallback изображение при ошибке загрузки
-   * @description URL или React компонент для отображения при ошибке
+   * Fallback контент при ошибке загрузки
+   * @description
+   * - `string`: URL fallback изображения (рендерится как `<img>`)
+   * - `ReactNode`: Кастомный контент (текст, иконка, etc.)
+   * @example fallback="/fallback.jpg" — изображение-заглушка
+   * @example fallback={<span>Image unavailable</span>} — текст
+   * @example fallback={<Icon name="image-off" />} — иконка
    */
   fallback?: string | ReactNode;
 
@@ -253,6 +258,10 @@ export interface UseImageLoadingReturn {
   startLoading: () => void;
   /** Сбросить состояние загрузки */
   reset: () => void;
+  /** Обработчик успешной загрузки изображения */
+  onLoad: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  /** Обработчик ошибки загрузки изображения */
+  onError: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
 
 /**

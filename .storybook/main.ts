@@ -3,9 +3,9 @@ import type { StorybookConfig } from '@storybook/react-vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { mergeConfig } from 'vite';
-import { buildResolvers } from '../config/vite/buildResolvers';
-import { buildCssModulesConfig } from '../config/vite/loaders/buildCssModules';
-import { buildSvgPlugin } from '../config/vite/plugins/buildSvgPlugin';
+import { buildResolvers } from '../config/vite/buildResolvers.ts';
+import { buildCssModulesConfig } from '../config/vite/loaders/buildCssModules.ts';
+import { buildSvgPlugin } from '../config/vite/plugins/buildSvgPlugin.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
