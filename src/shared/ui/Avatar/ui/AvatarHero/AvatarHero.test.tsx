@@ -56,13 +56,15 @@ describe('AvatarHero', () => {
   });
 
   it('renders skeleton when forceLoading', () => {
-    render(<AvatarHero alt="Test" src="/test.jpg" forceLoading />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    const { container } = render(<AvatarHero alt="Test" src="/test.jpg" forceLoading />);
+    expect(container.querySelector('[role="status"]')).toBeInTheDocument();
   });
 
   it('hides skeleton when showSkeleton is false', () => {
-    render(<AvatarHero alt="Test" src="/test.jpg" forceLoading showSkeleton={false} />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    const { container } = render(
+      <AvatarHero alt="Test" src="/test.jpg" forceLoading showSkeleton={false} />
+    );
+    expect(container.querySelector('[role="status"]')).not.toBeInTheDocument();
   });
 
   it('renders children', () => {
@@ -105,8 +107,8 @@ describe('AvatarHero', () => {
   });
 
   it('shows skeleton on initial load', () => {
-    render(<AvatarHero alt="Test" src="/test.jpg" />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    const { container } = render(<AvatarHero alt="Test" src="/test.jpg" />);
+    expect(container.querySelector('[role="status"]')).toBeInTheDocument();
   });
 
   it('shows initial loading state', () => {

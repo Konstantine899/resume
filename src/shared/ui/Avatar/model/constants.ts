@@ -1,38 +1,10 @@
-import { AvatarSize, AvatarStatus, AvatarVariant } from './types';
+import { AvatarSize } from './types';
 
 export const AVATAR_SIZES: Record<AvatarSize, number> = {
   sm: 100,
   md: 200,
   lg: 300,
   xl: 300,
-};
-
-export const SIZE_MAP: Record<AvatarSize, string> = {
-  sm: '100px',
-  md: '200px',
-  lg: '300px',
-  xl: '300px',
-};
-
-export const INITIAL_COLOR_VAR = '--avatar-initial-color';
-
-export const AVATAR_RADIUS: Record<AvatarVariant, string> = {
-  circle: '50%',
-  square: '8px',
-};
-
-export const BADGE_SIZES: Record<AvatarSize, number> = {
-  sm: 8,
-  md: 10,
-  lg: 12,
-  xl: 14,
-};
-
-export const STATUS_COLORS: Record<AvatarStatus, string> = {
-  online: '#22C55E',
-  offline: '#9CA3AF',
-  busy: '#EF4444',
-  away: '#F59E0B',
 };
 
 export const FALLBACK_COLORS = [
@@ -45,10 +17,3 @@ export const FALLBACK_COLORS = [
   '#D24D57',
   '#663399',
 ];
-
-export const GROUP_SPACING: Record<AvatarSize, number> = {
-  sm: -6,
-  md: -8,
-  lg: -10,
-  xl: -12,
-};

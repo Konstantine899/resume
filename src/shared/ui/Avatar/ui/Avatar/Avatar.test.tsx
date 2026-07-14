@@ -22,12 +22,11 @@ describe('Avatar', () => {
     });
 
     it('должен рендериться с изображением при наличии src', () => {
-      render(<Avatar src="https://example.com/avatar.jpg" alt="Test User" showSkeleton={false} />);
-
-      const images = screen.getAllByRole('img');
-      const image = images.find(
-        (img) => img.getAttribute('src') === 'https://example.com/avatar.jpg'
+      const { container } = render(
+        <Avatar src="https://example.com/avatar.jpg" alt="Test User" showSkeleton={false} />
       );
+
+      const image = container.querySelector('img[src="https://example.com/avatar.jpg"]');
       expect(image).toBeInTheDocument();
     });
 
@@ -78,11 +77,12 @@ describe('Avatar', () => {
 
   describe('Image Loading', () => {
     it('должен показывать скелетон во время загрузки', () => {
-      render(
+      const { container } = render(
         <Avatar src="https://example.com/avatar.jpg" alt="Test" showSkeleton={true} forceLoading />
       );
 
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      // Skeleton внутри Image имеет role="status", но скрыт через aria-hidden
+      expect(container.querySelector('[role="status"]')).toBeInTheDocument();
     });
 
     it('не должен показывать скелетон при showSkeleton=false', () => {
@@ -90,14 +90,16 @@ describe('Avatar', () => {
         <Avatar src="https://example.com/avatar.jpg" alt="Test" showSkeleton={false} />
       );
 
-      expect(container.querySelector('.skeleton')).not.toBeInTheDocument();
+      expect(container.querySelector('[role="status"]')).not.toBeInTheDocument();
     });
 
     it('должен показывать fallback при ошибке загрузки', () => {
-      render(<Avatar src="https://invalid-url.com/avatar.jpg" alt="Test User" forceLoading />);
+      const { container } = render(
+        <Avatar src="https://invalid-url.com/avatar.jpg" alt="Test User" forceLoading />
+      );
 
-      // При forceLoading показывается скелетон
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      // При forceLoading показывается скелетон через Image
+      expect(container.querySelector('[role="status"]')).toBeInTheDocument();
     });
 
     it('должен вызывать onLoad при успешной загрузке', () => {
@@ -148,7 +150,7 @@ describe('Avatar', () => {
       expect(screen.getByTestId('child')).toBeInTheDocument();
     });
 
-    it('должен рендерить AvatarBadge как child', () => {
+    it('должен рендерить переданные children', () => {
       render(
         <Avatar alt="Test">
           <div className="badge">Badge</div>
@@ -204,16 +206,16 @@ describe('Avatar', () => {
     it('calls onError when image fails to load', () => {
       const onError = vi.fn();
       render(<Avatar src="invalid.jpg" onError={onError} showSkeleton={false} />);
-      const img = document.querySelector('img');
-      fireEvent.error(img!);
+      const img = document.querySelector('img') as HTMLImageElement;
+      fireEvent.error(img);
       expect(onError).toHaveBeenCalled();
     });
 
     it('calls onLoad when image loads successfully', () => {
       const onLoad = vi.fn();
       render(<Avatar src="valid.jpg" onLoad={onLoad} showSkeleton={false} />);
-      const img = document.querySelector('img');
-      fireEvent.load(img!);
+      const img = document.querySelector('img') as HTMLImageElement;
+      fireEvent.load(img);
       expect(onLoad).toHaveBeenCalled();
     });
   });

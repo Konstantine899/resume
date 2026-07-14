@@ -186,6 +186,15 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
   priority?: boolean;
 
   /**
+   * Принудительное состояние загрузки
+   * @default false
+   * @description Если true, компонент остаётся в состоянии loading независимо от реального статуса изображения.
+   * Используется для демонстрации skeleton/spinner в Storybook.
+   * @internal
+   */
+  forceLoading?: boolean;
+
+  /**
    * Качество изображения для оптимизации
    * @default 80
    */
@@ -237,6 +246,8 @@ export interface UseImageLoadingConfig {
   rootMargin?: string;
   /** Приоритетная загрузка */
   priority?: boolean;
+  /** Принудительное состояние загрузки (для демо) */
+  forceLoading?: boolean;
 }
 
 /**

@@ -115,6 +115,7 @@ export const IMAGE_DEFAULTS = {
   quality: 80,
   decorative: false,
   priority: false,
+  forceLoading: false,
 } as const;
 
 /**

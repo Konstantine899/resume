@@ -29,10 +29,11 @@ export function useImageLoading({
   root = null,
   rootMargin = INTERSECTION_OBSERVER_CONFIG.rootMargin,
   priority = false,
+  forceLoading = false,
 }: UseImageLoadingConfig): UseImageLoadingReturn {
   // Состояние загрузки
   const [loadingStatus, setLoadingStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>(
-    'idle'
+    'loading'
   );
 
   // Ref для изображения и Observer
@@ -46,16 +47,31 @@ export function useImageLoading({
   const isError = loadingStatus === 'error';
   const isLoading = loadingStatus === 'loading';
 
+  // Принудительное состояние loading (для Storybook демо)
+  useEffect(() => {
+    if (forceLoading) {
+      setLoadingStatus('loading');
+    }
+  }, [forceLoading]);
+
   // Обработчик успешной загрузки (React event callback — LOAD-2)
-  const onLoad = useCallback((_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    setLoadingStatus('loaded');
-    hasLoadedRef.current = true;
-  }, []);
+  const onLoad = useCallback(
+    (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      if (forceLoading) return;
+      setLoadingStatus('loaded');
+      hasLoadedRef.current = true;
+    },
+    [forceLoading]
+  );
 
   // Обработчик ошибки загрузки (React event callback — LOAD-2)
-  const onError = useCallback((_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    setLoadingStatus('error');
-  }, []);
+  const onError = useCallback(
+    (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      if (forceLoading) return;
+      setLoadingStatus('error');
+    },
+    [forceLoading]
+  );
 
   // Функция начала загрузки
   const startLoading = useCallback(() => {
@@ -75,7 +91,7 @@ export function useImageLoading({
 
   // Эффект для Intersection Observer (с hasStartedRef guard — no set-state-in-effect)
   useEffect(() => {
-    if (hasStartedRef.current) {
+    if (forceLoading || hasStartedRef.current) {
       return;
     }
     hasStartedRef.current = true;

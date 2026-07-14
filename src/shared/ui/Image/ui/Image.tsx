@@ -29,6 +29,7 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     onLoadStart,
     onLoadSuccess,
     onLoadError,
+    forceLoading = IMAGE_DEFAULTS.forceLoading,
     ...restProps
   } = props;
 
@@ -37,6 +38,7 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     src: typeof src === 'string' ? src : src.src,
     lazyMode,
     priority,
+    forceLoading,
   });
 
   const { loadingStatus, isError } = hook;
@@ -136,20 +138,26 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
   const { onLoad: hookOnLoad, onError: hookOnError } = hook;
 
   // Event handlers: wrap hook callbacks to bridge consumer props
+  // NOTE: forceLoading suppresses parent callbacks — keeps parent's imageStatus
+  // in 'loading' so the skeleton is not replaced by a fallback
   const handleLoadSuccess = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
       hookOnLoad(event);
-      onLoadSuccess?.(event);
+      if (!forceLoading) {
+        onLoadSuccess?.(event);
+      }
     },
-    [hookOnLoad, onLoadSuccess]
+    [hookOnLoad, onLoadSuccess, forceLoading]
   );
 
   const handleLoadError = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
       hookOnError(event);
-      onLoadError?.(event);
+      if (!forceLoading) {
+        onLoadError?.(event);
+      }
     },
-    [hookOnError, onLoadError]
+    [hookOnError, onLoadError, forceLoading]
   );
 
   // Handle ref forwarding: merge hook's imageRef with forwarded ref

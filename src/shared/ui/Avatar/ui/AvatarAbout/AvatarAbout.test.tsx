@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { AvatarAbout } from './AvatarAbout';
 
 describe('AvatarAbout', () => {
@@ -30,13 +30,13 @@ describe('AvatarAbout', () => {
   });
 
   it('renders skeleton when forceLoading', () => {
-    render(<AvatarAbout alt="Test" forceLoading />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    const { container } = render(<AvatarAbout alt="Test" forceLoading />);
+    expect(container.querySelector('[role="status"]')).toBeInTheDocument();
   });
 
   it('hides skeleton when showSkeleton is false', () => {
-    render(<AvatarAbout alt="Test" forceLoading showSkeleton={false} />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    const { container } = render(<AvatarAbout alt="Test" forceLoading showSkeleton={false} />);
+    expect(container.querySelector('[role="status"]')).not.toBeInTheDocument();
   });
 
   it('has data-loading attribute when loading', () => {

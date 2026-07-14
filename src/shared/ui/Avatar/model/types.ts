@@ -15,23 +15,6 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 export type AvatarVariant = 'circle' | 'square';
 
 /**
- * Статус пользователя для индикатора активности
- * @online - активен (зелёный)
- * @offline - не в сети (серый)
- * @busy - занят (красный)
- * @away - отошёл (жёлтый)
- */
-export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away';
-
-/**
- * Тип бейджа для аватара
- * @dot - точечный индикатор статуса
- * @number - бейдж с числом (например, уведомления)
- * @icon - бейдж с иконкой
- */
-export type AvatarBadgeVariant = 'dot' | 'number' | 'icon';
-
-/**
  * Props для основного компонента Avatar
  */
 export interface AvatarProps {
@@ -61,7 +44,7 @@ export interface AvatarProps {
   showSkeleton?: boolean;
   /** Принудительно показать состояние загрузки */
   forceLoading?: boolean;
-  /** Дочерние элементы (например, AvatarBadge, AvatarStatus) */
+  /** Дочерние элементы */
   children?: React.ReactNode;
 }
 
@@ -77,50 +60,6 @@ export interface AvatarFallbackProps {
   variant?: AvatarVariant;
   /** Максимальное количество инициалей (по умолчанию 2) */
   maxInitials?: number;
-  /** Дополнительный CSS класс */
-  className?: string;
-}
-
-/**
- * Props для компонента AvatarBadge (бейдж статуса/уведомлений)
- */
-export interface AvatarBadgeProps {
-  /** Статус пользователя */
-  status?: AvatarStatus;
-  /** Тип бейджа */
-  variant?: AvatarBadgeVariant;
-  /** Число для отображения (для variant='number') */
-  count?: number;
-  /** Дополнительный CSS класс */
-  className?: string;
-}
-
-/**
- * Props для компонента AvatarImage (изображение аватара)
- */
-export interface AvatarImageProps {
-  /** URL изображения */
-  src: string;
-  /** Альтернативный текст */
-  alt: string;
-  /** Размер аватара */
-  size?: AvatarSize;
-  /** Форма аватара */
-  variant?: AvatarVariant;
-  /** Дополнительный CSS класс */
-  className?: string;
-  /** Обработчик ошибки загрузки */
-  onError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
-  /** Обработчик успешной загрузки */
-  onLoad?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
-}
-
-/**
- * Props для компонента AvatarStatus (индикатор статуса)
- */
-export interface AvatarStatusProps {
-  /** Статус пользователя */
-  status: AvatarStatus;
   /** Дополнительный CSS класс */
   className?: string;
 }

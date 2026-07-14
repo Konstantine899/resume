@@ -40,7 +40,6 @@
       justify-content: center;
       background: var(--card-bg, #292726);
       border-radius: 50%;
-      transition: background $transition-duration $transition-easing;
 
       [data-theme='light'] & {
         background: var(--card-bg-light, #f5f3f0);
@@ -54,8 +53,6 @@
     height: 100px;
 
     &.heroStyle {
-      width: 100px;
-      height: 100px;
       padding: 2px;
 
       .initial {
@@ -71,25 +68,7 @@
     height: 200px;
 
     &.heroStyle {
-      width: 200px;
-      height: 200px;
       padding: 4px;
-      background: var(--gradient-primary);
-      border-radius: 50%;
-      box-shadow: $shadow-xl;
-
-      .image {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--card-bg, #292726);
-        border-radius: 50%;
-        transition: background $transition-duration $transition-easing;
-
-        [data-theme='light'] & {
-          background: var(--card-bg-light, #f5f3f0);
-        }
-      }
 
       .initial {
         font-size: 4rem;
@@ -104,8 +83,6 @@
     height: 300px;
 
     &.heroStyle {
-      width: 300px;
-      height: 300px;
       padding: 6px;
 
       .initial {
@@ -121,8 +98,6 @@
     height: 300px;
 
     &.heroStyle {
-      width: 300px;
-      height: 300px;
       padding: 6px;
 
       .initial {
@@ -130,98 +105,23 @@
 
         @include hero-initial;
       }
-
-      @include xl {
-        width: 18rem;
-        height: 18rem;
-
-        .initial {
-          font-size: 6rem;
-
-          @include hero-initial;
-        }
-      }
-
-      @include xxl {
-        width: 20rem;
-        height: 20rem;
-
-        .initial {
-          font-size: 7.5rem;
-
-          @include hero-initial;
-        }
-      }
     }
   }
 }
 
+// Image wrapper fills the Avatar container
 .image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: background $transition-duration $transition-easing;
 }
 
-.loader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.2) 50%, transparent 100%);
-  animation: loading 1.5s infinite;
-
-  @keyframes loading {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    100% {
-      transform: translateX(100%);
-    }
-  }
-}
-
-// Skeleton with shimmer animation
-.skeleton-wrapper {
-  position: absolute;
-  inset: 0;
+// Fallback styling inside avatar
+.fallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: var(--card-bg, #292726);
-  border-radius: 50%;
-
-  [data-theme='light'] & {
-    background: var(--card-bg-light, #f5f3f0);
-  }
-}
-
-.skeleton {
-  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--skeleton-base, rgb(255 255 255 / 0.1)) 0%,
-    var(--skeleton-highlight, rgb(255 255 255 / 0.2)) 50%,
-    var(--skeleton-base, rgb(255 255 255 / 0.1)) 100%
-  );
-  background-size: 200% 100%;
-  border-radius: 50%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
 }
 
 // Hero-like additional elements
@@ -249,14 +149,4 @@
   border-radius: 50%;
   opacity: 0.2;
   transform: scale(1.1);
-}
-
-// Badge and Status positioning
-.badge,
-.status {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  transform: translate(25%, 25%);
 }

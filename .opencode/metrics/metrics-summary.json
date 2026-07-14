@@ -1,11 +1,11 @@
 {
-  "timestamp": 1783534513928,
+  "timestamp": 1784022679480,
   "type": "summary",
   "agents": {},
   "mcp": {},
   "pipelines": {},
   "system": {
-    "startTime": 1783534513927,
+    "startTime": 1784022679479,
     "totalRequests": 0,
     "totalErrors": 0
   }

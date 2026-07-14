@@ -1,13 +1,10 @@
-import React from 'react';
-// FSD-compliant: Skeleton is in shared/ui (same layer)
-import { Skeleton } from '@/shared/ui/Skeleton';
+import React, { useCallback, useState } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Image } from '@/shared/ui/Image';
 
-import { SIZE_MAP } from '../../model/constants';
+import { AVATAR_SIZES } from '../../model/constants';
 import { AvatarProps } from '../../model/types';
-import { useAvatar } from '../../hooks/useAvatar';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
-import { AvatarImage } from '../AvatarImage/AvatarImage';
 import styles from './Avatar.module.scss';
 
 export const Avatar = React.memo(
@@ -28,29 +25,26 @@ export const Avatar = React.memo(
     children,
   }: AvatarProps) => {
     const normalizedSrc = src === '' ? undefined : src;
-    const { isLoading, hasError, handleError, handleLoad } = useAvatar(
-      normalizedSrc ?? '',
-      forceLoading
-    );
+    const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+    const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
 
-    const showFallback = !normalizedSrc || hasError;
-    const showSkeletonState = showSkeleton && isLoading && !hasError;
-
-    const handleImageError = React.useCallback(
+    const handleLoadSuccess = useCallback(
       (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        handleError();
-        onError?.(event);
-      },
-      [handleError, onError]
-    );
-
-    const handleImageLoad = React.useCallback(
-      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        handleLoad();
+        setImageStatus('loaded');
         onLoad?.(event);
       },
-      [handleLoad, onLoad]
+      [onLoad]
     );
+
+    const handleLoadError = useCallback(
+      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        setImageStatus('error');
+        onError?.(event);
+      },
+      [onError]
+    );
+
+    const avatarWidth = AVATAR_SIZES[size];
 
     return (
       <div
@@ -59,36 +53,33 @@ export const Avatar = React.memo(
         })}
         role="img"
         aria-label={alt}
-        data-loading={isLoading}
-        data-error={hasError}
+        data-loading={!showFallback && imageStatus === 'loading'}
+        data-error={imageStatus === 'error'}
       >
         {showGlow && <div className={styles.glow} />}
         {showRing && <div className={styles.ring} />}
-        {showSkeletonState ? (
-          <div className={styles.skeletonWrapper}>
-            <Skeleton
-              variant="circular"
-              width={SIZE_MAP[size]}
-              height={SIZE_MAP[size]}
-              className={styles.skeleton}
-            />
+
+        {showFallback ? (
+          <div className={styles.fallback}>
+            {fallback || <AvatarFallback name={alt} size={size} variant={variant} />}
           </div>
-        ) : showFallback ? (
-          fallback || (
-            <div className={styles.fallback}>
-              <AvatarFallback name={alt} size={size} variant={variant} />
-            </div>
-          )
         ) : (
-          <AvatarImage
-            src={normalizedSrc}
-            alt={alt}
-            size={size}
-            variant={variant}
-            onError={handleImageError}
-            onLoad={handleImageLoad}
+          <Image
+            src={normalizedSrc || ''}
+            alt=""
+            decorative
+            variant={variant === 'circle' ? 'circular' : 'rounded'}
+            width={avatarWidth}
+            height={avatarWidth}
+            placeholder={showSkeleton ? 'skeleton' : 'color'}
+            showPlaceholder={showSkeleton}
+            forceLoading={forceLoading}
+            className={styles.image}
+            onLoadSuccess={handleLoadSuccess}
+            onLoadError={handleLoadError}
           />
         )}
+
         {children}
       </div>
     );

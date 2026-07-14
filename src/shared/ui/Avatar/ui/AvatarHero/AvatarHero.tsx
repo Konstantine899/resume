@@ -1,15 +1,16 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Loader } from '@/shared/ui/Loader';
-import React from 'react';
-
-import { useAvatar } from '../../hooks/useAvatar';
+import { Image } from '@/shared/ui/Image';
 import { getInitials } from '@/shared/lib/utils';
+import React, { useCallback, useState } from 'react';
+
+import { AVATAR_SIZES } from '../../model/constants';
+import { AvatarSize } from '../../model/types';
 import styles from './AvatarHero.module.scss';
 
 export interface AvatarHeroProps {
   src?: string;
   alt: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: AvatarSize;
   className?: string;
   showGlow?: boolean;
   showRing?: boolean;
@@ -30,53 +31,49 @@ export const AvatarHero = React.memo(
     forceLoading = false,
     children,
   }: AvatarHeroProps) => {
-    const { isLoading, hasError, handleError, handleLoad } = useAvatar(src, forceLoading);
+    const normalizedSrc = src === '' ? undefined : src;
+    const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+    const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
+    const avatarWidth = AVATAR_SIZES[size];
 
-    const showFallback = !src || hasError;
-    const showSkeletonState = showSkeleton && isLoading && !hasError;
+    const handleLoadSuccess = useCallback(() => {
+      setImageStatus('loaded');
+    }, []);
 
-    const handleImageError = React.useCallback(
-      (_event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        handleError();
-      },
-      [handleError]
-    );
-
-    const handleImageLoad = React.useCallback(() => {
-      handleLoad();
-    }, [handleLoad]);
+    const handleLoadError = useCallback(() => {
+      setImageStatus('error');
+    }, []);
 
     return (
       <div
         className={classNames(styles.avatarHero, styles[size], className)}
         role="img"
         aria-label={alt}
-        data-loading={isLoading}
-        data-error={hasError}
+        data-loading={!showFallback && imageStatus === 'loading'}
+        data-error={imageStatus === 'error'}
       >
         {showGlow && <div className={styles.photoGlow} />}
         {showRing && <div className={styles.photoRing} />}
 
         <div className={styles.photoCircle}>
           <div className={styles.photoInner}>
-            {showSkeletonState ? (
-              <div className={styles.skeletonWrapper}>
-                <Loader variant="double-ring" size={size} color="primary" label="Loading avatar" />
-              </div>
-            ) : showFallback ? (
+            {showFallback ? (
               <span className={styles.initial}>
                 {getInitials(alt, { maxInitials: 1, index: 1 })}
               </span>
             ) : (
-              <img
-                className={styles.photoImage}
-                src={src}
-                alt={alt}
-                onError={handleImageError}
-                onLoad={handleImageLoad}
-                loading="lazy"
-                decoding="async"
-                crossOrigin="anonymous"
+              <Image
+                src={normalizedSrc || 'force.jpg'}
+                alt=""
+                decorative
+                variant="circular"
+                width={avatarWidth}
+                height={avatarWidth}
+                placeholder={showSkeleton ? 'skeleton' : 'color'}
+                showPlaceholder={showSkeleton}
+                forceLoading={forceLoading}
+                onLoadSuccess={handleLoadSuccess}
+                onLoadError={handleLoadError}
               />
             )}
           </div>

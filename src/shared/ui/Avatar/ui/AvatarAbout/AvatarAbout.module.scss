@@ -76,26 +76,5 @@
     }
   }
 
-  .avatar-image {
-    @include avatar-image;
-  }
-
-  .skeleton-wrapper {
-    @include avatar-inner; // Тёмный фон как у avatarInner
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #292726;
-
-    [data-theme='light'] & {
-      background: #f5f3f0;
-    }
-  }
-
-  .skeleton {
-    @include avatar-skeleton;
-  }
-
   @include avatar-reduced-motion;
 }
