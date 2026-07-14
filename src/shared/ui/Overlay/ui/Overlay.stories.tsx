@@ -10,7 +10,9 @@ const meta = {
     docs: {
       description: {
         component:
-          'Компонент затемнения фона (overlay/backdrop). Используется с модальными окнами, popover, dropdown.',
+          'Background scrim (overlay/backdrop). Used with modals, popovers, and dropdowns. ' +
+          'Supports blur and dark variants, fade-in/out animation via the `visible` prop, ' +
+          'and conditional click behavior.',
       },
     },
   },
@@ -18,23 +20,31 @@ const meta = {
   argTypes: {
     children: {
       control: false,
-      description: 'Контент поверх оверлея (обычно модальное окно)',
+      description: 'Content rendered above the scrim (e.g. modal panel)',
     },
     onClick: {
       action: 'clicked',
-      description: 'Обработчик клика по оверлею (закрытие модального окна)',
+      description: 'Click handler. Overlay gets `cursor: pointer` only when set.',
+    },
+    onKeyDown: {
+      action: 'keydown',
+      description: 'Keyboard event handler forwarded to the overlay div.',
     },
     blur: {
       control: 'boolean',
-      description: 'Размытие фона через backdrop-filter',
+      description: 'Apply backdrop-filter blur(4px)',
     },
     dark: {
       control: 'boolean',
-      description: 'Более тёмная версия оверлея',
+      description: 'Darker scrim (80% opacity instead of 60%)',
+    },
+    visible: {
+      control: 'boolean',
+      description: 'Controls visibility with CSS opacity transition. Default `true`.',
     },
     className: {
       control: 'text',
-      description: 'Дополнительные CSS классы',
+      description: 'Additional CSS class',
     },
   },
 } satisfies Meta<typeof Overlay>;
@@ -42,34 +52,28 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Базовая история
-export const Default: Story = {
-  args: {
-    children: (
-      <Card
-        style={{
-          padding: '2rem',
-          maxWidth: '400px',
-          width: '90%',
-          animation: 'scaleIn 0.3s ease-out',
-        }}
-      >
-        <h3 style={{ margin: '0 0 1rem 0', color: 'var(--foreground)' }}>
-          📦 Контент поверх оверлея
-        </h3>
-        <p style={{ margin: 0, color: 'var(--foreground-muted)' }}>
-          Кликните по оверлею чтобы закрыть
-        </p>
-      </Card>
-    ),
-    blur: false,
-    dark: false,
-  },
-  render: (args) => (
+function CardContent() {
+  return (
+    <Card
+      style={{
+        padding: '2rem',
+        maxWidth: '400px',
+        width: '90%',
+        animation: 'scaleIn 0.3s ease-out',
+      }}
+    >
+      <h3 style={{ margin: '0 0 1rem 0', color: 'var(--foreground)' }}>Content above overlay</h3>
+      <p style={{ margin: 0, color: 'var(--foreground-muted)' }}>Click the overlay to close</p>
+    </Card>
+  );
+}
+
+function OverlayContainer(args: object) {
+  return (
     <div style={{ position: 'relative', minHeight: '400px' }}>
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--foreground)', marginBottom: '1rem' }}>Основной контент</h2>
-        <p style={{ color: 'var(--foreground-muted)' }}>Этот контент затемняется оверлеем</p>
+        <h2 style={{ color: 'var(--foreground)', marginBottom: '1rem' }}>Page content</h2>
+        <p style={{ color: 'var(--foreground-muted)' }}>This content is dimmed by the overlay</p>
       </div>
 
       <Overlay {...args} />
@@ -83,116 +87,90 @@ export const Default: Story = {
           zIndex: 1001,
         }}
       >
-        {args.children}
+        {(args as { children?: React.ReactNode }).children}
       </div>
     </div>
-  ),
+  );
+}
+
+/** Default overlay with 60% black scrim. */
+export const Default: Story = {
+  args: {
+    children: <CardContent />,
+    blur: false,
+    dark: false,
+  },
+  render: OverlayContainer,
   parameters: {
     docs: {
       description: {
-        story: 'Базовое использование оверлея с затемнением 60%',
+        story: 'Base overlay with 60% black scrim. No blur, no dark variant.',
       },
     },
   },
 };
 
-// Оверлей с blur эффектом
+/** Overlay with backdrop-filter blur. */
 export const WithBlur: Story = {
   args: {
     ...Default.args,
     blur: true,
   },
-  render: Default.render,
+  render: OverlayContainer,
   parameters: {
     docs: {
       description: {
-        story: 'Оверлей с размытием фона через backdrop-filter',
+        story: 'Overlay with backdrop-filter blur(4px) on the scrim.',
       },
     },
   },
 };
 
-// Тёмный оверлей
+/** Darker overlay variant (80% scrim). */
 export const DarkOverlay: Story = {
   args: {
     ...Default.args,
     dark: true,
   },
-  render: Default.render,
+  render: OverlayContainer,
   parameters: {
     docs: {
       description: {
-        story: 'Более тёмная версия оверлея (80% затемнение)',
+        story: 'Darker overlay variant with 80% black scrim.',
       },
     },
   },
 };
 
-// Оверлей с обработчиком клика
+/** Overlay with click-to-close handler. */
 export const Clickable: Story = {
   args: {
     ...Default.args,
     onClick: () => alert('Overlay clicked! Close modal'),
   },
-  render: Default.render,
+  render: OverlayContainer,
   parameters: {
     docs: {
       description: {
-        story: 'Клик по оверлею закрывает модальное окно',
+        story: 'Click handler attached. The overlay shows `cursor: pointer`.',
       },
     },
   },
 };
 
-// Демонстрация работы с темами
-export const ThemedOverlay: Story = {
+/** Overlay with visible=false (hidden state, opacity 0). */
+export const Hidden: Story = {
   args: {
-    children: (
-      <Card
-        style={{
-          padding: '1.5rem',
-          maxWidth: '350px',
-          animation: 'scaleIn 0.3s ease-out',
-        }}
-      >
-        <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--foreground)' }}>
-          🌓 Темизация работает
-        </h4>
-        <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'var(--foreground)' }}>
-          Основной текст
-        </p>
-        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--foreground-muted)' }}>
-          Оверлей адаптируется под тему
-        </p>
-      </Card>
-    ),
-    blur: true,
+    ...Default.args,
+    visible: false,
   },
-  render: (args) => (
-    <div style={{ position: 'relative', minHeight: '400px' }}>
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--foreground)' }}>Контент страницы</h2>
-      </div>
-
-      <Overlay {...args} />
-
-      <div
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 1001,
-        }}
-      >
-        {args.children}
-      </div>
-    </div>
-  ),
+  render: OverlayContainer,
   parameters: {
     docs: {
       description: {
-        story: 'Оверлей и контент используют CSS переменные темы (dark/light)',
+        story:
+          'Overlay with `visible={false}` — opacity is 0 via CSS transition. ' +
+          'Toggle the `visible` control in the Canvas tab to see the fade animation.',
       },
     },
   },

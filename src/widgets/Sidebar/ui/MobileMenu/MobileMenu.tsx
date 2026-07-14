@@ -84,7 +84,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       </div>
 
       {/* Overlay — рендерится ПОСЛЕ panel, но визуально сзади (z-index) */}
-      <Overlay onClick={handleOverlayClick} blur={true} dark={false} className={styles.backdrop} />
+      <Overlay
+        onClick={handleOverlayClick}
+        blur={true}
+        dark={false}
+        className={styles.backdrop}
+        visible={isOpen}
+      />
     </div>
   );
 };
