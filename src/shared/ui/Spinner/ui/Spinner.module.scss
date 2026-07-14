@@ -1,0 +1,168 @@
+@use '@/shared/styles/variables' as *;
+
+// ============================================
+
+// Animation defaults (overridable via CSS vars)
+
+// ============================================
+
+$default-spinner-speed: 0.8s;
+$default-ring-outer-speed: 1s;
+$default-ring-inner-speed: 0.85s;
+$default-spinner-thickness: 2px;
+$default-ring-thickness: 4px;
+
+// ============================================
+
+// Root — container, sizing, colors
+
+// ============================================
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // --------------------------------------------------
+
+  // Sizes
+
+  // --------------------------------------------------
+
+  &.xs {
+    --spinner-size: 12px;
+  }
+
+  &.sm {
+    --spinner-size: 24px;
+  }
+
+  &.md {
+    --spinner-size: 32px;
+  }
+
+  &.lg {
+    --spinner-size: 48px;
+  }
+
+  &.xl {
+    --spinner-size: 64px;
+  }
+
+  &.xxl {
+    --spinner-size: 96px;
+  }
+
+  // --------------------------------------------------
+
+  // Colors
+
+  // --------------------------------------------------
+
+  &.primary {
+    --spinner-color: #{$spinner-color};
+  }
+
+  &.secondary {
+    --spinner-color: #{$secondary-color};
+  }
+
+  &.accent {
+    --spinner-color: #{$accent};
+  }
+
+  &.orange {
+    --spinner-color: #{$primary-light};
+  }
+}
+
+// ============================================
+
+// Single Spinner
+
+// ============================================
+
+.spinner {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+
+  .spinnerCircle {
+    width: 100%;
+    height: 100%;
+    border: var(--spinner-thickness, $default-spinner-thickness) solid var(--spinner-color);
+    border-top-color: var(--spinner-track, transparent);
+    border-radius: 50%;
+    animation: spin var(--spinner-speed, $default-spinner-speed) linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================
+
+// Double-ring
+
+// ============================================
+
+.doubleRing {
+  position: relative;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+
+  .outerRing {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: var(--double-ring-thickness, $default-ring-thickness) solid var(--spinner-color);
+    border-top-color: var(--spinner-track, transparent);
+    border-right-color: var(--spinner-track, transparent);
+    border-radius: 50%;
+    animation: rotate-clockwise var(--double-ring-speed-outer, $default-ring-outer-speed) linear
+      infinite;
+  }
+
+  .innerRing {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    border: var(--double-ring-thickness, $default-ring-thickness) solid var(--spinner-color);
+    border-top-color: var(--spinner-track, transparent);
+    border-right-color: var(--spinner-track, transparent);
+    border-bottom-color: var(--spinner-track, transparent);
+    border-radius: 50%;
+    animation: rotate-counterclockwise var(--double-ring-speed-inner, $default-ring-inner-speed)
+      linear infinite;
+  }
+}
+
+@keyframes rotate-clockwise {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate-counterclockwise {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+// ============================================
+
+// Reduced Motion
+
+// ============================================
+
+@media (prefers-reduced-motion: reduce) {
+  .spinnerCircle,
+  .outerRing,
+  .innerRing {
+    animation: none;
+  }
+}

@@ -4,7 +4,7 @@
 
 import React, { useId } from 'react';
 import type { InputProps } from '../model/types';
-import { Loader } from '@/shared/ui/Loader';
+import { Spinner } from '@/shared/ui/Spinner';
 import { Eye, EyeOff } from 'lucide-react';
 import styles from './Input.module.scss';
 import { InputLabel } from './InputLabel/InputLabel';
@@ -197,7 +197,7 @@ export const Input: React.FC<InputProps> = ({
 
         {loading && (
           <span className={styles.loadingIndicator}>
-            <Loader size="sm" />
+            <Spinner size="sm" />
           </span>
         )}
       </div>

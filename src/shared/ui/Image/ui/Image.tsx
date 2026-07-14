@@ -4,7 +4,7 @@ import { useImageLoading } from '../lib/hooks/useImageLoading';
 import { ImageProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
-import { Loader } from '@/shared/ui/Loader';
+import { Spinner } from '@/shared/ui/Spinner';
 import styles from './Image.module.scss';
 
 const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
@@ -181,7 +181,7 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
           {placeholder === 'skeleton' && (
             <Skeleton variant="rectangular" width="100%" height="100%" />
           )}
-          {placeholder === 'spinner' && <Loader variant="spinner" />}
+          {placeholder === 'spinner' && <Spinner />}
         </div>
       )}
 

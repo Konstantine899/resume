@@ -1,4 +1,4 @@
-import { AvatarSize } from './types';
+import type { AvatarSize } from './types';
 
 export const AVATAR_SIZES: Record<AvatarSize, number> = {
   sm: 100,

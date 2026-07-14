@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Image } from './Image';
 import type { ImageProps } from '../model/types';
 import { Skeleton } from '@/shared/ui/Skeleton';
-import { Loader } from '@/shared/ui/Loader';
+import { Spinner } from '@/shared/ui/Spinner';
 import styles from './Image.module.scss';
 
 const meta = {
@@ -215,7 +215,7 @@ const LoadingPlaceholderDemo: React.FC<{
           {placeholder === 'skeleton' ? (
             <Skeleton variant="rectangular" width="100%" height="100%" />
           ) : (
-            <Loader variant="spinner" />
+            <Spinner />
           )}
         </div>
         <p
@@ -407,7 +407,7 @@ export const PlaceholderSpinner: Story = {
     docs: {
       description: {
         story:
-          'Spinner placeholder с использованием shared Loader компонента. ' +
+          'Spinner placeholder с использованием shared Spinner компонента. ' +
           'Первые 3 секунды демонстрируется анимация загрузки, затем изображение загружается.',
       },
     },

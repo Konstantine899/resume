@@ -4,7 +4,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Loader } from '@/shared/ui/Loader';
+import { Spinner } from '@/shared/ui/Spinner';
 import { TEXTAREA_CONSTANTS } from '../model/constants';
 import type { TextareaProps } from '../model/types';
 import styles from './Textarea.module.scss';
@@ -283,7 +283,7 @@ const TextareaComponent = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
           {loading && (
             <span className={styles.loadingIndicator} data-testid="textarea-loading">
-              <Loader size="sm" aria-label={TEXTAREA_CONSTANTS.LOADING_LABEL} />
+              <Spinner size="sm" aria-label={TEXTAREA_CONSTANTS.LOADING_LABEL} />
             </span>
           )}
         </div>

@@ -1,7 +1,7 @@
 // src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Loader } from '@/shared/ui/Loader';
+import { Spinner } from '@/shared/ui/Spinner';
 import { Skeleton } from '@/shared/ui/Skeleton';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
 import type {
@@ -145,7 +145,7 @@ const ButtonWithIconComponent = forwardRef<HTMLButtonElement, ButtonWithIconProp
       if (loadingVariant === 'spinner') {
         return (
           <span className={styles.loader}>
-            <Loader variant="spinner" size="sm" color="secondary" label="Loading" />
+            <Spinner size="sm" color="secondary" label="Loading" />
           </span>
         );
       }
