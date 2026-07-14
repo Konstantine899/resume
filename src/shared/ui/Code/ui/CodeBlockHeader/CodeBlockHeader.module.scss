@@ -83,3 +83,9 @@
 .copied {
   color: #22c55e;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .blockHeader {
+    transition: none;
+  }
+}

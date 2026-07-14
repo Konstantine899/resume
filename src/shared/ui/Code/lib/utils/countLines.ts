@@ -1,8 +1,11 @@
 import { extractTextFromNode } from './extractTextFromNode';
 
 /**
- * Подсчитывает количество строк в React.ReactNode
- * Использует extractTextFromNode для извлечения текста и подсчёта строк
+ * Подсчитывает количество строк в React.ReactNode.
+ * Использует extractTextFromNode для извлечения текста и подсчёта строк.
+ *
+ * @param node - React-узел для подсчёта строк
+ * @returns Количество строк (0 для пустого текста)
  */
 export const countLines = (node: React.ReactNode): number => {
   const text = extractTextFromNode(node);

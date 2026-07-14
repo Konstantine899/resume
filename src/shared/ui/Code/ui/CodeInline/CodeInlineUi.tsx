@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/utils/classNames';
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import type { CodeInlineProps } from '../../model/types';
 import styles from './CodeInline.module.scss';
 
@@ -13,9 +13,21 @@ export interface CodeInlineUiProps extends CodeInlineProps {
 
 /**
  * CodeInline UI Component
- * Inline variant for displaying code
+ * Inline variant for displaying code.
+ * Поддерживает размеры sm/md/lg, copyable-режим с визуальным индикатором
+ * и доступностью (tabIndex, role, aria-label, Enter/Space).
+ *
+ * @param children - Код для отображения
+ * @param size - Размер (sm | md | lg)
+ * @param copyable - Включить режим копирования
+ * @param isCopied - Состояние "скопировано"
+ * @param onCopy - Callback копирования
+ * @param onKeyDown - Callback клавиатуры (Enter/Space)
+ * @param ariaLabel - aria-label для доступности
+ * @param className - Дополнительный CSS-класс
+ * @param disabled - Отключить копирование
  */
-export const CodeInlineUi: React.FC<CodeInlineUiProps> = ({
+const CodeInlineUiInner: React.FC<CodeInlineUiProps> = ({
   children,
   size = 'md',
   copyable = false,
@@ -55,6 +67,9 @@ export const CodeInlineUi: React.FC<CodeInlineUiProps> = ({
   );
 };
 
-CodeInlineUi.displayName = 'CodeInlineUi';
+CodeInlineUiInner.displayName = 'CodeInlineUi';
+
+/** CodeInlineUi — обёрнут в React.memo для оптимизации ре-рендеров */
+export const CodeInlineUi = memo(CodeInlineUiInner);
 
 export default CodeInlineUi;

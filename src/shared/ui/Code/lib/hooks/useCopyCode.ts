@@ -1,5 +1,5 @@
 import type { ToastType } from '@/shared/ui/Toast/model/types';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { extractTextFromNode } from '../utils/extractTextFromNode';
 
 interface UseCopyCodeOptions {
@@ -12,14 +12,19 @@ interface UseCopyCodeOptions {
 interface UseCopyCodeReturn {
   isCopied: boolean;
   isError: boolean;
-  handleCopy: () => Promise<void>;
+  handleCopy: () => void;
   reset: () => void;
   resetError: () => void;
 }
 
 /**
- * Хук для копирования кода в буфер обмена
- * С интеграцией Toast уведомлений
+ * Хук для копирования кода в буфер обмена.
+ * Использует `navigator.clipboard.writeText()` синхронно в обработчике клика,
+ * без async/await, чтобы не терять user gesture (transient activation).
+ *
+ * @param code - React-узел для извлечения текста
+ * @param options - Опции: тосты, колбэки
+ * @returns Объект с состояниями и обработчиками копирования
  */
 export const useCopyCode = (
   code: React.ReactNode,
@@ -30,74 +35,54 @@ export const useCopyCode = (
   const [isCopied, setIsCopied] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  // Извлекаем текст из JSX для копирования
-  const codeText = extractTextFromNode(code);
+  // Мемоизируем извлечение текста — избегаем повторного обхода дерева на каждый рендер
+  const codeText = useMemo(() => extractTextFromNode(code), [code]);
 
-  const copyWithFallback = useCallback((text: string): boolean => {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-9999px';
-    textArea.style.top = '0';
-    document.body.appendChild(textArea);
-    textArea.select();
-
-    try {
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return successful;
-    } catch {
-      document.body.removeChild(textArea);
-      return false;
-    }
-  }, []);
-
-  const handleCopy = useCallback(async () => {
+  const handleCopy = useCallback(() => {
     setIsError(false);
 
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(codeText);
-      } else {
-        const success = copyWithFallback(codeText);
-        if (!success) throw new Error('Copy failed');
+    if (!navigator.clipboard) {
+      setIsError(true);
+
+      if (showToastOnError && addToast) {
+        addToast('Failed to copy code', 'error', 3000);
       }
 
-      setIsCopied(true);
+      return;
+    }
 
-      if (showToastOnSuccess && addToast) {
-        addToast('Code copied to clipboard', 'success', 2000);
-      }
-
-      onCopy?.();
-
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-    } catch {
-      const success = copyWithFallback(codeText);
-
-      if (success) {
+    navigator.clipboard
+      .writeText(codeText)
+      .then(() => {
         setIsCopied(true);
 
         if (showToastOnSuccess && addToast) {
-          addToast('Code copied (fallback)', 'info', 2000);
+          addToast('Code copied to clipboard', 'success', 2000);
         }
 
         onCopy?.();
 
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 2000);
-      } else {
+        // Таймаут сброса обрабатывается в useEffect для cleanup при unmount
+      })
+      .catch(() => {
         setIsError(true);
 
         if (showToastOnError && addToast) {
           addToast('Failed to copy code', 'error', 3000);
         }
-      }
-    }
-  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy, copyWithFallback]);
+      });
+  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy]);
+
+  // Cleanup таймаута при размонтировании или изменении isCopied
+  useEffect(() => {
+    if (!isCopied) return;
+
+    const timeoutId = setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [isCopied]);
 
   const reset = useCallback(() => {
     setIsCopied(false);

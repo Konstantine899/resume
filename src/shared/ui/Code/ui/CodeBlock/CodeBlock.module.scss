@@ -29,7 +29,6 @@
 .blockContainer {
   width: 80%;
   max-width: 100%;
-  height: 400px;
   overflow: hidden;
   background: var(--code-bg, rgb(41 39 38 / 0.95));
   border: 1px solid rgb(244 179 119 / 0.2);
@@ -43,7 +42,11 @@
 
 .blockContent {
   width: 100%;
-  height: 85%;
+
+  // 310px подобрано эмпирически для SkillsCode (~355px контента)
+
+  // Обеспечивает скролл для типичного контента резюме
+  max-height: 310px;
   overflow: auto;
 
   &.withLineNumbers {
@@ -87,27 +90,6 @@
       background: transparent;
       border: none;
     }
-
-    // Syntax highlighting
-    .keyword {
-      color: #9ca3af;
-    }
-
-    .string {
-      color: var(--primary);
-    }
-
-    .number {
-      color: var(--accent);
-    }
-
-    .punctuation {
-      color: #fff;
-    }
-
-    .property {
-      color: #9ca3af;
-    }
   }
 }
 
@@ -131,6 +113,19 @@
   padding: 0 $spacing-2;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .blockContainer {
+    backdrop-filter: none;
+  }
+}
+
+// --------------------------------------------
+
+// Global Syntax Highlighting
+
+// Единое определение для всей подсветки синтаксиса
+
+// --------------------------------------------
 :global {
   .keyword {
     color: #9ca3af;

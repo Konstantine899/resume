@@ -1,4 +1,5 @@
 import { cn } from '@/shared/lib/utils/classNames';
+import { memo } from 'react';
 import { ButtonWithIcon } from '@/shared/ui/Button';
 import type { ButtonSize } from '@/shared/ui/Button/model/types';
 import { Check, Copy } from 'lucide-react';
@@ -35,8 +36,19 @@ export interface CodeBlockHeaderProps {
 /**
  * CodeBlockHeader UI Component
  * Header с terminal dots, language/title и copy button справа вверху
+ *
+ * @param language - Язык программирования (отображается в badge)
+ * @param title - Заголовок файла
+ * @param copyable - Показывать кнопку копирования
+ * @param isCopied - Состояние "скопировано"
+ * @param onCopy - Callback копирования
+ * @param onKeyDown - Callback клавиатуры (Enter/Space)
+ * @param disabled - Отключить копирование
+ * @param icons - Кастомные иконки copy/copied
+ * @param copyButtonSize - Размер кнопки копирования
+ * @param className - Дополнительный CSS-класс
  */
-export const CodeBlockHeader: React.FC<CodeBlockHeaderProps> = ({
+const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
   language,
   title,
   copyable = false,
@@ -89,6 +101,9 @@ export const CodeBlockHeader: React.FC<CodeBlockHeaderProps> = ({
   );
 };
 
-CodeBlockHeader.displayName = 'CodeBlockHeader';
+CodeBlockHeaderInner.displayName = 'CodeBlockHeader';
+
+/** CodeBlockHeader — обёрнут в React.memo для оптимизации ре-рендеров */
+export const CodeBlockHeader = memo(CodeBlockHeaderInner);
 
 export default CodeBlockHeader;

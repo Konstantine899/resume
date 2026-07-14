@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/utils/classNames';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import type { CodeBlockProps } from '../../model/types';
 import { countLines } from '../../lib/utils/countLines';
 import { CodeBlockHeader } from '../CodeBlockHeader';
@@ -16,8 +16,13 @@ export interface CodeBlockUiProps extends CodeBlockProps {
 /**
  * CodeBlock UI Component
  * Block variant для отображения кода с header и опциональной нумерацией строк
+ *
+ * Особенности:
+ * - Адаптивная нумерация строк (скрывается для одной строки)
+ * - Кнопка копирования в header
+ * - Доступность: tabIndex, role="region", aria-label
  */
-export const CodeBlockUi: React.FC<CodeBlockUiProps> = ({
+const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
   children,
   language,
   showLineNumbers = false,
@@ -53,7 +58,9 @@ export const CodeBlockUi: React.FC<CodeBlockUiProps> = ({
     <div
       className={cn(styles.blockContainer, className)}
       data-testid="code-block"
-      aria-label={ariaLabel}
+      tabIndex={0}
+      role="region"
+      aria-label={ariaLabel || (title ? `Code block: ${title}` : 'Code block')}
     >
       {/* Header с terminal dots, language/title и copy button */}
       <CodeBlockHeader
@@ -93,6 +100,9 @@ export const CodeBlockUi: React.FC<CodeBlockUiProps> = ({
   );
 };
 
-CodeBlockUi.displayName = 'CodeBlockUi';
+CodeBlockUiInner.displayName = 'CodeBlockUi';
+
+/** CodeBlockUi — обёрнут в React.memo для оптимизации ре-рендеров */
+export const CodeBlockUi = memo(CodeBlockUiInner);
 
 export default CodeBlockUi;
