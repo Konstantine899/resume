@@ -68,6 +68,7 @@ export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
 
   /**
    * Optional description text (displayed below label)
+   * @default undefined
    */
   description?: string;
 }
