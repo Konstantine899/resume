@@ -2,10 +2,13 @@
 // Input Component
 // ============================================
 
-import React, { useId } from 'react';
+import React, { useId, useCallback } from 'react';
+import { classNames } from '@/shared/lib/utils';
 import type { InputProps } from '../model/types';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Eye, EyeOff } from 'lucide-react';
+import { INPUT_CONSTANTS } from '../model/constants';
+import { ClearIcon } from './InputClearIcon';
 import styles from './Input.module.scss';
 import { InputLabel } from './InputLabel/InputLabel';
 
@@ -52,11 +55,11 @@ export const Input: React.FC<InputProps> = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Определяем controlled/uncontrolled
-  const isControlled = props.value !== undefined;
+  const isControlled = 'value' in props;
   const [internalValue, setInternalValue] = React.useState<string>(() =>
-    String(props.defaultValue ?? '')
+    isControlled ? (props.value as string) : String(props.defaultValue ?? '')
   );
-  const value = isControlled ? props.value : internalValue;
+  const value = isControlled ? (props.value as string) : internalValue;
 
   // State для password visibility toggle
   const [showPassword, setShowPassword] = React.useState(false);
@@ -64,49 +67,81 @@ export const Input: React.FC<InputProps> = ({
   const inputType =
     isPassword && showPasswordToggle ? (showPassword ? 'text' : 'password') : props.type;
 
-  // Обработчик изменения значения
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isControlled) {
-      setInternalValue(e.target.value);
-    }
-    props.onChange?.(e);
-  };
+  // Обработчик изменения значения (memoized)
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!isControlled) {
+        setInternalValue(e.target.value);
+      }
+      props.onChange?.(e);
+    },
+    [isControlled, props]
+  );
 
-  // Обработчик очистки
-  const handleClear = () => {
+  // Обработчик очистки (memoized)
+  const handleClear = useCallback(() => {
     if (!isControlled) {
       setInternalValue('');
     }
+
+    // Синтетическое событие для совместимости
+    const syntheticEvent = {
+      target: inputRef.current,
+      type: 'input',
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    props.onChange?.(syntheticEvent);
     onClear?.();
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  };
+    inputRef.current?.focus();
+  }, [isControlled, props, onClear]);
+
+  // Toggle password visibility (memoized)
+  const handleTogglePassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
+
+  // Password toggle keyboard handler
+  const handlePasswordToggleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleTogglePassword();
+      }
+    },
+    [handleTogglePassword]
+  );
 
   // Вычисление количества символов
-  const currentValue = String(value || props.value || props.defaultValue || '');
+  const currentValue = String(value ?? '');
   const maxLength = props.maxLength as number | undefined;
   const charCount = currentValue.length;
   const showCharCounter = showCounter && maxLength !== undefined;
+  const isWarning = maxLength && charCount >= maxLength * INPUT_CONSTANTS.COUNTER_WARNING_THRESHOLD;
 
-  // Build CSS classes
-  const inputClasses = [
+  // Build CSS classes (используем classNames)
+  const inputClasses = classNames(
     styles.input,
     styles[variant],
     styles[size],
-    error && styles.error,
-    success && styles.success,
-    loading && styles.loading,
-    fullWidth && styles.fullWidth,
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+    {
+      [styles.error]: Boolean(error),
+      [styles.success]: Boolean(success),
+      [styles.loading]: Boolean(loading),
+      [styles.fullWidth]: fullWidth,
+    },
+    className
+  );
 
-  const wrapperClasses = [styles.inputWrapper, fullWidth && styles.fullWidth]
-    .filter(Boolean)
-    .join(' ');
+  const wrapperClasses = classNames(styles.inputWrapper, {
+    [styles.fullWidth]: fullWidth,
+  });
+
+  // Build data-state string для accessibility
+  const states: string[] = [];
+  if (loading) states.push('loading');
+  if (error) states.push('error');
+  if (disabled) states.push('disabled');
+  if (readOnly) states.push('readonly');
 
   // Accessibility props
   const describedBy = error
@@ -118,7 +153,11 @@ export const Input: React.FC<InputProps> = ({
         : undefined;
 
   return (
-    <div className={wrapperClasses} data-testid="input-wrapper">
+    <div
+      className={wrapperClasses}
+      data-testid="input-wrapper"
+      data-state={states.length > 0 ? states.join(' ') : undefined}
+    >
       {label && (
         <InputLabel htmlFor={inputId} required={required} floating={variant === 'floating'}>
           {label}
@@ -126,16 +165,14 @@ export const Input: React.FC<InputProps> = ({
       )}
 
       <div className={styles.inputContainer}>
-        {icon && variant === 'floating' ? (
-          <span className={styles.iconFloating} aria-hidden="true" data-testid="icon-floating">
+        {icon && (
+          <span
+            className={variant === 'floating' ? styles.iconFloating : styles.icon}
+            aria-hidden="true"
+            data-testid={variant === 'floating' ? 'icon-floating' : 'icon'}
+          >
             {icon}
           </span>
-        ) : (
-          icon && (
-            <span className={styles.icon} aria-hidden="true" data-testid="icon">
-              {icon}
-            </span>
-          )
         )}
 
         <input
@@ -145,8 +182,8 @@ export const Input: React.FC<InputProps> = ({
           disabled={disabled}
           readOnly={readOnly}
           required={required}
-          aria-invalid={!!error}
-          aria-busy={loading}
+          aria-invalid={Boolean(error)}
+          aria-busy={loading ? true : undefined}
           aria-describedby={describedBy}
           value={value}
           onChange={handleChange}
@@ -159,11 +196,16 @@ export const Input: React.FC<InputProps> = ({
           <button
             type="button"
             className={styles.passwordToggle}
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={handleTogglePassword}
+            onKeyDown={handlePasswordToggleKeyDown}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            tabIndex={-1}
+            tabIndex={0}
           >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            {showPassword ? (
+              <EyeOff size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE} />
+            ) : (
+              <Eye size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE} />
+            )}
           </button>
         )}
 
@@ -175,17 +217,7 @@ export const Input: React.FC<InputProps> = ({
             aria-label="Clear input"
             tabIndex={-1}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <ClearIcon />
           </button>
         )}
 
@@ -216,8 +248,7 @@ export const Input: React.FC<InputProps> = ({
 
       {showCharCounter && maxLength && (
         <span id={counterId} className={styles.counter} data-testid="counter">
-          <span className={charCount >= maxLength * 0.9 ? styles.warning : ''}>{charCount}</span>/
-          {maxLength}
+          <span className={isWarning ? styles.warning : ''}>{charCount}</span>/{maxLength}
         </span>
       )}
     </div>
