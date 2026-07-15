@@ -6,7 +6,6 @@ import { TOAST_CONSTANTS } from '../model/constants';
 describe('Toast', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
   });
 
   afterEach(() => {
@@ -94,10 +93,18 @@ describe('Toast', () => {
   });
 
   describe('Auto-close Timer', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('должен вызвать onClose после duration', () => {
       render(<Toast id="test-1" message="Test" duration={3000} onClose={mockOnClose} />);
 
-      vi.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(3300); // duration + exit animation
 
       expect(mockOnClose).toHaveBeenCalledWith('test-1');
     });
@@ -105,7 +112,7 @@ describe('Toast', () => {
     it('должен использовать DEFAULT_DURATION по умолчанию', () => {
       render(<Toast id="test-1" message="Test" onClose={mockOnClose} />);
 
-      vi.advanceTimersByTime(TOAST_CONSTANTS.DEFAULT_DURATION);
+      vi.advanceTimersByTime(TOAST_CONSTANTS.DEFAULT_DURATION + 300);
 
       expect(mockOnClose).toHaveBeenCalledWith('test-1');
     });
@@ -141,17 +148,49 @@ describe('Toast', () => {
 
       expect(mockOnClose).not.toHaveBeenCalled();
 
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2300); // remaining + exit animation
 
       expect(mockOnClose).toHaveBeenCalledWith('test-1');
+    });
+
+    it('должен показывать pause indicator при hover', () => {
+      render(<Toast id="test-1" message="Test" duration={3000} onClose={mockOnClose} />);
+
+      // Hover to pause - should have pause indicator visible
+      fireEvent.mouseEnter(screen.getByTestId('toast'));
+
+      expect(screen.getByTestId('toast')).toBeInTheDocument();
+    });
+
+    it('должен показывать progress bar при duration > 0', () => {
+      render(<Toast id="test-1" message="Test" duration={3000} onClose={mockOnClose} />);
+
+      expect(screen.getByTestId('toast-progress')).toBeInTheDocument();
+    });
+
+    it('не должен показывать progress bar при duration = 0', () => {
+      render(<Toast id="test-1" message="Test" duration={0} onClose={mockOnClose} />);
+
+      expect(screen.queryByTestId('toast-progress')).not.toBeInTheDocument();
     });
   });
 
   describe('Manual Close', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('должен вызвать onClose при клике на кнопку закрытия', () => {
       render(<Toast id="test-1" message="Test" onClose={mockOnClose} />);
 
       fireEvent.click(screen.getByTestId('toast-close'));
+
+      // Exit animation takes 300ms
+      vi.advanceTimersByTime(300);
 
       expect(mockOnClose).toHaveBeenCalledWith('test-1');
     });

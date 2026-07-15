@@ -1,6 +1,6 @@
 // ============================================
 
-// Toast Component Styles
+// Toast Component Styles (Senior+ 2026)
 
 // ============================================
 
@@ -11,8 +11,12 @@
 @use '@/shared/styles/variables/typography' as *;
 @use '@/shared/styles/variables/z-index' as *;
 @use '@/shared/styles/mixins' as *;
-@use '@/shared/styles/variables/shadows.scss' as *;
 
+// ============================================
+
+// Toast Container (Stack)
+
+// ============================================
 .toastContainer {
   position: fixed;
   top: $spacing-6;
@@ -23,17 +27,35 @@
   flex-direction: column;
   gap: $spacing-3;
   width: fit-content;
-  max-width: 400px;
+  max-width: 420px;
   pointer-events: none;
 
   > * {
     pointer-events: auto;
+
+    // Stack cascade effect
+    transition: transform $transition-fast ease-out;
+
+    &:nth-child(1) {
+      z-index: 3;
+      transform: scale(1);
+    }
+
+    &:nth-child(2) {
+      z-index: 2;
+      opacity: 0.9;
+      transform: scale(0.96) translateY(-4px);
+    }
+
+    &:nth-child(n + 3) {
+      z-index: 1;
+      opacity: 0.8;
+      transform: scale(0.92) translateY(-8px);
+    }
   }
 
   @media (width <= 640px) {
-    right: $spacing-4;
-    bottom: $spacing-4;
-    left: $spacing-4;
+    inset: auto $spacing-4 $spacing-4;
     max-width: none;
   }
 }
@@ -44,127 +66,300 @@
 
 // ============================================
 .toast {
+  position: relative;
   display: flex;
   gap: $spacing-3;
   align-items: center;
-  width: 100%; /* Растягивается на ширину контейнера (max 400px) */
+  width: 100%;
   max-width: 100%;
-  padding: $spacing-4 $spacing-4;
-  pointer-events: auto;
+  padding: $spacing-3 $spacing-4;
+  overflow: hidden;
   background: var(--toast-bg, #fff);
-  border: 1px solid var(--toast-border, $border-color);
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-lg;
-  transition: all $transition-fast;
-  animation: slideInRight 0.3s ease-out;
 
-  // Темизация
+  // Accent border left (4px)
+  border-left: 4px solid;
+  border-radius: $border-radius-lg;
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.15),
+    0 1px 3px rgb(0 0 0 / 0.1);
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  // Theme transitions
   @include theme-transition;
 
-  // Типы Toast
+  // Entrance animation
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%) scale(0.9);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  // Exit animation
+  &.closing {
+    animation: slideOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(100%) scale(0.9);
+    }
+  }
+
+  // Hover lift effect
+  &:hover {
+    box-shadow:
+      0 8px 24px rgb(0 0 0 / 0.18),
+      0 2px 6px rgb(0 0 0 / 0.12);
+    transform: translateY(-2px);
+  }
+
+  // ============================================
+
+  // Type Variants (Accent colors + Icon backgrounds)
+
+  // ============================================
   &.success {
-    color: $success-color;
-    background: rgb(40 167 69 / 0.1);
-    border-color: $success-color;
+    border-left-color: $success-color;
+
+    .icon {
+      color: $success-color;
+      background: rgb(40 167 69 / 0.15);
+    }
+
+    .message {
+      color: rgb(40 167 69 / 0.95);
+    }
   }
 
   &.error {
-    color: $danger-color;
-    background: rgb(220 53 69 / 0.1);
-    border-color: $danger-color;
+    border-left-color: $danger-color;
+
+    .icon {
+      color: $danger-color;
+      background: rgb(220 53 69 / 0.15);
+    }
+
+    .message {
+      color: rgb(220 53 69 / 0.95);
+    }
   }
 
   &.warning {
-    color: $warning-color;
-    background: rgb(255 193 7 / 0.1);
-    border-color: $warning-color;
+    border-left-color: $warning-color;
+
+    .icon {
+      color: color.adjust($warning-color, $lightness: -15%);
+      background: rgb(255 193 7 / 0.2);
+    }
+
+    .message {
+      color: rgb(255 193 7 / 0.95);
+    }
   }
 
   &.info {
-    color: $info-color;
-    background: rgb(23 162 184 / 0.1);
-    border-color: $info-color;
+    border-left-color: $info-color;
+
+    .icon {
+      color: $info-color;
+      background: rgb(23 162 184 / 0.15);
+    }
+
+    .message {
+      color: rgb(23 162 184 / 0.95);
+    }
   }
 
-  // Hover эффект
-  &:hover {
-    box-shadow: $shadow-xl;
-    transform: translateY(-2px);
+  // Dark mode overrides
+  @media (prefers-color-scheme: dark) {
+    background: var(--toast-bg-dark, #1e1e1e);
+
+    &.success .icon {
+      color: color.adjust($success-color, $lightness: 10%);
+      background: rgb(40 167 69 / 0.25);
+    }
+
+    &.error .icon {
+      color: color.adjust($danger-color, $lightness: 10%);
+      background: rgb(220 53 69 / 0.25);
+    }
+
+    &.warning .icon {
+      color: color.adjust($warning-color, $lightness: 5%);
+      background: rgb(255 193 7 / 0.3);
+    }
+
+    &.info .icon {
+      color: color.adjust($info-color, $lightness: 10%);
+      background: rgb(23 162 184 / 0.25);
+    }
   }
 }
 
+// ============================================
+
+// Icon Circle
+
+// ============================================
 .icon {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
 }
 
+// ============================================
+
+// Message
+
+// ============================================
 .message {
+  z-index: 2;
   flex: 1;
   font-family: $font-family-base;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   line-height: 1.4;
-  color: var(--toast-text, $text-primary);
-  word-break: break-all;
+  word-break: break;
 
   @include theme-transition;
 }
 
+// ============================================
+
+// Close Button (fade on hover)
+
+// ============================================
 .closeButton {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   padding: 0;
-  color: $text-muted;
+  color: var(--toast-close-icon, rgb(0 0 0 / 0.4));
   cursor: pointer;
   background: transparent;
   border: none;
-  border-radius: $border-radius-sm;
-  transition: all $transition-fast;
+  border-radius: $border-radius-md;
+  opacity: 0.6;
+  transition: all $transition-fast ease-out;
 
   &:hover {
-    color: $text-primary;
-    background: rgb(0 0 0 / 0.05);
+    color: var(--toast-close-icon-hover, rgb(0 0 0 / 0.7));
+    background: rgb(0 0 0 / 0.06);
+    opacity: 1;
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-light;
+    outline: 2px solid var(--toast-focus-ring, $primary-light);
     outline-offset: 2px;
+    opacity: 1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: rgb(255 255 255 / 0.5);
+
+    &:hover {
+      color: rgb(255 255 255 / 0.8);
+      background: rgb(255 255 255 / 0.1);
+    }
   }
 }
 
 // ============================================
 
-// Animations
+// Progress Bar (auto-close visualization)
 
 // ============================================
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: 3px;
+  background: currentcolor;
+  opacity: 0.3;
+  transform-origin: left;
+
+  // Animation duration set inline via style prop
+  animation: progress linear forwards;
+  animation-play-state: running;
+
+  // Pause on hover
+  .toast:hover & {
+    animation-play-state: paused;
   }
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+
+    to {
+      width: 0%;
+    }
+  }
+
+  // Type-specific colors
+  .success & {
+    background: $success-color;
+  }
+
+  .error & {
+    background: $danger-color;
+  }
+
+  .warning & {
+    background: $warning-color;
+  }
+
+  .info & {
+    background: $info-color;
   }
 }
 
-@keyframes slideOutRight {
-  from {
+// ============================================
+
+// Pause Indicator (when hover pauses timer)
+
+// ============================================
+.pauseIndicator {
+  position: absolute;
+  top: $spacing-2;
+  right: $spacing-2;
+  z-index: 3;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: var(--toast-pause-text, rgb(0 0 0 / 0.3));
+  opacity: 0;
+  transition: opacity $transition-fast;
+
+  .toast:hover & {
     opacity: 1;
-    transform: translateX(0);
   }
 
-  to {
-    opacity: 0;
-    transform: translateX(100%);
+  @media (prefers-color-scheme: dark) {
+    color: rgb(255 255 255 / 0.3);
   }
 }
