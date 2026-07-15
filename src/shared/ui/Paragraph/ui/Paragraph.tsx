@@ -4,6 +4,8 @@ import { memo, forwardRef } from 'react';
 import { type LineClamp, type ParagraphProps } from '../model/types';
 import cls from './Paragraph.module.scss';
 
+const VALID_LINE_CLAMP_VALUES: readonly LineClamp[] = [2, 3, 4, 5];
+
 /**
  * Paragraph component for body text
  *
@@ -28,9 +30,8 @@ export const Paragraph = memo(
     } = props;
 
     // Валидация lineClamp (только 2-5)
-    const validLineClampValues: LineClamp[] = [2, 3, 4, 5];
     const validatedLineClamp =
-      lineClamp && validLineClampValues.includes(lineClamp) ? lineClamp : undefined;
+      lineClamp && VALID_LINE_CLAMP_VALUES.includes(lineClamp) ? lineClamp : undefined;
 
     if (process.env.NODE_ENV === 'development' && lineClamp && !validatedLineClamp) {
       // eslint-disable-next-line no-console

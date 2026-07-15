@@ -218,6 +218,36 @@ describe('Paragraph', () => {
       process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
     });
+
+    it('не должен предупреждать при lineClamp={0} (falsy значение)', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render(<Paragraph lineClamp={0 as any}>Text</Paragraph>);
+
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      process.env.NODE_ENV = originalEnv;
+      warnSpy.mockRestore();
+    });
+
+    it('не должен предупреждать при lineClamp={6} (невалидное значение)', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render(<Paragraph lineClamp={6 as any}>Text</Paragraph>);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Paragraph: lineClamp должен быть от 2 до 5, получено: 6'
+      );
+
+      process.env.NODE_ENV = originalEnv;
+      warnSpy.mockRestore();
+    });
   });
 
   describe('Accessibility', () => {
