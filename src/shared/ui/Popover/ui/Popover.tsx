@@ -2,12 +2,9 @@ import { memo } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Portal } from '@/shared/ui/Portal';
 import { usePopover } from '../lib/hooks/usePopover';
-import { POPOVER_CONSTANTS, POPOVER_SIZES } from '../model/constants';
-import type { PopoverPosition, PopoverProps, PopoverSize } from '../model/types';
+import { POPOVER_CONSTANTS, POPOVER_SIZES, VALID_POSITIONS, VALID_SIZES } from '../model/constants';
+import type { PopoverProps } from '../model/types';
 import styles from './Popover.module.scss';
-
-const VALID_POSITIONS: readonly PopoverPosition[] = ['top', 'bottom', 'left', 'right', 'center'];
-const VALID_SIZES: readonly PopoverSize[] = ['sm', 'md', 'lg', 'auto'];
 
 /**
  * Popover component for displaying contextual content

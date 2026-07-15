@@ -486,6 +486,24 @@ describe('Popover', () => {
       warnSpy.mockRestore();
     });
 
+    it('должен предупреждать о невалидном размере в dev режиме', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+
+      render(
+        // @ts-expect-error testing invalid prop
+        <Popover content="Content" size="xl">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Popover: невалидный размер'));
+
+      process.env.NODE_ENV = originalEnv;
+      warnSpy.mockRestore();
+    });
+
     it('не должен предупреждать в production режиме', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const originalEnv = process.env.NODE_ENV;
