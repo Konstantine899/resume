@@ -2,27 +2,37 @@
 
 @use '@/shared/styles/variables' as *;
 
+// Container-specific constants (extracted from magic numbers)
+$container-max-width-sm: 640px;
+$container-max-width-md: 768px;
+$container-max-width-lg: 1024px;
+$container-max-width-xl: 1280px;
+$container-padding-sm: 1rem;
+$container-padding-md: 1.5rem;
+$container-padding-lg: 2rem;
+$container-padding-xl: 3rem;
+
 .container {
   // Базовые стили
   width: 100%;
-  margin-left: auto;
   margin-right: auto;
+  margin-left: auto;
 
   // Размеры (max-width)
   &.sm {
-    max-width: 640px;
+    max-width: $container-max-width-sm;
   }
 
   &.md {
-    max-width: 768px;
+    max-width: $container-max-width-md;
   }
 
   &.lg {
-    max-width: 1024px;
+    max-width: $container-max-width-lg;
   }
 
   &.xl {
-    max-width: 1280px;
+    max-width: $container-max-width-xl;
   }
 
   &.full {
@@ -31,40 +41,40 @@
 
   // Центрирование
   &.centered {
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   // Полная ширина
   &.fullWidth {
     max-width: 100%;
-    padding-left: 0;
     padding-right: 0;
+    padding-left: 0;
   }
 
   // Padding
   &.padding-none {
-    padding-left: 0;
     padding-right: 0;
+    padding-left: 0;
   }
 
   &.padding-sm {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-right: $container-padding-sm;
+    padding-left: $container-padding-sm;
   }
 
   &.padding-md {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-right: $container-padding-md;
+    padding-left: $container-padding-md;
   }
 
   &.padding-lg {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-right: $container-padding-lg;
+    padding-left: $container-padding-lg;
   }
 
   &.padding-xl {
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-right: $container-padding-xl;
+    padding-left: $container-padding-xl;
   }
 }

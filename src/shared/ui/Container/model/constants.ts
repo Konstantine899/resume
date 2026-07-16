@@ -27,4 +27,9 @@ export const CONTAINER_CONSTANTS = {
     lg: '2rem',
     xl: '3rem',
   } as const,
+
+  /** Default values */
+  DEFAULT_SIZE: 'lg' as const,
+  DEFAULT_CENTERED: true,
+  DEFAULT_PADDING: 'md' as const,
 } as const;

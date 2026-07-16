@@ -1,54 +1,69 @@
-// src/shared/ui/Container/ui/Container.tsx
+// ============================================
+// Container Component
+// ============================================
 
+import { validateContainerProps } from '@/shared/lib/utils/validateContainerProps';
+import { CONTAINER_CONSTANTS } from '@/shared/ui/Container/model/constants';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { forwardRef, memo, useMemo } from 'react';
-import { CONTAINER_CONSTANTS } from '../model/constants';
+import { forwardRef, memo, useEffect, useMemo } from 'react';
 import type { ContainerProps } from '../model/types';
 import styles from './Container.module.scss';
 
 /**
- * Runtime validation for Container props (development only)
+ * Container Component — ограничение ширины и центрирование контента
+ *
+ * @example
+ * // Basic usage (default: size="lg", centered=true, padding="md")
+ * ```tsx
+ * <Container>Content</Container>
+ * ```
+ *
+ * @example
+ * // Custom size
+ * ```tsx
+ * <Container size="xl">Large content</Container>
+ * ```
+ *
+ * @example
+ * // Full width with padding
+ * ```tsx
+ * <Container fullWidth padding="lg">Full width content</Container>
+ * ```
+ *
+ * @example
+ * // Without centering
+ * ```tsx
+ * <Container centered={false}>Left-aligned content</Container>
+ * ```
+ *
+ * @example
+ * // With accessibility attributes
+ * ```tsx
+ * <Container role="region" aria-label="Main content">
+ *   <h1>Page Title</h1>
+ * </Container>
+ * ```
  */
-const validateContainerProps = (
-  size: ContainerProps['size'],
-  padding: ContainerProps['padding']
-) => {
-  if (process.env.NODE_ENV === 'development') {
-    const { VALID_SIZES, VALID_PADDING } = CONTAINER_CONSTANTS;
-
-    if (size && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Container: invalid size "${size}". Valid values: ${VALID_SIZES.join(', ')}`);
-    }
-
-    if (padding && !VALID_PADDING.includes(padding)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Container: invalid padding "${padding}". Valid values: ${VALID_PADDING.join(', ')}`
-      );
-    }
-  }
-};
-
-export const Container = memo(
-  forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
-    const {
-      size = 'lg',
-      centered = true,
+const ContainerComponent = forwardRef<HTMLDivElement, ContainerProps>(
+  (
+    {
+      size = CONTAINER_CONSTANTS.DEFAULT_SIZE,
+      centered = CONTAINER_CONSTANTS.DEFAULT_CENTERED,
       className = '',
       fullWidth = false,
-      padding = 'md',
+      padding = CONTAINER_CONSTANTS.DEFAULT_PADDING,
       role,
       'aria-label': ariaLabel,
       ...restProps
-    } = props;
-
-    // Runtime validation in development mode
-    if (process.env.NODE_ENV === 'development') {
+    },
+    ref
+  ) => {
+    // Runtime validation in development mode (optimized deps)
+    useEffect(() => {
       validateContainerProps(size, padding);
-    }
+    }, [size, padding]);
 
-    // Memoize className calculation
+    // Memoize className calculation (optimized dependencies)
     const containerClassName = useMemo(
       () =>
         classNames(
@@ -68,12 +83,18 @@ export const Container = memo(
         className={containerClassName}
         role={role}
         aria-label={ariaLabel}
+        data-size={size}
+        data-padding={padding}
         {...restProps}
       />
     );
-  })
+  }
 );
 
+ContainerComponent.displayName = 'Container';
+
+// Memo wrapper with displayName
+export const Container = memo(ContainerComponent);
 Container.displayName = 'Container';
 
 export default Container;
