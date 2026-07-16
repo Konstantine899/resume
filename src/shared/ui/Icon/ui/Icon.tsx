@@ -1,33 +1,30 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import React, { useCallback, useMemo } from 'react';
-import { getColorValue, getSizeInPixels, ICON_COLORS } from '../model/constants';
+import React, { forwardRef, useCallback, useEffect, useMemo } from 'react';
+import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../model/constants';
+import { validateIconProps } from '@/shared/lib/utils/validateIconProps';
 import type { IconProps } from '../model/types';
 import styles from './Icon.module.scss';
 
-export const Icon = React.memo(
-  ({
-    name: IconComponent,
-    size = 'md',
-    color = 'foreground',
-    strokeWidth = 2,
-    className = '',
-    ariaLabel,
-    decorative = false,
-    disabled = false,
-    onClick,
-    isPressed,
-    id,
-  }: IconProps) => {
-    // Runtime validation в development режиме
-    if (process.env.NODE_ENV === 'development') {
-      if (typeof color === 'string' && !(color in ICON_COLORS)) {
-        const validColors = Object.keys(ICON_COLORS).join(', ');
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Icon: invalid color "${color}". Valid values: ${validColors}, or any valid CSS color`
-        );
-      }
-    }
+const IconComponent = forwardRef<HTMLSpanElement, IconProps>(
+  (
+    {
+      name: IconComponentChild,
+      size = ICON_CONSTANTS.DEFAULT_SIZE,
+      color = ICON_CONSTANTS.DEFAULT_COLOR,
+      strokeWidth = ICON_CONSTANTS.DEFAULT_STROKE_WIDTH,
+      className = '',
+      ariaLabel,
+      decorative = false,
+      disabled = false,
+      onClick,
+      isPressed,
+      id,
+    },
+    ref
+  ) => {
+    useEffect(() => {
+      validateIconProps(color, size, strokeWidth);
+    }, [color, size, strokeWidth]);
 
     const iconStyle: React.CSSProperties = useMemo(
       () => ({
@@ -59,7 +56,7 @@ export const Icon = React.memo(
       (e: React.KeyboardEvent<HTMLSpanElement>) => {
         if (!disabled && onClick && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
-          onClick(e as unknown as React.MouseEvent<HTMLSpanElement>);
+          e.currentTarget.click();
         }
       },
       [disabled, onClick]
@@ -67,6 +64,7 @@ export const Icon = React.memo(
 
     return (
       <span
+        ref={ref}
         id={id}
         className={iconClassName}
         onClick={disabled ? undefined : onClick}
@@ -75,10 +73,13 @@ export const Icon = React.memo(
         role={isInteractive ? 'button' : commonAriaProps['aria-hidden'] ? undefined : 'img'}
         aria-pressed={isInteractive && isPressed !== undefined ? isPressed : undefined}
         data-testid={decorative ? undefined : 'icon-wrapper'}
+        data-size={size}
+        data-color={color}
+        data-interactive={isInteractive}
         {...commonAriaProps}
       >
-        <IconComponent
-          style={{ ...iconStyle, strokeWidth: undefined }}
+        <IconComponentChild
+          style={iconStyle}
           strokeWidth={strokeWidth}
           aria-hidden={decorative ? 'true' : undefined}
         />
@@ -87,4 +88,8 @@ export const Icon = React.memo(
   }
 );
 
+IconComponent.displayName = 'Icon';
+export const Icon = React.memo(IconComponent);
 Icon.displayName = 'Icon';
+
+export default Icon;

@@ -311,7 +311,7 @@ export const ToggleState: Story = {
     size: 'md',
     color: 'primary',
     isPressed: true,
-    onClick: () => console.log('Toggle theme'),
+    onClick: () => {},
     ariaLabel: 'Toggle theme',
   },
   parameters: {
@@ -396,7 +396,7 @@ export const AnchorLinks: Story = {
           color="primary"
           id="home-link"
           ariaLabel="Navigate to home"
-          onClick={() => console.log('Navigate home')}
+          onClick={() => {}}
         />
         <p style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
           Icon с id="home-link" для якорных ссылок
@@ -477,7 +477,7 @@ export const AllPropsCombined: Story = {
     className: 'combined-example',
     ariaLabel: 'Combined props example',
     id: 'combined-icon',
-    onClick: () => console.log('Clicked combined icon'),
+    onClick: () => {},
     isPressed: false,
   },
   parameters: {
@@ -516,13 +516,13 @@ export const ThemeComparison: Story = {
       </div>
       <div
         style={{
-          backgroundColor: '#1a1a1a',
-          color: '#ffffff',
+          backgroundColor: 'var(--bg-primary, #1a1a1a)',
+          color: 'var(--text-primary, #ffffff)',
           padding: '32px',
           borderRadius: '12px',
           display: 'flex',
           justifyContent: 'center',
-          border: '1px solid #333',
+          border: '1px solid var(--border-color, #333)',
         }}
       >
         <div>

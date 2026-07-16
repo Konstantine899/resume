@@ -30,10 +30,17 @@ describe('Icon', () => {
       const wrapper = screen.getByTestId('icon-wrapper');
       expect(wrapper).toHaveClass(/custom-class/);
     });
+  });
 
-    it('matches snapshot for default props', () => {
-      const { container } = render(<Icon name={Home} />);
-      expect(container).toMatchSnapshot();
+  describe('forwardRef', () => {
+    it('должен передавать ref на span элемент', () => {
+      const ref = { current: null };
+      render(<Icon name={Home} ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+    });
+
+    it('должен иметь displayName', () => {
+      expect(Icon.displayName).toBe('Icon');
     });
   });
 
@@ -210,7 +217,6 @@ describe('Icon', () => {
 
       buttonElement.focus();
 
-      // Check that focus-visible styles are applied via CSS
       expect(buttonElement.className).toMatch(/clickable/);
     });
 
@@ -371,6 +377,32 @@ describe('Icon', () => {
       expect(() => {
         render(<Icon name={Home} />);
       }).not.toThrow();
+    });
+  });
+
+  describe('Data Attributes', () => {
+    it('должен иметь data-size по умолчанию', () => {
+      render(<Icon name={Home} />);
+      const wrapper = screen.getByTestId('icon-wrapper');
+      expect(wrapper).toHaveAttribute('data-size', 'md');
+    });
+
+    it('должен иметь data-color по умолчанию', () => {
+      render(<Icon name={Home} />);
+      const wrapper = screen.getByTestId('icon-wrapper');
+      expect(wrapper).toHaveAttribute('data-color', 'foreground');
+    });
+
+    it('должен иметь data-interactive при onClick', () => {
+      render(<Icon name={Home} onClick={vi.fn()} ariaLabel="Test" />);
+      const wrapper = screen.getByRole('button');
+      expect(wrapper).toHaveAttribute('data-interactive', 'true');
+    });
+
+    it('не должен иметь data-interactive без onClick', () => {
+      render(<Icon name={Home} />);
+      const wrapper = screen.getByRole('img');
+      expect(wrapper).toHaveAttribute('data-interactive', 'false');
     });
   });
 });

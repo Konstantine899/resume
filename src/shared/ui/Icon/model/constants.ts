@@ -43,3 +43,31 @@ export const getColorValue = (color: string): string => {
   }
   return color;
 };
+
+/**
+ * Константы для компонента Icon
+ */
+export const ICON_CONSTANTS = {
+  /** Допустимые размеры */
+  VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const,
+  /** Допустимые цвета */
+  VALID_COLORS: [
+    'primary',
+    'secondary',
+    'accent',
+    'success',
+    'danger',
+    'warning',
+    'foreground',
+    'foreground-muted',
+    'inherit',
+  ] as const,
+  /** Допустимые толщины линий */
+  VALID_STROKE_WIDTHS: [1, 1.5, 2, 2.5, 3] as const,
+  /** Размер по умолчанию */
+  DEFAULT_SIZE: 'md',
+  /** Цвет по умолчанию */
+  DEFAULT_COLOR: 'foreground',
+  /** Толщина линий по умолчанию */
+  DEFAULT_STROKE_WIDTH: 2,
+} as const;
