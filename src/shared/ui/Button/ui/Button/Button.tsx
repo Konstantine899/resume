@@ -1,52 +1,39 @@
-// src/shared/ui/Button/ui/Button/Button.tsx
+// ============================================
+// Button Component
+// ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Skeleton } from '@/shared/ui/Skeleton';
+import { validateButtonProps } from '@/shared/lib/utils/validateButtonProps';
+import { BUTTON_CONSTANTS } from '@/shared/ui/Button/model/constants';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
-import type { ButtonProps, ButtonSize, ButtonVariant, LoadingVariant } from '../../model/types';
+import type { ButtonProps } from '../../model/types';
 import styles from './Button.module.scss';
 
-// Valid values for runtime validation
-const VALID_VARIANTS: ButtonVariant[] = [
-  'primary',
-  'secondary',
-  'outline',
-  'ghost',
-  'danger',
-  'sidebar',
-];
-const VALID_SIZES: ButtonSize[] = ['sm', 'md', 'lg'];
-const VALID_LOADING_VARIANTS: LoadingVariant[] = ['spinner', 'skeleton'];
-
 /**
- * Runtime validation for Button props (development only)
+ * Button Component — базовая текстовая кнопка
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <Button variant="primary" size="lg" onClick={handleSubmit}>
+ *   Отправить
+ * </Button>
+ * ```
+ *
+ * @example
+ * // Loading state
+ * ```tsx
+ * <Button loading>Loading...</Button>
+ * ```
+ *
+ * @example
+ * // Disabled state
+ * ```tsx
+ * <Button disabled>Disabled</Button>
+ * ```
  */
-const validateButtonProps = (props: ButtonProps) => {
-  if (process.env.NODE_ENV === 'development') {
-    const { variant, size, loadingVariant } = props;
-
-    if (variant && !VALID_VARIANTS.includes(variant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Button: invalid variant "${variant}". Valid values: ${VALID_VARIANTS.join(', ')}`
-      );
-    }
-
-    if (size && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Button: invalid size "${size}". Valid values: ${VALID_SIZES.join(', ')}`);
-    }
-
-    if (loadingVariant && !VALID_LOADING_VARIANTS.includes(loadingVariant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Button: invalid loadingVariant "${loadingVariant}". Valid values: ${VALID_LOADING_VARIANTS.join(', ')}`
-      );
-    }
-  }
-};
-
 const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -64,36 +51,12 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Runtime validation in development mode
+    // Runtime validation in development mode (optimized deps)
     useEffect(() => {
-      validateButtonProps({
-        children,
-        variant,
-        size,
-        onClick,
-        disabled,
-        className,
-        type,
-        fullWidth,
-        loading,
-        loadingVariant,
-        ...props,
-      });
-    }, [
-      variant,
-      size,
-      loadingVariant,
-      children,
-      disabled,
-      fullWidth,
-      loading,
-      type,
-      onClick,
-      className,
-      props,
-    ]);
+      validateButtonProps('Button', { variant, size, loadingVariant });
+    }, [variant, size, loadingVariant]);
 
-    // Memoize className calculation to prevent recalculation on every render
+    // Memoize className calculation (only essential memoization)
     const buttonClassName = useMemo(
       () =>
         classNames(
@@ -113,7 +76,7 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
       [loading]
     );
 
-    // Memoize click handler to prevent recreation on every render
+    // Memoize click handler
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
         if (disabled || loading) {
@@ -125,28 +88,18 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
       [disabled, loading, onClick]
     );
 
-    // Memoize loader component
-    const loaderContent = useMemo(() => {
-      if (!loading) return null;
-
-      if (loadingVariant === 'spinner') {
-        return (
-          <span className={styles.loader}>
-            <Spinner size="sm" color="secondary" label="Loading" />
-          </span>
-        );
-      }
-
-      if (loadingVariant === 'skeleton') {
-        return (
-          <span className={styles.skeleton}>
-            <Skeleton width="100%" height="100%" />
-          </span>
-        );
-      }
-
-      return null;
-    }, [loading, loadingVariant]);
+    // Simplified loader rendering (removed useMemo for simple conditional)
+    const loaderContent = loading ? (
+      loadingVariant === 'spinner' ? (
+        <span className={styles.loader}>
+          <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
+        </span>
+      ) : (
+        <span className={styles.skeleton}>
+          <Skeleton width="100%" height="100%" />
+        </span>
+      )
+    ) : null;
 
     return (
       <button
@@ -157,6 +110,7 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
         className={buttonClassName}
         aria-disabled={disabled || loading}
         aria-busy={loading}
+        data-state={loading ? 'loading' : 'idle'}
         data-testid="button"
         {...props}
       >
@@ -169,5 +123,6 @@ const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
 
 ButtonComponent.displayName = 'Button';
 
-// Memo wrapper to prevent unnecessary re-renders when props haven't changed
+// Memo wrapper with displayName
 export const Button = memo(ButtonComponent);
+Button.displayName = 'Button';

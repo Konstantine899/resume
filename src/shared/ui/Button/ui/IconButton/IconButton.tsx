@@ -1,52 +1,37 @@
-// src/shared/ui/Button/ui/IconButton/IconButton.tsx
+// ============================================
+// IconButton Component
+// ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Skeleton } from '@/shared/ui/Skeleton';
+import { validateButtonProps } from '@/shared/lib/utils/validateButtonProps';
+import { BUTTON_CONSTANTS } from '@/shared/ui/Button/model/constants';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
-import type { ButtonSize, ButtonVariant, IconButtonProps, LoadingVariant } from '../../model/types';
+import type { IconButtonProps } from '../../model/types';
 import styles from './IconButton.module.scss';
 
-// Valid values for runtime validation
-const VALID_VARIANTS: ButtonVariant[] = [
-  'primary',
-  'secondary',
-  'outline',
-  'ghost',
-  'danger',
-  'sidebar',
-];
-const VALID_SIZES: ButtonSize[] = ['sm', 'md', 'lg'];
-const VALID_LOADING_VARIANTS: LoadingVariant[] = ['spinner', 'skeleton'];
-
 /**
- * Runtime validation for IconButton props (development only)
+ * IconButton Component — кнопка только с иконкой
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <IconButton icon={<Mail size={20} />} ariaLabel="Отправить письмо" variant="ghost" />
+ * ```
+ *
+ * @example
+ * // Menu button
+ * ```tsx
+ * <IconButton icon={<Menu size={24} />} ariaLabel="Открыть меню" size="lg" />
+ * ```
+ *
+ * @example
+ * // Loading state
+ * ```tsx
+ * <IconButton icon={<Edit size={20} />} ariaLabel="Edit" loading />
+ * ```
  */
-const validateIconButtonProps = (props: IconButtonProps) => {
-  if (process.env.NODE_ENV === 'development') {
-    const { variant, size, loadingVariant } = props;
-
-    if (variant && !VALID_VARIANTS.includes(variant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `IconButton: invalid variant "${variant}". Valid values: ${VALID_VARIANTS.join(', ')}`
-      );
-    }
-
-    if (size && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`IconButton: invalid size "${size}". Valid values: ${VALID_SIZES.join(', ')}`);
-    }
-
-    if (loadingVariant && !VALID_LOADING_VARIANTS.includes(loadingVariant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `IconButton: invalid loadingVariant "${loadingVariant}". Valid values: ${VALID_LOADING_VARIANTS.join(', ')}`
-      );
-    }
-  }
-};
-
 const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
@@ -65,38 +50,12 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
     },
     ref
   ) => {
-    // Runtime validation in development mode
+    // Runtime validation in development mode (optimized deps)
     useEffect(() => {
-      validateIconButtonProps({
-        icon,
-        ariaLabel,
-        variant,
-        size,
-        onClick,
-        disabled,
-        className,
-        type,
-        fullWidth,
-        loading,
-        loadingVariant,
-        ...props,
-      });
-    }, [
-      variant,
-      size,
-      loadingVariant,
-      icon,
-      ariaLabel,
-      disabled,
-      fullWidth,
-      loading,
-      type,
-      onClick,
-      className,
-      props,
-    ]);
+      validateButtonProps('IconButton', { variant, size, loadingVariant });
+    }, [variant, size, loadingVariant]);
 
-    // Memoize className calculation to prevent recalculation on every render
+    // Memoize className calculation (only essential memoization)
     const buttonClassName = useMemo(
       () =>
         classNames(
@@ -116,7 +75,7 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
       [loading]
     );
 
-    // Memoize click handler to prevent recreation on every render
+    // Memoize click handler
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
         if (disabled || loading) {
@@ -128,28 +87,18 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
       [disabled, loading, onClick]
     );
 
-    // Memoize loader component
-    const loaderContent = useMemo(() => {
-      if (!loading) return null;
-
-      if (loadingVariant === 'spinner') {
-        return (
-          <span className={styles.loader}>
-            <Spinner size="sm" color="secondary" label="Loading" />
-          </span>
-        );
-      }
-
-      if (loadingVariant === 'skeleton') {
-        return (
-          <span className={styles.skeleton}>
-            <Skeleton width="100%" height="100%" />
-          </span>
-        );
-      }
-
-      return null;
-    }, [loading, loadingVariant]);
+    // Simplified loader rendering (removed useMemo)
+    const loaderContent = loading ? (
+      loadingVariant === 'spinner' ? (
+        <span className={styles.loader}>
+          <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
+        </span>
+      ) : (
+        <span className={styles.skeleton}>
+          <Skeleton width="100%" height="100%" />
+        </span>
+      )
+    ) : null;
 
     return (
       <button
@@ -161,6 +110,7 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-label={ariaLabel}
         aria-disabled={disabled || loading}
         aria-busy={loading}
+        data-state={loading ? 'loading' : 'idle'}
         data-testid="icon-button"
         {...props}
       >
@@ -173,5 +123,6 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
 
 IconButtonComponent.displayName = 'IconButton';
 
-// Memo wrapper to prevent unnecessary re-renders when props haven't changed
+// Memo wrapper with displayName
 export const IconButton = memo(IconButtonComponent);
+IconButton.displayName = 'IconButton';

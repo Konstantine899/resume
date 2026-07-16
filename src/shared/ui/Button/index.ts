@@ -13,3 +13,6 @@ export type {
 export { Button } from './ui/Button/Button';
 export { ButtonWithIcon } from './ui/ButtonWithIcon/ButtonWithIcon';
 export { IconButton } from './ui/IconButton/IconButton';
+
+// Constants for configuration and validation
+export { BUTTON_CONSTANTS } from './model/constants';
