@@ -73,8 +73,10 @@ export const Default: Story = {
   args: {
     children: (
       <div>
-        <h3>Default Card</h3>
-        <p>This is a standard card component with default styling</p>
+        <h3 style={{ color: 'var(--text-primary)' }}>Default Card</h3>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          This is a standard card component with default styling
+        </p>
       </div>
     ),
     variant: 'default',
@@ -93,8 +95,10 @@ export const Large: Story = {
   args: {
     children: (
       <div>
-        <h3>Large Card</h3>
-        <p>Large card with extra padding for Hero and About sections</p>
+        <h3 style={{ color: 'var(--text-primary)' }}>Large Card</h3>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Large card with extra padding for Hero and About sections
+        </p>
       </div>
     ),
     size: 'large',
@@ -129,11 +133,13 @@ export const NotHoverable: Story = {
 export const CompositionBasic: Story = {
   render: () => (
     <Card>
-      <Card.Header>Header Content</Card.Header>
+      <Card.Header style={{ color: 'var(--text-primary)' }}>Header Content</Card.Header>
       <Card.Body>
-        <p>Main content goes here. This is the body of the card.</p>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Main content goes here. This is the body of the card.
+        </p>
       </Card.Body>
-      <Card.Footer>Footer Content</Card.Footer>
+      <Card.Footer style={{ color: 'var(--text-secondary)' }}>Footer Content</Card.Footer>
     </Card>
   ),
 };
@@ -154,9 +160,11 @@ export const CompositionWithImage: Story = {
   render: () => (
     <Card>
       <CardImage src="https://via.placeholder.com/400x200" alt="Card header image" />
-      <Card.Header withBorder>Card with Image</Card.Header>
+      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
+        Card with Image
+      </Card.Header>
       <Card.Body>
-        <p>This card includes an image at the top</p>
+        <p style={{ color: 'var(--text-secondary)' }}>This card includes an image at the top</p>
       </Card.Body>
     </Card>
   ),
@@ -166,12 +174,14 @@ export const CompositionComplex: Story = {
   render: () => (
     <Card>
       <CardImage src="https://via.placeholder.com/400x200" alt="Cover" />
-      <Card.Header withBorder>
-        <h3>Complex Card Layout</h3>
+      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
+        <h3 style={{ color: 'inherit' }}>Complex Card Layout</h3>
       </Card.Header>
       <Card.Body>
-        <p>Multiple sections with proper spacing and borders</p>
-        <ul>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Multiple sections with proper spacing and borders
+        </p>
+        <ul style={{ color: 'var(--text-secondary)' }}>
           <li>Image at top</li>
           <li>Header with border</li>
           <li>Body content</li>
@@ -246,7 +256,7 @@ export const Contact: Story = {
 export const Skill: Story = {
   render: () => (
     <Card variant="skill">
-      <h3>Technical Skills</h3>
+      <h3 style={{ color: 'var(--text-primary)' }}>Technical Skills</h3>
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
         {['React', 'TypeScript', 'Node.js', 'Python', 'AWS'].map((skill) => (
           <span
@@ -272,8 +282,8 @@ export const About: Story = {
     <Card variant="about">
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Briefcase size={48} color="#f4b377" />
-        <h3 style={{ marginTop: '16px' }}>About Me</h3>
-        <p style={{ maxWidth: '400px', marginTop: '8px' }}>
+        <h3 style={{ marginTop: '16px', color: 'var(--text-primary)' }}>About Me</h3>
+        <p style={{ maxWidth: '400px', marginTop: '8px', color: 'var(--text-secondary)' }}>
           Passionate full-stack developer with 5+ years of experience building scalable web
           applications.
         </p>
@@ -304,16 +314,16 @@ export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(2, 1fr)' }}>
       <Card variant="default">
-        <p>Default</p>
+        <p style={{ color: 'var(--text-primary)' }}>Default</p>
       </Card>
       <Card variant="skill">
-        <p>Skill</p>
+        <p style={{ color: 'var(--text-primary)' }}>Skill</p>
       </Card>
       <Card variant="about">
-        <p>About</p>
+        <p style={{ color: 'var(--text-primary)' }}>About</p>
       </Card>
       <Card variant="codeBlock">
-        <code>Code Block</code>
+        <code style={{ color: 'inherit' }}>Code Block</code>
       </Card>
       <ProjectCard title="Project" description="Project description" techIcons={[]} />
       <ContactCard title="Contact" icon={<Mail />} />
@@ -328,9 +338,9 @@ export const AllVariants: Story = {
 export const Accessibility: Story = {
   render: () => (
     <Card aria-label="Example accessible card" aria-describedby="card-description">
-      <Card.Header>Accessible Card</Card.Header>
+      <Card.Header style={{ color: 'var(--text-primary)' }}>Accessible Card</Card.Header>
       <Card.Body>
-        <p id="card-description">
+        <p id="card-description" style={{ color: 'var(--text-secondary)' }}>
           This card demonstrates proper accessibility attributes including aria-label and
           aria-describedby.
         </p>
@@ -351,9 +361,11 @@ export const Accessibility: Story = {
 export const Interactive: Story = {
   render: () => (
     <Card>
-      <Card.Header withBorder>Interactive Card</Card.Header>
+      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
+        Interactive Card
+      </Card.Header>
       <Card.Body>
-        <p>Click the button to see interaction</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Click the button to see interaction</p>
         <button
           type="button"
           onClick={() => alert('Button clicked!')}

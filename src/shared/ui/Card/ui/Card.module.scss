@@ -36,6 +36,22 @@ $card-hover-scale: 1.01;
 
   position: relative;
   width: 100%;
+  color: var(--text-primary);
+
+  // Default text color for all variants
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  li,
+  code,
+  pre {
+    color: inherit;
+  }
 
   &.skill {
     max-width: 64rem;
