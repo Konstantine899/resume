@@ -165,3 +165,23 @@ export const ARIA_DEFAULTS = {
     role: 'img',
   },
 } as const;
+
+/**
+ * Grouped constants for Image component
+ * @description Single namespace providing access to all Image constants
+ */
+export const IMAGE_CONSTANTS = {
+  variants: IMAGE_VARIANTS,
+  sizes: IMAGE_SIZES,
+  objectFits: IMAGE_OBJECT_FITS,
+  placeholders: IMAGE_PLACEHOLDERS,
+  lazyModes: IMAGE_LAZY_MODES,
+  sizeValues: IMAGE_SIZE_VALUES,
+  variantRadius: IMAGE_VARIANT_RADIUS,
+  defaults: IMAGE_DEFAULTS,
+  placeholderConfig: PLACEHOLDER_CONFIG,
+  intersectionObserverConfig: INTERSECTION_OBSERVER_CONFIG,
+  supportedImageTypes: SUPPORTED_IMAGE_TYPES,
+  validationMessages: VALIDATION_MESSAGES,
+  ariaDefaults: ARIA_DEFAULTS,
+} as const;

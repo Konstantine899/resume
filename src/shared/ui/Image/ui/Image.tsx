@@ -1,5 +1,6 @@
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { useImageLoading } from '../lib/hooks/useImageLoading';
 import { ImageProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
@@ -7,6 +8,39 @@ import { Skeleton } from '@/shared/ui/Skeleton';
 import { Spinner } from '@/shared/ui/Spinner';
 import styles from './Image.module.scss';
 
+/**
+ * Image component for displaying responsive, accessible images with loading states.
+ *
+ * @description
+ * Supports multiple variants (default, rounded, circular, thumbnail),
+ * sizes, object-fit modes, placeholders (skeleton, spinner, blur, color),
+ * lazy loading strategies (native, intersection, eager), and error recovery.
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Image src="/photo.jpg" alt="Description" />
+ *
+ * // With variant and size
+ * <Image
+ *   src="/avatar.png"
+ *   alt="User avatar"
+ *   variant="circular"
+ *   size="sm"
+ * />
+ *
+ * // With placeholder and lazy loading
+ * <Image
+ *   src="/large-photo.jpg"
+ *   alt="Gallery photo"
+ *   placeholder="blur"
+ *   lazyMode="intersection"
+ * />
+ *
+ * // Decorative image
+ * <Image src="/bg.jpg" alt="" decorative />
+ * ```
+ */
 const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
   const {
     src,
@@ -161,21 +195,16 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
   );
 
   // Handle ref forwarding: merge hook's imageRef with forwarded ref
-  const imageRefCallback = useCallback(
-    (node: HTMLImageElement | null) => {
-      // eslint-disable-next-line react-hooks/immutability
-      (hook.ref as React.MutableRefObject<HTMLImageElement | null>).current = node;
-      if (typeof ref === 'function') ref(node);
-      else if (ref) {
-        // eslint-disable-next-line no-param-reassign
-        ref.current = node;
-      }
-    },
-    [ref, hook.ref]
-  );
+  const imageRefCallback = useMergeRefs(hook.ref, ref);
 
   return (
-    <figure className={containerClasses} style={containerStyle}>
+    <figure
+      className={containerClasses}
+      style={containerStyle}
+      data-variant={variant}
+      data-size={size}
+      data-loading={loadingStatus}
+    >
       {showPlaceholder && (
         <div className={placeholderClasses} aria-hidden="true">
           {placeholder === 'skeleton' && (

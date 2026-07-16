@@ -9,3 +9,4 @@ export { validateButtonProps } from './validateButtonProps';
 export { validateCardProps } from './validateCardProps';
 export { validateContainerProps } from './validateContainerProps';
 export { validateImage } from './validateImage';
+export { mergeRefs, useMergeRefs } from './mergeRefs';

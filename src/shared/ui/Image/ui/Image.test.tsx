@@ -423,8 +423,8 @@ describe('Image Component', () => {
     });
 
     it('applies decorative mode', () => {
-      const { container } = renderImage({ decorative: true });
-      const img = container.querySelector('[role="presentation"]');
+      renderImage({ decorative: true });
+      const img = screen.getByRole('presentation', { hidden: true });
       expect(img).toBeInTheDocument();
       expect(img).toHaveAttribute('aria-hidden', 'true');
       expect(img).toHaveAttribute('alt', '');
@@ -518,8 +518,8 @@ describe('Image Component', () => {
     });
 
     it('does not render placeholder div when showPlaceholder is false', () => {
-      const { container } = renderImage({ showPlaceholder: false });
-      const figure = container.querySelector('figure');
+      renderImage({ showPlaceholder: false });
+      const figure = screen.getByRole('img').closest('figure');
       const placeholderDiv = figure?.querySelector('div[aria-hidden="true"]');
       expect(placeholderDiv).not.toBeInTheDocument();
     });
@@ -610,22 +610,22 @@ describe('Image Component', () => {
 
   describe('Placeholder type CSS classes', () => {
     it('renders with placeholderBlur class for blur placeholder', () => {
-      const { container } = renderImage({ placeholder: 'blur', showPlaceholder: true });
-      const figure = container.querySelector('figure');
+      renderImage({ placeholder: 'blur', showPlaceholder: true });
+      const figure = screen.getByRole('img').closest('figure');
       expect(figure?.querySelector('[aria-hidden="true"]')?.className).toMatch(/placeholderBlur/);
     });
 
     it('renders Skeleton component inside placeholder for skeleton variant', () => {
-      const { container } = renderImage({ placeholder: 'skeleton', showPlaceholder: true });
-      const figure = container.querySelector('figure');
+      renderImage({ placeholder: 'skeleton', showPlaceholder: true });
+      const figure = screen.getByRole('img').closest('figure');
       const placeholder = figure?.querySelector('[aria-hidden="true"]');
       expect(placeholder).toBeInTheDocument();
       expect(placeholder?.querySelector('[role="status"]')).toBeInTheDocument();
     });
 
     it('renders with placeholderColor class for color placeholder', () => {
-      const { container } = renderImage({ placeholder: 'color', showPlaceholder: true });
-      const figure = container.querySelector('figure');
+      renderImage({ placeholder: 'color', showPlaceholder: true });
+      const figure = screen.getByRole('img').closest('figure');
       expect(figure?.querySelector('[aria-hidden="true"]')?.className).toMatch(/placeholderColor/);
     });
   });
