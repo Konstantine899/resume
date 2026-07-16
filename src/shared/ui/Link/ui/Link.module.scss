@@ -8,7 +8,9 @@
 @use '@/shared/styles/mixins' as *;
 
 // ============================================
+
 // CSS Custom Properties (Variables)
+
 // ============================================
 
 $link-transition-duration: 200ms;
@@ -40,7 +42,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Sizes
+
   // ============================================
 
   &.sm {
@@ -56,7 +60,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Variants
+
   // ============================================
 
   &.primary {
@@ -103,7 +109,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Underline variants
+
   // ============================================
 
   &.underlineAlways {
@@ -123,7 +131,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Icons
+
   // ============================================
 
   .icon {
@@ -146,7 +156,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Modifiers
+
   // ============================================
 
   // Unstyled
@@ -161,7 +173,9 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // Accessibility
+
   // ============================================
 
   &:focus-visible {
@@ -178,17 +192,36 @@ $link-active-scale: 0.98;
   }
 
   // ============================================
+
   // States
+
   // ============================================
 
   // Active
   &:active {
     transform: scale($link-active-scale);
   }
+
+  // Skeleton loading mode
+  &.skeleton {
+    pointer-events: none;
+    cursor: default;
+
+    .skeletonPlaceholder {
+      display: inline-block;
+      width: 60%;
+      min-width: 80px;
+      height: 1em;
+      vertical-align: middle;
+      border-radius: 4px;
+    }
+  }
 }
 
 // ============================================
+
 // Theme overrides
+
 // ============================================
 
 // Light theme overrides

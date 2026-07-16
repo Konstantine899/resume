@@ -298,3 +298,54 @@ export const LightTheme: Story = {
     </div>
   ),
 };
+
+/** Skeleton loading state */
+export const Skeleton: Story = {
+  args: {
+    href: '#',
+    children: 'Profile Link',
+    variant: 'primary',
+    skeleton: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Skeleton loading state for navigation links. Use while the link data is loading.',
+      },
+    },
+  },
+};
+
+/** Skeleton в разных размерах */
+export const SkeletonSizes: Story = {
+  args: {} as import('../model/types').LinkProps,
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div>
+        <div style={{ marginBottom: '4px', fontSize: '12px', color: '#888' }}>sm</div>
+        <Link href="#" size="sm" skeleton>
+          Small Link
+        </Link>
+      </div>
+      <div>
+        <div style={{ marginBottom: '4px', fontSize: '12px', color: '#888' }}>md</div>
+        <Link href="#" size="md" skeleton>
+          Medium Link
+        </Link>
+      </div>
+      <div>
+        <div style={{ marginBottom: '4px', fontSize: '12px', color: '#888' }}>lg</div>
+        <Link href="#" size="lg" skeleton>
+          Large Link
+        </Link>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Skeleton link в трёх размерах — подстраивается под font-size через height:1em.',
+      },
+    },
+  },
+};

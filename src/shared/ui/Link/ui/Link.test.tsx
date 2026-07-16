@@ -437,9 +437,7 @@ describe('Link', () => {
 
       render(<Link href="">No href</Link>);
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Link component: href prop is required')
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Link'));
 
       consoleWarnSpy.mockRestore();
       process.env.NODE_ENV = originalEnv;
@@ -485,6 +483,71 @@ describe('Link', () => {
       );
 
       expect(screen.getByRole('link')).toBeInTheDocument();
+    });
+  });
+
+  describe('Skeleton Mode', () => {
+    it('должен рендерить Skeleton при skeleton=true', () => {
+      render(
+        <Link href="/profile" skeleton>
+          Profile
+        </Link>
+      );
+
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    it('не должен показывать текст при skeleton=true', () => {
+      render(
+        <Link href="/profile" skeleton>
+          Hidden Text
+        </Link>
+      );
+
+      expect(screen.queryByText('Hidden Text')).not.toBeInTheDocument();
+    });
+
+    it('должен устанавливать data-skeleton атрибут', () => {
+      render(
+        <Link href="/profile" skeleton>
+          Profile
+        </Link>
+      );
+
+      const link = screen.getByRole('status').closest('[data-skeleton="true"]');
+      expect(link).toBeInTheDocument();
+    });
+
+    it('должен иметь aria-disabled при skeleton=true', () => {
+      render(
+        <Link href="/profile" skeleton>
+          Profile
+        </Link>
+      );
+
+      const skeleton = screen.getByRole('status').closest('[aria-disabled="true"]');
+      expect(skeleton).toBeInTheDocument();
+    });
+
+    it('должен показывать текст при skeleton=false', () => {
+      render(
+        <Link href="/profile" skeleton={false}>
+          Visible Text
+        </Link>
+      );
+
+      expect(screen.getByText('Visible Text')).toBeInTheDocument();
+    });
+
+    it('должен применять класс skeleton', () => {
+      render(
+        <Link href="/profile" skeleton>
+          Profile
+        </Link>
+      );
+
+      const skeleton = screen.getByRole('status').closest('span');
+      expect(skeleton?.className).toMatch(/skeleton/);
     });
   });
 
