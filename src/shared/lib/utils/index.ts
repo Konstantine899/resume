@@ -6,4 +6,5 @@ export { getImageWithFallback } from './getImageWithFallback';
 export { getInitials } from './getInitials';
 export { preloadImage, preloadImages } from './preloadImage';
 export { validateButtonProps } from './validateButtonProps';
+export { validateCardProps } from './validateCardProps';
 export { validateImage } from './validateImage';

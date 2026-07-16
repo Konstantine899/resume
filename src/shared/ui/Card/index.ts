@@ -25,6 +25,9 @@ export type {
 // Event types
 export type { CardClickEvent, CardClickHandler, CardHoverHandler } from './model/types';
 
+// Constants for configuration and validation
+export { CARD_CONSTANTS } from './model/constants';
+
 // Components
 export { Card } from './ui/Card';
 export { ProjectCard } from './ui/ProjectCard';

@@ -1,19 +1,33 @@
-import React from 'react';
-import type { TechIcon } from '../../model/types';
+// ============================================
+// ProjectCard Component
+// ============================================
+
+import { memo } from 'react';
+import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
 
-export interface ProjectCardProps {
-  title?: string;
-  description?: string;
-  backgroundImage?: string;
-  techIcons?: TechIcon[];
-  link?: string | null;
-  builtUsingLabel?: string;
-  linkLabel?: string;
-  className?: string;
-}
-
-export const ProjectCard: React.FC<ProjectCardProps> = ({
+/**
+ * ProjectCard Component — карточка проекта для портфолио
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <ProjectCard
+ *   title="Dragonfly"
+ *   description="Вертикально интегрированная каннабис-компания"
+ *   backgroundImage="/dragonfly.jpg"
+ *   techIcons={[{ name: 'React', url: '/react.svg' }]}
+ *   link="https://dragonflyprocessing.com"
+ * />
+ * ```
+ *
+ * @example
+ * // Minimal usage
+ * ```tsx
+ * <ProjectCard title="Project Name" description="Brief description" />
+ * ```
+ */
+const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   title,
   description,
   backgroundImage,
@@ -65,4 +79,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   );
 };
 
+ProjectCardComponent.displayName = 'ProjectCard';
+
+export const ProjectCard = memo(ProjectCardComponent);
 ProjectCard.displayName = 'ProjectCard';
+
+export default ProjectCard;

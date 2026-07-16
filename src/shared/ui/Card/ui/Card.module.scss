@@ -1,6 +1,31 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 
+// Card-specific constants (extracted from magic numbers)
+$card-min-height: 280px;
+$card-border-radius: 0.75rem;
+$card-padding-base: 1.5rem;
+$card-padding-lg: 2rem;
+$card-title-font-size-base: 1.75rem;
+$card-description-font-size: 1rem;
+$card-tech-icon-size: 24px;
+$card-link-font-size: 0.9rem;
+$contact-padding-base: 1.5rem;
+$contact-padding-lg: 2rem;
+$contact-border-width: 4px;
+$contact-border-radius: 1.5rem;
+$contact-icon-size-base: 2.5rem;
+$contact-icon-size-lg: 3rem;
+$contact-title-font-size-base: 1.25rem;
+$contact-title-font-size-lg: 1.5rem;
+$contact-p-font-size-base: 0.875rem;
+$contact-p-font-size-lg: 1rem;
+$contact-p-max-width: 20rem;
+$work-history-border-left-width: 4px;
+$work-history-border-radius: $radius-xl;
+$work-history-padding-base: $spacing-3;
+$work-history-padding-sm: $spacing-4;
+$work-history-padding-md: $spacing-6;
 $card-hover-lift: 2px;
 $card-transition: $transition-duration;
 $card-accent-border: var(--primary);
@@ -103,11 +128,11 @@ $card-hover-scale: 1.01;
 
   // contact variant
   &.contact {
-    padding: 1.5rem;
+    padding: $contact-padding-base;
     overflow: hidden;
     background-color: rgb(41 39 38 / 0.125);
-    border: 4px solid rgb(217 71 68 / 0.5);
-    border-radius: 1.5rem;
+    border: $contact-border-width solid rgb(217 71 68 / 0.5);
+    border-radius: $contact-border-radius;
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
     backdrop-filter: blur(4px);
     transition:
@@ -116,8 +141,12 @@ $card-hover-scale: 1.01;
       color 0.4s,
       box-shadow 0.4s;
 
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
     @include lg {
-      padding: 2rem;
+      padding: $contact-padding-lg;
     }
 
     .centeredContent {
@@ -143,37 +172,37 @@ $card-hover-scale: 1.01;
 
       svg,
       .icon {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: $contact-icon-size-base;
+        height: $contact-icon-size-base;
         color: white;
 
         @include lg {
-          width: 3rem;
-          height: 3rem;
+          width: $contact-icon-size-lg;
+          height: $contact-icon-size-lg;
         }
       }
     }
 
     .title {
       margin-bottom: 0.5rem;
-      font-size: 1.25rem;
+      font-size: $contact-title-font-size-base;
       font-weight: 700;
       color: white;
 
       @include lg {
-        font-size: 1.5rem;
+        font-size: $contact-title-font-size-lg;
       }
     }
 
     p {
-      max-width: 20rem;
-      font-size: 0.875rem;
+      max-width: $contact-p-max-width;
+      font-size: $contact-p-font-size-base;
       line-height: 1.5;
       color: rgb(255 255 255 / 0.8);
       text-align: center;
 
       @include lg {
-        font-size: 1rem;
+        font-size: $contact-p-font-size-lg;
       }
     }
   }
@@ -355,11 +384,11 @@ $card-hover-scale: 1.01;
 
   // project variant
   &.project {
-    min-height: 280px;
+    min-height: $card-min-height;
     overflow: hidden;
     background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
     border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 0.75rem;
+    border-radius: $card-border-radius;
 
     .backgroundImage {
       position: absolute;
@@ -386,23 +415,23 @@ $card-hover-scale: 1.01;
     .content {
       position: relative;
       z-index: 1;
-      padding: 1.5rem;
+      padding: $card-padding-base;
 
       @include lg {
-        padding: 2rem;
+        padding: $card-padding-lg;
       }
     }
 
     .title {
       margin-bottom: 1rem;
-      font-size: 1.75rem;
+      font-size: $card-title-font-size-base;
       font-weight: 700;
       color: #fff;
     }
 
     .description {
       margin-bottom: 1.5rem;
-      font-size: 1rem;
+      font-size: $card-description-font-size;
       line-height: 1.6;
       color: rgb(255 255 255 / 0.7);
     }
@@ -425,8 +454,8 @@ $card-hover-scale: 1.01;
     }
 
     .techIcon {
-      width: 24px;
-      height: 24px;
+      width: $card-tech-icon-size;
+      height: $card-tech-icon-size;
       object-fit: contain;
     }
 
@@ -437,12 +466,12 @@ $card-hover-scale: 1.01;
     }
 
     .linkLabel {
-      font-size: 0.9rem;
+      font-size: $card-link-font-size;
       color: rgb(255 255 255 / 0.6);
     }
 
     .link {
-      font-size: 0.9rem;
+      font-size: $card-link-font-size;
       color: #e85d5d;
       text-decoration: none;
 
