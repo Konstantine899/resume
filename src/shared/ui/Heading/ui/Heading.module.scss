@@ -85,7 +85,7 @@
   }
 
   &--inverted {
-    color: #fff;
+    color: var(--text-inverted, #fff);
   }
 
   &--error {

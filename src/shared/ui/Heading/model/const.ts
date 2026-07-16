@@ -90,3 +90,25 @@ export const mapHeadingSize = (size: string): string => {
  * Алиас для mapHeadingSize (для совместимости)
  */
 export const mapSizeToClass = mapHeadingSize;
+
+/**
+ * Константы для компонента Heading
+ */
+export const HEADING_CONSTANTS = {
+  /** Допустимые уровни заголовков */
+  VALID_LEVELS: [1, 2, 3, 4, 5, 6] as const,
+  /** Допустимые размеры */
+  VALID_SIZES: ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'] as const,
+  /** Допустимые темы */
+  VALID_THEMES: ['primary', 'muted', 'inverted', 'error', 'gradient'] as const,
+  /** Допустимые выравнивания */
+  VALID_ALIGNS: ['left', 'center', 'right'] as const,
+  /** Уровень по умолчанию */
+  DEFAULT_LEVEL: 2,
+  /** Размер по умолчанию */
+  DEFAULT_SIZE: 'm',
+  /** Тема по умолчанию */
+  DEFAULT_THEME: 'primary',
+  /** Выравнивание по умолчанию */
+  DEFAULT_ALIGN: 'left',
+} as const;
