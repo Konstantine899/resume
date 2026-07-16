@@ -12,154 +12,143 @@ describe('Label', () => {
     vi.restoreAllMocks();
   });
 
+  // Helper: get the <label> element inside the group
+  const getLabelElement = () => {
+    const group = screen.getByRole('group');
+    return group.querySelector('label');
+  };
+
   describe('Rendering', () => {
     it('должен рендерить children текст', () => {
       render(<Label htmlFor="test">Email Address</Label>);
-
       expect(screen.getByText('Email Address')).toBeInTheDocument();
     });
 
     it('должен применять wrapper класс', () => {
       const { container } = render(<Label htmlFor="test">Label</Label>);
-
       expect(container.firstChild).toHaveClass(styles.wrapper);
     });
 
     it('должен применять label класс', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
-
-      expect(container.querySelector('label')).toHaveClass(styles.label);
+      render(<Label htmlFor="test">Label</Label>);
+      expect(getLabelElement()).toHaveClass(styles.label);
     });
 
     it('должен применять custom className', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" className="custom-class">
           Label
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass('custom-class');
+      expect(getLabelElement()).toHaveClass('custom-class');
     });
 
     it('должен применять htmlFor атрибут', () => {
-      const { container } = render(<Label htmlFor="email">Email</Label>);
-
-      const label = container.querySelector('label');
-      expect(label?.getAttribute('for')).toBe('email');
+      render(<Label htmlFor="email">Email</Label>);
+      expect(getLabelElement()?.getAttribute('for')).toBe('email');
     });
   });
 
   describe('Size Variants', () => {
     it('должен применять sm размер', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" size="sm">
           Small
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.sm);
+      expect(getLabelElement()).toHaveClass(styles.sm);
     });
 
     it('должен применять md размер по умолчанию', () => {
-      const { container } = render(<Label htmlFor="test">Medium</Label>);
-
-      expect(container.querySelector('label')).toHaveClass(styles.md);
+      render(<Label htmlFor="test">Medium</Label>);
+      expect(getLabelElement()).toHaveClass(styles.md);
     });
 
     it('должен применять lg размер', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" size="lg">
           Large
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.lg);
+      expect(getLabelElement()).toHaveClass(styles.lg);
     });
   });
 
   describe('Visual Variants', () => {
     it('должен применять error variant', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" error>
           Error Label
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.error);
+      expect(getLabelElement()).toHaveClass(styles.error);
     });
 
     it('должен применять success variant', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" success>
           Success Label
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.success);
+      expect(getLabelElement()).toHaveClass(styles.success);
     });
 
     it('должен применять warning variant', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" variant="warning">
           Warning Label
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.warning);
+      expect(getLabelElement()).toHaveClass(styles.warning);
     });
 
     it('error должен иметь приоритет над success', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" error success>
           Priority Test
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.error);
-      expect(container.querySelector('label')).not.toHaveClass(styles.success);
+      expect(getLabelElement()).toHaveClass(styles.error);
+      expect(getLabelElement()).not.toHaveClass(styles.success);
     });
 
     it('error должен иметь приоритет над variant', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" error variant="warning">
           Priority Test
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.error);
-      expect(container.querySelector('label')).not.toHaveClass(styles.warning);
+      expect(getLabelElement()).toHaveClass(styles.error);
+      expect(getLabelElement()).not.toHaveClass(styles.warning);
     });
   });
 
   describe('Required State', () => {
     it('должен применять required класс', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" required>
           Required
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveClass(styles.required);
+      expect(getLabelElement()).toHaveClass(styles.required);
     });
 
     it('должен устанавливать data-required атрибут', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" required>
           Required
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveAttribute('data-required');
+      expect(getLabelElement()).toHaveAttribute('data-required');
     });
 
     it('не должен устанавливать data-required когда required=false', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" required={false}>
           Not Required
         </Label>
       );
-
-      expect(container.querySelector('label')).not.toHaveAttribute('data-required');
+      expect(getLabelElement()).not.toHaveAttribute('data-required');
     });
   });
 
@@ -170,7 +159,6 @@ describe('Label', () => {
           Password
         </Label>
       );
-
       expect(screen.getByText('Must be at least 8 characters')).toBeInTheDocument();
     });
 
@@ -180,7 +168,6 @@ describe('Label', () => {
           Password
         </Label>
       );
-
       expect(container.querySelector(`.${styles.description}`)).toBeInTheDocument();
     });
 
@@ -190,38 +177,33 @@ describe('Label', () => {
           Email
         </Label>
       );
-
       expect(container.querySelector('#email-description')).toBeInTheDocument();
     });
 
     it('должен применять aria-describedby на wrapper', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="email" description="Enter your email">
           Email
         </Label>
       );
-
-      expect(container.firstChild).toHaveAttribute('aria-describedby', 'email-description');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-describedby', 'email-description');
     });
 
     it('не должен рендерить description когда не указан', () => {
       const { container } = render(<Label htmlFor="test">Label</Label>);
-
       expect(container.querySelector(`.${styles.description}`)).not.toBeInTheDocument();
     });
 
     it('не должен устанавливать aria-describedby когда нет description', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
-
-      expect(container.firstChild).not.toHaveAttribute('aria-describedby');
+      render(<Label htmlFor="test">Label</Label>);
+      expect(screen.getByRole('group')).not.toHaveAttribute('aria-describedby');
     });
   });
 
   describe('Accessibility', () => {
     it('должен иметь role="group" на wrapper', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
-
-      expect(container.firstChild).toHaveAttribute('role', 'group');
+      render(<Label htmlFor="test">Label</Label>);
+      expect(screen.getByRole('group')).toBeInTheDocument();
     });
 
     it('должен пробрасывать ref на label элемент', () => {
@@ -231,28 +213,104 @@ describe('Label', () => {
           Label
         </Label>
       );
-
       expect(ref).toHaveBeenCalledWith(expect.any(HTMLLabelElement));
     });
 
     it('должен устанавливать data-error атрибут', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" error>
           Error
         </Label>
       );
-
-      expect(container.querySelector('label')).toHaveAttribute('data-error');
+      expect(getLabelElement()).toHaveAttribute('data-error');
     });
 
     it('должен устанавливать data-success атрибут', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" success>
           Success
         </Label>
       );
+      expect(getLabelElement()).toHaveAttribute('data-success');
+    });
 
-      expect(container.querySelector('label')).toHaveAttribute('data-success');
+    it('должен устанавливать data-size атрибут', () => {
+      render(
+        <Label htmlFor="test" size="lg">
+          Large
+        </Label>
+      );
+      expect(getLabelElement()).toHaveAttribute('data-size', 'lg');
+    });
+
+    it('должен устанавливать data-variant атрибут', () => {
+      render(
+        <Label htmlFor="test" variant="warning">
+          Warning
+        </Label>
+      );
+      expect(getLabelElement()).toHaveAttribute('data-variant', 'warning');
+    });
+
+    it('должен устанавливать data-skeleton атрибут при skeleton=true', () => {
+      render(
+        <Label htmlFor="test" skeleton>
+          Loading
+        </Label>
+      );
+      expect(getLabelElement()).toHaveAttribute('data-skeleton');
+    });
+
+    it('должен устанавливать aria-busy при skeleton=true', () => {
+      render(
+        <Label htmlFor="test" skeleton>
+          Loading
+        </Label>
+      );
+      expect(getLabelElement()).toHaveAttribute('aria-busy', 'true');
+    });
+  });
+
+  describe('Skeleton Mode', () => {
+    it('должен рендерить Skeleton при skeleton=true', () => {
+      render(
+        <Label htmlFor="test" skeleton>
+          Hidden Text
+        </Label>
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    it('не должен показывать текст при skeleton=true', () => {
+      render(
+        <Label htmlFor="test" skeleton>
+          Hidden Text
+        </Label>
+      );
+      expect(screen.queryByText('Hidden Text')).not.toBeInTheDocument();
+    });
+
+    it('должен показывать текст при skeleton=false', () => {
+      render(
+        <Label htmlFor="test" skeleton={false}>
+          Visible Text
+        </Label>
+      );
+      expect(screen.getByText('Visible Text')).toBeInTheDocument();
+    });
+
+    it('должен применять skeletonMode класс', () => {
+      render(
+        <Label htmlFor="test" skeleton>
+          Loading
+        </Label>
+      );
+      expect(getLabelElement()).toHaveClass(styles.skeletonMode);
+    });
+
+    it('не должен применять skeletonMode класс при skeleton=false', () => {
+      render(<Label htmlFor="test">Normal</Label>);
+      expect(getLabelElement()).not.toHaveClass(styles.skeletonMode);
     });
   });
 
@@ -309,43 +367,43 @@ describe('Label', () => {
 
   describe('State Attributes', () => {
     it('не должен устанавливать data-error когда error=false', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" error={false}>
           Label
         </Label>
       );
-
-      expect(container.querySelector('label')).not.toHaveAttribute('data-error');
+      expect(getLabelElement()).not.toHaveAttribute('data-error');
     });
 
     it('не должен устанавливать data-success когда success=false', () => {
-      const { container } = render(
+      render(
         <Label htmlFor="test" success={false}>
           Label
         </Label>
       );
-
-      expect(container.querySelector('label')).not.toHaveAttribute('data-success');
+      expect(getLabelElement()).not.toHaveAttribute('data-success');
     });
   });
 
   describe('Default Props', () => {
     it('должен использовать md размер по умолчанию', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
-
-      expect(container.querySelector('label')).toHaveClass(styles.md);
+      render(<Label htmlFor="test">Label</Label>);
+      expect(getLabelElement()).toHaveClass(styles.md);
     });
 
     it('должен использовать default variant по умолчанию', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
-
-      expect(container.querySelector('label')).toHaveClass(styles.default);
+      render(<Label htmlFor="test">Label</Label>);
+      expect(getLabelElement()).toHaveClass(styles.default);
     });
 
     it('должен использовать required=false по умолчанию', () => {
-      const { container } = render(<Label htmlFor="test">Label</Label>);
+      render(<Label htmlFor="test">Label</Label>);
+      expect(getLabelElement()).not.toHaveClass(styles.required);
+    });
 
-      expect(container.querySelector('label')).not.toHaveClass(styles.required);
+    it('должен использовать skeleton=false по умолчанию', () => {
+      render(<Label htmlFor="test">Label</Label>);
+      expect(getLabelElement()).not.toHaveAttribute('data-skeleton');
     });
   });
 

@@ -17,7 +17,8 @@ const meta: Meta<typeof Label> = {
       description: {
         component: `
 Accessible label component with proper htmlFor association.
-Supports required indicator, error/success/warning states, and descriptions.
+Supports required indicator, error/success/warning states, descriptions,
+and skeleton loading mode.
 
 **Key Features:**
 - Proper accessibility with htmlFor
@@ -25,6 +26,7 @@ Supports required indicator, error/success/warning states, and descriptions.
 - Error/Success/Warning states with priority (error > success > variant)
 - Optional description text
 - Three size variants
+- Skeleton loading mode for form placeholders
 - Keyboard navigation support
         `,
       },
@@ -209,4 +211,59 @@ export const ErrorWithRequired: Story = {
       <Input id="email-error-required" error="Email is required" />
     </div>
   ),
+};
+
+// Skeleton loading state
+export const Skeleton: Story = {
+  args: {
+    children: 'Full Name',
+    htmlFor: 'name',
+    skeleton: true,
+  },
+  render: (args) => (
+    <div style={{ width: '300px' }}>
+      <Label {...args} />
+      <Input id="name" disabled placeholder="Loading..." />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Skeleton loading state for forms. Use when the form data is being fetched.',
+      },
+    },
+  },
+};
+
+// Multiple skeleton labels in a form
+export const SkeletonForm: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '400px' }}>
+      <div>
+        <Label htmlFor="name" skeleton>
+          Full Name
+        </Label>
+        <Input id="name" disabled />
+      </div>
+      <div>
+        <Label htmlFor="email" skeleton>
+          Email Address
+        </Label>
+        <Input id="email" disabled />
+      </div>
+      <div>
+        <Label htmlFor="phone" skeleton>
+          Phone Number
+        </Label>
+        <Input id="phone" disabled />
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Multiple skeleton labels in a form layout for loading state demonstration.',
+      },
+    },
+  },
 };

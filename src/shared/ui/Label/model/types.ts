@@ -7,67 +7,107 @@
 import { LabelHTMLAttributes, ReactNode } from 'react';
 
 /**
- * Label size variants
+ * Размеры Label
+ * @description Определяет размер текста и отступы
+ * @group Constants
+ * @example 'sm' — малый (для компактных форм)
+ * @example 'md' — средний (по умолчанию)
+ * @example 'lg' — крупный (для заголовков секций)
  */
 export type LabelSize = 'sm' | 'md' | 'lg';
 
 /**
- * Label visual variants
+ * Визуальные варианты Label
+ * @description Определяет цветовое оформление
+ * @group Constants
+ * @example 'default' — стандартный цвет текста
+ * @example 'error' — красный (для ошибок)
+ * @example 'success' — зелёный (для успеха)
+ * @example 'warning' — жёлтый (для предупреждений)
  */
 export type LabelVariant = 'default' | 'error' | 'success' | 'warning';
 
 /**
- * Label props interface
+ * Props для компонента Label
+ * @description Расширяет стандартные HTML label атрибуты
+ * @group Base
+ *
+ * @example
+ * ```tsx
+ * // Базовое использование
+ * <Label htmlFor="email">Email Address</Label>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // С required и description
+ * <Label htmlFor="password" required description="Min 8 chars">
+ *   Password
+ * </Label>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Скелетон (состояние загрузки)
+ * <Label htmlFor="email" skeleton>Email</Label>
+ * ```
  */
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   /**
-   * Label text content
+   * Содержимое лейбла (текст)
    */
   children: ReactNode;
 
   /**
-   * ID of the associated input element (for accessibility)
+   * ID связанного input элемента (для a11y)
    * @required
    */
   htmlFor: string;
 
   /**
-   * Label size
+   * Размер лейбла
    * @default 'md'
    */
   size?: LabelSize;
 
   /**
-   * Visual variant
+   * Визуальный вариант
    * @default 'default'
    */
   variant?: LabelVariant;
 
   /**
-   * Mark label as required (shows asterisk)
+   * Показывать индикатор обязательности
    * @default false
    */
   required?: boolean;
 
   /**
-   * Show error state (highest priority)
+   * Показать состояние ошибки (наивысший приоритет)
    * @default false
    */
   error?: boolean;
 
   /**
-   * Show success state (second priority)
+   * Показать состояние успеха (средний приоритет)
    * @default false
    */
   success?: boolean;
 
   /**
-   * Additional CSS class
+   * Режим скелетона (заглушка загрузки)
+   * @default false
+   * @description При true отображает Skeleton вместо текста
+   */
+  skeleton?: boolean;
+
+  /**
+   * Дополнительный CSS класс
    */
   className?: string;
 
   /**
-   * Optional description text (displayed below label)
+   * Опциональный описательный текст (отображается под лейблом)
    * @default undefined
    */
   description?: string;

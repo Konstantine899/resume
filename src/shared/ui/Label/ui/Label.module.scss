@@ -96,6 +96,19 @@
   transition: color $transition-duration $transition-easing;
 }
 
+// Skeleton loading mode
+.skeletonMode {
+  pointer-events: none;
+  cursor: default;
+
+  .skeletonPlaceholder {
+    display: inline-block;
+    width: 60%;
+    min-width: 80px;
+    vertical-align: middle;
+  }
+}
+
 // Accessibility: Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .label {
@@ -104,5 +117,11 @@
 
   .description {
     transition: none;
+  }
+
+  .skeletonMode {
+    .skeletonPlaceholder {
+      animation: none;
+    }
   }
 }
