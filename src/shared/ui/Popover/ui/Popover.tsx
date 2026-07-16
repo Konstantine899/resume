@@ -1,8 +1,11 @@
+// src/shared/ui/Popover/ui/Popover.tsx
+
+import { classNames } from '@/shared/lib/utils/classNames';
 import { memo } from 'react';
-import { cn } from '@/shared/lib/utils';
 import { Portal } from '@/shared/ui/Portal';
 import { usePopover } from '../lib/hooks/usePopover';
-import { POPOVER_CONSTANTS, POPOVER_SIZES, VALID_POSITIONS, VALID_SIZES } from '../model/constants';
+import { POPOVER_CONSTANTS, POPOVER_SIZES } from '../model/constants';
+import { validatePopoverProps } from '../lib/utils/validatePopoverProps';
 import type { PopoverProps } from '../model/types';
 import styles from './Popover.module.scss';
 
@@ -40,31 +43,22 @@ import styles from './Popover.module.scss';
 export const Popover = memo(
   ({
     content,
-    position = POPOVER_CONSTANTS.DEFAULT_POSITION,
-    size = POPOVER_CONSTANTS.DEFAULT_SIZE,
+    position = POPOVER_CONSTANTS.defaults.position,
+    size = POPOVER_CONSTANTS.defaults.size,
     children,
     className,
-    disabled = false,
-    closeOnContentClick = true,
-    closeOnClickOutside = true,
-    closeOnEsc = true,
-    offset = POPOVER_CONSTANTS.DEFAULT_OFFSET,
-    autoAdjust = true,
+    disabled = POPOVER_CONSTANTS.defaults.disabled,
+    closeOnContentClick = POPOVER_CONSTANTS.defaults.closeOnContentClick,
+    closeOnClickOutside = POPOVER_CONSTANTS.defaults.closeOnClickOutside,
+    closeOnEsc = POPOVER_CONSTANTS.defaults.closeOnEsc,
+    offset = POPOVER_CONSTANTS.defaults.offset,
+    autoAdjust = POPOVER_CONSTANTS.defaults.autoAdjust,
     title,
     ariaLabel,
   }: PopoverProps) => {
-    // Валидация position
-    if (process.env.NODE_ENV === 'development' && !VALID_POSITIONS.includes(position)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Popover: невалидная позиция "${position}". Доступные: ${VALID_POSITIONS.join(', ')}`
-      );
-    }
-
-    // Валидация size
-    if (process.env.NODE_ENV === 'development' && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Popover: невалидный размер "${size}". Доступные: ${VALID_SIZES.join(', ')}`);
+    // Dev-валидация
+    if (process.env.NODE_ENV === 'development') {
+      validatePopoverProps({ position, size } as PopoverProps);
     }
 
     const {
@@ -110,7 +104,7 @@ export const Popover = memo(
           <Portal>
             <div
               ref={popoverRef}
-              className={cn(
+              className={classNames(
                 styles.popover,
                 styles[adjustedPosition],
                 styles[size],
@@ -142,3 +136,5 @@ export const Popover = memo(
 );
 
 Popover.displayName = 'Popover';
+
+export default Popover;
