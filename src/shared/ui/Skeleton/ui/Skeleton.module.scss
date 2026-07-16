@@ -8,14 +8,14 @@
   background: var(--skeleton-base);
   border-radius: $border-radius-md;
 
-  // Shimmer эффект
+  // Shimmer эффект с CSS-переменными для duration/delay
   &::after {
     position: absolute;
     inset: 0;
     content: '';
     background: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
     transform: translateX(-100%);
-    animation: shimmer 1.5s infinite;
+    animation: shimmer var(--skeleton-duration, 1.5s) var(--skeleton-delay, 0s) infinite;
   }
 
   // Reduced motion: отключаем анимацию для пользователей с prefers-reduced-motion

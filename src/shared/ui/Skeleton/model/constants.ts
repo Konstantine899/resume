@@ -1,11 +1,33 @@
 // src/shared/ui/Skeleton/model/constants.ts
 
+import type { SkeletonVariant } from './types';
+
+/**
+ * Доступные варианты Skeleton
+ */
+export const SKELETON_VARIANTS: readonly SkeletonVariant[] = [
+  'text',
+  'circular',
+  'rectangular',
+] as const;
+
+/**
+ * Дефолтные значения props
+ */
+export const SKELETON_DEFAULTS = {
+  variant: 'text' as SkeletonVariant,
+  lines: 1,
+  delay: 0,
+  duration: 1.5,
+} as const;
+
 /**
  * Константы для компонента Skeleton
  */
 export const SKELETON_CONSTANTS = {
   /** Допустимые варианты скелетона */
-  VALID_VARIANTS: ['text', 'circular', 'rectangular'] as const,
+  VALID_VARIANTS: SKELETON_VARIANTS,
+  variants: SKELETON_VARIANTS,
 
   /** Минимальное количество строк */
   MIN_LINES: 1,
@@ -14,8 +36,17 @@ export const SKELETON_CONSTANTS = {
   MAX_LINES: 10,
 
   /** Задержка по умолчанию (сек) */
-  DEFAULT_DELAY: 0,
+  DEFAULT_DELAY: SKELETON_DEFAULTS.delay,
 
   /** Длительность анимации по умолчанию (сек) */
-  DEFAULT_DURATION: 1.5,
+  DEFAULT_DURATION: SKELETON_DEFAULTS.duration,
+
+  /** Дефолтные значения */
+  defaults: SKELETON_DEFAULTS,
+
+  /** CSS-переменные для анимации */
+  cssVariables: {
+    duration: '--skeleton-duration',
+    delay: '--skeleton-delay',
+  } as const,
 } as const;

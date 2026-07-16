@@ -290,43 +290,6 @@ export const ProfileHeader: Story = {
 };
 
 // ============================================
-// Theme Comparison
-// ============================================
-
-export const ThemeComparison: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '32px' }}>
-      <div
-        data-theme="light"
-        style={{
-          backgroundColor: 'var(--background)',
-          padding: '32px',
-          borderRadius: '12px',
-          minWidth: '300px',
-        }}
-      >
-        <h4 style={{ marginBottom: '20px', color: 'var(--foreground)' }}>Light Theme</h4>
-        <Skeleton variant="text" width="200px" height="20px" style={{ marginBottom: '12px' }} />
-        <Skeleton variant="circular" width="60px" height="60px" />
-      </div>
-      <div
-        data-theme="dark"
-        style={{
-          backgroundColor: 'var(--background)',
-          padding: '32px',
-          borderRadius: '12px',
-          minWidth: '300px',
-        }}
-      >
-        <h4 style={{ marginBottom: '20px', color: 'var(--foreground)' }}>Dark Theme</h4>
-        <Skeleton variant="text" width="200px" height="20px" style={{ marginBottom: '12px' }} />
-        <Skeleton variant="circular" width="60px" height="60px" />
-      </div>
-    </div>
-  ),
-};
-
-// ============================================
 // Interaction Tests
 // ============================================
 
