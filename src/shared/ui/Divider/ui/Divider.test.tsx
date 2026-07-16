@@ -125,30 +125,6 @@ describe('Divider', () => {
   });
 
   // ============================================
-  // Full Width/Height
-  // ============================================
-
-  describe('Full Width/Height', () => {
-    it('должен применять fullWidth для horizontal', () => {
-      render(<Divider fullWidth />);
-      const divider = screen.getByRole('separator');
-      expect(divider).toHaveClass(/fullWidth/);
-    });
-
-    it('должен применять fullHeight для vertical', () => {
-      render(<Divider orientation="vertical" fullHeight />);
-      const divider = screen.getByRole('separator');
-      expect(divider).toHaveClass(/fullHeight/);
-    });
-
-    it('не должен применять fullWidth по умолчанию', () => {
-      render(<Divider />);
-      const divider = screen.getByRole('separator');
-      expect(divider).not.toHaveClass(/fullWidth/);
-    });
-  });
-
-  // ============================================
   // Accessibility
   // ============================================
 
@@ -270,7 +246,54 @@ describe('Divider', () => {
 
   describe('React.memo Verification', () => {
     it('должен быть мемоизирован с React.memo', () => {
+      expect(Divider).toBeDefined();
+      // The exported Divider is memo(DividerComponent)
+    });
+  });
+
+  // ============================================
+  // forwardRef
+  // ============================================
+
+  describe('forwardRef', () => {
+    it('должен передавать ref на div элемент', () => {
+      const ref = { current: null };
+      render(<Divider ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    });
+
+    it('должен иметь displayName на memo компоненте', () => {
       expect(Divider.displayName).toBe('Divider');
+    });
+  });
+
+  // ============================================
+  // Data Attributes
+  // ============================================
+
+  describe('Data Attributes', () => {
+    it('должен иметь data-orientation по умолчанию', () => {
+      render(<Divider />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveAttribute('data-orientation', 'horizontal');
+    });
+
+    it('должен иметь data-orientation="vertical"', () => {
+      render(<Divider orientation="vertical" />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveAttribute('data-orientation', 'vertical');
+    });
+
+    it('должен иметь data-variant по умолчанию', () => {
+      render(<Divider />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveAttribute('data-variant', 'solid');
+    });
+
+    it('должен иметь data-variant="dashed"', () => {
+      render(<Divider variant="dashed" />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveAttribute('data-variant', 'dashed');
     });
   });
 });

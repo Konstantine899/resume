@@ -32,10 +32,4 @@ export interface DividerProps extends HTMLAttributes<HTMLDivElement> {
 
   /** Кастомный класс */
   className?: string;
-
-  /** Полная ширина (для horizontal) */
-  fullWidth?: boolean;
-
-  /** Полная высота (для vertical) */
-  fullHeight?: boolean;
 }

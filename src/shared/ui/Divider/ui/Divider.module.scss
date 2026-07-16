@@ -2,6 +2,9 @@
 
 @use '@/shared/styles/variables' as *;
 
+// Цвет разделителя (CSS variable with fallback)
+$divider-color: var(--divider-base, #e0e0e0);
+
 .divider {
   // Базовые стили
   position: relative;
@@ -12,57 +15,49 @@
     width: 100%;
     border-top-width: 1px;
 
-    &.fullWidth {
-      width: 100%;
-    }
-
     // Solid variant — сплошная линия
     &.solid {
+      border-top-color: $divider-color;
       border-top-style: solid;
-      border-top-color: var(--divider-base, #e0e0e0);
     }
 
     // Dashed variant — пунктирная линия
     &.dashed {
+      border-top-color: $divider-color;
       border-top-style: dashed;
-      border-top-color: var(--divider-base, #e0e0e0);
     }
 
     // Dotted variant — точечная линия
     &.dotted {
+      border-top-color: $divider-color;
       border-top-style: dotted;
-      border-top-color: var(--divider-base, #e0e0e0);
     }
   }
 
   // Вертикальный разделитель — используем background gradient
   &.vertical {
-    height: 100%;
     display: inline-block;
-    vertical-align: middle;
     width: 1px;
-
-    &.fullHeight {
-      height: 100%;
-    }
+    height: 100%;
+    vertical-align: middle;
 
     // Solid variant — сплошная линия
     &.solid {
-      background: var(--divider-base, #e0e0e0);
+      background: $divider-color;
     }
 
     // Dashed variant — пунктирная линия
     &.dashed {
-      background-image: linear-gradient(180deg, var(--divider-base, #e0e0e0) 50%, transparent 50%);
-      background-size: 100% 8px;
+      background-image: linear-gradient(180deg, $divider-color 50%, transparent 50%);
       background-repeat: repeat-y;
+      background-size: 100% 8px;
     }
 
     // Dotted variant — точечная линия
     &.dotted {
-      background-image: radial-gradient(var(--divider-base, #e0e0e0) 1px, transparent 1px);
-      background-size: 100% 4px;
+      background-image: radial-gradient($divider-color 1px, transparent 1px);
       background-repeat: repeat-y;
+      background-size: 100% 4px;
     }
   }
 }

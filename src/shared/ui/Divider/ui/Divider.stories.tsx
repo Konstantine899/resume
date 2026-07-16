@@ -65,14 +65,6 @@ const meta = {
       step: 1,
       description: 'Толщина линии (px)',
     },
-    fullWidth: {
-      control: 'boolean',
-      description: 'Полная ширина (для horizontal)',
-    },
-    fullHeight: {
-      control: 'boolean',
-      description: 'Полная высота (для vertical)',
-    },
   },
   args: {
     orientation: 'horizontal',
@@ -167,7 +159,7 @@ export const Vertical: Story = {
       <div style={{ textAlign: 'center', padding: '8px' }}>
         <strong>Left Panel</strong>
       </div>
-      <Divider {...args} fullHeight />
+      <Divider {...args} />
       <div style={{ textAlign: 'center', padding: '8px' }}>
         <strong>Right Panel</strong>
       </div>
@@ -284,11 +276,11 @@ export const VerticalLayoutStory: Story = {
       <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 1</strong>
       </div>
-      <Divider {...args} orientation="vertical" fullHeight />
+      <Divider {...args} orientation="vertical" />
       <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 2</strong>
       </div>
-      <Divider {...args} orientation="vertical" fullHeight variant="dashed" />
+      <Divider {...args} orientation="vertical" variant="dashed" />
       <div style={{ textAlign: 'center', padding: '16px' }}>
         <strong>Item 3</strong>
       </div>
@@ -318,14 +310,14 @@ export const ThemeComparison: Story = {
         style={{
           flex: 1,
           padding: '24px',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--bg-primary, #ffffff)',
           borderRadius: '12px',
-          border: '1px solid #e0e0e0',
+          border: '1px solid var(--border-color, #e0e0e0)',
         }}
       >
-        <h4 style={{ marginBottom: '16px', color: '#333' }}>Light Theme</h4>
+        <h4 style={{ marginBottom: '16px', color: 'var(--text-primary, #333)' }}>Light Theme</h4>
         <Divider {...args} />
-        <p style={{ marginTop: '16px', color: '#666', fontSize: '14px' }}>
+        <p style={{ marginTop: '16px', color: 'var(--text-secondary, #666)', fontSize: '14px' }}>
           Divider on light background
         </p>
       </div>
@@ -334,14 +326,14 @@ export const ThemeComparison: Story = {
         style={{
           flex: 1,
           padding: '24px',
-          backgroundColor: '#1a1a1a',
+          backgroundColor: 'var(--bg-primary, #1a1a1a)',
           borderRadius: '12px',
-          border: '1px solid #333',
+          border: '1px solid var(--border-color, #333)',
         }}
       >
-        <h4 style={{ marginBottom: '16px', color: '#fff' }}>Dark Theme</h4>
+        <h4 style={{ marginBottom: '16px', color: 'var(--text-primary, #fff)' }}>Dark Theme</h4>
         <Divider {...args} />
-        <p style={{ marginTop: '16px', color: '#999', fontSize: '14px' }}>
+        <p style={{ marginTop: '16px', color: 'var(--text-secondary, #999)', fontSize: '14px' }}>
           Divider on dark background
         </p>
       </div>
@@ -363,8 +355,6 @@ export const Playground: Story = {
     orientation: 'horizontal',
     variant: 'solid',
     thickness: 1,
-    fullWidth: false,
-    fullHeight: false,
   },
 };
 
@@ -379,7 +369,7 @@ export const Interactive: Story = {
         <Divider {...args} data-testid="divider-horizontal" />
       </Container>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', height: '100px' }}>
-        <Divider {...args} orientation="vertical" fullHeight data-testid="divider-vertical" />
+        <Divider {...args} orientation="vertical" data-testid="divider-vertical" />
       </div>
       <Container>
         <Divider {...args} variant="dashed" thickness={2} data-testid="divider-dashed" />
