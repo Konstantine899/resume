@@ -1,21 +1,32 @@
+// ============================================
+// AvatarAbout Component
+// ============================================
+
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Image } from '@/shared/ui/Image';
 import { getInitials } from '@/shared/lib/utils';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
+import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
 
 import { AVATAR_SIZES } from '../../model/constants';
+import { AvatarAboutProps } from '../../model/types';
 import styles from './AvatarAbout.module.scss';
 
-export interface AvatarAboutProps {
-  alt: string;
-  src?: string;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-  maxInitials?: number;
-  showSkeleton?: boolean;
-  forceLoading?: boolean;
-}
-
+/**
+ * AvatarAbout Component — avatar for About section
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <AvatarAbout src="/user.jpg" alt="John Doe" size="lg" />
+ * ```
+ *
+ * @example
+ * // With custom initials
+ * ```tsx
+ * <AvatarAbout alt="John Doe" maxInitials={1} />
+ * ```
+ */
 export const AvatarAbout = React.memo(
   ({
     alt,
@@ -27,35 +38,33 @@ export const AvatarAbout = React.memo(
     forceLoading = false,
   }: AvatarAboutProps) => {
     const normalizedSrc = src === '' ? undefined : src;
-    const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-    const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
+
+    // Use custom hook for image state management (eliminates duplication)
+    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError } = useImageStatus(
+      forceLoading,
+      normalizedSrc,
+      undefined,
+      undefined
+    );
+
     const avatarWidth = AVATAR_SIZES[size];
-
-    const handleLoadSuccess = useCallback(() => {
-      setImageStatus('loaded');
-    }, []);
-
-    const handleLoadError = useCallback(() => {
-      setImageStatus('error');
-    }, []);
 
     return (
       <div
         className={classNames(styles.avatarAbout, styles[size], className)}
         role="img"
         aria-label={alt}
-        data-loading={!showFallback && imageStatus === 'loading'}
-        data-error={imageStatus === 'error'}
+        data-state={imageStatus}
       >
         <div className={styles.avatarCircle}>
           {showFallback ? (
             <div className={styles.avatarInner}>
-              <span className={styles.initial}>{getInitials(alt, { maxInitials })}</span>
+              <span className={styles.initial}>{getInitials(alt || 'U', { maxInitials })}</span>
             </div>
           ) : (
             <div className={styles.avatarInner}>
               <Image
-                src={normalizedSrc || 'force.jpg'}
+                src={normalizedSrc || ''}
                 alt=""
                 decorative
                 variant="circular"

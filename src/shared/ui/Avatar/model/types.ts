@@ -85,4 +85,6 @@ export interface AvatarAboutProps extends Omit<
   'variant' | 'fallback' | 'onError' | 'onLoad' | 'showGlow' | 'showRing'
 > {
   size?: 'sm' | 'md' | 'lg';
+  /** Максимальное количество инициалей */
+  maxInitials?: number;
 }

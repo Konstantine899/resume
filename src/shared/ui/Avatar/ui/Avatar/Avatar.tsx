@@ -1,12 +1,38 @@
-import React, { useCallback, useState } from 'react';
+// ============================================
+// Avatar Component
+// ============================================
+
+import React from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Image } from '@/shared/ui/Image';
+import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
 
 import { AVATAR_SIZES } from '../../model/constants';
 import { AvatarProps } from '../../model/types';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
 import styles from './Avatar.module.scss';
 
+/**
+ * Avatar Component — displays user avatar with fallback, skeleton, and effects
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <Avatar src="/user.jpg" alt="John Doe" size="md" />
+ * ```
+ *
+ * @example
+ * // With glow and ring effects
+ * ```tsx
+ * <Avatar src="/user.jpg" alt="John Doe" showGlow showRing heroStyle />
+ * ```
+ *
+ * @example
+ * // With custom fallback
+ * ```tsx
+ * <Avatar alt="John Doe" fallback={<CustomFallback />} />
+ * ```
+ */
 export const Avatar = React.memo(
   ({
     src,
@@ -25,23 +51,13 @@ export const Avatar = React.memo(
     children,
   }: AvatarProps) => {
     const normalizedSrc = src === '' ? undefined : src;
-    const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-    const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
 
-    const handleLoadSuccess = useCallback(
-      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        setImageStatus('loaded');
-        onLoad?.(event);
-      },
-      [onLoad]
-    );
-
-    const handleLoadError = useCallback(
-      (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        setImageStatus('error');
-        onError?.(event);
-      },
-      [onError]
+    // Use custom hook for image state management (eliminates duplication)
+    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError } = useImageStatus(
+      forceLoading,
+      normalizedSrc,
+      onLoad,
+      onError
     );
 
     const avatarWidth = AVATAR_SIZES[size];
@@ -53,8 +69,7 @@ export const Avatar = React.memo(
         })}
         role="img"
         aria-label={alt}
-        data-loading={!showFallback && imageStatus === 'loading'}
-        data-error={imageStatus === 'error'}
+        data-state={imageStatus}
       >
         {showGlow && <div className={styles.glow} />}
         {showRing && <div className={styles.ring} />}

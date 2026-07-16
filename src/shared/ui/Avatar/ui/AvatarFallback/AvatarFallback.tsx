@@ -1,10 +1,28 @@
+// ============================================
+// AvatarFallback Component
+// ============================================
+
 import React from 'react';
-import { FALLBACK_COLORS } from '../../model/constants';
 import { AvatarFallbackProps } from '../../model/types';
-import { getInitials } from '@/shared/lib/utils';
+import { getInitials, getFallbackColor } from '@/shared/lib/utils';
 
 import styles from './AvatarFallback.module.scss';
 
+/**
+ * AvatarFallback Component — displays initials with colored background
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <AvatarFallback name="John Doe" size="md" />
+ * ```
+ *
+ * @example
+ * // Custom initials
+ * ```tsx
+ * <AvatarFallback name="JD" maxInitials={2} />
+ * ```
+ */
 export const AvatarFallback = React.memo(
   ({
     name = 'U',
@@ -13,13 +31,8 @@ export const AvatarFallback = React.memo(
     maxInitials = 2,
     className = '',
   }: AvatarFallbackProps) => {
-    const getColor = (name: string): string => {
-      const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
-    };
-
     const initials = getInitials(name, { maxInitials });
-    const backgroundColor = getColor(name);
+    const backgroundColor = getFallbackColor(name);
 
     return (
       <div

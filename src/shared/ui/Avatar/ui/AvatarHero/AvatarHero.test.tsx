@@ -76,10 +76,10 @@ describe('AvatarHero', () => {
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  it('has data-loading attribute when loading', () => {
+  it('has data-state="loading" attribute when loading', () => {
     const { container } = render(<AvatarHero alt="Test" forceLoading />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-loading', 'true');
+    expect(avatar).toHaveAttribute('data-state', 'loading');
   });
 
   it('calls handleError on image error', () => {
@@ -91,7 +91,7 @@ describe('AvatarHero', () => {
     fireEvent.error(img);
     rerender(<AvatarHero alt="Test" src={testSrc} showSkeleton={false} />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-error', 'true');
+    expect(avatar).toHaveAttribute('data-state', 'error');
   });
 
   it('calls handleLoad on image load', () => {
@@ -103,7 +103,7 @@ describe('AvatarHero', () => {
     fireEvent.load(img);
     rerender(<AvatarHero alt="Test" src={testSrc} showSkeleton={false} />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-loading', 'false');
+    expect(avatar).toHaveAttribute('data-state', 'loaded');
   });
 
   it('shows skeleton on initial load', () => {
@@ -114,6 +114,6 @@ describe('AvatarHero', () => {
   it('shows initial loading state', () => {
     render(<AvatarHero alt="Test" src="/test.jpg" />);
     const avatar = document.querySelector('[role="img"]') as HTMLElement;
-    expect(avatar).toHaveAttribute('data-loading', 'true');
+    expect(avatar).toHaveAttribute('data-state', 'loading');
   });
 });

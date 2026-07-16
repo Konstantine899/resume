@@ -125,17 +125,17 @@ describe('Avatar', () => {
       expect(container.querySelector('[aria-label="Test User"]')).toBeInTheDocument();
     });
 
-    it('должен иметь data-loading атрибут', () => {
+    it('должен иметь data-state="loading" атрибут', () => {
       const { container } = render(<Avatar alt="Test" />);
 
-      expect(container.firstChild).toHaveAttribute('data-loading');
+      expect(container.firstChild).toHaveAttribute('data-state', 'loading');
     });
 
-    it('должен иметь data-error атрибут при ошибке', () => {
+    it('должен иметь data-state="loading" при forceLoading', () => {
       const { container } = render(<Avatar alt="Test" forceLoading />);
 
       const avatar = container.firstChild as HTMLElement;
-      expect(avatar).toHaveAttribute('data-loading', 'true');
+      expect(avatar).toHaveAttribute('data-state', 'loading');
     });
   });
 
@@ -198,7 +198,7 @@ describe('Avatar', () => {
         <Avatar src="https://example.com/avatar.jpg" alt="Test" forceLoading={true} />
       );
 
-      expect(container.firstChild).toHaveAttribute('data-loading', 'true');
+      expect(container.firstChild).toHaveAttribute('data-state', 'loading');
     });
   });
 

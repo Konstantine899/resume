@@ -39,10 +39,10 @@ describe('AvatarAbout', () => {
     expect(container.querySelector('[role="status"]')).not.toBeInTheDocument();
   });
 
-  it('has data-loading attribute when loading', () => {
+  it('has data-state="loading" attribute when loading', () => {
     const { container } = render(<AvatarAbout alt="Test" forceLoading />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-loading', 'true');
+    expect(avatar).toHaveAttribute('data-state', 'loading');
   });
 
   it('calls handleError on image error', () => {
@@ -54,7 +54,7 @@ describe('AvatarAbout', () => {
     fireEvent.error(img);
     rerender(<AvatarAbout alt="Test" src={testSrc} showSkeleton={false} />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-error', 'true');
+    expect(avatar).toHaveAttribute('data-state', 'error');
   });
 
   it('calls handleLoad on image load', () => {
@@ -66,6 +66,6 @@ describe('AvatarAbout', () => {
     fireEvent.load(img);
     rerender(<AvatarAbout alt="Test" src={testSrc} showSkeleton={false} />);
     const avatar = container.firstChild as HTMLElement;
-    expect(avatar).toHaveAttribute('data-loading', 'false');
+    expect(avatar).toHaveAttribute('data-state', 'loaded');
   });
 });

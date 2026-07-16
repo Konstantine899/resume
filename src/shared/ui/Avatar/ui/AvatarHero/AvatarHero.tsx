@@ -1,24 +1,32 @@
+// ============================================
+// AvatarHero Component
+// ============================================
+
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Image } from '@/shared/ui/Image';
 import { getInitials } from '@/shared/lib/utils';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
+import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
 
 import { AVATAR_SIZES } from '../../model/constants';
-import { AvatarSize } from '../../model/types';
+import { AvatarHeroProps } from '../../model/types';
 import styles from './AvatarHero.module.scss';
 
-export interface AvatarHeroProps {
-  src?: string;
-  alt: string;
-  size?: AvatarSize;
-  className?: string;
-  showGlow?: boolean;
-  showRing?: boolean;
-  showSkeleton?: boolean;
-  forceLoading?: boolean;
-  children?: React.ReactNode;
-}
-
+/**
+ * AvatarHero Component — hero-style avatar with glow and ring effects
+ *
+ * @example
+ * // Basic usage
+ * ```tsx
+ * <AvatarHero src="/user.jpg" alt="John Doe" size="xl" />
+ * ```
+ *
+ * @example
+ * // With glow and ring
+ * ```tsx
+ * <AvatarHero src="/user.jpg" alt="John Doe" showGlow showRing />
+ * ```
+ */
 export const AvatarHero = React.memo(
   ({
     src,
@@ -32,25 +40,23 @@ export const AvatarHero = React.memo(
     children,
   }: AvatarHeroProps) => {
     const normalizedSrc = src === '' ? undefined : src;
-    const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-    const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
+
+    // Use custom hook for image state management (eliminates duplication)
+    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError } = useImageStatus(
+      forceLoading,
+      normalizedSrc,
+      undefined,
+      undefined
+    );
+
     const avatarWidth = AVATAR_SIZES[size];
-
-    const handleLoadSuccess = useCallback(() => {
-      setImageStatus('loaded');
-    }, []);
-
-    const handleLoadError = useCallback(() => {
-      setImageStatus('error');
-    }, []);
 
     return (
       <div
         className={classNames(styles.avatarHero, styles[size], className)}
         role="img"
         aria-label={alt}
-        data-loading={!showFallback && imageStatus === 'loading'}
-        data-error={imageStatus === 'error'}
+        data-state={imageStatus}
       >
         {showGlow && <div className={styles.photoGlow} />}
         {showRing && <div className={styles.photoRing} />}
@@ -63,7 +69,7 @@ export const AvatarHero = React.memo(
               </span>
             ) : (
               <Image
-                src={normalizedSrc || 'force.jpg'}
+                src={normalizedSrc || ''}
                 alt=""
                 decorative
                 variant="circular"
