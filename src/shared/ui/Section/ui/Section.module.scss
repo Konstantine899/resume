@@ -3,71 +3,73 @@
 @use '@/shared/styles/variables' as *;
 
 .section {
+  position: relative;
+
   // Базовые стили
   width: 100%;
-  position: relative;
-  background: var(--section-background, transparent);
-  color: var(--section-text-color, inherit);
+  padding-right: var(--section-padding-base, 1rem);
 
   // Mobile-first responsive breakpoints (6 уровней)
   padding-left: var(--section-padding-base, 1rem);
-  padding-right: var(--section-padding-base, 1rem);
+  color: var(--section-text-color, inherit);
+  background: var(--section-background, transparent);
 
-  @media (min-width: 640px) {
-    padding-left: var(--section-padding-sm, 1.5rem);
+  @media (width >= 640px) {
     padding-right: var(--section-padding-sm, 1.5rem);
+    padding-left: var(--section-padding-sm, 1.5rem);
   }
 
-  @media (min-width: 768px) {
-    padding-left: var(--section-padding-md, 2rem);
+  @media (width >= 768px) {
     padding-right: var(--section-padding-md, 2rem);
+    padding-left: var(--section-padding-md, 2rem);
   }
 
-  @media (min-width: 1024px) {
-    padding-left: var(--section-padding-lg, 3rem);
+  @media (width >= 1024px) {
     padding-right: var(--section-padding-lg, 3rem);
+    padding-left: var(--section-padding-lg, 3rem);
   }
 
-  @media (min-width: 1280px) {
-    padding-left: var(--section-padding-xl, 4rem);
+  @media (width >= 1280px) {
     padding-right: var(--section-padding-xl, 4rem);
+    padding-left: var(--section-padding-xl, 4rem);
   }
 
-  @media (min-width: 1536px) {
-    padding-left: var(--section-padding-2xl, 5rem);
+  @media (width >= 1536px) {
     padding-right: var(--section-padding-2xl, 5rem);
+    padding-left: var(--section-padding-2xl, 5rem);
   }
 
   // Sizes (max-width)
   &.sm {
     max-width: 640px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   &.md {
     max-width: 768px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   &.lg {
     max-width: 1024px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   &.xl {
     max-width: 1280px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   // Escape sequence для класса начинающегося с цифры (\32 = '2')
+  /* stylelint-disable-next-line selector-class-pattern */
   &.\32 xl {
     max-width: 1536px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
   }
 
   &.full {
@@ -88,12 +90,12 @@
   }
 
   &.gradient {
+    color: var(--section-gradient-text, #fff);
     background: linear-gradient(
       135deg,
       var(--section-gradient-start, #667eea),
       var(--section-gradient-end, #764ba2)
     );
-    color: var(--section-gradient-text, #ffffff);
 
     @media (prefers-reduced-motion: reduce) {
       background: var(--section-gradient-fallback, #667eea);
@@ -107,19 +109,19 @@
 
     @media (prefers-color-scheme: dark) {
       background: var(--section-muted-dark, #1f1f1f);
-      border-top-color: var(--border-muted-dark, #333333);
-      border-bottom-color: var(--border-muted-dark, #333333);
+      border-top-color: var(--border-muted-dark, #333);
+      border-bottom-color: var(--border-muted-dark, #333);
     }
   }
 
   &.dark {
+    color: var(--section-dark-text, #fff);
     background: var(--section-dark, #1a1a1a);
-    color: var(--section-dark-text, #ffffff);
   }
 
   &.light {
-    background: var(--section-light, #ffffff);
     color: var(--section-light-text, #1a1a1a);
+    background: var(--section-light, #fff);
   }
 
   // Padding
@@ -197,19 +199,19 @@
   // Full width
   &.fullWidth {
     max-width: 100%;
-    padding-left: 0;
     padding-right: 0;
+    padding-left: 0;
   }
 
   // Overlay support
   &.overlay {
     &::before {
-      content: '';
       position: absolute;
       inset: 0;
-      background: var(--overlay-color, rgba(0, 0, 0, 0.5));
-      pointer-events: none;
       z-index: 1;
+      pointer-events: none;
+      content: '';
+      background: var(--overlay-color, rgb(0 0 0 / 0.5));
     }
 
     // Контент поверх overlay

@@ -3,60 +3,41 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Container } from '@/shared/ui/Container';
 import { forwardRef, memo, useMemo } from 'react';
-import { SECTION_CONSTANTS } from '../model/constants';
+import { SECTION_DEFAULTS } from '../model/constants';
 import type { SectionProps } from '../model/types';
+import { validateSectionProps } from '../lib/utils/validateSectionProps';
 import styles from './Section.module.scss';
 
 /**
- * Runtime validation for Section props (development only)
+ * Section — семантический компонент для разделения контента страницы.
+ *
+ * @description
+ * Поддерживает варианты (default, alternate, gradient, muted, dark, light),
+ * размеры (max-width), responsive padding, vertical rhythm (margin),
+ * as-полиморфизм, Container integration, overlay эффект.
+ *
+ * @group UI Components
+ *
+ * @example
+ * ```tsx
+ * <Section>Content</Section>
+ * <Section variant="gradient" padding="2xl">Hero section</Section>
+ * <Section variant="dark" container>Dark section with container</Section>
+ * <Section margin={{ top: 'lg', bottom: 'xl' }}>Section with spacing</Section>
+ * ```
  */
-const validateSectionProps = (
-  variant: SectionProps['variant'],
-  padding: SectionProps['padding'],
-  size: SectionProps['size'],
-  as: SectionProps['as']
-) => {
-  if (process.env.NODE_ENV === 'development') {
-    const { VALID_VARIANTS, VALID_PADDING, VALID_SIZES, VALID_AS } = SECTION_CONSTANTS;
-
-    if (variant && !VALID_VARIANTS.includes(variant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Section: invalid variant "${variant}". Valid values: ${VALID_VARIANTS.join(', ')}`
-      );
-    }
-
-    if (padding && typeof padding === 'string' && !VALID_PADDING.includes(padding)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Section: invalid padding "${padding}". Valid values: ${VALID_PADDING.join(', ')}`
-      );
-    }
-
-    if (size && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Section: invalid size "${size}". Valid values: ${VALID_SIZES.join(', ')}`);
-    }
-
-    if (as && !VALID_AS.includes(as)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Section: invalid as "${as}". Valid values: ${VALID_AS.join(', ')}`);
-    }
-  }
-};
-
 export const Section = memo(
   forwardRef<HTMLElement, SectionProps>((props, ref) => {
     const {
       as: Component = 'section',
-      variant = 'default',
-      size = 'lg',
-      padding = 'lg',
+      variant = SECTION_DEFAULTS.variant,
+      size = SECTION_DEFAULTS.size,
+      padding = SECTION_DEFAULTS.padding,
       margin,
       className = '',
-      fullWidth = false,
-      overlay = false,
-      container = false,
+      fullWidth = SECTION_DEFAULTS.fullWidth,
+      overlay = SECTION_DEFAULTS.overlay,
+      container = SECTION_DEFAULTS.container,
       background,
       textColor,
       'aria-label': ariaLabel,
@@ -66,17 +47,17 @@ export const Section = memo(
       ...restProps
     } = props;
 
-    // Runtime validation in development mode
+    // Runtime validation inline
     if (process.env.NODE_ENV === 'development') {
-      validateSectionProps(variant, padding, size, Component);
+      validateSectionProps(props);
     }
 
     // Memoize inline styles для CSS custom properties
     const customStyles = useMemo(() => {
-      const styles: Record<string, string> = {};
-      if (background) styles['--section-background'] = background;
-      if (textColor) styles['--section-text-color'] = textColor;
-      return styles;
+      const cssStyles: Record<string, string> = {};
+      if (background) cssStyles['--section-background'] = background;
+      if (textColor) cssStyles['--section-text-color'] = textColor;
+      return cssStyles;
     }, [background, textColor]);
 
     // Memoize margin classes
@@ -124,6 +105,9 @@ export const Section = memo(
         ref={ref as React.Ref<HTMLDivElement>}
         className={sectionClassName}
         style={{ ...customStyles, ...style }}
+        data-variant={variant}
+        data-size={size}
+        data-padding={typeof padding === 'string' ? padding : padding.base || 'md'}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}
         {...restProps}

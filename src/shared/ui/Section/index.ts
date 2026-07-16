@@ -10,5 +10,12 @@ export type {
   ResponsiveValue,
   ContainerConfig,
 } from './model/types';
-export { SECTION_CONSTANTS } from './model/constants';
+export {
+  SECTION_CONSTANTS,
+  SECTION_DEFAULTS,
+  SECTION_VARIANTS,
+  SECTION_SIZES,
+  SECTION_PADDINGS,
+} from './model/constants';
+export { validateSectionProps } from './lib/utils/validateSectionProps';
 export { Section } from './ui/Section';

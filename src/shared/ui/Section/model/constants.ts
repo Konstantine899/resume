@@ -1,35 +1,96 @@
 // src/shared/ui/Section/model/constants.ts
 
+import { SectionVariant, SectionSize, SectionPadding, SectionMarginValue } from './types';
+
 /**
- * Константы для компонента Section
+ * Доступные варианты стилей Section
+ */
+export const SECTION_VARIANTS: readonly SectionVariant[] = [
+  'default',
+  'alternate',
+  'gradient',
+  'muted',
+  'dark',
+  'light',
+] as const;
+
+/**
+ * Доступные размеры Section
+ */
+export const SECTION_SIZES: readonly SectionSize[] = [
+  'sm',
+  'md',
+  'lg',
+  'xl',
+  '2xl',
+  'full',
+] as const;
+
+/**
+ * Доступные padding значения
+ */
+export const SECTION_PADDINGS: readonly SectionPadding[] = [
+  'none',
+  'sm',
+  'md',
+  'lg',
+  'xl',
+  '2xl',
+] as const;
+
+/**
+ * Доступные margin значения
+ */
+export const SECTION_MARGINS: readonly SectionMarginValue[] = [
+  'none',
+  'sm',
+  'md',
+  'lg',
+  'xl',
+] as const;
+
+/**
+ * Доступные semantic элементы
+ */
+export const SECTION_AS: readonly string[] = [
+  'section',
+  'div',
+  'article',
+  'aside',
+  'main',
+  'nav',
+] as const;
+
+/**
+ * Дефолтные значения props
+ */
+export const SECTION_DEFAULTS = {
+  variant: 'default' as SectionVariant,
+  size: 'lg' as SectionSize,
+  padding: 'lg' as SectionPadding,
+  fullWidth: false,
+  overlay: false,
+  container: false,
+} as const;
+
+/**
+ * Grouped constants for Section component
  */
 export const SECTION_CONSTANTS = {
-  /** Допустимые варианты стилей */
-  VALID_VARIANTS: ['default', 'alternate', 'gradient', 'muted', 'dark', 'light'] as const,
-
-  /** Допустимые padding значения */
-  VALID_PADDING: ['none', 'sm', 'md', 'lg', 'xl', '2xl'] as const,
-
-  /** Допустимые размеры */
-  VALID_SIZES: ['sm', 'md', 'lg', 'xl', '2xl', 'full'] as const,
-
-  /** Допустимые semantic элементы */
-  VALID_AS: ['section', 'div', 'article', 'aside', 'main', 'nav'] as const,
-
-  /** Допустимые margin значения */
-  VALID_MARGIN: ['none', 'sm', 'md', 'lg', 'xl'] as const,
-
-  /** Breakpoints (mobile-first) */
-  BREAKPOINTS: {
+  variants: SECTION_VARIANTS,
+  sizes: SECTION_SIZES,
+  paddings: SECTION_PADDINGS,
+  margins: SECTION_MARGINS,
+  as: SECTION_AS,
+  defaults: SECTION_DEFAULTS,
+  breakpoints: {
     sm: '640px',
     md: '768px',
     lg: '1024px',
     xl: '1280px',
     '2xl': '1536px',
   } as const,
-
-  /** Padding значения */
-  PADDING: {
+  padding: {
     none: '0',
     sm: '1.5rem',
     md: '2rem',
@@ -37,18 +98,14 @@ export const SECTION_CONSTANTS = {
     xl: '4rem',
     '2xl': '6rem',
   } as const,
-
-  /** Margin значения */
-  MARGIN: {
+  margin: {
     none: '0',
     sm: '1.5rem',
     md: '2rem',
     lg: '3rem',
     xl: '4rem',
   } as const,
-
-  /** CSS custom properties для темизации */
-  CSS_VARIABLES: {
+  cssVariables: {
     background: '--section-background',
     textColor: '--section-text-color',
     default: '--section-default',
@@ -66,16 +123,12 @@ export const SECTION_CONSTANTS = {
     light: '--section-light',
     lightText: '--section-light-text',
   } as const,
-
-  /** Container defaults */
-  CONTAINER_DEFAULTS: {
+  containerDefaults: {
     enabled: false,
     size: 'lg',
     centered: true,
   } as const,
-
-  /** Overlay defaults */
-  OVERLAY_DEFAULTS: {
+  overlayDefaults: {
     color: 'rgba(0, 0, 0, 0.5)',
   } as const,
 } as const;
