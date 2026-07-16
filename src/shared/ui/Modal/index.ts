@@ -2,12 +2,12 @@
 // Modal Public API
 // ============================================
 
-export { Modal } from './ui/Modal';
-export { ModalRoot } from './ui/ModalRoot';
-export { ModalHeader } from './ui/ModalHeader';
-export { ModalContent } from './ui/ModalContent';
-export { ModalFooter } from './ui/ModalFooter';
-export { ModalCloseButton } from './ui/ModalCloseButton';
+export { Modal } from './ui/Modal/Modal';
+export { ModalRoot } from './ui/ModalRoot/ModalRoot';
+export { ModalHeader } from './ui/ModalHeader/ModalHeader';
+export { ModalContent } from './ui/ModalContent/ModalContent';
+export { ModalFooter } from './ui/ModalFooter/ModalFooter';
+export { ModalCloseButton } from './ui/ModalCloseButton/ModalCloseButton';
 
 export type {
   ModalProps,
@@ -20,3 +20,4 @@ export type {
 } from './model/types';
 
 export { MODAL_SIZES } from './model/types';
+export { MODAL_CONSTANTS } from './model/constants';

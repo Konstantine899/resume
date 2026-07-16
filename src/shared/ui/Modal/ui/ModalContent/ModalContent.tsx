@@ -3,13 +3,26 @@
 // ============================================
 
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils';
 import type { ModalContentProps } from '../../model/types';
-import styles from '../../Modal.module.scss';
+import styles from '../Modal/Modal.module.scss';
 
+/**
+ * ModalContent — контент модального окна
+ *
+ * @example
+ * ```tsx
+ * <Modal.Content>
+ *   <p>Some content here</p>
+ * </Modal.Content>
+ * ```
+ */
 export const ModalContent = memo((props: ModalContentProps) => {
   const { children, className = '' } = props;
 
-  return <div className={`${styles.content} ${className}`}>{children}</div>;
+  const contentClasses = classNames(styles.content, className);
+
+  return <div className={contentClasses}>{children}</div>;
 });
 
 ModalContent.displayName = 'ModalContent';

@@ -13,46 +13,46 @@ describe('ModalHeader', () => {
     title: 'Test Title',
   };
 
-  it('должен рендерить заголовок', () => {
+  it('should render title', () => {
     render(<ModalHeader {...defaultProps} />);
     expect(screen.getByText('Test Title')).toBeInTheDocument();
   });
 
-  it('должен рендерить подзаголовок', () => {
+  it('should render subtitle', () => {
     render(<ModalHeader {...defaultProps} subtitle="Test Subtitle" />);
     expect(screen.getByText('Test Subtitle')).toBeInTheDocument();
   });
 
-  it('не должен рендерить подзаголовок без prop', () => {
+  it('should not render subtitle without prop', () => {
     render(<ModalHeader {...defaultProps} />);
     expect(screen.queryByText('Test Subtitle')).not.toBeInTheDocument();
   });
 
-  it('должен рендерить кнопку закрытия по умолчанию', () => {
+  it('should render close button by default', () => {
     render(<ModalHeader {...defaultProps} />);
-    const closeButton = screen.getByRole('button', { name: /закрыть/i });
+    const closeButton = screen.getByRole('button', { name: /close modal/i });
     expect(closeButton).toBeInTheDocument();
   });
 
-  it('не должен рендерить кнопку закрытия когда showCloseButton=false', () => {
+  it('should not render close button when showCloseButton=false', () => {
     render(<ModalHeader {...defaultProps} showCloseButton={false} />);
-    expect(screen.queryByRole('button', { name: /закрыть/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /close modal/i })).not.toBeInTheDocument();
   });
 
-  it('должен вызывать onClose при клике на кнопку закрытия', () => {
+  it('should call onClose on close button click', () => {
     const onClose = vi.fn();
     render(<ModalHeader {...defaultProps} onClose={onClose} />);
-    const closeButton = screen.getByRole('button', { name: /закрыть/i });
+    const closeButton = screen.getByRole('button', { name: /close modal/i });
     fireEvent.click(closeButton);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('должен использовать titleId для заголовка', () => {
+  it('should use titleId for title', () => {
     render(<ModalHeader {...defaultProps} titleId="custom-title-id" />);
     expect(screen.getByText('Test Title')).toHaveAttribute('id', 'custom-title-id');
   });
 
-  it('должен использовать subtitleId для подзаголовка', () => {
+  it('should use subtitleId for subtitle', () => {
     render(<ModalHeader {...defaultProps} subtitle="Subtitle" subtitleId="custom-subtitle-id" />);
     expect(screen.getByText('Subtitle')).toHaveAttribute('id', 'custom-subtitle-id');
   });

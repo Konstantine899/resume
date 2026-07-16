@@ -28,40 +28,40 @@ describe('Modal (Compound)', () => {
   // Simple API Tests
   // ============================================
   describe('simple API', () => {
-    it('должен рендериться с базовыми props', () => {
+    it('should render with base props', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByText('Modal Content')).toBeInTheDocument();
     });
 
-    it('не должен рендериться когда isOpen=false', () => {
+    it('should not render when isOpen=false', () => {
       render(<Modal {...defaultProps} isOpen={false} />);
       expect(screen.queryByText('Modal Content')).not.toBeInTheDocument();
     });
 
-    it('должен рендерить заголовок автоматически', () => {
+    it('should render title automatically', () => {
       render(<Modal {...defaultProps} title="Test Title" />);
       expect(screen.getByText('Test Title')).toBeInTheDocument();
     });
 
-    it('должен рендерить подзаголовок автоматически', () => {
+    it('should render subtitle automatically', () => {
       render(<Modal {...defaultProps} title="Title" subtitle="Test Subtitle" />);
       expect(screen.getByText('Test Subtitle')).toBeInTheDocument();
     });
 
-    it('должен рендерить footer автоматически', () => {
+    it('should render footer automatically', () => {
       render(<Modal {...defaultProps} footer={<button>Save</button>} />);
       expect(screen.getByText('Save')).toBeInTheDocument();
     });
 
-    it('должен рендерить кнопку закрытия по умолчанию', () => {
+    it('should render close button by default', () => {
       render(<Modal {...defaultProps} title="Title" />);
-      const closeButton = screen.getByRole('button', { name: /закрыть/i });
+      const closeButton = screen.getByRole('button', { name: /close modal/i });
       expect(closeButton).toBeInTheDocument();
     });
 
-    it('не должен рендерить кнопку закрытия когда showCloseButton=false', () => {
+    it('should not render close button when showCloseButton=false', () => {
       render(<Modal {...defaultProps} title="Title" showCloseButton={false} />);
-      expect(screen.queryByRole('button', { name: /закрыть/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /close modal/i })).not.toBeInTheDocument();
     });
   });
 
@@ -69,7 +69,7 @@ describe('Modal (Compound)', () => {
   // Compound Components Tests
   // ============================================
   describe('compound components', () => {
-    it('должен использовать Modal.Header', () => {
+    it('should use Modal.Header', () => {
       render(
         <Modal isOpen={true} onClose={vi.fn()}>
           <Modal.Header title="Custom Header" onClose={vi.fn()} />
@@ -79,7 +79,7 @@ describe('Modal (Compound)', () => {
       expect(screen.getByText('Custom Header')).toBeInTheDocument();
     });
 
-    it('должен использовать Modal.Content', () => {
+    it('should use Modal.Content', () => {
       render(
         <Modal isOpen={true} onClose={vi.fn()}>
           <Modal.Content>Custom Content</Modal.Content>
@@ -88,7 +88,7 @@ describe('Modal (Compound)', () => {
       expect(screen.getByText('Custom Content')).toBeInTheDocument();
     });
 
-    it('должен использовать Modal.Footer', () => {
+    it('should use Modal.Footer', () => {
       render(
         <Modal isOpen={true} onClose={vi.fn()}>
           <Modal.Footer>
@@ -99,21 +99,21 @@ describe('Modal (Compound)', () => {
       expect(screen.getByText('Action')).toBeInTheDocument();
     });
 
-    it('должен использовать Modal.CloseButton', async () => {
+    it('should use Modal.CloseButton', async () => {
       const handleClose = vi.fn();
       render(
         <Modal isOpen={true} onClose={handleClose} title="Test" showCloseButton={true}>
           Content
         </Modal>
       );
-      // Ждём рендера
+      // Wait for render
       await new Promise((resolve) => setTimeout(resolve, 10));
-      const closeButton = screen.getByRole('button', { name: /закрыть/i });
+      const closeButton = screen.getByRole('button', { name: /close modal/i });
       fireEvent.click(closeButton);
       expect(handleClose).toHaveBeenCalledTimes(1);
     });
 
-    it('должен использовать Modal.Root напрямую', () => {
+    it('should use Modal.Root directly', () => {
       render(
         <Modal.Root isOpen={true} onClose={vi.fn()}>
           <div>Custom Root Content</div>
@@ -127,31 +127,36 @@ describe('Modal (Compound)', () => {
   // Accessibility Tests
   // ============================================
   describe('accessibility', () => {
-    it('должен иметь role="dialog"', () => {
+    it('should have role="dialog"', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    it('должен иметь aria-modal="true"', () => {
+    it('should have aria-modal="true"', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
     });
 
-    it('должен иметь aria-labelledby при title', () => {
+    it('should have aria-labelledby with title', () => {
       render(<Modal {...defaultProps} title="Test Title" />);
       const dialog = screen.getByRole('dialog');
       expect(dialog).toHaveAttribute('aria-labelledby');
     });
 
-    it('должен иметь aria-describedby при subtitle', () => {
+    it('should have aria-describedby with subtitle', () => {
       render(<Modal {...defaultProps} title="Title" subtitle="Subtitle" />);
       const dialog = screen.getByRole('dialog');
       expect(dialog).toHaveAttribute('aria-describedby');
     });
 
-    it('должен иметь tabIndex=0', () => {
+    it('should have tabIndex=0', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByRole('dialog')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('should have data-state="open" when isOpen', () => {
+      render(<Modal {...defaultProps} />);
+      expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'open');
     });
   });
 
@@ -159,19 +164,19 @@ describe('Modal (Compound)', () => {
   // Keyboard Tests
   // ============================================
   describe('keyboard', () => {
-    it('должен закрываться по ESC', () => {
+    it('should close on ESC', () => {
       render(<Modal {...defaultProps} closeOnEsc={true} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
 
-    it('не должен закрываться по ESC когда closeOnEsc=false', () => {
+    it('should not close on ESC when closeOnEsc=false', () => {
       render(<Modal {...defaultProps} closeOnEsc={false} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).not.toHaveBeenCalled();
     });
 
-    it('не должен закрываться по ESC если event.preventDefault()', async () => {
+    it('should not close on ESC if event.preventDefault()', async () => {
       const onClose = vi.fn();
       render(
         <Modal
@@ -185,10 +190,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
 
-      // Ждём открытия модалки
+      // Wait for modal to open
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Проверяем что модалка открылась
+      // Check modal rendered
       expect(screen.getByRole('dialog')).toBeInTheDocument();
 
       const event = new KeyboardEvent('keydown', {
@@ -198,7 +203,7 @@ describe('Modal (Compound)', () => {
       });
       document.dispatchEvent(event);
 
-      // ESC должен закрыть, т.к. preventDefault не сработал через dispatchEvent в jsdom
+      // ESC should close since preventDefault didn't fire in jsdom
       expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
@@ -207,17 +212,17 @@ describe('Modal (Compound)', () => {
   // Overlay Tests
   // ============================================
   describe('overlay', () => {
-    it('должен рендерить overlay по умолчанию', () => {
+    it('should render overlay by default', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByRole('dialog').parentElement?.parentElement).toBeInTheDocument();
     });
 
-    it('не должен рендерить overlay когда overlay=false', () => {
+    it('should not render overlay when overlay=false', () => {
       render(<Modal {...defaultProps} overlay={false} />);
-      // Overlay не рендерится
+      // Overlay not rendered
     });
 
-    it('должен закрываться по клику на overlay', () => {
+    it('should close on overlay click', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
       const overlay = document.querySelector('[aria-hidden="true"]');
       if (overlay) {
@@ -231,19 +236,19 @@ describe('Modal (Compound)', () => {
   // canClose Tests
   // ============================================
   describe('canClose', () => {
-    it('должен закрываться когда canClose=true', () => {
+    it('should close when canClose=true', () => {
       render(<Modal {...defaultProps} canClose={true} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
 
-    it('не должен закрываться когда canClose=false', () => {
+    it('should not close when canClose=false', () => {
       render(<Modal {...defaultProps} canClose={false} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).not.toHaveBeenCalled();
     });
 
-    it('должен вызывать canClose функцию', () => {
+    it('should call canClose function', () => {
       const canCloseFn = vi.fn(() => false);
       render(<Modal {...defaultProps} canClose={canCloseFn} />);
       fireEvent.keyDown(document, { key: 'Escape' });
@@ -256,14 +261,14 @@ describe('Modal (Compound)', () => {
   // Callbacks Tests
   // ============================================
   describe('callbacks', () => {
-    it('должен вызывать onOpened при открытии', async () => {
+    it('should call onOpened on open', async () => {
       const onOpened = vi.fn();
       render(<Modal {...defaultProps} onOpened={onOpened} />);
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(onOpened).toHaveBeenCalled();
     });
 
-    it('должен вызывать onClosed при закрытии', async () => {
+    it('should call onClosed on close', async () => {
       const onClosed = vi.fn();
       const onClose = vi.fn();
 
@@ -279,11 +284,11 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
 
-      // Ждём открытия
+      // Wait for open
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(onClosed).not.toHaveBeenCalled();
 
-      // Закрываем
+      // Close
       rerender(
         <Modal
           isOpen={false}
@@ -296,7 +301,7 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
 
-      // Ждём вызова onClosed
+      // Wait for onClosed call
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(onClosed).toHaveBeenCalledTimes(1);
     });

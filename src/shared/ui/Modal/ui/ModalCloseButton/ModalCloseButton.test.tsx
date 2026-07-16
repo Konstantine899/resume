@@ -8,40 +8,64 @@ import '@testing-library/jest-dom';
 import { ModalCloseButton } from './ModalCloseButton';
 
 describe('ModalCloseButton', () => {
-  it('должен рендериться', () => {
+  it('should render', () => {
     const onClose = vi.fn();
     render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /закрыть/i });
+    const button = screen.getByRole('button', { name: /close modal/i });
     expect(button).toBeInTheDocument();
   });
 
-  it('должен вызывать onClose при клике', () => {
+  it('should call onClose on click', () => {
     const onClose = vi.fn();
     render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /закрыть/i });
+    const button = screen.getByRole('button', { name: /close modal/i });
     fireEvent.click(button);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('должен иметь правильный aria-label по умолчанию', () => {
+  it('should have correct default aria-label', () => {
     const onClose = vi.fn();
     render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /закрыть модальное окно/i });
-    expect(button).toHaveAttribute('aria-label', 'Закрыть модальное окно');
+    const button = screen.getByRole('button', { name: /close modal/i });
+    expect(button).toHaveAttribute('aria-label', 'Close modal');
   });
 
-  it('должен использовать кастомный aria-label', () => {
+  it('should use custom aria-label', () => {
     const onClose = vi.fn();
     render(<ModalCloseButton onClose={onClose} ariaLabel="Custom close" />);
     const button = screen.getByRole('button', { name: /custom close/i });
     expect(button).toHaveAttribute('aria-label', 'Custom close');
   });
 
-  it('должен рендерить иконку X', () => {
+  it('should render X icon', () => {
     const onClose = vi.fn();
     render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /закрыть/i });
+    const button = screen.getByRole('button', { name: /close modal/i });
     const svg = button.querySelector('svg');
     expect(svg).toBeInTheDocument();
+  });
+
+  it('should call onClose on Enter key press', () => {
+    const onClose = vi.fn();
+    render(<ModalCloseButton onClose={onClose} />);
+    const button = screen.getByRole('button', { name: /close modal/i });
+    fireEvent.keyDown(button, { key: 'Enter' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call onClose on Space key press', () => {
+    const onClose = vi.fn();
+    render(<ModalCloseButton onClose={onClose} />);
+    const button = screen.getByRole('button', { name: /close modal/i });
+    fireEvent.keyDown(button, { key: ' ' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should prevent default on Space key press', () => {
+    const onClose = vi.fn();
+    render(<ModalCloseButton onClose={onClose} />);
+    const button = screen.getByRole('button', { name: /close modal/i });
+    const event = fireEvent.keyDown(button, { key: ' ', cancelable: true });
+    expect(event).toBe(false); // preventDefault called
   });
 });

@@ -8,7 +8,7 @@ import { Overlay } from '@/shared/ui/Overlay';
 import { Portal } from '@/shared/ui/Portal';
 import { memo, useCallback, useEffect, useId, useLayoutEffect, useRef } from 'react';
 import type { ModalRootProps } from '../../model/types';
-import styles from '../../Modal.module.scss';
+import styles from '../Modal/Modal.module.scss';
 
 // Global counter for multiple modals scroll blocking (используем useRef для атомарности и SSR safety)
 let openCount = 0;
@@ -165,6 +165,9 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     className
   );
 
+  // data-state для accessibility и тестирования
+  const dataState = isOpen ? 'open' : 'closed';
+
   if (!isOpen) return null;
 
   return (
@@ -189,6 +192,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
           aria-describedby={subtitleId}
           aria-label={ariaLabel}
           tabIndex={0}
+          data-state={dataState}
         >
           {children}
         </div>
