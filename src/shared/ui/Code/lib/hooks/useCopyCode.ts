@@ -7,6 +7,7 @@ interface UseCopyCodeOptions {
   showToastOnError?: boolean;
   addToast?: (message: string, type?: ToastType, duration?: number) => void;
   onCopy?: () => void;
+  enabled?: boolean;
 }
 
 interface UseCopyCodeReturn {
@@ -30,15 +31,23 @@ export const useCopyCode = (
   code: React.ReactNode,
   options: UseCopyCodeOptions = {}
 ): UseCopyCodeReturn => {
-  const { showToastOnSuccess = false, showToastOnError = true, addToast, onCopy } = options;
+  const {
+    showToastOnSuccess = false,
+    showToastOnError = true,
+    addToast,
+    onCopy,
+    enabled = true,
+  } = options;
 
   const [isCopied, setIsCopied] = useState(false);
   const [isError, setIsError] = useState(false);
 
   // Мемоизируем извлечение текста — избегаем повторного обхода дерева на каждый рендер
-  const codeText = useMemo(() => extractTextFromNode(code), [code]);
+  const codeText = useMemo(() => (enabled ? extractTextFromNode(code) : ''), [code, enabled]);
 
   const handleCopy = useCallback(() => {
+    if (!enabled) return;
+
     setIsError(false);
 
     if (!navigator.clipboard) {
@@ -71,18 +80,18 @@ export const useCopyCode = (
           addToast('Failed to copy code', 'error', 3000);
         }
       });
-  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy]);
+  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy, enabled]);
 
   // Cleanup таймаута при размонтировании или изменении isCopied
   useEffect(() => {
-    if (!isCopied) return;
+    if (!isCopied || !enabled) return;
 
     const timeoutId = setTimeout(() => {
       setIsCopied(false);
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [isCopied]);
+  }, [isCopied, enabled]);
 
   const reset = useCallback(() => {
     setIsCopied(false);

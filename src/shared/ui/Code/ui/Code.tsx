@@ -5,7 +5,6 @@ import { CODE_DEFAULTS } from '../model/constants';
 import { useCopyCode } from '../lib/hooks/useCopyCode';
 import { CodeInlineUi } from './CodeInlineUi';
 import { CodeBlockUi } from './CodeBlock/CodeBlock';
-import { Skeleton } from '@/shared/ui/Skeleton';
 
 /**
  * Code Component
@@ -27,6 +26,7 @@ export const Code: React.FC<CodeProps> = ({
     showToastOnSuccess: true,
     showToastOnError: true,
     onCopy,
+    enabled: !skeleton,
   });
 
   const handleKeyDown = useCallback(
@@ -43,13 +43,9 @@ export const Code: React.FC<CodeProps> = ({
   if (skeleton) {
     if (variant === 'block') {
       return (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={props.maxHeight || '310px'}
-          aria-busy="true"
-          data-skeleton="true"
-        />
+        <CodeBlockUi {...props} skeleton onCopy={handleCopy}>
+          {children}
+        </CodeBlockUi>
       );
     }
     return (

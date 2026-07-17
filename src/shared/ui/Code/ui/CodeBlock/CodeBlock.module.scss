@@ -46,7 +46,7 @@
   // 310px подобрано эмпирически для SkillsCode (~355px контента)
 
   // Обеспечивает скролл для типичного контента резюме
-  max-height: 310px;
+  max-height: var(--code-max-height, 310px);
   overflow: auto;
 
   &.withLineNumbers {

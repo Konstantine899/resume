@@ -37,6 +37,7 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
   icons,
   copyButtonSize = 'sm',
   skeleton = false,
+  size = CODE_DEFAULTS.size,
 }) => {
   const linesCount = useMemo(() => {
     if (!showLineNumbers) return 0;
@@ -50,14 +51,34 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
 
   if (skeleton) {
     return (
-      <Skeleton
-        variant="rectangular"
-        width="100%"
-        height={maxHeight || '310px'}
-        className={className}
-        aria-busy="true"
+      <div
+        className={classNames(styles.blockContainer, className)}
+        data-testid="code-block"
+        role="region"
+        aria-label={ariaLabel || (title ? `Code block: ${title}` : 'Code block')}
+        data-variant="block"
+        data-size={size}
         data-skeleton="true"
-      />
+        aria-busy="true"
+      >
+        <CodeBlockHeader
+          language={language}
+          title={title}
+          copyable={copyable}
+          icons={icons}
+          copyButtonSize={copyButtonSize}
+          skeleton
+        />
+        <div className={styles.blockContent}>
+          <Skeleton
+            variant="rectangular"
+            width="100%"
+            height={maxHeight || '310px'}
+            aria-busy="true"
+            data-skeleton="true"
+          />
+        </div>
+      </div>
     );
   }
 
@@ -74,7 +95,7 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
       role="region"
       aria-label={ariaLabel || (title ? `Code block: ${title}` : 'Code block')}
       data-variant="block"
-      data-size="lg"
+      data-size={size}
       data-skeleton={skeleton || undefined}
       aria-busy={skeleton || undefined}
     >
