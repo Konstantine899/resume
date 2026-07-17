@@ -1,3 +1,4 @@
+import { expect, within } from '@storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Portal } from './Portal';
 
@@ -48,6 +49,12 @@ export const Default: Story = {
       </div>
     ),
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText(/rendered in document.body/)).toBeInTheDocument();
+    // Content is also in document.body
+    expect(document.body.textContent).toContain('rendered in');
+  },
 };
 
 /** Renders children inside a custom DOM element. */
@@ -75,5 +82,9 @@ export const CustomElement: Story = {
           'and pass it as `element`. The children will render inside that div.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText(/custom container element/)).toBeInTheDocument();
   },
 };

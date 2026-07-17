@@ -43,11 +43,40 @@ describe('Portal', () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const orphanedElement = document.createElement('div');
-    // Do NOT append to body — element is orphaned
 
     render(<Portal element={orphanedElement}>Orphaned Content</Portal>);
 
     expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[Portal]'));
+
+    consoleWarnSpy.mockRestore();
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('renders with null element prop (uses document.body)', () => {
+    render(<Portal element={null as unknown as HTMLElement}>Null Container</Portal>);
+    expect(screen.getByText('Null Container')).toBeInTheDocument();
+  });
+
+  it('renders with undefined element prop (uses document.body)', () => {
+    render(<Portal element={undefined}>Undefined Container</Portal>);
+    expect(screen.getByText('Undefined Container')).toBeInTheDocument();
+  });
+
+  it('renders with empty children (ReactNode)', () => {
+    const { container } = render(<Portal>{null}</Portal>);
+    expect(container.textContent).toBe('');
+  });
+
+  it('does not warn in production mode when element is not connected', () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const orphanedElement = document.createElement('div');
+
+    render(<Portal element={orphanedElement}>Production Content</Portal>);
+
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
 
     consoleWarnSpy.mockRestore();
     process.env.NODE_ENV = originalEnv;
