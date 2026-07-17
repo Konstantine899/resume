@@ -67,23 +67,25 @@ Integration и e2e тесты (Playwright, MSW)
 
 ---
 
-## Правило: Все операции через Orchestrator
+## Правило: Git операции
 
-**ВСЕГДА использовать Orchestrator для:**
+**Git commit через `git-commit` субагент:**
 
-1. **Git операции** (commit, push, pull, merge, rebase)
-2. **Мульти-агентные задачи** (координация между агентами)
-3. **Сложные задачи** (требующие нескольких шагов/агентов)
-4. **Публичные изменения** (commit, push, PR)
+```
+User → task(subagent_type: "git-commit") → commit
+```
+
+- Одиночные git коммиты — через `git-commit` субагент с параметрами (files, message)
+- `git push`, `git pull`, `git merge` — через `general` task agent + bash
+- Сложные git операции (rebase, bisect, worktree) — через `general` task agent с подробным описанием
 
 **НЕЛЬЗЯ:**
-- ❌ Вызывать агентов напрямую
-- ❌ Делать git операции через bash
+- ❌ `git commit --no-verify` — никогда
+- ❌ `git push` без явного запроса пользователя
+- ❌ Интерактивные git команды (`-i` flag)
 
-**Workflow:**
-```
-User Request → Orchestrator → Агент(ы) → Orchestrator → User
-```
+**Плагины агентов (git-commit.md и др.) — это инструкции для модели, не исполняемый код.**
+Они задают поведение, но не являются вызываемыми функциями. Dispatch происходит через `task` tool с `subagent_type`.
 
 ---
 

@@ -115,6 +115,12 @@ class GuardTieredSecurity {
   getTier(operation, path = null) {
     const opKey = operation + (path ? ':' + path : '');
     
+    // Git operations get medium tier (postmoderation, never blocked)
+    // This prevents shell:* high tier from catching git commands
+    if (opKey.startsWith('shell:git:')) {
+      return 'medium';
+    }
+    
     for (const pattern of this.tiers.high.operations) {
       if (this._matchPattern(opKey, pattern)) return 'high';
     }
