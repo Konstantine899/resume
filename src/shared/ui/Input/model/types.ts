@@ -63,6 +63,11 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   loading?: boolean;
 
   /**
+   * Состояние загрузки — заменяет input на Skeleton
+   */
+  skeleton?: boolean;
+
+  /**
    * Icon to display before input
    */
   icon?: React.ReactNode;
@@ -108,6 +113,11 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
    */
   showPasswordToggle?: boolean;
 }
+
+/**
+ * Input status type for data-status attribute
+ */
+export type InputStatus = 'error' | 'success' | 'loading' | 'skeleton';
 
 /**
  * Input group props for grouping multiple inputs

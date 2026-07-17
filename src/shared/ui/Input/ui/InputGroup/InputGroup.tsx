@@ -4,6 +4,9 @@
 
 import React from 'react';
 import styles from '../Input.module.scss';
+import InputGroupAddon from './InputGroupAddon';
+
+export type { InputGroupAddonProps } from './InputGroupAddon';
 
 export interface InputGroupProps {
   children: React.ReactNode;
@@ -11,33 +14,19 @@ export interface InputGroupProps {
   'data-testid'?: string;
 }
 
-export interface InputGroupAddonProps {
-  children: React.ReactNode;
-  position?: 'start' | 'end';
-  className?: string;
-  'data-testid'?: string;
-}
-
-// Sub-component for addons
-const InputGroupAddon = React.memo(
-  ({
-    children,
-    position = 'start',
-    className,
-    'data-testid': dataTestId,
-  }: InputGroupAddonProps) => {
-    const addonClass = position === 'start' ? styles.addonStart : styles.addonEnd;
-
-    return (
-      <span className={className || addonClass} data-testid={dataTestId}>
-        {children}
-      </span>
-    );
-  }
-);
-
-InputGroupAddon.displayName = 'InputGroupAddon';
-
+/**
+ * InputGroup — контейнер для группировки Input с аддонами.
+ * Включает вложенный компонент InputGroupAddon.
+ *
+ * @example
+ * ```tsx
+ * <InputGroup>
+ *   <InputGroup.Addon position="start">$</InputGroup.Addon>
+ *   <Input />
+ *   <InputGroup.Addon position="end">.00</InputGroup.Addon>
+ * </InputGroup>
+ * ```
+ */
 export const InputGroup = Object.assign(
   React.memo(({ children, className, 'data-testid': dataTestId }: InputGroupProps) => {
     return (
@@ -48,6 +37,7 @@ export const InputGroup = Object.assign(
   }),
   {
     Addon: InputGroupAddon,
-    displayName: 'InputGroup',
   }
 );
+
+InputGroup.displayName = 'InputGroup';

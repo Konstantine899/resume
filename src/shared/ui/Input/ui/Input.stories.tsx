@@ -1,6 +1,7 @@
 // Input Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CheckCircle, Mail, Search } from 'lucide-react';
+import { expect, userEvent, within } from '@storybook/test';
 import { Input } from './Input';
 
 const meta = {
@@ -55,6 +56,12 @@ export const Error: Story = {
     error: 'Invalid email format',
     defaultValue: 'invalid@email',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Email');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(canvas.getByText('Invalid email format')).toBeInTheDocument();
+  },
 };
 
 // 4. Disabled & ReadOnly states
@@ -73,6 +80,12 @@ export const WithIcon: Story = {
     label: 'Email',
     icon: <Mail size={18} />,
     placeholder: 'your@email.com',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Email');
+    await userEvent.type(input, 'Hello');
+    expect(input).toHaveValue('Hello');
   },
 };
 
@@ -94,6 +107,14 @@ export const PasswordToggle: Story = {
     showPasswordToggle: true,
     placeholder: 'Enter password',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Password');
+    expect(input).toHaveAttribute('type', 'password');
+    const toggleButton = canvas.getByRole('button', { name: /show password/i });
+    await userEvent.click(toggleButton);
+    expect(input).toHaveAttribute('type', 'text');
+  },
 };
 
 // 8. Clearable input
@@ -104,6 +125,14 @@ export const Clearable: Story = {
     icon: <Search size={18} />,
     defaultValue: 'Test search query',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Search');
+    expect(input).toHaveValue('Test search query');
+    const clearButton = canvas.getByRole('button', { name: /clear/i });
+    await userEvent.click(clearButton);
+    expect(input).toHaveValue('');
+  },
 };
 
 // 9. Character counter
@@ -113,6 +142,16 @@ export const CharacterCounter: Story = {
     maxLength: 100,
     showCounter: true,
     defaultValue: 'Software developer with 5 years of experience',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Bio');
+    const initialText = 'Software developer with 5 years of experience';
+    expect(input).toHaveValue(initialText);
+    const counter = canvas.getByTestId('counter');
+    expect(counter).toHaveTextContent(String(initialText.length));
+    await userEvent.type(input, '!');
+    expect(counter).toHaveTextContent(String(initialText.length + 1));
   },
 };
 
@@ -139,4 +178,30 @@ export const FullWidth: Story = {
       </div>
     ),
   ],
+};
+
+/** Input в состоянии загрузки (skeleton). */
+export const Skeleton: Story = {
+  args: {
+    ...WithIcon.args,
+    skeleton: true,
+    placeholder: 'Loading...',
+    clearable: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Input в состоянии загрузки. Вместо input рендерится Skeleton. ' +
+          'Используйте для индикации загрузки данных формы.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.queryByRole('textbox')).not.toBeInTheDocument();
+    const wrapper = canvas.getByTestId('input-wrapper');
+    expect(wrapper).toHaveAttribute('data-skeleton');
+    expect(wrapper).toHaveAttribute('aria-busy', 'true');
+  },
 };

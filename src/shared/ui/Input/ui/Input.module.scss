@@ -2,9 +2,13 @@
 @use '@/shared/styles/mixins/theme' as *;
 
 .inputWrapper {
+  --input-transition-duration: 0.2s;
+  --input-border-radius: 0.375rem;
+  --input-gap: 0.25rem;
+
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--input-gap);
 
   &.fullWidth {
     width: 100%;
@@ -35,7 +39,8 @@
   --icon-spacing-sm: 0.5rem;
   --icon-spacing-lg: 1rem;
 
-  &:has(.icon) .input {
+  &:has(.icon) .input,
+  &:has(.iconFloating) .input {
     padding-left: calc(var(--icon-spacing) * 2 + 1rem);
   }
 
@@ -48,7 +53,8 @@
   }
 
   // Size variations for icon padding
-  &:has(.icon) .input.sm {
+  &:has(.icon) .input.sm,
+  &:has(.iconFloating) .input.sm {
     padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
   }
 
@@ -56,7 +62,8 @@
     padding-right: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
   }
 
-  &:has(.icon) .input.lg {
+  &:has(.icon) .input.lg,
+  &:has(.iconFloating) .input.lg {
     padding-left: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
   }
 
@@ -74,10 +81,10 @@
   outline: none;
   background-color: var(--background);
   border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
+  border-radius: var(--input-border-radius);
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--input-transition-duration) ease,
+    box-shadow var(--input-transition-duration) ease;
 
   @include theme-transition;
 
@@ -215,7 +222,7 @@
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: color 0.2s ease;
+  transition: color var(--input-transition-duration) ease;
 
   &:hover {
     color: var(--foreground);
@@ -270,19 +277,30 @@
       color: transparent;
     }
 
-    &:not(:placeholder-shown) + .floatingLabel,
-    &:focus::placeholder {
+    &:not(:placeholder-shown) ~ .floatingLabel {
       color: var(--primary);
       transform: translateY(-1.75rem) scale(0.85);
     }
 
-    &:focus + .floatingLabel {
+    &:focus ~ .floatingLabel {
       color: var(--primary);
     }
 
-    &:disabled + .floatingLabel {
+    &:focus::placeholder {
+      color: transparent;
+    }
+
+    &:disabled ~ .floatingLabel {
       cursor: not-allowed;
       opacity: 0.6;
+    }
+
+    &.sm:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-1.5rem) scale(0.75);
+    }
+
+    &.lg:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-2rem) scale(0.9);
     }
   }
 }
@@ -296,31 +314,21 @@
   pointer-events: none;
   transform-origin: left top;
   transition:
-    transform 0.2s ease,
-    color 0.2s ease;
+    transform var(--input-transition-duration) ease,
+    color var(--input-transition-duration) ease;
 
   .required {
     color: var(--form-error);
   }
 
-  .input.sm + & {
+  .input.sm ~ & {
     top: 0.25rem;
     font-size: 0.875rem;
-
-    &:not(:placeholder-shown) + &,
-    :focus ~ & {
-      transform: translateY(-1.5rem) scale(0.75);
-    }
   }
 
-  .input.lg + & {
+  .input.lg ~ & {
     top: 0.75rem;
     font-size: 1.125rem;
-
-    &:not(:placeholder-shown) + &,
-    :focus ~ & {
-      transform: translateY(-2rem) scale(0.9);
-    }
   }
 }
 
@@ -343,6 +351,21 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .label,
+  .floatingLabel,
+  .counter,
+  .errorText,
+  .helperText,
+  .clearButton,
+  .passwordToggle,
+  .addonStart,
+  .addonEnd {
+    transition: none;
+  }
+}
+
 @keyframes loading {
   0% {
     background-position: 200% 0;
@@ -361,14 +384,14 @@
 
   .input {
     flex: 1;
-    border-radius: 0.375rem 0 0 0.375rem;
+    border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
 
     &:first-child {
-      border-radius: 0.375rem 0 0 0.375rem;
+      border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
     }
 
     &:last-child {
-      border-radius: 0 0.375rem 0.375rem 0;
+      border-radius: 0 var(--input-border-radius) var(--input-border-radius) 0;
     }
   }
 }
@@ -389,12 +412,12 @@
 
 .addonStart {
   border-right: none;
-  border-radius: 0.375rem 0 0 0.375rem;
+  border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
 }
 
 .addonEnd {
   border-left: none;
-  border-radius: 0 0.375rem 0.375rem 0;
+  border-radius: 0 var(--input-border-radius) var(--input-border-radius) 0;
 }
 
 .passwordToggle {
@@ -408,7 +431,7 @@
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: color 0.2s ease;
+  transition: color var(--input-transition-duration) ease;
 
   &:hover {
     color: var(--foreground);

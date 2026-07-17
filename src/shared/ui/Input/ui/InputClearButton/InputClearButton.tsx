@@ -11,6 +11,14 @@ export interface InputClearButtonProps {
   tabIndex?: number;
 }
 
+/**
+ * InputClearButton — кнопка очистки значения Input.
+ *
+ * @example
+ * ```tsx
+ * <InputClearButton onClick={handleClear} />
+ * ```
+ */
 export const InputClearButton = React.memo(
   ({ onClick, 'aria-label': ariaLabel = 'Clear input', tabIndex = -1 }: InputClearButtonProps) => {
     return (

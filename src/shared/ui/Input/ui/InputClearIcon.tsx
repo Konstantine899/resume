@@ -1,9 +1,18 @@
 // ============================================
-// Input Component Constants
+// InputClearIcon Component
 // ============================================
 
 import { INPUT_CONSTANTS } from '../model/constants';
 
+/**
+ * ClearIcon — SVG иконка крестика для кнопки очистки Input.
+ * Размер управляется через INPUT_CONSTANTS.CLEAR_ICON_SIZE.
+ *
+ * @example
+ * ```tsx
+ * <ClearIcon />
+ * ```
+ */
 export const ClearIcon = () => (
   <svg
     width={INPUT_CONSTANTS.CLEAR_ICON_SIZE}

@@ -1,7 +1,10 @@
 // Input Component Public API
 
 export { Input } from './ui/Input';
-export type { InputProps, InputVariant, InputSize } from './model/types';
+export type { InputProps, InputStatus, InputVariant, InputSize } from './model/types';
+export { INPUT_CONSTANTS } from './model/constants';
+export { validateInputProps } from './lib/validateInputProps';
+export type { InputValidationWarning } from './lib/validateInputProps';
 
 // Sub-components
 export { InputLabel } from './ui/InputLabel/InputLabel';

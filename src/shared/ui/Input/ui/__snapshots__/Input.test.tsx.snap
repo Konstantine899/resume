@@ -4,7 +4,9 @@ exports[`Input > Basic Rendering > matches snapshot for default props 1`] = `
 <div>
   <div
     class="_inputWrapper_07e557"
+    data-size="md"
     data-testid="input-wrapper"
+    data-variant="default"
   >
     <div
       class="_inputContainer_07e557"
