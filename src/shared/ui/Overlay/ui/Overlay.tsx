@@ -1,50 +1,70 @@
-import { memo, useEffect } from 'react';
+import { forwardRef, memo, useEffect } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { validateOverlayProps } from '../lib/validateOverlayProps';
 import type { OverlayProps } from '../model/types';
 import styles from './Overlay.module.scss';
 
-export const Overlay = memo((props: OverlayProps) => {
-  const {
-    children,
-    onClick,
-    onKeyDown,
-    className = '',
-    blur = false,
-    dark = false,
-    visible = true,
-  } = props;
+/**
+ * Overlay — fixed-position scrim over the viewport with optional blur/dark
+ * variants, fade-in/out animation via `visible`, and conditional click behavior.
+ *
+ * @example
+ * ```tsx
+ * // Default overlay with click-to-close
+ * <Overlay onClick={handleClose} />
+ *
+ * // Blur overlay with fade animation
+ * <Overlay blur visible={isOpen} onClick={handleClose} />
+ * ```
+ */
+export const Overlay = memo(
+  forwardRef<HTMLDivElement, OverlayProps>((props, ref) => {
+    const {
+      children,
+      onClick,
+      onKeyDown,
+      className = '',
+      blur = false,
+      dark = false,
+      visible = true,
+    } = props;
 
-  // Dev warning: blur+dark combo
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && blur && dark) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[Overlay] Using both blur and dark simultaneously may produce unexpected visual results.'
-      );
-    }
-  }, [blur, dark]);
+    // Dev warnings
+    useEffect(() => {
+      if (process.env.NODE_ENV === 'development') {
+        const warnings = validateOverlayProps(blur, dark);
+        warnings.forEach((w) => {
+          // eslint-disable-next-line no-console
+          console.warn(w.message);
+        });
+      }
+    }, [blur, dark]);
 
-  const overlayClassName = classNames(
-    styles.overlay,
-    blur && styles.blur,
-    dark && styles.dark,
-    className
-  );
+    const overlayClassName = classNames(
+      styles.overlay,
+      blur && styles.blur,
+      dark && styles.dark,
+      className
+    );
 
-  return (
-    <div
-      className={overlayClassName}
-      data-visible={visible}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      style={{ cursor: onClick ? 'pointer' : undefined }}
-      role="presentation"
-      data-testid="overlay"
-      aria-hidden="true"
-    >
-      {children}
-    </div>
-  );
-});
+    return (
+      <div
+        ref={ref}
+        className={overlayClassName}
+        data-visible={visible}
+        data-blur={blur || undefined}
+        data-dark={dark || undefined}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+        style={{ cursor: onClick ? 'pointer' : undefined }}
+        role="presentation"
+        data-testid="overlay"
+        aria-hidden="true"
+      >
+        {children}
+      </div>
+    );
+  })
+);
 
 Overlay.displayName = 'Overlay';

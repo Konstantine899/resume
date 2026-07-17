@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Overlay } from './Overlay';
+import { createRef } from 'react';
 
 describe('Overlay', () => {
   afterEach(() => {
@@ -77,6 +78,37 @@ describe('Overlay', () => {
     expect(handleKeyDown).toHaveBeenCalledTimes(1);
   });
 
+  it('forwards ref to the overlay div', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(<Overlay ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(ref.current).toHaveAttribute('data-testid', 'overlay');
+  });
+
+  it('sets data-blur attribute when blur is true', () => {
+    render(<Overlay blur />);
+    const overlay = screen.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-blur');
+  });
+
+  it('does not set data-blur attribute when blur is false', () => {
+    render(<Overlay blur={false} />);
+    const overlay = screen.getByTestId('overlay');
+    expect(overlay).not.toHaveAttribute('data-blur');
+  });
+
+  it('sets data-dark attribute when dark is true', () => {
+    render(<Overlay dark />);
+    const overlay = screen.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-dark');
+  });
+
+  it('does not set data-dark attribute when dark is false', () => {
+    render(<Overlay dark={false} />);
+    const overlay = screen.getByTestId('overlay');
+    expect(overlay).not.toHaveAttribute('data-dark');
+  });
+
   describe('Development Warnings', () => {
     const originalEnv = process.env.NODE_ENV;
     let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
@@ -92,20 +124,23 @@ describe('Overlay', () => {
     });
 
     it('warns when both blur and dark are used together', () => {
-      render(<Overlay blur={true} dark={true} />);
-
+      render(<Overlay blur dark />);
       expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[Overlay]'));
     });
 
     it('does not warn when only blur is used', () => {
-      render(<Overlay blur={true} dark={false} />);
-
+      render(<Overlay blur dark={false} />);
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
 
     it('does not warn when only dark is used', () => {
-      render(<Overlay blur={false} dark={true} />);
+      render(<Overlay blur={false} dark />);
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
 
+    it('does not warn in production mode when blur and dark are combined', () => {
+      process.env.NODE_ENV = 'production';
+      render(<Overlay blur dark />);
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
   });

@@ -1,0 +1,9 @@
+export const OVERLAY_CONSTANTS = {
+  DEV_WARNING_PREFIX: '[Overlay]',
+  DEFAULT_BLUR: false,
+  DEFAULT_DARK: false,
+  DEFAULT_VISIBLE: true,
+  BLUR_VALUE: '4px',
+  LIGHT_SCRIM_OPACITY: 0.6,
+  DARK_SCRIM_OPACITY: 0.8,
+} as const;

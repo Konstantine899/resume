@@ -1,4 +1,5 @@
 import { Card } from '@/shared/ui/Card';
+import { expect, within } from '@storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Overlay } from './Overlay';
 
@@ -108,6 +109,13 @@ export const Default: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const overlay = canvas.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-visible', 'true');
+    expect(overlay).not.toHaveAttribute('data-blur');
+    expect(overlay).not.toHaveAttribute('data-dark');
+  },
 };
 
 /** Overlay with backdrop-filter blur. */
@@ -124,6 +132,12 @@ export const WithBlur: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const overlay = canvas.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-blur');
+    expect(overlay).not.toHaveAttribute('data-dark');
+  },
 };
 
 /** Darker overlay variant (80% scrim). */
@@ -139,6 +153,12 @@ export const DarkOverlay: Story = {
         story: 'Darker overlay variant with 80% black scrim.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const overlay = canvas.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-dark');
+    expect(overlay).not.toHaveAttribute('data-blur');
   },
 };
 
@@ -173,5 +193,10 @@ export const Hidden: Story = {
           'Toggle the `visible` control in the Canvas tab to see the fade animation.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const overlay = canvas.getByTestId('overlay');
+    expect(overlay).toHaveAttribute('data-visible', 'false');
   },
 };
