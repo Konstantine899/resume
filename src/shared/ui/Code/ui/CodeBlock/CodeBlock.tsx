@@ -1,8 +1,10 @@
-import { cn } from '@/shared/lib/utils/classNames';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { memo, useMemo } from 'react';
+import { Skeleton } from '@/shared/ui/Skeleton';
 import type { CodeBlockProps } from '../../model/types';
+import { CODE_DEFAULTS } from '../../model/constants';
 import { countLines } from '../../lib/utils/countLines';
-import { CodeBlockHeader } from '../CodeBlockHeader';
+import { CodeBlockHeader } from '../CodeBlockHeader/CodeBlockHeader';
 import styles from './CodeBlock.module.scss';
 
 export interface CodeBlockUiProps extends CodeBlockProps {
@@ -11,22 +13,19 @@ export interface CodeBlockUiProps extends CodeBlockProps {
   onKeyDown?: (event: React.KeyboardEvent) => void;
   ariaLabel?: string;
   className?: string;
+  /** Показывать скелетон загрузки */
+  skeleton?: boolean;
 }
 
 /**
  * CodeBlock UI Component
  * Block variant для отображения кода с header и опциональной нумерацией строк
- *
- * Особенности:
- * - Адаптивная нумерация строк (скрывается для одной строки)
- * - Кнопка копирования в header
- * - Доступность: tabIndex, role="region", aria-label
  */
 const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
   children,
   language,
-  showLineNumbers = false,
-  copyable = false,
+  showLineNumbers = CODE_DEFAULTS.showLineNumbers,
+  copyable = CODE_DEFAULTS.copyable,
   maxHeight,
   title,
   isCopied = false,
@@ -34,11 +33,11 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
   onKeyDown,
   ariaLabel,
   className,
-  disabled = false,
+  disabled = CODE_DEFAULTS.disabled,
   icons,
   copyButtonSize = 'sm',
+  skeleton = false,
 }) => {
-  // Подсчёт строк для нумерации
   const linesCount = useMemo(() => {
     if (!showLineNumbers) return 0;
     return countLines(children);
@@ -49,20 +48,36 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
     return Array.from({ length: linesCount }, (_, i) => i + 1);
   }, [linesCount]);
 
-  const contentClassName = cn(
+  if (skeleton) {
+    return (
+      <Skeleton
+        variant="rectangular"
+        width="100%"
+        height={maxHeight || '310px'}
+        className={className}
+        aria-busy="true"
+        data-skeleton="true"
+      />
+    );
+  }
+
+  const contentClassName = classNames(
     styles.blockContent,
     showLineNumbers && hasMultipleLines && styles.withLineNumbers
   );
 
   return (
     <div
-      className={cn(styles.blockContainer, className)}
+      className={classNames(styles.blockContainer, className)}
       data-testid="code-block"
       tabIndex={0}
       role="region"
       aria-label={ariaLabel || (title ? `Code block: ${title}` : 'Code block')}
+      data-variant="block"
+      data-size="lg"
+      data-skeleton={skeleton || undefined}
+      aria-busy={skeleton || undefined}
     >
-      {/* Header с terminal dots, language/title и copy button */}
       <CodeBlockHeader
         language={language}
         title={title}
@@ -75,7 +90,6 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
         copyButtonSize={copyButtonSize}
       />
 
-      {/* Code content */}
       <div className={contentClassName} style={{ maxHeight }}>
         {showLineNumbers && hasMultipleLines ? (
           <>
@@ -102,7 +116,6 @@ const CodeBlockUiInner: React.FC<CodeBlockUiProps> = ({
 
 CodeBlockUiInner.displayName = 'CodeBlockUi';
 
-/** CodeBlockUi — обёрнут в React.memo для оптимизации ре-рендеров */
 export const CodeBlockUi = memo(CodeBlockUiInner);
 
 export default CodeBlockUi;

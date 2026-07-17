@@ -89,4 +89,6 @@ export interface CodeProps {
   icons?: CodeIcons;
   /** Размер кнопки копирования */
   copyButtonSize?: ButtonSize;
+  /** Показывать скелетон загрузки */
+  skeleton?: boolean;
 }

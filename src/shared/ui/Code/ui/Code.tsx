@@ -1,19 +1,27 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useCallback } from 'react';
 import type { CodeProps } from '../model/types';
+import { CODE_DEFAULTS } from '../model/constants';
 import { useCopyCode } from '../lib/hooks/useCopyCode';
-import { CodeInlineUi } from './CodeInline';
-import { CodeBlockUi } from './CodeBlock';
+import { CodeInlineUi } from './CodeInlineUi';
+import { CodeBlockUi } from './CodeBlock/CodeBlock';
+import { Skeleton } from '@/shared/ui/Skeleton';
 
 /**
  * Code Component
  * Универсальный компонент для отображения кода (inline и block)
+ *
+ * Поддерживает skeleton-режим для состояния загрузки.
  */
-export const Code: React.FC<CodeProps> = ({ children, variant = 'inline', onCopy, ...props }) => {
-  // Получаем Toast контекст из shared
+export const Code: React.FC<CodeProps> = ({
+  children,
+  variant = CODE_DEFAULTS.variant,
+  onCopy,
+  skeleton = false,
+  ...props
+}) => {
   const { addToast } = useToast();
 
-  // Используем хук с Toast интеграцией
   const { isCopied, handleCopy } = useCopyCode(children, {
     addToast,
     showToastOnSuccess: true,
@@ -30,6 +38,26 @@ export const Code: React.FC<CodeProps> = ({ children, variant = 'inline', onCopy
     },
     [props.copyable, props.disabled, handleCopy]
   );
+
+  // Skeleton mode
+  if (skeleton) {
+    if (variant === 'block') {
+      return (
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height={props.maxHeight || '310px'}
+          aria-busy="true"
+          data-skeleton="true"
+        />
+      );
+    }
+    return (
+      <CodeInlineUi {...props} skeleton onCopy={handleCopy}>
+        {children}
+      </CodeInlineUi>
+    );
+  }
 
   if (variant === 'inline') {
     return (

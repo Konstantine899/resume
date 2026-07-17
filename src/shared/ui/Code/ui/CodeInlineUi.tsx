@@ -1,7 +1,11 @@
-import { cn } from '@/shared/lib/utils/classNames';
+// src/shared/ui/Code/ui/CodeInlineUi.tsx
+
+import { classNames } from '@/shared/lib/utils/classNames';
 import { memo, useCallback } from 'react';
-import type { CodeInlineProps } from '../../model/types';
-import styles from './CodeInline.module.scss';
+import { Skeleton } from '@/shared/ui/Skeleton';
+import type { CodeInlineProps } from '../model/types';
+import { CODE_DEFAULTS } from '../model/constants';
+import styles from './CodeInlineUi.module.scss';
 
 export interface CodeInlineUiProps extends CodeInlineProps {
   isCopied?: boolean;
@@ -9,34 +13,27 @@ export interface CodeInlineUiProps extends CodeInlineProps {
   onKeyDown?: (event: React.KeyboardEvent) => void;
   ariaLabel?: string;
   className?: string;
+  /** Показывать скелетон загрузки */
+  skeleton?: boolean;
 }
 
 /**
  * CodeInline UI Component
  * Inline variant for displaying code.
- * Поддерживает размеры sm/md/lg, copyable-режим с визуальным индикатором
- * и доступностью (tabIndex, role, aria-label, Enter/Space).
- *
- * @param children - Код для отображения
- * @param size - Размер (sm | md | lg)
- * @param copyable - Включить режим копирования
- * @param isCopied - Состояние "скопировано"
- * @param onCopy - Callback копирования
- * @param onKeyDown - Callback клавиатуры (Enter/Space)
- * @param ariaLabel - aria-label для доступности
- * @param className - Дополнительный CSS-класс
- * @param disabled - Отключить копирование
+ * Поддерживает размеры sm/md/lg, copyable-режим с визуальным индикатором,
+ * skeleton-режим для состояния загрузки и доступностью (tabIndex, role, aria-label, Enter/Space).
  */
 const CodeInlineUiInner: React.FC<CodeInlineUiProps> = ({
   children,
-  size = 'md',
-  copyable = false,
+  size = CODE_DEFAULTS.size,
+  copyable = CODE_DEFAULTS.copyable,
   isCopied = false,
   onCopy,
   onKeyDown,
   ariaLabel,
   className,
-  disabled = false,
+  disabled = CODE_DEFAULTS.disabled,
+  skeleton = false,
 }) => {
   const handleClick = useCallback(() => {
     if (copyable && !disabled) {
@@ -44,7 +41,20 @@ const CodeInlineUiInner: React.FC<CodeInlineUiProps> = ({
     }
   }, [copyable, disabled, onCopy]);
 
-  const codeClassName = cn(
+  if (skeleton) {
+    return (
+      <Skeleton
+        variant="text"
+        width={size === 'lg' ? '120px' : size === 'sm' ? '60px' : '80px'}
+        height={size === 'lg' ? '1.5em' : '1em'}
+        className={className}
+        aria-busy="true"
+        data-skeleton="true"
+      />
+    );
+  }
+
+  const codeClassName = classNames(
     styles.code,
     styles[size],
     copyable && !disabled && styles.copyable,
@@ -61,6 +71,10 @@ const CodeInlineUiInner: React.FC<CodeInlineUiProps> = ({
       role={copyable && !disabled ? 'button' : undefined}
       aria-label={ariaLabel || (copyable ? 'Click to copy code' : undefined)}
       data-testid="code-inline"
+      data-size={size}
+      data-variant="inline"
+      aria-busy={skeleton || undefined}
+      data-skeleton={skeleton || undefined}
     >
       {children}
     </code>
@@ -69,7 +83,6 @@ const CodeInlineUiInner: React.FC<CodeInlineUiProps> = ({
 
 CodeInlineUiInner.displayName = 'CodeInlineUi';
 
-/** CodeInlineUi — обёрнут в React.memo для оптимизации ре-рендеров */
 export const CodeInlineUi = memo(CodeInlineUiInner);
 
 export default CodeInlineUi;

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeInlineUi } from './CodeInlineUi';
-import styles from './CodeInline.module.scss';
+import styles from './CodeInlineUi.module.scss';
 
 describe('CodeInlineUi', () => {
   beforeEach(() => {
@@ -187,6 +187,22 @@ describe('CodeInlineUi', () => {
 
       const codeEl = container.querySelector('code');
       expect(codeEl).toHaveClass('custom-class');
+    });
+  });
+
+  describe('Skeleton', () => {
+    it('должен рендерить Skeleton при skeleton={true}', () => {
+      const { container } = render(<CodeInlineUi skeleton>const x = 10;</CodeInlineUi>);
+
+      const skeleton = container.querySelector('[data-skeleton="true"]');
+      expect(skeleton).toBeInTheDocument();
+    });
+
+    it('должен иметь aria-busy="true" при skeleton={true}', () => {
+      render(<CodeInlineUi skeleton>const x = 10;</CodeInlineUi>);
+
+      const skeleton = screen.getByRole('status');
+      expect(skeleton).toHaveAttribute('aria-busy', 'true');
     });
   });
 });
