@@ -4,6 +4,7 @@
 
 import { Portal } from '@/shared/ui/Portal';
 import { Toast } from '@/shared/ui/Toast';
+import { TOAST_CONSTANTS } from '@/shared/ui/Toast/model/constants';
 import type { ToastType } from '@/shared/ui/Toast/model/types';
 import { createContext, useCallback, useState, type ReactNode } from 'react';
 import type { ToastContextType, ToastState } from '../model/types';
@@ -26,10 +27,17 @@ interface ToastProviderProps {
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  const addToast = useCallback((message: string, type: ToastType = 'info', duration = 5000) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
-  }, []);
+  const addToast = useCallback(
+    (
+      message: string,
+      type: ToastType = 'info',
+      duration: number = TOAST_CONSTANTS.DEFAULT_DURATION
+    ) => {
+      const id = crypto.randomUUID();
+      setToasts((prev) => [...prev, { id, message, type, duration }]);
+    },
+    []
+  );
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));

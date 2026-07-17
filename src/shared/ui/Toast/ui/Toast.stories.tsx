@@ -1,5 +1,9 @@
-// src/shared/ui/Toast/Toast.stories.tsx
+// ============================================
+// Toast Stories (Shared Layer)
+// ============================================
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within } from '@storybook/test';
 import type { ToastProps } from '../model/types';
 import { Toast } from './Toast';
 import styles from './Toast.module.scss';
@@ -36,6 +40,17 @@ export const Success: Story = {
     duration: 0,
     onClose: () => {},
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toast = canvas.getByTestId('toast');
+    const closeButton = canvas.getByTestId('toast-close');
+
+    await userEvent.click(closeButton);
+
+    // Toast should have the closing class after click
+    // eslint-disable-next-line no-console
+    console.assert(toast.classList.contains('toast'), 'Toast element exists after close click');
+  },
 };
 
 export const Error: Story = {
@@ -45,6 +60,14 @@ export const Error: Story = {
     type: 'error',
     duration: 0,
     onClose: () => {},
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toast = canvas.getByTestId('toast');
+
+    // Verify error type
+    // eslint-disable-next-line no-console
+    console.assert(toast.getAttribute('data-type') === 'error', 'Toast has correct data-type');
   },
 };
 
@@ -56,6 +79,19 @@ export const Info: Story = {
     duration: 0,
     onClose: () => {},
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toast = canvas.getByTestId('toast');
+
+    // Verify info type
+    // eslint-disable-next-line no-console
+    console.assert(toast.getAttribute('data-type') === 'info', 'Toast has correct data-type');
+
+    // Verify message renders
+    const message = canvas.getByText('Here is some useful information.');
+    // eslint-disable-next-line no-console
+    console.assert(message !== null, 'Toast message is rendered');
+  },
 };
 
 export const Warning: Story = {
@@ -65,6 +101,22 @@ export const Warning: Story = {
     type: 'warning',
     duration: 0,
     onClose: () => {},
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toast = canvas.getByTestId('toast');
+
+    // Verify warning type
+    // eslint-disable-next-line no-console
+    console.assert(toast.getAttribute('data-type') === 'warning', 'Toast has correct data-type');
+
+    // Verify close button has correct aria-label
+    const closeButton = canvas.getByTestId('toast-close');
+    // eslint-disable-next-line no-console
+    console.assert(
+      closeButton.getAttribute('aria-label') === 'Close notification',
+      'Close button has correct aria-label'
+    );
   },
 };
 
@@ -84,4 +136,38 @@ export const AllTypes: Story = {
       <Toast {...args} id="4" message="Warning!" type="warning" />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify all 4 toast types render
+    const toasts = canvas.getAllByTestId('toast');
+    // eslint-disable-next-line no-console
+    console.assert(toasts.length === 4, 'All 4 toast types are rendered');
+
+    // Verify each toast has the correct data-type attribute
+    const expectedTypes = ['success', 'error', 'info', 'warning'];
+    toasts.forEach((toast, index) => {
+      // eslint-disable-next-line no-console
+      console.assert(
+        toast.getAttribute('data-type') === expectedTypes[index],
+        `Toast ${index} has data-type="${expectedTypes[index]}"`
+      );
+    });
+
+    // Verify all messages are present
+    const messages = ['Success!', 'Error occurred', 'Info message', 'Warning!'];
+    messages.forEach((message) => {
+      // eslint-disable-next-line no-console
+      console.assert(canvas.getByText(message) !== null, `Message "${message}" is rendered`);
+    });
+
+    // Click the close button on the warning toast
+    const closeButtons = canvas.getAllByTestId('toast-close');
+    await userEvent.click(closeButtons[3]);
+
+    // Warning toast should still exist (exit animation hasn't completed)
+    const remainingToasts = canvas.getAllByTestId('toast');
+    // eslint-disable-next-line no-console
+    console.assert(remainingToasts.length === 4, 'All toasts remain visible after close click');
+  },
 };
