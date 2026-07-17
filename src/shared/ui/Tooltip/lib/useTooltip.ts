@@ -1,12 +1,9 @@
 import { debounce } from '@/shared/lib/utils/debounce';
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo, useId } from 'react';
 import { TOOLTIP_CONSTANTS } from '../model/constants';
-import type { TooltipPosition, TooltipProps, TooltipTrigger } from '../model/types';
+import type { TooltipPosition, TooltipProps } from '../model/types';
 import { calculateTooltipPosition } from './utils/tooltipPosition';
-
-// Valid values for runtime validation
-const VALID_POSITIONS: TooltipPosition[] = ['top', 'bottom', 'left', 'right'];
-const VALID_TRIGGERS: TooltipTrigger[] = ['hover', 'focus', 'click'];
+import { validateTooltipProps } from './validateTooltipProps';
 
 interface UseTooltipReturn {
   isVisible: boolean;
@@ -14,6 +11,7 @@ interface UseTooltipReturn {
   adjustedPosition: TooltipPosition;
   triggerRef: React.RefObject<HTMLElement | null>;
   tooltipRef: React.RefObject<HTMLDivElement | null>;
+  tooltipId: string;
   handlers: {
     handleMouseEnter: () => void;
     handleMouseLeave: () => void;
@@ -35,6 +33,7 @@ export const useTooltip = ({
   showDelay = TOOLTIP_CONSTANTS.DEFAULT_SHOW_DELAY,
   hideDelay = TOOLTIP_CONSTANTS.DEFAULT_HIDE_DELAY,
   disabled = false,
+  skeleton = false,
   offset = TOOLTIP_CONSTANTS.DEFAULT_OFFSET,
   maxWidth = TOOLTIP_CONSTANTS.DEFAULT_MAX_WIDTH,
   autoAdjust = true,
@@ -45,10 +44,12 @@ export const useTooltip = ({
   | 'showDelay'
   | 'hideDelay'
   | 'disabled'
+  | 'skeleton'
   | 'offset'
   | 'maxWidth'
   | 'autoAdjust'
 >): UseTooltipReturn => {
+  const tooltipId = useId();
   const [isVisible, setIsVisible] = useState(false);
   const [calculatedStyle, setCalculatedStyle] = useState<React.CSSProperties>({});
   const [adjustedPosition, setAdjustedPosition] = useState<TooltipPosition>(position);
@@ -58,18 +59,11 @@ export const useTooltip = ({
   // Runtime validation in development mode
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      if (!VALID_POSITIONS.includes(position)) {
+      const warnings = validateTooltipProps(position, trigger);
+      warnings.forEach((w) => {
         // eslint-disable-next-line no-console
-        console.warn(
-          `Tooltip: invalid position "${position}". Valid values: ${VALID_POSITIONS.join(', ')}`
-        );
-      }
-      if (!VALID_TRIGGERS.includes(trigger)) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Tooltip: invalid trigger "${trigger}". Valid values: ${VALID_TRIGGERS.join(', ')}`
-        );
-      }
+        console.warn(w.message);
+      });
     }
   }, [position, trigger]);
 
@@ -255,7 +249,8 @@ export const useTooltip = ({
     adjustedPosition,
     triggerRef,
     tooltipRef,
+    tooltipId,
     handlers,
-    shouldRender: isVisible && !disabled,
+    shouldRender: isVisible && !disabled && !skeleton,
   };
 };

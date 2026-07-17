@@ -24,6 +24,8 @@ export interface TooltipProps {
   maxWidth?: number;
   /** Accessibility description */
   ariaLabel?: string;
+  /** Скелетон (показывает только children) */
+  skeleton?: boolean;
   /** Смещение от триггера (px) */
   offset?: number;
   /** Авто-смена позиции при выходе за границы */

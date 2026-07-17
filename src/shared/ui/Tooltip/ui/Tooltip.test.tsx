@@ -270,7 +270,8 @@ describe('Tooltip', () => {
         fireEvent.mouseEnter(trigger);
 
         await waitFor(() => {
-          expect(trigger).toHaveAttribute('aria-describedby', 'tooltip-content');
+          const describedBy = trigger.getAttribute('aria-describedby');
+          expect(describedBy).toBeTruthy();
         });
       }
     });
@@ -822,6 +823,73 @@ describe('Tooltip', () => {
       await waitFor(() => {
         expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Skeleton', () => {
+    it('должен скрывать tooltip когда skeleton=true', async () => {
+      render(
+        <Tooltip content="Tooltip" trigger="hover" skeleton>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('должен рендерить children когда skeleton=true', () => {
+      render(
+        <Tooltip content="Tooltip" skeleton>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      expect(screen.getByText('Trigger')).toBeInTheDocument();
+    });
+  });
+
+  describe('Data attributes', () => {
+    it('должен иметь data-tooltip-visible на trigger', async () => {
+      render(
+        <Tooltip content="Tooltip" trigger="hover">
+          <button>Hover me</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Hover me').parentElement as HTMLElement;
+      expect(trigger).toHaveAttribute('data-tooltip-visible', 'false');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-tooltip-visible', 'true');
+      });
+    });
+
+    it('должен иметь data-tooltip-position на trigger', () => {
+      render(
+        <Tooltip content="Tooltip" position="right">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      expect(trigger).toHaveAttribute('data-tooltip-position');
+    });
+
+    it('должен иметь data-skeleton когда skeleton=true', () => {
+      render(
+        <Tooltip content="Tooltip" skeleton>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      expect(trigger).toHaveAttribute('data-skeleton', 'true');
     });
   });
 });
