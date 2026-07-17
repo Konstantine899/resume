@@ -69,7 +69,8 @@
     },
     "shell:dangerous": {
       "action": "deny"
-    },
+    }
+  },
   "plugin": [
     "./plugins/circuit-breaker.js",
     "./plugins/context7-cache.js",
