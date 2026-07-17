@@ -3,8 +3,7 @@
 // ============================================
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { userEvent, within } from '@storybook/test';
-import type { ToastProps } from '../model/types';
+import { userEvent, within, expect } from '@storybook/test';
 import { Toast } from './Toast';
 import styles from './Toast.module.scss';
 
@@ -42,14 +41,22 @@ export const Success: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
     const toast = canvas.getByTestId('toast');
+    expect(toast).toBeInTheDocument();
+    expect(toast).toHaveAttribute('data-type', 'success');
+
+    const message = canvas.getByText('Operation completed successfully!');
+    expect(message).toBeInTheDocument();
+
     const closeButton = canvas.getByTestId('toast-close');
+    expect(closeButton).toBeInTheDocument();
+    expect(closeButton).toHaveAttribute('aria-label', 'Close notification');
 
     await userEvent.click(closeButton);
 
-    // Toast should have the closing class after click
-    // eslint-disable-next-line no-console
-    console.assert(toast.classList.contains('toast'), 'Toast element exists after close click');
+    // Toast still visible during exit animation
+    expect(canvas.getByTestId('toast')).toBeInTheDocument();
   },
 };
 
@@ -63,11 +70,12 @@ export const Error: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const toast = canvas.getByTestId('toast');
 
-    // Verify error type
-    // eslint-disable-next-line no-console
-    console.assert(toast.getAttribute('data-type') === 'error', 'Toast has correct data-type');
+    const toast = canvas.getByTestId('toast');
+    expect(toast).toHaveAttribute('data-type', 'error');
+
+    const message = canvas.getByText('Something went wrong. Please try again.');
+    expect(message).toBeInTheDocument();
   },
 };
 
@@ -81,16 +89,14 @@ export const Info: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
     const toast = canvas.getByTestId('toast');
+    expect(toast).toHaveAttribute('data-type', 'info');
+    expect(toast).toHaveAttribute('role', 'alert');
+    expect(toast).toHaveAttribute('aria-live', 'assertive');
 
-    // Verify info type
-    // eslint-disable-next-line no-console
-    console.assert(toast.getAttribute('data-type') === 'info', 'Toast has correct data-type');
-
-    // Verify message renders
     const message = canvas.getByText('Here is some useful information.');
-    // eslint-disable-next-line no-console
-    console.assert(message !== null, 'Toast message is rendered');
+    expect(message).toBeInTheDocument();
   },
 };
 
@@ -104,70 +110,56 @@ export const Warning: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
     const toast = canvas.getByTestId('toast');
+    expect(toast).toHaveAttribute('data-type', 'warning');
 
-    // Verify warning type
-    // eslint-disable-next-line no-console
-    console.assert(toast.getAttribute('data-type') === 'warning', 'Toast has correct data-type');
-
-    // Verify close button has correct aria-label
     const closeButton = canvas.getByTestId('toast-close');
-    // eslint-disable-next-line no-console
-    console.assert(
-      closeButton.getAttribute('aria-label') === 'Close notification',
-      'Close button has correct aria-label'
-    );
+    expect(closeButton).toHaveAttribute('aria-label', 'Close notification');
+    expect(closeButton).toHaveAttribute('type', 'button');
+
+    // Icon container should be hidden from screen readers
+    const iconContainer = toast.firstElementChild;
+    expect(iconContainer).toHaveAttribute('aria-hidden', 'true');
   },
 };
 
 export const AllTypes: Story = {
   args: {
-    id: '1',
-    message: 'Toast message',
-    type: 'info',
-    duration: 0,
+    id: 'all',
+    message: 'placeholder',
+    type: 'info' as const,
     onClose: () => {},
   },
-  render: (args: ToastProps) => (
+  render: () => (
     <div className={styles.toastContainer}>
-      <Toast {...args} id="1" message="Success!" type="success" />
-      <Toast {...args} id="2" message="Error occurred" type="error" />
-      <Toast {...args} id="3" message="Info message" type="info" />
-      <Toast {...args} id="4" message="Warning!" type="warning" />
+      <Toast id="1" message="Success!" type="success" onClose={() => {}} />
+      <Toast id="2" message="Error occurred" type="error" onClose={() => {}} />
+      <Toast id="3" message="Info message" type="info" onClose={() => {}} />
+      <Toast id="4" message="Warning!" type="warning" onClose={() => {}} />
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Verify all 4 toast types render
     const toasts = canvas.getAllByTestId('toast');
-    // eslint-disable-next-line no-console
-    console.assert(toasts.length === 4, 'All 4 toast types are rendered');
+    expect(toasts).toHaveLength(4);
 
-    // Verify each toast has the correct data-type attribute
     const expectedTypes = ['success', 'error', 'info', 'warning'];
     toasts.forEach((toast, index) => {
-      // eslint-disable-next-line no-console
-      console.assert(
-        toast.getAttribute('data-type') === expectedTypes[index],
-        `Toast ${index} has data-type="${expectedTypes[index]}"`
-      );
+      expect(toast).toHaveAttribute('data-type', expectedTypes[index]);
     });
 
-    // Verify all messages are present
     const messages = ['Success!', 'Error occurred', 'Info message', 'Warning!'];
     messages.forEach((message) => {
-      // eslint-disable-next-line no-console
-      console.assert(canvas.getByText(message) !== null, `Message "${message}" is rendered`);
+      expect(canvas.getByText(message)).toBeInTheDocument();
     });
 
-    // Click the close button on the warning toast
+    // Close the warning toast
     const closeButtons = canvas.getAllByTestId('toast-close');
     await userEvent.click(closeButtons[3]);
 
-    // Warning toast should still exist (exit animation hasn't completed)
-    const remainingToasts = canvas.getAllByTestId('toast');
-    // eslint-disable-next-line no-console
-    console.assert(remainingToasts.length === 4, 'All toasts remain visible after close click');
+    // All 4 should still be visible (exit animation not complete)
+    expect(canvas.getAllByTestId('toast')).toHaveLength(4);
   },
 };
