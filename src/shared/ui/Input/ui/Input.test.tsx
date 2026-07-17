@@ -151,6 +151,18 @@ describe('Input', () => {
       render(<Input label="Email" helperText="Helpful info" id="email" />);
       expect(screen.getByText('Helpful info')).toHaveAttribute('id', 'email-helper');
     });
+
+    it('sets aria-required when required prop is true', () => {
+      const { container } = render(<Input label="Email" required />);
+      const input = container.querySelector('input');
+      expect(input).toHaveAttribute('aria-required', 'true');
+    });
+
+    it('does not set aria-required when required prop is false', () => {
+      const { container } = render(<Input label="Email" />);
+      const input = container.querySelector('input');
+      expect(input).not.toHaveAttribute('aria-required');
+    });
   });
 
   describe('Error State', () => {
@@ -175,6 +187,12 @@ describe('Input', () => {
       const { container } = render(<Input error="Error message" />);
       const input = container.querySelector('input');
       expect(input?.className).toContain('error');
+    });
+
+    it('still shows error and loading indicator when both error and loading are set', () => {
+      render(<Input loading error="Error" />);
+      expect(screen.getByText('Error')).toBeInTheDocument();
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
 
@@ -212,6 +230,132 @@ describe('Input', () => {
       render(<Input loading />);
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('aria-busy', 'true');
+    });
+  });
+
+  describe('Skeleton', () => {
+    it('does not render input when skeleton is true', () => {
+      render(<Input skeleton placeholder="test" />);
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
+
+    it('sets data-skeleton on wrapper', () => {
+      render(<Input skeleton />);
+      const wrapper = screen.getByTestId('input-wrapper');
+      expect(wrapper).toHaveAttribute('data-skeleton');
+    });
+
+    it('sets aria-busy on wrapper when skeleton', () => {
+      render(<Input skeleton />);
+      const wrapper = screen.getByTestId('input-wrapper');
+      expect(wrapper).toHaveAttribute('aria-busy');
+    });
+
+    it('shows Spinner when loading is true and skeleton is false', () => {
+      render(<Input loading />);
+      expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
+    });
+
+    it('hides Spinner when skeleton is true even if loading is also true', () => {
+      render(<Input loading skeleton />);
+      // Skeleton replaces the input and has its own role="status",
+      // but the Spinner inside loadingIndicator must NOT be rendered
+      expect(screen.queryByRole('status', { name: /loading/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
+
+    it('hides iconAfter when skeleton', () => {
+      render(<Input skeleton iconAfter={<Mail data-testid="icon-after" />} />);
+      expect(screen.queryByTestId('icon-after')).not.toBeInTheDocument();
+    });
+
+    it('hides clear button when skeleton', () => {
+      render(<Input skeleton clearable defaultValue="test" />);
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument();
+    });
+
+    it('hides password toggle when skeleton', () => {
+      render(<Input skeleton type="password" showPasswordToggle />);
+      expect(screen.queryByRole('button', { name: /show password/i })).not.toBeInTheDocument();
+    });
+
+    it('hides character counter when skeleton', () => {
+      render(<Input skeleton showCounter maxLength={100} defaultValue="test" />);
+      expect(screen.queryByTestId('counter')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Data Attributes', () => {
+    it('sets data-size on wrapper', () => {
+      const { rerender } = render(<Input size="sm" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-size', 'sm');
+
+      rerender(<Input size="md" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-size', 'md');
+
+      rerender(<Input size="lg" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-size', 'lg');
+    });
+
+    it('sets data-variant on wrapper', () => {
+      const { rerender } = render(<Input variant="default" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-variant', 'default');
+
+      rerender(<Input variant="outline" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-variant', 'outline');
+
+      rerender(<Input variant="filled" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-variant', 'filled');
+
+      rerender(<Input variant="floating" label="Email" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-variant', 'floating');
+    });
+
+    it('sets data-status on wrapper', () => {
+      const { rerender } = render(<Input error="Error" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-status', 'error');
+
+      rerender(<Input success />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-status', 'success');
+
+      rerender(<Input loading />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-status', 'loading');
+
+      rerender(<Input skeleton />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-status', 'skeleton');
+
+      rerender(<Input />);
+      expect(screen.getByTestId('input-wrapper')).not.toHaveAttribute('data-status');
+    });
+
+    it('data-status gives error priority over other states', () => {
+      render(<Input error="Error" loading skeleton />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-status', 'error');
+    });
+
+    it('sets data-state with space-separated state tokens', () => {
+      const { rerender } = render(<Input loading />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-state', 'loading');
+
+      rerender(<Input loading error="Error" />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute('data-state', 'loading error');
+
+      rerender(<Input disabled readOnly />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute(
+        'data-state',
+        'disabled readonly'
+      );
+
+      rerender(<Input skeleton loading error="Error" disabled readOnly />);
+      expect(screen.getByTestId('input-wrapper')).toHaveAttribute(
+        'data-state',
+        'loading error disabled readonly skeleton'
+      );
+    });
+
+    it('does not set data-state when no states are active', () => {
+      render(<Input />);
+      expect(screen.getByTestId('input-wrapper')).not.toHaveAttribute('data-state');
     });
   });
 
@@ -532,6 +676,30 @@ describe('Input', () => {
       render(<Input variant="floating" label="Email" icon={<Mail aria-hidden="true" />} />);
       expect(screen.getByTestId('icon-floating')).toBeInTheDocument();
     });
+
+    it('renders iconAfter with floating label', () => {
+      render(
+        <Input
+          variant="floating"
+          label="Email"
+          iconAfter={<Mail data-testid="icon-after-floating" aria-hidden="true" />}
+        />
+      );
+      expect(screen.getByTestId('icon-after-floating')).toBeInTheDocument();
+    });
+
+    it('renders both icon and iconAfter with floating label', () => {
+      render(
+        <Input
+          variant="floating"
+          label="Email"
+          icon={<Mail aria-hidden="true" data-testid="icon-floating-both" />}
+          iconAfter={<Mail data-testid="icon-after-floating-both" aria-hidden="true" />}
+        />
+      );
+      expect(screen.getByTestId('icon-floating-both')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-after-floating-both')).toBeInTheDocument();
+    });
   });
 
   describe('Password Toggle', () => {
@@ -579,6 +747,22 @@ describe('Input', () => {
       await userEvent.click(clearButton);
       const input = document.querySelector('input');
       expect(input).toHaveValue('');
+    });
+
+    it('updates displayed value when controlled value changes via rerender', () => {
+      const { rerender } = render(<Input value="initial" onChange={() => {}} />);
+      const input = document.querySelector('input');
+      expect(input).toHaveValue('initial');
+
+      rerender(<Input value="updated" onChange={() => {}} />);
+      expect(input).toHaveValue('updated');
+    });
+
+    it('calls onChange when user types in controlled mode', () => {
+      const handleChange = vi.fn();
+      render(<Input value="controlled" onChange={handleChange} />);
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'new' } });
+      expect(handleChange).toHaveBeenCalledTimes(1);
     });
   });
 });

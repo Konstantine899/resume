@@ -27,6 +27,8 @@ export type { CardClickEvent, CardClickHandler, CardHoverHandler } from './model
 
 // Constants for configuration and validation
 export { CARD_CONSTANTS } from './model/constants';
+export { validateCardProps } from './lib/validateCardProps';
+export type { CardValidationWarning } from './lib/validateCardProps';
 
 // Components
 export { Card } from './ui/Card';

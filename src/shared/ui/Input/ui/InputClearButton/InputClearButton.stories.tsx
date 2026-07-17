@@ -2,6 +2,27 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InputClearButton } from './InputClearButton';
 
+const containerStyle: React.CSSProperties = {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  width: '280px',
+  border: '1px solid var(--border-color)',
+  borderRadius: '0.375rem',
+  backgroundColor: 'var(--background)',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.5rem 2.5rem 0.5rem 0.75rem',
+  fontFamily: 'Inter, sans-serif',
+  fontSize: '1rem',
+  color: 'var(--foreground)',
+  outline: 'none',
+  border: 'none',
+  background: 'transparent',
+};
+
 const meta = {
   title: 'Shared/Input/InputClearButton',
   component: InputClearButton,
@@ -9,6 +30,18 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div style={containerStyle}>
+        <input
+          style={inputStyle}
+          defaultValue="Some value to clear"
+          aria-label="Input with clear"
+        />
+        <Story />
+      </div>
+    ),
+  ],
   argTypes: {
     onClick: {
       action: 'clicked',

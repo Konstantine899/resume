@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils';
 import styles from '../Input.module.scss';
 
 export interface InputGroupAddonProps {
@@ -22,7 +23,7 @@ const InputGroupAddon = React.memo(
     const addonClass = position === 'start' ? styles.addonStart : styles.addonEnd;
 
     return (
-      <span className={className || addonClass} data-testid={dataTestId}>
+      <span className={classNames(addonClass, className)} data-testid={dataTestId}>
         {children}
       </span>
     );
@@ -31,4 +32,4 @@ const InputGroupAddon = React.memo(
 
 InputGroupAddon.displayName = 'InputGroupAddon';
 
-export default InputGroupAddon;
+export { InputGroupAddon };

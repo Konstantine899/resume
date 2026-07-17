@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils';
 import styles from '../Input.module.scss';
 
 export interface InputLabelProps {
@@ -34,7 +35,7 @@ export const InputLabel = React.memo(
     }
 
     return (
-      <label htmlFor={htmlFor} className={className || styles.label}>
+      <label htmlFor={htmlFor} className={classNames(styles.label, className)}>
         {required && <span className={styles.required}>*</span>}
         {children}
       </label>

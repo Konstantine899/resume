@@ -3,8 +3,9 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils';
 import styles from '../Input.module.scss';
-import InputGroupAddon from './InputGroupAddon';
+import { InputGroupAddon } from './InputGroupAddon';
 
 export type { InputGroupAddonProps } from './InputGroupAddon';
 
@@ -30,7 +31,7 @@ export interface InputGroupProps {
 export const InputGroup = Object.assign(
   React.memo(({ children, className, 'data-testid': dataTestId }: InputGroupProps) => {
     return (
-      <div className={className || styles.inputGroup} data-testid={dataTestId}>
+      <div className={classNames(styles.inputGroup, className)} data-testid={dataTestId}>
         {children}
       </div>
     );

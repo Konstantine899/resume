@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils';
 import styles from '../Input.module.scss';
 
 export interface InputAddonProps {
@@ -28,7 +29,11 @@ export const InputAddon = React.memo(
     const addonClass = position === 'start' ? styles.icon : styles.iconAfter;
 
     return (
-      <span className={className || addonClass} aria-hidden="true" data-testid={dataTestId}>
+      <span
+        className={classNames(addonClass, className)}
+        aria-hidden="true"
+        data-testid={dataTestId}
+      >
         {children}
       </span>
     );

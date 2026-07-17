@@ -2,8 +2,8 @@
 // Card Component
 // ============================================
 
-import { validateCardProps } from '@/shared/lib/utils/validateCardProps';
-import { CARD_CONSTANTS } from '@/shared/ui/Card/model/constants';
+import { CARD_CONSTANTS } from '../model/constants';
+import { validateCardProps } from '../lib/validateCardProps';
 import { forwardRef, memo, useEffect, useMemo } from 'react';
 import type { BaseCardProps } from '../model/types';
 import styles from './Card.module.scss';
@@ -58,8 +58,14 @@ const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
   ) => {
     // Runtime validation in development mode (optimized deps)
     useEffect(() => {
-      validateCardProps('Card', { variant, size, radius });
-    }, [variant, size, radius]);
+      if (process.env.NODE_ENV === 'development') {
+        const warnings = validateCardProps(variant, size, radius, hoverable, props.onClick);
+        warnings.forEach((w) => {
+          // eslint-disable-next-line no-console
+          console.warn(w.message);
+        });
+      }
+    }, [variant, size, radius, hoverable, props.onClick]);
 
     // Memoize className calculation
     const cardClasses = useMemo(

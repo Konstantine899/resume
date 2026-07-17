@@ -1,6 +1,7 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import type { SpinnerProps, SpinnerSpeed, SpinnerThickness } from '../model/types';
+import { validateSpinnerProps } from '../lib/validateSpinnerProps';
 import styles from './Spinner.module.scss';
 
 // ============================================
@@ -52,6 +53,23 @@ export const Spinner = memo((props: SpinnerProps) => {
     style,
     ...restProps
   } = props;
+
+  // Dev warnings for invalid props
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const warnings = validateSpinnerProps(
+        variant,
+        size,
+        color,
+        speed ?? 'normal',
+        thickness ?? 'normal'
+      );
+      warnings.forEach((w) => {
+        // eslint-disable-next-line no-console
+        console.warn(w.message);
+      });
+    }
+  }, [variant, size, color, speed, thickness]);
 
   // ---- CSS custom properties for variants ----
 

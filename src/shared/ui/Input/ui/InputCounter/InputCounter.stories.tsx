@@ -2,6 +2,30 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InputCounter } from './InputCounter';
 
+const wrapperStyle: React.CSSProperties = {
+  width: '280px',
+};
+
+const containerStyle: React.CSSProperties = {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  border: '1px solid var(--border-color)',
+  borderRadius: '0.375rem',
+  backgroundColor: 'var(--background)',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.5rem 0.75rem',
+  fontFamily: 'Inter, sans-serif',
+  fontSize: '1rem',
+  color: 'var(--foreground)',
+  outline: 'none',
+  border: 'none',
+  background: 'transparent',
+};
+
 const meta = {
   title: 'Shared/Input/InputCounter',
   component: InputCounter,
@@ -9,6 +33,20 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div style={wrapperStyle}>
+        <div style={containerStyle}>
+          <input
+            style={inputStyle}
+            defaultValue="Typing some content to count characters..."
+            aria-label="Input with counter"
+          />
+        </div>
+        <Story />
+      </div>
+    ),
+  ],
   argTypes: {
     current: {
       control: 'number',

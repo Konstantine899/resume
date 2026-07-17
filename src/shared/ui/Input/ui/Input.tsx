@@ -63,7 +63,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
 
     // Определяем controlled/uncontrolled
-    const isControlled = 'value' in props;
+    const isControlled = props.value !== undefined;
     const [internalValue, setInternalValue] = React.useState<string>(() =>
       isControlled ? (props.value as string) : String(props.defaultValue ?? '')
     );
@@ -75,33 +75,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputType =
       isPassword && showPasswordToggle ? (showPassword ? 'text' : 'password') : props.type;
 
-    // Обработчик изменения значения (memoized)
-    const handleChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!isControlled) {
-          setInternalValue(e.target.value);
-        }
-        props.onChange?.(e);
-      },
-      [isControlled, props]
-    );
-
     // Обработчик очистки (memoized)
     const handleClear = useCallback(() => {
       if (!isControlled) {
         setInternalValue('');
       }
 
-      // Синтетическое событие для совместимости
-      const syntheticEvent = {
-        target: inputRef.current,
-        type: 'input',
-      } as React.ChangeEvent<HTMLInputElement>;
-
-      props.onChange?.(syntheticEvent);
       onClear?.();
       inputRef.current?.focus();
-    }, [isControlled, props, onClear]);
+    }, [isControlled, onClear]);
 
     // Toggle password visibility (memoized)
     const handleTogglePassword = useCallback(() => {
@@ -226,19 +208,28 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <Skeleton variant="text" width="100%" height={INPUT_CONSTANTS.SKELETON_HEIGHT} />
           ) : (
             <input
-              id={inputId}
               ref={inputRef}
+              {...props}
+              id={inputId}
               className={inputClasses}
               disabled={disabled}
               readOnly={readOnly}
               required={required}
+              aria-required={required || undefined}
               aria-invalid={Boolean(error)}
               aria-busy={loading ? true : undefined}
               aria-describedby={describedBy}
               value={value}
-              onChange={handleChange}
+              onChange={(e) => {
+                if (!isControlled) {
+                  setInternalValue(e.target.value);
+                }
+                props.onChange?.(e);
+              }}
+              onBlur={(e) => {
+                props.onBlur?.(e);
+              }}
               placeholder={variant === 'floating' ? ' ' : props.placeholder}
-              {...props}
               type={inputType}
             />
           )}
@@ -256,6 +247,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               onClick={handleTogglePassword}
               onKeyDown={handlePasswordToggleKeyDown}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showPassword}
               tabIndex={0}
             >
               {showPassword ? (
@@ -277,7 +269,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 className={styles.clearButton}
                 onClick={handleClear}
                 aria-label="Clear input"
-                tabIndex={-1}
+                tabIndex={0}
               >
                 <ClearIcon />
               </button>
@@ -309,7 +301,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         {showCharCounter && maxLength && !skeleton && (
-          <span id={counterId} className={styles.counter} data-testid="counter">
+          <span id={counterId} className={styles.counter} data-testid="counter" aria-live="polite">
             <span className={isWarning ? styles.warning : ''}>{charCount}</span>/{maxLength}
           </span>
         )}

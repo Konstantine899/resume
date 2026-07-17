@@ -7,38 +7,8 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Spinner } from '@/shared/ui/Spinner';
 import { TEXTAREA_CONSTANTS } from '../model/constants';
 import type { TextareaProps } from '../model/types';
+import { validateTextareaProps } from '../lib/validateTextareaProps';
 import styles from './Textarea.module.scss';
-
-// ============================================
-// Runtime Validation
-// ============================================
-
-const validateTextareaProps = (
-  variant: TextareaProps['variant'],
-  size: TextareaProps['size'],
-  rows: TextareaProps['rows']
-) => {
-  if (process.env.NODE_ENV === 'development') {
-    const { VALID_VARIANTS, VALID_SIZES, MIN_ROWS, MAX_ROWS } = TEXTAREA_CONSTANTS;
-
-    if (variant && !VALID_VARIANTS.includes(variant)) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `Textarea: invalid variant "${variant}". Valid values: ${VALID_VARIANTS.join(', ')}`
-      );
-    }
-
-    if (size && !VALID_SIZES.includes(size)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Textarea: invalid size "${size}". Valid values: ${VALID_SIZES.join(', ')}`);
-    }
-
-    if (rows !== undefined && (rows < MIN_ROWS || rows > MAX_ROWS)) {
-      // eslint-disable-next-line no-console
-      console.warn(`Textarea: invalid rows "${rows}". Valid range: ${MIN_ROWS}-${MAX_ROWS}`);
-    }
-  }
-};
 
 // ============================================
 // Component
@@ -76,20 +46,16 @@ const TextareaComponent = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref
   ) => {
-    // Runtime validation in development mode
-    useEffect(() => {
-      validateTextareaProps(variant, size, rows);
-    }, [variant, size, rows]);
-
-    // ShowCounter warning in development mode
+    // Dev warnings for invalid props
     useEffect(() => {
       if (process.env.NODE_ENV === 'development') {
-        if (showCounter && maxLength === undefined) {
+        const warnings = validateTextareaProps(variant, size, showCounter, maxLength);
+        warnings.forEach((w) => {
           // eslint-disable-next-line no-console
-          console.warn('Textarea: showCounter requires maxLength prop to display the counter.');
-        }
+          console.warn(w.message);
+        });
       }
-    }, [showCounter, maxLength]);
+    }, [variant, size, showCounter, maxLength]);
 
     // ==========================================
     // Accessibility IDs

@@ -5,8 +5,8 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Skeleton } from '@/shared/ui/Skeleton';
-import { validateButtonProps } from '@/shared/lib/utils/validateButtonProps';
-import { BUTTON_CONSTANTS } from '@/shared/ui/Button/model/constants';
+import { validateButtonProps } from '../../lib/validateButtonProps';
+import { BUTTON_CONSTANTS } from '../../model/constants';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
 import type { IconButtonProps } from '../../model/types';
 import styles from './IconButton.module.scss';
@@ -52,8 +52,14 @@ const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
   ) => {
     // Runtime validation in development mode (optimized deps)
     useEffect(() => {
-      validateButtonProps('IconButton', { variant, size, loadingVariant });
-    }, [variant, size, loadingVariant]);
+      if (process.env.NODE_ENV === 'development') {
+        const warnings = validateButtonProps(variant, size, loadingVariant, loading);
+        warnings.forEach((w) => {
+          // eslint-disable-next-line no-console
+          console.warn(w.message);
+        });
+      }
+    }, [variant, size, loadingVariant, loading]);
 
     // Memoize className calculation (only essential memoization)
     const buttonClassName = useMemo(

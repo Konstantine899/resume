@@ -16,3 +16,5 @@ export { IconButton } from './ui/IconButton/IconButton';
 
 // Constants for configuration and validation
 export { BUTTON_CONSTANTS } from './model/constants';
+export { validateButtonProps } from './lib/validateButtonProps';
+export type { ButtonValidationWarning } from './lib/validateButtonProps';
