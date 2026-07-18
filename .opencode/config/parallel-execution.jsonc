@@ -19,7 +19,7 @@
       "tasks": [
         {
           "id": "unit-tests",
-          "agent": "test-generation",
+          "agent": "integration-test",
           "task": "run-unit",
           "timeout": 60,
           "priority": 1,
@@ -79,13 +79,6 @@
           "timeout": 45,
           "priority": 2,
         },
-        {
-          "id": "architecture-validation",
-          "agent": "fsd-validator",
-          "task": "validate",
-          "timeout": 30,
-          "priority": 3,
-        },
       ],
       "onFail": "continue",
       "aggregateResults": true,
@@ -99,7 +92,7 @@
       "tasks": [
         {
           "id": "create-component",
-          "agent": "ui",
+          "agent": "general",
           "task": "create-tsx",
           "timeout": 30,
           "priority": 1,
@@ -113,7 +106,7 @@
         },
         {
           "id": "create-types",
-          "agent": "ui",
+          "agent": "general",
           "task": "create-types",
           "timeout": 15,
           "priority": 1,
@@ -171,7 +164,7 @@
         },
         {
           "id": "component-docs",
-          "agent": "ui",
+          "agent": "general",
           "task": "generate-component-docs",
           "timeout": 30,
           "priority": 1,

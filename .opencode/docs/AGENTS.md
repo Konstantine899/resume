@@ -1,204 +1,65 @@
 # OpenCode AI Agent Instructions
 
-> **Проект:** Resume Portfolio  
-> **Версия:** 3.0.0  
-> **Дата:** 2026-07-03  
-> **Обновлено:** Serena MCP через WSL + 7 MCP серверов
+Project: Resume Portfolio v3.0.0
+Last updated: 2026-07-18
 
 ---
 
-## 📊 Ollama Cloud Metrics
+## Agents
 
-**Модель:** `ollama-cloud/qwen3.5:397b-cloud`
-
-**Автоматический сбор метрик:**
-- Плагин: `metrics-logger`
-- Логи: `D:\Dev\tools\DBObsidian\resume-app\logs\metrics-YYYY-MM-DD.md`
-- Baseline: `D:\Dev\projects\resume\.opencode\logs\baseline-metrics.json`
-
----
-
-## Агенты
-
-### Git Family (5 субагентов)
-
-| Агент | Назначение | Модель |
-|-------|------------|--------|
-| `git-commit` | Создание коммитов, pre-commit валидация | qwen3.5:397b-cloud |
-| `git-branch` | Ветки, merge, rebase, конфликты | qwen3.5:397b-cloud |
-| `git-remote` | Remote, fetch, pull, push инструкции | qwen2.5-coder:32b |
-| `git-automation` | Hooks, CHANGELOG, PR, tags | qwen3.5:397b-cloud |
-| `git-advanced` | Bisect, worktree, LFS, submodule | qwen3.5:397b-cloud |
-
-**Документация:** `GIT-SUBAGENTS-README.md`  
-**Общие конвенции:** `git-base-conventions.md`
-
-### Core Agents
-
-### ui
-Создание UI компонентов (React 19 + TypeScript + CSS Modules)
-
-### review
-Code review, анализ качества, поиск багов
-
-### test-generation
-Генерация unit и integration тестов (Vitest)
-
-### fsd-validator
-Валидация архитектуры Feature-Sliced Design
-
-### guard
-Безопасность: премодерация MCP, prompt injection detection
-
-### orchestrator
-Координация мульти-агентных задач
-
-### integration-test
-Integration и e2e тесты (Playwright, MSW)
-
-### performance-test
-Анализ производительности
-
-### storybook-test
-Создание Storybook stories
-
-### style
-Валидация стилей (SASS + CSS Modules)
+- **orchestrator** — Coordinates multi-agent tasks and dispatches work to sub-agents.
+- **guard** — MCP premoderation, prompt injection detection, PII masking, audit logging. See guard agent for security enforcement.
+- **review** — Code review, quality analysis, bug detection.
+- **integration-test** — Integration and e2e tests (Playwright, MSW).
+- **performance-test** — Performance analysis and budget enforcement.
+- **style** — SCSS/CSS Modules validation.
+- **prompt-refinement** — Refines prompts for clarity and precision before dispatching to sub-agents.
+- **git-commit** — Creates commits with pre-commit validation and conventional commit format.
 
 ---
 
-## Правило: Git операции
+## MCP Servers
 
-**Git commit через `git-commit` субагент:**
-
-```
-User → task(subagent_type: "git-commit") → commit
-```
-
-- Одиночные git коммиты — через `git-commit` субагент с параметрами (files, message)
-- `git push`, `git pull`, `git merge` — через `general` task agent + bash
-- Сложные git операции (rebase, bisect, worktree) — через `general` task agent с подробным описанием
-
-**НЕЛЬЗЯ:**
-- ❌ `git commit --no-verify` — никогда
-- ❌ `git push` без явного запроса пользователя
-- ❌ Интерактивные git команды (`-i` flag)
-
-**Плагины агентов (git-commit.md и др.) — это инструкции для модели, не исполняемый код.**
-Они задают поведение, но не являются вызываемыми функциями. Dispatch происходит через `task` tool с `subagent_type`.
+- **filesystem** — File operations
+- **memory** — Long-term knowledge graph persistence
+- **context7** — Library documentation and version queries
+- **eslint** — Code linting and rule enforcement
+- **playwright** — Browser automation
+- **serena** — Code symbol navigation (WSL, LSP-based)
+- **sequential-thinking** — Multi-step task planning
 
 ---
 
-## MCP Серверы (7 активных)
+## Rules
 
-| Сервер | Type | Status | Назначение | Экономия |
-|--------|------|--------|------------|----------|
-| filesystem | local | ✅ | Работа с файлами | - |
-| memory | local | ✅ | Долгосрочная память | 73% токенов |
-| context7 | local | ✅ | Документация библиотек | 85% токенов |
-| eslint | local | ✅ | Linting кода | - |
-| playwright | local | ✅ | Browser automation | - |
-| **serena** | **WSL** | ✅ | **Навигация по коду (символы)** | **75-85% токенов** |
-| **sequential-thinking** | local | ✅ | Планирование задач | **70% ошибок** |
+### FSD Architecture
 
----
+The project follows Feature-Sliced Design (FSD) v2.1 with strict layer hierarchy: `app` > `pages` > `widgets` > `features` > `entities` > `shared`. A layer may import from itself and all layers below it, never from layers above. Direct cross-imports between features or widgets are forbidden. All slice public APIs must use named exports through `index.ts`. See the `fsd-slice-creation` skill for the full decision framework and the `fsd-design` skill for architecture guidance.
 
-## 🚀 MCP Workflow Паттерны
+### Code Style
 
-### Workflow 1: Интеграция Библиотеки
+TypeScript strict mode is required: no `any` types, no implicit any, no unused variables (except `_` prefix). React hooks must have complete dependency arrays; no direct state mutations. CSS Modules only, no `!important`, no global styles. Use semantic HTML elements. Named exports are preferred over default exports in public APIs.
 
-```
-1. Context7: query "framer-motion latest version"
-2. Memory: search_nodes("Resume Project")
-3. Serena: find_symbol("App.tsx")
-4. Serena: insert_after_symbol
-5. Memory: add_observations
-```
-**Экономия:** ~85% токенов
+### Strict Validation
 
----
+All code must pass ESLint with `--max-warnings 0`. The following are enforced as errors: `no-explicit-any`, `no-unused-vars`, `no-non-null-assertion`, `no-implicit-coercion`, `no-console`, `no-eval`, `react-hooks/exhaustive-deps`, `import/no-cycle`, and `fsd-imports/*` rules. TypeScript strict mode is enabled with all strict flags. Pre-commit hooks block commits on any lint error or type error.
 
-### Workflow 2: Рефакторинг Компонента
+### Security
 
-```
-1. Sequential Thinking: "План разделения HeaderComponent"
-2. Serena: get_symbols_overview("Header.tsx")
-3. Serena: find_symbol("HeaderComponent")
-4. Serena: insert_after_symbol (создать подкомпоненты)
-5. Serena: replace_symbol_body (обновить исходный)
-6. Memory: add_observations
-```
-**Экономия:** ~75% токенов, 90% ошибок предотвращено
+No secrets, credentials, tokens, or keys in code — use environment variables or GitHub Secrets. All user input must be validated and sanitized. No `console.log` in production code, no `eval()`, no `javascript:` URLs. The guard agent enforces prompt injection detection, PII masking, MCP premoderation, path traversal blocking, and rate limiting. All MCP calls pass through guard premoderation. Guard enforces session limits (50 file reads, 10 file writes, 20 MCP calls per session). Blocked paths include `.git/`, `node_modules/`, `.env*`, and lock files.
 
----
+### Performance
 
-### Workflow 3: Исправление Багов
+Component render budgets: simple < 8ms, medium < 16ms, complex < 50ms. Bundle chunk limit is 100kb per chunk; total bundle under 500kb. No memory leaks, no missing cleanup in `useEffect`. Use `React.memo`, `useCallback`, `useMemo` appropriately. Route-level code splitting is required. The `performance-test` agent monitors render times and bundle sizes.
 
-```
-1. Filesystem: read_file("logs/error.log")
-2. Sequential Thinking: "План отладки UserService"
-3. Serena: find_symbol("UserService")
-4. Serena: replace_symbol_body (добавить validation)
-5. Memory: create_entities("Bug Pattern")
-```
-**Результат:** 10x быстрее
+### Git Workflow
 
----
+GitHub Flow with squash merge to `main`. Branch prefix convention: `feature/`, `bugfix/`, `hotfix/`, `docs/`, `release/`. All commits must use conventional commit format (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`). Never use `--no-verify`. Pull requests require review before merge (2 reviewers for `main`, 1 for feature branches). Branch lifetime should not exceed 7 days. Use the `git-commit` agent for all commits.
 
-### Workflow 4: Работа с FSD Архитектурой
+### Testing
 
-```
-1. Memory: search_nodes("FSD Architecture")
-2. Sequential Thinking: "План создания feature/auth"
-3. Serena: find_symbol("*/index.ts")
-4. Serena: insert_after_symbol (добавить export)
-5. Skill: fsd-slice-creation
-```
-**Экономия:** 82% токенов
+Unit tests: 70% of test suite, fast and isolated. Integration tests: 20%. E2E tests: 10% covering critical user journeys. All tests must have assertions — no fake or empty test bodies. Coverage targets: 90%+ lines, 85%+ branches, 95%+ functions. Flaky tests are not tolerated (retry on failure, detect non-determinism). See the `test-generation` skill for test patterns and the `integration-test` agent for Playwright workflows.
 
----
+### GitHub
 
-### Workflow 5: Миграция / Обновление
-
-```
-1. Sequential Thinking: "План обновления axios v0.27 → v1.6"
-2. Context7: query "axios migration guide v1.6"
-3. Serena: search_for_pattern("axios\.(get|post)")
-4. Serena: replace_symbol_body (для каждого)
-5. Memory: add_observations
-```
-**Экономия:** 2 часа vs 8 часов
-
----
-
-## 🎯 Оптимальные Комбинации MCP
-
-### A: Быстрая Разработка
-**MCP:** Context7 + Serena  
-**Экономия:** 85% токенов, 70% времени
-
-### B: Безопасный Рефакторинг
-**MCP:** Sequential Thinking + Serena + Memory  
-**Экономия:** 75% времени, 90% ошибок предотвращено
-
-### C: Работа с Незнакомым Проектом
-**MCP:** Memory + Serena + Context7  
-**Экономия:** 82% токенов, 10x быстрее "вспоминания"
-
-### D: Отладка Production
-**MCP:** Filesystem + Serena + Sequential Thinking  
-**Результат:** 10x быстрее, MTTR часы → минуты
-
----
-
-## 📎 Связанные документы
-
-- [[opencode-config]] — Полная конфигурация
-- [[mcp-servers]] — Детальная документация MCP
-- [[obsidian-vault]] — База знаний
-
----
-
-**Версия:** 3.0.0  
-**Последнее обновление:** 2026-07-03  
-**MCP серверов:** 7 (filesystem, memory, context7, eslint, playwright, serena-wsl, sequential-thinking)
+Branch protection on `main` requires signed commits, 2 approving reviews, linear history, and passing status checks (TypeScript, ESLint, Tests, Security, Bundle Size, FSD Validation). `develop` requires 1 review and passing checks. Dependabot is configured for daily npm security updates. GitHub Actions use least-privilege permissions; only verified actions from `actions/` namespace are allowed. Secrets are managed through GitHub Secrets, never hardcoded.

@@ -5,6 +5,8 @@ description: Создание FSD slice (entity/feature) с правильной
 
 # FSD Slice Creation Skill
 
+> **Prerequisite**: Load `.opencode/skills/fsd-design/SKILL.md` first for the full FSD v2.1 decision framework, layer hierarchy, and import rules.
+
 ## Когда использовать
 
 Использовать ТОЛЬКО при создании новых:

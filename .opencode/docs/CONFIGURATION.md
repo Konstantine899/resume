@@ -1,8 +1,8 @@
 # OpenCode Configuration Documentation
 
 > **Проект:** Resume Portfolio  
-> **Версия конфигурации:** 2.1.0  
-> **Дата обновления:** 2026-06-14  
+> **Версия конфигурации:** 2.2.0  
+> **Дата обновления:** 2026-07-18  
 > **Статус:** ✅ Active
 
 ---
@@ -33,10 +33,9 @@
 | Компонент | Версия | Описание |
 |-----------|--------|----------|
 | Framework | opencode.ai | AI-powered coding assistant |
-| Model (Primary) | ollama/qwen2.5-coder:7b-instruct-q4_K_M | Основная модель для кодинга |
-| Model (Small) | ollama/deepseek-coder:1.3b-instruct-q4_K_M | Лёгкая модель для простых задач |
-| MCP Servers | 5 активных | FileSystem, Memory, Context7, ESLint, Playwright |
-| Agents | 12 специализированных | UI, Review, Test, FSD, Guard, и др. |
+| Primary Model | opencode/deepseek-v4-flash-free | Основная модель |
+| MCP Servers | 7 активных | filesystem, memory, context7, eslint, playwright, sequential-thinking, serena |
+| Agents | 8 специализированных | orchestrator, guard, review, git-commit, и др. |
 
 ### Основные возможности
 
@@ -65,20 +64,21 @@
 │   ├── feedback-loop.jsonc          # Feedback Loop
 │   └── context.jsonc                # Context & Memory
 │
-├── docs/                            # Документация (создаётся)
+├── docs/                            # Документация
+│   ├── AGENTS.md                    # Основная инструкция для AI
 │   ├── CONFIGURATION.md             # Этот файл
-│   ├── AGENTS_GUIDE.md              # Руководство по агентам
 │   ├── TROUBLESHOOTING.md           # Решение проблем
 │   └── QUICK_START.md               # Быстрый старт
 │
 ├── agents/                          # Специализированные агенты
-│   ├── ui.md                        # UI компоненты
 │   ├── review.md                    # Code review
-│   ├── test-generation.md           # Генерация тестов
-│   ├── fsd-validator.md             # Валидация FSD
 │   ├── guard.md                     # Безопасность
 │   ├── orchestrator.md              # Координация
-│   └── ...                          # Другие агенты
+│   ├── git-commit.md                # Git операции
+│   ├── integration-test.md          # Integration и e2e тесты
+│   ├── performance-test.md          # Анализ производительности
+│   ├── prompt-refinement.md         # Оптимизация промптов
+│   └── style.md                     # Валидация стилей
 │
 ├── skills/                          # Навыки агентов
 │   ├── component-boilerplate/       # Шаблон компонента
@@ -100,10 +100,7 @@
 │   └── review-guidelines.md         # Гайдлайны review
 │
 ├── commands/                        # Команды
-│   ├── generate-component.md        # Генерация компонента
-│   ├── code-review.md               # Code review
-│   ├── run-tests.md                 # Запуск тестов
-│   └── validate-fsd.md              # Валидация FSD
+│   └── switch-profile.md           # Переключение модели
 │
 ├── context/                         # Runtime контекст (в .gitignore)
 │   ├── context-store.json           # Хранилище контекста
@@ -115,12 +112,6 @@
 │   ├── quality-gates.log            # Логи Quality Gates
 │   └── pipelines.log                # Логи пайплайнов
 │
-└── logs/                            # Runtime логи
-    ├── guard-audit.log              # Аудит Guard
-    ├── quality-gates.log            # Quality Gates
-    └── pipelines.log                # Пайплайны
-```
-
 ---
 
 ## Главный конфиг opencode.json
@@ -129,23 +120,17 @@
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/qwen2.5-coder:7b-instruct-q4_K_M",
-  "small_model": "ollama/deepseek-coder:1.3b-instruct-q4_K_M",
-  "logLevel": "INFO",
-  "snapshot": true,
-  "instructions": [".opencode/docs/AGENTS.md"]
+  "model": "opencode/deepseek-v4-flash-free",
+  "instructions": [".opencode/docs/AGENTS.md"],
+  "compaction": { "auto": true, "tail_turns": 10 }
 }
 ```
 
-| Параметр | Значение | Описание |
-|----------|----------|----------|
-| `$schema` | URL | JSON Schema для валидации конфига |
-| `model` | Ollama model | Основная модель для сложных задач |
-| `small_model` | Ollama model | Лёгкая модель для простых задач |
-| `logLevel` | INFO | Уровень логирования (DEBUG/INFO/WARN/ERROR) |
-| `snapshot` | true | Сохранять снимки состояния |
-| `instructions` | Array | Пути к инструкциям для агентов |
+| Параметр | Описание |
+|----------|----------|
+| `model` | Основная модель |
+| `instructions` | Пути к инструкциям для агентов |
+| `compaction` | Авто-компактизация контекста после 10 ходов |
 
 ### Guard Agent настройка
 
@@ -205,6 +190,7 @@
 
 **Навыки агентов:**
 - `component-boilerplate` — шаблон компонента
+- `fsd-design` — FSD v2.1 decision framework и reference files
 - `fsd-slice-creation` — создание FSD slice
 - `test-generation` — генерация тестов
 - `storybook-setup` — настройка Storybook
@@ -244,21 +230,18 @@
       "command": ["npx", "-y", "@playwright/mcp"],
       "enabled": true
     },
-    "rag": {
+    "sequential-thinking": {
       "type": "local",
-      "command": ["npx", "-y", "mcp-server-rg"],
-      "args": ["--root", "D:/Dev/projects/resume/.opencode"],
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
       "enabled": true,
-      "timeout": 120000,
-      "description": "RAG сервер для семантического поиска по документации",
-      "indexPaths": [
-        "docs/**/*.md",
-        "instructions/**/*.md",
-        "rules/**/*.md",
-        "agents/**/*.md",
-        "skills/**/*.md",
-        "AGENT.md"
-      ]
+      "timeout": 90000,
+      "description": "Step-by-step planning и dependency tracking"
+    },
+    "serena": {
+      "type": "wsl",
+      "enabled": true,
+      "timeout": 60000,
+      "description": "LSP-based навигация по коду (поиск символов, рефакторинг)"
     }
   }
 }
@@ -271,7 +254,8 @@
 | `context7` | Документация библиотек | ✅ Active |
 | `eslint` | Linting кода | ✅ Active |
 | `playwright` | Browser automation | ✅ Active |
-| `rag` | Семантический поиск | ✅ Active |
+| `sequential-thinking` | Пошаговое планирование | ✅ Active |
+| `serena` | LSP-навигация по коду | ✅ Active |
 
 ### Compaction
 
@@ -323,13 +307,13 @@
 
 | Check | Agent | Timeout | Blocking | Criteria |
 |-------|-------|---------|----------|----------|
-| FSD Validation | fsd-validator | 30s | ✅ | 100% layer compliance |
+| FSD Validation | eslint-plugin-fsd-imports | 30s | ✅ | 100% layer compliance |
 | Code Review | review | 60s | ✅ | Min score 7/10 |
-| Test Coverage | test-generation | 45s | ✅ | Min 90% coverage |
+| Test Coverage | review | 45s | ✅ | Min 90% coverage |
 | Security Scan | review | 45s | ✅ | Zero vulnerabilities |
 | Performance Check | performance-test | 45s | ❌ | Render < 16ms |
 | Style Validation | style | 30s | ❌ | CSS Modules |
-| Judge Score | judge | 30s | ✅ | Min score 7/10 |
+| Code Quality | review | 30s | ✅ | Min score 7/10 |
 
 ### Auto-Fix
 
@@ -364,11 +348,11 @@
 ### Pipeline: create-component
 
 ```
-1. ui агент → создание компонента
+1. component-boilerplate skill → создание компонента
 2. review агент → code review
-3. fsd-validator → валидация архитектуры
-4. test-generation → создание тестов
-5. storybook-test → создание stories
+3. eslint-plugin-fsd-imports → валидация архитектуры
+4. test-generation skill → создание тестов
+5. storybook-setup skill → создание stories
 6. summary → итоговый отчёт
 ```
 
@@ -376,7 +360,7 @@
 
 ```
 1. review → основной review
-2. critic → адверсариальный review
+2. review → адверсариальный review
 3. fix → исправление проблем
 4. verify → проверка исправлений
 5. security → проверка безопасности
@@ -460,24 +444,17 @@
 
 ### Список агентов
 
-| Агент | Приоритет | Модель | Описание |
-|-------|-----------|--------|----------|
-| `ui` | P1 | qwen2.5-coder:7b | UI компоненты |
-| `review` | P1 | qwen2.5-coder:7b | Code review |
-| `test-generation` | P1 | qwen2.5-coder:7b | Генерация тестов |
-| `fsd-validator` | P1 | qwen2.5-coder:7b | Валидация FSD |
-| `guard` | P0 | qwen2.5-coder:32b | Безопасность |
-| `orchestrator` | P1 | qwen2.5-coder:32b | Координация |
-| `integration-test` | P1 | qwen2.5-coder:7b | Интеграционные тесты |
-| `performance-test` | P2 | qwen2.5-coder:7b | Тесты производительности |
-| `storybook-test` | P2 | qwen2.5-coder:7b | Storybook stories |
-| `style` | P2 | qwen2.5-coder:7b | Валидация стилей |
-| `critic` | ⏳ Future | - | Адверсариальный review |
-| `judge` | ⏳ Future | - | Quality scoring |
-
-### Агенты (подробно)
-
-См. отдельный документ: [AGENTS_GUIDE.md](./AGENTS_GUIDE.md)
+| Агент | Приоритет | Описание |
+|-------|-----------|----------|
+| `orchestrator` | P0 | Координация мульти-агентных задач |
+| `guard` | P0 | Безопасность, премодерация MCP, PII masking |
+| `review` | P1 | Code review, анализ качества |
+| `fsd-design-skill` | P1 | FSD дизайн (SKILL.md + references) |
+| `integration-test` | P1 | Integration и e2e тесты (Playwright, MSW) |
+| `performance-test` | P2 | Анализ производительности |
+| `style` | P2 | Валидация стилей (SASS + CSS Modules) |
+| `prompt-refinement` | P2 | Оптимизация промптов |
+| `git-commit` | P1 | Git операции |
 
 ---
 
@@ -488,6 +465,7 @@
 | Навык | Описание | Использование |
 |-------|----------|---------------|
 | `component-boilerplate` | Шаблон компонента | Создание UI компонентов |
+| `fsd-design` | FSD v2.1 decision framework + reference files | Архитектурные решения |
 | `fsd-slice-creation` | Создание FSD slice | Добавление entities/features |
 | `test-generation` | Генерация тестов | Unit/Integration тесты |
 | `storybook-setup` | Настройка Storybook | Stories для компонентов |
@@ -676,7 +654,7 @@ CONTEXT7_API_KEY=your-api-key-here
    ```bash
    # Проверка наличия файлов агентов
    Test-Path .opencode\agents\review.md
-   Test-Path .opencode\agents\fsd-validator.md
+    Test-Path .opencode\skills\fsd-design\SKILL.md
    ```
 
 3. **Проверьте права доступа**
@@ -755,7 +733,7 @@ Get-ChildItem .opencode\logs\*.log | Where-Object { $_.LastWriteTime -gt (Get-Da
 
 ## Связанные документы
 
-- [AGENTS_GUIDE.md](./AGENTS_GUIDE.md) — Руководство по агентам
+- [AGENTS.md](./AGENTS.md) — Главная инструкция для AI
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — Решение проблем
 - [QUICK_START.md](./QUICK_START.md) — Быстрый старт
 

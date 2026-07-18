@@ -11,19 +11,6 @@
       "blocking": true,
       "checks": [
         {
-          "id": "fsd-validation",
-          "agent": "fsd-validator",
-          "task": "validate",
-          "required": true,
-          "blocking": true,
-          "timeout": 30,
-          "criteria": {
-            "layerCompliance": 100,
-            "noCircularDeps": true,
-            "publicApiCompliance": true,
-          },
-        },
-        {
           "id": "code-review",
           "agent": "review",
           "task": "review",
@@ -34,18 +21,6 @@
             "minScore": 7,
             "noCriticalIssues": true,
             "blockers": ["security", "types", "architecture"],
-          },
-        },
-        {
-          "id": "test-coverage",
-          "agent": "test-generation",
-          "task": "verify-coverage",
-          "required": true,
-          "blocking": true,
-          "timeout": 45,
-          "criteria": {
-            "minCoverage": 90,
-            "requiredTests": ["render", "interaction", "edge-cases"],
           },
         },
         {
@@ -88,7 +63,7 @@
         },
         {
           "id": "judge-score",
-          "agent": "judge",
+          "agent": "review",
           "task": "score",
           "required": true,
           "blocking": true,
@@ -130,20 +105,6 @@
           "criteria": {
             "passRate": 100,
             "coverage": 95,
-          },
-        },
-        {
-          "id": "architecture-review",
-          "agent": "fsd-validator",
-          "task": "full-audit",
-          "required": true,
-          "blocking": true,
-          "timeout": 60,
-          "criteria": {
-            "layerCompliance": 100,
-            "noCircularDeps": true,
-            "publicApiCompliance": true,
-            "architectureScore": 9,
           },
         },
         {

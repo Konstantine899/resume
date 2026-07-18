@@ -1,8 +1,8 @@
 # OpenCode Quick Start Guide
 
 > **Проект:** Resume Portfolio  
-> **Версия:** 1.0.0  
-> **Дата:** 2026-06-14  
+> **Версия:** 2.0.0  
+> **Дата:** 2026-07-18  
 > **Статус:** ✅ Active
 
 ---
@@ -25,39 +25,10 @@
 ### Требования
 
 - ✅ **Node.js** 18+ ([Скачать](https://nodejs.org/))
-- ✅ **Ollama** 0.1+ ([Скачать](https://ollama.ai/))
 - ✅ **OpenCode** ([Скачать](https://opencode.ai/))
 - ✅ **Git** (опционально)
 
-### Шаг 1: Установка Ollama
-
-```powershell
-# Windows: скачайте установщик с https://ollama.ai/download
-# После установки проверьте:
-ollama --version
-```
-
-### Шаг 2: Установка моделей
-
-```powershell
-# Основная модель (7B)
-ollama pull qwen2.5-coder:7b-instruct-q4_K_M
-
-# Лёгкая модель (1.3B)
-ollama pull deepseek-coder:1.3b-instruct-q4_K_M
-
-# Проверка установки
-ollama list
-```
-
-**Ожидаемый результат:**
-```
-NAME                                       SIZE      MODIFIED
-qwen2.5-coder:7b-instruct-q4_K_M           4.7 GB    Now
-deepseek-coder:1.3b-instruct-q4_K_M        1.1 GB    Now
-```
-
-### Шаг 3: Установка OpenCode
+### Шаг 1: Установка OpenCode
 
 ```powershell
 # Windows: скачайте установщик с https://opencode.ai/
@@ -67,7 +38,7 @@ deepseek-coder:1.3b-instruct-q4_K_M        1.1 GB    Now
 # Откройте OpenCode из меню Пуск
 ```
 
-### Шаг 4: Настройка проекта
+### Шаг 2: Настройка проекта
 
 ```powershell
 # Перейдите в директорию проекта
@@ -80,7 +51,7 @@ Get-ChildItem .opencode
 Get-Content .opencode\opencode.json | Select-Object -First 20
 ```
 
-### Шаг 5: Настройка переменных окружения
+### Шаг 3: Настройка переменных окружения
 
 **Создайте файл `.env` в корне проекта:**
 
@@ -112,16 +83,14 @@ CONTEXT7_API_KEY=your-api-key-here
 **Ожидаемый результат:**
 ```
 Available Agents:
-- ui (P1) - UI компоненты
 - review (P1) - Code review
-- test-generation (P1) - Генерация тестов
-- fsd-validator (P1) - Валидация FSD
+- fsd-design-skill (P1) - FSD дизайн (SKILL.md + references)
 - guard (P0) - Безопасность
 - orchestrator (P1) - Координация
 - integration-test (P1) - Интеграционные тесты
 - performance-test (P2) - Тесты производительности
-- storybook-test (P2) - Storybook stories
 - style (P2) - Валидация стилей
+- git-commit (P1) - Git операции
 ```
 
 ### Проверка MCP серверов
@@ -140,7 +109,8 @@ MCP Servers:
 ✅ context7 - Connected
 ✅ eslint - Connected
 ✅ playwright - Connected
-✅ rag - Connected
+✅ sequential-thinking - Connected
+✅ serena - Connected
 ```
 
 ---
@@ -160,7 +130,7 @@ MCP Servers:
 /agent-status
 
 # Информация об агенте
-/agent-info ui
+/agent-info orchestrator
 ```
 
 ### Работа с файлами
@@ -225,11 +195,11 @@ npm run test
 Пайплайн выполнит следующие шаги:
 
 ```
-[1/6] ui агент → создание компонента... ✅
+[1/6] component-boilerplate skill → создание компонента... ✅
 [2/6] review агент → code review... ✅
-[3/6] fsd-validator → валидация архитектуры... ✅
-[4/6] test-generation → создание тестов... ✅
-[5/6] storybook-test → создание stories... ✅
+[3/6] eslint-plugin-fsd-imports → валидация архитектуры... ✅
+[4/6] test-generation skill → создание тестов... ✅
+[5/6] storybook-setup skill → создание stories... ✅
 [6/6] summary → итоговый отчёт... ✅
 ```
 
@@ -428,8 +398,8 @@ npm run test:coverage
 ### Быстрые команды
 
 ```bash
-# Создать компонент
-/ui create <name> --layer <layer>
+# Создать компонент (через orchestrator)
+# /orchestrator "create <name> component in <layer> layer"
 
 # Code review
 /review <path>
@@ -441,7 +411,7 @@ npm run test:coverage
 /review <path> --refactor
 
 # Валидация FSD
-/fsd-validator <path>
+npx eslint src/ --no-ignore
 
 # Проверка безопасности
 /review <path> --focus security
@@ -454,9 +424,9 @@ npm run test:coverage
 
 ```bash
 # Вызвать конкретного агента
-@ui Create a Input component
+@orchestrator Create a Input component
 @review Check this code: <code>
-@test-generate Create tests for <component>
+@review Create tests for <component>
 @orchestrator Handle this complex task: <task>
 ```
 
@@ -486,7 +456,7 @@ npm run test:coverage
 ### 1. Изучение документации
 
 - [CONFIGURATION.md](./CONFIGURATION.md) — Подробная конфигурация
-- [AGENTS_GUIDE.md](./AGENTS_GUIDE.md) — Руководство по агентам
+- [AGENTS.md](./AGENTS.md) — Главная инструкция для AI
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — Решение проблем
 
 ### 2. Практические задачи
@@ -534,7 +504,7 @@ npm run test:coverage
 **Адверсариальный review:**
 
 ```
-/critic-review src/features/auth --focus security,performance
+/review src/features/auth --focus security,performance
 ```
 
 **Анализ производительности:**
@@ -549,11 +519,13 @@ npm run test:coverage
 
 ### Q: Как переключить модель?
 
-**A:** Модели переключаются автоматически в зависимости от сложности задачи. Для принудительного переключения:
+**A:** Используйте команду `switch-profile.md` в commands/:
 
 ```
-/use-model qwen2.5-coder:7b-instruct-q4_K_M
+/switch-profile
 ```
+
+Доступные профили: `opencode/deepseek-v4-flash-free`, `ollama-cloud/qwen3.5:397b-cloud`.
 
 ### Q: Как отключить Guard Agent?
 
@@ -585,7 +557,7 @@ npm run test:coverage
 ## Связанные документы
 
 - [CONFIGURATION.md](./CONFIGURATION.md) — Конфигурация OpenCode
-- [AGENTS_GUIDE.md](./AGENTS_GUIDE.md) — Руководство по агентам
+- [AGENTS.md](./AGENTS.md) — Главная инструкция для AI
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — Решение проблем
 
 ---

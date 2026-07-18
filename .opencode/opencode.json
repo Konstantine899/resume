@@ -5,6 +5,11 @@
   "instructions": [
     ".opencode/docs/AGENTS.md"
   ],
+  "model": "opencode/deepseek-v4-flash-free",
+  "agent": {
+    "guard": { "model": "ollama-cloud/qwen3.5:397b-cloud" },
+    "integration-test": { "model": "ollama-cloud/qwen3.5:397b-cloud" }
+  },
   "skills": {
     "paths": [
       ".opencode/skills"
@@ -78,17 +83,11 @@
     "./plugins/serena-fallback.js",
     "./plugins/structured-logging.js",
     "./plugins/guard-tiered-security.js",
-    "./plugins/agent-metrics.js",
     "./plugins/memory-versioning.js",
-    "./plugins/encrypted-audit-logs.js",
     "./plugins/adaptive-parallel-mcp.js",
     "./plugins/request-deduplication.js",
-    "./plugins/graceful-degradation.js",
     "./plugins/mcp-connection-pool.js",
-    "./plugins/agent-integration.js",
-    "./plugins/dependency-graph.js",
-    "./plugins/eslint-plugin-fsd-imports.js",
-    "./plugins/health-dashboard.js"
+    "./plugins/eslint-plugin-fsd-imports.js"
   ],
   "formatter": true,
   "lsp": true,
