@@ -76,13 +76,9 @@
 │   ├── orchestrator.md              # Координация
 │   ├── git-commit.md                # Git операции
 │   ├── integration-test.md          # Integration и e2e тесты
-│   ├── performance-test.md          # Анализ производительности
-│   ├── prompt-refinement.md         # Оптимизация промптов
-│   └── style.md                     # Валидация стилей
 │
 ├── skills/                          # Навыки агентов
 │   ├── component-boilerplate/       # Шаблон компонента
-│   ├── fsd-slice-creation/          # Создание FSD slice
 │   ├── test-generation/             # Генерация тестов
 │   └── storybook-setup/             # Настройка Storybook
 │
@@ -191,11 +187,12 @@
 **Навыки агентов:**
 - `component-boilerplate` — шаблон компонента
 - `fsd-design` — FSD v2.1 decision framework и reference files
-- `fsd-slice-creation` — создание FSD slice
 - `test-generation` — генерация тестов
 - `storybook-setup` — настройка Storybook
 
 ### MCP серверы
+
+В проектном `opencode.json` настроены 2 MCP сервера. Третий (context7) подключён через глобальный конфиг `~/.config/opencode/opencode.json`.
 
 ```json
 {
@@ -203,59 +200,37 @@
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
-      "args": ["D:/Dev/projects", "D:/Dev/tools"],
-      "enabled": true
-    },
-    "memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "args": ["--db-path", "D:/Dev/memory.db"],
+      "args": ["D:/Dev/projects/resume", "D:/Dev/tools", "D:/Dev/tools/DBObsidian/resume-app"],
       "enabled": true,
-      "timeout": 120000
-    },
-    "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp"],
-      "args": ["--api-key", "${CONTEXT7_API_KEY}"],
-      "enabled": true,
-      "timeout": 120000
-    },
-    "eslint": {
-      "type": "local",
-      "command": ["npx", "-y", "@eslint/mcp"],
-      "enabled": true
-    },
-    "playwright": {
-      "type": "local",
-      "command": ["npx", "-y", "@playwright/mcp"],
-      "enabled": true
-    },
-    "sequential-thinking": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "enabled": true,
-      "timeout": 90000,
-      "description": "Step-by-step planning и dependency tracking"
+      "timeout": 30000
     },
     "serena": {
-      "type": "wsl",
+      "type": "local",
+      "command": ["wsl", "--exec", "bash", "-c", "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"],
       "enabled": true,
       "timeout": 60000,
-      "description": "LSP-based навигация по коду (поиск символов, рефакторинг)"
+      "operationTimeout": {
+        "find_symbol": 30000,
+        "replace_symbol_body": 45000,
+        "get_symbols_overview": 20000,
+        "find_referencing_symbols": 30000
+      },
+      "fallback": {
+        "enabled": true,
+        "strategy": "filesystem_grep",
+        "maxFiles": 50,
+        "alertOnFallback": true
+      }
     }
   }
 }
 ```
 
-| MCP Server | Назначение | Статус |
-|------------|------------|--------|
-| `filesystem` | Доступ к файловой системе | ✅ Active |
-| `memory` | Долгосрочная память | ✅ Active |
-| `context7` | Документация библиотек | ✅ Active |
-| `eslint` | Linting кода | ✅ Active |
-| `playwright` | Browser automation | ✅ Active |
-| `sequential-thinking` | Пошаговое планирование | ✅ Active |
-| `serena` | LSP-навигация по коду | ✅ Active |
+| MCP Server | Назначение | Где настроен | Статус |
+|------------|------------|--------------|--------|
+| `filesystem` | Доступ к файловой системе | Проектный `opencode.json` | ✅ Active |
+| `serena` | LSP-навигация по коду (поиск символов, рефакторинг) | Проектный `opencode.json` | ✅ Active |
+| `context7` | Документация библиотек | Глобальный `~/.config/opencode/opencode.json` | ✅ Active |
 
 ### Compaction
 
@@ -311,8 +286,8 @@
 | Code Review | review | 60s | ✅ | Min score 7/10 |
 | Test Coverage | review | 45s | ✅ | Min 90% coverage |
 | Security Scan | review | 45s | ✅ | Zero vulnerabilities |
-| Performance Check | performance-test | 45s | ❌ | Render < 16ms |
-| Style Validation | style | 30s | ❌ | CSS Modules |
+| Performance Check | review | 45s | ❌ | Render < 16ms |
+| Style Validation | review | 30s | ❌ | CSS Modules |
 | Code Quality | review | 30s | ✅ | Min score 7/10 |
 
 ### Auto-Fix
@@ -451,9 +426,6 @@
 | `review` | P1 | Code review, анализ качества |
 | `fsd-design-skill` | P1 | FSD дизайн (SKILL.md + references) |
 | `integration-test` | P1 | Integration и e2e тесты (Playwright, MSW) |
-| `performance-test` | P2 | Анализ производительности |
-| `style` | P2 | Валидация стилей (SASS + CSS Modules) |
-| `prompt-refinement` | P2 | Оптимизация промптов |
 | `git-commit` | P1 | Git операции |
 
 ---
@@ -466,7 +438,6 @@
 |-------|----------|---------------|
 | `component-boilerplate` | Шаблон компонента | Создание UI компонентов |
 | `fsd-design` | FSD v2.1 decision framework + reference files | Архитектурные решения |
-| `fsd-slice-creation` | Создание FSD slice | Добавление entities/features |
 | `test-generation` | Генерация тестов | Unit/Integration тесты |
 | `storybook-setup` | Настройка Storybook | Stories для компонентов |
 

@@ -88,7 +88,6 @@ Available Agents:
 - guard (P0) - Безопасность
 - orchestrator (P1) - Координация
 - integration-test (P1) - Интеграционные тесты
-- performance-test (P2) - Тесты производительности
 - style (P2) - Валидация стилей
 - git-commit (P1) - Git операции
 ```
@@ -417,7 +416,7 @@ npx eslint src/ --no-ignore
 /review <path> --focus security
 
 # Проверка производительности
-/performance-test <path>
+/review <path> --focus performance
 ```
 
 ### Команды для работы с агентами
@@ -510,7 +509,7 @@ npx eslint src/ --no-ignore
 **Анализ производительности:**
 
 ```
-/perf-check src --metrics render-time,bundle-size,memory
+/review src --focus performance
 ```
 
 ---

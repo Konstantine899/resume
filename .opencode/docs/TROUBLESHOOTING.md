@@ -320,7 +320,7 @@ if ($env:CONTEXT7_API_KEY) {
 
 ```powershell
 # Проверка наличия файлов
-$agents = @('review', 'guard', 'orchestrator', 'integration-test', 'performance-test')
+$agents = @('review', 'guard', 'orchestrator', 'integration-test')
 foreach ($agent in $agents) {
   if (Test-Path ".opencode\agents\$agent.md") {
     Write-Host "✅ $agent.md существует" -ForegroundColor Green
@@ -491,7 +491,7 @@ try {
 
 ```powershell
 # Агенты required для Quality Gates
-$requiredAgents = @('review', 'performance-test', 'style')
+$requiredAgents = @('review')
 
 foreach ($agent in $requiredAgents) {
   if (Test-Path ".opencode\agents\$agent.md") {

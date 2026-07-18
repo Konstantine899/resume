@@ -3,7 +3,9 @@
   "logLevel": "INFO",
   "snapshot": true,
   "instructions": [
-    ".opencode/docs/AGENTS.md"
+    ".opencode/docs/AGENTS.md",
+    "docs/specs/*.md",
+    ".opencode/instructions/*.md"
   ],
   "model": "opencode/deepseek-v4-flash-free",
   "agent": {
@@ -57,9 +59,6 @@
     }
   },
   "permission": {
-    "*": {
-      "action": "ask"
-    },
     "filesystem:read": {
       "action": "allow"
     },
@@ -74,6 +73,19 @@
     },
     "shell:dangerous": {
       "action": "deny"
+    },
+    "bash": {
+      "git push*": "ask",
+      "rm -rf *": "ask",
+      "docker*": "ask",
+      "gh *": "ask"
+    },
+    "skill": {
+      "*": "deny",
+      "component-boilerplate": "allow",
+      "fsd-design": "allow",
+      "storybook-setup": "allow",
+      "test-generation": "allow"
     }
   },
   "plugin": [

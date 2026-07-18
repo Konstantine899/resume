@@ -5,15 +5,54 @@ Last updated: 2026-07-18
 
 ---
 
+## Expected Repository Structure
+
+```
+resume/
+├── src/
+│   ├── app/               App setup: providers, routing, entry point
+│   ├── pages/             Page compositions (HomePage, AboutPage, etc.)
+│   ├── widgets/           Compositional units (Sidebar)
+│   ├── features/          User interactions (Hero, About, Skills, Contact, etc.)
+│   ├── entities/          Business entities (Developer, Project, Job, Skill)
+│   ├── shared/
+│   │   ├── ui/            UI kit (Button, Card, Input, Modal, Toast, etc.)
+│   │   ├── lib/           Utilities (contexts, helpers, i18n config)
+│   │   ├── api/           API client setup (EmailJS, etc.)
+│   │   └── types/         Shared TypeScript types
+│   └── tests/             Test utilities and setups
+├── docs/
+│   └── specs/             Functional and technical specifications
+├── .opencode/             OpenCode agent configuration
+├── public/                Static assets
+├── vite.config.ts
+├── vitest.config.ts
+├── tsconfig.json
+└── package.json
+```
+
+Key conventions:
+- Feature-Sliced Design v2.1 — see `fsd-design` skill for the full decision framework
+- New UI components go into `shared/ui/<ComponentName>/` with CSS Modules, stories, and tests
+- New features/entities use FSD slice structure: `model/`, `ui/`, `hooks/`, `index.ts`
+- All configs at root level (vite, vitest, typescript, eslint, stylelint)
+
+## Project Characteristics
+
+- **State management**: React context + local state only. Redux Toolkit is in package.json but NOT used — do not introduce it without explicit request.
+- **Theme**: Light/dark mode via `ThemeContext` (`shared/lib/contexts/ThemeContext`), persisted in localStorage, CSS custom properties for color tokens.
+- **Styling**: SCSS Modules in `shared/styles/` with `variables/`, `mixins/`, `animations/`, `globals/`. All components use CSS Modules only.
+- **Contact form**: EmailJS via `@emailjs/browser` — requires `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY` env vars.
+- **Deployment**: GitHub Pages. Two CI workflows: Strict Validation (TS + ESLint + bundle) and opencode (comment-triggered).
+
+---
+
 ## Agents
 
 - **orchestrator** — Coordinates multi-agent tasks and dispatches work to sub-agents.
 - **guard** — MCP premoderation, prompt injection detection, PII masking, audit logging. See guard agent for security enforcement.
 - **review** — Code review, quality analysis, bug detection.
 - **integration-test** — Integration and e2e tests (Playwright, MSW).
-- **performance-test** — Performance analysis and budget enforcement.
-- **style** — SCSS/CSS Modules validation.
-- **prompt-refinement** — Refines prompts for clarity and precision before dispatching to sub-agents.
 - **git-commit** — Creates commits with pre-commit validation and conventional commit format.
 
 ---
@@ -34,7 +73,7 @@ Last updated: 2026-07-18
 
 ### FSD Architecture
 
-The project follows Feature-Sliced Design (FSD) v2.1 with strict layer hierarchy: `app` > `pages` > `widgets` > `features` > `entities` > `shared`. A layer may import from itself and all layers below it, never from layers above. Direct cross-imports between features or widgets are forbidden. All slice public APIs must use named exports through `index.ts`. See the `fsd-slice-creation` skill for the full decision framework and the `fsd-design` skill for architecture guidance.
+The project follows Feature-Sliced Design (FSD) v2.1 with strict layer hierarchy: `app` > `pages` > `widgets` > `features` > `entities` > `shared`. A layer may import from itself and all layers below it, never from layers above. Direct cross-imports between features or widgets are forbidden. All slice public APIs must use named exports through `index.ts`. See the `fsd-design` skill for the full decision framework and architecture guidance.
 
 ### Code Style
 
@@ -50,7 +89,7 @@ No secrets, credentials, tokens, or keys in code — use environment variables o
 
 ### Performance
 
-Component render budgets: simple < 8ms, medium < 16ms, complex < 50ms. Bundle chunk limit is 100kb per chunk; total bundle under 500kb. No memory leaks, no missing cleanup in `useEffect`. Use `React.memo`, `useCallback`, `useMemo` appropriately. Route-level code splitting is required. The `performance-test` agent monitors render times and bundle sizes.
+Component render budgets: simple < 8ms, medium < 16ms, complex < 50ms. Bundle chunk limit is 100kb per chunk; total bundle under 500kb. No memory leaks, no missing cleanup in `useEffect`. Use `React.memo`, `useCallback`, `useMemo` appropriately. Route-level code splitting is required. The `review` agent monitors render times, bundle sizes, and SASS quality.
 
 ### Git Workflow
 

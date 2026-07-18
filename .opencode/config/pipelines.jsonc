@@ -114,7 +114,7 @@
         },
         {
           "id": "6-performance",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "analyze",
           "description": "Анализ производительности",
           "timeout": 45,

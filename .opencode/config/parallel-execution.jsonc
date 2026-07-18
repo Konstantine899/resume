@@ -74,7 +74,7 @@
         },
         {
           "id": "performance-analysis",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "analyze",
           "timeout": 45,
           "priority": 2,
@@ -99,7 +99,7 @@
         },
         {
           "id": "create-styles",
-          "agent": "style",
+          "agent": "review",
           "task": "create-scss",
           "timeout": 20,
           "priority": 1,
@@ -132,14 +132,14 @@
         },
         {
           "id": "performance-check",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "analyze",
           "timeout": 45,
           "priority": 2,
         },
         {
           "id": "style-validation",
-          "agent": "style",
+          "agent": "review",
           "task": "validate",
           "timeout": 30,
           "priority": 3,

@@ -37,7 +37,7 @@
         },
         {
           "id": "performance-check",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "analyze",
           "required": false,
           "blocking": false,
@@ -50,7 +50,7 @@
         },
         {
           "id": "style-validation",
-          "agent": "style",
+          "agent": "review",
           "task": "validate",
           "required": true,
           "blocking": false,
@@ -121,7 +121,7 @@
         },
         {
           "id": "performance-budget",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "budget-check",
           "required": true,
           "blocking": true,
@@ -181,7 +181,7 @@
         },
         {
           "id": "performance-production",
-          "agent": "performance-test",
+          "agent": "review",
           "task": "production-budget",
           "required": true,
           "blocking": true,

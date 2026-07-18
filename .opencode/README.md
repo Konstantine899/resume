@@ -1,240 +1,139 @@
-# 🏗️ OpenCode Clean Architecture
+# OpenCode Project Configuration
 
-> **Статус:** ✅ Complete  
-> **Версия:** 2.1.0  
-> **Дата:** 2026-06-08
+**Проект:** Resume Portfolio  
+**Версия:** 3.0.0  
+**Дата:** 2026-07-18
 
 ---
 
-## 📁 Новая структура
+## 📁 Structure
 
 ```
 .opencode/
-├── opencode.json              # Главный конфиг (корень)
-│
-├── config/                    # ← КОНФИГУРАЦИЯ
-│   ├── pipelines.jsonc        # Пайплайны
-│   ├── context.jsonc          # Контекст
-│   ├── quality-gates.jsonc    # Quality gates
-│   ├── parallel-execution.jsonc  # Parallel execution
-│   └── feedback-loop.jsonc    # Feedback loop
-│
-├── docs/                      # ← ДОКУМЕНТАЦИЯ
-│   ├── AGENTS.md              # Агенты
-│   ├── ARCHITECTURE.md        # Архитектура
-│   ├── AUDIT-REPORT.md        # Аудит
-│   ├── IMPLEMENTATION-REPORT.md  # Внедрение
-│   ├── SUMMARY.md             # Итоги
-│   └── SETUP-ENV.md           # Настройка .env
-│
-├── instructions/              # ← ИНСТРУКЦИИ
-├── rules/                     # ← ПРАВИЛА
-├── agents/                    # ← АГЕНТЫ
-├── skills/                    # ← НАВЫКИ
-│
-├── logs/                      # ← RUNTIME (в .gitignore)
-└── context/                   # ← RUNTIME (в .gitignore)
+├── opencode.json              # Control plane: config, permissions, MCP, providers
+├── agents/                    # 5 project-specific subagents
+│   ├── orchestrator.md
+│   ├── guard.md
+│   ├── review.md
+│   ├── integration-test.md
+│   └── git-commit.md
+├── skills/                    # 4 curated skills
+│   ├── component-boilerplate/
+│   ├── fsd-design/
+│   ├── storybook-setup/
+│   └── test-generation/
+├── commands/                  # Custom prompt templates
+│   └── switch-profile.md
+├── config/                    # Machine-readable configs
+│   ├── feedback-loop.jsonc
+│   ├── parallel-execution.jsonc
+│   ├── pipelines.jsonc
+│   └── quality-gates.jsonc
+├── docs/                      # Documentation
+│   ├── AGENTS.md
+│   ├── CONFIGURATION.md
+│   ├── DECISION-FRAMEWORK.md
+│   ├── PLAN-REFACTORING-ADOPT.md
+│   ├── QUICK_START.md
+│   ├── SETUP.md
+│   └── TROUBLESHOOTING.md
+├── plugins/                   # 11 plugins
+├── logs/                      # Runtime (gitignored)
+└── context/                   # Runtime (gitignored)
 ```
 
 ---
 
-## 📊 Сравнение: До и После
+## 🎯 Architecture Principles
 
-### ❌ ДО (15 файлов в корне)
+### Layer Separation
 
-```
-.opencode/
-├── opencode.json
-├── pipelines.jsonc
-├── context.jsonc
-├── quality-gates.jsonc
-├── parallel-execution.jsonc
-├── feedback-loop.jsonc
-├── AGENTS.md
-├── AUDIT-REPORT.md
-├── IMPLEMENTATION-REPORT.md
-├── SUMMARY.md
-├── SETUP-ENV.md
-├── ARCHITECTURE.md
-├── instructions/
-├── rules/
-├── agents/
-├── skills/
-├── logs/
-└── context/
-```
+| Directory | Purpose | In Git? |
+|-----------|---------|---------|
+| `agents/` | Project-specific subagents | ✅ |
+| `skills/` | Curated skills | ✅ |
+| `commands/` | Custom prompt templates | ✅ |
+| `config/` | Machine-readable configs | ✅ |
+| `docs/` | Documentation | ✅ |
+| `plugins/` | Runtime plugins | ✅ |
+| `logs/` | Execution logs | ❌ |
+| `context/` | Context store | ❌ |
 
-**Проблема:** Визуальный шум, сложно найти нужное
+### Configuration vs Documentation
 
----
+**Configuration (`config/`, `opencode.json`):**
+- Machine-readable files (JSON/JSONC)
+- Used by the system at runtime
+- Versioned
 
-### ✅ ПОСЛЕ (6 папок в корне)
-
-```
-.opencode/
-├── opencode.json              # Главный конфиг
-├── config/                    # 6 конфигов
-├── docs/                      # 6 документов
-├── instructions/
-├── rules/
-├── agents/
-├── skills/
-├── logs/
-└── context/
-```
-
-**Преимущество:** Чёткая структура, легко найти нужное
+**Documentation (`docs/`):**
+- Human-readable files (Markdown)
+- For developers and team
+- Versioned
 
 ---
 
-## 🎯 Принципы архитектуры
+## 🎯 Architecture Principles
 
-### 1. Разделение ответственности
+### 1. Separation of concerns
 
-| Папка           | Назначение                | В Git? |
-| --------------- | ------------------------- | ------ |
-| `config/`       | Конфигурация системы      | ✅ Да  |
-| `docs/`         | Документация и отчёты     | ✅ Да  |
-| `instructions/` | Инструкции для агентов    | ✅ Да  |
-| `rules/`        | Правила проекта           | ✅ Да  |
-| `agents/`       | Специализированные агенты | ✅ Да  |
-| `skills/`       | Навыки агентов            | ✅ Да  |
-| `logs/`         | Логи выполнения           | ❌ Нет |
-| `context/`      | Хранилище контекста       | ❌ Нет |
+- `opencode.json` — control plane (config, permissions, MCP, providers)
+- `agents/` — role-based subagents with clear operational boundaries
+- `skills/` — reusable knowledge packages
+- `commands/` — prompt templates for common scenarios
+- `config/` — machine-readable runtime configs
+- `docs/` — human-readable documentation
 
----
+### 2. Instructions composition
 
-### 2. Конфигурация vs Документация
+Knowledge is layered, not monolithic:
+- `AGENTS.md` — project contract (rules, structure, agents)
+- `docs/specs/*.md` — functional and technical specifications
+- Skills — reusable domain knowledge
+- Commands — prompt templates for common scenarios
 
-**Конфигурация (`config/`):**
+### 3. Permission model
 
-- Машиночитаемые файлы (JSON/JSONC)
-- Используются системой во время выполнения
-- Версионируются
-
-**Документация (`docs/`):**
-
-- Человекочитаемые файлы (Markdown)
-- Для разработчиков и команды
-- Версионируется
+- Read/search — allow
+- Local edits — allow
+- Dangerous bash (push, rm -rf, docker, gh) — ask
+- Skills — whitelist (4 project skills)
 
 ---
 
-### 3. Runtime vs Configuration
+## 🎯 Maturity: Stage 4/5
 
-**Configuration (коммитить):**
-
-- Конфиги
-- Документация
-- Правила
-- Инструкции
-
-**Runtime (НЕ коммитить):**
-
-- Логи
-- Контекст
-- Бэкапы
-- Телеметрия
+| Stage | What's in place |
+|-------|----------------|
+| 1. Init + AGENTS.md | ✅ |
+| 2. opencode.json + instructions + specs | ✅ |
+| 3. Project-specific agents | ✅ (5 agents) |
+| 4. Curated skills + permission policy | ✅ (4 skills, whitelist, bash patterns) |
+| 5. Team processes + onboarding | 🟡 SETUP.md, QUICK_START.md, commands |
 
 ---
 
-## 📝 Что изменилось
+## 📚 Navigation
 
-### Перемещённые файлы
-
-| Файл                       | Откуда       | Куда                |
-| -------------------------- | ------------ | ------------------- |
-| `pipelines.jsonc`          | `.opencode/` | `.opencode/config/` |
-| `context.jsonc`            | `.opencode/` | `.opencode/config/` |
-| `quality-gates.jsonc`      | `.opencode/` | `.opencode/config/` |
-| `parallel-execution.jsonc` | `.opencode/` | `.opencode/config/` |
-| `feedback-loop.jsonc`      | `.opencode/` | `.opencode/config/` |
-| `AGENTS.md`                | `.opencode/` | `.opencode/docs/`   |
-| `AUDIT-REPORT.md`          | `.opencode/` | `.opencode/docs/`   |
-| `IMPLEMENTATION-REPORT.md` | `.opencode/` | `.opencode/docs/`   |
-| `SUMMARY.md`               | `.opencode/` | `.opencode/docs/`   |
-| `SETUP-ENV.md`             | `.opencode/` | `.opencode/docs/`   |
-| `ARCHITECTURE.md`          | `.opencode/` | `.opencode/docs/`   |
-
-### Обновлённые пути
-
-**Файл:** `opencode.json`
-
-```jsonc
-// ✅ СТАЛО
-"instructions": [".opencode/docs/AGENTS.md"]
-```
-
----
-
-## 🎯 Преимущества новой архитектуры
-
-### 1. Чистота
-
-- ✅ В корне только папки (визуально проще)
-- ✅ Чёткое разделение ответственности
-- ✅ Легко найти нужный файл
-
-### 2. Масштабируемость
-
-- ✅ Легко добавлять новые конфиги
-- ✅ Легко добавлять новую документацию
-- ✅ Не увеличивается беспорядок
-
-### 3. Поддерживаемость
-
-- ✅ Понятная структура для новых разработчиков
-- ✅ Разделение config/docs/runtime
-- ✅ Следует best practices
-
-### 4. Навигация
-
-```bash
-# Найти конфиг
-ls .opencode/config/
-
-# Найти документацию
-ls .opencode/docs/
-
-# Найти правила
-ls .opencode/rules/
-```
-
----
-
-## 📚 Навигация
-
-### Конфигурация
-
-- [opencode.json](../opencode.json) — Главный конфиг
-- [config/pipelines.jsonc](./config/pipelines.jsonc) — Пайплайны
-- [config/context.jsonc](./config/context.jsonc) — Контекст
+### Configuration
+- [opencode.json](../opencode.json) — Control plane
+- [config/pipelines.jsonc](./config/pipelines.jsonc) — Pipelines
 - [config/quality-gates.jsonc](./config/quality-gates.jsonc) — Quality gates
-- [config/parallel-execution.jsonc](./config/parallel-execution.jsonc) — Parallel
-- [config/feedback-loop.jsonc](./config/feedback-loop.jsonc) — Feedback
 
-### Документация
+### Documentation
+- [docs/AGENTS.md](./docs/AGENTS.md) — Project rules and agents
+- [docs/QUICK_START.md](./docs/QUICK_START.md) — Quick start
+- [docs/SETUP.md](./docs/SETUP.md) — Setup guide
+- [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Common issues
 
-- [docs/AGENTS.md](./docs/AGENTS.md) — Агенты
-- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — Архитектура
-- [docs/AUDIT-REPORT.md](./docs/AUDIT-REPORT.md) — Аудит
-- [docs/IMPLEMENTATION-REPORT.md](./docs/IMPLEMENTATION-REPORT.md) — Внедрение
-- [docs/SUMMARY.md](./docs/SUMMARY.md) — Итоги
-- [docs/SETUP-ENV.md](./docs/SETUP-ENV.md) — Настройка .env
-
----
-
-## ✅ Чек-лист миграции
-
-- [x] Созданы папки `config/` и `docs/`
-- [x] Перемещены конфиги в `config/`
-- [x] Перемещена документация в `docs/`
-- [x] Обновлён `opencode.json` (пути)
-- [x] Обновлён `.gitignore`
-- [x] Создана документация архитектуры
+### Agents
+- [agents/orchestrator.md](./agents/orchestrator.md) — Task decomposition and dispatch
+- [agents/guard.md](./agents/guard.md) — Security premoderation
+- [agents/review.md](./agents/review.md) — Code review and quality
+- [agents/integration-test.md](./agents/integration-test.md) — Integration and e2e tests
+- [agents/git-commit.md](./agents/git-commit.md) — Commits with validation
 
 ---
 
-**Архитектура:** ✅ Clean Architecture  
-**Статус:** Complete  
-**Версия:** 2.1.0
+**Status:** ✅ Configured  
+**Maturity:** Stage 4/5
