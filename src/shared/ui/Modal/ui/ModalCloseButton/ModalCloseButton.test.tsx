@@ -45,27 +45,5 @@ describe('ModalCloseButton', () => {
     expect(svg).toBeInTheDocument();
   });
 
-  it('should call onClose on Enter key press', () => {
-    const onClose = vi.fn();
-    render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /close modal/i });
-    fireEvent.keyDown(button, { key: 'Enter' });
-    expect(onClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('should call onClose on Space key press', () => {
-    const onClose = vi.fn();
-    render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /close modal/i });
-    fireEvent.keyDown(button, { key: ' ' });
-    expect(onClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('should prevent default on Space key press', () => {
-    const onClose = vi.fn();
-    render(<ModalCloseButton onClose={onClose} />);
-    const button = screen.getByRole('button', { name: /close modal/i });
-    const event = fireEvent.keyDown(button, { key: ' ', cancelable: true });
-    expect(event).toBe(false); // preventDefault called
-  });
+  // Note: keyDown tests for Enter/Space removed — native <button> handles these
 });

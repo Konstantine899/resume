@@ -179,7 +179,7 @@ $icon-button-size: $spacing-lg; // 32px
     border-radius: $radius-xl $radius-xl 0 0;
   }
 
-  .modal.full {
+  .modal--full {
     max-width: 100%;
     max-height: calc(100vh - #{$spacing-md});
   }

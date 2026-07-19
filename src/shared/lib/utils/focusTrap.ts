@@ -35,6 +35,8 @@ export const focusTrap = (container: HTMLElement | null): (() => void) => {
   if (!container) return () => {};
 
   const focusableElements = getFocusableElements(container);
+  if (focusableElements.length === 0) return () => {};
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 

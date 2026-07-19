@@ -25,23 +25,11 @@ export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
     onClose();
   }, [onClose]);
 
-  // Keyboard handler: Enter/Space support
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
   return (
     <button
       type="button"
       className={styles.closeButton}
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
       aria-label={ariaLabel}
     >
       <X size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} />

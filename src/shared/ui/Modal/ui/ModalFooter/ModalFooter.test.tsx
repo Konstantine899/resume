@@ -8,7 +8,7 @@ import '@testing-library/jest-dom';
 import { ModalFooter } from './ModalFooter';
 
 describe('ModalFooter', () => {
-  it('должен рендерить children', () => {
+  it('should render children', () => {
     render(
       <ModalFooter>
         <button>Action</button>
@@ -17,7 +17,7 @@ describe('ModalFooter', () => {
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
-  it('должен рендерить несколько кнопок', () => {
+  it('should render multiple buttons', () => {
     render(
       <ModalFooter>
         <button>Cancel</button>
@@ -28,13 +28,13 @@ describe('ModalFooter', () => {
     expect(screen.getByText('Save')).toBeInTheDocument();
   });
 
-  it('должен применять кастомный className', () => {
+  it('should apply custom className', () => {
     render(<ModalFooter className="custom-class">Content</ModalFooter>);
     const footer = screen.getByText('Content');
     expect(footer).toHaveClass('custom-class');
   });
 
-  it('должен иметь default className из styles', () => {
+  it('should have default className from styles', () => {
     render(<ModalFooter>Content</ModalFooter>);
     const footer = screen.getByText('Content');
     expect(footer.tagName).toBe('FOOTER');

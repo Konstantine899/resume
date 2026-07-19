@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Modal } from './Modal';
+import { resetOpenCount } from '../ModalRoot/ModalRoot';
 
 describe('Modal (Compound)', () => {
   const defaultProps = {
@@ -17,11 +18,13 @@ describe('Modal (Compound)', () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
+    resetOpenCount();
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    resetOpenCount();
   });
 
   // ============================================
@@ -149,6 +152,18 @@ describe('Modal (Compound)', () => {
       expect(dialog).toHaveAttribute('aria-describedby');
     });
 
+    it('should not have aria-describedby without subtitle', () => {
+      render(<Modal {...defaultProps} title="Title" />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).not.toHaveAttribute('aria-describedby');
+    });
+
+    it('should not have aria-label when aria-labelledby is present', () => {
+      render(<Modal {...defaultProps} title="Test Title" />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).not.toHaveAttribute('aria-label');
+    });
+
     it('should have tabIndex=0', () => {
       render(<Modal {...defaultProps} />);
       expect(screen.getByRole('dialog')).toHaveAttribute('tabindex', '0');
@@ -219,7 +234,7 @@ describe('Modal (Compound)', () => {
 
     it('should not render overlay when overlay=false', () => {
       render(<Modal {...defaultProps} overlay={false} />);
-      // Overlay not rendered
+      expect(document.querySelector('[aria-hidden="true"]')).toBeNull();
     });
 
     it('should close on overlay click', () => {

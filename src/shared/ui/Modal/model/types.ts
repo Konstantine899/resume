@@ -229,10 +229,7 @@ export interface ModalCloseButtonProps {
   ariaLabel?: string;
 }
 
-export interface ModalRootProps extends Omit<
-  ModalProps,
-  'title' | 'subtitle' | 'footer' | 'showCloseButton'
-> {
+export interface ModalRootProps extends Omit<ModalProps, 'title' | 'footer' | 'showCloseButton'> {
   /**
    * Контент (обычно Modal.Header + Modal.Content + Modal.Footer)
    */

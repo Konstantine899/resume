@@ -8,12 +8,12 @@ import '@testing-library/jest-dom';
 import { ModalContent } from './ModalContent';
 
 describe('ModalContent', () => {
-  it('должен рендерить children', () => {
+  it('should render children', () => {
     render(<ModalContent>Test Content</ModalContent>);
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
-  it('должен рендерить сложные children', () => {
+  it('should render complex children', () => {
     render(
       <ModalContent>
         <div>
@@ -26,13 +26,13 @@ describe('ModalContent', () => {
     expect(screen.getByText('Paragraph')).toBeInTheDocument();
   });
 
-  it('должен применять кастомный className', () => {
+  it('should apply custom className', () => {
     render(<ModalContent className="custom-class">Content</ModalContent>);
     const content = screen.getByText('Content');
     expect(content).toHaveClass('custom-class');
   });
 
-  it('должен иметь default className из styles', () => {
+  it('should have default className from styles', () => {
     render(<ModalContent>Content</ModalContent>);
     const content = screen.getByText('Content');
     expect(content.className).toContain('content');

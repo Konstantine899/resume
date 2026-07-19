@@ -13,6 +13,12 @@ import styles from '../Modal/Modal.module.scss';
 // Global counter for multiple modals scroll blocking (используем useRef для атомарности и SSR safety)
 let openCount = 0;
 
+/** Reset openCount — useful for test isolation to prevent state leakage between tests */
+// eslint-disable-next-line react-refresh/only-export-components
+export function resetOpenCount(): void {
+  openCount = 0;
+}
+
 export const ModalRoot = memo((props: ModalRootProps) => {
   const {
     children,
@@ -24,7 +30,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     closeOnEsc = true,
     blockScroll = true,
     className = '',
-    ariaLabel = 'Modal dialog',
+    subtitle,
     disableAnimation = false,
     onOpened,
     onClosed,
@@ -189,8 +195,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          aria-describedby={subtitleId}
-          aria-label={ariaLabel}
+          aria-describedby={subtitle ? subtitleId : undefined}
           tabIndex={0}
           data-state={dataState}
         >
