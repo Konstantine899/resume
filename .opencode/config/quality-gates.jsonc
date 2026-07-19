@@ -18,8 +18,8 @@
           "criteria": {
             "minScore": 7,
             "noCriticalIssues": true,
-            "blockers": ["security", "types", "architecture"],
-          },
+            "blockers": ["security", "types", "architecture"]
+          }
         },
         {
           "id": "security-scan",
@@ -30,8 +30,8 @@
           "timeout": 45,
           "criteria": {
             "noVulnerabilities": true,
-            "focus": ["xss", "injection", "auth", "data-leak"],
-          },
+            "focus": ["xss", "injection", "auth", "data-leak"]
+          }
         },
         {
           "id": "performance-check",
@@ -43,8 +43,8 @@
           "criteria": {
             "renderTime": "< 16ms",
             "bundleSize": "< 50kb",
-            "memoryUsage": "normal",
-          },
+            "memoryUsage": "normal"
+          }
         },
         {
           "id": "style-validation",
@@ -56,8 +56,8 @@
           "criteria": {
             "sassArchitecture": true,
             "cssModules": true,
-            "noGlobalStyles": true,
-          },
+            "noGlobalStyles": true
+          }
         },
         {
           "id": "judge-score",
@@ -69,9 +69,9 @@
           "criteria": {
             "minScore": 7,
             "categories": ["correctness", "completeness", "security", "maintainability"]
-          },
-        },
-      ],
+          }
+        }
+      ]
     },
 
     "pre-merge": {
@@ -90,8 +90,8 @@
           "criteria": {
             "minScore": 8,
             "noCriticalIssues": true,
-            "noMajorIssues": true,
-          },
+            "noMajorIssues": true
+          }
         },
         {
           "id": "integration-tests",
@@ -102,8 +102,8 @@
           "timeout": 120,
           "criteria": {
             "passRate": 100,
-            "coverage": 95,
-          },
+            "coverage": 95
+          }
         },
         {
           "id": "security-audit",
@@ -114,8 +114,8 @@
           "timeout": 90,
           "criteria": {
             "noVulnerabilities": true,
-            "securityScore": 9,
-          },
+            "securityScore": 9
+          }
         },
         {
           "id": "performance-budget",
@@ -127,10 +127,10 @@
           "criteria": {
             "bundleSize": "< 500kb",
             "loadTime": "< 3s",
-            "firstContentfulPaint": "< 1.5s",
-          },
-        },
-      ],
+            "firstContentfulPaint": "< 1.5s"
+          }
+        }
+      ]
     },
 
     "pre-deploy": {
@@ -149,8 +149,8 @@
           "criteria": {
             "productionReady": true,
             "noConsoleLogs": true,
-            "errorHandling": true,
-          },
+            "errorHandling": true
+          }
         },
         {
           "id": "e2e-tests",
@@ -161,8 +161,8 @@
           "timeout": 180,
           "criteria": {
             "passRate": 100,
-            "criticalFlows": true,
-          },
+            "criticalFlows": true
+          }
         },
         {
           "id": "security-final",
@@ -174,8 +174,8 @@
           "criteria": {
             "noVulnerabilities": true,
             "envVariables": true,
-            "apiKeys": true,
-          },
+            "apiKeys": true
+          }
         },
         {
           "id": "performance-production",
@@ -186,11 +186,11 @@
           "timeout": 60,
           "criteria": {
             "lighthouse": "> 90",
-            "coreWebVitals": "good",
-          },
-        },
-      ],
-    },
+            "coreWebVitals": "good"
+          }
+        }
+      ]
+    }
   },
 
   "autoFix": {
@@ -198,7 +198,7 @@
     "maxIterations": 3,
     "agent": "review",
     "fixableIssues": ["style", "types", "minor-bugs"],
-    "skipFixFor": ["security", "architecture", "major-bugs"],
+    "skipFixFor": ["security", "architecture", "major-bugs"]
   },
 
   "notifications": {
@@ -206,7 +206,7 @@
     "onFail": true,
     "onWarning": true,
     "channels": ["console", "log"],
-    "includeDetails": true,
+    "includeDetails": true
   },
 
   "reporting": {
@@ -214,7 +214,7 @@
     "format": "markdown",
     "outputFile": ".opencode/logs/quality-report.md",
     "includeMetrics": true,
-    "includeSuggestions": true,
+    "includeSuggestions": true
   },
 
   "metrics": {
@@ -222,7 +222,7 @@
     "trackPassRate": true,
     "trackFailReasons": true,
     "trackFixTime": true,
-    "logFile": ".opencode/logs/quality-gates.log",
+    "logFile": ".opencode/logs/quality-gates.log"
   },
 
   "globalSettings": {
@@ -230,6 +230,6 @@
     "retryOnFail": false,
     "parallelChecks": true,
     "failFast": false,
-    "logLevel": "INFO",
-  },
+    "logLevel": "INFO"
+  }
 }

@@ -5,7 +5,7 @@
     "enabled": true,
     "autoLearn": true,
     "reviewAfterTasks": 10,
-    "generateRules": true,
+    "generateRules": true
   },
 
   "learningSources": {
@@ -14,27 +14,27 @@
       "source": ".opencode/context/project-memory.json",
       "category": "mistakes",
       "autoApply": true,
-      "ttl": 604800,
+      "ttl": 604800
     },
     "taskResults": {
       "enabled": true,
       "source": ".opencode/context/task-context.json",
       "category": "completed-tasks",
       "autoApply": true,
-      "analyzePatterns": true,
+      "analyzePatterns": true
     },
     "qualityGates": {
       "enabled": true,
       "source": ".opencode/logs/quality-gates.log",
       "parseFailures": true,
-      "autoApply": true,
+      "autoApply": true
     },
     "manualFeedback": {
       "enabled": true,
       "source": ".opencode/feedback/manual.json",
       "priority": "high",
-      "autoApply": true,
-    },
+      "autoApply": true
+    }
   },
 
   "analysis": {
@@ -46,26 +46,26 @@
       "onRecurringError": true,
       "onPerformanceDegradation": true,
       "onSecurityIssue": true,
-      "onArchitectureViolation": true,
+      "onArchitectureViolation": true
     },
     "immediateAnalysis": ["security", "critical-bug", "architecture"],
     "batchAnalysis": ["style", "performance", "documentation"],
     "severityThresholds": {
       "immediate": ["critical", "high"],
-      "batch": ["medium", "low"],
+      "batch": ["medium", "low"]
     },
     "patterns": {
       "detectRecurringIssues": true,
       "detectCommonMistakes": true,
       "detectPerformanceBottlenecks": true,
-      "detectQualityTrends": true,
+      "detectQualityTrends": true
     },
     "metrics": {
       "trackSuccessRate": true,
       "trackFailReasons": true,
       "trackImprovementOverTime": true,
-      "trackLearningEffectiveness": true,
-    },
+      "trackLearningEffectiveness": true
+    }
   },
 
   "autoImprovement": {
@@ -74,7 +74,7 @@
     "updatePatterns": true,
     "suggestFixes": true,
     "autoApplyFixes": false,
-    "requireApproval": true,
+    "requireApproval": true
   },
 
   "ruleGeneration": {
@@ -83,7 +83,7 @@
     "formats": ["markdown", "json"],
     "reviewRequired": true,
     "autoEnable": false,
-    "naming": "auto-rule-{timestamp}-{type}.md",
+    "naming": "auto-rule-{timestamp}-{type}.md"
   },
 
   "suggestions": {
@@ -96,8 +96,8 @@
       "performance-tip",
       "security-warning",
       "architecture-improvement",
-      "code-style-suggestion",
-    ],
+      "code-style-suggestion"
+    ]
   },
 
   "notifications": {
@@ -105,7 +105,7 @@
     "onRuleGenerated": true,
     "onPatternDetected": true,
     "onImprovementApplied": true,
-    "channels": ["console", "log"],
+    "channels": ["console", "log"]
   },
 
   "metrics": {
@@ -114,7 +114,7 @@
     "trackGeneratedRules": true,
     "trackAppliedSuggestions": true,
     "trackImprovementRate": true,
-    "logFile": ".opencode/logs/feedback-loop.log",
+    "logFile": ".opencode/logs/feedback-loop.log"
   },
 
   "reporting": {
@@ -124,6 +124,6 @@
     "outputFile": ".opencode/logs/feedback-report.md",
     "includeMetrics": true,
     "includeSuggestions": true,
-    "includeTrends": true,
-  },
+    "includeTrends": true
+  }
 }

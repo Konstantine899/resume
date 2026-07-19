@@ -14,7 +14,7 @@
           "description": "Создание компонента с типами и стилями",
           "timeout": 60,
           "onFail": "stop",
-          "output": "component-files",
+          "output": "component-files"
         },
         {
           "id": "2-review",
@@ -26,8 +26,8 @@
           "input": "component-files",
           "criteria": {
             "minScore": 7,
-            "blockers": ["security", "types", "architecture"],
-          },
+            "blockers": ["security", "types", "architecture"]
+          }
         },
         {
           "id": "6-summary",
@@ -36,8 +36,8 @@
           "description": "Итоговый отчёт",
           "timeout": 10,
           "onFail": "never",
-          "input": ["component-files", "review-result", "test-result", "story-result"],
-        },
+          "input": ["component-files", "review-result", "test-result", "story-result"]
+        }
       ],
       "settings": {
         "parallel": true,
@@ -47,8 +47,8 @@
         ],
         "stopOnFail": true,
         "autoCommit": false,
-        "notifyOnComplete": true,
-      },
+        "notifyOnComplete": true
+      }
     },
 
     "code-review": {
@@ -65,9 +65,9 @@
           "onFail": "stop",
           "criteria": {
             "minScore": 6,
-            "focus": ["bugs", "performance", "readability"],
+            "focus": ["bugs", "performance", "readability"]
           },
-          "output": "review-result",
+          "output": "review-result"
         },
         {
           "id": "2-critic",
@@ -78,7 +78,7 @@
           "onFail": "continue",
           "input": "review-result",
           "focus": ["security", "edge-cases", "architecture"],
-          "output": "critic-result",
+          "output": "critic-result"
         },
         {
           "id": "3-fix",
@@ -89,7 +89,7 @@
           "onFail": "retry",
           "maxRetries": 2,
           "input": "critic-result",
-          "output": "fixed-code",
+          "output": "fixed-code"
         },
         {
           "id": "4-verify",
@@ -99,7 +99,7 @@
           "timeout": 30,
           "onFail": "retry",
           "input": "fixed-code",
-          "maxIterations": 3,
+          "maxIterations": 3
         },
         {
           "id": "5-security",
@@ -108,7 +108,7 @@
           "description": "Проверка безопасности",
           "timeout": 45,
           "onFail": "continue",
-          "focus": ["xss", "injection", "auth", "data-leak"],
+          "focus": ["xss", "injection", "auth", "data-leak"]
         },
         {
           "id": "6-performance",
@@ -117,7 +117,7 @@
           "description": "Анализ производительности",
           "timeout": 45,
           "onFail": "continue",
-          "metrics": ["render-time", "bundle-size", "memory"],
+          "metrics": ["render-time", "bundle-size", "memory"]
         },
         {
           "id": "8-summary",
@@ -127,8 +127,8 @@
           "timeout": 15,
           "onFail": "never",
           "format": "markdown",
-          "input": ["review-result", "fixed-code"],
-        },
+          "input": ["review-result", "fixed-code"]
+        }
       ],
       "settings": {
         "parallel": true,
@@ -141,7 +141,7 @@
           "saveSession": true,
           "contextTTL": 86400
         }
-      },
+      }
     },
 
     "fix-bug": {
@@ -156,7 +156,7 @@
           "description": "Диагностика проблемы",
           "timeout": 45,
           "onFail": "stop",
-          "output": "diagnosis",
+          "output": "diagnosis"
         },
         {
           "id": "2-fix",
@@ -166,7 +166,7 @@
           "timeout": 60,
           "onFail": "retry",
           "maxRetries": 2,
-          "input": "diagnosis",
+          "input": "diagnosis"
         },
         {
           "id": "3-verify",
@@ -175,15 +175,15 @@
           "description": "Проверка исправления",
           "timeout": 30,
           "onFail": "retry",
-          "input": "fix-result",
-        },
+          "input": "fix-result"
+        }
       ],
       "settings": {
         "parallel": false,
         "stopOnFail": true,
         "autoCommit": false,
-        "notifyOnComplete": true,
-      },
+        "notifyOnComplete": true
+      }
     },
 
     "refactor": {
@@ -198,7 +198,7 @@
           "description": "Анализ технического долга",
           "timeout": 45,
           "onFail": "stop",
-          "output": "debt-report",
+          "output": "debt-report"
         },
         {
           "id": "2-plan",
@@ -207,7 +207,7 @@
           "description": "План рефакторинга",
           "timeout": 30,
           "onFail": "stop",
-          "input": "debt-report",
+          "input": "debt-report"
         },
         {
           "id": "3-execute",
@@ -217,16 +217,16 @@
           "timeout": 90,
           "onFail": "rollback",
           "input": "plan",
-          "preserveBehavior": true,
-        },
+          "preserveBehavior": true
+        }
       ],
       "settings": {
         "parallel": false,
         "stopOnFail": true,
         "autoCommit": false,
         "notifyOnComplete": true,
-        "backup": true,
-      },
+        "backup": true
+      }
     },
 
     "integration-test": {
@@ -241,7 +241,7 @@
           "description": "Анализ компонента/фичи",
           "timeout": 30,
           "onFail": "stop",
-          "output": "test-plan",
+          "output": "test-plan"
         },
         {
           "id": "2-mock",
@@ -250,7 +250,7 @@
           "description": "Настройка MSW моков",
           "timeout": 30,
           "onFail": "continue",
-          "input": "test-plan",
+          "input": "test-plan"
         },
         {
           "id": "3-write",
@@ -263,8 +263,8 @@
           "input": ["test-plan", "mocks"],
           "coverage": {
             "min": 90,
-            "required": ["happy-path", "error-states", "loading"],
-          },
+            "required": ["happy-path", "error-states", "loading"]
+          }
         },
         {
           "id": "4-run",
@@ -273,7 +273,7 @@
           "description": "Запуск тестов",
           "timeout": 90,
           "onFail": "report",
-          "input": "tests",
+          "input": "tests"
         },
         {
           "id": "5-report",
@@ -282,16 +282,16 @@
           "description": "Отчёт о тестах",
           "timeout": 15,
           "onFail": "never",
-          "input": "test-results",
-        },
+          "input": "test-results"
+        }
       ],
       "settings": {
         "parallel": false,
         "stopOnFail": false,
         "autoCommit": false,
-        "notifyOnComplete": true,
-      },
-    },
+        "notifyOnComplete": true
+      }
+    }
   },
 
   "globalSettings": {
@@ -310,23 +310,23 @@
       "enabled": true,
       "min": 2,
       "max": 5,
-      "basedOn": "resourceUsage",
+      "basedOn": "resourceUsage"
     },
     "logLevel": "INFO",
-    "logFile": ".opencode/logs/pipelines.log",
+    "logFile": ".opencode/logs/pipelines.log"
   },
 
   "pipelineIntegration": {
     "enabled": true,
     "skipCompletedChecks": true,
     "useHigherStandard": true,
-    "aggregateResults": true,
+    "aggregateResults": true
   },
 
   "notifications": {
     "onComplete": true,
     "onFail": true,
     "onWarning": true,
-    "channels": ["console", "log"],
-  },
+    "channels": ["console", "log"]
+  }
 }

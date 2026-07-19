@@ -5,7 +5,7 @@
     "enabled": true,
     "maxConcurrent": 3,
     "strategy": "balanced",
-    "timeout": 300,
+    "timeout": 300
   },
 
   "parallelGroups": {
@@ -20,22 +20,22 @@
           "agent": "integration-test",
           "task": "run-unit",
           "timeout": 60,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "integration-tests",
           "agent": "integration-test",
           "task": "run-integration",
           "timeout": 90,
-          "priority": 2,
+          "priority": 2
         },
         {
           "id": "e2e-tests",
           "agent": "integration-test",
           "task": "run-e2e",
           "timeout": 120,
-          "priority": 3,
-        },
+          "priority": 3
+        }
       ],
       "onFail": "continue",
       "aggregateResults": true,
@@ -47,14 +47,14 @@
         "resourceAllocation": {
           "high": { "cpu": 40, "memory": "1GB" },
           "medium": { "cpu": 30, "memory": "512MB" },
-          "low": { "cpu": 30, "memory": "512MB" },
-        },
+          "low": { "cpu": 30, "memory": "512MB" }
+        }
       },
       "earlyExit": {
         "enabled": true,
         "onCriticalFailure": true,
-        "criticalTasks": ["unit-tests"],
-      },
+        "criticalTasks": ["unit-tests"]
+      }
     },
 
     "code-review-suite": {
@@ -68,18 +68,18 @@
           "agent": "review",
           "task": "security-audit",
           "timeout": 45,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "performance-analysis",
           "agent": "review",
           "task": "analyze",
           "timeout": 45,
-          "priority": 2,
-        },
+          "priority": 2
+        }
       ],
       "onFail": "continue",
-      "aggregateResults": true,
+      "aggregateResults": true
     },
 
     "component-creation": {
@@ -93,26 +93,26 @@
           "agent": "general",
           "task": "create-tsx",
           "timeout": 30,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "create-styles",
           "agent": "review",
           "task": "create-scss",
           "timeout": 20,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "create-types",
           "agent": "general",
           "task": "create-types",
           "timeout": 15,
-          "priority": 1,
-        },
+          "priority": 1
+        }
       ],
       "onFail": "stop",
       "aggregateResults": false,
-      "syncPoint": "all-complete",
+      "syncPoint": "all-complete"
     },
 
     "quality-gate-checks": {
@@ -126,25 +126,25 @@
           "agent": "review",
           "task": "security-audit",
           "timeout": 45,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "performance-check",
           "agent": "review",
           "task": "analyze",
           "timeout": 45,
-          "priority": 2,
+          "priority": 2
         },
         {
           "id": "style-validation",
           "agent": "review",
           "task": "validate",
           "timeout": 30,
-          "priority": 3,
-        },
+          "priority": 3
+        }
       ],
       "onFail": "continue",
-      "aggregateResults": true,
+      "aggregateResults": true
     },
 
     "documentation-generation": {
@@ -158,19 +158,19 @@
           "agent": "review",
           "task": "generate-api-docs",
           "timeout": 30,
-          "priority": 1,
+          "priority": 1
         },
         {
           "id": "component-docs",
           "agent": "general",
           "task": "generate-component-docs",
           "timeout": 30,
-          "priority": 1,
-        },
+          "priority": 1
+        }
       ],
       "onFail": "continue",
-      "aggregateResults": true,
-    },
+      "aggregateResults": true
+    }
   },
 
   "scheduling": {
@@ -180,21 +180,21 @@
         "description": "Баланс между скоростью и загрузкой",
         "maxConcurrent": 3,
         "prioritize": true,
-        "balanceLoad": true,
+        "balanceLoad": true
       },
       "speed": {
         "description": "Максимальная скорость",
         "maxConcurrent": 5,
         "prioritize": true,
-        "balanceLoad": false,
+        "balanceLoad": false
       },
       "conservative": {
         "description": "Минимальная нагрузка",
         "maxConcurrent": 2,
         "prioritize": false,
-        "balanceLoad": true,
-      },
-    },
+        "balanceLoad": true
+      }
+    }
   },
 
   "resourceManagement": {
@@ -202,7 +202,7 @@
     "maxMemory": "2GB",
     "maxCPU": 80,
     "throttleOnLimit": true,
-    "priorityTasks": ["security-audit", "integration-tests"],
+    "priorityTasks": ["security-audit", "integration-tests"]
   },
 
   "errorHandling": {
@@ -211,7 +211,7 @@
     "retryFailed": true,
     "maxRetries": 2,
     "failFast": false,
-    "aggregateErrors": true,
+    "aggregateErrors": true
   },
 
   "metrics": {
@@ -219,7 +219,7 @@
     "trackParallelism": true,
     "trackSpeedup": true,
     "trackResourceUsage": true,
-    "logFile": ".opencode/logs/parallel-execution.log",
+    "logFile": ".opencode/logs/parallel-execution.log"
   },
 
   "reporting": {
@@ -227,6 +227,6 @@
     "format": "markdown",
     "outputFile": ".opencode/logs/parallel-report.md",
     "includeTimings": true,
-    "includeSpeedup": true,
-  },
+    "includeSpeedup": true
+  }
 }
