@@ -1,6 +1,4 @@
 {
-  "$schema": "https://opencode.ai/feedback-loop.json",
-
   "description": "Feedback Loop — автоматическое обучение на ошибках",
 
   "feedbackLoop": {

@@ -1,6 +1,4 @@
 {
-  "$schema": "https://opencode.ai/parallel-execution.json",
-
   "description": "Parallel Execution — параллельное выполнение независимых задач",
 
   "parallelExecution": {

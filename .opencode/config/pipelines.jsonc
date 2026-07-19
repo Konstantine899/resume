@@ -1,6 +1,4 @@
 {
-  "$schema": "https://opencode.ai/pipelines.json",
-
   "description": "Agent Pipelines — автоматические цепочки выполнения задач",
 
   "pipelines": {

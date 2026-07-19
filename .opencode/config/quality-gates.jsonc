@@ -1,6 +1,4 @@
 {
-  "$schema": "https://opencode.ai/quality-gates.json",
-
   "description": "Quality Gates — автоматическая проверка качества перед коммитом",
 
   "gates": {
