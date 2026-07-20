@@ -61,18 +61,6 @@
     }
   }
 
-  .company {
-    margin: 0;
-    font-size: $font-size-sm;
-    font-weight: 500;
-    color: #f4b377;
-    white-space: nowrap;
-
-    @include sm {
-      font-size: $font-size-base;
-    }
-  }
-
   .periodSection {
     display: flex;
     gap: $spacing-2;
@@ -85,10 +73,6 @@
       margin-bottom: $spacing-3;
       font-size: $font-size-sm;
     }
-  }
-
-  .period {
-    color: inherit;
   }
 
   .periodBadge {

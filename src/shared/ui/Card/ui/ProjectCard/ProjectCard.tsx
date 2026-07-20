@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo } from 'react';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
 
@@ -50,10 +51,16 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
 
       <div className={styles.content}>
         {title && <h3 className={styles.title}>{title}</h3>}
-        {description && <p className={styles.description}>{description}</p>}
+        {description && (
+          <Paragraph lineClamp={3} theme="muted">
+            {description}
+          </Paragraph>
+        )}
         {techIcons && techIcons.length > 0 && (
           <div className={styles.techSection}>
-            <span className={styles.techLabel}>{builtUsingLabel}</span>
+            <Paragraph as="span" size="xs" theme="muted">
+              {builtUsingLabel}
+            </Paragraph>
             <div className={styles.techIcons}>
               {techIcons.map((tech, index) => (
                 <img
@@ -68,7 +75,9 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
         )}
         {link && (
           <div className={styles.linkSection}>
-            <span className={styles.linkLabel}>{linkLabel}</span>
+            <Paragraph as="span" size="xs" theme="muted">
+              {linkLabel}
+            </Paragraph>
             <a href={link} target="_blank" rel="noopener noreferrer" className={styles.link}>
               {link.replace(/^https?:\/\//, '')}
             </a>

@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo } from 'react';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import type { WorkHistoryCardProps } from '../../model/types';
 import styles from './WorkHistoryCard.module.scss';
 
@@ -44,11 +45,17 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <h3 className={styles.title}>{title}</h3>
-          {company && <span className={styles.company}>{company}</span>}
+          {company && (
+            <Paragraph as="span" weight="semibold">
+              {company}
+            </Paragraph>
+          )}
         </div>
         {period && (
           <div className={styles.periodSection}>
-            <span className={styles.period}>{period}</span>
+            <Paragraph as="span" size="s" theme="muted">
+              {period}
+            </Paragraph>
             {periodBadge && <span className={styles.periodBadge}>{periodBadge}</span>}
           </div>
         )}
