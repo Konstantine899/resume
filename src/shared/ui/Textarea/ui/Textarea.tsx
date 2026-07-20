@@ -4,6 +4,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Spinner } from '@/shared/ui/Spinner';
 import { TEXTAREA_CONSTANTS } from '../model/constants';
 import type { TextareaProps } from '../model/types';
@@ -255,15 +256,15 @@ const TextareaComponent = forwardRef<HTMLTextAreaElement, TextareaProps>(
         </div>
 
         {error && (
-          <span id={errorId} className={styles.errorText} role="alert" data-testid="textarea-error">
-            {error}
-          </span>
+          <Paragraph asChild theme="error" size="s" id={errorId} data-testid="textarea-error">
+            <span role="alert">{error}</span>
+          </Paragraph>
         )}
 
         {helperText && !error && (
-          <span id={helperId} className={styles.helperText} data-testid="textarea-helper">
+          <Paragraph as="span" theme="muted" size="s" id={helperId} data-testid="textarea-helper">
             {helperText}
-          </span>
+          </Paragraph>
         )}
 
         {showCharCounter && maxLength && (

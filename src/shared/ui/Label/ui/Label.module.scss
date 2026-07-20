@@ -84,18 +84,6 @@
   }
 }
 
-// Description text
-.description {
-  margin-top: -$spacing-1;
-  margin-bottom: $spacing-2;
-  font-size: $font-size-xs;
-  line-height: $line-height-base;
-  color: var(--foreground-muted);
-
-  // Transition for theme changes
-  transition: color $transition-duration $transition-easing;
-}
-
 // Skeleton loading mode
 .skeletonMode {
   pointer-events: none;
@@ -114,10 +102,6 @@
 // Accessibility: Reduced motion
 @media (prefers-reduced-motion: reduce) {
   .label {
-    transition: none;
-  }
-
-  .description {
     transition: none;
   }
 

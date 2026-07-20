@@ -137,10 +137,6 @@
       color: $success-color;
       background: rgb(40 167 69 / 0.15);
     }
-
-    .message {
-      color: rgb(40 167 69 / 0.95);
-    }
   }
 
   &.error {
@@ -149,10 +145,6 @@
     .icon {
       color: $danger-color;
       background: rgb(220 53 69 / 0.15);
-    }
-
-    .message {
-      color: rgb(220 53 69 / 0.95);
     }
   }
 
@@ -163,10 +155,6 @@
       color: $warning-color;
       background: rgb(255 193 7 / 0.2);
     }
-
-    .message {
-      color: rgb(255 193 7 / 0.95);
-    }
   }
 
   &.info {
@@ -175,10 +163,6 @@
     .icon {
       color: $info-color;
       background: rgb(23 162 184 / 0.15);
-    }
-
-    .message {
-      color: rgb(23 162 184 / 0.95);
     }
   }
 
@@ -219,23 +203,6 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-}
-
-// ============================================
-
-// Message
-
-// ============================================
-.message {
-  z-index: 2;
-  flex: 1;
-  font-family: $font-family-base;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  line-height: 1.4;
-  word-break: break;
-
-  @include theme-transition;
 }
 
 // ============================================

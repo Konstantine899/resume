@@ -5,6 +5,7 @@
 import { classNames } from '@/shared/lib/utils';
 import { X, Pause } from 'lucide-react';
 import { memo, useEffect, useState, useCallback, useRef } from 'react';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { TOAST_CONSTANTS, TOAST_TYPES, TOAST_ICONS } from '../model/constants';
 import type { ToastProps } from '../model/types';
 import styles from './Toast.module.scss';
@@ -132,9 +133,9 @@ export const Toast = memo((props: ToastProps) => {
       <div className={styles.icon} aria-hidden="true">
         <Icon size={TOAST_CONSTANTS.ICON_SIZE} />
       </div>
-      <span className={styles.message} id={`toast-message-${id}`}>
+      <Paragraph as="span" id={`toast-message-${id}`}>
         {message}
-      </span>
+      </Paragraph>
       <button
         type="button"
         className={styles.closeButton}

@@ -276,24 +276,6 @@
   @include theme-transition;
 }
 
-// Error text
-.errorText {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--form-error);
-
-  @include theme-transition;
-}
-
-// Helper text
-.helperText {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--foreground-muted);
-
-  @include theme-transition;
-}
-
 // Loading skeleton animation
 @keyframes textareaLoading {
   0% {

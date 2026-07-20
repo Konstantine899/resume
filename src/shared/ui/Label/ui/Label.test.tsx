@@ -162,13 +162,14 @@ describe('Label', () => {
       expect(screen.getByText('Must be at least 8 characters')).toBeInTheDocument();
     });
 
-    it('должен применять description класс', () => {
-      const { container } = render(
+    it('должен рендерить description через Paragraph', () => {
+      render(
         <Label htmlFor="password" description="Description text">
           Password
         </Label>
       );
-      expect(container.querySelector(`.${styles.description}`)).toBeInTheDocument();
+      expect(screen.getByText('Description text')).toBeInTheDocument();
+      expect(screen.getByText('Description text').tagName).toBe('SPAN');
     });
 
     it('должен устанавливать правильный id для description', () => {

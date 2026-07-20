@@ -254,20 +254,6 @@
   @include theme-transition;
 }
 
-.errorText {
-  font-size: 0.875rem;
-  color: var(--form-error);
-
-  @include theme-transition;
-}
-
-.helperText {
-  font-size: 0.875rem;
-  color: var(--foreground-muted);
-
-  @include theme-transition;
-}
-
 // Floating Label styles
 .floatingLabelWrapper {
   position: relative;
@@ -356,8 +342,6 @@
   .label,
   .floatingLabel,
   .counter,
-  .errorText,
-  .helperText,
   .clearButton,
   .passwordToggle,
   .addonStart,

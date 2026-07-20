@@ -4,6 +4,7 @@
 
 import React, { useId, useCallback, forwardRef, useEffect } from 'react';
 import { classNames } from '@/shared/lib/utils';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import type { InputProps } from '../model/types';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Eye, EyeOff } from 'lucide-react';
@@ -289,15 +290,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error && (
-          <span id={errorId} className={styles.errorText} role="alert">
-            {error}
-          </span>
+          <Paragraph asChild theme="error" size="s" id={errorId}>
+            <span role="alert">{error}</span>
+          </Paragraph>
         )}
 
         {helperText && !error && (
-          <span id={helperId} className={styles.helperText}>
+          <Paragraph as="span" theme="muted" size="s" id={helperId}>
             {helperText}
-          </span>
+          </Paragraph>
         )}
 
         {showCharCounter && maxLength && !skeleton && (

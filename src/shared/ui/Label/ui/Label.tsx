@@ -6,6 +6,7 @@
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { memo, forwardRef } from 'react';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import type { LabelProps } from '../model/types';
 import { LABEL_DEFAULTS } from '../model/constants';
 import { validateLabelProps } from '../lib/utils/validateLabelProps';
@@ -119,9 +120,9 @@ export const Label = memo(
           </label>
 
           {description && (
-            <span className={styles.description} id={`${htmlFor}-description`}>
+            <Paragraph as="span" size="s" theme="muted" id={`${htmlFor}-description`}>
               {description}
-            </span>
+            </Paragraph>
           )}
         </div>
       );

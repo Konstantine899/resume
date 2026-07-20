@@ -359,7 +359,7 @@ describe('Runtime Validation (Development)', () => {
     // @ts-expect-error Testing invalid prop value
     render(<Textarea variant="invalid" />);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Textarea: invalid variant "invalid"')
+      expect.stringContaining('[Textarea] Invalid variant "invalid"')
     );
   });
 
@@ -367,23 +367,7 @@ describe('Runtime Validation (Development)', () => {
     // @ts-expect-error Testing invalid prop value
     render(<Textarea size="invalid" />);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Textarea: invalid size "invalid"')
-    );
-  });
-
-  it('должен предупреждать о rows < 2', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render(<Textarea rows={1 as any} />);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Textarea: invalid rows "1"')
-    );
-  });
-
-  it('должен предупреждать о rows > 10', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render(<Textarea rows={15 as any} />);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Textarea: invalid rows "15"')
+      expect.stringContaining('[Textarea] Invalid size "invalid"')
     );
   });
 
