@@ -1,38 +1,14 @@
 // ============================================
-
 // Theme & Card Mixins
-
 // ============================================
 
 @use '../variables/transition' as *;
-@use '../variables/radius' as *;
-@use '../variables/shadows' as *;
-@use '../variables/colors' as *;
-@use '../variables/spacing' as *;
 
-// Theme transition
+// Theme transition (shared utility - used by 12+ components)
 @mixin theme-transition {
   transition:
     background-color $transition-duration $transition-easing,
     color $transition-duration $transition-easing,
     border-color $transition-duration $transition-easing,
     box-shadow $transition-duration $transition-easing;
-}
-
-// Base card
-@mixin card {
-  height: 220px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  box-shadow: $shadow-sm;
-  transition: box-shadow 0.2s ease;
-
-  &:hover {
-    box-shadow: $shadow-md;
-  }
-}
-
-// Card with gradient (alias for card)
-@mixin card-gradient {
-  @include card;
 }

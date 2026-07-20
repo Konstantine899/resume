@@ -1,0 +1,25 @@
+// Label Mixins
+// Moved from shared/styles/mixins/_components.scss
+
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/transition' as *;
+
+@mixin label-base {
+  display: block;
+  margin-bottom: $spacing-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--label-color);
+  transition: color $transition-fast ease;
+
+  &.required::after {
+    margin-left: $spacing-1;
+    color: var(--form-error);
+    content: ' *';
+  }
+
+  &.error { color: var(--form-error); }
+  &.success { color: var(--form-success); }
+  &.warning { color: var(--form-warning); }
+}

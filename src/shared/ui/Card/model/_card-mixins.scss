@@ -1,0 +1,20 @@
+// Card Mixins
+// Moved from shared/styles/mixins/_theme.scss
+
+@use '@/shared/styles/variables/shadows' as *;
+
+@mixin card {
+  height: 220px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: $shadow-sm;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+@mixin card-gradient {
+  @include card;
+}

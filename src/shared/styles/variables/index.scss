@@ -11,7 +11,7 @@
 @forward 'radius';
 @forward 'shadows';
 @forward 'transition';
-@forward 'sidebar';
+// @forward 'sidebar' — moved to widgets/Sidebar/model/_sidebar-variables.scss
 @forward 'z-index';
 
 // Re-export commonly used modules for convenience

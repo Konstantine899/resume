@@ -1,6 +1,6 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins/responsive' as *;
-@use '@/shared/styles/mixins/avatar' as *;
+@use '@/shared/ui/Avatar/model/avatar-mixins' as *;
 
 .avatarHero {
   position: relative;

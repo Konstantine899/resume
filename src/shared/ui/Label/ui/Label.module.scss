@@ -9,7 +9,7 @@
 @use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/variables/typography' as *;
 @use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/mixins/components' as components;
+@use '@/shared/ui/Label/model/label-mixins' as label;
 
 // Wrapper for label + description
 .wrapper {
@@ -20,7 +20,7 @@
 
 // Base label styles
 .label {
-  @include components.label-base;
+  @include label.label-base;
 
   cursor: pointer;
 

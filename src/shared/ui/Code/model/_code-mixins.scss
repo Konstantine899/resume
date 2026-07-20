@@ -1,0 +1,15 @@
+// Code Mixins
+// Moved from shared/styles/mixins/_components.scss
+
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/radius' as *;
+
+@mixin code-block {
+  overflow: hidden;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  color: #fff;
+  background: var(--code-bg, rgb(41 39 38 / 0.95));
+  border: 1px solid rgb(244 179 119 / 0.2);
+  border-radius: $border-radius-lg;
+  backdrop-filter: blur(8px);
+}
