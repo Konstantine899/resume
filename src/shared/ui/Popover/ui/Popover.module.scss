@@ -54,9 +54,6 @@
 
   .title {
     padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--foreground);
     border-bottom: 1px solid var(--popover-border, var(--card-border));
   }
 

@@ -2,6 +2,7 @@
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { memo } from 'react';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Portal } from '@/shared/ui/Portal';
 import { usePopover } from '../lib/hooks/usePopover';
 import { POPOVER_CONSTANTS, POPOVER_SIZES } from '../model/constants';
@@ -125,7 +126,11 @@ export const Popover = memo(
               data-testid="popover-content"
               data-position={adjustedPosition}
             >
-              {title && <div className={styles.title}>{title}</div>}
+              {title && (
+                <Paragraph weight="semibold" className={styles.title}>
+                  {title}
+                </Paragraph>
+              )}
               <div className={styles.content}>{content}</div>
             </div>
           </Portal>
