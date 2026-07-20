@@ -4,6 +4,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { IconButton } from '@/shared/ui/Button';
 import { Overlay } from '@/shared/ui/Overlay';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { X } from 'lucide-react';
 import React from 'react';
 import type { NavItem as NavItemType } from '../../model/types';
@@ -79,7 +80,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
         <div className={styles.controls}>
           <ThemeSwitch variant="mobile" />
           <LanguageSwitch variant="mobile" />
-          <p className={styles.footerText}>{t('footerTitle')}</p>
+          <Paragraph size="xs" theme="muted" align="center" className={styles.footerText}>
+            {t('footerTitle')}
+          </Paragraph>
         </div>
       </div>
 
