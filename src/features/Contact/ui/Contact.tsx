@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { ContactCard } from '@/shared/ui/Card';
 import { Mail } from 'lucide-react';
@@ -106,7 +107,7 @@ export function Contact() {
         {/* Декоративная секция */}
         <AnimatedSection delay={400}>
           <ContactCard title={t('contact')} icon={<Mail />}>
-            <p>{t('contactDescription')}</p>
+            <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
           </ContactCard>
         </AnimatedSection>
       </div>

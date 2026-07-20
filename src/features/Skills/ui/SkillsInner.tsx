@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { SKILLS_DATA } from '../model/constants';
 import type { SkillsFeatureProps } from '../model/types';
@@ -28,7 +29,9 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
         <AnimatedSection animation="fadeUp">
           <div className={styles.card}>
             <h3 className={styles.title}>{t('mySkills')}</h3>
-            <p className={styles.emptyState}>Навыки не указаны</p>
+            <Paragraph theme="muted" align="center" className={styles.emptyState}>
+              Навыки не указаны
+            </Paragraph>
           </div>
         </AnimatedSection>
       </section>

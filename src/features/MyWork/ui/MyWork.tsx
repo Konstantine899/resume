@@ -5,6 +5,7 @@
 import { PROJECTS } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { ProjectCard } from '@/shared/ui/Card';
 import React from 'react';
 import type { MyWorkProps } from '../model/types';
@@ -49,7 +50,9 @@ export const MyWork: React.FC<MyWorkProps> = ({
       {PROJECTS.length === 0 && (
         <div className={styles.emptyState}>
           <div className={styles.icon}>📁</div>
-          <p>No projects yet</p>
+          <Paragraph theme="muted" align="center">
+            No projects yet
+          </Paragraph>
         </div>
       )}
     </section>
