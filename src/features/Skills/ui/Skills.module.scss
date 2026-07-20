@@ -106,28 +106,6 @@
 
 // ============================================
 
-// SUBTITLE
-
-// ============================================
-.subtitle {
-  margin-bottom: 24px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--foreground-muted);
-  transition: color 0.4s ease;
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-
-  @media (width >= 640px) {
-    margin-bottom: 32px;
-    font-size: 18px;
-  }
-}
-
-// ============================================
-
 // CATEGORIES LIST
 
 // ============================================
@@ -157,56 +135,4 @@
 // ============================================
 .emptyState {
   padding: 32px;
-}
-
-// ============================================
-
-// SKILL ITEM
-
-// ============================================
-.skillItem {
-  display: flex;
-  gap: 6px; // gap-1.5
-  align-items: center;
-  transition: transform 0.4s ease;
-
-  &:hover {
-    transform: scale(1.05); // hover:scale-105
-  }
-
-  @media (width >= 640px) {
-    gap: 8px; // sm:gap-2
-  }
-
-  .icon {
-    width: 20px; // w-5
-    height: 20px; // h-5
-
-    @media (width >= 640px) {
-      width: 24px; // sm:w-6
-      height: 24px; // sm:h-6
-    }
-
-    &.invert {
-      filter: invert(1);
-    }
-  }
-
-  .label {
-    font-size: 12px; // text-xs
-    color: var(--foreground-muted);
-    transition: color 0.4s ease;
-
-    @media (width >= 640px) {
-      font-size: 14px; // sm:text-sm
-    }
-
-    @media (width >= 768px) {
-      font-size: 16px; // md:text-base
-    }
-  }
-
-  &:hover .label {
-    color: var(--foreground); // group-hover:theme-text
-  }
 }

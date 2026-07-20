@@ -287,5 +287,3 @@ TextareaComponent.displayName = 'Textarea';
 
 export const Textarea = memo(TextareaComponent);
 Textarea.displayName = 'Textarea';
-
-export default Textarea;

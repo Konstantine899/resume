@@ -30,7 +30,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
           <div className={styles.card}>
             <h3 className={styles.title}>{t('mySkills')}</h3>
             <Paragraph theme="muted" align="center" className={styles.emptyState}>
-              Навыки не указаны
+              {t('skillsEmpty')}
             </Paragraph>
           </div>
         </AnimatedSection>

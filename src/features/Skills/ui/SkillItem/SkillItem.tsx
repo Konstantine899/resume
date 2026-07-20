@@ -15,12 +15,11 @@ export interface SkillItemProps {
 }
 
 /**
- * Компонент SkillItem отображает карточку категории навыков с Lucide иконкой,
- * названием категории и grid с технологиями (devicons SVG иконки)
+ * Внутренний компонент SkillItem без memo
  * @param props - Пропсы компонента
  * @returns React компонент карточки навыка
  */
-export const SkillItem: React.FC<SkillItemProps> = ({
+const SkillItemInner: React.FC<SkillItemProps> = ({
   categoryData,
   delay = 0,
   'data-testid': testId = 'skill-item',
@@ -56,4 +55,4 @@ export const SkillItem: React.FC<SkillItemProps> = ({
   );
 };
 
-export default memo(SkillItem);
+export const SkillItem = memo(SkillItemInner);

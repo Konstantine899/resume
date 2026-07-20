@@ -143,7 +143,7 @@ describe('Skills', () => {
 
       render(<Skills />);
 
-      expect(screen.getByText('Навыки не указаны')).toBeInTheDocument();
+      expect(screen.getByText('skillsEmpty')).toBeInTheDocument();
     });
 
     it('не должен бросать ошибок при undefined данных', () => {
