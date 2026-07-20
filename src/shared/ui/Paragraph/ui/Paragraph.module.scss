@@ -77,39 +77,60 @@
   }
 
   // Line clamp (ограничение строк)
-  &.line-clamp-2 {
-    display: -webkit-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -webkit-line-clamp: 2;
-    line-clamp: 2; /* Стандартное свойство для совместимости */
-    -webkit-box-orient: vertical;
+  @for $i from 2 through 5 {
+    &.line-clamp-#{$i} {
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: $i;
+      line-clamp: $i;
+      -webkit-box-orient: vertical;
+    }
   }
 
-  &.line-clamp-3 {
-    display: -webkit-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
+  // Font weights (via typography mixins)
+  &.light {
+    @include font-light;
   }
 
-  &.line-clamp-4 {
-    display: -webkit-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
+  &.normal {
+    @include font-normal;
   }
 
-  &.line-clamp-5 {
-    display: -webkit-box;
+  &.medium {
+    @include font-medium;
+  }
+
+  &.semibold {
+    @include font-semibold;
+  }
+
+  &.bold {
+    @include font-bold;
+  }
+
+  // Wrap modes
+  &.wrap {
+    overflow-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  &.nowrap {
+    white-space: nowrap;
+  }
+
+  &.balance {
+    text-wrap: balance;
+  }
+
+  &.pretty {
+    text-wrap: pretty;
+  }
+
+  // Truncate (single line)
+  &.truncate {
     overflow: hidden;
     text-overflow: ellipsis;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
   }
 }

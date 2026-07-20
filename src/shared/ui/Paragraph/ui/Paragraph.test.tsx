@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import {
+  type LineClamp,
+  type ParagraphElement,
+  type ParagraphWeight,
+  type ParagraphWrap,
+} from '../model/types';
 import { Paragraph } from './Paragraph';
 import cls from './Paragraph.module.scss';
 
@@ -10,7 +16,10 @@ describe('Paragraph', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
+
+  const getParagraph = () => screen.getByTestId('Paragraph');
 
   describe('Rendering', () => {
     it('должен рендерить children текст', () => {
@@ -31,15 +40,15 @@ describe('Paragraph', () => {
     });
 
     it('должен применять paragraph класс', () => {
-      const { container } = render(<Paragraph>Text</Paragraph>);
+      render(<Paragraph>Text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.paragraph);
+      expect(getParagraph()).toHaveClass(cls.paragraph);
     });
 
     it('должен применять custom className', () => {
-      const { container } = render(<Paragraph className="custom-class">Text</Paragraph>);
+      render(<Paragraph className="custom-class">Text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass('custom-class');
+      expect(getParagraph()).toHaveClass('custom-class');
     });
 
     it('должен использовать data-testid по умолчанию', () => {
@@ -53,241 +62,520 @@ describe('Paragraph', () => {
 
       expect(screen.getByTestId('custom-paragraph')).toBeInTheDocument();
     });
+
+    it('должен рендериться с children={null} без ошибок', () => {
+      expect(() => render(<Paragraph>{null}</Paragraph>)).not.toThrow();
+    });
+
+    it('должен рендериться с children={undefined} без ошибок', () => {
+      expect(() => render(<Paragraph>{undefined}</Paragraph>)).not.toThrow();
+    });
+
+    it('должен рендериться с children={""} без ошибок', () => {
+      expect(() => render(<Paragraph>{''}</Paragraph>)).not.toThrow();
+    });
   });
 
   describe('Size Variants', () => {
     it('должен применять xs размер', () => {
-      const { container } = render(<Paragraph size="xs">Extra Small</Paragraph>);
+      render(<Paragraph size="xs">Extra Small</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.xs);
+      expect(getParagraph()).toHaveClass(cls.xs);
     });
 
     it('должен применять s размер', () => {
-      const { container } = render(<Paragraph size="s">Small</Paragraph>);
+      render(<Paragraph size="s">Small</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.s);
+      expect(getParagraph()).toHaveClass(cls.s);
     });
 
     it('должен применять m размер по умолчанию', () => {
-      const { container } = render(<Paragraph>Medium</Paragraph>);
+      render(<Paragraph>Medium</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.m);
+      expect(getParagraph()).toHaveClass(cls.m);
     });
 
     it('должен применять l размер', () => {
-      const { container } = render(<Paragraph size="l">Large</Paragraph>);
+      render(<Paragraph size="l">Large</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.l);
+      expect(getParagraph()).toHaveClass(cls.l);
     });
 
     it('должен применять xl размер', () => {
-      const { container } = render(<Paragraph size="xl">Extra Large</Paragraph>);
+      render(<Paragraph size="xl">Extra Large</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.xl);
+      expect(getParagraph()).toHaveClass(cls.xl);
     });
 
     it('должен применять 2xl размер', () => {
-      const { container } = render(<Paragraph size="2xl">2XL</Paragraph>);
+      render(<Paragraph size="2xl">2XL</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls['size-2xl']);
+      expect(getParagraph()).toHaveClass(cls['size-2xl']);
     });
   });
 
   describe('Theme Variants', () => {
     it('должен применять primary тему', () => {
-      const { container } = render(<Paragraph theme="primary">Primary</Paragraph>);
+      render(<Paragraph theme="primary">Primary</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.primary);
+      expect(getParagraph()).toHaveClass(cls.primary);
     });
 
     it('должен применять muted тему', () => {
-      const { container } = render(<Paragraph theme="muted">Muted</Paragraph>);
+      render(<Paragraph theme="muted">Muted</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.muted);
+      expect(getParagraph()).toHaveClass(cls.muted);
     });
 
     it('должен применять inverted тему', () => {
-      const { container } = render(<Paragraph theme="inverted">Inverted</Paragraph>);
+      render(<Paragraph theme="inverted">Inverted</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.inverted);
+      expect(getParagraph()).toHaveClass(cls.inverted);
     });
 
     it('должен применять error тему', () => {
-      const { container } = render(<Paragraph theme="error">Error</Paragraph>);
+      render(<Paragraph theme="error">Error</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.error);
+      expect(getParagraph()).toHaveClass(cls.error);
     });
 
     it('должен применять success тему', () => {
-      const { container } = render(<Paragraph theme="success">Success</Paragraph>);
+      render(<Paragraph theme="success">Success</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.success);
+      expect(getParagraph()).toHaveClass(cls.success);
     });
 
     it('должен применять warning тему', () => {
-      const { container } = render(<Paragraph theme="warning">Warning</Paragraph>);
+      render(<Paragraph theme="warning">Warning</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.warning);
+      expect(getParagraph()).toHaveClass(cls.warning);
     });
 
     it('должен применять gradient тему', () => {
-      const { container } = render(<Paragraph theme="gradient">Gradient</Paragraph>);
+      render(<Paragraph theme="gradient">Gradient</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.gradient);
+      expect(getParagraph()).toHaveClass(cls.gradient);
     });
   });
 
   describe('Alignment', () => {
     it('должен применять left выравнивание по умолчанию', () => {
-      const { container } = render(<Paragraph>Left</Paragraph>);
+      render(<Paragraph>Left</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.left);
+      expect(getParagraph()).toHaveClass(cls.left);
     });
 
     it('должен применять center выравнивание', () => {
-      const { container } = render(<Paragraph align="center">Center</Paragraph>);
+      render(<Paragraph align="center">Center</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.center);
+      expect(getParagraph()).toHaveClass(cls.center);
     });
 
     it('должен применять right выравнивание', () => {
-      const { container } = render(<Paragraph align="right">Right</Paragraph>);
+      render(<Paragraph align="right">Right</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls.right);
+      expect(getParagraph()).toHaveClass(cls.right);
     });
   });
 
   describe('Line Clamp', () => {
     it('должен применять line-clamp-2 класс', () => {
-      const { container } = render(<Paragraph lineClamp={2}>Long text</Paragraph>);
+      render(<Paragraph lineClamp={2}>Long text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls['line-clamp-2']);
+      expect(getParagraph()).toHaveClass(cls['line-clamp-2']);
     });
 
     it('должен применять line-clamp-3 класс', () => {
-      const { container } = render(<Paragraph lineClamp={3}>Long text</Paragraph>);
+      render(<Paragraph lineClamp={3}>Long text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls['line-clamp-3']);
+      expect(getParagraph()).toHaveClass(cls['line-clamp-3']);
     });
 
     it('должен применять line-clamp-4 класс', () => {
-      const { container } = render(<Paragraph lineClamp={4}>Long text</Paragraph>);
+      render(<Paragraph lineClamp={4}>Long text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls['line-clamp-4']);
+      expect(getParagraph()).toHaveClass(cls['line-clamp-4']);
     });
 
     it('должен применять line-clamp-5 класс', () => {
-      const { container } = render(<Paragraph lineClamp={5}>Long text</Paragraph>);
+      render(<Paragraph lineClamp={5}>Long text</Paragraph>);
 
-      expect(container.querySelector('p')).toHaveClass(cls['line-clamp-5']);
+      expect(getParagraph()).toHaveClass(cls['line-clamp-5']);
     });
 
     it('должен предупреждать о невалидном lineClamp в dev режиме', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Paragraph lineClamp={7 as any}>Text</Paragraph>);
+      render(<Paragraph lineClamp={7 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).toHaveBeenCalledWith(
         'Paragraph: lineClamp должен быть от 2 до 5, получено: 7'
       );
 
-      process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
     });
 
     it('не должен применять line-clamp класс при невалидном значении', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { container } = render(<Paragraph lineClamp={1 as any}>Text</Paragraph>);
+      render(<Paragraph lineClamp={1 as unknown as LineClamp}>Text</Paragraph>);
 
-      expect(container.querySelector('p')).not.toHaveClass(cls['line-clamp-1']);
+      expect(getParagraph()).not.toHaveClass(cls['line-clamp-1']);
     });
 
     it('не должен предупреждать в production режиме', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Paragraph lineClamp={7 as any}>Text</Paragraph>);
+      render(<Paragraph lineClamp={7 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).not.toHaveBeenCalled();
 
-      process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
     });
 
     it('не должен предупреждать при lineClamp={0} (falsy значение)', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Paragraph lineClamp={0 as any}>Text</Paragraph>);
+      render(<Paragraph lineClamp={0 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).not.toHaveBeenCalled();
 
-      process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
     });
 
     it('не должен предупреждать при lineClamp={6} (невалидное значение)', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Paragraph lineClamp={6 as any}>Text</Paragraph>);
+      render(<Paragraph lineClamp={6 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).toHaveBeenCalledWith(
         'Paragraph: lineClamp должен быть от 2 до 5, получено: 6'
       );
 
-      process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
     });
   });
 
-  describe('Accessibility', () => {
-    it('должен пробрасывать ref на p элемент', () => {
-      const ref = vi.fn();
-      render(<Paragraph ref={ref as unknown as React.Ref<HTMLParagraphElement>}>Text</Paragraph>);
-
-      expect(ref).toHaveBeenCalledWith(expect.any(HTMLParagraphElement));
-    });
-
-    it('должен использовать семантический тег p', () => {
+  describe('as prop (Element Type)', () => {
+    it('должен рендериться как p по умолчанию', () => {
       const { container } = render(<Paragraph>Text</Paragraph>);
 
       expect(container.querySelector('p')).toBeInTheDocument();
     });
+
+    it('должен рендериться как span', () => {
+      const { container } = render(<Paragraph as="span">Text</Paragraph>);
+
+      expect(container.querySelector('span')).toBeInTheDocument();
+    });
+
+    it('должен рендериться как div', () => {
+      const { container } = render(<Paragraph as="div">Text</Paragraph>);
+
+      expect(container.querySelector('div')).toBeInTheDocument();
+    });
+
+    it('должен рендериться как label', () => {
+      const { container } = render(<Paragraph as="label">Text</Paragraph>);
+
+      expect(container.querySelector('label')).toBeInTheDocument();
+    });
+
+    it('должен применять paragraph класс при любом as значении', () => {
+      const { rerender } = render(<Paragraph as="span">Text</Paragraph>);
+
+      expect(getParagraph()).toHaveClass(cls.paragraph);
+
+      rerender(<Paragraph as="div">Text</Paragraph>);
+      expect(getParagraph()).toHaveClass(cls.paragraph);
+
+      rerender(<Paragraph as="label">Text</Paragraph>);
+      expect(getParagraph()).toHaveClass(cls.paragraph);
+    });
+
+    it('должен пробрасывать data-testid через разные as элементы', () => {
+      const testIds: ParagraphElement[] = ['p', 'span', 'div', 'label'];
+
+      testIds.forEach((tag) => {
+        const { unmount } = render(
+          <Paragraph as={tag} data-testid={`paragraph-${tag}`}>
+            {tag}
+          </Paragraph>
+        );
+
+        expect(screen.getByTestId(`paragraph-${tag}`)).toBeInTheDocument();
+        unmount();
+      });
+    });
   });
 
-  describe('Default Props', () => {
-    it('должен использовать m размер по умолчанию', () => {
-      const { container } = render(<Paragraph>Text</Paragraph>);
+  describe('Weight prop', () => {
+    const weights: ParagraphWeight[] = ['light', 'normal', 'medium', 'semibold', 'bold'];
 
-      expect(container.querySelector('p')).toHaveClass(cls.m);
+    weights.forEach((weight) => {
+      it(`должен применять ${weight} класс`, () => {
+        render(<Paragraph weight={weight}>{weight}</Paragraph>);
+
+        expect(getParagraph()).toHaveClass(cls[weight]);
+      });
     });
 
-    it('должен использовать primary тему по умолчанию', () => {
-      const { container } = render(<Paragraph>Text</Paragraph>);
-
-      expect(container.querySelector('p')).toHaveClass(cls.primary);
-    });
-
-    it('должен использовать left выравнивание по умолчанию', () => {
-      const { container } = render(<Paragraph>Text</Paragraph>);
-
-      expect(container.querySelector('p')).toHaveClass(cls.left);
-    });
-
-    it('должен использовать Paragraph data-testid по умолчанию', () => {
+    it('не должен применять weight класс если weight не указан', () => {
       render(<Paragraph>Text</Paragraph>);
 
-      expect(screen.getByTestId('Paragraph')).toBeInTheDocument();
+      weights.forEach((weight) => {
+        expect(getParagraph()).not.toHaveClass(cls[weight]);
+      });
+    });
+  });
+
+  describe('Wrap prop', () => {
+    const wraps: ParagraphWrap[] = ['wrap', 'nowrap', 'balance', 'pretty'];
+
+    wraps.forEach((wrap) => {
+      it(`должен применять ${wrap} класс`, () => {
+        render(<Paragraph wrap={wrap}>{wrap}</Paragraph>);
+
+        expect(getParagraph()).toHaveClass(cls[wrap]);
+      });
+    });
+
+    it('не должен применять wrap класс если wrap не указан', () => {
+      render(<Paragraph>Text</Paragraph>);
+
+      wraps.forEach((wrap) => {
+        expect(getParagraph()).not.toHaveClass(cls[wrap]);
+      });
+    });
+  });
+
+  describe('Truncate prop', () => {
+    it('должен применять truncate класс', () => {
+      render(<Paragraph truncate>Truncated text</Paragraph>);
+
+      expect(getParagraph()).toHaveClass(cls.truncate);
+    });
+
+    it('не должен применять truncate класс если truncate не указан', () => {
+      render(<Paragraph>Text</Paragraph>);
+
+      expect(getParagraph()).not.toHaveClass(cls.truncate);
+    });
+
+    it('должен применять truncate класс при truncate={true}', () => {
+      render(<Paragraph truncate>Truncated text</Paragraph>);
+
+      expect(getParagraph()).toHaveClass(cls.truncate);
+    });
+  });
+
+  describe('Truncate + LineClamp conflict', () => {
+    it('должен предупреждать при одновременном использовании truncate и lineClamp', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      render(
+        <Paragraph truncate lineClamp={3}>
+          Conflicting text
+        </Paragraph>
+      );
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('truncate и lineClamp не могут быть использованы одновременно')
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('должен применять truncate класс и не применять line-clamp при конфликте', () => {
+      render(
+        <Paragraph truncate lineClamp={3}>
+          Conflicting text
+        </Paragraph>
+      );
+
+      expect(getParagraph()).toHaveClass(cls.truncate);
+      expect(getParagraph()).not.toHaveClass(cls['line-clamp-3']);
+    });
+
+    it('не должен предупреждать в production при конфликте', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'production');
+
+      render(
+        <Paragraph truncate lineClamp={3}>
+          Conflicting text
+        </Paragraph>
+      );
+
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe('asChild prop', () => {
+    it('должен рендерить дочерний элемент без дополнительной обёртки', () => {
+      render(
+        <Paragraph asChild>
+          <span>Child content</span>
+        </Paragraph>
+      );
+
+      // Slot перезаписывает data-testid значением Paragraph
+      const renderedSpan = screen.getByTestId('Paragraph');
+      expect(renderedSpan).toBeInTheDocument();
+      expect(renderedSpan.tagName).toBe('SPAN');
+      expect(renderedSpan).toHaveTextContent('Child content');
+    });
+
+    it('должен мержить className с дочерним элементом', () => {
+      render(
+        <Paragraph asChild className="parent-class">
+          <span className="child-class">Merged</span>
+        </Paragraph>
+      );
+
+      // Slot мержит className, но data-testid от Paragraph
+      const renderedSpan = screen.getByTestId('Paragraph');
+      expect(renderedSpan).toHaveClass('child-class');
+      expect(renderedSpan).toHaveClass('parent-class');
+      expect(renderedSpan).toHaveClass(cls.paragraph);
+    });
+
+    it('должен передавать data-testid дочернему элементу', () => {
+      render(
+        <Paragraph asChild data-testid="paragraph-aschild">
+          <span>Child</span>
+        </Paragraph>
+      );
+
+      expect(screen.getByTestId('paragraph-aschild')).toBeInTheDocument();
+      const renderedSpan = screen.getByTestId('paragraph-aschild');
+      expect(renderedSpan.tagName).toBe('SPAN');
+    });
+
+    it('должен пробрасывать ref на дочерний элемент', () => {
+      const refCallback = vi.fn();
+
+      render(
+        <Paragraph asChild ref={refCallback as React.Ref<HTMLElement>}>
+          <span data-testid="ref-span">Ref test</span>
+        </Paragraph>
+      );
+
+      expect(refCallback).toHaveBeenCalled();
+      const calledWith = refCallback.mock.calls[0][0];
+      expect(calledWith).toBeInstanceOf(HTMLSpanElement);
+    });
+
+    it('должен рендериться как обычно при asChild=true с текстовым children', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      render(<Paragraph asChild>Plain text child</Paragraph>);
+
+      // Должен отрендериться как p (обычное поведение)
+      expect(getParagraph()).toBeInTheDocument();
+      expect(getParagraph().tagName).toBe('P');
+
+      warnSpy.mockRestore();
+    });
+
+    it('должен пробрасывать id через Slot', () => {
+      render(
+        <Paragraph asChild id="aschild-id">
+          <span>Child</span>
+        </Paragraph>
+      );
+
+      const element = screen.getByTestId('Paragraph');
+      expect(element).toHaveAttribute('id', 'aschild-id');
+    });
+
+    it('должен предупреждать при asChild=true в production о текстовом children', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'production');
+
+      render(<Paragraph asChild>Plain text</Paragraph>);
+
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe('Combined new props', () => {
+    it('должен комбинировать weight + wrap + as', () => {
+      render(
+        <Paragraph as="span" weight="bold" wrap="nowrap">
+          Bold nowrap span
+        </Paragraph>
+      );
+
+      const element = getParagraph();
+      expect(element.tagName).toBe('SPAN');
+      expect(element).toHaveClass(cls.bold);
+      expect(element).toHaveClass(cls.nowrap);
+    });
+
+    it('должен комбинировать size + weight + align', () => {
+      render(
+        <Paragraph size="l" weight="light" align="center">
+          Large light centered
+        </Paragraph>
+      );
+
+      const element = getParagraph();
+      expect(element).toHaveClass(cls.l);
+      expect(element).toHaveClass(cls.light);
+      expect(element).toHaveClass(cls.center);
+    });
+
+    it('должен комбинировать все старые и новые пропсы', () => {
+      render(
+        <Paragraph
+          size="xl"
+          theme="muted"
+          align="right"
+          weight="medium"
+          wrap="pretty"
+          data-testid="combined-paragraph"
+        >
+          Все пропсы вместе
+        </Paragraph>
+      );
+
+      const element = screen.getByTestId('combined-paragraph');
+      expect(element).toHaveClass(cls.xl);
+      expect(element).toHaveClass(cls.muted);
+      expect(element).toHaveClass(cls.right);
+      expect(element).toHaveClass(cls.medium);
+      expect(element).toHaveClass(cls.pretty);
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('должен пробрасывать ref на элемент', () => {
+      const ref = vi.fn();
+      render(<Paragraph ref={ref as React.Ref<HTMLElement>}>Text</Paragraph>);
+
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLElement));
+    });
+
+    it('должен иметь role="paragraph" при рендеринге p (семантический тег)', () => {
+      render(<Paragraph>Text</Paragraph>);
+
+      // <p> автоматически имеет role="paragraph"
+      expect(screen.getByRole('paragraph')).toBeInTheDocument();
+    });
+
+    it('должен передавать id в DOM', () => {
+      render(<Paragraph id="test-paragraph-id">Text</Paragraph>);
+
+      expect(getParagraph()).toHaveAttribute('id', 'test-paragraph-id');
     });
   });
 

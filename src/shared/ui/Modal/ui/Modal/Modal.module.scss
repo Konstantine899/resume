@@ -118,12 +118,6 @@ $icon-button-size: $spacing-lg; // 32px
   color: var(--foreground, $text-primary);
 }
 
-.subtitle {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: var(--foreground-muted, $text-muted);
-}
-
 // Close Button
 .closeButton {
   @include flex-center;

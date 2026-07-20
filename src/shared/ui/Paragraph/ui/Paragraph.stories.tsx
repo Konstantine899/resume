@@ -1,22 +1,35 @@
 import { type Meta, type StoryObj } from '@storybook/react-vite';
-import type { ParagraphSize, ParagraphTheme } from '../model/types';
+import type {
+  ParagraphSize,
+  ParagraphTheme,
+  ParagraphWeight,
+  ParagraphElement,
+} from '../model/types';
 import { Paragraph } from './Paragraph';
 
 /**
  * ## Paragraph Component
  *
- * Компонент для основного текста с поддержкой тем, размеров и ограничения строк.
+ * Компонент для основного текста с поддержкой тем, размеров, ограничения строк,
+ * насыщенности шрифта, режимов переноса и смены HTML-тега.
  *
  * ### Особенности:
  * - Поддержка всех тем проекта (включая gradient)
  * - Ограничение количества строк (lineClamp)
+ * - Однострочное обрезание (truncate)
  * - Различные размеры текста
+ * - Насыщенность шрифта (weight)
+ * - Режимы переноса (wrap)
+ * - Смена HTML тега (as)
+ * - Slot-рендеринг (asChild)
  * - Доступность (семантический тег `<p>`)
  *
  * ### Использование:
  * ```tsx
  * <Paragraph size="l" theme="muted">Текст абзаца</Paragraph>
  * <Paragraph lineClamp={3}>Длинный текст с ограничением</Paragraph>
+ * <Paragraph as="span" weight="semibold">Текст в span</Paragraph>
+ * <Paragraph truncate>Однострочное обрезание</Paragraph>
  * ```
  */
 const meta: Meta<typeof Paragraph> = {
@@ -384,6 +397,301 @@ export const LineClamp3: Story = {
   },
 };
 
+export const LineClamp4: Story = {
+  args: {
+    lineClamp: 4,
+    children:
+      'Это очень длинный текст для демонстрации ограничения строк. Он содержит много информации о проекте, технологиях, опыте работы и других деталях. Такой текст может занимать несколько строк и даже абзацев. В реальном использовании мы часто хотим ограничить количество видимых строк.',
+  },
+};
+
+export const LineClamp5: Story = {
+  args: {
+    lineClamp: 5,
+    children:
+      'Это очень длинный текст для демонстрации ограничения строк. Он содержит много информации о проекте, технологиях, опыте работы и других деталях. Такой текст может занимать несколько строк и даже абзацев. В реальном использовании мы часто хотим ограничить количество видимых строк.',
+  },
+};
+
+// ============================================
+// HTML-теги (as prop)
+// ============================================
+
+/**
+ * Рендеринг в разных HTML-тегах
+ */
+export const AllElements: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {(['p', 'span', 'div', 'label'] as ParagraphElement[]).map((tag) => (
+        <Paragraph key={tag} as={tag}>
+          Рендерится как {'<' + tag + '>'} — семантически правильный тег
+        </Paragraph>
+      ))}
+    </div>
+  ),
+};
+
+export const AsSpan: Story = {
+  args: {
+    as: 'span',
+    children: 'Рендерится как span — для инлайн-текста без семантики абзаца',
+  },
+};
+
+export const AsDiv: Story = {
+  args: {
+    as: 'div',
+    children: 'Рендерится как div — для блочного контента',
+  },
+};
+
+export const AsLabel: Story = {
+  args: {
+    as: 'label',
+    children: 'Рендерится как label — для доступных форм',
+  },
+};
+
+export const AsP: Story = {
+  args: {
+    as: 'p',
+    children: 'Рендерится как p — семантический параграф (по умолчанию)',
+  },
+};
+
+// ============================================
+// Насыщенность шрифта (Weight)
+// ============================================
+
+/**
+ * Все варианты насыщенности шрифта
+ */
+export const AllWeights: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {(['light', 'normal', 'medium', 'semibold', 'bold'] as ParagraphWeight[]).map((weight) => (
+        <Paragraph key={weight} weight={weight} size="l">
+          {weight} — насыщенность шрифта
+        </Paragraph>
+      ))}
+    </div>
+  ),
+};
+
+export const WeightLight: Story = {
+  args: {
+    weight: 'light',
+    children: 'Light (300) — тонкое начертание для декоративного текста',
+  },
+};
+
+export const WeightNormal: Story = {
+  args: {
+    weight: 'normal',
+    children: 'Normal (400) — стандартное начертание',
+  },
+};
+
+export const WeightMedium: Story = {
+  args: {
+    weight: 'medium',
+    children: 'Medium (500) — средняя насыщенность для акцентов',
+  },
+};
+
+export const WeightSemibold: Story = {
+  args: {
+    weight: 'semibold',
+    children: 'Semibold (600) — полужирное начертание для подзаголовков',
+  },
+};
+
+export const WeightBold: Story = {
+  args: {
+    weight: 'bold',
+    children: 'Bold (700) — жирное начертание для сильных акцентов',
+  },
+};
+
+// ============================================
+// Режимы переноса (Wrap)
+// ============================================
+
+/**
+ * Все режимы переноса текста
+ */
+export const AllWraps: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+      <Paragraph wrap="wrap">
+        <strong>wrap:</strong> Текст переносится по словам по умолчанию.
+        Оченьдлинноесловокотороеможетразорватьстроку.
+      </Paragraph>
+      <Paragraph wrap="nowrap">
+        <strong>nowrap:</strong> Текст не переносится на новую строку.
+        Оченьдлинноесловокотороеможетразорватьстроку.
+      </Paragraph>
+      <Paragraph wrap="balance">
+        <strong>balance:</strong> Браузер балансирует длину строк для красивого результата.
+      </Paragraph>
+      <Paragraph wrap="pretty">
+        <strong>pretty:</strong> Браузер оптимизирует перенос, избегая «висячих» строк.
+      </Paragraph>
+    </div>
+  ),
+};
+
+export const WrapWrap: Story = {
+  args: {
+    wrap: 'wrap',
+    children: 'Wrap — стандартный перенос текста',
+  },
+};
+
+export const WrapNowrap: Story = {
+  args: {
+    wrap: 'nowrap',
+    children: 'Nowrap — текст не переносится, выходит за пределы контейнера если нужно',
+  },
+};
+
+export const WrapBalance: Story = {
+  args: {
+    wrap: 'balance',
+    children: 'Balance — браузер автоматически балансирует длину строк для равномерного вида',
+  },
+};
+
+export const WrapPretty: Story = {
+  args: {
+    wrap: 'pretty',
+    children: 'Pretty — браузер оптимизирует перенос, уменьшая количество коротких строк в конце',
+  },
+};
+
+// ============================================
+// Truncate (однострочное обрезание)
+// ============================================
+
+export const Truncate: Story = {
+  args: {
+    truncate: true,
+    children:
+      'Это очень длинный текст, который будет обрезан с многоточием после первой строки. Он содержит много информации о проекте, технологиях, опыте работы и других деталях.',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Truncate обрезает текст после первой строки с добавлением многоточия. Не может быть использован одновременно с lineClamp.',
+      },
+    },
+  },
+};
+
+// ============================================
+// asChild (Slot-рендеринг)
+// ============================================
+
+export const AsChild: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Paragraph>Обычный параграф для сравнения:</Paragraph>
+      <Paragraph asChild>
+        <span>
+          Этот текст рендерится как <strong>span</strong> через Slot — стили Paragraph применяются,
+          но DOM-узел — оригинальный дочерний элемент.
+        </span>
+      </Paragraph>
+    </div>
+  ),
+};
+
+export const AsChildWithButton: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Paragraph>Стилизованный button через asChild:</Paragraph>
+      <Paragraph asChild>
+        <button
+          style={{
+            padding: '8px 16px',
+            border: '2px solid var(--primary)',
+            borderRadius: '8px',
+            background: 'transparent',
+            cursor: 'pointer',
+          }}
+        >
+          Текст кнопки со стилями Paragraph
+        </button>
+      </Paragraph>
+    </div>
+  ),
+};
+
+export const AsChildWithDiv: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Paragraph>Обычный параграф для сравнения:</Paragraph>
+      <Paragraph asChild>
+        <div>
+          Этот текст рендерится как <strong>div</strong> через Slot — стили Paragraph применяются к
+          блочному элементу.
+        </div>
+      </Paragraph>
+    </div>
+  ),
+};
+
+// ============================================
+// Комбинации
+// ============================================
+
+export const WeightAndElement: Story = {
+  args: {
+    as: 'span',
+    weight: 'semibold',
+    children: 'Semibold span — для акцентного инлайн-текста',
+  },
+};
+
+/**
+ * Truncate и lineClamp вместе — truncate имеет приоритет
+ */
+export const TruncateWithLineClamp: Story = {
+  args: {
+    truncate: true,
+    lineClamp: 3,
+    children:
+      'Этот текст получает и truncate, и lineClamp. truncate имеет приоритет — текст будет обрезан после первой строки, несмотря на lineClamp=3. В dev-режиме появится предупреждение в консоли.',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'При одновременной передаче truncate и lineClamp, truncate имеет приоритет. В dev-режиме появляется предупреждение в консоли.',
+      },
+    },
+  },
+};
+
+export const WrapAndTruncate: Story = {
+  args: {
+    wrap: 'nowrap',
+    truncate: true,
+    children:
+      'Очень длинный текст с nowrap и truncate — он не переносится и обрезается многоточием. Подходит для однострочных заголовков и меток.',
+  },
+};
+export const TruncateOnSpan: Story = {
+  args: {
+    as: 'span',
+    truncate: true,
+    children:
+      'Очень длинный текст внутри span с однострочным обрезанием. Он будет обрезан многоточием после первой строки независимо от длины.',
+  },
+};
+
 // ============================================
 // Продвинутые примеры
 // ============================================
@@ -488,9 +796,11 @@ export const AllPropsCombined: Story = {
     size: 'l',
     theme: 'primary',
     align: 'center',
+    weight: 'medium',
+    wrap: 'balance',
     lineClamp: 3,
     children:
-      'Это пример параграфа со всеми возможными пропсами: большой размер, основная тема, центрированное выравнивание и ограничение в 3 строки. Такой подход позволяет гибко настраивать отображение текста.',
+      'Это пример параграфа со всеми возможными пропсами: большой размер, основная тема, центрированное выравнивание, средняя насыщенность, сбалансированный перенос и ограничение в 3 строки.',
   },
 };
 
