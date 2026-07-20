@@ -1,229 +1,37 @@
 // src/shared/ui/Section/ui/Section.module.scss
 
-@use '@/shared/styles/variables' as *;
-
 .section {
   position: relative;
-
-  // Базовые стили
   width: 100%;
-  padding-right: var(--section-padding-base, 1rem);
 
-  // Mobile-first responsive breakpoints (6 уровней)
-  padding-left: var(--section-padding-base, 1rem);
-  color: var(--section-text-color, inherit);
-  background: var(--section-background, transparent);
+  // Size-based vertical padding (top/bottom only)
 
-  @media (width >= 640px) {
-    padding-right: var(--section-padding-sm, 1.5rem);
-    padding-left: var(--section-padding-sm, 1.5rem);
-  }
+  // Горизонтальный padding и max-width управляются через Container
 
-  @media (width >= 768px) {
-    padding-right: var(--section-padding-md, 2rem);
-    padding-left: var(--section-padding-md, 2rem);
-  }
-
-  @media (width >= 1024px) {
-    padding-right: var(--section-padding-lg, 3rem);
-    padding-left: var(--section-padding-lg, 3rem);
-  }
-
-  @media (width >= 1280px) {
-    padding-right: var(--section-padding-xl, 4rem);
-    padding-left: var(--section-padding-xl, 4rem);
-  }
-
-  @media (width >= 1536px) {
-    padding-right: var(--section-padding-2xl, 5rem);
-    padding-left: var(--section-padding-2xl, 5rem);
-  }
-
-  // Sizes (max-width)
   &.sm {
-    max-width: 640px;
-    margin-right: auto;
-    margin-left: auto;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   &.md {
-    max-width: 768px;
-    margin-right: auto;
-    margin-left: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
   &.lg {
-    max-width: 1024px;
-    margin-right: auto;
-    margin-left: auto;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
   }
 
   &.xl {
-    max-width: 1280px;
-    margin-right: auto;
-    margin-left: auto;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 
   // Escape sequence для класса начинающегося с цифры (\32 = '2')
   /* stylelint-disable-next-line selector-class-pattern */
   &.\32 xl {
-    max-width: 1536px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  &.full {
-    max-width: 100%;
-  }
-
-  // Variants (6 вариантов)
-  &.default {
-    background: var(--section-default, transparent);
-  }
-
-  &.alternate {
-    background: var(--section-alternate, #f5f5f5);
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--section-alternate-dark, #2a2a2a);
-    }
-  }
-
-  &.gradient {
-    color: var(--section-gradient-text, #fff);
-    background: linear-gradient(
-      135deg,
-      var(--section-gradient-start, #667eea),
-      var(--section-gradient-end, #764ba2)
-    );
-
-    @media (prefers-reduced-motion: reduce) {
-      background: var(--section-gradient-fallback, #667eea);
-    }
-  }
-
-  &.muted {
-    background: var(--section-muted, #fafafa);
-    border-top: 1px solid var(--border-muted, #e0e0e0);
-    border-bottom: 1px solid var(--border-muted, #e0e0e0);
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--section-muted-dark, #1f1f1f);
-      border-top-color: var(--border-muted-dark, #333);
-      border-bottom-color: var(--border-muted-dark, #333);
-    }
-  }
-
-  &.dark {
-    color: var(--section-dark-text, #fff);
-    background: var(--section-dark, #1a1a1a);
-  }
-
-  &.light {
-    color: var(--section-light-text, #1a1a1a);
-    background: var(--section-light, #fff);
-  }
-
-  // Padding
-  &.padding-none {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  &.padding-sm {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
-
-  &.padding-md {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-
-  &.padding-lg {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-  }
-
-  &.padding-xl {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-  }
-
-  &.padding-2xl {
     padding-top: 6rem;
     padding-bottom: 6rem;
-  }
-
-  // Vertical rhythm (margin)
-  &.margin-top-none {
-    margin-top: 0;
-  }
-
-  &.margin-top-sm {
-    margin-top: 1.5rem;
-  }
-
-  &.margin-top-md {
-    margin-top: 2rem;
-  }
-
-  &.margin-top-lg {
-    margin-top: 3rem;
-  }
-
-  &.margin-top-xl {
-    margin-top: 4rem;
-  }
-
-  &.margin-bottom-none {
-    margin-bottom: 0;
-  }
-
-  &.margin-bottom-sm {
-    margin-bottom: 1.5rem;
-  }
-
-  &.margin-bottom-md {
-    margin-bottom: 2rem;
-  }
-
-  &.margin-bottom-lg {
-    margin-bottom: 3rem;
-  }
-
-  &.margin-bottom-xl {
-    margin-bottom: 4rem;
-  }
-
-  // Full width
-  &.fullWidth {
-    max-width: 100%;
-    padding-right: 0;
-    padding-left: 0;
-  }
-
-  // Overlay support
-  &.overlay {
-    &::before {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      content: '';
-      background: var(--overlay-color, rgb(0 0 0 / 0.5));
-    }
-
-    // Контент поверх overlay
-    > * {
-      position: relative;
-      z-index: 2;
-    }
-  }
-
-  // Container integration wrapper
-  .sectionInner {
-    position: relative;
-    z-index: 2;
   }
 }

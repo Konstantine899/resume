@@ -5,25 +5,41 @@ import { expect, within } from '@storybook/test';
 import { Section } from './Section';
 
 const meta = {
-  title: 'Shared/Section',
+  title: 'UI/Section',
   component: Section,
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: `
-**Section** — семантический компонент для разделения контента страницы.
-
-## Варианты стилей:
-- **default** — Базовый стиль (transparent)
-- **alternate** — Альтернативный фон
-- **gradient** — Градиентный фон
-- **muted** — Приглушённый стиль с borders
-- **dark** — Тёмный фон
-- **light** — Светлый фон
-
-## Размеры: sm | md | lg | xl | 2xl | full
-        `,
+        component:
+          '**Section** — семантический компонент для разделения контента страницы.\n\n' +
+          '## Назначение\n\n' +
+          'Section обеспечивает **вертикальное разделение** контента через проп `size`.\n' +
+          'Горизонтальный padding и max-width управляются через **Container**.\n\n' +
+          'Section НЕ управляет:\n' +
+          '- Фоном — используйте `className`\n' +
+          '- Горизонтальными отступами — используйте Container\n' +
+          '- Цветом текста — используйте CSS-переменные\n\n' +
+          '## Размеры:\n\n' +
+          '- **sm** — 1.5rem (compact)\n' +
+          '- **md** — 2rem (default)\n' +
+          '- **lg** — 3rem (spacious)\n' +
+          '- **xl** — 4rem\n' +
+          '- **2xl** — 6rem (extra spacious)\n\n' +
+          '## HTML элементы:\n\n' +
+          '- **section** (default) — семантическая секция\n' +
+          '- **article** — самостоятельный контент\n' +
+          '- **aside** — дополнительный контент\n' +
+          '- **main** — основной контент\n' +
+          '- **div** — нейтральный контейнер\n' +
+          '- **nav** — навигация\n\n' +
+          '## Использование:\n\n' +
+          '```tsx\n' +
+          '<Section>Content</Section>\n' +
+          '<Section size="lg">Spacious section</Section>\n' +
+          '<Section as="article">Article section</Section>\n' +
+          '<Section aria-label="About">Accessible section</Section>\n' +
+          '```',
       },
     },
     a11y: {
@@ -32,32 +48,42 @@ const meta = {
       },
     },
   },
-  tags: ['autodocs'],
   argTypes: {
-    variant: {
-      control: 'radio',
-      options: ['default', 'alternate', 'gradient', 'muted', 'dark', 'light'],
-    },
-    size: {
-      control: 'radio',
-      options: ['sm', 'md', 'lg', 'xl', '2xl', 'full'],
-    },
-    padding: {
-      control: 'radio',
-      options: ['none', 'sm', 'md', 'lg', 'xl', '2xl'],
-    },
     as: {
       control: 'select',
-      options: ['section', 'div', 'article', 'aside', 'main', 'nav'],
+      options: ['section', 'article', 'aside', 'main', 'div', 'nav'],
+      description: 'HTML элемент для рендера',
+    },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg', 'xl', '2xl'],
+      description: 'Размер вертикального отступа (padding top/bottom)',
+      table: {
+        defaultValue: { summary: 'md' },
+      },
+    },
+    children: {
+      control: 'text',
+      description: 'Содержимое секции',
+    },
+    'aria-label': {
+      control: 'text',
+      description: 'Метка для доступности',
+    },
+    'aria-labelledby': {
+      control: 'text',
+      description: 'ID элемента с заголовком для доступности',
+    },
+    role: {
+      control: 'select',
+      options: ['region', 'banner', 'contentinfo', 'navigation', 'main', 'complementary'],
+      description: 'ARIA role',
     },
   },
   args: {
-    variant: 'default',
-    size: 'lg',
-    padding: 'lg',
-    fullWidth: false,
-    overlay: false,
-    container: false,
+    children: 'Section Content',
+    size: 'md',
+    as: 'section',
   },
 } satisfies Meta<typeof Section>;
 
@@ -65,235 +91,177 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // ============================================
-// Helpers
+// Default
 // ============================================
 
-const ContentBox = ({ children }: { children: React.ReactNode }) => (
-  <div
-    style={{
-      padding: '20px',
-      backgroundColor: 'var(--primary)',
-      color: 'var(--background)',
-      borderRadius: '8px',
-      textAlign: 'center',
-    }}
-  >
-    {children}
-  </div>
-);
-
-const SectionContent = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-    <h2 style={{ margin: 0 }}>Section Title</h2>
-    <p style={{ margin: 0, opacity: 0.8 }}>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    </p>
-    <button
-      style={{
-        padding: '10px 20px',
-        backgroundColor: 'var(--primary)',
-        color: 'var(--background)',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        alignSelf: 'flex-start',
-      }}
-    >
-      Action Button
-    </button>
-  </div>
-);
-
-// ============================================
-// Variants
-// ============================================
-
-export const Default: Story = {
-  render: (args) => (
-    <Section {...args}>
-      <SectionContent />
-    </Section>
-  ),
-};
-
-export const AllVariants: Story = {
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {(['default', 'alternate', 'gradient', 'muted', 'dark', 'light'] as const).map((v) => (
-        <Section key={v} {...args} variant={v} padding="md">
-          <ContentBox>{v}</ContentBox>
-        </Section>
-      ))}
-    </div>
-  ),
-};
+export const Default: Story = {};
 
 // ============================================
 // Sizes
 // ============================================
 
+export const SizeSm: Story = {
+  args: {
+    size: 'sm',
+    children: 'Size: sm — 1.5rem vertical padding',
+  },
+};
+
+export const SizeMd: Story = {
+  args: {
+    size: 'md',
+    children: 'Size: md — 2rem vertical padding (default)',
+  },
+};
+
+export const SizeLg: Story = {
+  args: {
+    size: 'lg',
+    children: 'Size: lg — 3rem vertical padding',
+  },
+};
+
+export const SizeXl: Story = {
+  args: {
+    size: 'xl',
+    children: 'Size: xl — 4rem vertical padding',
+  },
+};
+
+export const Size2xl: Story = {
+  args: {
+    size: '2xl',
+    children: 'Size: 2xl — 6rem vertical padding',
+  },
+};
+
+// ============================================
+// All Sizes Comparison
+// ============================================
+
 export const AllSizes: Story = {
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {(['sm', 'md', 'lg', 'xl', '2xl', 'full'] as const).map((s) => (
-        <div key={s}>
-          <div style={{ fontSize: '12px', marginBottom: '8px', color: '#888' }}>{s}</div>
-          <Section {...args} size={s}>
-            <ContentBox>{s === 'full' ? 'Full Width (100%)' : `${s} (max-width)`}</ContentBox>
-          </Section>
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Section size="sm">
+        <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>
+          sm — 1.5rem
         </div>
-      ))}
-    </div>
-  ),
-};
-
-// ============================================
-// Padding
-// ============================================
-
-export const AllPaddingTypes: Story = {
-  args: { padding: 'lg' },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {(['none', 'sm', 'md', 'lg', 'xl', '2xl'] as const).map((p) => (
-        <Section key={p} {...args} variant="alternate" padding={p}>
-          <ContentBox>padding-{p}</ContentBox>
-        </Section>
-      ))}
-    </div>
-  ),
-};
-
-// ============================================
-// Vertical Rhythm
-// ============================================
-
-export const VerticalRhythm: Story = {
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <ContentBox>Previous section</ContentBox>
-      <Section {...args} margin={{ top: 'xl', bottom: 'xl' }} variant="alternate">
-        <ContentBox>Section with margin-top-xl & margin-bottom-xl</ContentBox>
       </Section>
-      <ContentBox>Next section</ContentBox>
+      <Section size="md">
+        <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>
+          md — 2rem (default)
+        </div>
+      </Section>
+      <Section size="lg">
+        <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>lg — 3rem</div>
+      </Section>
+      <Section size="xl">
+        <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>xl — 4rem</div>
+      </Section>
+      <Section size="2xl">
+        <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>
+          2xl — 6rem
+        </div>
+      </Section>
     </div>
   ),
 };
 
 // ============================================
-// Container Integration
+// HTML Elements
 // ============================================
 
-export const WithContainer: Story = {
-  render: (args) => (
-    <Section {...args} container>
-      <ContentBox>Content inside Container</ContentBox>
-    </Section>
-  ),
+export const AsArticle: Story = {
+  args: {
+    as: 'article',
+    children: 'Rendered as &lt;article&gt;',
+  },
 };
 
-export const WithContainerMd: Story = {
-  render: (args) => (
-    <Section {...args} container={{ size: 'md' }}>
-      <ContentBox>Content inside Container (md)</ContentBox>
-    </Section>
-  ),
+export const AsDiv: Story = {
+  args: {
+    as: 'div',
+    children: 'Rendered as &lt;div&gt;',
+  },
 };
 
-// ============================================
-// Overlay
-// ============================================
-
-export const WithOverlay: Story = {
-  render: (args) => (
-    <Section {...args} variant="gradient" overlay>
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        <ContentBox>Content with overlay</ContentBox>
-      </div>
-    </Section>
-  ),
+export const AsMain: Story = {
+  args: {
+    as: 'main',
+    children: 'Rendered as &lt;main&gt;',
+  },
 };
 
-// ============================================
-// CSS Custom Properties
-// ============================================
+export const AsAside: Story = {
+  args: {
+    as: 'aside',
+    children: 'Rendered as &lt;aside&gt;',
+  },
+};
 
-export const CustomBackground: Story = {
-  render: (args) => (
-    <Section
-      {...args}
-      background="linear-gradient(45deg, #ff6b6b, #4ecdc4)"
-      textColor="#ffffff"
-      padding="xl"
-    >
-      <ContentBox>Custom gradient background</ContentBox>
-    </Section>
-  ),
+export const AsNav: Story = {
+  args: {
+    as: 'nav',
+    children: 'Rendered as &lt;nav&gt;',
+  },
 };
 
 // ============================================
-// Real-world Examples
+// Accessibility
 // ============================================
 
-export const HeroSection: Story = {
-  render: (args) => (
-    <Section {...args} variant="gradient" padding="2xl" size="full">
-      <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '48px', marginBottom: '24px', color: '#ffffff' }}>Hero Headline</h1>
-        <p style={{ fontSize: '20px', marginBottom: '32px', opacity: 0.9 }}>
-          Hero subtext that describes the main value proposition
-        </p>
-        <button
-          style={{
-            padding: '16px 32px',
-            fontSize: '18px',
-            backgroundColor: '#ffffff',
-            color: '#667eea',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          Call to Action
-        </button>
-      </div>
-    </Section>
-  ),
+export const WithAriaLabel: Story = {
+  args: {
+    'aria-label': 'About me section',
+    children: 'Section with aria-label',
+  },
 };
 
-export const ContentSection: Story = {
-  render: (args) => (
-    <Section {...args} variant="alternate" padding="xl" container={{ size: 'lg' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            style={{
-              padding: '24px',
-              backgroundColor: 'var(--background)',
-              borderRadius: '8px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            }}
-          >
-            <h3>Feature {i}</h3>
-            <p style={{ opacity: 0.8 }}>Feature description goes here</p>
-          </div>
-        ))}
-      </div>
-    </Section>
-  ),
+export const WithAriaLabelledBy: Story = {
+  args: {
+    'aria-labelledby': 'section-title',
+    children: (
+      <>
+        <h2 id="section-title">Section Title</h2>
+        <p>Section content referenced by aria-labelledby</p>
+      </>
+    ),
+  },
+};
+
+export const WithRole: Story = {
+  args: {
+    role: 'region',
+    children: 'Section with role="region"',
+  },
 };
 
 // ============================================
-// Playground
+// Composition Examples
 // ============================================
 
-export const Playground: Story = {
-  render: (args) => (
-    <Section {...args}>
-      <SectionContent />
-    </Section>
-  ),
+export const WithHeading: Story = {
+  args: {
+    children: (
+      <>
+        <h2>Section Heading</h2>
+        <p>Section content with a heading</p>
+      </>
+    ),
+  },
+};
+
+export const WithMultipleChildren: Story = {
+  args: {
+    children: (
+      <>
+        <h2>Section Title</h2>
+        <p>First paragraph of content.</p>
+        <p>Second paragraph of content.</p>
+        <button type="button">Action</button>
+      </>
+    ),
+  },
 };
 
 // ============================================
@@ -302,32 +270,17 @@ export const Playground: Story = {
 
 export const Interactive: Story = {
   render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Section {...args} variant="default" data-testid="section-default">
-        <ContentBox>Default section</ContentBox>
-      </Section>
-      <Section {...args} variant="alternate" data-testid="section-alternate">
-        <ContentBox>Alternate section</ContentBox>
-      </Section>
-      <Section {...args} variant="dark" container data-testid="section-dark">
-        <ContentBox>Dark section with container</ContentBox>
-      </Section>
-    </div>
+    <Section {...args} data-testid="section-interactive">
+      Interactive Section
+    </Section>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    const defaultSection = canvas.getByTestId('section-default');
-    expect(defaultSection).toBeInTheDocument();
-    expect(defaultSection.tagName).toBe('SECTION');
-
-    const alternateSection = canvas.getByTestId('section-alternate');
-    expect(alternateSection).toBeInTheDocument();
-    expect(alternateSection.className).toMatch(/alternate/);
-
-    const darkSection = canvas.getByTestId('section-dark');
-    expect(darkSection).toBeInTheDocument();
-    expect(darkSection.className).toMatch(/dark/);
-    expect(darkSection.querySelector('[class*="container"]')).toBeInTheDocument();
+    const section = canvas.getByTestId('section-interactive');
+    expect(section).toBeInTheDocument();
+    expect(section.tagName).toBe('SECTION');
+    expect(section).toHaveAttribute('data-size', 'md');
+    expect(section).toHaveTextContent('Interactive Section');
   },
 };
