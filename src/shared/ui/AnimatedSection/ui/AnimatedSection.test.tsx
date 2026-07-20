@@ -238,20 +238,26 @@ describe('AnimatedSection', () => {
     it('has displayName', () => {
       expect(AnimatedSection.displayName).toBe('AnimatedSection');
     });
+  });
 
-    it('supports reduced motion preference', () => {
-      // This test verifies the CSS has reduced-motion support
-      // Actual media query testing requires browser environment
-      const styleContent = `
-        @media (prefers-reduced-motion: reduce) {
-          .animatedSection {
-            transition: none;
-            transform: none;
-            opacity: 1;
-          }
-        }
-      `;
-      expect(styleContent).toContain('prefers-reduced-motion');
+  // ============================================
+  // forwardRef Tests
+  // ============================================
+  describe('forwardRef', () => {
+    it('forwards ref to the underlying DOM element', () => {
+      const ref = { current: null };
+      render(<AnimatedSection ref={ref}>Content</AnimatedSection>);
+      expect(ref.current).toBeInstanceOf(HTMLElement);
+    });
+
+    it('forwards ref to custom element via as prop', () => {
+      const ref = { current: null };
+      render(
+        <AnimatedSection ref={ref} as="section">
+          Content
+        </AnimatedSection>
+      );
+      expect(ref.current).toBeInstanceOf(HTMLElement);
     });
   });
 

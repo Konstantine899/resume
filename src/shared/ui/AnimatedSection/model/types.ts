@@ -2,7 +2,7 @@
 // AnimatedSection Component - TypeScript Types
 // ============================================
 
-import { ReactNode } from 'react';
+import { ComponentPropsWithoutRef } from 'react';
 
 /**
  * Animation types
@@ -28,12 +28,7 @@ export type AnimationTrigger =
 /**
  * AnimatedSection props interface
  */
-export interface AnimatedSectionProps {
-  /**
-   * Content to animate
-   */
-  children: ReactNode;
-
+export interface AnimatedSectionProps extends ComponentPropsWithoutRef<'div'> {
   /**
    * Animation type
    * @default 'fadeUp'
@@ -57,11 +52,6 @@ export interface AnimatedSectionProps {
    * @default 700
    */
   duration?: number;
-
-  /**
-   * Additional CSS class
-   */
-  className?: string;
 
   /**
    * Threshold for scroll trigger (0-1)
@@ -89,35 +79,4 @@ export interface AnimatedSectionProps {
    * @default 'div'
    */
   as?: keyof React.JSX.IntrinsicElements;
-
-  /**
-   * HTML attributes
-   */
-  [key: string]: unknown;
-}
-
-/**
- * Animation state
- */
-export interface AnimationState {
-  isVisible: boolean;
-  hasAnimated: boolean;
-  isAnimating: boolean;
-}
-
-/**
- * Animation actions for reducer
- */
-export type AnimationAction =
-  | { type: 'SET_VISIBLE' }
-  | { type: 'START' }
-  | { type: 'COMPLETE' }
-  | { type: 'RESET' };
-
-/**
- * Intersection observer options
- */
-export interface IntersectionOptions {
-  threshold: number;
-  rootMargin: string;
 }

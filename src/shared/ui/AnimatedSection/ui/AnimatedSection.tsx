@@ -2,9 +2,10 @@
 // AnimatedSection Component
 // ============================================
 
-import React, { memo } from 'react';
+import { forwardRef, memo, useEffect, type CSSProperties, type ElementType } from 'react';
 import { useScrollAnimation } from '@/shared/lib/hooks/useScrollAnimation';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import type { AnimatedSectionProps } from '../model/types';
 import { ANIMATION_CONSTANTS } from '../model/constants';
 import styles from './AnimatedSection.module.scss';
@@ -43,24 +44,34 @@ import styles from './AnimatedSection.module.scss';
  * </AnimatedSection>
  * ```
  */
-export const AnimatedSection: React.FC<AnimatedSectionProps> = memo(
-  ({
-    children,
-    animation = 'fadeUp',
-    trigger = 'onScroll',
-    delay = ANIMATION_CONSTANTS.DEFAULT_DELAY,
-    duration = ANIMATION_CONSTANTS.DEFAULT_DURATION,
-    className = '',
-    threshold = ANIMATION_CONSTANTS.DEFAULT_THRESHOLD,
-    animate,
-    onAnimationStart,
-    onAnimationComplete,
-    as: Component = 'div',
-    ...props
-  }) => {
-    // Use custom hook for animation logic
-    const { ref, isVisible, hasAnimated, isAnimating, triggerAnimation, resetAnimation } =
-      useScrollAnimation({
+export const AnimatedSection = memo(
+  forwardRef<HTMLElement, AnimatedSectionProps>(
+    (
+      {
+        children,
+        animation = 'fadeUp',
+        trigger = 'onScroll',
+        delay = ANIMATION_CONSTANTS.DEFAULT_DELAY,
+        duration = ANIMATION_CONSTANTS.DEFAULT_DURATION,
+        className = '',
+        threshold = ANIMATION_CONSTANTS.DEFAULT_THRESHOLD,
+        animate,
+        onAnimationStart,
+        onAnimationComplete,
+        as: Component = 'div',
+        ...props
+      },
+      ref
+    ) => {
+      // Use custom hook for animation logic
+      const {
+        ref: hookRef,
+        isVisible,
+        hasAnimated,
+        isAnimating,
+        triggerAnimation,
+        resetAnimation,
+      } = useScrollAnimation({
         threshold,
         rootMargin: ANIMATION_CONSTANTS.DEFAULT_ROOT_MARGIN,
         delay,
@@ -71,53 +82,55 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = memo(
         onAnimationComplete,
       });
 
-    // Handle manual trigger
-    React.useEffect(() => {
-      if (trigger === 'manual' && animate) {
-        triggerAnimation();
-      }
-      if (trigger === 'manual' && !animate && hasAnimated) {
-        resetAnimation();
-      }
-    }, [trigger, animate, hasAnimated, triggerAnimation, resetAnimation]);
+      // Merge forwarded ref with hook's internal ref
+      const mergedRef = useMergeRefs(ref, hookRef);
 
-    // Build animation classes using classNames utility
-    const animationClasses = classNames(
-      styles.animatedSection,
-      styles[animation],
-      isVisible && styles.visible,
-      isAnimating && styles.animating,
-      hasAnimated && styles.animated,
-      className
-    );
+      // Handle manual trigger
+      useEffect(() => {
+        if (trigger === 'manual' && animate) {
+          triggerAnimation();
+        }
+        if (trigger === 'manual' && !animate && hasAnimated) {
+          resetAnimation();
+        }
+      }, [trigger, animate, hasAnimated, triggerAnimation, resetAnimation]);
 
-    // Inline styles for CSS variables
-    const inlineStyles = {
-      '--animation-delay': `${delay}ms`,
-      '--animation-duration': `${duration}ms`,
-    } as React.CSSProperties;
+      // Build animation classes using classNames utility
+      const animationClasses = classNames(
+        styles.animatedSection,
+        styles[animation],
+        isVisible && styles.visible,
+        isAnimating && styles.animating,
+        hasAnimated && styles.animated,
+        className
+      );
 
-    // Build data-state for accessibility and testing
-    const dataState = isVisible ? 'visible' : hasAnimated ? 'animated' : 'hidden';
+      // Inline styles for CSS variables
+      const inlineStyles = {
+        '--animation-delay': `${delay}ms`,
+        '--animation-duration': `${duration}ms`,
+      } as CSSProperties;
 
-    const ComponentElement = Component as React.ElementType;
+      // Build data-state for accessibility and testing
+      const dataState = isVisible ? 'visible' : hasAnimated ? 'animated' : 'hidden';
 
-    return (
-      <ComponentElement
-        ref={ref as React.Ref<HTMLElement>}
-        className={animationClasses}
-        style={inlineStyles}
-        onMouseEnter={trigger === 'onHover' ? triggerAnimation : undefined}
-        data-testid="animated-section"
-        data-state={dataState}
-        {...props}
-      >
-        {children}
-      </ComponentElement>
-    );
-  }
+      const ComponentElement = Component as ElementType;
+
+      return (
+        <ComponentElement
+          ref={mergedRef}
+          className={animationClasses}
+          style={inlineStyles}
+          onMouseEnter={trigger === 'onHover' ? triggerAnimation : undefined}
+          data-testid="animated-section"
+          data-state={dataState}
+          {...props}
+        >
+          {children}
+        </ComponentElement>
+      );
+    }
+  )
 );
 
 AnimatedSection.displayName = 'AnimatedSection';
-
-export default AnimatedSection;

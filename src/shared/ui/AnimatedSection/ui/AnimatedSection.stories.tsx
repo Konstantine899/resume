@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, waitFor, within } from '@storybook/test';
 import { AnimatedSection } from './AnimatedSection';
 
 const meta: Meta<typeof AnimatedSection> = {
@@ -83,6 +84,15 @@ export const FadeUp: Story = {
         story: 'Fade in from bottom (default animation).',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const section = canvas.getByTestId('animated-section');
+
+    // Wait for animation to complete (700ms default duration)
+    await waitFor(() => {
+      expect(section).toHaveAttribute('data-state', 'visible');
+    });
   },
 };
 
@@ -178,6 +188,18 @@ export const OnMount: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const section = canvas.getByTestId('animated-section');
+
+    // Verify initial state is hidden
+    expect(section).toHaveAttribute('data-state', 'hidden');
+
+    // Wait for animation to complete
+    await waitFor(() => {
+      expect(section).toHaveAttribute('data-state', 'visible');
+    });
+  },
 };
 
 export const OnScroll: Story = {
@@ -244,6 +266,22 @@ export const WithDelay: Story = {
         story: 'Animates after 500ms delay.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const section = canvas.getByTestId('animated-section');
+
+    // Initial state is hidden before delay elapses
+    expect(section).toHaveAttribute('data-state', 'hidden');
+
+    // Wait for delay (500ms) + animation duration (700ms)
+    // Use increased timeout for the waitFor
+    await waitFor(
+      () => {
+        expect(section).toHaveAttribute('data-state', 'visible');
+      },
+      { timeout: 2000 }
+    );
   },
 };
 

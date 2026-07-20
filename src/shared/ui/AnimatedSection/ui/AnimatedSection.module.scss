@@ -73,14 +73,3 @@ $animation-offset-lg: 100px;
     }
   }
 }
-
-// Debug utilities (development only)
-.debug {
-  outline: 1px dashed red;
-}
-
-.forceVisible {
-  opacity: 1;
-  transform: none;
-  transition: none;
-}
