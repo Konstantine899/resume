@@ -1,203 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { Card } from './Card';
-import { CardImage } from './CardImage';
 import { ProjectCard } from './ProjectCard';
 import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
-import { Mail, Briefcase } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 const meta = {
   title: 'Shared/Card',
   component: Card,
   parameters: {
     layout: 'centered',
-    docs: {
-      description: {
-        component: `
-Универсальный компонент карточки с поддержкой различных вариантов и composition API.
-
-## Особенности
-- **Composition API**: Card.Header, Card.Body, Card.Footer, Card.Image
-- **Варианты**: default, project, workHistory, skill, about, codeBlock, contact
-- **Размеры**: compact, default, large
-- **Accessibility**: role="group", aria-* атрибуты
-- **Hover эффекты**: настраиваемые
-
-## Использование
-
-\`\`\`tsx
-// Базовое использование
-<Card variant="default">Контент</Card>
-
-// Composition API
-<Card>
-  <Card.Header withBorder>Заголовок</Card.Header>
-  <Card.Body>Основной контент</Card.Body>
-  <Card.Footer withBorder>Подвал</Card.Footer>
-</Card>
-
-// Специализированные карточки
-<ProjectCard title="Project" description="Desc" techIcons={[]} />
-<WorkHistoryCard title="Job" company="Company" achievements={[]} />
-<ContactCard title="Контакты" icon={<Mail />} />
-\`\`\`
-        `,
-      },
-    },
   },
   tags: ['autodocs'],
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: ['default', 'skill', 'about', 'codeBlock'],
-    },
-    size: {
-      control: 'select',
-      options: ['compact', 'default', 'large'],
-    },
-    radius: {
-      control: 'select',
-      options: ['rounded', 'roundedXl', 'rounded2xl'],
-    },
-  },
 } satisfies Meta<typeof Card>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-// ============================================
-// Base Card Stories
-// ============================================
-
-export const Default: Story = {
-  args: {
-    children: (
-      <div>
-        <h3 style={{ color: 'var(--text-primary)' }}>Default Card</h3>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          This is a standard card component with default styling
-        </p>
-      </div>
-    ),
-    variant: 'default',
-    size: 'default',
-  },
-};
-
-export const Compact: Story = {
-  args: {
-    children: <p>Compact card with minimal padding</p>,
-    size: 'compact',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    children: (
-      <div>
-        <h3 style={{ color: 'var(--text-primary)' }}>Large Card</h3>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Large card with extra padding for Hero and About sections
-        </p>
-      </div>
-    ),
-    size: 'large',
-  },
-};
-
-export const WithRadius: Story = {
-  args: {
-    children: <p>Card with rounded corners</p>,
-    radius: 'roundedXl',
-  },
-};
-
-export const FullWidth: Story = {
-  args: {
-    children: <p>Full width card</p>,
-    fullWidth: true,
-  },
-};
-
-export const NotHoverable: Story = {
-  args: {
-    children: <p>Card without hover effects</p>,
-    hoverable: false,
-  },
-};
-
-// ============================================
-// Composition API Stories
-// ============================================
-
-export const CompositionBasic: Story = {
-  render: () => (
-    <Card>
-      <Card.Header style={{ color: 'var(--text-primary)' }}>Header Content</Card.Header>
-      <Card.Body>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Main content goes here. This is the body of the card.
-        </p>
-      </Card.Body>
-      <Card.Footer style={{ color: 'var(--text-secondary)' }}>Footer Content</Card.Footer>
-    </Card>
-  ),
-};
-
-export const CompositionWithBorders: Story = {
-  render: () => (
-    <Card>
-      <Card.Header withBorder>Header with Border</Card.Header>
-      <Card.Body>
-        <p>Body content with separated header and footer</p>
-      </Card.Body>
-      <Card.Footer withBorder>Footer with Border</Card.Footer>
-    </Card>
-  ),
-};
-
-export const CompositionWithImage: Story = {
-  render: () => (
-    <Card>
-      <CardImage src="https://via.placeholder.com/400x200" alt="Card header image" />
-      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
-        Card with Image
-      </Card.Header>
-      <Card.Body>
-        <p style={{ color: 'var(--text-secondary)' }}>This card includes an image at the top</p>
-      </Card.Body>
-    </Card>
-  ),
-};
-
-export const CompositionComplex: Story = {
-  render: () => (
-    <Card>
-      <CardImage src="https://via.placeholder.com/400x200" alt="Cover" />
-      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
-        <h3 style={{ color: 'inherit' }}>Complex Card Layout</h3>
-      </Card.Header>
-      <Card.Body>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Multiple sections with proper spacing and borders
-        </p>
-        <ul style={{ color: 'var(--text-secondary)' }}>
-          <li>Image at top</li>
-          <li>Header with border</li>
-          <li>Body content</li>
-          <li>Footer with actions</li>
-        </ul>
-      </Card.Body>
-      <Card.Footer withBorder>
-        <button style={{ padding: '8px 16px' }}>Action</button>
-      </Card.Footer>
-    </Card>
-  ),
-};
-
-// ============================================
-// Specialized Card Stories
-// ============================================
 
 export const Project: Story = {
   render: () => (
@@ -222,6 +41,14 @@ export const Project: Story = {
       link="https://dragonflyprocessing.com"
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Dragonfly')).toBeInTheDocument();
+    expect(canvas.getByText(/полностью вертикально/i)).toBeInTheDocument();
+    const link = canvas.getByRole('link');
+    expect(link).toHaveAttribute('href', 'https://dragonflyprocessing.com');
+    expect(link).toHaveAttribute('target', '_blank');
+  },
 };
 
 export const WorkHistory: Story = {
@@ -240,6 +67,15 @@ export const WorkHistory: Story = {
       techStack={['React', 'Node.js', 'AWS', 'Docker', 'PostgreSQL']}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Senior Full-Stack Developer')).toBeInTheDocument();
+    expect(canvas.getByText('Tech Corp International')).toBeInTheDocument();
+    expect(canvas.getByText('Настоящее время')).toBeInTheDocument();
+    expect(canvas.getByText('React')).toBeInTheDocument();
+    expect(canvas.getByText('Node.js')).toBeInTheDocument();
+    expect(canvas.getByText(/микросервисной/i)).toBeInTheDocument();
+  },
 };
 
 export const Contact: Story = {
@@ -251,135 +87,9 @@ export const Contact: Story = {
       </p>
     </ContactCard>
   ),
-};
-
-export const Skill: Story = {
-  render: () => (
-    <Card variant="skill">
-      <h3 style={{ color: 'var(--text-primary)' }}>Technical Skills</h3>
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
-        {['React', 'TypeScript', 'Node.js', 'Python', 'AWS'].map((skill) => (
-          <span
-            key={skill}
-            style={{
-              padding: '8px 16px',
-              background: 'rgb(244 179 119 / 0.1)',
-              border: '1px solid rgb(244 179 119 / 0.3)',
-              borderRadius: '9999px',
-              color: '#f4b377',
-            }}
-          >
-            {skill}
-          </span>
-        ))}
-      </div>
-    </Card>
-  ),
-};
-
-export const About: Story = {
-  render: () => (
-    <Card variant="about">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Briefcase size={48} color="#f4b377" />
-        <h3 style={{ marginTop: '16px', color: 'var(--text-primary)' }}>About Me</h3>
-        <p style={{ maxWidth: '400px', marginTop: '8px', color: 'var(--text-secondary)' }}>
-          Passionate full-stack developer with 5+ years of experience building scalable web
-          applications.
-        </p>
-      </div>
-    </Card>
-  ),
-};
-
-export const CodeBlock: Story = {
-  render: () => (
-    <Card variant="codeBlock">
-      <pre style={{ margin: 0 }}>
-        <code>{`const greet = (name: string) => {
-  return \`Hello, \${name}!\`;
-};
-
-console.log(greet('World'));`}</code>
-      </pre>
-    </Card>
-  ),
-};
-
-// ============================================
-// All Variants Grid
-// ============================================
-
-export const AllVariants: Story = {
-  render: () => (
-    <div style={{ display: 'grid', gap: '24px', gridTemplateColumns: 'repeat(2, 1fr)' }}>
-      <Card variant="default">
-        <p style={{ color: 'var(--text-primary)' }}>Default</p>
-      </Card>
-      <Card variant="skill">
-        <p style={{ color: 'var(--text-primary)' }}>Skill</p>
-      </Card>
-      <Card variant="about">
-        <p style={{ color: 'var(--text-primary)' }}>About</p>
-      </Card>
-      <Card variant="codeBlock">
-        <code style={{ color: 'inherit' }}>Code Block</code>
-      </Card>
-      <ProjectCard title="Project" description="Project description" techIcons={[]} />
-      <ContactCard title="Contact" icon={<Mail />} />
-    </div>
-  ),
-};
-
-// ============================================
-// Accessibility Story
-// ============================================
-
-export const Accessibility: Story = {
-  render: () => (
-    <Card aria-label="Example accessible card" aria-describedby="card-description">
-      <Card.Header style={{ color: 'var(--text-primary)' }}>Accessible Card</Card.Header>
-      <Card.Body>
-        <p id="card-description" style={{ color: 'var(--text-secondary)' }}>
-          This card demonstrates proper accessibility attributes including aria-label and
-          aria-describedby.
-        </p>
-      </Card.Body>
-      <Card.Footer>
-        <button type="button" aria-label="Learn more">
-          Learn More
-        </button>
-      </Card.Footer>
-    </Card>
-  ),
-};
-
-// ============================================
-// Interaction Test Story
-// ============================================
-
-export const Interactive: Story = {
-  render: () => (
-    <Card>
-      <Card.Header withBorder style={{ color: 'var(--text-primary)' }}>
-        Interactive Card
-      </Card.Header>
-      <Card.Body>
-        <p style={{ color: 'var(--text-secondary)' }}>Click the button to see interaction</p>
-        <button
-          type="button"
-          onClick={() => alert('Button clicked!')}
-          style={{ padding: '8px 16px', marginTop: '16px' }}
-        >
-          Click Me
-        </button>
-      </Card.Body>
-    </Card>
-  ),
-  parameters: {
-    interaction: {
-      type: 'click',
-      element: 'button',
-    },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Контакты')).toBeInTheDocument();
+    expect(canvas.getByText(/всегда открыт/i)).toBeInTheDocument();
   },
 };

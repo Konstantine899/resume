@@ -57,15 +57,16 @@ const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
     ref
   ) => {
     // Runtime validation in development mode (optimized deps)
+    const onClick = props.onClick;
     useEffect(() => {
       if (process.env.NODE_ENV === 'development') {
-        const warnings = validateCardProps(variant, size, radius, hoverable, props.onClick);
+        const warnings = validateCardProps(variant, size, radius, hoverable, onClick);
         warnings.forEach((w) => {
           // eslint-disable-next-line no-console
           console.warn(w.message);
         });
       }
-    }, [variant, size, radius, hoverable, props.onClick]);
+    }, [variant, size, radius, hoverable, onClick]);
 
     // Memoize className calculation
     const cardClasses = useMemo(
@@ -107,6 +108,9 @@ const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
         {...props}
         role="group"
         data-state={hoverable ? 'hoverable' : 'static'}
+        data-variant={variant}
+        data-size={size}
+        data-radius={radius}
       >
         {children}
       </div>
@@ -116,12 +120,8 @@ const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
 
 CardComponent.displayName = 'Card';
 
-// Memo wrapper with displayName
-const MemoizedCard = memo(CardComponent);
-MemoizedCard.displayName = 'Card';
-
-// Static properties (type assertion for compound component pattern)
-const CardWithStatics = Object.assign(MemoizedCard, {
+// Compound component pattern
+const Card = Object.assign(memo(CardComponent), {
   Header: CardHeader,
   Body: CardBody,
   Footer: CardFooter,
@@ -131,8 +131,4 @@ const CardWithStatics = Object.assign(MemoizedCard, {
   Contact: ContactCard,
 });
 
-CardWithStatics.displayName = 'Card';
-
-export const Card = CardWithStatics;
-
-export default Card;
+export { Card };
