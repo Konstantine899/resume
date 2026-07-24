@@ -12,6 +12,10 @@
     width: 100px;
     height: 100px;
 
+    .avatar-circle {
+      padding: 10px;
+    }
+
     .initial {
       font-size: 2.5rem;
 
@@ -23,6 +27,10 @@
     width: 200px;
     height: 200px;
 
+    .avatar-circle {
+      padding: 20px;
+    }
+
     .initial {
       font-size: 4rem;
 
@@ -33,6 +41,10 @@
   &.lg {
     width: 300px;
     height: 300px;
+
+    .avatar-circle {
+      padding: 30px;
+    }
 
     .initial {
       font-size: 6rem;
@@ -47,19 +59,6 @@
 
     box-sizing: border-box;
     background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
-  }
-
-  // Пропорциональные отступы для разных размеров
-  &.sm .avatar-circle {
-    padding: 10px;
-  }
-
-  &.md .avatar-circle {
-    padding: 20px;
-  }
-
-  &.lg .avatar-circle {
-    padding: 30px;
   }
 
   // Inner
