@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { memo, useCallback } from 'react';
 import type { ModalCloseButtonProps } from '../../model/types';
 import { MODAL_CONSTANTS } from '../../model/constants';
-import styles from '../Modal/Modal.module.scss';
+import styles from './ModalCloseButton.module.scss';
 
 /**
  * ModalCloseButton — кнопка закрытия модального окна

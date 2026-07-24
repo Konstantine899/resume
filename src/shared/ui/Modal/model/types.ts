@@ -30,10 +30,19 @@ export interface ModalProps {
   children: ReactNode;
 
   /**
-   * Состояние открытия модального окна
-   * @required
+   * Состояние открытия модального окна (controlled)
+   * @description Если передан — модалка в controlled режиме
+   * @example <Modal isOpen={isOpen} onClose={close}>
    */
-  isOpen: boolean;
+  isOpen?: boolean;
+
+  /**
+   * Начальное состояние открытия (uncontrolled)
+   * @description Используется когда isOpen не передан — модалка сама управляет состоянием
+   * @default false
+   * @example <Modal defaultOpen onClose={close}>
+   */
+  defaultOpen?: boolean;
 
   /**
    * Callback при закрытии модального окна
@@ -67,6 +76,13 @@ export interface ModalProps {
   size?: ModalSize;
 
   /**
+   * Поведение скролла
+   * @default 'paper'
+   * @description 'paper' — скролл внутри модалки (фиксированная высота), 'body' — скролл на body (модалка растёт)
+   */
+  scroll?: 'paper' | 'body';
+
+  /**
    * Показывать затемняющий overlay
    * @default true
    */
@@ -77,6 +93,13 @@ export interface ModalProps {
    * @default true
    */
   closeOnOverlayClick?: boolean;
+
+  /**
+   * Callback при pointer down на overlay (вне модалки)
+   * @description Вызывается ДО onClose. Вызови event.preventDefault() чтобы заблокировать закрытие
+   * @example onPointerDownOutside={(e) => { analytics.track('click_outside'); }}
+   */
+  onPointerDownOutside?: (event: PointerEvent) => void;
 
   /**
    * Закрытие по нажатию ESC
@@ -114,6 +137,13 @@ export interface ModalProps {
   disableAnimation?: boolean;
 
   /**
+   * Оставить в DOM при закрытии (для exit animation)
+   * @default false
+   * @description Когда true — модалка не unmount-ится сразу, а проигрывает scaleOut анимацию. Нужно для close animation
+   */
+  forceMount?: boolean;
+
+  /**
    * Callback вызывается после завершения анимации открытия
    * @description Полезно для фокуса или аналитики
    */
@@ -148,11 +178,33 @@ export interface ModalProps {
   restoreFocus?: boolean;
 
   /**
+   * Ref для фокуса после закрытия модалки
+   * @description Переопределяет restoreFocus — фокус на конкретный элемент (Chakra pattern)
+   * @example finalFocusRef={submitButtonRef}
+   */
+  finalFocusRef?: React.RefObject<HTMLElement>;
+
+  /**
    * Включить trap фокуса (удержание фокуса внутри модалки)
    * @default true
    * @description Если true, клавиша Tab циклически перемещает фокус внутри модалки
    */
   trapFocus?: boolean;
+
+  /**
+   * Callback при нажатии ESC
+   * @description Вызывается ДО onClose. Вызови event.preventDefault() чтобы заблокировать закрытие
+   * @example onEscapeKeyDown={(e) => { if (hasUnsavedChanges) e.preventDefault(); }}
+   */
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+
+  /**
+   * Non-modal режим (панель быстрых действий без блокировки фона)
+   * @default true
+   * @description Когда false — нет overlay, нет focus trap, нет блокировки скролла, aria-modal="false"
+   * @example <Modal modal={false}> — панель справа/снизу без блокировки
+   */
+  modal?: boolean;
 }
 
 // ============================================

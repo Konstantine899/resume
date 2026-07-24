@@ -1,31 +1,18 @@
 // ============================================
 
-// Modal Styles
+// ModalRoot Styles
 
 // ============================================
 
 @use '@/shared/styles/variables/colors' as *;
 @use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/variables/transition' as *;
 @use '@/shared/styles/variables/z-index' as *;
+@use '@/shared/styles/variables/transition' as *;
 @use '@/shared/styles/mixins/layout' as *;
-@use '@/shared/styles/mixins/components' as *;
 @use '@/shared/styles/animations/scale' as *;
 @use '@/shared/styles/animations/fade' as *;
-
-// Modal constants
-$modal-width-sm: 400px;
-$modal-width-md: 500px;
-$modal-width-lg: 640px;
-$modal-width-xl: 800px;
-$modal-max-height: 90vh;
-$modal-shadow: 0 20px 50px var(--shadow-color, rgb(0 0 0 / 0.3));
-$border-width: 1px;
-$focus-outline-width: 2px;
-$focus-outline-offset: 2px;
-$icon-button-size: $spacing-lg; // 32px
+@use '../constants' as *;
 
 // Overlay
 .overlay {
@@ -59,6 +46,12 @@ $icon-button-size: $spacing-lg; // 32px
   // Анимация
   &:not(.noAnimation) {
     animation: scaleIn $animation-duration $transition-easing;
+  }
+
+  // Close animation (forceMount mode)
+  &.closing {
+    pointer-events: none;
+    animation: scaleOut $animation-duration $transition-easing forwards;
   }
 
   &.noAnimation {
@@ -96,69 +89,16 @@ $icon-button-size: $spacing-lg; // 32px
   max-height: calc(100vh - #{$spacing-md * 2});
 }
 
-// Header
-.header {
-  @include flex-between;
+// Body scroll mode — модалка растёт с контентом, скролл на body
+.modalBody {
+  max-height: none;
+  overflow: visible;
 
-  padding: $spacing-lg $spacing-xl;
-  border-bottom: $border-width solid var(--card-border, $border-color);
-}
-
-.headerContent {
-  @include flex-col;
-
-  flex: 1;
-  gap: $spacing-xs;
-}
-
-.title {
-  margin: 0;
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-  color: var(--foreground, $text-primary);
-}
-
-// Close Button
-.closeButton {
-  @include flex-center;
-
-  width: $icon-button-size;
-  height: $icon-button-size;
-  padding: 0;
-  color: var(--foreground-muted, $text-muted);
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  border-radius: $border-radius-md;
-  transition: all $transition-fast ease;
-
-  &:hover {
-    color: var(--foreground, $text-primary);
-    background-color: var(--background-alt, $background-alt);
+  // В full screen режиме без ограничений
+  &.modal--full {
+    max-width: none;
+    max-height: none;
   }
-
-  &:focus-visible {
-    outline: $focus-outline-width solid $primary-color;
-    outline-offset: $focus-outline-offset;
-  }
-}
-
-// Content
-.content {
-  flex: 1;
-  padding: $spacing-xl;
-  overflow-y: auto;
-  color: var(--foreground, $text-primary);
-}
-
-// Footer
-.footer {
-  @include flex-center;
-
-  gap: $spacing-sm;
-  padding: $spacing-lg $spacing-xl;
-  background-color: var(--background-alt, $background-alt);
-  border-top: $border-width solid var(--card-border, $border-color);
 }
 
 // Адаптивность

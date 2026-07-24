@@ -1,0 +1,23 @@
+// ============================================
+
+// ModalContent Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '../constants' as *;
+
+.content {
+  flex: 1;
+  padding: $spacing-xl;
+  overflow-y: auto;
+  color: var(--foreground, $text-primary);
+}
+
+// When scroll="body" — parent modal container has data-scroll-body attribute
+
+// stylelint-disable-next-line selector-pseudo-class-no-unknown
+:global([data-scroll-body]) .content {
+  overflow: visible;
+}

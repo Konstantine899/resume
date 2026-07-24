@@ -1,0 +1,38 @@
+// ============================================
+
+// ModalHeader Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/mixins/layout' as *;
+@use '../constants' as *;
+
+.header {
+  @include flex-between;
+
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: $border-width solid var(--card-border, $border-color);
+}
+
+.headerContent {
+  @include flex-col;
+
+  flex: 1;
+  gap: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: var(--foreground, $text-primary);
+}
+
+// When there's no title, push close button to the right
+.headerWithoutTitle {
+  justify-content: flex-end;
+}

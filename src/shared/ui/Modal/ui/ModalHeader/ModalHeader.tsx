@@ -7,7 +7,7 @@ import { classNames } from '@/shared/lib/utils';
 import type { ModalHeaderProps } from '../../model/types';
 import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import styles from '../Modal/Modal.module.scss';
+import styles from './ModalHeader.module.scss';
 
 /**
  * ModalHeader — заголовок модального окна (title + subtitle + close button)

@@ -66,6 +66,111 @@ describe('Modal (Compound)', () => {
       render(<Modal {...defaultProps} title="Title" showCloseButton={false} />);
       expect(screen.queryByRole('button', { name: /close modal/i })).not.toBeInTheDocument();
     });
+
+    // ============================================
+    // Uncontrolled (defaultOpen) Tests
+    // ============================================
+
+    it('should render with defaultOpen=true (uncontrolled)', () => {
+      render(
+        <Modal defaultOpen onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.getByText('Content')).toBeInTheDocument();
+    });
+
+    it('should not render with defaultOpen=false (uncontrolled)', () => {
+      render(
+        <Modal defaultOpen={false} onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
+
+    it('should close uncontrolled modal on ESC', () => {
+      const onClose = vi.fn();
+      render(
+        <Modal defaultOpen onClose={onClose}>
+          Content
+        </Modal>
+      );
+
+      expect(screen.getByText('Content')).toBeInTheDocument();
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).toHaveBeenCalled();
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
+
+    it('should prefer isOpen over defaultOpen', () => {
+      render(
+        <Modal isOpen={false} defaultOpen onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
+
+    it('should render with scroll="body"', () => {
+      render(<Modal {...defaultProps} scroll="body" />);
+      expect(screen.getByText('Modal Content')).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('should default to scroll="paper"', () => {
+      const { container } = render(<Modal {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toBeInTheDocument();
+      // Проверяем что modalBody class не присутствует (scroll по умолчанию paper)
+      expect(container.querySelector('.modalBody')).toBeNull();
+    });
+
+    it('should not render with forceMount when closed initially', () => {
+      render(
+        <Modal isOpen={false} forceMount onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
+
+    it('should keep mounted during close animation with forceMount', async () => {
+      const { rerender } = render(
+        <Modal isOpen={true} forceMount onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.getByText('Content')).toBeInTheDocument();
+
+      // Close — should stay mounted during animation
+      rerender(
+        <Modal isOpen={false} forceMount onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.getByText('Content')).toBeInTheDocument();
+
+      // After animation duration, should unmount
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
+
+    it('should immediately unmount without forceMount', () => {
+      const { rerender } = render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.getByText('Content')).toBeInTheDocument();
+
+      rerender(
+        <Modal isOpen={false} onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+    });
   });
 
   // ============================================
@@ -221,6 +326,34 @@ describe('Modal (Compound)', () => {
       // ESC should close since preventDefault didn't fire in jsdom
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+
+    it('should call onEscapeKeyDown on ESC', () => {
+      const onClose = vi.fn();
+      const onEscapeKeyDown = vi.fn();
+      render(
+        <Modal isOpen={true} onClose={onClose} onEscapeKeyDown={onEscapeKeyDown}>
+          Content
+        </Modal>
+      );
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onEscapeKeyDown).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('should NOT close on ESC when onEscapeKeyDown calls preventDefault', () => {
+      const onClose = vi.fn();
+      const onEscapeKeyDown = vi.fn((e: KeyboardEvent) => e.preventDefault());
+      render(
+        <Modal isOpen={true} onClose={onClose} onEscapeKeyDown={onEscapeKeyDown}>
+          Content
+        </Modal>
+      );
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onEscapeKeyDown).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+    });
   });
 
   // ============================================
@@ -243,6 +376,69 @@ describe('Modal (Compound)', () => {
       if (overlay) {
         fireEvent.click(overlay);
         expect(defaultProps.onClose).toHaveBeenCalled();
+      }
+    });
+  });
+
+  // ============================================
+  // onPointerDownOutside Tests
+  // ============================================
+  describe('onPointerDownOutside', () => {
+    it('should call onPointerDownOutside on overlay click', () => {
+      const onPointerDownOutside = vi.fn();
+      render(
+        <Modal
+          {...defaultProps}
+          onPointerDownOutside={onPointerDownOutside}
+          closeOnOverlayClick={true}
+        />
+      );
+      const overlay = document.querySelector('[aria-hidden="true"]');
+      if (overlay) {
+        fireEvent.click(overlay);
+        expect(onPointerDownOutside).toHaveBeenCalled();
+      }
+    });
+
+    it('should NOT close when onPointerDownOutside calls preventDefault', () => {
+      const onClose = vi.fn();
+      const onPointerDownOutside = vi.fn((e: PointerEvent) => e.preventDefault());
+      render(
+        <Modal
+          isOpen={true}
+          onClose={onClose}
+          onPointerDownOutside={onPointerDownOutside}
+          closeOnOverlayClick={true}
+        >
+          Content
+        </Modal>
+      );
+      const overlay = document.querySelector('[aria-hidden="true"]');
+      if (overlay) {
+        fireEvent.click(overlay);
+        expect(onPointerDownOutside).toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+      }
+    });
+
+    it('should close when onPointerDownOutside does NOT preventDefault', () => {
+      const onClose = vi.fn();
+      const onPointerDownOutside = vi.fn();
+      render(
+        <Modal
+          isOpen={true}
+          onClose={onClose}
+          onPointerDownOutside={onPointerDownOutside}
+          closeOnOverlayClick={true}
+        >
+          Content
+        </Modal>
+      );
+      const overlay = document.querySelector('[aria-hidden="true"]');
+      if (overlay) {
+        fireEvent.click(overlay);
+        expect(onPointerDownOutside).toHaveBeenCalled();
+        expect(onClose).toHaveBeenCalled();
       }
     });
   });
@@ -319,6 +515,91 @@ describe('Modal (Compound)', () => {
       // Wait for onClosed call
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(onClosed).toHaveBeenCalledTimes(1);
+    });
+
+    it('should focus finalFocusRef after close', async () => {
+      const onClose = vi.fn();
+      const focusTarget = document.createElement('button');
+      focusTarget.setAttribute('data-testid', 'focus-target');
+      document.body.appendChild(focusTarget);
+      const focusRef = { current: focusTarget };
+
+      const { rerender } = render(
+        <Modal isOpen={true} onClose={onClose} finalFocusRef={focusRef} title="Test">
+          Content
+        </Modal>
+      );
+
+      // Wait for open
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Close
+      rerender(
+        <Modal isOpen={false} onClose={onClose} finalFocusRef={focusRef} title="Test">
+          Content
+        </Modal>
+      );
+
+      // Wait for close + focus restoration
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.activeElement).toBe(focusTarget);
+      document.body.removeChild(focusTarget);
+    });
+  });
+
+  // ============================================
+  // Non-modal mode Tests (modal=false)
+  // ============================================
+  describe('non-modal mode', () => {
+    it('should render without overlay when modal=false', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} modal={false}>
+          Content
+        </Modal>
+      );
+      const overlay = document.querySelector('[aria-hidden="true"]');
+      expect(overlay).not.toBeInTheDocument();
+    });
+
+    it('should set aria-modal="false" when modal=false', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} modal={false}>
+          Content
+        </Modal>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'false');
+    });
+
+    it('should set aria-modal="true" by default', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Content
+        </Modal>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('should not block body scroll when modal=false', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} modal={false} blockScroll={true}>
+          Content
+        </Modal>
+      );
+      expect(document.body.style.overflow).toBe('');
+    });
+
+    it('should still close on ESC when modal=false', () => {
+      const onClose = vi.fn();
+      render(
+        <Modal isOpen={true} onClose={onClose} modal={false}>
+          Content
+        </Modal>
+      );
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 });

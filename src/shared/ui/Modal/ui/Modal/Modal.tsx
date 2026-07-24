@@ -44,6 +44,7 @@ const ModalComponent = memo((props: ModalProps) => {
     subtitle,
     footer,
     size,
+    scroll,
     overlay,
     closeOnOverlayClick,
     closeOnEsc,
@@ -51,12 +52,18 @@ const ModalComponent = memo((props: ModalProps) => {
     className,
     showCloseButton = true,
     disableAnimation,
+    forceMount,
     onOpened,
     onClosed,
     canClose,
     autoFocus,
     restoreFocus,
     trapFocus,
+    onEscapeKeyDown,
+    onPointerDownOutside,
+    finalFocusRef,
+    defaultOpen,
+    modal,
   } = props;
 
   // Simple API: автоматический рендеринг header/footer
@@ -68,6 +75,7 @@ const ModalComponent = memo((props: ModalProps) => {
       isOpen,
       onClose,
       size,
+      scroll,
       overlay,
       closeOnOverlayClick,
       closeOnEsc,
@@ -75,17 +83,24 @@ const ModalComponent = memo((props: ModalProps) => {
       className,
       subtitle,
       disableAnimation,
+      forceMount,
       onOpened,
       onClosed,
       canClose,
       autoFocus,
       restoreFocus,
       trapFocus,
+      onEscapeKeyDown,
+      onPointerDownOutside,
+      finalFocusRef,
+      defaultOpen,
+      modal,
     }),
     [
       isOpen,
       onClose,
       size,
+      scroll,
       overlay,
       closeOnOverlayClick,
       closeOnEsc,
@@ -93,16 +108,20 @@ const ModalComponent = memo((props: ModalProps) => {
       className,
       subtitle,
       disableAnimation,
+      forceMount,
       onOpened,
       onClosed,
       canClose,
       autoFocus,
       restoreFocus,
       trapFocus,
+      onEscapeKeyDown,
+      onPointerDownOutside,
+      finalFocusRef,
+      defaultOpen,
+      modal,
     ]
   );
-
-  if (!isOpen) return null;
 
   if (shouldRenderWrapper) {
     return (

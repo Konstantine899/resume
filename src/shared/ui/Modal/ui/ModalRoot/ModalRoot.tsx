@@ -6,9 +6,9 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
 import { Overlay } from '@/shared/ui/Overlay';
 import { Portal } from '@/shared/ui/Portal';
-import { memo, useCallback, useEffect, useId, useLayoutEffect, useRef } from 'react';
+import { memo, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { ModalRootProps } from '../../model/types';
-import styles from '../Modal/Modal.module.scss';
+import styles from './ModalRoot.module.scss';
 
 // Global counter for multiple modals scroll blocking (используем useRef для атомарности и SSR safety)
 let openCount = 0;
@@ -25,6 +25,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     isOpen,
     onClose,
     size = 'md',
+    scroll = 'paper',
     overlay = true,
     closeOnOverlayClick = true,
     closeOnEsc = true,
@@ -38,13 +39,63 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     autoFocus = true,
     restoreFocus = true,
     trapFocus = true,
+    onEscapeKeyDown,
+    onPointerDownOutside,
+    finalFocusRef,
+    defaultOpen,
+    forceMount,
+    modal = true,
   } = props;
+
+  // Controlled vs uncontrolled mode
+  const isControlled = isOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
+  const effectiveIsOpen = isControlled ? isOpen : internalOpen;
+
+  // Non-modal mode отключает overlay, focus trap и scroll lock
+  const effectiveOverlay = modal && overlay;
+  const effectiveTrapFocus = modal && trapFocus;
+  const effectiveBlockScroll = modal && blockScroll;
+
+  // ForceMount: isClosing state for exit animation
+  const [isClosing, setIsClosing] = useState(false);
+  const closeTimeoutRef = useRef<number | null>(null);
+
+  // When effectiveIsOpen transitions from true → false and forceMount is true,
+  // keep mounted to play close animation, then unmount after duration
+  const prevIsOpenRef = useRef(effectiveIsOpen);
+  useEffect(() => {
+    if (prevIsOpenRef.current && !effectiveIsOpen && forceMount) {
+      setIsClosing(true);
+      closeTimeoutRef.current = window.setTimeout(() => {
+        setIsClosing(false);
+        closeTimeoutRef.current = null;
+      }, 700); // matches $animation-duration (0.7s)
+    }
+    prevIsOpenRef.current = effectiveIsOpen;
+
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    };
+  }, [effectiveIsOpen, forceMount]);
+
+  const handleClose = useCallback(() => {
+    if (!isControlled) {
+      setInternalOpen(false);
+    }
+    onClose();
+  }, [isControlled, onClose]);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const focusTimeoutRef = useRef<number | null>(null);
   const untrapFocusRef = useRef<(() => void) | null>(null);
   const wasOpenedRef = useRef<boolean>(false);
+  const onPointerDownOutsideRef = useRef(onPointerDownOutside);
+  onPointerDownOutsideRef.current = onPointerDownOutside;
   const titleId = useId();
   const subtitleId = useId();
 
@@ -52,9 +103,9 @@ export const ModalRoot = memo((props: ModalRootProps) => {
   useLayoutEffect(() => {
     // SSR guard — useLayoutEffect не должен выполняться на сервере
     if (typeof window === 'undefined') return;
-    if (!blockScroll) return;
+    if (!effectiveBlockScroll) return;
 
-    if (isOpen) {
+    if (effectiveIsOpen) {
       openCount++;
       if (openCount === 1) {
         document.body.style.overflow = 'hidden';
@@ -67,7 +118,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
         document.body.style.overflow = '';
       }
     };
-  }, [isOpen, blockScroll]);
+  }, [effectiveIsOpen, effectiveBlockScroll]);
 
   // Проверка canClose (useCallback для оптимизации)
   const canCloseModal = useCallback((): boolean => {
@@ -75,30 +126,37 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     return canClose();
   }, [canClose]);
 
-  // Обработчик ESC (useCallback для оптимизации)
-  const handleEscKey = useCallback(() => {
-    if (canCloseModal()) {
-      onClose();
-    }
-  }, [canCloseModal, onClose]);
+  // Обработчик ESC с onEscapeKeyDown и handleClose (useCallback для оптимизации)
+  const handleEscKey = useCallback(
+    (e: KeyboardEvent) => {
+      // Call onEscapeKeyDown — user может вызвать preventDefault чтобы заблокировать закрытие
+      onEscapeKeyDown?.(e);
+      if (e.defaultPrevented) return;
+
+      if (canCloseModal()) {
+        handleClose();
+      }
+    },
+    [canCloseModal, handleClose, onEscapeKeyDown]
+  );
 
   // Закрытие по ESC (с проверкой defaultPrevented)
   useEffect(() => {
-    if (!isOpen || !closeOnEsc) return;
+    if (!effectiveIsOpen || !closeOnEsc) return;
 
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !e.defaultPrevented) {
-        handleEscKey();
+        handleEscKey(e);
       }
     };
 
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [isOpen, closeOnEsc, handleEscKey]);
+  }, [effectiveIsOpen, closeOnEsc, handleEscKey]);
 
   // Focus Trap (с проверкой modalRef.current)
   useEffect(() => {
-    if (!isOpen || !trapFocus || !modalRef.current) return;
+    if (!effectiveIsOpen || !effectiveTrapFocus || !modalRef.current) return;
 
     untrapFocusRef.current = focusTrap(modalRef.current);
 
@@ -106,7 +164,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
       untrapFocusRef.current?.();
       untrapFocusRef.current = null;
     };
-  }, [isOpen, trapFocus]);
+  }, [effectiveIsOpen, effectiveTrapFocus]);
 
   // Auto-focus и управление фокусом (с очисткой таймера)
   useEffect(() => {
@@ -116,7 +174,11 @@ export const ModalRoot = memo((props: ModalRootProps) => {
       focusTimeoutRef.current = null;
     }
 
-    if (isOpen) {
+    // Capture ref values for safe access in cleanup closure
+    const previousElement = previousActiveElement.current;
+    const finalFocusElement = finalFocusRef?.current;
+
+    if (effectiveIsOpen) {
       wasOpenedRef.current = true;
       previousActiveElement.current = document.activeElement as HTMLElement;
 
@@ -146,39 +208,52 @@ export const ModalRoot = memo((props: ModalRootProps) => {
       }
 
       // Вызываем onClosed только если модалка была открыта
-      if (wasOpenedRef.current && previousActiveElement.current) {
+      if (wasOpenedRef.current) {
         if (restoreFocus) {
-          previousActiveElement.current.focus();
+          if (finalFocusElement) {
+            // finalFocusRef переопределяет стандартный restoreFocus
+            finalFocusElement.focus();
+          } else if (previousElement) {
+            previousElement.focus();
+          }
         }
         onClosed?.();
         wasOpenedRef.current = false;
       }
     };
-  }, [isOpen, autoFocus, restoreFocus, onOpened, onClosed]);
+  }, [effectiveIsOpen, autoFocus, restoreFocus, onOpened, onClosed, finalFocusRef]);
 
-  // Обработка клика на overlay (useCallback для оптимизации)
+  // Обработка клика на overlay с onPointerDownOutside (useCallback для оптимизации)
   const handleOverlayClick = useCallback(() => {
+    // Создаём событие для onPointerDownOutside
+    const event = new PointerEvent('pointerdown', { cancelable: true });
+    onPointerDownOutsideRef.current?.(event);
+    if (event.defaultPrevented) return;
+
     if (closeOnOverlayClick && canCloseModal()) {
-      onClose();
+      handleClose();
     }
-  }, [closeOnOverlayClick, canCloseModal, onClose]);
+  }, [closeOnOverlayClick, canCloseModal, handleClose]);
 
   // Вычисляем className напрямую (classNames очень быстрая)
   const modalClassName = classNames(
     styles.modal,
     styles[`modal--${size}`],
+    scroll === 'body' && styles.modalBody,
+    isClosing && styles.closing,
     disableAnimation && styles.noAnimation,
     className
   );
 
   // data-state для accessibility и тестирования
-  const dataState = isOpen ? 'open' : 'closed';
+  const dataState = effectiveIsOpen ? 'open' : 'closed';
 
-  if (!isOpen) return null;
+  // forceMount: при закрытии модалка остаётся в DOM для exit animation
+  if (!effectiveIsOpen && !(isClosing && forceMount)) return null;
 
   return (
     <Portal>
-      {overlay && (
+      {effectiveOverlay && (
         <Overlay
           onClick={handleOverlayClick}
           blur={false}
@@ -193,11 +268,12 @@ export const ModalRoot = memo((props: ModalRootProps) => {
           ref={modalRef}
           className={modalClassName}
           role="dialog"
-          aria-modal="true"
+          aria-modal={modal ? 'true' : 'false'}
           aria-labelledby={titleId}
           aria-describedby={subtitle ? subtitleId : undefined}
           tabIndex={0}
           data-state={dataState}
+          {...(scroll === 'body' ? { 'data-scroll-body': '' } : {})}
         >
           {children}
         </div>

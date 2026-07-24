@@ -41,5 +41,6 @@
   "contactDescription": "I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.",
   "namePlaceholder": "name placeholder",
   "emailPlaceholder": "email placeholder",
-  "messagePlaceholder": "message placeholder"
+  "messagePlaceholder": "message placeholder",
+  "skillsEmpty": "No skills listed"
 }

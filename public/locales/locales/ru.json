@@ -41,5 +41,6 @@
   "contactDescription": "Я всегда открыт для обсуждения новых проектов, творческих идей или возможностей стать частью вашего видения.",
   "namePlaceholder": "введите имя",
   "emailPlaceholder": "введите email",
-  "messagePlaceholder": "введите сообщение"
+  "messagePlaceholder": "введите сообщение",
+  "skillsEmpty": "Навыки не указаны"
 }
