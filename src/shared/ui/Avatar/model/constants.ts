@@ -17,3 +17,11 @@ export const FALLBACK_COLORS = [
   '#D24D57',
   '#663399',
 ];
+
+/**
+ * Consolidated Avatar constants
+ */
+export const AVATAR_CONSTANTS = {
+  SIZES: AVATAR_SIZES,
+  FALLBACK_COLORS,
+} as const;

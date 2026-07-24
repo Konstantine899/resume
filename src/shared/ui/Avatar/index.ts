@@ -16,4 +16,5 @@ export { AvatarFallback } from './ui/AvatarFallback/AvatarFallback';
 export { AvatarHero } from './ui/AvatarHero/AvatarHero';
 
 // Constants for configuration
-export { AVATAR_SIZES, FALLBACK_COLORS } from './model/constants';
+export { AVATAR_SIZES, FALLBACK_COLORS, AVATAR_CONSTANTS } from './model/constants';
+export { validateAvatarProps } from './lib/validateAvatarProps';
