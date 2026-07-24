@@ -1,5 +1,6 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo, forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SpinnerProps, SpinnerSpeed, SpinnerThickness } from '../model/types';
 import { validateSpinnerProps } from '../lib/validateSpinnerProps';
 import styles from './Spinner.module.scss';
@@ -40,89 +41,105 @@ const accessibilityProps = {
 // Main component
 // ============================================
 
-export const Spinner = memo((props: SpinnerProps) => {
-  const {
-    variant = 'spinner',
-    size = 'md',
-    color = 'primary',
-    speed,
-    thickness,
-    trackColor,
-    label = 'Loading',
-    className = '',
-    style,
-    ...restProps
-  } = props;
+export const Spinner = memo(
+  forwardRef<HTMLDivElement, SpinnerProps>((props, ref) => {
+    const { t } = useTranslation();
+    const {
+      variant = 'spinner',
+      size = 'md',
+      color = 'primary',
+      speed,
+      thickness,
+      trackColor,
+      label,
+      className = '',
+      style,
+      ...restProps
+    } = props;
 
-  // Dev warnings for invalid props
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      const warnings = validateSpinnerProps(
-        variant,
-        size,
-        color,
-        speed ?? 'normal',
-        thickness ?? 'normal'
-      );
-      warnings.forEach((w) => {
-        // eslint-disable-next-line no-console
-        console.warn(w.message);
-      });
-    }
-  }, [variant, size, color, speed, thickness]);
+    // Default label with i18n
+    const effectiveLabel = label ?? t('loading');
 
-  // ---- CSS custom properties for variants ----
-
-  const inlineStyle = useMemo(() => {
-    const vars: Record<string, string> = {};
-
-    if (trackColor) {
-      vars['--spinner-track'] = trackColor;
-    }
-
-    if (variant === 'double-ring') {
-      if (speed) {
-        const { doubleRing } = speedMap[speed];
-        vars['--double-ring-speed-outer'] = doubleRing.outer;
-        vars['--double-ring-speed-inner'] = doubleRing.inner;
+    // Dev warnings for invalid props
+    useEffect(() => {
+      if (process.env.NODE_ENV === 'development') {
+        const warnings = validateSpinnerProps(
+          variant,
+          size,
+          color,
+          speed ?? 'normal',
+          thickness ?? 'normal'
+        );
+        warnings.forEach((w) => {
+          // eslint-disable-next-line no-console
+          console.warn(w.message);
+        });
       }
-      if (thickness) {
-        vars['--double-ring-thickness'] = thicknessMap[thickness].doubleRing;
+    }, [variant, size, color, speed, thickness]);
+
+    // ---- CSS custom properties for variants ----
+
+    const inlineStyle = useMemo(() => {
+      const vars: Record<string, string> = {};
+
+      if (trackColor) {
+        vars['--spinner-track'] = trackColor;
       }
-    } else {
-      if (speed) {
-        vars['--spinner-speed'] = speedMap[speed].spinner;
+
+      if (variant === 'double-ring') {
+        if (speed) {
+          const { doubleRing } = speedMap[speed];
+          vars['--double-ring-speed-outer'] = doubleRing.outer;
+          vars['--double-ring-speed-inner'] = doubleRing.inner;
+        }
+        if (thickness) {
+          vars['--double-ring-thickness'] = thicknessMap[thickness].doubleRing;
+        }
+      } else {
+        if (speed) {
+          vars['--spinner-speed'] = speedMap[speed].spinner;
+        }
+        if (thickness) {
+          vars['--spinner-thickness'] = thicknessMap[thickness].spinner;
+        }
       }
-      if (thickness) {
-        vars['--spinner-thickness'] = thicknessMap[thickness].spinner;
-      }
-    }
 
-    const hasVars = Object.keys(vars).length > 0;
-    if (!hasVars && !style) return undefined;
-    return { ...vars, ...style } as React.CSSProperties;
-  }, [variant, speed, thickness, trackColor, style]);
+      const hasVars = Object.keys(vars).length > 0;
+      if (!hasVars && !style) return undefined;
+      return { ...vars, ...style } as React.CSSProperties;
+    }, [variant, speed, thickness, trackColor, style]);
 
-  // ---- Classes ----
+    // ---- Classes ----
 
-  const rootClassName = classNames(styles.root, styles[size], styles[color], className);
+    const rootClassName = classNames(styles.root, styles[size], styles[color], className);
 
-  // ---- Render ----
+    // ---- Render ----
 
-  return (
-    <div className={rootClassName} style={inlineStyle} {...restProps}>
-      {variant === 'double-ring' ? (
-        <div className={styles.doubleRing} {...accessibilityProps} aria-label={label}>
-          <div className={styles.outerRing} />
-          <div className={styles.innerRing} />
-        </div>
-      ) : (
-        <div className={styles.spinner} {...accessibilityProps} aria-label={label}>
-          <div className={styles.spinnerCircle} />
-        </div>
-      )}
-    </div>
-  );
-});
+    return (
+      <div
+        ref={ref}
+        className={rootClassName}
+        style={inlineStyle}
+        {...restProps}
+        data-variant={variant}
+        data-size={size}
+        data-color={color}
+        data-speed={speed}
+        data-thickness={thickness}
+      >
+        {variant === 'double-ring' ? (
+          <div className={styles.doubleRing} {...accessibilityProps} aria-label={effectiveLabel}>
+            <div className={styles.outerRing} />
+            <div className={styles.innerRing} />
+          </div>
+        ) : (
+          <div className={styles.spinner} {...accessibilityProps} aria-label={effectiveLabel}>
+            <div className={styles.spinnerCircle} data-testid="spinner-circle" />
+          </div>
+        )}
+      </div>
+    );
+  })
+);
 
 Spinner.displayName = 'Spinner';

@@ -9,7 +9,7 @@ describe('Spinner', () => {
       render(<Spinner />);
 
       expect(screen.getByRole('status')).toBeInTheDocument();
-      expect(screen.getByLabelText('Loading')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Loading|Загрузка/i)).toBeInTheDocument();
     });
 
     it('должен иметь aria-busy="true"', () => {

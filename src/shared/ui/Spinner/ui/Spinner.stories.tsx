@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect } from '@storybook/test';
 import React from 'react';
 import { Spinner } from './Spinner';
 
@@ -122,6 +123,14 @@ export const SingleSpinner: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const spinner = canvasElement.querySelector('[role="status"]');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner?.getAttribute('aria-busy')).toBe('true');
+    expect(spinner?.getAttribute('data-variant')).toBe('spinner');
+    expect(spinner?.getAttribute('data-size')).toBe('md');
+    expect(spinner?.getAttribute('data-color')).toBe('primary');
+  },
 };
 
 export const DoubleRing: Story = {
@@ -138,6 +147,15 @@ export const DoubleRing: Story = {
           'Подходит для Avatar, Hero и крупных зон загрузки.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const spinner = canvasElement.querySelector('[role="status"]');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner?.getAttribute('data-variant')).toBe('double-ring');
+    const outerRing = canvasElement.querySelector('.outerRing');
+    const innerRing = canvasElement.querySelector('.innerRing');
+    expect(outerRing).toBeInTheDocument();
+    expect(innerRing).toBeInTheDocument();
   },
 };
 
