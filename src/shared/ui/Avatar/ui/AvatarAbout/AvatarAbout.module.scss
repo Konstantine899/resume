@@ -47,19 +47,19 @@
 
     box-sizing: border-box;
     background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
+  }
 
-    // Пропорциональные отступы для разных размеров
-    &.sm {
-      padding: 10px;
-    }
+  // Пропорциональные отступы для разных размеров
+  &.sm .avatar-circle {
+    padding: 10px;
+  }
 
-    &.md {
-      padding: 20px;
-    }
+  &.md .avatar-circle {
+    padding: 20px;
+  }
 
-    &.lg {
-      padding: 30px;
-    }
+  &.lg .avatar-circle {
+    padding: 30px;
   }
 
   // Inner
