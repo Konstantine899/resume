@@ -45,26 +45,32 @@
   .avatar-circle {
     @include avatar-circle;
 
+    box-sizing: border-box;
     background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
-  }
 
-  // Пропорциональные отступы для разных размеров
-  &.sm .avatar-circle {
-    padding: 2px;
-  }
+    // Пропорциональные отступы для разных размеров
+    &.sm {
+      padding: 10px;
+    }
 
-  &.md .avatar-circle {
-    padding: 4px;
-  }
+    &.md {
+      padding: 20px;
+    }
 
-  &.lg .avatar-circle {
-    padding: 6px;
+    &.lg {
+      padding: 30px;
+    }
   }
 
   // Inner
   .avatar-inner {
     @include avatar-inner;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
     background: #292726;
 
     [data-theme='light'] & {
