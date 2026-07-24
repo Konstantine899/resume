@@ -65,9 +65,6 @@
   .avatar-inner {
     @include avatar-inner;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: #292726;
 
     [data-theme='light'] & {
@@ -77,19 +74,6 @@
     .initial {
       @include avatar-initial;
     }
-  }
-
-  // Пропорциональный padding для inner (чтобы skeleton не прижимался к краям)
-  &.sm .avatar-inner {
-    padding: 8px;
-  }
-
-  &.md .avatar-inner {
-    padding: 12px;
-  }
-
-  &.lg .avatar-inner {
-    padding: 16px;
   }
 
   @include avatar-reduced-motion;
