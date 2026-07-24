@@ -56,7 +56,7 @@ export const AvatarAbout = React.memo(
         aria-label={alt}
         data-state={imageStatus}
       >
-        <div className={styles.avatarCircle}>
+        <div className={classNames(styles.avatarCircle, styles[size])}>
           {showFallback ? (
             <div className={styles.avatarInner}>
               <span className={styles.initial}>{getInitials(alt || 'U', { maxInitials })}</span>
