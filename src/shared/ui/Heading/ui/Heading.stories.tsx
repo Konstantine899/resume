@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { Heading } from './Heading';
 
 const meta = {
@@ -6,86 +7,24 @@ const meta = {
   component: Heading,
   parameters: {
     layout: 'padded',
-    docs: {
-      description: {
-        component: `
-Семантический компонент заголовков с полной поддержкой accessibility.
-
-**Особенности:**
-- Семантические теги h1-h6 для SEO
-- BEM-именование классов
-- Runtime валидация пропсов в development режиме
-- Мемоизация для оптимизации производительности
-        `,
-      },
-    },
-    a11y: {
-      config: {},
-      options: {
-        runOnly: ['WCAG 2A', 'WCAG 2AA'],
-      },
-    },
   },
   tags: ['autodocs'],
   argTypes: {
     level: {
       control: { type: 'select' },
       options: [1, 2, 3, 4, 5, 6],
-      description: 'Уровень заголовка (h1-h6)',
-      table: {
-        defaultValue: { summary: '2' },
-      },
     },
     size: {
       control: { type: 'select' },
       options: ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'],
-      description: 'Визуальный размер заголовка',
-      table: {
-        defaultValue: { summary: 'm' },
-      },
     },
     theme: {
       control: { type: 'select' },
       options: ['primary', 'muted', 'inverted', 'error', 'gradient'],
-      description: 'Цветовая тема',
-      table: {
-        defaultValue: { summary: 'primary' },
-      },
     },
     align: {
       control: { type: 'select' },
       options: ['left', 'center', 'right'],
-      description: 'Выравнивание текста',
-      table: {
-        defaultValue: { summary: 'left' },
-      },
-    },
-    children: {
-      control: { type: 'text' },
-      description: 'Содержимое заголовка (текст или JSX)',
-    },
-    className: {
-      control: { type: 'text' },
-      description: 'Дополнительные CSS классы',
-    },
-    id: {
-      control: { type: 'text' },
-      description: 'HTML id для якорных ссылок',
-    },
-    'aria-label': {
-      control: { type: 'text' },
-      description: 'ARIA label для доступности',
-    },
-    'aria-labelledby': {
-      control: { type: 'text' },
-      description: 'ARIA labelledby для связи с другим элементом',
-    },
-    'data-testid': {
-      control: { type: 'text' },
-      description: 'Data-testid для тестирования',
-      table: {
-        defaultValue: { summary: 'Heading' },
-      },
     },
   },
 } satisfies Meta<typeof Heading>;
@@ -95,177 +34,107 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Заголовок по умолчанию',
+    children: 'Default heading',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const heading = canvas.getByRole('heading', { level: 2 });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveAttribute('data-level', '2');
+    expect(heading).toHaveAttribute('data-size', 'm');
+    expect(heading).toHaveAttribute('data-theme', 'primary');
+    expect(heading).toHaveAttribute('data-align', 'left');
   },
 };
 
-export const AllLevels: Story = {
-  args: {
-    children: 'Заголовок',
-  },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Heading {...args} level={1} size="5xl">
-        Заголовок H1 — Главный на странице
+export const Level: Story = {
+  args: { children: '' },
+  render: () => (
+    <div>
+      <Heading level={1} size="5xl">
+        Heading level 1
       </Heading>
-      <Heading {...args} level={2} size="4xl">
-        Заголовок H2 — Секция
+      <Heading level={2} size="4xl">
+        Heading level 2
       </Heading>
-      <Heading {...args} level={3} size="3xl">
-        Заголовок H3 — Подсекция
+      <Heading level={3} size="3xl">
+        Heading level 3
       </Heading>
-      <Heading {...args} level={4} size="2xl">
-        Заголовок H4 — Группа
+      <Heading level={4} size="2xl">
+        Heading level 4
       </Heading>
-      <Heading {...args} level={5} size="xl">
-        Заголовок H5 — Элемент
+      <Heading level={5} size="xl">
+        Heading level 5
       </Heading>
-      <Heading {...args} level={6} size="l">
-        Заголовок H6 — Деталь
+      <Heading level={6} size="l">
+        Heading level 6
       </Heading>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (let i = 1; i <= 6; i++) {
+      expect(canvas.getByRole('heading', { level: i })).toBeInTheDocument();
+    }
+  },
 };
 
-export const AllSizes: Story = {
-  args: {
-    children: 'Размер',
-  },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Heading {...args} size="xs">
-        xs — Extra Small (12px)
-      </Heading>
-      <Heading {...args} size="s">
-        s — Small (14px)
-      </Heading>
-      <Heading {...args} size="m">
-        m — Medium (16px)
-      </Heading>
-      <Heading {...args} size="l">
-        l — Large (18px)
-      </Heading>
-      <Heading {...args} size="xl">
-        xl — Extra Large (20px)
-      </Heading>
-      <Heading {...args} size="2xl">
-        2xl — 2X Large (24px)
-      </Heading>
-      <Heading {...args} size="3xl">
-        3xl — 3X Large (30px)
-      </Heading>
-      <Heading {...args} size="4xl">
-        4xl — 4X Large (36px)
-      </Heading>
-      <Heading {...args} size="5xl">
-        5xl — 5X Large (48px)
-      </Heading>
-    </div>
-  ),
-};
-
-export const AllThemes: Story = {
-  args: {
-    children: 'Тема',
-    level: 2,
-    size: '3xl',
-  },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Heading {...args} theme="primary">
-        primary — Основной цвет
-      </Heading>
-      <Heading {...args} theme="muted">
-        muted — Приглушённый цвет
-      </Heading>
-      <div style={{ background: 'var(--foreground)', padding: '16px' }}>
-        <Heading {...args} theme="inverted">
-          inverted — Инвертированный (белый)
-        </Heading>
+export const Theme: Story = {
+  args: { children: '' },
+  render: () => (
+    <div>
+      <Heading theme="primary">Primary theme</Heading>
+      <Heading theme="muted">Muted theme</Heading>
+      <div style={{ background: 'var(--foreground)', padding: '16px', marginTop: '8px' }}>
+        <Heading theme="inverted">Inverted theme</Heading>
       </div>
-      <Heading {...args} theme="error">
-        error — Цвет ошибки
-      </Heading>
-      <Heading {...args} theme="gradient">
-        gradient — Градиентный текст
-      </Heading>
+      <Heading theme="error">Error theme</Heading>
+      <Heading theme="gradient">Gradient theme</Heading>
     </div>
   ),
-};
-
-export const AllAligns: Story = {
-  args: {
-    children: 'Выравнивание',
-    level: 2,
-    size: '3xl',
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Primary theme')).toBeInTheDocument();
+    expect(canvas.getByText('Muted theme')).toBeInTheDocument();
+    expect(canvas.getByText('Inverted theme')).toBeInTheDocument();
+    expect(canvas.getByText('Error theme')).toBeInTheDocument();
+    expect(canvas.getByText('Gradient theme')).toBeInTheDocument();
   },
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Heading {...args} align="left">
-        left — По левому краю (default)
+};
+
+export const Align: Story = {
+  args: { children: '' },
+  render: () => (
+    <div>
+      <Heading align="left" size="xl">
+        Left aligned
       </Heading>
-      <Heading {...args} align="center">
-        center — По центру
+      <Heading align="center" size="xl">
+        Center aligned
       </Heading>
-      <Heading {...args} align="right">
-        right — По правому краю
+      <Heading align="right" size="xl">
+        Right aligned
       </Heading>
     </div>
   ),
-};
-
-export const GradientTheme: Story = {
-  args: {
-    level: 1,
-    size: '5xl',
-    theme: 'gradient',
-    children: 'Градиентный заголовок',
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Left aligned')).toBeInTheDocument();
+    expect(canvas.getByText('Center aligned')).toBeInTheDocument();
+    expect(canvas.getByText('Right aligned')).toBeInTheDocument();
   },
 };
 
 export const Accessibility: Story = {
   args: {
-    level: 2,
-    id: 'projects-section',
-    'aria-label': 'Projects Section',
-    size: '3xl',
-    children: 'Мои проекты',
+    id: 'section-title',
+    'aria-label': 'Section Title',
+    children: 'Accessible heading',
   },
-};
-
-export const HeroSection: Story = {
-  args: {
-    level: 1,
-    size: '5xl',
-    theme: 'gradient',
-    align: 'center',
-    children: 'Frontend Developer',
-  },
-};
-
-export const SectionTitle: Story = {
-  args: {
-    level: 2,
-    size: '3xl',
-    theme: 'primary',
-    children: 'Обо мне',
-  },
-};
-
-export const SubsectionTitle: Story = {
-  args: {
-    level: 3,
-    size: 'xl',
-    theme: 'muted',
-    children: 'Технические навыки',
-  },
-};
-
-export const ErrorState: Story = {
-  args: {
-    level: 4,
-    size: 'l',
-    theme: 'error',
-    children: 'Ошибка загрузки данных',
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const heading = canvas.getByRole('heading');
+    expect(heading).toHaveAttribute('id', 'section-title');
+    expect(heading).toHaveAttribute('aria-label', 'Section Title');
   },
 };

@@ -61,6 +61,3 @@ const HeadingComponent = forwardRef<HTMLHeadingElement, HeadingProps>((props, re
 
 HeadingComponent.displayName = 'Heading';
 export const Heading = memo(HeadingComponent);
-Heading.displayName = 'Heading';
-
-export default Heading;
