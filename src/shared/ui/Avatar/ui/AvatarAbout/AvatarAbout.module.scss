@@ -64,7 +64,9 @@
   .avatar-inner {
     @include avatar-inner;
 
+    overflow: hidden;
     background: #292726;
+    border-radius: 50%;
 
     [data-theme='light'] & {
       background: #f5f3f0;
