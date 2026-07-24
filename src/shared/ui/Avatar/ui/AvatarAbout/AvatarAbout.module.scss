@@ -13,7 +13,7 @@
     height: 100px;
 
     .avatar-circle {
-      padding: 10px;
+      padding: 2px;
     }
 
     .initial {
@@ -28,7 +28,7 @@
     height: 200px;
 
     .avatar-circle {
-      padding: 20px;
+      padding: 4px;
     }
 
     .initial {
@@ -43,7 +43,7 @@
     height: 300px;
 
     .avatar-circle {
-      padding: 30px;
+      padding: 6px;
     }
 
     .initial {
@@ -57,7 +57,6 @@
   .avatar-circle {
     @include avatar-circle;
 
-    box-sizing: border-box;
     background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
   }
 
@@ -65,7 +64,6 @@
   .avatar-inner {
     @include avatar-inner;
 
-    box-sizing: border-box;
     background: #292726;
 
     [data-theme='light'] & {
