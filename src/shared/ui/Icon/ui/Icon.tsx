@@ -1,5 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import React, { forwardRef, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, useCallback, useEffect } from 'react';
 import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../model/constants';
 import { validateIconProps } from '@/shared/lib/utils/validateIconProps';
 import type { IconProps } from '../model/types';
@@ -26,26 +26,19 @@ const IconComponent = forwardRef<HTMLSpanElement, IconProps>(
       validateIconProps(color, size, strokeWidth);
     }, [color, size, strokeWidth]);
 
-    const iconStyle: React.CSSProperties = useMemo(
-      () => ({
-        width: getSizeInPixels(size),
-        height: getSizeInPixels(size),
-        color: getColorValue(color),
-      }),
-      [size, color]
-    );
+    const isInteractive = onClick !== undefined && !disabled;
 
-    const isInteractive = useMemo(() => onClick !== undefined && !disabled, [onClick, disabled]);
+    const iconStyle: React.CSSProperties = {
+      width: getSizeInPixels(size),
+      height: getSizeInPixels(size),
+      color: getColorValue(color),
+    };
 
-    const iconClassName = useMemo(
-      () =>
-        classNames(
-          styles.icon,
-          disabled && styles.disabled,
-          isInteractive && styles.clickable,
-          className
-        ),
-      [disabled, isInteractive, className]
+    const iconClassName = classNames(
+      styles.icon,
+      disabled && styles.disabled,
+      isInteractive && styles.clickable,
+      className
     );
 
     const commonAriaProps = decorative
@@ -91,5 +84,3 @@ const IconComponent = forwardRef<HTMLSpanElement, IconProps>(
 IconComponent.displayName = 'Icon';
 export const Icon = React.memo(IconComponent);
 Icon.displayName = 'Icon';
-
-export default Icon;
