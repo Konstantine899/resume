@@ -245,6 +245,44 @@ export interface ButtonWithIconProps extends BaseButtonProps {
 }
 
 // ============================================
+// Polymorphic Types
+// ============================================
+
+/**
+ * Generic polymorphic props type for the `component` prop pattern.
+ * @description Allows Button components to render as any HTML element or React component
+ * while preserving type safety.
+
+ * @template C - The element type to render as (defaults to 'button')
+ * @template P - Props owned by the component (take priority over element props)
+ *
+ * @example
+ * ```tsx
+ * <Button<'a', ButtonOwnProps> component="a" href="/about">Link</Button>
+ * ```
+ */
+export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
+  component?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
+  P;
+
+/**
+ * Props owned by Button components (not inherited from HTML element).
+ * @description Used with PolymorphicProps to enable type-safe polymorphism.
+ * @group Types
+ */
+export interface ButtonOwnProps {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  loading?: boolean;
+  loadingVariant?: LoadingVariant;
+  fullWidth?: boolean;
+  disabled?: boolean;
+  className?: string;
+  onClick?: React.MouseEventHandler;
+}
+
+// ============================================
 // Union type для экспорта
 // ============================================
 

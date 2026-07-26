@@ -47,10 +47,8 @@ export const Primary: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    const onClick = fn(args.onClick);
-    button.onclick = onClick;
     await userEvent.click(button);
-    expect(onClick).toHaveBeenCalledTimes(1);
+    await expect(args.onClick).toHaveBeenCalledTimes(1);
   },
 };
 
@@ -60,6 +58,13 @@ export const Secondary: Story = {
     variant: 'secondary',
     size: 'md',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('data-state', 'loading');
+  },
 };
 
 export const Outline: Story = {
@@ -67,6 +72,12 @@ export const Outline: Story = {
     children: 'Outline Button',
     variant: 'outline',
     size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Outline Button');
   },
 };
 
@@ -76,6 +87,12 @@ export const Ghost: Story = {
     variant: 'ghost',
     size: 'md',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Ghost Button');
+  },
 };
 
 export const Danger: Story = {
@@ -83,6 +100,12 @@ export const Danger: Story = {
     children: 'Danger Button',
     variant: 'danger',
     size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Danger Button');
   },
 };
 
@@ -92,6 +115,12 @@ export const Small: Story = {
     size: 'sm',
     variant: 'primary',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Small');
+  },
 };
 
 export const Medium: Story = {
@@ -100,6 +129,12 @@ export const Medium: Story = {
     size: 'md',
     variant: 'primary',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Medium');
+  },
 };
 
 export const Large: Story = {
@@ -107,6 +142,12 @@ export const Large: Story = {
     children: 'Large',
     size: 'lg',
     variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Large');
   },
 };
 
@@ -163,6 +204,12 @@ export const FullWidth: Story = {
   parameters: {
     layout: 'padded',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Full Width Button');
+  },
 };
 
 export const AllVariants: Story = {
@@ -188,6 +235,13 @@ export const AllVariants: Story = {
       </Button>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(5);
+    await expect(buttons[0]).toHaveTextContent('Primary');
+    await expect(buttons[4]).toHaveTextContent('Danger');
+  },
 };
 
 export const AllSizes: Story = {
@@ -208,4 +262,51 @@ export const AllSizes: Story = {
       </Button>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(3);
+    await expect(buttons[0]).toHaveTextContent('Small');
+    await expect(buttons[2]).toHaveTextContent('Large');
+  },
+};
+
+export const AsLink: Story = {
+  args: {
+    component: 'a',
+    href: 'https://example.com',
+    children: 'Visit Example',
+    variant: 'primary',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const link = canvas.getByTestId('button');
+    await expect(link).toBeInTheDocument();
+    await expect(link).toHaveAttribute('href', 'https://example.com');
+    await expect(link).toHaveTextContent('Visit Example');
+  },
+};
+
+export const FormSubmit: Story = {
+  args: {
+    children: 'Submit',
+    type: 'submit',
+    variant: 'primary',
+    size: 'md',
+  },
+  decorators: [
+    (Story) => (
+      <form onSubmit={(e) => e.preventDefault()}>
+        <Story />
+      </form>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveAttribute('type', 'submit');
+    await expect(button).toHaveTextContent('Submit');
+  },
 };

@@ -2,19 +2,26 @@
 
 export type {
   ButtonComponentProps,
+  ButtonOwnProps,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
   ButtonWithIconProps,
   IconButtonProps,
   LoadingVariant,
+  PolymorphicProps,
 } from './model/types';
 
 export { Button } from './ui/Button/Button';
 export { ButtonWithIcon } from './ui/ButtonWithIcon/ButtonWithIcon';
 export { IconButton } from './ui/IconButton/IconButton';
+export { ButtonLoader } from './ui/ButtonLoader/ButtonLoader';
+
+// Hook
+export { useButton } from './model/useButton';
+export type { UseButtonOptions, UseButtonReturn } from './model/useButton';
 
 // Constants for configuration and validation
-export { BUTTON_CONSTANTS } from './model/constants';
+export { BUTTON_CONSTANTS, ICON_SIZE_MAP } from './model/constants';
 export { validateButtonProps } from './lib/validateButtonProps';
 export type { ButtonValidationWarning } from './lib/validateButtonProps';

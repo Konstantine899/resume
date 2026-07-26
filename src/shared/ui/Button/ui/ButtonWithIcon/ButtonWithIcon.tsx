@@ -1,15 +1,23 @@
 // ============================================
-// ButtonWithIcon Component
+// ButtonWithIcon Component — polymorphic, useButton, icon size inference
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Spinner } from '@/shared/ui/Spinner';
-import { Skeleton } from '@/shared/ui/Skeleton';
-import { validateButtonProps } from '../../lib/validateButtonProps';
-import { BUTTON_CONSTANTS } from '../../model/constants';
-import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
-import type { ButtonWithIconProps } from '../../model/types';
+import React, { cloneElement, isValidElement } from 'react';
+import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
+import { ICON_SIZE_MAP } from '../../model/constants';
+import { useButton } from '../../model/useButton';
 import styles from './ButtonWithIcon.module.scss';
+
+/**
+ * Infers icon size from button size when icon has no explicit size prop.
+ */
+function inferIconSize(icon: React.ReactNode, size: ButtonSize): React.ReactNode {
+  if (!isValidElement(icon)) return icon;
+  const iconProps = icon.props as Record<string, unknown>;
+  if (iconProps.size !== undefined) return icon;
+  return cloneElement(icon, { size: ICON_SIZE_MAP[size] } as Record<string, unknown>);
+}
 
 /**
  * ButtonWithIcon Component — кнопка с иконкой (слева или справа)
@@ -31,122 +39,98 @@ import styles from './ButtonWithIcon.module.scss';
  * ```
  *
  * @example
- * // Both icons
+ * // As a link
  * ```tsx
- * <ButtonWithIcon
- *   leftIcon={<ArrowLeft size={18} />}
- *   rightIcon={<ArrowRight size={18} />}
- * >
- *   Навигация
- * </ButtonWithIcon>
+ * <ButtonWithIcon component="a" href="/about" leftIcon={<Mail />}>Link</ButtonWithIcon>
  * ```
  */
-const ButtonWithIconComponent = forwardRef<HTMLButtonElement, ButtonWithIconProps>(
-  (
-    {
-      children,
-      leftIcon,
-      rightIcon,
-      variant = 'primary',
-      size = 'md',
-      onClick,
-      disabled = false,
-      className = '',
-      type = 'button',
-      fullWidth = false,
-      loading = false,
-      loadingVariant = 'spinner',
-      ...props
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode (optimized deps)
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        const warnings = validateButtonProps(variant, size, loadingVariant, loading);
-        warnings.forEach((w) => {
-          // eslint-disable-next-line no-console
-          console.warn(w.message);
-        });
-      }
-    }, [variant, size, loadingVariant, loading]);
+function ButtonWithIconImpl<C extends React.ElementType = 'button'>(
+  {
+    children,
+    leftIcon,
+    rightIcon,
+    variant = 'primary',
+    size = 'md',
+    onClick,
+    disabled = false,
+    className = '',
+    type,
+    fullWidth = false,
+    loading = false,
+    loadingVariant = 'spinner',
+    component,
+    ...props
+  }: PolymorphicProps<
+    C,
+    ButtonOwnProps & { leftIcon?: React.ReactNode; rightIcon?: React.ReactNode }
+  >,
+  ref: React.ForwardedRef<React.ComponentRef<C>>
+) {
+  const { buttonClassName, contentClassName, handleClick, loader } = useButton({
+    variant,
+    size,
+    loading,
+    loadingVariant,
+    fullWidth,
+    disabled,
+    className,
+    onClick,
+    styles,
+  });
 
-    // Memoize className calculation (only essential memoization)
-    const buttonClassName = useMemo(
-      () =>
-        classNames(
-          styles.button,
-          styles[variant],
-          styles[size],
-          loading && styles.loading,
-          fullWidth && styles.fullWidth,
-          className
-        ),
-      [variant, size, loading, fullWidth, className]
-    );
+  const Tag = component || ('button' as React.ElementType);
+  const isButtonElement = Tag === 'button';
+  const isDisabled = disabled || loading;
+  const sizedLeftIcon = leftIcon ? inferIconSize(leftIcon, size as ButtonSize) : undefined;
+  const sizedRightIcon = rightIcon ? inferIconSize(rightIcon, size as ButtonSize) : undefined;
 
-    // Memoize content className
-    const contentClassName = useMemo(
-      () => classNames(styles.content, loading && styles.hidden),
-      [loading]
-    );
+  const iconContent = (
+    <>
+      {sizedLeftIcon && <span className={styles.icon}>{sizedLeftIcon}</span>}
+      <span className={styles.text}>{children}</span>
+      {sizedRightIcon && <span className={styles.icon}>{sizedRightIcon}</span>}
+    </>
+  );
 
-    // Memoize click handler
-    const handleClick = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (disabled || loading) {
-          event.preventDefault();
-          return;
-        }
-        onClick?.(event);
-      },
-      [disabled, loading, onClick]
-    );
+  return (
+    <Tag
+      ref={ref as React.Ref<React.ComponentRef<C>>}
+      role={!isButtonElement ? 'button' : undefined}
+      onClick={handleClick}
+      className={classNames(buttonClassName, isDisabled && !isButtonElement && styles.disabled)}
+      aria-disabled={isDisabled || undefined}
+      aria-busy={loading || undefined}
+      data-state={loading ? 'loading' : 'idle'}
+      data-testid="button-with-icon"
+      {...(isButtonElement ? { disabled: isDisabled, type: type || 'button' } : {})}
+      {...props}
+    >
+      {loader}
+      <span className={contentClassName}>{iconContent}</span>
+    </Tag>
+  ) as React.ReactElement;
+}
 
-    // Simplified loader rendering (removed useMemo)
-    const loaderContent = loading ? (
-      loadingVariant === 'spinner' ? (
-        <span className={styles.loader}>
-          <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
-        </span>
-      ) : (
-        <span className={styles.skeleton}>
-          <Skeleton width="100%" height="100%" />
-        </span>
-      )
-    ) : null;
+ButtonWithIconImpl.displayName = 'ButtonWithIcon';
 
-    // Simplified icon rendering (removed useMemo)
-    const iconContent = (
-      <>
-        {leftIcon && <span className={styles.icon}>{leftIcon}</span>}
-        <span className={styles.text}>{children}</span>
-        {rightIcon && <span className={styles.icon}>{rightIcon}</span>}
-      </>
-    );
-
-    return (
-      <button
-        ref={ref}
-        type={type}
-        onClick={handleClick}
-        disabled={disabled || loading}
-        className={buttonClassName}
-        aria-disabled={disabled || loading}
-        aria-busy={loading}
-        data-state={loading ? 'loading' : 'idle'}
-        data-testid="button-with-icon"
-        {...props}
-      >
-        {loaderContent}
-        <span className={contentClassName}>{iconContent}</span>
-      </button>
-    );
+/**
+ * ButtonWithIcon — button with left/right icons, polymorphic `component` prop, and auto icon sizing.
+ *
+ * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link.
+ * Icon size is auto-inferred from button size unless the icon has an explicit `size` prop.
+ */
+export const ButtonWithIcon = React.memo(
+  ButtonWithIconImpl as React.FC<
+    PolymorphicProps<
+      React.ElementType,
+      ButtonOwnProps & { leftIcon?: React.ReactNode; rightIcon?: React.ReactNode }
+    >
+  >
+) as <C extends React.ElementType = 'button'>(
+  props: PolymorphicProps<
+    C,
+    ButtonOwnProps & { leftIcon?: React.ReactNode; rightIcon?: React.ReactNode }
+  > & {
+    ref?: React.ForwardedRef<React.ComponentRef<C>>;
   }
-);
-
-ButtonWithIconComponent.displayName = 'ButtonWithIcon';
-
-// Memo wrapper with displayName
-export const ButtonWithIcon = memo(ButtonWithIconComponent);
-ButtonWithIcon.displayName = 'ButtonWithIcon';
+) => React.ReactElement;

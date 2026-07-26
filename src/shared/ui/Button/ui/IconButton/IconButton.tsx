@@ -1,15 +1,23 @@
 // ============================================
-// IconButton Component
+// IconButton Component — polymorphic, useButton, icon size inference
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Spinner } from '@/shared/ui/Spinner';
-import { Skeleton } from '@/shared/ui/Skeleton';
-import { validateButtonProps } from '../../lib/validateButtonProps';
-import { BUTTON_CONSTANTS } from '../../model/constants';
-import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
-import type { IconButtonProps } from '../../model/types';
+import React, { cloneElement, isValidElement } from 'react';
+import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
+import { ICON_SIZE_MAP } from '../../model/constants';
+import { useButton } from '../../model/useButton';
 import styles from './IconButton.module.scss';
+
+/**
+ * Infers icon size from button size when icon has no explicit size prop.
+ */
+function inferIconSize(icon: React.ReactNode, size: ButtonSize): React.ReactNode {
+  if (!isValidElement(icon)) return icon;
+  const iconProps = icon.props as Record<string, unknown>;
+  if (iconProps.size !== undefined) return icon;
+  return cloneElement(icon, { size: ICON_SIZE_MAP[size] } as Record<string, unknown>);
+}
 
 /**
  * IconButton Component — кнопка только с иконкой
@@ -21,9 +29,9 @@ import styles from './IconButton.module.scss';
  * ```
  *
  * @example
- * // Menu button
+ * // As a link
  * ```tsx
- * <IconButton icon={<Menu size={24} />} ariaLabel="Открыть меню" size="lg" />
+ * <IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" />
  * ```
  *
  * @example
@@ -32,103 +40,78 @@ import styles from './IconButton.module.scss';
  * <IconButton icon={<Edit size={20} />} ariaLabel="Edit" loading />
  * ```
  */
-const IconButtonComponent = forwardRef<HTMLButtonElement, IconButtonProps>(
-  (
-    {
-      icon,
-      ariaLabel,
-      variant = 'primary',
-      size = 'md',
-      onClick,
-      disabled = false,
-      className = '',
-      type = 'button',
-      fullWidth = false,
-      loading = false,
-      loadingVariant = 'spinner',
-      ...props
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode (optimized deps)
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        const warnings = validateButtonProps(variant, size, loadingVariant, loading);
-        warnings.forEach((w) => {
-          // eslint-disable-next-line no-console
-          console.warn(w.message);
-        });
-      }
-    }, [variant, size, loadingVariant, loading]);
+function IconButtonImpl<C extends React.ElementType = 'button'>(
+  {
+    icon,
+    ariaLabel,
+    variant = 'primary',
+    size = 'md',
+    onClick,
+    disabled = false,
+    className = '',
+    type,
+    fullWidth = false,
+    loading = false,
+    loadingVariant = 'spinner',
+    component,
+    ...props
+  }: PolymorphicProps<C, ButtonOwnProps & { icon: React.ReactNode; ariaLabel: string }>,
+  ref: React.ForwardedRef<React.ComponentRef<C>>
+) {
+  const { buttonClassName, contentClassName, handleClick, loader } = useButton({
+    variant,
+    size,
+    loading,
+    loadingVariant,
+    fullWidth,
+    disabled,
+    className,
+    onClick,
+    styles,
+  });
 
-    // Memoize className calculation (only essential memoization)
-    const buttonClassName = useMemo(
-      () =>
-        classNames(
-          styles.button,
-          styles[variant],
-          styles[size],
-          loading && styles.loading,
-          fullWidth && styles.fullWidth,
-          className
-        ),
-      [variant, size, loading, fullWidth, className]
-    );
+  const Tag = component || ('button' as React.ElementType);
+  const isButtonElement = Tag === 'button';
+  const isDisabled = disabled || loading;
+  const sizedIcon = inferIconSize(icon, size as ButtonSize);
 
-    // Memoize content className
-    const contentClassName = useMemo(
-      () => classNames(styles.content, loading && styles.hidden),
-      [loading]
-    );
+  return (
+    <Tag
+      ref={ref as React.Ref<React.ComponentRef<C>>}
+      role={!isButtonElement ? 'button' : undefined}
+      onClick={handleClick}
+      className={classNames(buttonClassName, isDisabled && !isButtonElement && styles.disabled)}
+      aria-label={ariaLabel}
+      aria-disabled={isDisabled || undefined}
+      aria-busy={loading || undefined}
+      data-state={loading ? 'loading' : 'idle'}
+      data-testid="icon-button"
+      {...(isButtonElement ? { disabled: isDisabled, type: type || 'button' } : {})}
+      {...props}
+    >
+      {loader}
+      <span className={contentClassName}>{sizedIcon}</span>
+    </Tag>
+  ) as React.ReactElement;
+}
 
-    // Memoize click handler
-    const handleClick = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (disabled || loading) {
-          event.preventDefault();
-          return;
-        }
-        onClick?.(event);
-      },
-      [disabled, loading, onClick]
-    );
+IconButtonImpl.displayName = 'IconButton';
 
-    // Simplified loader rendering (removed useMemo)
-    const loaderContent = loading ? (
-      loadingVariant === 'spinner' ? (
-        <span className={styles.loader}>
-          <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
-        </span>
-      ) : (
-        <span className={styles.skeleton}>
-          <Skeleton width="100%" height="100%" />
-        </span>
-      )
-    ) : null;
-
-    return (
-      <button
-        ref={ref}
-        type={type}
-        onClick={handleClick}
-        disabled={disabled || loading}
-        className={buttonClassName}
-        aria-label={ariaLabel}
-        aria-disabled={disabled || loading}
-        aria-busy={loading}
-        data-state={loading ? 'loading' : 'idle'}
-        data-testid="icon-button"
-        {...props}
-      >
-        {loaderContent}
-        <span className={contentClassName}>{icon}</span>
-      </button>
-    );
+/**
+ * IconButton — icon-only button with polymorphic `component` prop and auto icon sizing.
+ *
+ * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link.
+ * Icon size is auto-inferred from button size unless the icon has an explicit `size` prop.
+ */
+export const IconButton = React.memo(
+  IconButtonImpl as React.FC<
+    PolymorphicProps<
+      React.ElementType,
+      ButtonOwnProps & { icon: React.ReactNode; ariaLabel: string }
+    >
+  >
+) as <C extends React.ElementType = 'button'>(
+  props: PolymorphicProps<C, ButtonOwnProps & { icon: React.ReactNode; ariaLabel: string }> & {
+    ref?: React.ForwardedRef<React.ComponentRef<C>>;
   }
-);
-
-IconButtonComponent.displayName = 'IconButton';
-
-// Memo wrapper with displayName
-export const IconButton = memo(IconButtonComponent);
-IconButton.displayName = 'IconButton';
+) => React.ReactElement;

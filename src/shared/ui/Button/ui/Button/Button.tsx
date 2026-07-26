@@ -1,14 +1,11 @@
 // ============================================
-// Button Component
+// Button Component — polymorphic, uses useButton + ButtonLoader
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Spinner } from '@/shared/ui/Spinner';
-import { Skeleton } from '@/shared/ui/Skeleton';
-import { BUTTON_CONSTANTS } from '../../model/constants';
-import { validateButtonProps } from '../../lib/validateButtonProps';
-import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
-import type { ButtonProps } from '../../model/types';
+import React from 'react';
+import type { ButtonOwnProps, PolymorphicProps } from '../../model/types';
+import { useButton } from '../../model/useButton';
 import styles from './Button.module.scss';
 
 /**
@@ -29,106 +26,74 @@ import styles from './Button.module.scss';
  * ```
  *
  * @example
- * // Disabled state
+ * // As a link
  * ```tsx
- * <Button disabled>Disabled</Button>
+ * <Button component="a" href="/about">Link</Button>
  * ```
  */
-const ButtonComponent = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      children,
-      variant = 'primary',
-      size = 'md',
-      onClick,
-      disabled = false,
-      className = '',
-      type = 'button',
-      fullWidth = false,
-      loading = false,
-      loadingVariant = 'spinner',
-      ...props
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode (optimized deps)
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        const warnings = validateButtonProps(variant, size, loadingVariant, loading);
-        warnings.forEach((w) => {
-          // eslint-disable-next-line no-console
-          console.warn(w.message);
-        });
-      }
-    }, [variant, size, loadingVariant, loading]);
+function ButtonImpl<C extends React.ElementType = 'button'>(
+  {
+    children,
+    variant = 'primary',
+    size = 'md',
+    onClick,
+    disabled = false,
+    className = '',
+    type,
+    fullWidth = false,
+    loading = false,
+    loadingVariant = 'spinner',
+    component,
+    ...props
+  }: PolymorphicProps<C, ButtonOwnProps>,
+  ref: React.ForwardedRef<React.ComponentRef<C>>
+) {
+  const { buttonClassName, contentClassName, handleClick, loader } = useButton({
+    variant,
+    size,
+    loading,
+    loadingVariant,
+    fullWidth,
+    disabled,
+    className,
+    onClick,
+  });
 
-    // Memoize className calculation (only essential memoization)
-    const buttonClassName = useMemo(
-      () =>
-        classNames(
-          styles.button,
-          styles[variant],
-          styles[size],
-          loading && styles.loading,
-          fullWidth && styles.fullWidth,
-          className
-        ),
-      [variant, size, loading, fullWidth, className]
-    );
+  const Tag = component || ('button' as React.ElementType);
+  const isButtonElement = Tag === 'button';
+  const isDisabled = disabled || loading;
 
-    // Memoize content className
-    const contentClassName = useMemo(
-      () => classNames(styles.content, loading && styles.hidden),
-      [loading]
-    );
+  return (
+    <Tag
+      ref={ref as React.Ref<React.ComponentRef<C>>}
+      role={!isButtonElement ? 'button' : undefined}
+      onClick={handleClick}
+      className={classNames(buttonClassName, isDisabled && !isButtonElement && styles.disabled)}
+      aria-disabled={isDisabled || undefined}
+      aria-busy={loading || undefined}
+      data-state={loading ? 'loading' : 'idle'}
+      data-testid="button"
+      {...(isButtonElement ? { disabled: isDisabled, type: type || 'button' } : {})}
+      {...props}
+    >
+      {loader}
+      <span className={contentClassName}>{children}</span>
+    </Tag>
+  ) as React.ReactElement;
+}
 
-    // Memoize click handler
-    const handleClick = useCallback(
-      (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (disabled || loading) {
-          event.preventDefault();
-          return;
-        }
-        onClick?.(event);
-      },
-      [disabled, loading, onClick]
-    );
+ButtonImpl.displayName = 'Button';
 
-    // Simplified loader rendering (removed useMemo for simple conditional)
-    const loaderContent = loading ? (
-      loadingVariant === 'spinner' ? (
-        <span className={styles.loader}>
-          <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
-        </span>
-      ) : (
-        <span className={styles.skeleton}>
-          <Skeleton width="100%" height="100%" />
-        </span>
-      )
-    ) : null;
-
-    return (
-      <button
-        ref={ref}
-        type={type}
-        onClick={handleClick}
-        disabled={disabled || loading}
-        className={buttonClassName}
-        aria-disabled={disabled || loading}
-        aria-busy={loading}
-        data-state={loading ? 'loading' : 'idle'}
-        data-testid="button"
-        {...props}
-      >
-        {loaderContent}
-        <span className={contentClassName}>{children}</span>
-      </button>
-    );
+/**
+ * Button — text-only button with polymorphic `component` prop support.
+ *
+ * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link,
+ * or any other HTML element / React component.
+ */
+export const Button = React.memo(
+  ButtonImpl as React.FC<PolymorphicProps<React.ElementType, ButtonOwnProps>>
+) as <C extends React.ElementType = 'button'>(
+  props: PolymorphicProps<C, ButtonOwnProps> & {
+    ref?: React.ForwardedRef<React.ComponentRef<C>>;
   }
-);
-
-ButtonComponent.displayName = 'Button';
-
-// Memo wrapper with displayName
-export const Button = memo(ButtonComponent);
-Button.displayName = 'Button';
+) => React.ReactElement;

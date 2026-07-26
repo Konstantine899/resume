@@ -49,10 +49,8 @@ export const PrimaryWithLeftIcon: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    const onClick = fn(args.onClick);
-    button.onclick = onClick;
     await userEvent.click(button);
-    expect(onClick).toHaveBeenCalledTimes(1);
+    await expect(args.onClick).toHaveBeenCalledTimes(1);
   },
 };
 
@@ -62,6 +60,13 @@ export const PrimaryWithRightIcon: Story = {
     rightIcon: <ArrowRight size={18} />,
     variant: 'primary',
     size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('data-state', 'loading');
   },
 };
 
@@ -73,6 +78,12 @@ export const PrimaryWithBothIcons: Story = {
     variant: 'primary',
     size: 'md',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Download');
+  },
 };
 
 export const Secondary: Story = {
@@ -81,6 +92,12 @@ export const Secondary: Story = {
     leftIcon: <User size={18} />,
     variant: 'secondary',
     size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Cancel');
   },
 };
 
@@ -91,6 +108,12 @@ export const Outline: Story = {
     variant: 'outline',
     size: 'md',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Outline');
+  },
 };
 
 export const Ghost: Story = {
@@ -99,6 +122,12 @@ export const Ghost: Story = {
     leftIcon: <Mail size={18} />,
     variant: 'ghost',
     size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Ghost');
   },
 };
 
@@ -109,6 +138,12 @@ export const Small: Story = {
     size: 'sm',
     variant: 'primary',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Small');
+  },
 };
 
 export const Medium: Story = {
@@ -118,6 +153,12 @@ export const Medium: Story = {
     size: 'md',
     variant: 'primary',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Medium');
+  },
 };
 
 export const Large: Story = {
@@ -126,6 +167,12 @@ export const Large: Story = {
     leftIcon: <Mail size={24} />,
     size: 'lg',
     variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Large');
   },
 };
 
@@ -186,6 +233,12 @@ export const FullWidth: Story = {
   parameters: {
     layout: 'padded',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Full Width Button');
+  },
 };
 
 export const AllVariants: Story = {
@@ -212,6 +265,13 @@ export const AllVariants: Story = {
       </ButtonWithIcon>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(5);
+    await expect(buttons[0]).toHaveTextContent('Primary');
+    await expect(buttons[4]).toHaveTextContent('Danger');
+  },
 };
 
 export const AllSizes: Story = {
@@ -233,4 +293,11 @@ export const AllSizes: Story = {
       </ButtonWithIcon>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(3);
+    await expect(buttons[0]).toHaveTextContent('Small');
+    await expect(buttons[2]).toHaveTextContent('Large');
+  },
 };

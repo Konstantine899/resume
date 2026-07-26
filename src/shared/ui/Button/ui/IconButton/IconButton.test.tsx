@@ -137,4 +137,112 @@ describe('IconButton', () => {
       expect(ref).toHaveBeenCalledWith(expect.any(HTMLButtonElement));
     });
   });
+
+  describe('Polymorphic (component prop)', () => {
+    it('должен рендериться как <a> при component="a"', () => {
+      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" />);
+
+      const link = screen.getByTestId('icon-button');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', '/about');
+    });
+
+    it('должен иметь aria-label при component="a"', () => {
+      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Send email" />);
+
+      const link = screen.getByTestId('icon-button');
+      expect(link).toHaveAttribute('aria-label', 'Send email');
+    });
+
+    it('должен сохранять стили при component="a"', () => {
+      render(
+        <IconButton component="a" href="/test" icon={<Mail />} ariaLabel="Mail" variant="ghost" />
+      );
+
+      const link = screen.getByTestId('icon-button');
+      expect(link).toHaveClass(iconButtonStyles.button);
+      expect(link).toHaveClass(iconButtonStyles.ghost);
+    });
+
+    it('должен иметь aria-disabled при disabled=true и component="a"', () => {
+      render(<IconButton component="a" href="/test" icon={<Mail />} ariaLabel="Mail" disabled />);
+
+      const link = screen.getByTestId('icon-button');
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('должен рендериться как <div> при component="div"', () => {
+      render(<IconButton component="div" icon={<Mail />} ariaLabel="Mail" />);
+
+      const div = screen.getByRole('button');
+      expect(div.tagName).toBe('DIV');
+      expect(div).toHaveAttribute('role', 'button');
+    });
+
+    it('должен иметь aria-disabled при disabled=true и component="div"', () => {
+      render(<IconButton component="div" icon={<Mail />} ariaLabel="Mail" disabled />);
+
+      const div = screen.getByRole('button');
+      expect(div).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('не должен вызывать onClick при loading=true и component="a"', () => {
+      const handleClick = vi.fn();
+      render(
+        <IconButton
+          component="a"
+          href="/test"
+          icon={<Mail />}
+          ariaLabel="Mail"
+          loading
+          onClick={handleClick}
+        />
+      );
+
+      const link = screen.getByTestId('icon-button');
+      fireEvent.click(link);
+
+      expect(handleClick).not.toHaveBeenCalled();
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('должен передавать ref на anchor элемент при component="a"', () => {
+      const ref = vi.fn();
+      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" ref={ref} />);
+
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
+    });
+  });
+
+  describe('Icon size inference', () => {
+    it('должен устанавливать размер иконки 16 для size="sm"', () => {
+      const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" size="sm" />);
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '16');
+    });
+
+    it('должен устанавливать размер иконки 20 для size="md" (по умолчанию)', () => {
+      const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" />);
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '20');
+    });
+
+    it('должен устанавливать размер иконки 24 для size="lg"', () => {
+      const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" size="lg" />);
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '24');
+    });
+
+    it('должен сохранять ручной размер иконки при override', () => {
+      const { container } = render(
+        <IconButton icon={<Mail size={32} />} ariaLabel="Mail" size="sm" />
+      );
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '32');
+    });
+  });
 });

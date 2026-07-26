@@ -36,7 +36,8 @@ $button-focus-offset: 2px;
     transition: none;
   }
 
-  &:disabled {
+  &:disabled,
+  &.disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }

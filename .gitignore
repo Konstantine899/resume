@@ -82,6 +82,7 @@ output/
 .next/
 .nuxt/
 .output/
+storybook-static/
 
 # Build artifacts
 *.dll
