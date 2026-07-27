@@ -3,6 +3,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Container } from './Container';
+import containerStyles from './Container.module.scss';
 
 describe('Container', () => {
   // ============================================
@@ -279,6 +280,27 @@ describe('Container', () => {
       );
       expect(testRef.current).toBeInstanceOf(HTMLDivElement);
     });
+
+    it('должен передавать HTMLAnchorElement при component="a"', () => {
+      const refCallback = vi.fn();
+      render(
+        <Container component="a" href="/test" ref={refCallback} data-testid="container">
+          Content
+        </Container>
+      );
+      expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
+    });
+
+    it('должен передавать HTMLElement при component="section"', () => {
+      const refCallback = vi.fn();
+      render(
+        <Container component="section" ref={refCallback} data-testid="container">
+          Content
+        </Container>
+      );
+      expect(refCallback).toHaveBeenCalled();
+      expect(refCallback.mock.calls[0][0]?.tagName).toBe('SECTION');
+    });
   });
 
   // ============================================
@@ -382,12 +404,146 @@ describe('Container', () => {
   });
 
   // ============================================
+  // CSS Custom Properties
+  // ============================================
+
+  describe('CSS Custom Properties', () => {
+    it('should set --container-max-width CSS custom property for size="xl"', () => {
+      render(
+        <Container size="xl" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.style.getPropertyValue('--container-max-width')).toBe('1280px');
+    });
+
+    it('should set --container-padding CSS custom property for padding="lg"', () => {
+      render(
+        <Container padding="lg" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.style.getPropertyValue('--container-padding')).toBe('2rem');
+    });
+
+    it('should allow user style override alongside CSS custom properties', () => {
+      render(
+        <Container size="sm" style={{ color: 'red' }} data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.style.getPropertyValue('--container-max-width')).toBe('640px');
+      expect(container.style.color).toBe('red');
+    });
+  });
+
+  // ============================================
   // React.memo Verification
   // ============================================
 
   describe('React.memo Verification', () => {
     it('должен быть мемоизирован с React.memo', () => {
       expect(Container.displayName).toBe('Container');
+    });
+  });
+
+  // ============================================
+  // Polymorphic Rendering (component prop)
+  // ============================================
+
+  describe('Polymorphic Rendering', () => {
+    it('должен рендериться как <section> при component="section"', () => {
+      render(
+        <Container component="section" aria-label="Main content" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.tagName).toBe('SECTION');
+    });
+
+    it('должен передавать aria-label при component="section"', () => {
+      render(
+        <Container component="section" aria-label="Content section" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container).toHaveAttribute('aria-label', 'Content section');
+    });
+
+    it('должен рендериться как <main> при component="main"', () => {
+      render(
+        <Container component="main" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.tagName).toBe('MAIN');
+    });
+
+    it('должен рендериться как <article> при component="article"', () => {
+      render(
+        <Container component="article" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.tagName).toBe('ARTICLE');
+    });
+
+    it('должен рендериться как <div> по умолчанию (без component)', () => {
+      render(<Container data-testid="container">Content</Container>);
+      const container = screen.getByTestId('container');
+      expect(container.tagName).toBe('DIV');
+    });
+
+    it('должен сохранять CSS классы при component="section"', () => {
+      render(
+        <Container component="section" size="lg" padding="md" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.className).toContain(containerStyles.container);
+      expect(container.className).toContain(containerStyles.lg);
+      expect(container.className).toContain(containerStyles['padding-md']);
+    });
+
+    it('должен передавать data-size и data-padding при component="article"', () => {
+      render(
+        <Container component="article" size="xl" padding="sm" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container).toHaveAttribute('data-size', 'xl');
+      expect(container).toHaveAttribute('data-padding', 'sm');
+    });
+
+    it('должен рендериться как <a> с href при component="a"', () => {
+      render(
+        <Container component="a" href="/test" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container.tagName).toBe('A');
+      expect(container).toHaveAttribute('href', '/test');
+    });
+
+    it('должен передавать href и target при component="a"', () => {
+      render(
+        <Container component="a" href="/test" target="_blank" data-testid="container">
+          Content
+        </Container>
+      );
+      const container = screen.getByTestId('container');
+      expect(container).toHaveAttribute('href', '/test');
+      expect(container).toHaveAttribute('target', '_blank');
     });
   });
 });

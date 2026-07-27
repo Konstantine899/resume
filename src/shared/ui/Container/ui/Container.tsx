@@ -1,12 +1,12 @@
 // ============================================
-// Container Component
+// Container Component — polymorphic, uses useContainer hook
 // ============================================
 
-import { validateContainerProps } from '@/shared/lib/utils/validateContainerProps';
-import { CONTAINER_CONSTANTS } from '@/shared/ui/Container/model/constants';
+import React, { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { forwardRef, memo, useEffect, useMemo } from 'react';
-import type { ContainerProps } from '../model/types';
+import type { ContainerOwnProps, PolymorphicProps } from '../model/types';
+import { CONTAINER_CONSTANTS } from '../model/constants';
+import { useContainer } from '../model/useContainer';
 import styles from './Container.module.scss';
 
 /**
@@ -25,6 +25,14 @@ import styles from './Container.module.scss';
  * ```
  *
  * @example
+ * // As a semantic section element
+ * ```tsx
+ * <Container component="section" aria-label="Main content">
+ *   <h1>Page Title</h1>
+ * </Container>
+ * ```
+ *
+ * @example
  * // Full width with padding
  * ```tsx
  * <Container fullWidth padding="lg">Full width content</Container>
@@ -40,61 +48,80 @@ import styles from './Container.module.scss';
  * // With accessibility attributes
  * ```tsx
  * <Container role="region" aria-label="Main content">
- *   <h1>Page Title</h1>
+ *   Content
  * </Container>
  * ```
  */
-const ContainerComponent = forwardRef<HTMLDivElement, ContainerProps>(
-  (
-    {
-      size = CONTAINER_CONSTANTS.DEFAULT_SIZE,
-      centered = CONTAINER_CONSTANTS.DEFAULT_CENTERED,
-      className = '',
-      fullWidth = false,
-      padding = CONTAINER_CONSTANTS.DEFAULT_PADDING,
-      role,
-      'aria-label': ariaLabel,
-      ...restProps
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode (optimized deps)
-    useEffect(() => {
-      validateContainerProps(size, padding);
-    }, [size, padding]);
+function ContainerImpl<T extends React.ElementType = 'div'>(
+  {
+    component,
+    size = CONTAINER_CONSTANTS.DEFAULT_SIZE,
+    centered = CONTAINER_CONSTANTS.DEFAULT_CENTERED,
+    className = '',
+    fullWidth = false,
+    padding = CONTAINER_CONSTANTS.DEFAULT_PADDING,
+    style: userStyle,
+    ...restProps
+  }: PolymorphicProps<T, ContainerOwnProps>,
+  ref: React.ForwardedRef<React.ComponentRef<T>>
+) {
+  const {
+    containerClassName: logicalClasses,
+    dataAttrs,
+    style: hookStyle,
+  } = useContainer({
+    size,
+    centered,
+    fullWidth,
+    padding,
+    className,
+  });
 
-    // Memoize className calculation (optimized dependencies)
-    const containerClassName = useMemo(
-      () =>
-        classNames(
-          styles.container,
-          styles[size],
-          styles[`padding-${padding}`],
-          centered && styles.centered,
-          fullWidth && styles.fullWidth,
-          className
-        ),
-      [size, centered, fullWidth, padding, className]
-    );
+  // Map logical class parts to CSS module scoped class names
+  const containerClassName = useMemo(
+    () =>
+      classNames(
+        styles.container,
+        styles[size],
+        styles[`padding-${padding}`],
+        centered && styles.centered,
+        fullWidth && styles.fullWidth,
+        logicalClasses
+      ),
+    [size, centered, fullWidth, padding, logicalClasses]
+  );
 
-    return (
-      <div
-        ref={ref}
-        className={containerClassName}
-        role={role}
-        aria-label={ariaLabel}
-        data-size={size}
-        data-padding={padding}
-        {...restProps}
-      />
-    );
+  const mergedStyle = { ...hookStyle, ...userStyle } as React.CSSProperties;
+  const Tag = component || ('div' as React.ElementType);
+
+  return (
+    <Tag
+      ref={ref as React.Ref<React.ComponentRef<T>>}
+      className={containerClassName}
+      {...dataAttrs}
+      style={mergedStyle}
+      {...restProps}
+    />
+  ) as React.ReactElement;
+}
+
+ContainerImpl.displayName = 'Container';
+
+type ContainerComponent = <C extends React.ElementType = 'div'>(
+  props: PolymorphicProps<C, ContainerOwnProps> & {
+    ref?: React.ForwardedRef<React.ComponentRef<C>>;
   }
+) => React.ReactElement;
+
+/**
+ * Container — layout component for limiting width and centering content.
+ *
+ * Defaults to rendering a `<div>` element. Use `component` to render as
+ * `<section>`, `<article>`, `<main>`, or any other HTML element / React component.
+ */
+const MemoContainer = React.memo(
+  ContainerImpl as React.FC<PolymorphicProps<React.ElementType, ContainerOwnProps>>
 );
 
-ContainerComponent.displayName = 'Container';
-
-// Memo wrapper with displayName
-export const Container = memo(ContainerComponent);
+export const Container = MemoContainer as ContainerComponent & { displayName: string };
 Container.displayName = 'Container';
-
-export default Container;

@@ -13,7 +13,12 @@ import type { HTMLAttributes } from 'react';
 export type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 /**
- * Props для компонента Container
+ * Padding контейнера
+ */
+export type ContainerPadding = 'none' | 'sm' | 'md' | 'lg' | 'xl';
+
+/**
+ * Props для компонента Container (legacy — сохранено для обратной совместимости)
  */
 export interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
   /** Размер контейнера (max-width) */
@@ -29,5 +34,57 @@ export interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
   fullWidth?: boolean;
 
   /** Padding */
-  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  padding?: ContainerPadding;
 }
+
+// ============================================
+// Polymorphic + Hook Types
+// ============================================
+
+/**
+ * Props owned by Container (not inherited from HTML element).
+ * Used with PolymorphicProps to enable type-safe polymorphism.
+ */
+export interface ContainerOwnProps {
+  size?: ContainerSize;
+  centered?: boolean;
+  className?: string;
+  fullWidth?: boolean;
+  padding?: ContainerPadding;
+}
+
+/**
+ * Props for the useContainer hook.
+ */
+export interface ContainerHookProps {
+  size?: ContainerSize;
+  centered?: boolean;
+  className?: string;
+  fullWidth?: boolean;
+  padding?: ContainerPadding;
+}
+
+/**
+ * Return type for the useContainer hook.
+ */
+export interface UseContainerReturn {
+  /** Computed className string from CSS modules */
+  containerClassName: string;
+  /** Data attributes to spread on the element */
+  dataAttrs: Record<string, string>;
+  /** CSS custom properties style object */
+  style: React.CSSProperties & Record<string, string>;
+}
+
+/**
+ * Generic polymorphic props type for the `component` prop pattern.
+ * Allows Container to render as any HTML element or React component
+ * while preserving type safety.
+ *
+ * @template C - The element type to render as (defaults to 'div')
+ * @template P - Props owned by the component (take priority over element props)
+ */
+export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
+  component?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
+  P;

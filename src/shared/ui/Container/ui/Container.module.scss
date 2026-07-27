@@ -1,41 +1,31 @@
 // src/shared/ui/Container/ui/Container.module.scss
 
-@use '@/shared/styles/variables' as *;
-
-// Container-specific constants (extracted from magic numbers)
-$container-max-width-sm: 640px;
-$container-max-width-md: 768px;
-$container-max-width-lg: 1024px;
-$container-max-width-xl: 1280px;
-$container-padding-sm: 1rem;
-$container-padding-md: 1.5rem;
-$container-padding-lg: 2rem;
-$container-padding-xl: 3rem;
+// CSS custom properties provided by useContainer hook eliminate duplicated constants
 
 .container {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
 
-  // Размеры (max-width)
+  // Размеры (max-width) — value set via --container-max-width from useContainer hook
   &.sm {
-    max-width: $container-max-width-sm;
+    max-width: var(--container-max-width);
   }
 
   &.md {
-    max-width: $container-max-width-md;
+    max-width: var(--container-max-width);
   }
 
   &.lg {
-    max-width: $container-max-width-lg;
+    max-width: var(--container-max-width);
   }
 
   &.xl {
-    max-width: $container-max-width-xl;
+    max-width: var(--container-max-width);
   }
 
   &.full {
-    max-width: 100%;
+    max-width: var(--container-max-width);
   }
 
   // Центрирование
@@ -51,29 +41,29 @@ $container-padding-xl: 3rem;
     padding-left: 0;
   }
 
-  // Padding
+  // Padding — value set via --container-padding from useContainer hook
   &.padding-none {
     padding-right: 0;
     padding-left: 0;
   }
 
   &.padding-sm {
-    padding-right: $container-padding-sm;
-    padding-left: $container-padding-sm;
+    padding-right: var(--container-padding);
+    padding-left: var(--container-padding);
   }
 
   &.padding-md {
-    padding-right: $container-padding-md;
-    padding-left: $container-padding-md;
+    padding-right: var(--container-padding);
+    padding-left: var(--container-padding);
   }
 
   &.padding-lg {
-    padding-right: $container-padding-lg;
-    padding-left: $container-padding-lg;
+    padding-right: var(--container-padding);
+    padding-left: var(--container-padding);
   }
 
   &.padding-xl {
-    padding-right: $container-padding-xl;
-    padding-left: $container-padding-xl;
+    padding-right: var(--container-padding);
+    padding-left: var(--container-padding);
   }
 }
