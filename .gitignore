@@ -84,6 +84,15 @@ output/
 .output/
 storybook-static/
 
+# Vite build artifacts (auto-generated, do not commit)
+public/*.js
+public/*.css
+public/*.map
+!public/index.html
+
+# Locale files (managed separately, do not commit with code changes)
+public/locales/
+
 # Build artifacts
 *.dll
 *.exe
