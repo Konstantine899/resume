@@ -47,5 +47,3 @@ ContactCardComponent.displayName = 'ContactCard';
 
 export const ContactCard = memo(ContactCardComponent);
 ContactCard.displayName = 'ContactCard';
-
-export default ContactCard;

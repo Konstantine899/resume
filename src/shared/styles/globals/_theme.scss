@@ -11,6 +11,11 @@
   --background-alt: #{$background-alt};
   --foreground: #{$text-primary};
   --foreground-muted: #{$text-muted};
+
+  // Aliases for text colors (used by Card and other components)
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-tertiary: #{$text-muted};
   --card-bg: rgb(255 255 255 / 0.98);
   --card-border: rgb(0 0 0 / 0.12);
   --shadow-color: rgb(0 0 0 / 0.1);
@@ -40,7 +45,6 @@
   --form-success: #{$form-success-color};
   --form-warning: #{$form-warning-color};
   --label-color: var(--foreground);
-  --label-required-color: #{$form-error-color};
 }
 
 [data-theme='dark'] {
@@ -48,6 +52,11 @@
   --background-alt: #1e1c1b;
   --foreground: #e8e6e3;
   --foreground-muted: #9ca3af;
+
+  // Aliases for text colors
+  --text-primary: #e8e6e3;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
   --card-bg: rgb(41 39 38 / 0.9);
   --card-border: rgb(255 255 255 / 0.1);
   --shadow-color: rgb(0 0 0 / 0.3);
@@ -80,6 +89,11 @@
   --background-alt: #e5e7eb;
   --foreground: #1a1716;
   --foreground-muted: #4b5563;
+
+  // Aliases for text colors
+  --text-primary: #1a1716;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
   --card-bg: rgb(255 255 255 / 0.98);
   --card-border: rgb(0 0 0 / 0.12);
   --shadow-color: rgb(0 0 0 / 0.1);

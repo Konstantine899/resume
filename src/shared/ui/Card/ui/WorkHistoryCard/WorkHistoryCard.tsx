@@ -93,5 +93,3 @@ WorkHistoryCardComponent.displayName = 'WorkHistoryCard';
 
 export const WorkHistoryCard = memo(WorkHistoryCardComponent);
 WorkHistoryCard.displayName = 'WorkHistoryCard';
-
-export default WorkHistoryCard;

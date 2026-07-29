@@ -1,13 +1,12 @@
-// ============================================
-// Card Component
-// ============================================
-
-import { CARD_CONSTANTS } from '../model/constants';
-import { classNames } from '@/shared/lib/utils/classNames';
-import { validateCardProps } from '../lib/utils/validateCardProps';
-import { forwardRef, memo, useEffect, useMemo } from 'react';
-import type { BaseCardProps } from '../model/types';
-import styles from './Card.module.scss';
+import { useCard } from '../model/useCard';
+import { memo, createElement } from 'react';
+import type { ElementType } from 'react';
+import type {
+  CardOwnProps,
+  ProjectCardProps,
+  WorkHistoryCardProps,
+  ContactCardProps,
+} from '../model/types';
 import { ProjectCard } from './ProjectCard';
 import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
@@ -15,116 +14,74 @@ import { CardHeader } from './CardHeader';
 import { CardBody } from './CardBody';
 import { CardFooter } from './CardFooter';
 import { CardImage } from './CardImage';
+import { CardTitle } from './CardTitle';
+import { CardDescription } from './CardDescription';
+import { CardActions } from './CardActions';
+import { CardGrid } from './CardGrid';
+import { CardMeta } from './CardMeta';
 
-/**
- * Card Component — универсальная карточка с composition API
- *
- * @example
- * // Basic usage
- * ```tsx
- * <Card variant="default">Контент</Card>
- * ```
- *
- * @example
- * // Composition API
- * ```tsx
- * <Card>
- *   <Card.Header withBorder>Заголовок</Card.Header>
- *   <Card.Body>Основной контент</Card.Body>
- *   <Card.Footer withBorder>Подвал</Card.Footer>
- * </Card>
- * ```
- *
- * @example
- * // Specialized cards
- * ```tsx
- * <Card.Project title="Project" description="Desc" />
- * <Card.WorkHistory title="Job" company="Company" />
- * <Card.Contact title="Контакты" icon={<Mail />} />
- * ```
- */
-const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
-  (
-    {
-      variant = CARD_CONSTANTS.DEFAULT_VARIANT,
-      size = CARD_CONSTANTS.DEFAULT_SIZE,
-      radius = CARD_CONSTANTS.DEFAULT_RADIUS,
-      fullWidth = false,
-      hoverable = true,
-      className = '',
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode (optimized deps)
-    const onClick = props.onClick;
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        const warnings = validateCardProps(variant, size, radius, hoverable, onClick);
-        warnings.forEach((w) => {
-          // eslint-disable-next-line no-console
-          console.warn(w.message);
-        });
-      }
-    }, [variant, size, radius, hoverable, onClick]);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface CardProps extends CardOwnProps, Record<string, any> {
+  component?: ElementType;
+}
 
-    // Memoize className calculation
-    const cardClasses = useMemo(
-      () =>
-        classNames(
-          styles.card,
-          styles[variant],
-          styles[size],
-          radius && styles[radius],
-          fullWidth && styles.fullWidth,
-          !hoverable && styles.noHover,
-          className
-        ),
-      [variant, size, radius, fullWidth, hoverable, className]
-    );
+const CardComponent = memo((props: CardProps) => {
+  const { variant, size, radius, fullWidth, hoverable, className, children, component, ...rest } =
+    props;
 
-    // Render specialized cards (type-safe without casts)
-    if (variant === 'project') {
-      return <ProjectCard {...(props as unknown as import('../model/types').ProjectCardProps)} />;
-    }
+  const onClick = (rest as Record<string, unknown>).onClick as React.MouseEventHandler | undefined;
+  const { cardClasses, safeVariant, safeSize, safeRadius } = useCard({
+    variant,
+    size,
+    radius,
+    fullWidth,
+    hoverable,
+    className,
+    onClick,
+  });
 
-    if (variant === 'workHistory') {
-      return (
-        <WorkHistoryCard {...(props as unknown as import('../model/types').WorkHistoryCardProps)} />
-      );
-    }
-
-    if (variant === 'contact') {
-      return <ContactCard {...(props as unknown as import('../model/types').ContactCardProps)} />;
-    }
-
-    // Base card
-    return (
-      <div
-        ref={ref}
-        className={cardClasses}
-        {...props}
-        role="group"
-        data-state={hoverable ? 'hoverable' : 'static'}
-        data-variant={variant}
-        data-size={size}
-        data-radius={radius}
-      >
-        {children}
-      </div>
-    );
+  if (safeVariant === 'project') {
+    return <ProjectCard {...(rest as unknown as ProjectCardProps)} />;
   }
-);
+
+  if (safeVariant === 'workHistory') {
+    return <WorkHistoryCard {...(rest as unknown as WorkHistoryCardProps)} />;
+  }
+
+  if (safeVariant === 'contact') {
+    return <ContactCard {...(rest as unknown as ContactCardProps)} />;
+  }
+
+  const Tag = component ?? 'div';
+  const isNativeDiv = Tag === 'div';
+
+  return createElement(
+    Tag,
+    {
+      className: cardClasses,
+      role: isNativeDiv ? 'group' : undefined,
+      'data-state': hoverable !== false ? 'hoverable' : 'static',
+      'data-variant': safeVariant,
+      'data-size': safeSize,
+      'data-radius': safeRadius,
+      ...rest,
+    },
+    children
+  );
+});
 
 CardComponent.displayName = 'Card';
 
-// Compound component pattern
 const Card = Object.assign(memo(CardComponent), {
   Header: CardHeader,
   Body: CardBody,
   Footer: CardFooter,
   Image: CardImage,
+  Title: CardTitle,
+  Description: CardDescription,
+  Actions: CardActions,
+  Grid: CardGrid,
+  Meta: CardMeta,
   Project: ProjectCard,
   WorkHistory: WorkHistoryCard,
   Contact: ContactCard,

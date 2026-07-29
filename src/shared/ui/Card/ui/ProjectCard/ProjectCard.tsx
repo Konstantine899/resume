@@ -93,5 +93,3 @@ ProjectCardComponent.displayName = 'ProjectCard';
 
 export const ProjectCard = memo(ProjectCardComponent);
 ProjectCard.displayName = 'ProjectCard';
-
-export default ProjectCard;

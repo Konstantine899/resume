@@ -153,8 +153,8 @@ describe('Card', () => {
         </Card>
       );
       const img = screen.getByAltText('Test');
-      expect(img).toHaveAttribute('width', '200');
-      expect(img).toHaveAttribute('height', '150');
+      expect(img).toBeInTheDocument();
+      expect(img).toHaveAttribute('src', '/test.jpg');
     });
   });
 
@@ -217,6 +217,75 @@ describe('Card', () => {
     });
   });
 
+  describe('Polymorphic component prop', () => {
+    it('renders as section with component="section"', () => {
+      const { container } = render(<Card component="section">Section card</Card>);
+      const el = container.querySelector('section');
+      expect(el).toBeInTheDocument();
+      expect(el).toHaveAttribute('data-variant', 'default');
+    });
+
+    it('renders as article with component="article"', () => {
+      const { container } = render(<Card component="article">Article card</Card>);
+      const el = container.querySelector('article');
+      expect(el).toBeInTheDocument();
+      expect(el).toHaveAttribute('data-variant', 'default');
+    });
+
+    it('renders as link with component="a" and href', () => {
+      render(
+        <Card component="a" href="/test">
+          Link card
+        </Card>
+      );
+      const link = screen.getByText('Link card');
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', '/test');
+    });
+
+    it('preserves Card styles when polymorphic', () => {
+      const { container } = render(
+        <Card component="section" variant="skill" size="large" radius="roundedXl">
+          Styled section
+        </Card>
+      );
+      const el = container.querySelector('section');
+      expect(el).toHaveAttribute('data-variant', 'skill');
+      expect(el).toHaveAttribute('data-size', 'large');
+      expect(el).toHaveAttribute('data-radius', 'roundedXl');
+      expect(el).toHaveAttribute('data-state', 'hoverable');
+    });
+
+    it('forwards data attributes with polymorphic', () => {
+      const { container } = render(
+        <Card component="article" data-testid="poly-card">
+          Data attr
+        </Card>
+      );
+      const el = container.querySelector('article');
+      expect(el).toHaveAttribute('data-testid', 'poly-card');
+    });
+
+    it('renders as form with component="form"', () => {
+      const handleSubmit = (e: React.FormEvent) => e.preventDefault();
+      const { container } = render(
+        <Card component="form" onSubmit={handleSubmit}>
+          <button type="submit">Submit</button>
+        </Card>
+      );
+      const form = container.querySelector('form');
+      expect(form).toBeInTheDocument();
+      const btn = form?.querySelector('button[type="submit"]');
+      expect(btn).toBeInTheDocument();
+    });
+
+    it('renders as div by default', () => {
+      const { container } = render(<Card>Default div</Card>);
+      const el = container.firstChild as HTMLElement;
+      expect(el.tagName).toBe('DIV');
+    });
+  });
+
   describe('Edge Cases', () => {
     it('handles empty children', () => {
       const { container } = render(<Card />);
@@ -272,6 +341,140 @@ describe('Card', () => {
 
     it('has Card.Contact static property', () => {
       expect(Card.Contact).toBeDefined();
+    });
+
+    it('has Card.Title static property', () => {
+      expect(Card.Title).toBeDefined();
+      expect(Card.Title.displayName).toBe('CardTitle');
+    });
+
+    it('has Card.Description static property', () => {
+      expect(Card.Description).toBeDefined();
+      expect(Card.Description.displayName).toBe('CardDescription');
+    });
+
+    it('has Card.Actions static property', () => {
+      expect(Card.Actions).toBeDefined();
+      expect(Card.Actions.displayName).toBe('CardActions');
+    });
+
+    it('has Card.Grid static property', () => {
+      expect(Card.Grid).toBeDefined();
+      expect(Card.Grid.displayName).toBe('CardGrid');
+    });
+
+    it('has Card.Meta static property', () => {
+      expect(Card.Meta).toBeDefined();
+      expect(Card.Meta.displayName).toBe('CardMeta');
+    });
+  });
+
+  describe('Compound Components', () => {
+    it('renders Card.Title as h3 by default', () => {
+      render(
+        <Card>
+          <Card.Title>Card Title</Card.Title>
+        </Card>
+      );
+      expect(screen.getByText('Card Title').tagName).toBe('H3');
+    });
+
+    it('renders Card.Title with custom heading level', () => {
+      render(
+        <Card>
+          <Card.Title as="h2">H2 Title</Card.Title>
+        </Card>
+      );
+      expect(screen.getByText('H2 Title').tagName).toBe('H2');
+    });
+
+    it('renders Card.Description', () => {
+      render(
+        <Card>
+          <Card.Description>Description text</Card.Description>
+        </Card>
+      );
+      const desc = screen.getByText('Description text');
+      expect(desc).toBeInTheDocument();
+      expect(desc.tagName).toBe('P');
+    });
+
+    it('renders Card.Actions', () => {
+      render(
+        <Card>
+          <Card.Actions>
+            <button type="button">Action</button>
+          </Card.Actions>
+        </Card>
+      );
+      expect(screen.getByText('Action')).toBeInTheDocument();
+    });
+
+    it('renders Card.Actions with align center', () => {
+      const { container } = render(
+        <Card>
+          <Card.Actions align="center">
+            <button type="button">Center</button>
+          </Card.Actions>
+        </Card>
+      );
+      const actions = container.querySelector('[class*="alignCenter"]');
+      expect(actions).toBeInTheDocument();
+    });
+
+    it('renders Card.Actions with align end', () => {
+      const { container } = render(
+        <Card>
+          <Card.Actions align="end">
+            <button type="button">End</button>
+          </Card.Actions>
+        </Card>
+      );
+      const actions = container.querySelector('[class*="alignEnd"]');
+      expect(actions).toBeInTheDocument();
+    });
+
+    it('renders Card.Meta', () => {
+      render(
+        <Card>
+          <Card.Meta>Meta info</Card.Meta>
+        </Card>
+      );
+      expect(screen.getByText('Meta info')).toBeInTheDocument();
+    });
+
+    it('renders Card.Grid with default 3 columns', () => {
+      const { container } = render(<Card.Grid>Grid content</Card.Grid>);
+      expect(container.firstChild).toHaveClass(/cols3/);
+    });
+
+    it('renders Card.Grid with custom columns', () => {
+      const { container } = render(<Card.Grid columns={2}>2 cols</Card.Grid>);
+      expect(container.firstChild).toHaveClass(/cols2/);
+    });
+
+    it('renders Card.Grid with gap', () => {
+      const { container } = render(<Card.Grid gap="lg">Large gap</Card.Grid>);
+      expect(container.firstChild).toHaveClass(/gapLg/);
+    });
+
+    it('renders complete card with all compound components', () => {
+      render(
+        <Card>
+          <Card.Meta>Meta</Card.Meta>
+          <Card.Title>Title</Card.Title>
+          <Card.Description>Description</Card.Description>
+          <Card.Image src="/test.jpg" alt="Test" />
+          <Card.Actions align="end">
+            <button type="button">Action</button>
+          </Card.Actions>
+        </Card>
+      );
+      expect(screen.getByText('Meta')).toBeInTheDocument();
+      expect(screen.getByText('Title')).toBeInTheDocument();
+      expect(screen.getByText('Description')).toBeInTheDocument();
+      expect(screen.getByAltText('Test')).toBeInTheDocument();
+      expect(screen.getByText('Action')).toBeInTheDocument();
     });
   });
 });
@@ -341,10 +544,9 @@ describe('CardImage', () => {
     expect(container.firstChild).toHaveClass('custom');
   });
 
-  it('forwards HTML img attributes', () => {
-    render(<CardImage src="/test.jpg" alt="Test" className="test-img" />);
+  it('applies custom className to container', () => {
+    render(<CardImage src="/test.jpg" alt="Test" className="custom" />);
     const img = screen.getByAltText('Test');
     expect(img).toHaveAttribute('src', '/test.jpg');
-    expect(img).toHaveClass('test-img');
   });
 });

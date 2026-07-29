@@ -34,5 +34,3 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 };
 
 CardHeader.displayName = 'CardHeader';
-
-export default CardHeader;
