@@ -2,6 +2,7 @@
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { forwardRef, memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SkeletonProps } from '../model/types';
 import { SKELETON_CONSTANTS } from '../model/constants';
 import { validateSkeletonProps } from '../lib/utils/validateSkeletonProps';
@@ -26,6 +27,7 @@ import styles from './Skeleton.module.scss';
  */
 export const Skeleton = memo(
   forwardRef<HTMLDivElement, SkeletonProps>((props, ref) => {
+    const { t } = useTranslation();
     const {
       variant = SKELETON_CONSTANTS.defaults.variant,
       width,
@@ -34,9 +36,11 @@ export const Skeleton = memo(
       delay = SKELETON_CONSTANTS.defaults.delay,
       duration = SKELETON_CONSTANTS.defaults.duration,
       className = '',
-      'aria-label': ariaLabel = 'Загрузка...',
+      'aria-label': ariaLabel,
       ...restProps
     } = props;
+
+    const effectiveAriaLabel = ariaLabel ?? t('loading');
 
     // Runtime validation in development mode
     if (process.env.NODE_ENV === 'development') {
@@ -76,7 +80,7 @@ export const Skeleton = memo(
           ref={ref}
           className={skeletonClassName}
           role="status"
-          aria-label={ariaLabel}
+          aria-label={effectiveAriaLabel}
           data-variant={variant}
           data-lines={lines}
           {...restProps}
@@ -103,7 +107,7 @@ export const Skeleton = memo(
         className={skeletonClassName}
         style={singleLineStyle}
         role="status"
-        aria-label={ariaLabel}
+        aria-label={effectiveAriaLabel}
         data-variant={variant}
         data-lines={lines > 1 ? lines : undefined}
         {...restProps}
@@ -113,5 +117,3 @@ export const Skeleton = memo(
 );
 
 Skeleton.displayName = 'Skeleton';
-
-export default Skeleton;

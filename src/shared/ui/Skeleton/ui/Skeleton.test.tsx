@@ -92,9 +92,14 @@ describe('Skeleton', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
-    it('должен иметь aria-label="Загрузка..."', () => {
+    it('должен иметь aria-label с текстом загрузки', () => {
       render(<Skeleton />);
-      expect(screen.getByLabelText('Загрузка...')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Loading|Загрузка/i)).toBeInTheDocument();
+    });
+
+    it('должен принимать кастомный aria-label', () => {
+      render(<Skeleton aria-label="Custom label" />);
+      expect(screen.getByLabelText('Custom label')).toBeInTheDocument();
     });
 
     it('должен передавать другие aria props', () => {
