@@ -1,5 +1,6 @@
 // InputCounter Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect } from '@storybook/test';
 import { InputCounter } from './InputCounter';
 
 const wrapperStyle: React.CSSProperties = {
@@ -71,12 +72,18 @@ export const Default: Story = {
     current: 50,
     max: 100,
   },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/50\/100/);
+  },
 };
 
 export const NearLimit: Story = {
   args: {
     current: 90,
     max: 100,
+  },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/90\/100/);
   },
 };
 
@@ -85,12 +92,18 @@ export const AtLimit: Story = {
     current: 100,
     max: 100,
   },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/100\/100/);
+  },
 };
 
 export const OverLimit: Story = {
   args: {
     current: 120,
     max: 100,
+  },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/120\/100/);
   },
 };
 
@@ -100,11 +113,17 @@ export const CustomThreshold: Story = {
     max: 100,
     warningThreshold: 0.5,
   },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/60\/100/);
+  },
 };
 
 export const ShortText: Story = {
   args: {
     current: 10,
     max: 280,
+  },
+  play: async ({ canvasElement }) => {
+    expect(canvasElement.textContent).toMatch(/10\/280/);
   },
 };

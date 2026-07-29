@@ -2,7 +2,7 @@
 // InputClearIcon Component
 // ============================================
 
-import { INPUT_CONSTANTS } from '../model/constants';
+import { INPUT_CONSTANTS } from '../../model/constants';
 
 /**
  * ClearIcon — SVG иконка крестика для кнопки очистки Input.

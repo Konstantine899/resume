@@ -1,5 +1,6 @@
 // InputGroup Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { InputGroup } from './InputGroup';
 import { Input } from '../Input';
 
@@ -31,6 +32,11 @@ export const WithStartAddon: Story = {
       <Input placeholder="0.00" />
     </InputGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('$')).toBeInTheDocument();
+    expect(canvas.getByRole('textbox')).toBeInTheDocument();
+  },
 };
 
 export const WithEndAddon: Story = {
@@ -40,6 +46,11 @@ export const WithEndAddon: Story = {
       <InputGroup.Addon position="end">.com</InputGroup.Addon>
     </InputGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('.com')).toBeInTheDocument();
+    expect(canvas.getByRole('textbox')).toBeInTheDocument();
+  },
 };
 
 export const WithBothAddons: Story = {
@@ -50,6 +61,12 @@ export const WithBothAddons: Story = {
       <InputGroup.Addon position="end">.00</InputGroup.Addon>
     </InputGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('$')).toBeInTheDocument();
+    expect(canvas.getByText('.00')).toBeInTheDocument();
+    expect(canvas.getByRole('textbox')).toBeInTheDocument();
+  },
 };
 
 export const WithIconAddon: Story = {
@@ -71,6 +88,10 @@ export const WithIconAddon: Story = {
       <Input placeholder="Search..." />
     </InputGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('textbox')).toBeInTheDocument();
+  },
 };
 
 export const WithButton: Story = {
@@ -82,6 +103,11 @@ export const WithButton: Story = {
       </InputGroup.Addon>
     </InputGroup>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+    expect(canvas.getByRole('textbox')).toBeInTheDocument();
+  },
 };
 
 export const MultipleAddons: Story = {
@@ -98,4 +124,12 @@ export const MultipleAddons: Story = {
       </InputGroup>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('https://')).toBeInTheDocument();
+    expect(canvas.getByText('/month')).toBeInTheDocument();
+    const inputs = canvas.getAllByRole('textbox');
+    const spinbutton = canvas.queryByRole('spinbutton');
+    expect(inputs.length + (spinbutton ? 1 : 0)).toBe(2);
+  },
 };

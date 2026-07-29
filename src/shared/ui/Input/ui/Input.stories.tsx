@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CheckCircle, Mail, Search } from 'lucide-react';
 import { expect, userEvent, within } from '@storybook/test';
 import { Input } from './Input';
+import { Button } from '@/shared/ui/Button';
 
 const meta = {
   title: 'Shared/Input',
@@ -36,6 +37,11 @@ export const Variants: Story = {
       <Input variant="floating" label="Floating" placeholder="Floating variant" />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const inputs = canvas.getAllByRole('textbox');
+    expect(inputs).toHaveLength(4);
+  },
 };
 
 // 2. Все размеры (Sizes)
@@ -47,6 +53,11 @@ export const Sizes: Story = {
       <Input size="lg" placeholder="Large (1.125rem)" />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const inputs = canvas.getAllByRole('textbox');
+    expect(inputs).toHaveLength(3);
+  },
 };
 
 // 3. Error state
@@ -72,6 +83,13 @@ export const States: Story = {
       <Input label="ReadOnly" readOnly defaultValue="Read only value" />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const disabledInput = canvas.getByLabelText('Disabled');
+    expect(disabledInput).toBeDisabled();
+    const readonlyInput = canvas.getByLabelText('ReadOnly');
+    expect(readonlyInput).toHaveAttribute('readonly');
+  },
 };
 
 // 5. С иконкой
@@ -96,6 +114,13 @@ export const Success: Story = {
     success: true,
     iconAfter: <CheckCircle size={18} />,
     defaultValue: 'available',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Username');
+    expect(input).toHaveValue('available');
+    const wrapper = canvas.getByTestId('input-wrapper');
+    expect(wrapper).toHaveAttribute('data-status', 'success');
   },
 };
 
@@ -162,6 +187,10 @@ export const HelperText: Story = {
     type: 'password',
     helperText: 'Must be at least 8 characters',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Must be at least 8 characters')).toBeInTheDocument();
+  },
 };
 
 // 11. Full width layout
@@ -178,6 +207,25 @@ export const FullWidth: Story = {
       </div>
     ),
   ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Full Width Input');
+    expect(input).toBeInTheDocument();
+  },
+};
+
+// 12. Focus interaction
+export const Focus: Story = {
+  args: {
+    label: 'Focus Target',
+    placeholder: 'Click to focus',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Focus Target');
+    await userEvent.click(input);
+    expect(input).toHaveFocus();
+  },
 };
 
 /** Input в состоянии загрузки (skeleton). */
@@ -211,5 +259,92 @@ export const Skeleton: Story = {
     const wrapper = canvas.getByTestId('input-wrapper');
     expect(wrapper).toHaveAttribute('data-skeleton');
     expect(wrapper).toHaveAttribute('aria-busy', 'true');
+  },
+};
+
+// 13. Polymorphic: As Textarea
+export const AsTextarea: Story = {
+  args: {
+    component: 'textarea',
+    label: 'Bio',
+    placeholder: 'Tell us about yourself...',
+    maxLength: 200,
+    showCounter: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const textarea = canvas.getByLabelText('Bio');
+    expect(textarea.tagName).toBe('TEXTAREA');
+    await userEvent.type(textarea, 'Hello');
+    expect(textarea).toHaveValue('Hello');
+  },
+};
+
+// 14. Polymorphic: As Link
+export const AsLink: Story = {
+  args: {
+    component: 'a',
+    label: 'Profile',
+    href: '/profile',
+    variant: 'outline',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const link = canvas.getByRole('link');
+    expect(link).toHaveAttribute('href', '/profile');
+    expect(canvas.getByText('Profile')).toBeInTheDocument();
+  },
+};
+
+// 15. Real-world: Login Form
+export const LoginForm: Story = {
+  render: () => (
+    <form
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '320px' }}
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <Input label="Email" type="email" icon={<Mail />} placeholder="your@email.com" required />
+      <Input
+        label="Password"
+        type="password"
+        showPasswordToggle
+        placeholder="Enter password"
+        required
+      />
+      <Button type="submit" variant="primary">
+        Sign In
+      </Button>
+    </form>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const emailInput = canvas.getByLabelText('Email');
+    const passwordInput = canvas.getByLabelText('Password');
+    expect(emailInput).toHaveAttribute('type', 'email');
+    expect(passwordInput).toHaveAttribute('type', 'password');
+    await userEvent.type(emailInput, 'test@example.com');
+    expect(emailInput).toHaveValue('test@example.com');
+    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    expect(submitButton).toBeInTheDocument();
+  },
+};
+
+// 16. Real-world: Search Input
+export const SearchInput: Story = {
+  args: {
+    label: 'Search',
+    icon: <Search />,
+    clearable: true,
+    placeholder: 'Search anything...',
+    helperText: 'Press Enter to search',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Search');
+    await userEvent.type(input, 'query');
+    expect(input).toHaveValue('query');
+    const clear = canvas.getByRole('button', { name: /clear/i });
+    await userEvent.click(clear);
+    expect(input).toHaveValue('');
   },
 };

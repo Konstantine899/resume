@@ -723,6 +723,37 @@ describe('Input', () => {
     });
   });
 
+  describe('Polymorphic component prop', () => {
+    it('renders as <a> when component="a" with href', () => {
+      render(<Input component="a" href="/test" label="Link" />);
+      const link = screen.getByRole('link');
+      expect(link).toHaveAttribute('href', '/test');
+    });
+
+    it('renders as <button> when component="button"', () => {
+      render(<Input component="button" label="Btn" />);
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    it('preserves Input styles with polymorphic component', () => {
+      render(<Input component="a" href="/test" variant="outline" size="lg" label="Link" />);
+      const link = screen.getByRole('link');
+      expect(link.className).toContain('input');
+      expect(link.className).toContain('outline');
+    });
+
+    it('renders as default <input> when no component prop', () => {
+      const { container } = render(<Input label="Default" />);
+      expect(container.querySelector('input')).toBeInTheDocument();
+    });
+
+    it('forwards ref to polymorphic element', () => {
+      const ref = { current: null };
+      render(<Input component="a" href="/test" ref={ref} label="Link" />);
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
+    });
+  });
+
   describe('Controlled/Uncontrolled', () => {
     it('works as uncontrolled with defaultValue', () => {
       render(<Input defaultValue="test" />);

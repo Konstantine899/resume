@@ -1,5 +1,6 @@
 // InputLabel Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { InputLabel } from './InputLabel';
 
 const wrapperStyle: React.CSSProperties = {
@@ -83,6 +84,12 @@ export const Default: Story = {
     htmlFor: 'input-id',
     children: 'Label Text',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const label = canvas.getByText('Label Text');
+    expect(label.tagName).toBe('LABEL');
+    expect(label).toHaveAttribute('for', 'input-id');
+  },
 };
 
 export const Required: Story = {
@@ -90,6 +97,12 @@ export const Required: Story = {
     htmlFor: 'input-id',
     required: true,
     children: 'Email Address',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const label = canvas.getByText('Email Address');
+    expect(label).toBeInTheDocument();
+    expect(canvas.getByText('*')).toBeInTheDocument();
   },
 };
 
@@ -99,6 +112,12 @@ export const Floating: Story = {
     floating: true,
     children: 'Floating Label',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const label = canvas.getByText('Floating Label');
+    expect(label).toBeInTheDocument();
+    expect(label.className).toContain('floating');
+  },
 };
 
 export const WithCustomClass: Story = {
@@ -106,5 +125,10 @@ export const WithCustomClass: Story = {
     htmlFor: 'input-id',
     className: 'custom-label',
     children: 'Custom Styled Label',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const label = canvas.getByText('Custom Styled Label');
+    expect(label.className).toContain('custom-label');
   },
 };

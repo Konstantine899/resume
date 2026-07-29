@@ -1,5 +1,6 @@
 // InputClearButton Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { InputClearButton } from './InputClearButton';
 
 const containerStyle: React.CSSProperties = {
@@ -65,6 +66,12 @@ export const Default: Story = {
   args: {
     onClick: () => alert('Clear clicked!'),
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-label', 'Clear input');
+  },
 };
 
 export const CustomAriaLabel: Story = {
@@ -72,11 +79,21 @@ export const CustomAriaLabel: Story = {
     onClick: () => {},
     'aria-label': 'Очистить поле',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toHaveAttribute('aria-label', 'Очистить поле');
+  },
 };
 
 export const WithTabIndex: Story = {
   args: {
     onClick: () => {},
     tabIndex: 0,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    expect(button).toHaveAttribute('tabindex', '0');
   },
 };

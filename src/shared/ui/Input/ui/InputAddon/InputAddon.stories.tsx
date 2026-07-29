@@ -1,6 +1,7 @@
 // InputAddon Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mail, Search } from 'lucide-react';
+import { expect, within } from '@storybook/test';
 import { InputAddon } from './InputAddon';
 
 const inputContainerStyle: React.CSSProperties = {
@@ -75,12 +76,20 @@ export const StartPosition: Story = {
     position: 'start',
     children: '$',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('$')).toBeInTheDocument();
+  },
 };
 
 export const EndPosition: Story = {
   args: {
     position: 'end',
     children: '.00',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('.00')).toBeInTheDocument();
   },
 };
 
@@ -89,12 +98,21 @@ export const WithIcon: Story = {
     position: 'start',
     children: <Mail size={16} />,
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+  },
 };
 
 export const WithText: Story = {
   args: {
     position: 'start',
     children: 'USD',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('USD')).toBeInTheDocument();
   },
 };
 
@@ -104,11 +122,20 @@ export const CustomClass: Story = {
     className: 'custom-addon',
     children: '€',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('€')).toBeInTheDocument();
+  },
 };
 
 export const SearchIcon: Story = {
   args: {
     position: 'start',
     children: <Search size={16} />,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('textbox');
+    expect(input).toBeInTheDocument();
   },
 };

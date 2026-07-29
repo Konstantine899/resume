@@ -1,127 +1,37 @@
-// ============================================
-// Input Component - TypeScript Types
-// ============================================
-
 import { InputHTMLAttributes } from 'react';
 
-/**
- * Input variant types
- */
-export type InputVariant =
-  | 'default' // Default input style
-  | 'outline' // Outline style
-  | 'filled' // Filled background
-  | 'floating'; // Floating label
+export type InputVariant = 'default' | 'outline' | 'filled' | 'floating';
 
-/**
- * Input size types
- */
-export type InputSize =
-  | 'sm' // Small input
-  | 'md' // Medium input (default)
-  | 'lg'; // Large input
+export type InputSize = 'sm' | 'md' | 'lg';
 
-/**
- * Input props interface
- */
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  /**
-   * Input variant style
-   * @default 'default'
-   */
+export type InputOwnProps = {
   variant?: InputVariant;
-
-  /**
-   * Input size
-   * @default 'md'
-   */
   size?: InputSize;
-
-  /**
-   * Additional CSS class
-   */
   className?: string;
-
-  /**
-   * Label text
-   */
   label?: string;
-
-  /**
-   * Error message
-   */
   error?: string;
-
-  /**
-   * Success state
-   */
   success?: boolean;
-
-  /**
-   * Loading state
-   */
   loading?: boolean;
-
-  /**
-   * Состояние загрузки — заменяет input на Skeleton
-   */
   skeleton?: boolean;
-
-  /**
-   * Icon to display before input
-   */
   icon?: React.ReactNode;
-
-  /**
-   * Icon to display after input
-   */
   iconAfter?: React.ReactNode;
-
-  /**
-   * Full width input
-   * @default false
-   */
   fullWidth?: boolean;
-
-  /**
-   * Helper text
-   */
   helperText?: string;
-
-  /**
-   * Required field indicator
-   */
   required?: boolean;
-
-  /**
-   * Show character counter (requires maxLength)
-   */
-  showCounter?: boolean;
-
-  /**
-   * Show clear button to reset input
-   */
-  clearable?: boolean;
-
-  /**
-   * Callback when clear button is clicked
-   */
-  onClear?: () => void;
-
-  /**
-   * Show password visibility toggle (for type="password")
-   */
   showPasswordToggle?: boolean;
-}
+  onClear?: () => void;
+} & ({ showCounter?: false; maxLength?: number } | { showCounter: true; maxLength: number }) &
+  ({ clearable?: false } | { clearable: true });
 
-/**
- * Input status type for data-status attribute
- */
+export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
+  component?: C;
+} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
+  P;
+
+export type InputProps = InputOwnProps & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
+
 export type InputStatus = 'error' | 'success' | 'loading' | 'skeleton';
 
-/**
- * Input group props for grouping multiple inputs
- */
 export interface InputGroupProps {
   children: React.ReactNode;
   className?: string;
