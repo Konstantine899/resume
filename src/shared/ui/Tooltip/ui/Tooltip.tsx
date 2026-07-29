@@ -2,7 +2,7 @@ import { cn } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { Portal } from '@/shared/ui/Portal';
 import { forwardRef, memo } from 'react';
-import { useTooltip } from '../lib/useTooltip';
+import { useTooltip } from '../lib/hooks/useTooltip';
 import type { TooltipProps } from '../model/types';
 import styles from './Tooltip.module.scss';
 

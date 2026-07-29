@@ -1,4 +1,4 @@
-import { TEXTAREA_CONSTANTS } from '../model/constants';
+import { TEXTAREA_CONSTANTS } from '../../model/constants';
 
 export interface TextareaValidationWarning {
   prop: string;

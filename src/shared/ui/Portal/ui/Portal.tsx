@@ -1,6 +1,6 @@
 import { memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { validatePortalProps } from '../lib/validatePortalProps';
+import { validatePortalProps } from '../lib/utils/validatePortalProps';
 import type { PortalProps } from '../model/types';
 
 /**

@@ -2,7 +2,7 @@
  * Avatar runtime validation (dev-only)
  */
 
-import type { AvatarProps, AvatarSize, AvatarVariant } from '../model/types';
+import type { AvatarProps, AvatarSize, AvatarVariant } from '../../model/types';
 
 const VALID_SIZES: AvatarSize[] = ['sm', 'md', 'lg', 'xl'];
 const VALID_VARIANTS: AvatarVariant[] = ['circle', 'square'];

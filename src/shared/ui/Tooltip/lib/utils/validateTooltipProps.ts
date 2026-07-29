@@ -1,4 +1,4 @@
-import type { TooltipPosition, TooltipTrigger } from '../model/types';
+import type { TooltipPosition, TooltipTrigger } from '../../model/types';
 
 const VALID_POSITIONS: TooltipPosition[] = ['top', 'bottom', 'left', 'right'];
 const VALID_TRIGGERS: TooltipTrigger[] = ['hover', 'focus', 'click'];

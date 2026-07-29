@@ -1,9 +1,9 @@
 import { debounce } from '@/shared/lib/utils/debounce';
 import { useCallback, useEffect, useRef, useState, useMemo, useId } from 'react';
-import { TOOLTIP_CONSTANTS } from '../model/constants';
-import type { TooltipPosition, TooltipProps } from '../model/types';
-import { calculateTooltipPosition } from './utils/tooltipPosition';
-import { validateTooltipProps } from './validateTooltipProps';
+import { TOOLTIP_CONSTANTS } from '../../model/constants';
+import type { TooltipPosition, TooltipProps } from '../../model/types';
+import { calculateTooltipPosition } from '../utils/tooltipPosition';
+import { validateTooltipProps } from '../utils/validateTooltipProps';
 
 interface UseTooltipReturn {
   isVisible: boolean;

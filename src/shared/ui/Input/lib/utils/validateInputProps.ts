@@ -1,4 +1,4 @@
-import { INPUT_CONSTANTS } from '../model/constants';
+import { INPUT_CONSTANTS } from '../../model/constants';
 
 export interface InputValidationWarning {
   prop: string;

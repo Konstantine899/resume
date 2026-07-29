@@ -10,7 +10,7 @@ import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
 import { AVATAR_SIZES } from '../../model/constants';
 import { AvatarProps } from '../../model/types';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
-import { validateAvatarProps } from '../../lib/validateAvatarProps';
+import { validateAvatarProps } from '../../lib/utils/validateAvatarProps';
 import styles from './Avatar.module.scss';
 
 /**

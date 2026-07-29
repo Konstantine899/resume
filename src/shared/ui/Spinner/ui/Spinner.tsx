@@ -2,7 +2,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { memo, useEffect, useMemo, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SpinnerProps, SpinnerSpeed, SpinnerThickness } from '../model/types';
-import { validateSpinnerProps } from '../lib/validateSpinnerProps';
+import { validateSpinnerProps } from '../lib/utils/validateSpinnerProps';
 import styles from './Spinner.module.scss';
 
 // ============================================

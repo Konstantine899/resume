@@ -1,4 +1,4 @@
-import { SPINNER_CONSTANTS } from '../model/constants';
+import { SPINNER_CONSTANTS } from '../../model/constants';
 
 export interface SpinnerValidationWarning {
   prop: string;

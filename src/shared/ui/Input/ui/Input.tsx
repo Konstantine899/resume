@@ -10,7 +10,7 @@ import { Spinner } from '@/shared/ui/Spinner';
 import { Eye, EyeOff } from 'lucide-react';
 import { INPUT_CONSTANTS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
-import { validateInputProps } from '../lib/validateInputProps';
+import { validateInputProps } from '../lib/utils/validateInputProps';
 import { ClearIcon } from './InputClearIcon';
 import styles from './Input.module.scss';
 import { InputLabel } from './InputLabel/InputLabel';

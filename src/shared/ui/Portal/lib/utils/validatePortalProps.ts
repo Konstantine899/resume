@@ -1,4 +1,4 @@
-import { PORTAL_CONSTANTS } from '../model/constants';
+import { PORTAL_CONSTANTS } from '../../model/constants';
 
 export interface PortalValidationWarning {
   prop: string;

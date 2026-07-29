@@ -8,5 +8,5 @@ export type {
 } from './model/types';
 export { Spinner } from './ui/Spinner';
 export { SPINNER_CONSTANTS } from './model/constants';
-export { validateSpinnerProps } from './lib/validateSpinnerProps';
-export type { SpinnerValidationWarning } from './lib/validateSpinnerProps';
+export { validateSpinnerProps } from './lib/utils/validateSpinnerProps';
+export type { SpinnerValidationWarning } from './lib/utils/validateSpinnerProps';

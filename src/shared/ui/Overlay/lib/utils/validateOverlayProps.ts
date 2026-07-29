@@ -1,4 +1,4 @@
-import { OVERLAY_CONSTANTS } from '../model/constants';
+import { OVERLAY_CONSTANTS } from '../../model/constants';
 
 export interface OverlayValidationWarning {
   prop: string;

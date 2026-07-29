@@ -8,7 +8,7 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Spinner } from '@/shared/ui/Spinner';
 import { TEXTAREA_CONSTANTS } from '../model/constants';
 import type { TextareaProps } from '../model/types';
-import { validateTextareaProps } from '../lib/validateTextareaProps';
+import { validateTextareaProps } from '../lib/utils/validateTextareaProps';
 import styles from './Textarea.module.scss';
 
 // ============================================

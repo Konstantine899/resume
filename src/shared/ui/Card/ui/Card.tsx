@@ -4,7 +4,7 @@
 
 import { CARD_CONSTANTS } from '../model/constants';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { validateCardProps } from '../lib/validateCardProps';
+import { validateCardProps } from '../lib/utils/validateCardProps';
 import { forwardRef, memo, useEffect, useMemo } from 'react';
 import type { BaseCardProps } from '../model/types';
 import styles from './Card.module.scss';

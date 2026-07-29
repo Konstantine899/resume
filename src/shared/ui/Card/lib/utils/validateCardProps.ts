@@ -1,4 +1,4 @@
-import { CARD_CONSTANTS } from '../model/constants';
+import { CARD_CONSTANTS } from '../../model/constants';
 
 export interface CardValidationWarning {
   prop: string;

@@ -5,7 +5,7 @@
 import React from 'react';
 import { AvatarFallbackProps } from '../../model/types';
 import { getInitials } from '@/shared/lib/utils';
-import { getFallbackColor } from '@/shared/ui/Avatar/lib/getFallbackColor';
+import { getFallbackColor } from '@/shared/ui/Avatar/lib/utils/getFallbackColor';
 import { classNames } from '@/shared/lib/utils/classNames';
 
 import styles from './AvatarFallback.module.scss';

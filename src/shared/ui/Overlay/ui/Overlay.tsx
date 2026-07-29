@@ -1,6 +1,6 @@
 import { forwardRef, memo, useEffect } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { validateOverlayProps } from '../lib/validateOverlayProps';
+import { validateOverlayProps } from '../lib/utils/validateOverlayProps';
 import type { OverlayProps } from '../model/types';
 import styles from './Overlay.module.scss';
 

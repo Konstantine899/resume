@@ -3,7 +3,7 @@ import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
 import { createElement, forwardRef, memo, useEffect, useMemo, type JSX } from 'react';
 import { type HeadingProps } from '../model/types';
 import { HEADING_CONSTANTS } from '@/shared/ui/Heading/model/constants';
-import { validateHeadingProps } from '@/shared/ui/Heading/lib/validateHeadingProps';
+import { validateHeadingProps } from '@/shared/ui/Heading/lib/utils/validateHeadingProps';
 import cls from './Heading.module.scss';
 
 const HeadingComponent = forwardRef<HTMLHeadingElement, HeadingProps>((props, ref) => {
