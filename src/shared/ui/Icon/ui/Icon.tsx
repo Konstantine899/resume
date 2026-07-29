@@ -1,7 +1,6 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import React, { forwardRef, useCallback, useEffect } from 'react';
+import React, { forwardRef, useCallback } from 'react';
 import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../model/constants';
-import { validateIconProps } from '@/shared/ui/Icon/lib/utils/validateIconProps';
 import type { IconProps } from '../model/types';
 import styles from './Icon.module.scss';
 
@@ -22,10 +21,6 @@ const IconComponent = forwardRef<HTMLSpanElement, IconProps>(
     },
     ref
   ) => {
-    useEffect(() => {
-      validateIconProps(color, size, strokeWidth);
-    }, [color, size, strokeWidth]);
-
     const isInteractive = onClick !== undefined && !disabled;
 
     const iconStyle: React.CSSProperties = {
