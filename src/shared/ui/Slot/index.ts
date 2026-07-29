@@ -1,2 +1,2 @@
-export { Slot } from './Slot';
-export type { SlotProps } from './Slot';
+export { Slot } from './ui/Slot';
+export type { SlotProps } from './model/types';
