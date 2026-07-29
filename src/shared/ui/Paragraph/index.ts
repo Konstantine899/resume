@@ -11,7 +11,7 @@ export {
   PARAGRAPH_THEMES,
   PARAGRAPH_WEIGHTS,
   PARAGRAPH_WRAPS,
-} from './model/const';
+} from './model/constants';
 export type {
   LineClamp,
   ParagraphAlign,

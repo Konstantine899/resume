@@ -2,7 +2,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
 import { createElement, forwardRef, memo, useEffect, useMemo, type JSX } from 'react';
 import { type HeadingProps } from '../model/types';
-import { HEADING_CONSTANTS } from '@/shared/ui/Heading/model/const';
+import { HEADING_CONSTANTS } from '@/shared/ui/Heading/model/constants';
 import { validateHeadingProps } from '@/shared/ui/Heading/lib/validateHeadingProps';
 import cls from './Heading.module.scss';
 

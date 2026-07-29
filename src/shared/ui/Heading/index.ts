@@ -9,7 +9,7 @@ export {
   isValidHeadingTheme,
   mapHeadingSize,
   mapSizeToClass,
-} from './model/const';
+} from './model/constants';
 export type {
   HeadingAlign,
   HeadingLevel,

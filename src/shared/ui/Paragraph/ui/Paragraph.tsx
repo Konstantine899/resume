@@ -2,7 +2,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
 import { memo, forwardRef, createElement } from 'react';
 import { type ParagraphProps } from '../model/types';
-import { isValidLineClamp } from '../model/const';
+import { isValidLineClamp } from '../model/constants';
 import { Slot } from '@/shared/ui/Slot';
 import cls from './Paragraph.module.scss';
 

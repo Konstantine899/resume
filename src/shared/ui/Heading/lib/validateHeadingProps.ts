@@ -7,7 +7,7 @@ import {
   HEADING_SIZES,
   HEADING_THEMES,
   HEADING_ALIGNS,
-} from '@/shared/ui/Heading/model/const';
+} from '@/shared/ui/Heading/model/constants';
 import type {
   HeadingAlign,
   HeadingLevel,
