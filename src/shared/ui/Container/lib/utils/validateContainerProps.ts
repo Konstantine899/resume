@@ -1,8 +1,6 @@
-// src/shared/ui/Container/model/utils/validateContainerProps.ts
-
 /* eslint-disable no-console */
-import { CONTAINER_CONSTANTS } from '../constants';
-import type { ContainerSize, ContainerPadding } from '../types';
+import { CONTAINER_CONSTANTS } from '../../model/constants';
+import type { ContainerSize, ContainerPadding } from '../../model/types';
 
 /**
  * Validates Container size and padding props in development mode.

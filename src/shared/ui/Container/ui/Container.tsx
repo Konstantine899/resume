@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import type { ContainerOwnProps, PolymorphicProps } from '../model/types';
 import { CONTAINER_CONSTANTS } from '../model/constants';
-import { useContainer } from '../model/useContainer';
+import { useContainer } from '../lib/hooks/useContainer';
 import styles from './Container.module.scss';
 
 /**

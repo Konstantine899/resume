@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useContainer } from './useContainer';
-import type { ContainerHookProps } from './types';
+import type { ContainerHookProps } from '../../model/types';
 
 const createDefaultProps = (overrides: Partial<ContainerHookProps> = {}): ContainerHookProps => ({
   size: 'lg',

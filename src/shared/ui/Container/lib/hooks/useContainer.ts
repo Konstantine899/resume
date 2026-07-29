@@ -3,9 +3,9 @@
 // ============================================
 
 import { useMemo } from 'react';
-import { validateContainerProps } from './lib/validateContainerProps';
-import { CONTAINER_CONSTANTS } from './constants';
-import type { ContainerHookProps, UseContainerReturn } from './types';
+import { validateContainerProps } from '../utils/validateContainerProps';
+import { CONTAINER_CONSTANTS } from '../../model/constants';
+import type { ContainerHookProps, UseContainerReturn } from '../../model/types';
 
 /**
  * Shared hook that consolidates Container logic: className computation,
