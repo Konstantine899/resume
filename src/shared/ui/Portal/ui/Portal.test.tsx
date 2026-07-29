@@ -37,19 +37,29 @@ describe('Portal', () => {
     expect(screen.queryByText('Temporary Content')).not.toBeInTheDocument();
   });
 
-  it('warns in development when element is not connected to the DOM', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('renders children inline when disablePortal=true', () => {
+    const { container } = render(<Portal disablePortal>Inline Content</Portal>);
+    expect(screen.getByText('Inline Content')).toBeInTheDocument();
+    // Children should be direct children of the container, not teleported to body
+    expect(container.textContent).toContain('Inline Content');
+  });
 
-    const orphanedElement = document.createElement('div');
+  it('renders custom element with disablePortal=true (ignores element prop)', () => {
+    const customElement = document.createElement('div');
+    customElement.setAttribute('data-testid', 'custom-container');
+    document.body.appendChild(customElement);
 
-    render(<Portal element={orphanedElement}>Orphaned Content</Portal>);
+    const { container } = render(
+      <Portal element={customElement} disablePortal>
+        Disabled Portal Content
+      </Portal>
+    );
 
-    expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[Portal]'));
+    // Content should be rendered inline, NOT inside customElement
+    expect(container.textContent).toContain('Disabled Portal Content');
+    expect(customElement.textContent).toBe('');
 
-    consoleWarnSpy.mockRestore();
-    process.env.NODE_ENV = originalEnv;
+    document.body.removeChild(customElement);
   });
 
   it('renders with null element prop (uses document.body)', () => {
@@ -65,20 +75,5 @@ describe('Portal', () => {
   it('renders with empty children (ReactNode)', () => {
     const { container } = render(<Portal>{null}</Portal>);
     expect(container.textContent).toBe('');
-  });
-
-  it('does not warn in production mode when element is not connected', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    const orphanedElement = document.createElement('div');
-
-    render(<Portal element={orphanedElement}>Production Content</Portal>);
-
-    expect(consoleWarnSpy).not.toHaveBeenCalled();
-
-    consoleWarnSpy.mockRestore();
-    process.env.NODE_ENV = originalEnv;
   });
 });

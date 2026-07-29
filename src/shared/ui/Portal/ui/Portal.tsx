@@ -1,6 +1,5 @@
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import { createPortal } from 'react-dom';
-import { validatePortalProps } from '../lib/utils/validatePortalProps';
 import type { PortalProps } from '../model/types';
 
 /**
@@ -14,24 +13,19 @@ import type { PortalProps } from '../model/types';
  *
  * // Render in a custom container
  * <Portal element={myDiv}><Tooltip /></Portal>
+ *
+ * // Disable portal (inline render)
+ * <Portal disablePortal><Modal /></Portal>
  * ```
  */
 export const Portal = memo((props: PortalProps) => {
-  const { children, element } = props;
+  const { children, element, disablePortal = false } = props;
+
+  if (disablePortal) {
+    return <>{children}</>;
+  }
 
   const container = element ?? document.body;
-
-  // Dev warnings
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      const warnings = validatePortalProps(element);
-      warnings.forEach((w) => {
-        // eslint-disable-next-line no-console
-        console.warn(w.message);
-      });
-    }
-  }, [element]);
-
   return createPortal(children, container);
 });
 

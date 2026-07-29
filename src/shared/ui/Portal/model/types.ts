@@ -23,4 +23,11 @@ export interface PortalProps {
    * @default document.body
    */
   element?: HTMLElement;
+
+  /**
+   * When true, renders children inline without createPortal.
+   * Useful for testing, SSR, or when the portal target isn't available.
+   * @default false
+   */
+  disablePortal?: boolean;
 }
