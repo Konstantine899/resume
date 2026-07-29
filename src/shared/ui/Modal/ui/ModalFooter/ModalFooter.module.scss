@@ -7,7 +7,7 @@
 @use '@/shared/styles/variables/colors' as *;
 @use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/mixins/layout' as *;
-@use '../constants' as *;
+@use '../../model/modal-constants' as *;
 
 .footer {
   @include flex-center;

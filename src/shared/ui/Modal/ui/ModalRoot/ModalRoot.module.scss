@@ -12,7 +12,7 @@
 @use '@/shared/styles/mixins/layout' as *;
 @use '@/shared/styles/animations/scale' as *;
 @use '@/shared/styles/animations/fade' as *;
-@use '../constants' as *;
+@use '../../model/modal-constants' as *;
 
 // Overlay
 .overlay {
@@ -68,6 +68,10 @@
 }
 
 // Sizes (BEM pattern for CSS Modules compatibility)
+.modal--xs {
+  max-width: $modal-width-xs;
+}
+
 .modal--sm {
   max-width: $modal-width-sm;
 }
@@ -82,6 +86,14 @@
 
 .modal--xl {
   max-width: $modal-width-xl;
+}
+
+.modal--2xl {
+  max-width: $modal-width-2xl;
+}
+
+.modal--3xl {
+  max-width: $modal-width-3xl;
 }
 
 .modal--full {

@@ -549,6 +549,74 @@ describe('Modal (Compound)', () => {
   });
 
   // ============================================
+  // Polymorphic Tests
+  // ============================================
+  describe('polymorphic', () => {
+    it('should render as div by default', () => {
+      render(<Modal {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('DIV');
+    });
+
+    it('should render as section when component="section"', () => {
+      render(<Modal {...defaultProps} component="section" />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('SECTION');
+    });
+
+    it('should render as article when component="article"', () => {
+      render(<Modal {...defaultProps} component="article" />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('ARTICLE');
+    });
+
+    it('should preserve role="dialog" with custom component', () => {
+      render(<Modal {...defaultProps} component="section" />);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('should preserve aria-modal with custom component', () => {
+      render(<Modal {...defaultProps} component="section" />);
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('should handle component prop via Modal.Root directly', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} component="section">
+          <div>Root custom element</div>
+        </Modal.Root>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('SECTION');
+      expect(dialog).toHaveTextContent('Root custom element');
+    });
+  });
+
+  // ============================================
+  // initialFocusRef Tests
+  // ============================================
+  describe('initialFocusRef', () => {
+    it('should focus initialFocusRef when autoFocus is true', async () => {
+      const focusTarget = document.createElement('input');
+      focusTarget.setAttribute('data-testid', 'initial-focus');
+      document.body.appendChild(focusTarget);
+      const focusRef = { current: focusTarget };
+
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} initialFocusRef={focusRef} autoFocus={true}>
+          Content
+        </Modal>
+      );
+
+      // Wait for focus timeout
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.activeElement).toBe(focusTarget);
+      document.body.removeChild(focusTarget);
+    });
+  });
+
+  // ============================================
   // Non-modal mode Tests (modal=false)
   // ============================================
   describe('non-modal mode', () => {

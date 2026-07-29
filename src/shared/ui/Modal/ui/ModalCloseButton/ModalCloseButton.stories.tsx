@@ -1,8 +1,5 @@
-// ============================================
-// ModalCloseButton Stories
-// ============================================
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { ModalCloseButton } from './ModalCloseButton';
 
 const meta = {
@@ -20,10 +17,23 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: { onClose: () => {} },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-label', 'Закрыть модальное окно');
+  },
 };
 
 export const CustomAriaLabel: Story = {
   args: { onClose: () => {}, ariaLabel: 'Close modal' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+
+    expect(button).toHaveAttribute('aria-label', 'Close modal');
+  },
 };
 
 export const WithTooltip: Story = {
@@ -46,4 +56,11 @@ export const WithTooltip: Story = {
       </span>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+
+    expect(button).toBeInTheDocument();
+    expect(canvas.getByText('Close (Esc)')).toBeInTheDocument();
+  },
 };

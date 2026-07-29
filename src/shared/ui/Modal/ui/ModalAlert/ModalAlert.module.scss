@@ -1,0 +1,49 @@
+.alert {
+  text-align: center;
+}
+
+.body {
+  padding: 32px 24px 24px;
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--foreground);
+}
+
+.message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--foreground-muted);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 0 24px 24px;
+}
+
+.confirm {
+  .icon {
+    color: var(--primary-color);
+  }
+}
+
+.destructive {
+  .icon {
+    color: var(--error-color);
+  }
+}

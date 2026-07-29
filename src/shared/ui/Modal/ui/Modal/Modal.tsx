@@ -1,43 +1,20 @@
-// ============================================
-// Modal Component (Compound Pattern)
-// ============================================
+/* eslint-disable react-refresh/only-export-components */
 
 import { memo, useMemo } from 'react';
-import type { ModalProps } from '../../model/types';
+import type { ModalProps, ModalRootProps } from '../../model/types';
 import { ModalRoot } from '../ModalRoot/ModalRoot';
 import { ModalHeader } from '../ModalHeader/ModalHeader';
 import { ModalContent } from '../ModalContent/ModalContent';
 import { ModalFooter } from '../ModalFooter/ModalFooter';
 import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
+import { ModalAlert } from '../ModalAlert/ModalAlert';
+import { ModalDrawer } from '../ModalDrawer/ModalDrawer';
+import { ModalForm } from '../ModalForm/ModalForm';
 
-/**
- * Modal Component — Compound Pattern для модальных окон
- *
- * @example
- * // Simple usage
- * ```tsx
- * <Modal isOpen={true} onClose={close} title="Title">
- *   Content here
- * </Modal>
- * ```
- *
- * @example
- * // Advanced usage with sub-components
- * ```tsx
- * <Modal isOpen={true} onClose={close}>
- *   <Modal.Header title="Title" subtitle="Subtitle" onClose={close} />
- *   <Modal.Content>
- *     <CustomContent />
- *   </Modal.Content>
- *   <Modal.Footer>
- *     <CustomButtons />
- *   </Modal.Footer>
- * </Modal>
- * ```
- */
 const ModalComponent = memo((props: ModalProps) => {
   const {
     children,
+    component,
     isOpen,
     onClose,
     title,
@@ -62,16 +39,17 @@ const ModalComponent = memo((props: ModalProps) => {
     onEscapeKeyDown,
     onPointerDownOutside,
     finalFocusRef,
+    initialFocusRef,
+    closeIcon,
     defaultOpen,
     modal,
   } = props;
 
-  // Simple API: автоматический рендеринг header/footer
   const shouldRenderWrapper = title || footer || showCloseButton;
 
-  // Stable props reference для ModalRoot (memoized)
   const rootProps = useMemo(
     () => ({
+      component,
       isOpen,
       onClose,
       size,
@@ -93,10 +71,12 @@ const ModalComponent = memo((props: ModalProps) => {
       onEscapeKeyDown,
       onPointerDownOutside,
       finalFocusRef,
+      initialFocusRef,
       defaultOpen,
       modal,
     }),
     [
+      component,
       isOpen,
       onClose,
       size,
@@ -118,6 +98,7 @@ const ModalComponent = memo((props: ModalProps) => {
       onEscapeKeyDown,
       onPointerDownOutside,
       finalFocusRef,
+      initialFocusRef,
       defaultOpen,
       modal,
     ]
@@ -125,13 +106,14 @@ const ModalComponent = memo((props: ModalProps) => {
 
   if (shouldRenderWrapper) {
     return (
-      <ModalRoot {...rootProps}>
+      <ModalRoot {...(rootProps as ModalRootProps)}>
         {(title || showCloseButton) && (
           <ModalHeader
             title={title}
             subtitle={subtitle}
             showCloseButton={showCloseButton}
             onClose={onClose}
+            closeIcon={closeIcon}
           />
         )}
         <ModalContent>{children}</ModalContent>
@@ -140,20 +122,18 @@ const ModalComponent = memo((props: ModalProps) => {
     );
   }
 
-  // Advanced API: children как есть (user предоставляет sub-components)
-  return <ModalRoot {...rootProps}>{children}</ModalRoot>;
+  return <ModalRoot {...(rootProps as ModalRootProps)}>{children}</ModalRoot>;
 });
 
 ModalComponent.displayName = 'Modal';
 
-// Compound components pattern using Object.assign
-// eslint-disable-next-line react-refresh/only-export-components
 export const Modal = Object.assign(ModalComponent, {
   Root: ModalRoot,
   Header: ModalHeader,
   Content: ModalContent,
   Footer: ModalFooter,
   CloseButton: ModalCloseButton,
+  Alert: ModalAlert,
+  Drawer: ModalDrawer,
+  Form: ModalForm,
 });
-
-export default Modal;

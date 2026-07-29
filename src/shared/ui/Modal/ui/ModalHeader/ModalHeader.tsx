@@ -22,7 +22,15 @@ import styles from './ModalHeader.module.scss';
  * ```
  */
 export const ModalHeader = memo((props: ModalHeaderProps) => {
-  const { title, subtitle, showCloseButton = true, onClose, titleId, subtitleId } = props;
+  const {
+    title,
+    subtitle,
+    showCloseButton = true,
+    onClose,
+    titleId,
+    subtitleId,
+    closeIcon,
+  } = props;
 
   const headerClasses = classNames(styles.header, {
     [styles.headerWithoutTitle]: !title && showCloseButton,
@@ -43,11 +51,9 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
         </div>
       )}
 
-      {showCloseButton && <ModalCloseButton onClose={onClose} />}
+      {showCloseButton && <ModalCloseButton onClose={onClose} closeIcon={closeIcon} />}
     </header>
   );
 });
 
 ModalHeader.displayName = 'ModalHeader';
-
-export default ModalHeader;

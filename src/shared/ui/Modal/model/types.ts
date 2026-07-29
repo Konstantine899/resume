@@ -2,17 +2,20 @@
 // Modal Types
 // ============================================
 
-import type { ReactNode } from 'react';
+import type { ReactNode, ComponentPropsWithoutRef, ElementType } from 'react';
 
 // ============================================
 // Constants
 // ============================================
 
 export const MODAL_SIZES = {
+  xs: '360px',
   sm: '400px',
   md: '500px',
   lg: '640px',
   xl: '800px',
+  '2xl': '960px',
+  '3xl': '1200px',
   full: '100%',
 } as const;
 
@@ -23,6 +26,14 @@ export type ModalSize = keyof typeof MODAL_SIZES;
 // ============================================
 
 export interface ModalProps {
+  /**
+   * Компонент для рендера корневого элемента модалки
+   * @default 'div'
+   * @description Позволяет изменить HTML-элемент (section, article) или использовать custom component
+   * @example <Modal component="section" title="About">...</Modal>
+   */
+  component?: React.ElementType;
+
   /**
    * Контент модального окна
    * @required
@@ -178,6 +189,13 @@ export interface ModalProps {
   restoreFocus?: boolean;
 
   /**
+   * Ref для фокуса при открытии модалки
+   * @description Когда передан, фокус перемещается на этот элемент вместо первого фокусируемого
+   * @example initialFocusRef={nameInputRef}
+   */
+  initialFocusRef?: React.RefObject<HTMLElement>;
+
+  /**
    * Ref для фокуса после закрытия модалки
    * @description Переопределяет restoreFocus — фокус на конкретный элемент (Chakra pattern)
    * @example finalFocusRef={submitButtonRef}
@@ -197,6 +215,14 @@ export interface ModalProps {
    * @example onEscapeKeyDown={(e) => { if (hasUnsavedChanges) e.preventDefault(); }}
    */
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
+
+  /**
+   * Custom close icon component
+   * @default <X /> (lucide-react)
+   * @description Overrides the default X icon in the close button
+   * @example <Modal closeIcon={<ArrowLeft />}>...</Modal>
+   */
+  closeIcon?: ReactNode;
 
   /**
    * Non-modal режим (панель быстрых действий без блокировки фона)
@@ -242,6 +268,12 @@ export interface ModalHeaderProps {
    * ID подзаголовка для aria-describedby
    */
   subtitleId?: string;
+
+  /**
+   * Custom close icon component
+   * @default <X /> (lucide-react)
+   */
+  closeIcon?: ReactNode;
 }
 
 export interface ModalContentProps {
@@ -279,11 +311,172 @@ export interface ModalCloseButtonProps {
    * @default 'Закрыть модальное окно'
    */
   ariaLabel?: string;
+
+  /**
+   * Custom close icon component
+   * @default <X /> (lucide-react)
+   */
+  closeIcon?: ReactNode;
 }
 
-export interface ModalRootProps extends Omit<ModalProps, 'title' | 'footer' | 'showCloseButton'> {
+// ============================================
+// Alert Preset Types
+// ============================================
+
+export type ModalAlertVariant = 'alert' | 'confirm' | 'destructive';
+
+export interface ModalAlertProps {
   /**
-   * Контент (обычно Modal.Header + Modal.Content + Modal.Footer)
+   * Состояние открытия
+   */
+  isOpen: boolean;
+
+  /**
+   * Callback при закрытии
+   */
+  onClose: () => void;
+
+  /**
+   * Заголовок алерта
+   */
+  title: string;
+
+  /**
+   * Сообщение алерта
+   */
+  message: string;
+
+  /**
+   * Текст на кнопке подтверждения
+   * @default 'OK'
+   */
+  confirmLabel?: string;
+
+  /**
+   * Текст на кнопке отмены
+   * @description Если не указан — показывается только confirm (alert mode)
+   */
+  cancelLabel?: string;
+
+  /**
+   * Callback при подтверждении
+   */
+  onConfirm?: () => void;
+
+  /**
+   * Callback при отмене
+   */
+  onCancel?: () => void;
+
+  /**
+   * Вариант алерта
+   * @default 'alert'
+   */
+  variant?: ModalAlertVariant;
+
+  /**
+   * Иконка для отображения
+   * @description Отображается над заголовком
+   * @example <Modal.Alert icon={<AlertTriangle />} variant="destructive" />
+   */
+  icon?: ReactNode;
+
+  /**
+   * Дополнительные CSS-классы
+   */
+  className?: string;
+}
+
+// ============================================
+// Drawer Preset Types
+// ============================================
+
+export type ModalDrawerPlacement = 'right' | 'left';
+
+export interface ModalDrawerProps {
+  /**
+   * Состояние открытия
+   */
+  isOpen: boolean;
+
+  /**
+   * Callback при закрытии
+   */
+  onClose: () => void;
+
+  /**
+   * Заголовок
+   */
+  title?: string;
+
+  /**
+   * Контент
    */
   children: ReactNode;
+
+  /**
+   * Размер (ширина) drawer
+   * @default 'md'
+   */
+  size?: ModalSize;
+
+  /**
+   * Сторона появления
+   * @default 'right'
+   */
+  placement?: ModalDrawerPlacement;
+
+  /**
+   * Дополнительные CSS-классы
+   */
+  className?: string;
 }
+
+// ============================================
+// Form Preset Types
+// ============================================
+
+export interface ModalFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+  size?: ModalSize;
+  submitLabel?: string;
+  cancelLabel?: string;
+  loading?: boolean;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
+  onCancel?: () => void;
+  disableSubmit?: boolean;
+  className?: string;
+}
+
+// ============================================
+// Polymorphic Types
+// ============================================
+
+export type PolymorphicProps<C extends ElementType, P = Record<string, never>> = {
+  component?: C;
+} & Omit<ComponentPropsWithoutRef<C>, keyof P> &
+  P;
+
+export interface ModalRootOwnProps extends Omit<
+  ModalProps,
+  'title' | 'footer' | 'showCloseButton'
+> {
+  children: ReactNode;
+
+  /**
+   * Render the child element as the root (Radix Slot pattern)
+   * @default false
+   * @description When true, the single child element receives all root props (role, aria-*, ref, etc.)
+   * instead of wrapping it. Component and style props are merged onto the child.
+   * @example <Modal.Root asChild><section>...</section></Modal.Root>
+   */
+  asChild?: boolean;
+}
+
+export type ModalRootProps<C extends ElementType = React.ElementType> = PolymorphicProps<
+  C,
+  ModalRootOwnProps
+>;

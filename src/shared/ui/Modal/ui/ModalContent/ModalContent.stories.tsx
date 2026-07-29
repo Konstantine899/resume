@@ -1,8 +1,5 @@
-// ============================================
-// ModalContent Stories
-// ============================================
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { ModalContent } from './ModalContent';
 
 const meta = {
@@ -17,10 +14,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: { children: 'Simple content inside ModalContent' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Simple content inside ModalContent')).toBeInTheDocument();
+  },
 };
 
 export const WithCustomClass: Story = {
   args: { children: 'Content with custom class', className: 'custom-class' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Content with custom class')).toBeInTheDocument();
+  },
 };
 
 export const WithComplexContent: Story = {
@@ -33,6 +38,12 @@ export const WithComplexContent: Story = {
       </div>
     ),
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Complex Content')).toBeInTheDocument();
+    expect(canvas.getByText('Paragraph 1')).toBeInTheDocument();
+    expect(canvas.getByText('Paragraph 2')).toBeInTheDocument();
+  },
 };
 
 export const WithScroll: Story = {
@@ -44,5 +55,10 @@ export const WithScroll: Story = {
         ))}
       </div>
     ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Line 1 - Scrollable content')).toBeInTheDocument();
+    expect(canvas.getByText('Line 20 - Scrollable content')).toBeInTheDocument();
   },
 };

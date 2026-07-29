@@ -18,9 +18,8 @@ import styles from './ModalCloseButton.module.scss';
  * ```
  */
 export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
-  const { onClose, ariaLabel = 'Close modal' } = props;
+  const { onClose, ariaLabel = 'Close modal', closeIcon } = props;
 
-  // Обработчик клика (memoized)
   const handleClick = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -32,11 +31,9 @@ export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
       onClick={handleClick}
       aria-label={ariaLabel}
     >
-      <X size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} />
+      {closeIcon ?? <X size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} />}
     </button>
   );
 });
 
 ModalCloseButton.displayName = 'ModalCloseButton';
-
-export default ModalCloseButton;

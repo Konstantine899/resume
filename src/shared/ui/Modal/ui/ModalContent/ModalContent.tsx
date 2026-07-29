@@ -26,5 +26,3 @@ export const ModalContent = memo((props: ModalContentProps) => {
 });
 
 ModalContent.displayName = 'ModalContent';
-
-export default ModalContent;

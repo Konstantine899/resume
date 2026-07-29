@@ -9,7 +9,7 @@
 @use '@/shared/styles/variables/radius' as *;
 @use '@/shared/styles/variables/transition' as *;
 @use '@/shared/styles/mixins/layout' as *;
-@use '../constants' as *;
+@use '../../model/modal-constants' as *;
 
 .closeButton {
   @include flex-center;

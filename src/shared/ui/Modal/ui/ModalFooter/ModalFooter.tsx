@@ -27,5 +27,3 @@ export const ModalFooter = memo((props: ModalFooterProps) => {
 });
 
 ModalFooter.displayName = 'ModalFooter';
-
-export default ModalFooter;

@@ -1,8 +1,5 @@
-// ============================================
-// ModalFooter Stories
-// ============================================
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import { ModalFooter } from './ModalFooter';
 import { Button } from '@/shared/ui/Button';
 
@@ -25,6 +22,11 @@ export const Default: Story = {
       </div>
     ),
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(canvas.getByRole('button', { name: /save/i })).toBeInTheDocument();
+  },
 };
 
 export const WithCustomClass: Story = {
@@ -32,10 +34,18 @@ export const WithCustomClass: Story = {
     children: <Button variant="primary">Action</Button>,
     className: 'custom-class',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: /action/i })).toBeInTheDocument();
+  },
 };
 
 export const SingleButton: Story = {
   args: { children: <Button variant="primary">OK</Button> },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: /ok/i })).toBeInTheDocument();
+  },
 };
 
 export const MultipleButtons: Story = {
@@ -47,5 +57,11 @@ export const MultipleButtons: Story = {
         <Button variant="primary">Next</Button>
       </div>
     ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: /help/i })).toBeInTheDocument();
+    expect(canvas.getByRole('button', { name: /back/i })).toBeInTheDocument();
+    expect(canvas.getByRole('button', { name: /next/i })).toBeInTheDocument();
   },
 };
