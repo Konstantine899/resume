@@ -73,9 +73,9 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
       <div className={styles.blockHeaderLeft}>
         {/* Terminal dots */}
         <div className={styles.terminalDots}>
-          <div className={`${styles.dot} ${styles.red}`} />
-          <div className={`${styles.dot} ${styles.yellow}`} />
-          <div className={`${styles.dot} ${styles.green}`} />
+          <div className={classNames(styles.dot, styles.red)} />
+          <div className={classNames(styles.dot, styles.yellow)} />
+          <div className={classNames(styles.dot, styles.green)} />
         </div>
 
         {/* Language & Title */}

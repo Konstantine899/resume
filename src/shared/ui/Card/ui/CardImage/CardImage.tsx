@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo, useMemo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { CardImageProps } from '../../model/types';
 import styles from './CardImage.module.scss';
 
@@ -49,7 +50,7 @@ const CardImageComponent: React.FC<CardImageProps> = ({
     return objectFit;
   }, [objectFit]);
 
-  const imageClasses = [styles.cardImage, className].filter(Boolean).join(' ');
+  const imageClasses = classNames(styles.cardImage, className);
 
   return (
     <img

@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { CardFooterProps } from '../../model/types';
 import styles from './CardFooter.module.scss';
 
@@ -25,9 +26,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({
   withBorder = false,
   ...props
 }) => {
-  const footerClasses = [styles.cardFooter, withBorder && styles.withBorder, className]
-    .filter(Boolean)
-    .join(' ');
+  const footerClasses = classNames(styles.cardFooter, withBorder && styles.withBorder, className);
 
   return (
     <div className={footerClasses} {...props}>

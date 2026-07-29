@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { CardBodyProps } from '../../model/types';
 import styles from './CardBody.module.scss';
 
@@ -18,7 +19,7 @@ import styles from './CardBody.module.scss';
  * ```
  */
 export const CardBody: React.FC<CardBodyProps> = ({ children, className = '', ...props }) => {
-  const bodyClasses = [styles.cardBody, className].filter(Boolean).join(' ');
+  const bodyClasses = classNames(styles.cardBody, className);
 
   return (
     <div className={bodyClasses} {...props}>

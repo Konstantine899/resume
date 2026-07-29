@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
@@ -39,7 +40,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`${styles.projectCard} ${className}`}>
+    <div className={classNames(styles.projectCard, className)}>
       {backgroundImage && (
         <div
           className={styles.backgroundImage}

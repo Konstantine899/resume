@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import type { WorkHistoryCardProps } from '../../model/types';
 import styles from './WorkHistoryCard.module.scss';
@@ -41,7 +42,7 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`${styles.workHistoryCard} ${className}`}>
+    <div className={classNames(styles.workHistoryCard, className)}>
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <h3 className={styles.title}>{title}</h3>

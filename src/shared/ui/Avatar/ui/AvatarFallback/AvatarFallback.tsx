@@ -6,6 +6,7 @@ import React from 'react';
 import { AvatarFallbackProps } from '../../model/types';
 import { getInitials } from '@/shared/lib/utils';
 import { getFallbackColor } from '@/shared/ui/Avatar/lib/getFallbackColor';
+import { classNames } from '@/shared/lib/utils/classNames';
 
 import styles from './AvatarFallback.module.scss';
 
@@ -37,7 +38,7 @@ export const AvatarFallback = React.memo(
 
     return (
       <div
-        className={`${styles.fallback} ${styles[size]} ${styles[variant]} ${className}`}
+        className={classNames(styles.fallback, styles[size], styles[variant], className)}
         style={{ backgroundColor }}
         aria-hidden="true"
       >

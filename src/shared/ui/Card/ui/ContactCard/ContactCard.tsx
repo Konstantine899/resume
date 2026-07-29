@@ -3,6 +3,7 @@
 // ============================================
 
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { ContactCardProps } from '../../model/types';
 import styles from './ContactCard.module.scss';
 
@@ -32,7 +33,7 @@ const ContactCardComponent: React.FC<ContactCardProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`${styles.contactCard} ${className}`}>
+    <div className={classNames(styles.contactCard, className)}>
       <div className={styles.centeredContent}>
         {icon && <div className={styles.iconWrapper}>{icon}</div>}
         {title && <h3 className={styles.title}>{title}</h3>}

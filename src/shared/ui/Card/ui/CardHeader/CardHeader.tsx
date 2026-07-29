@@ -3,6 +3,7 @@
 // ============================================
 
 import React from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { CardHeaderProps } from '../../model/types';
 import styles from './CardHeader.module.scss';
 
@@ -23,9 +24,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   withBorder = false,
   ...props
 }) => {
-  const headerClasses = [styles.cardHeader, withBorder && styles.withBorder, className]
-    .filter(Boolean)
-    .join(' ');
+  const headerClasses = classNames(styles.cardHeader, withBorder && styles.withBorder, className);
 
   return (
     <div className={headerClasses} {...props}>

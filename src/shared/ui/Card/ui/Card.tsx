@@ -3,6 +3,7 @@
 // ============================================
 
 import { CARD_CONSTANTS } from '../model/constants';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { validateCardProps } from '../lib/validateCardProps';
 import { forwardRef, memo, useEffect, useMemo } from 'react';
 import type { BaseCardProps } from '../model/types';
@@ -71,17 +72,15 @@ const CardComponent = forwardRef<HTMLDivElement, BaseCardProps>(
     // Memoize className calculation
     const cardClasses = useMemo(
       () =>
-        [
+        classNames(
           styles.card,
           styles[variant],
           styles[size],
           radius && styles[radius],
           fullWidth && styles.fullWidth,
           !hoverable && styles.noHover,
-          className,
-        ]
-          .filter(Boolean)
-          .join(' '),
+          className
+        ),
       [variant, size, radius, fullWidth, hoverable, className]
     );
 
