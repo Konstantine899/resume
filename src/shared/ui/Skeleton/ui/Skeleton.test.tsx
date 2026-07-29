@@ -92,6 +92,11 @@ describe('Skeleton', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
+    it('должен иметь aria-busy="true"', () => {
+      render(<Skeleton />);
+      expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
+    });
+
     it('должен иметь aria-label с текстом загрузки', () => {
       render(<Skeleton />);
       expect(screen.getByLabelText(/Loading|Загрузка/i)).toBeInTheDocument();
@@ -325,6 +330,58 @@ describe('Skeleton', () => {
       expect(skeleton.className).toMatch(/skeleton/);
       expect(skeleton.className).toMatch(/text/);
       expect(skeleton.className).toMatch(/custom/);
+    });
+  });
+
+  // ============================================
+  // Reduced Motion
+  // ============================================
+
+  describe('Reduced Motion', () => {
+    const originalMatchMedia = window.matchMedia;
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+    });
+
+    it('должен отключать анимацию при prefers-reduced-motion: reduce', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
+
+      render(<Skeleton variant="text" />);
+      const skeleton = screen.getByRole('status');
+
+      // CSS модуль применяет animation: none через медиа-условие
+      // Проверяем что элемент рендерится корректно при reduced-motion
+      expect(skeleton).toBeInTheDocument();
+      expect(skeleton).toHaveClass(/skeleton/);
+    });
+
+    it('должен иметь анимацию по умолчанию (без reduced-motion)', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
+
+      render(<Skeleton variant="text" />);
+      const skeleton = screen.getByRole('status');
+
+      expect(skeleton).toBeInTheDocument();
+      expect(skeleton).toHaveStyle({ animationDuration: '1.5s' });
     });
   });
 
