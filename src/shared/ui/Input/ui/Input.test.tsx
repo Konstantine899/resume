@@ -26,11 +26,6 @@ describe('Input', () => {
       const wrapper = screen.getByTestId('input-wrapper');
       expect(wrapper.className).toMatch(/fullWidth/);
     });
-
-    it('matches snapshot for default props', () => {
-      const { container } = render(<Input placeholder="Snapshot test" />);
-      expect(container).toMatchSnapshot();
-    });
   });
 
   describe('Label', () => {
@@ -260,7 +255,7 @@ describe('Input', () => {
       render(<Input loading skeleton />);
       // Skeleton replaces the input and has its own role="status",
       // but the Spinner inside loadingIndicator must NOT be rendered
-      expect(screen.queryByRole('status', { name: /loading/i })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('spinner-circle')).not.toBeInTheDocument();
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 

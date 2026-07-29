@@ -1,12 +1,8 @@
-// ============================================
-// Input + React Hook Form Integration
-// ============================================
-
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
-import { Input } from '../../ui/Input';
+import { Input } from './Input';
 
 interface TestForm {
   name: string;
@@ -68,7 +64,6 @@ describe('Input + React Hook Form', () => {
     nameInput.focus();
     nameInput.blur();
 
-    // Submit with empty fields — validation should fire
     await userEvent.click(screen.getByText('Submit'));
 
     expect(onSubmit).not.toHaveBeenCalled();

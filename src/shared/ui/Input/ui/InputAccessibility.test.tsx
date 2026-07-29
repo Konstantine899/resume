@@ -1,29 +1,8 @@
-// ============================================
-// Input — Comprehensive Accessibility Audit
-// ============================================
-//
-// This suite tests ARIA compliance beyond what
-// the unit tests cover. It verifies WCAG 2.1 AA
-// requirements for the Input component.
-//
-// Unit tests (ui/Input.test.tsx) cover rendering
-// and basic a11y. This file covers:
-//   - Keyboard navigation (WCAG 2.1.1)
-//   - Focus management
-//   - Screen reader announcements
-//   - ARIA state consistency
-//   - Reduced motion compliance
-// ============================================
-
 import { describe, it, expect, assert } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Mail } from 'lucide-react';
-import { Input } from '../../ui/Input';
-import { setupUserEvent } from '../helpers/test-utils';
-
-// ============================================
-// Keyboard Navigation (WCAG 2.1.1)
-// ============================================
+import { Input } from './Input';
+import { setupUserEvent } from '../lib/test-utils';
 
 describe('Input — Keyboard Navigation', () => {
   it('clear button is reachable via Tab key', async () => {
@@ -33,7 +12,6 @@ describe('Input — Keyboard Navigation', () => {
     const input = screen.getByRole('textbox');
     await user.click(input);
 
-    // Tab should move focus to clear button (tabIndex=0)
     await user.tab();
     const clearButton = screen.getByRole('button', { name: /clear input/i });
     expect(clearButton).toHaveFocus();
@@ -43,12 +21,10 @@ describe('Input — Keyboard Navigation', () => {
     const user = setupUserEvent();
     const { container } = render(<Input type="password" showPasswordToggle />);
 
-    // Password inputs don't expose role="textbox" (RTL limitation)
     const input = container.querySelector('input');
     assert(input, 'input element should exist');
     input.focus();
 
-    // Tab should move focus to password toggle (tabIndex=0)
     await user.tab();
     const toggle = screen.getByRole('button', { name: /show password/i });
     expect(toggle).toHaveFocus();
@@ -66,11 +42,9 @@ describe('Input — Keyboard Navigation', () => {
     const input = screen.getByRole('textbox');
     await user.click(input);
 
-    // Tab to clear button
     await user.tab();
     expect(screen.getByRole('button', { name: /clear input/i })).toHaveFocus();
 
-    // Tab to next focusable element
     await user.tab();
     expect(screen.getByRole('button', { name: /next/i })).toHaveFocus();
   });
@@ -79,7 +53,6 @@ describe('Input — Keyboard Navigation', () => {
     const user = setupUserEvent();
     render(<Input clearable defaultValue="test" />);
 
-    // Navigate to clear button via Tab
     const input = screen.getByRole('textbox');
     await user.click(input);
     await user.tab();
@@ -87,7 +60,6 @@ describe('Input — Keyboard Navigation', () => {
     const clearButton = screen.getByRole('button', { name: /clear input/i });
     expect(clearButton).toHaveFocus();
 
-    // Click clear — focus returns to input
     await user.click(clearButton);
     expect(input).toHaveFocus();
     expect(input).toHaveValue('');
@@ -110,17 +82,12 @@ describe('Input — Keyboard Navigation', () => {
   });
 });
 
-// ============================================
-// ARIA States & Screen Reader (WCAG 4.1.2)
-// ============================================
-
 describe('Input — ARIA States', () => {
   it('error, loading, and required produce consistent ARIA', () => {
     const { container } = render(<Input label="Test" required loading error="Error" />);
     const input = container.querySelector('input');
     assert(input, 'input element should exist');
 
-    // All three states are reflected simultaneously
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAttribute('aria-busy', 'true');
     expect(input).toHaveAttribute('aria-required', 'true');
@@ -155,17 +122,11 @@ describe('Input — ARIA States', () => {
   });
 });
 
-// ============================================
-// Focus management
-// ============================================
-
 describe('Input — Focus Management', () => {
   it('forwards focus to input when label is clicked', async () => {
     const user = setupUserEvent();
     render(<Input label="Email" />);
 
-    // react-testing-library's getByLabelText verifies association;
-    // clicking the label should focus the input
     const label = screen.getByText('Email');
     await user.click(label);
 
@@ -183,15 +144,10 @@ describe('Input — Focus Management', () => {
     const clearButton = screen.getByRole('button', { name: /clear input/i });
     expect(clearButton).toHaveFocus();
 
-    // Pressing Space on clear button should activate it, not move focus
     await user.keyboard('[Space]');
     expect(input).toHaveFocus();
   });
 });
-
-// ============================================
-// Accessibility (lucide icons)
-// ============================================
 
 describe('Input — Icon Accessibility', () => {
   it('renders non-decorative icon with descriptive label when provided', () => {

@@ -187,7 +187,15 @@ export const Skeleton: Story = {
     skeleton: true,
     placeholder: 'Loading...',
     clearable: false,
+    icon: undefined,
   },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '400px' }}>
+        <Story />
+      </div>
+    ),
+  ],
   parameters: {
     docs: {
       description: {
