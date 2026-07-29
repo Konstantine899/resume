@@ -1,6 +1,6 @@
 // src/shared/ui/Divider/ui/Divider.tsx
 
-import { validateDividerProps } from '@/shared/lib/utils/validateDividerProps';
+import { validateDividerProps } from '@/shared/ui/Divider/lib/validateDividerProps';
 import { DIVIDER_CONSTANTS } from '@/shared/ui/Divider/model/constants';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { forwardRef, memo, useEffect, useMemo } from 'react';
