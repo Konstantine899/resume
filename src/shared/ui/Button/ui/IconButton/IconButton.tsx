@@ -6,7 +6,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import React, { cloneElement, isValidElement } from 'react';
 import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
 import { ICON_SIZE_MAP } from '../../model/constants';
-import { useButton } from '../../model/useButton';
+import { useButton } from '../../lib/hooks/useButton';
 import styles from './IconButton.module.scss';
 
 /**

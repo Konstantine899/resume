@@ -5,7 +5,7 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 import React from 'react';
 import type { ButtonOwnProps, PolymorphicProps } from '../../model/types';
-import { useButton } from '../../model/useButton';
+import { useButton } from '../../lib/hooks/useButton';
 import styles from './Button.module.scss';
 
 /**

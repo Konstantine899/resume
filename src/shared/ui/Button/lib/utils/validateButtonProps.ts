@@ -1,4 +1,4 @@
-import { BUTTON_CONSTANTS } from '../model/constants';
+import { BUTTON_CONSTANTS } from '../../model/constants';
 
 export interface ButtonValidationWarning {
   prop: string;

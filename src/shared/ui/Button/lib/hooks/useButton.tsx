@@ -5,10 +5,10 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { ButtonLoader } from '../ui/ButtonLoader';
-import { validateButtonProps } from '../lib/validateButtonProps';
-import type { ButtonVariant, ButtonSize, LoadingVariant } from './types';
-import buttonStyles from '../ui/Button/Button.module.scss';
+import { ButtonLoader } from '../../ui/ButtonLoader';
+import { validateButtonProps } from '../utils/validateButtonProps';
+import type { ButtonVariant, ButtonSize, LoadingVariant } from '../../model/types';
+import buttonStyles from '../../ui/Button/Button.module.scss';
 
 /**
  * Options for configuring the useButton hook.
