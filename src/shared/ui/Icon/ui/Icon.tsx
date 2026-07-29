@@ -1,7 +1,7 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 import React, { forwardRef, useCallback, useEffect } from 'react';
 import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../model/constants';
-import { validateIconProps } from '@/shared/lib/utils/validateIconProps';
+import { validateIconProps } from '@/shared/ui/Icon/lib/validateIconProps';
 import type { IconProps } from '../model/types';
 import styles from './Icon.module.scss';
 
