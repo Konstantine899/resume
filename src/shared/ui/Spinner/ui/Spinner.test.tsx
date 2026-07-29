@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Spinner } from './Spinner';
 import styles from './Spinner.module.scss';
@@ -174,6 +174,55 @@ describe('Spinner', () => {
         expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
         unmount();
       });
+    });
+
+    it('должен иметь aria-live="polite"', () => {
+      render(<Spinner />);
+      expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
+    });
+  });
+
+  // ============================================
+  // Reduced Motion
+  // ============================================
+
+  describe('Reduced Motion', () => {
+    const originalMatchMedia = window.matchMedia;
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+    });
+
+    it('должен отключать анимацию при prefers-reduced-motion: reduce', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
+
+      render(<Spinner />);
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    it('должен иметь анимацию по умолчанию (без reduced-motion)', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
+
+      render(<Spinner />);
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
 

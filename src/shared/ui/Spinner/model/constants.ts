@@ -1,20 +1,18 @@
-import type {
-  SpinnerColor,
-  SpinnerSize,
-  SpinnerSpeed,
-  SpinnerThickness,
-  SpinnerVariant,
-} from './types';
+import type { SpinnerSize, SpinnerSpeed, SpinnerThickness } from './types';
 
-export const SPINNER_CONSTANTS = {
-  VALID_VARIANTS: ['spinner', 'double-ring'] as const satisfies readonly SpinnerVariant[],
-  VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const satisfies readonly SpinnerSize[],
-  VALID_COLORS: [
-    'primary',
-    'secondary',
-    'accent',
-    'orange',
-  ] as const satisfies readonly SpinnerColor[],
-  VALID_SPEEDS: ['slow', 'normal', 'fast'] as const satisfies readonly SpinnerSpeed[],
-  VALID_THICKNESSES: ['thin', 'normal', 'thick'] as const satisfies readonly SpinnerThickness[],
-} as const;
+export const speedMap: Record<
+  SpinnerSpeed,
+  { spinner: string; doubleRing: { outer: string; inner: string } }
+> = {
+  slow: { spinner: '1.2s', doubleRing: { outer: '1.5s', inner: '1.3s' } },
+  normal: { spinner: '0.8s', doubleRing: { outer: '1s', inner: '0.85s' } },
+  fast: { spinner: '0.4s', doubleRing: { outer: '0.6s', inner: '0.5s' } },
+};
+
+export const thicknessMap: Record<SpinnerThickness, { spinner: string; doubleRing: string }> = {
+  thin: { spinner: '1.5px', doubleRing: '3px' },
+  normal: { spinner: '2px', doubleRing: '4px' },
+  thick: { spinner: '3px', doubleRing: '5px' },
+};
+
+export const SPINNER_SIZES: readonly SpinnerSize[] = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const;

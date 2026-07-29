@@ -1,41 +1,9 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useEffect, useMemo, forwardRef } from 'react';
+import { memo, useMemo, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SpinnerProps, SpinnerSpeed, SpinnerThickness } from '../model/types';
-import { validateSpinnerProps } from '../lib/utils/validateSpinnerProps';
+import type { SpinnerProps } from '../model/types';
+import { speedMap, thicknessMap } from '../model/constants';
 import styles from './Spinner.module.scss';
-
-// ============================================
-// Speed mapping
-// ============================================
-
-const speedMap: Record<
-  SpinnerSpeed,
-  { spinner: string; doubleRing: { outer: string; inner: string } }
-> = {
-  slow: { spinner: '1.2s', doubleRing: { outer: '1.5s', inner: '1.3s' } },
-  normal: { spinner: '0.8s', doubleRing: { outer: '1s', inner: '0.85s' } },
-  fast: { spinner: '0.4s', doubleRing: { outer: '0.6s', inner: '0.5s' } },
-};
-
-// ============================================
-// Thickness mapping
-// ============================================
-
-const thicknessMap: Record<SpinnerThickness, { spinner: string; doubleRing: string }> = {
-  thin: { spinner: '1.5px', doubleRing: '3px' },
-  normal: { spinner: '2px', doubleRing: '4px' },
-  thick: { spinner: '3px', doubleRing: '5px' },
-};
-
-// ============================================
-// Accessibility attributes
-// ============================================
-
-const accessibilityProps = {
-  role: 'status' as const,
-  'aria-busy': 'true' as const,
-};
 
 // ============================================
 // Main component
@@ -59,23 +27,6 @@ export const Spinner = memo(
 
     // Default label with i18n
     const effectiveLabel = label ?? t('loading');
-
-    // Dev warnings for invalid props
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        const warnings = validateSpinnerProps(
-          variant,
-          size,
-          color,
-          speed ?? 'normal',
-          thickness ?? 'normal'
-        );
-        warnings.forEach((w) => {
-          // eslint-disable-next-line no-console
-          console.warn(w.message);
-        });
-      }
-    }, [variant, size, color, speed, thickness]);
 
     // ---- CSS custom properties for variants ----
 
@@ -120,20 +71,24 @@ export const Spinner = memo(
         ref={ref}
         className={rootClassName}
         style={inlineStyle}
-        {...restProps}
+        role="status"
+        aria-busy="true"
+        aria-live="polite"
+        aria-label={effectiveLabel}
         data-variant={variant}
         data-size={size}
         data-color={color}
         data-speed={speed}
         data-thickness={thickness}
+        {...restProps}
       >
         {variant === 'double-ring' ? (
-          <div className={styles.doubleRing} {...accessibilityProps} aria-label={effectiveLabel}>
+          <div className={styles.doubleRing}>
             <div className={styles.outerRing} />
             <div className={styles.innerRing} />
           </div>
         ) : (
-          <div className={styles.spinner} {...accessibilityProps} aria-label={effectiveLabel}>
+          <div className={styles.spinner}>
             <div className={styles.spinnerCircle} data-testid="spinner-circle" />
           </div>
         )}
