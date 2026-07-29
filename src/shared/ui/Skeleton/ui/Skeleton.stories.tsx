@@ -1,5 +1,3 @@
-// src/shared/ui/Skeleton/ui/Skeleton.stories.tsx
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from '@storybook/test';
 import { Skeleton } from './Skeleton';
@@ -12,29 +10,19 @@ const meta = {
     docs: {
       description: {
         component: `
-**Skeleton** - компонент для отображения состояния загрузки контента.
+**Skeleton** — компонент для отображения состояния загрузки контента.
 
 Использует shimmer эффект и автоматически адаптируется под текущую тему (light/dark).
 
 ## Варианты использования:
-
-- **text** - для заголовков, параграфов и текстовых блоков
-- **circular** - для аватаров, иконок и круглых элементов
-- **rectangular** - для изображений, карточек и прямоугольных блоков
+- **text** — для заголовков, параграфов и текстовых блоков
+- **circular** — для аватаров, иконок и круглых элементов
+- **rectangular** — для изображений, карточек и прямоугольных блоков
 
 ## Accessibility:
-
-- \`role="status"\` - объявляет состояние загрузки скринридерам
-- \`aria-label="Загрузка..."\` - текстовое описание для ассистивных технологий
-
-## Примеры:
-
-\`\`\`tsx
-<Skeleton variant="text" width="200px" height="20px" />
-<Skeleton variant="circular" width="100px" height="100px" />
-<Skeleton variant="rectangular" width="300px" height="200px" />
-<Skeleton variant="text" width="300px" lines={4} />
-\`\`\`
+- \`role="status"\` — объявляет состояние загрузки скринридерам
+- \`aria-busy="true"\` — указывает что контент загружается
+- \`aria-label\` — текстовое описание для ассистивных технологий (i18n)
         `,
       },
     },
@@ -51,40 +39,20 @@ const meta = {
       options: ['text', 'circular', 'rectangular'],
       description: 'Вариант скелетона',
     },
-    width: {
-      control: 'text',
-      description: 'Ширина компонента (px, %, rem, etc.)',
-    },
-    height: {
-      control: 'text',
-      description: 'Высота компонента (px, %, rem, etc.)',
-    },
+    width: { control: 'text', description: 'Ширина (px, %, rem)' },
+    height: { control: 'text', description: 'Высота (px, %, rem)' },
     lines: {
-      control: 'range',
-      min: 1,
-      max: 10,
-      step: 1,
+      control: { type: 'range', min: 1, max: 10, step: 1 },
       description: 'Количество строк для текстового варианта',
     },
     delay: {
-      control: 'range',
-      min: 0,
-      max: 2,
-      step: 0.1,
-      description: 'Задержка перед началом анимации (сек)',
+      control: { type: 'range', min: 0, max: 2, step: 0.1 },
+      description: 'Задержка анимации (сек)',
     },
     duration: {
-      control: 'range',
-      min: 0.5,
-      max: 3,
-      step: 0.1,
+      control: { type: 'range', min: 0.5, max: 3, step: 0.1 },
       description: 'Длительность анимации (сек)',
     },
-  },
-  args: {
-    variant: 'text',
-    width: '200px',
-    height: '20px',
   },
 } satisfies Meta<typeof Skeleton>;
 
@@ -92,267 +60,209 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // ============================================
-// Helper Components
-// ============================================
-
-const ThemeContainer = ({ children }: { children: React.ReactNode }) => (
-  <div
-    style={{
-      backgroundColor: 'var(--background)',
-      padding: '40px',
-      borderRadius: '12px',
-      minWidth: '400px',
-    }}
-  >
-    {children}
-  </div>
-);
-
-// ============================================
-// Basic Variants
+// Group 1 — Basic Variants
 // ============================================
 
 export const Text: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="text" width="200px" height="20px" />
-    </ThemeContainer>
-  ),
+  args: { variant: 'text', width: '200px', height: '20px' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveAttribute('aria-busy', 'true');
+  },
 };
 
 export const Circular: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="circular" width="100px" height="100px" />
-    </ThemeContainer>
-  ),
+  args: { variant: 'circular', width: '100px', height: '100px' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveAttribute('aria-busy', 'true');
+  },
 };
 
 export const Rectangular: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="rectangular" width="300px" height="200px" />
-    </ThemeContainer>
-  ),
+  args: { variant: 'rectangular', width: '300px', height: '200px' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveAttribute('aria-busy', 'true');
+  },
+};
+
+export const WithDelay: Story = {
+  args: { variant: 'text', width: '200px', height: '20px', delay: 0.5, duration: 2 },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveStyle({ animationDelay: '0.5s', animationDuration: '2s' });
+  },
 };
 
 // ============================================
-// Multiple Lines
+// Group 2 — Multi-line
 // ============================================
 
 export const MultipleLines: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="text" width="300px" lines={4} />
-    </ThemeContainer>
-  ),
+  args: { variant: 'text', width: '300px', lines: 4 },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const lines = canvas.getAllByTestId(/skeleton-line/);
+    expect(lines).toHaveLength(4);
+    const lastLine = canvas.getByTestId('skeleton-line-last');
+    expect(lastLine).toBeInTheDocument();
+  },
 };
 
 // ============================================
-// Sizes
+// Group 3 — Real-world Examples
 // ============================================
 
-export const Small: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="text" width="100px" height="12px" />
-    </ThemeContainer>
-  ),
-};
-
-export const Medium: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="text" width="200px" height="16px" />
-    </ThemeContainer>
-  ),
-};
-
-export const Large: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Skeleton variant="text" width="300px" height="24px" />
-    </ThemeContainer>
-  ),
-};
-
-// ============================================
-// Real-world Examples
-// ============================================
+const wrapper = (story: React.ReactNode) => (
+  <div
+    style={{ backgroundColor: 'var(--background)', padding: 40, borderRadius: 12, minWidth: 400 }}
+  >
+    {story}
+  </div>
+);
 
 export const AvatarWithText: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <Skeleton variant="circular" width="48px" height="48px" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Skeleton variant="text" width="120px" height="16px" />
           <Skeleton variant="text" width="80px" height="14px" />
         </div>
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(3);
+  },
 };
 
 export const Card: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ width: '300px' }}>
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height="150px"
-          style={{ marginBottom: '16px' }}
-        />
-        <Skeleton variant="text" width="80%" height="20px" style={{ marginBottom: '8px' }} />
+  render: () =>
+    wrapper(
+      <div style={{ width: 300 }}>
+        <Skeleton variant="rectangular" width="100%" height="150px" style={{ marginBottom: 16 }} />
+        <Skeleton variant="text" width="80%" height="20px" style={{ marginBottom: 8 }} />
         <Skeleton variant="text" width="60%" height="20px" />
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(3);
+  },
 };
 
 export const WorkHistoryItem: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '16px' }}>
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', gap: 16 }}>
         <Skeleton variant="circular" width="48px" height="48px" />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <Skeleton variant="text" width="60%" height="18px" />
           <Skeleton variant="text" width="40%" height="14px" />
           <Skeleton variant="text" width="100%" height="14px" />
         </div>
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(4);
+  },
 };
 
 export const SkillsList: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton key={i} variant="rectangular" width="100px" height="36px" />
         ))}
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(8);
+  },
 };
-
-export const ProjectListItem: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '16px' }}>
-        <Skeleton variant="rectangular" width="120px" height="90px" />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Skeleton variant="text" width="70%" height="18px" />
-          <Skeleton variant="text" width="50%" height="14px" />
-        </div>
-      </div>
-    </ThemeContainer>
-  ),
-};
-
-// ============================================
-// Full Examples
-// ============================================
 
 export const FullCard: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ width: '320px' }}>
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height="180px"
-          style={{ marginBottom: '16px' }}
-        />
-        <Skeleton variant="text" width="90%" height="20px" style={{ marginBottom: '8px' }} />
-        <Skeleton variant="text" width="70%" height="16px" style={{ marginBottom: '8px' }} />
+  render: () =>
+    wrapper(
+      <div style={{ width: 320 }}>
+        <Skeleton variant="rectangular" width="100%" height="180px" style={{ marginBottom: 16 }} />
+        <Skeleton variant="text" width="90%" height="20px" style={{ marginBottom: 8 }} />
+        <Skeleton variant="text" width="70%" height="16px" style={{ marginBottom: 8 }} />
         <Skeleton variant="text" width="60%" height="16px" />
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(4);
+  },
 };
 
 export const ProfileHeader: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <Skeleton variant="circular" width="80px" height="80px" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Skeleton variant="text" width="180px" height="24px" />
           <Skeleton variant="text" width="140px" height="18px" />
           <Skeleton variant="text" width="100px" height="14px" />
         </div>
       </div>
-    </ThemeContainer>
-  ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(4);
+  },
 };
 
 // ============================================
-// Interaction Tests
+// Group 4 — Composite
 // ============================================
 
-export const Interactive: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div>
-          <h4>Text Variant</h4>
-          <Skeleton variant="text" width="200px" height="20px" data-testid="skeleton-text" />
-        </div>
-        <div>
-          <h4>Circular Variant</h4>
-          <Skeleton variant="circular" width="60px" height="60px" data-testid="skeleton-circular" />
-        </div>
-        <div>
-          <h4>Rectangular Variant</h4>
-          <Skeleton
-            variant="rectangular"
-            width="150px"
-            height="100px"
-            data-testid="skeleton-rectangular"
-          />
-        </div>
-        <div>
-          <h4>Multiple Lines</h4>
-          <Skeleton variant="text" lines={4} data-testid="skeleton-lines" />
-        </div>
+export const Sizes: Story = {
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Skeleton variant="text" width="100px" height="12px" />
+        <Skeleton variant="text" width="200px" height="16px" />
+        <Skeleton variant="text" width="300px" height="24px" />
       </div>
-    </ThemeContainer>
-  ),
+    ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-
-    // Test 1: Verify all variants render with role="status"
     const skeletons = canvas.getAllByRole('status');
-    expect(skeletons).toHaveLength(4);
+    expect(skeletons).toHaveLength(3);
+  },
+};
 
-    // Test 2: Verify accessibility labels
-    skeletons.forEach((skeleton) => {
-      const label = skeleton.getAttribute('aria-label');
-      expect(label).toBeTruthy();
-    });
-
-    // Test 3: Verify text variant
-    const textSkeleton = canvas.getByTestId('skeleton-text');
-    expect(textSkeleton).toBeInTheDocument();
-
-    // Test 4: Verify circular variant
-    const circularSkeleton = canvas.getByTestId('skeleton-circular');
-    expect(circularSkeleton).toBeInTheDocument();
-
-    // Test 5: Verify rectangular variant
-    const rectangularSkeleton = canvas.getByTestId('skeleton-rectangular');
-    expect(rectangularSkeleton).toBeInTheDocument();
-
-    // Test 6: Verify multiple lines render
-    const linesSkeleton = canvas.getByTestId('skeleton-lines');
-    const lines = linesSkeleton.querySelectorAll('[data-testid^="skeleton-line"]');
-    expect(lines).toHaveLength(4);
-
-    // Test 7: Verify last line has special marker
-    const lastLine = canvas.getByTestId('skeleton-line-last');
-    expect(lastLine).toBeInTheDocument();
+export const AllVariants: Story = {
+  render: () =>
+    wrapper(
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+        <Skeleton variant="text" width="100px" height="20px" />
+        <Skeleton variant="circular" width="60px" height="60px" />
+        <Skeleton variant="rectangular" width="150px" height="100px" />
+      </div>
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeletons = canvas.getAllByRole('status');
+    expect(skeletons).toHaveLength(3);
   },
 };
