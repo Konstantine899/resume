@@ -252,3 +252,43 @@ describe('AvatarFallback', () => {
     expect(container.firstChild).toBeInTheDocument();
   });
 });
+
+describe('Avatar polymorphic', () => {
+  it('должен рендериться как div по умолчанию', () => {
+    const { container } = render(<Avatar alt="Default" />);
+    expect((container.firstChild as HTMLElement).tagName).toBe('DIV');
+  });
+
+  it('должен рендериться как article при component="article"', () => {
+    const { container } = render(<Avatar component="article" alt="Article" />);
+    expect(container.querySelector('article')).toBeInTheDocument();
+  });
+
+  it('должен рендериться как section при component="section"', () => {
+    const { container } = render(<Avatar component="section" alt="Section" />);
+    expect(container.querySelector('section')).toBeInTheDocument();
+  });
+
+  it('должен рендериться как link при component="a" с href', () => {
+    render(<Avatar component="a" href="/profile" alt="Link" />);
+    const link = screen.getByRole('img');
+    expect(link.closest('a')).toHaveAttribute('href', '/profile');
+  });
+
+  it('должен сохранять data-attributes при polymorphic rendering', () => {
+    const { container } = render(
+      <Avatar component="article" alt="Test" size="lg" variant="circle" />
+    );
+    const article = container.querySelector('article');
+    expect(article).toHaveAttribute('data-size', 'lg');
+    expect(article).toHaveAttribute('data-variant', 'circle');
+  });
+
+  it('должен применять кастомный className при polymorphic rendering', () => {
+    const { container } = render(
+      <Avatar component="section" alt="Test" className="custom-class" />
+    );
+    const section = container.querySelector('section');
+    expect(section).toHaveClass('custom-class');
+  });
+});

@@ -21,7 +21,7 @@ export const About: React.FC<AboutFeatureProps> = ({
       <AnimatedSection delay={200}>
         <div className={styles.content}>
           <div className={styles.avatarContainer}>
-            <AvatarAbout alt={DEVELOPER_DATA.fullName} size="sm" maxInitials={2} />
+            <AvatarAbout alt={DEVELOPER_DATA.fullName} size="sm" />
           </div>
 
           <h3 className={styles.title}>{t('about')}</h3>

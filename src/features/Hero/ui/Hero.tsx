@@ -4,7 +4,7 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
 
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import avatarImage from '@/shared/ui/Avatar/ui/Avatar/assets/avatar003.jpg';
+const avatarImage = '/images/avatar/avatar003.jpg';
 import { Code } from '@/shared/ui/Code';
 import React, { useEffect, useState } from 'react';
 import { HeroProps } from '../model/types';

@@ -2,69 +2,58 @@
 // AvatarAbout Component
 // ============================================
 
-import { classNames } from '@/shared/lib/utils/classNames';
+import React, { useMemo } from 'react';
 import { Image } from '@/shared/ui/Image';
-import { getInitials } from '@/shared/lib/utils';
-import React from 'react';
-import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
-
-import { AVATAR_SIZES } from '../../model/constants';
-import { AvatarAboutProps } from '../../model/types';
+import { classNames } from '@/shared/lib/utils/classNames';
+import { useAvatar } from '../../lib/hooks/useAvatar';
+import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
+import type { AvatarAboutProps } from '../../model/types';
 import styles from './AvatarAbout.module.scss';
 
 /**
- * AvatarAbout Component — avatar for About section
+ * AvatarAbout Component — avatar for About section with gradient border
+ *
+ * Uses shared useAvatar hook for image state management, AvatarFallback for initials.
  *
  * @example
  * // Basic usage
  * ```tsx
  * <AvatarAbout src="/user.jpg" alt="John Doe" size="lg" />
  * ```
- *
- * @example
- * // With custom initials
- * ```tsx
- * <AvatarAbout alt="John Doe" maxInitials={1} />
- * ```
  */
 export const AvatarAbout = React.memo(
   ({
-    alt,
+    alt = 'Avatar placeholder',
     src,
     size = 'lg',
     className = '',
-    maxInitials = 2,
     showSkeleton = true,
     forceLoading = false,
   }: AvatarAboutProps) => {
-    const normalizedSrc = src === '' ? undefined : src;
+    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError, avatarWidth } =
+      useAvatar({
+        src,
+        alt,
+        size,
+        variant: 'circle',
+        showSkeleton,
+        forceLoading,
+      });
 
-    // Use custom hook for image state management (eliminates duplication)
-    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError } = useImageStatus(
-      forceLoading,
-      normalizedSrc,
-      undefined,
-      undefined
+    const wrapperClasses = useMemo(
+      () => classNames(styles.avatarAbout, styles[size], className),
+      [size, className]
     );
 
-    const avatarWidth = AVATAR_SIZES[size];
-
     return (
-      <div
-        className={classNames(styles.avatarAbout, styles[size], className)}
-        role="img"
-        aria-label={alt}
-        data-state={imageStatus}
-      >
+      <div className={wrapperClasses} role="img" aria-label={alt} data-state={imageStatus}>
         <div className={styles.avatarCircle}>
-          {showFallback ? (
-            <div className={styles.avatarInner}>
-              <span className={styles.initial}>{getInitials(alt || 'U', { maxInitials })}</span>
-            </div>
-          ) : (
-            <div className={styles.avatarInner}>
+          <div className={styles.avatarInner}>
+            {showFallback ? (
+              <AvatarFallback name={alt} size={size} variant="circle" />
+            ) : (
               <Image
-                src={normalizedSrc || ''}
+                src={src || ''}
                 alt=""
                 decorative
                 variant="circular"
@@ -76,8 +65,8 @@ export const AvatarAbout = React.memo(
                 onLoadSuccess={handleLoadSuccess}
                 onLoadError={handleLoadError}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from '@storybook/test';
-import avatar1 from '../Avatar/assets/avatar003.jpg';
+const avatar1 = '/images/avatar/avatar003.jpg';
 import { AvatarHero } from './AvatarHero';
 import {
   createMeta,
@@ -15,7 +15,7 @@ import {
   storyResponsiveSizes,
   storyHeroWithoutEffects,
   storyHeroEffectsComparison,
-} from '../../lib/storyHelpers/AvatarStoriesHelper';
+} from '../Avatar/Avatar.storiesHelper';
 
 const meta: Meta<typeof AvatarHero> = {
   ...createMeta(AvatarHero, 'Shared/Avatar/Hero'),

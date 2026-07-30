@@ -2,18 +2,18 @@
 // AvatarHero Component
 // ============================================
 
-import { classNames } from '@/shared/lib/utils/classNames';
+import React, { useMemo } from 'react';
 import { Image } from '@/shared/ui/Image';
-import { getInitials } from '@/shared/lib/utils';
-import React from 'react';
-import { useImageStatus } from '@/shared/lib/hooks/useImageStatus';
-
-import { AVATAR_SIZES } from '../../model/constants';
-import { AvatarHeroProps } from '../../model/types';
+import { classNames } from '@/shared/lib/utils/classNames';
+import { useAvatar } from '../../lib/hooks/useAvatar';
+import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
+import type { AvatarHeroProps } from '../../model/types';
 import styles from './AvatarHero.module.scss';
 
 /**
  * AvatarHero Component — hero-style avatar with glow and ring effects
+ *
+ * Uses shared useAvatar hook for image state management.
  *
  * @example
  * // Basic usage
@@ -39,37 +39,36 @@ export const AvatarHero = React.memo(
     forceLoading = false,
     children,
   }: AvatarHeroProps) => {
-    const normalizedSrc = src === '' ? undefined : src;
+    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError, avatarWidth } =
+      useAvatar({
+        src,
+        alt,
+        size,
+        variant: 'circle',
+        showSkeleton,
+        forceLoading,
+        showGlow,
+        showRing,
+        heroStyle: true,
+      });
 
-    // Use custom hook for image state management (eliminates duplication)
-    const { imageStatus, showFallback, handleLoadSuccess, handleLoadError } = useImageStatus(
-      forceLoading,
-      normalizedSrc,
-      undefined,
-      undefined
+    const wrapperClasses = useMemo(
+      () => classNames(styles.avatarHero, styles[size], className),
+      [size, className]
     );
 
-    const avatarWidth = AVATAR_SIZES[size];
-
     return (
-      <div
-        className={classNames(styles.avatarHero, styles[size], className)}
-        role="img"
-        aria-label={alt}
-        data-state={imageStatus}
-      >
+      <div className={wrapperClasses} role="img" aria-label={alt} data-state={imageStatus}>
         {showGlow && <div className={styles.photoGlow} />}
         {showRing && <div className={styles.photoRing} />}
 
         <div className={styles.photoCircle}>
           <div className={styles.photoInner}>
             {showFallback ? (
-              <span className={styles.initial}>
-                {getInitials(alt, { maxInitials: 1, index: 1 })}
-              </span>
+              <AvatarFallback name={alt} size={size} variant="circle" />
             ) : (
               <Image
-                src={normalizedSrc || ''}
+                src={src || ''}
                 alt=""
                 decorative
                 variant="circular"

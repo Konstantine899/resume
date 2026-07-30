@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Meta } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
-import avatar1 from '../../ui/Avatar/assets/avatar003.jpg';
+const avatar1 = '/images/avatar/avatar003.jpg';
 
 // ============================================
 // Shared configuration

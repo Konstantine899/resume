@@ -13,7 +13,17 @@ const VALID_VARIANTS: AvatarVariant[] = ['circle', 'square'];
 export function validateAvatarProps(props: AvatarProps): void {
   if (process.env.NODE_ENV !== 'development') return;
 
-  const { size, variant, alt, fallback, showSkeleton, forceLoading } = props;
+  const {
+    size,
+    variant,
+    alt,
+    fallback,
+    showSkeleton,
+    forceLoading,
+    heroStyle,
+    showGlow,
+    showRing,
+  } = props;
 
   // Validate size
   if (size && !VALID_SIZES.includes(size)) {
@@ -47,6 +57,15 @@ export function validateAvatarProps(props: AvatarProps): void {
     console.warn(
       'Avatar: "showSkeleton=false" with "forceLoading=true" has no effect. ' +
         'Force loading requires skeleton to be visible.'
+    );
+  }
+
+  // Validate showGlow/showRing requires heroStyle
+  if ((showGlow || showRing) && !heroStyle) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'Avatar: "showGlow" and "showRing" effects require "heroStyle" prop to be enabled. ' +
+        'Set heroStyle={true} to use these effects.'
     );
   }
 }

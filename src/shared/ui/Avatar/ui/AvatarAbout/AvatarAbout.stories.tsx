@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from '@storybook/test';
-import avatar1 from '../Avatar/assets/avatar003.jpg';
+const avatar1 = '/images/avatar/avatar003.jpg';
 import { AvatarAbout } from './AvatarAbout';
 import {
   createMeta,
@@ -14,7 +14,7 @@ import {
   storyGradientStates,
   storyResponsiveSizes,
   storyAboutSingleInitial,
-} from '../../lib/storyHelpers/AvatarStoriesHelper';
+} from '../Avatar/Avatar.storiesHelper';
 
 const meta: Meta<typeof AvatarAbout> = {
   ...createMeta(AvatarAbout, 'Shared/Avatar/About'),
@@ -30,11 +30,6 @@ const meta: Meta<typeof AvatarAbout> = {
       options: ['sm', 'md', 'lg'],
       description: 'Avatar size',
       table: { defaultValue: { summary: "'lg'" } },
-    },
-    maxInitials: {
-      control: 'number',
-      description: 'Maximum number of initials to display',
-      table: { defaultValue: { summary: '2' } },
     },
     showSkeleton: {
       control: 'boolean',
