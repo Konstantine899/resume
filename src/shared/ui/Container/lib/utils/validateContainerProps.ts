@@ -4,10 +4,26 @@ import type { ContainerSize, ContainerPadding } from '../../model/types';
 
 /**
  * Validates Container size and padding props in development mode.
- * Logs warnings for invalid values but does not throw errors.
  *
- * @param size - The size prop to validate
- * @param padding - The padding prop to validate
+ * @remarks
+ * - Runs ONLY when `process.env.NODE_ENV === 'development'`
+ * - Uses `console.warn` (does NOT throw errors)
+ * - Zero production overhead: function body is effectively a no-op in production
+ * - Warning messages include valid values for quick debugging
+ *
+ * @param size - The size prop to validate (expected: 'sm' | 'md' | 'lg' | 'xl' | 'full')
+ * @param padding - The padding prop to validate (expected: 'none' | 'sm' | 'md' | 'lg' | 'xl')
+ *
+ * @example
+ * ```typescript
+ * // Development mode: logs warning
+ * validateContainerProps('invalid', 'md')
+ * // → console.warn: "Container: invalid size \"invalid\". Valid sizes: sm, md, lg, xl, full"
+ *
+ * // Production mode: no-op
+ * validateContainerProps('invalid', 'md')
+ * // → nothing happens
+ * ```
  */
 export const validateContainerProps = (size: ContainerSize, padding: ContainerPadding): void => {
   if (process.env.NODE_ENV === 'development') {

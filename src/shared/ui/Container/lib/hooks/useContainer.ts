@@ -13,12 +13,14 @@ import type { ContainerHookProps, UseContainerReturn } from '../../model/types';
  * property style computation.
  *
  * @remarks
- * Called during render (no useEffect wrapper). Validation runs synchronously
- * in development mode only. Returns logical class parts that the UI component
- * maps to CSS module class names.
+ * - Called during render (no useEffect wrapper)
+ * - Validation runs synchronously ONLY in development mode (`process.env.NODE_ENV === 'development'`)
+ * - Returns logical class parts that the UI component maps to CSS module class names
+ * - CSS custom properties (`--container-max-width`, `--container-padding`) are computed here and passed via style object
+ * - Zero production overhead: validation is completely skipped when NODE_ENV !== 'development'
  *
  * @param props - Container configuration matching ContainerOwnProps
- * @returns Logical class parts, data attributes, and CSS custom properties
+ * @returns Object with containerClassName (string), dataAttrs (Record), and style (CSSProperties)
  */
 export const useContainer = ({
   size = CONTAINER_CONSTANTS.DEFAULT_SIZE,

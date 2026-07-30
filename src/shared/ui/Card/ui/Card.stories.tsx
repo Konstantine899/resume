@@ -88,13 +88,13 @@ export const VariantsGrid: Story = {
         <Heading level={3} size="m">
           Skill
         </Heading>
-        <p>Card variant for displaying skills.</p>
+        <p>Card variant for displaying skills (auto-wrapped in Container size="xl").</p>
       </Card>
       <Card variant="about">
         <Heading level={3} size="m">
           About
         </Heading>
-        <p>Card variant for about sections.</p>
+        <p>Card variant for about sections (auto-wrapped in Container size="lg").</p>
       </Card>
       <Card variant="codeBlock">
         <Heading level={3} size="m">
@@ -501,5 +501,125 @@ export const CompleteCompoundCard: Story = {
     expect(canvas.getByText(/full composition API/)).toBeInTheDocument();
     expect(canvas.getByText('Primary Action')).toBeInTheDocument();
     expect(canvas.getByText('Secondary')).toBeInTheDocument();
+  },
+};
+
+// ============================================
+// Container Integration Stories
+// ============================================
+
+export const SkillVariantWithContainer: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <Card variant="skill" data-testid="skill-card">
+      <Heading level={3} size="m">
+        Skill Card
+      </Heading>
+      <p>
+        This card is automatically wrapped in Container with size="xl" (1280px max-width) and
+        centered.
+      </p>
+      <div style={{ marginTop: '1rem' }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          No manual maxWidth or margin needed — Container handles it!
+        </p>
+      </div>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Skill Card')).toBeInTheDocument();
+    expect(canvas.getByText(/automatically wrapped/i)).toBeInTheDocument();
+    // Verify Container wrapper exists with correct size
+    const skillCard = canvas.getByTestId('skill-card');
+    const containerWrapper = skillCard.closest('[data-size="xl"]');
+    expect(containerWrapper).toBeInTheDocument();
+    expect(containerWrapper).toHaveClass(/centered/);
+  },
+};
+
+export const AboutVariantWithContainer: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <Card variant="about" data-testid="about-card">
+      <div className="centeredContent">
+        <div className="iconWrapper" style={{ marginBottom: '1rem' }}>
+          <Mail size={48} />
+        </div>
+        <Heading level={3} size="m" className="title">
+          About Card
+        </Heading>
+        <p>
+          This card is automatically wrapped in Container with size="lg" (1024px max-width) and
+          centered.
+        </p>
+      </div>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('About Card')).toBeInTheDocument();
+    expect(canvas.getByText(/automatically wrapped/i)).toBeInTheDocument();
+    // Verify Container wrapper exists with correct size
+    const aboutCard = canvas.getByTestId('about-card');
+    const containerWrapper = aboutCard.closest('[data-size="lg"]');
+    expect(containerWrapper).toBeInTheDocument();
+    expect(containerWrapper).toHaveClass(/centered/);
+  },
+};
+
+export const ContainerIntegrationComparison: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <Heading level={4} size="s">
+            Skill Variant (Container size="xl")
+          </Heading>
+        </div>
+        <Card variant="skill">
+          <p>Skill card content — automatically centered with 1280px max-width.</p>
+        </Card>
+      </div>
+
+      <div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <Heading level={4} size="s">
+            About Variant (Container size="lg")
+          </Heading>
+        </div>
+        <Card variant="about">
+          <div className="centeredContent">
+            <p>About card content — automatically centered with 1024px max-width.</p>
+          </div>
+        </Card>
+      </div>
+
+      <div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <Heading level={4} size="s">
+            Default Variant (NO Container)
+          </Heading>
+        </div>
+        <Card variant="default">
+          <p>Default card — no automatic Container wrapper. Manual layout control.</p>
+        </Card>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Skill Variant (Container size="xl")')).toBeInTheDocument();
+    expect(canvas.getByText('About Variant (Container size="lg")')).toBeInTheDocument();
+    expect(canvas.getByText('Default Variant (NO Container)')).toBeInTheDocument();
+
+    // Verify skill has Container wrapper
+    const skillCard = canvas.getByText('Skill card content').closest('[data-size="xl"]');
+    expect(skillCard).toBeInTheDocument();
+
+    // Verify about has Container wrapper
+    const aboutCard = canvas.getByText('About card content').closest('[data-size="lg"]');
+    expect(aboutCard).toBeInTheDocument();
   },
 };

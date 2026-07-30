@@ -27,8 +27,15 @@ describe('Card', () => {
     });
 
     it('renders with custom variant', () => {
-      const { container } = render(<Card variant="skill">Skill Card</Card>);
-      expect(container.firstChild).toHaveClass(/skill/);
+      render(
+        <Card variant="skill" data-testid="skill-card">
+          Skill Card
+        </Card>
+      );
+      // Skill variant is wrapped in Container, so we check the Container wrapper
+      const container = screen.getByTestId('skill-card').closest('[data-size="xl"]');
+      expect(container).toBeInTheDocument();
+      expect(container).toHaveClass(/centered/);
     });
 
     it('renders with size modifier', () => {
@@ -307,6 +314,66 @@ describe('Card', () => {
       expect(container.firstChild).toHaveClass('class1');
       expect(container.firstChild).toHaveClass('class2');
       expect(container.firstChild).toHaveClass('class3');
+    });
+  });
+
+  describe('Container Integration (skill/about variants)', () => {
+    it('wraps skill variant in Container with size="xl"', () => {
+      render(
+        <Card variant="skill" data-testid="skill-card">
+          Skill Content
+        </Card>
+      );
+      // Container should render with data-size="xl"
+      const container = screen.getByTestId('skill-card').closest('[data-size="xl"]');
+      expect(container).toBeInTheDocument();
+    });
+
+    it('wraps about variant in Container with size="lg"', () => {
+      render(
+        <Card variant="about" data-testid="about-card">
+          About Content
+        </Card>
+      );
+      // Container should render with data-size="lg"
+      const container = screen.getByTestId('about-card').closest('[data-size="lg"]');
+      expect(container).toBeInTheDocument();
+    });
+
+    it('skill variant has centered prop on Container', () => {
+      render(
+        <Card variant="skill" data-testid="skill-card">
+          Skill Content
+        </Card>
+      );
+      const container = screen.getByTestId('skill-card').closest('[data-size="xl"]');
+      expect(container).toHaveClass(/centered/);
+    });
+
+    it('about variant has centered prop on Container', () => {
+      render(
+        <Card variant="about" data-testid="about-card">
+          About Content
+        </Card>
+      );
+      const container = screen.getByTestId('about-card').closest('[data-size="lg"]');
+      expect(container).toHaveClass(/centered/);
+    });
+
+    it('default variant does NOT use Container', () => {
+      render(<Card data-testid="default-card">Default Content</Card>);
+      const card = screen.getByTestId('default-card');
+      // Should not have Container ancestor (Container has _container_* class)
+      const containerAncestor = card.closest('[class*="_container_"]');
+      expect(containerAncestor).not.toBeInTheDocument();
+    });
+
+    it('project variant does NOT use Container', () => {
+      render(<Card.Project title="Test" description="Desc" techIcons={[]} />);
+      // ProjectCard has its own layout, should not be wrapped in Container
+      const projectCard = screen.getByText('Test');
+      const containerAncestor = projectCard.closest('[data-size]');
+      expect(containerAncestor).not.toBeInTheDocument();
     });
   });
 

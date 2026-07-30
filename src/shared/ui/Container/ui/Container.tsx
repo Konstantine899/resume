@@ -12,6 +12,13 @@ import styles from './Container.module.scss';
 /**
  * Container Component — ограничение ширины и центрирование контента
  *
+ * @remarks
+ * **Important notes:**
+ * - Runtime validation runs ONLY in development mode (`process.env.NODE_ENV === 'development'`)
+ * - When `fullWidth={true}`, the `size` prop is ignored (max-width: 100%)
+ * - Uses CSS custom properties: `--container-max-width` and `--container-padding` (set by useContainer hook)
+ * - Default element: `<div>`. Use `component` prop for semantic HTML (`<section>`, `<article>`, `<main>`, etc.)
+ *
  * @example
  * // Basic usage (default: size="lg", centered=true, padding="md")
  * ```tsx
