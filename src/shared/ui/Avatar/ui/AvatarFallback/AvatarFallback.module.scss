@@ -1,5 +1,6 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
+@use '../../model/avatar-mixins' as *;
 
 .fallback {
   display: flex;
@@ -41,6 +42,34 @@
     width: 96px;
     height: 96px;
     font-size: 24px;
+  }
+
+  // Fill container mode — растягивается на весь родитель
+
+  // Используется в AvatarHero/AvatarAbout внутри photoInner/avatarInner
+  &.fillContainer {
+    width: 100%;
+    height: 100%;
+    background: none;
+
+    &.sm {
+      font-size: 2.5rem;
+
+      @include avatar-initial;
+    }
+
+    &.md {
+      font-size: 4rem;
+
+      @include avatar-initial;
+    }
+
+    &.lg,
+    &.xl {
+      font-size: 6rem;
+
+      @include avatar-initial;
+    }
   }
 }
 

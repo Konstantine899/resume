@@ -65,7 +65,7 @@ export const AvatarHero = React.memo(
         <div className={styles.photoCircle}>
           <div className={styles.photoInner}>
             {showFallback ? (
-              <AvatarFallback name={alt} size={size} variant="circle" />
+              <AvatarFallback name={alt} size={size} variant="circle" fillContainer />
             ) : (
               <Image
                 src={src || ''}

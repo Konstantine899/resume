@@ -62,6 +62,8 @@ export interface AvatarFallbackProps {
   maxInitials?: number;
   /** Дополнительный CSS класс */
   className?: string;
+  /** Растянуть на весь родительский контейнер (для Hero/About) */
+  fillContainer?: boolean;
 }
 
 /**

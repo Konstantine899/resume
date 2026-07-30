@@ -32,14 +32,17 @@ export const AvatarFallback = React.memo(
     variant = 'circle',
     maxInitials = 2,
     className = '',
+    fillContainer = false,
   }: AvatarFallbackProps) => {
     const initials = getInitials(name, { maxInitials });
-    const backgroundColor = getFallbackColor(name);
+    const backgroundColor = fillContainer ? undefined : getFallbackColor(name);
 
     return (
       <div
-        className={classNames(styles.fallback, styles[size], styles[variant], className)}
-        style={{ backgroundColor }}
+        className={classNames(styles.fallback, styles[size], styles[variant], className, {
+          [styles.fillContainer]: fillContainer,
+        })}
+        style={backgroundColor ? { backgroundColor } : undefined}
         aria-hidden="true"
       >
         <span className={styles.initials}>{initials}</span>
