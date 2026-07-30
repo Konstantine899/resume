@@ -3,6 +3,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from '@storybook/test';
 import { Section } from './Section';
+import { Container } from '@/shared/ui/Container';
+import { Card } from '@/shared/ui/Card';
+import { Heading } from '@/shared/ui/Heading';
 
 const meta = {
   title: 'UI/Section',
@@ -131,7 +134,7 @@ export const SizeXl: Story = {
 export const Size2xl: Story = {
   args: {
     size: 'xxl',
-    children: 'Size: 2xl — 6rem vertical padding',
+    children: 'Size: xxl — 6rem vertical padding',
   },
 };
 
@@ -158,9 +161,9 @@ export const AllSizes: Story = {
       <Section size="xl">
         <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>xl — 4rem</div>
       </Section>
-      <Section size="2xl">
+      <Section size="xxl">
         <div style={{ background: 'var(--primary)', padding: '8px', color: '#fff' }}>
-          2xl — 6rem
+          xxl — 6rem
         </div>
       </Section>
     </div>
@@ -289,7 +292,7 @@ export const PageLayout: Story = {
   parameters: { layout: 'fullscreen' },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Section {...args} size="sm" as="header">
+      <Section {...args} size="sm" as="section" /* header */>
         <Container size="xl" centered>
           <div
             style={{
@@ -322,7 +325,7 @@ export const PageLayout: Story = {
           </div>
         </Container>
       </Section>
-      <Section {...args} size="md" as="footer">
+      <Section {...args} size="md" as="section" /* footer */>
         <Container size="xl" centered>
           <div
             style={{
