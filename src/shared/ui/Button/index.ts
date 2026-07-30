@@ -1,6 +1,7 @@
 // src/shared/ui/Button/index.ts
 
 export type {
+  ButtonColorScheme,
   ButtonComponentProps,
   ButtonOwnProps,
   ButtonProps,

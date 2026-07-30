@@ -42,5 +42,6 @@
   "namePlaceholder": "введите имя",
   "emailPlaceholder": "введите email",
   "messagePlaceholder": "введите сообщение",
-  "skillsEmpty": "Навыки не указаны"
+  "skillsEmpty": "Навыки не указаны",
+  "loading": "Загрузка"
 }

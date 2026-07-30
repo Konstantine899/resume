@@ -36,6 +36,7 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
     ariaLabel,
     variant = 'primary',
     size = 'md',
+    colorScheme,
     onClick,
     disabled = false,
     className = '',
@@ -44,13 +45,15 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
     loading = false,
     loadingVariant = 'spinner',
     component,
+    asChild: _asChild,
     ...props
   }: PolymorphicProps<C, ButtonOwnProps & { icon: React.ReactNode; ariaLabel: string }>,
   ref: React.ForwardedRef<React.ComponentRef<C>>
 ) {
   const { buttonClassName, contentClassName, handleClick, loader } = useButton({
-    variant,
+    variant: variant === 'danger' ? 'primary' : variant,
     size,
+    colorScheme: colorScheme ?? (variant === 'danger' ? 'danger' : undefined),
     loading,
     loadingVariant,
     fullWidth,

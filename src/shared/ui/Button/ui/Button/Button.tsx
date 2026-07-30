@@ -3,7 +3,7 @@
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import React from 'react';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import type { ButtonOwnProps, PolymorphicProps } from '../../model/types';
 import { useButton } from '../../lib/hooks/useButton';
 import styles from './Button.module.scss';
@@ -36,6 +36,7 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     children,
     variant = 'primary',
     size = 'md',
+    colorScheme,
     onClick,
     disabled = false,
     className = '',
@@ -44,13 +45,15 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     loading = false,
     loadingVariant = 'spinner',
     component,
+    asChild = false,
     ...props
   }: PolymorphicProps<C, ButtonOwnProps>,
   ref: React.ForwardedRef<React.ComponentRef<C>>
 ) {
   const { buttonClassName, contentClassName, handleClick, loader } = useButton({
-    variant,
+    variant: variant === 'danger' ? 'primary' : variant,
     size,
+    colorScheme: colorScheme ?? (variant === 'danger' ? 'danger' : undefined),
     loading,
     loadingVariant,
     fullWidth,
@@ -58,6 +61,34 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     className,
     onClick,
   });
+
+  // asChild mode: merge props into child element instead of rendering own DOM node
+  if (asChild) {
+    const child = Children.only(children);
+    if (!isValidElement(child)) {
+      return null;
+    }
+
+    const isDisabled = disabled || loading;
+    const childProps = child.props as Record<string, unknown>;
+
+    /* eslint-disable react-hooks/refs */
+    return cloneElement(child, {
+      className: classNames(
+        buttonClassName,
+        childProps.className as string,
+        isDisabled && styles.disabled
+      ),
+      onClick: handleClick,
+      'aria-disabled': isDisabled || undefined,
+      'aria-busy': loading || undefined,
+      'data-state': loading ? 'loading' : 'idle',
+      'data-testid': 'button',
+      ref: ref as React.Ref<unknown>,
+      ...props,
+    } as Record<string, unknown>) as React.ReactElement;
+    /* eslint-enable react-hooks/refs */
+  }
 
   const Tag = component || ('button' as React.ElementType);
   const isButtonElement = Tag === 'button';

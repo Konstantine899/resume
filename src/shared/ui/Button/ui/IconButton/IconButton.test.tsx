@@ -29,7 +29,7 @@ describe('IconButton', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'outline', 'ghost', 'danger', 'sidebar'] as const;
+    const variants = ['primary', 'secondary', 'outline', 'ghost', 'sidebar'] as const;
 
     variants.forEach((variant) => {
       it(`должен рендериться с variant="${variant}"`, () => {
@@ -37,6 +37,14 @@ describe('IconButton', () => {
 
         expect(screen.getByRole('button')).toHaveClass(iconButtonStyles[variant]);
       });
+    });
+
+    it('variant="danger" маппится в primary + colorSchemeDanger', () => {
+      render(<IconButton icon={<Mail />} ariaLabel="Delete" variant="danger" />);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(iconButtonStyles.primary);
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
     });
   });
 
@@ -257,6 +265,22 @@ describe('IconButton', () => {
 
       const svg = container.querySelector('svg');
       expect(svg).toHaveAttribute('width', '32');
+    });
+  });
+
+  describe('colorScheme', () => {
+    it('должен рендериться с colorScheme="danger"', () => {
+      render(<IconButton icon={<Mail />} ariaLabel="Delete" colorScheme="danger" />);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
+    });
+
+    it('variant="danger" должен давать colorSchemeDanger класс', () => {
+      render(<IconButton icon={<Mail />} ariaLabel="Delete" variant="danger" />);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
     });
   });
 });

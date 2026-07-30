@@ -2,7 +2,7 @@
 // Button Component Constants
 // ============================================
 
-import type { ButtonSize, ButtonVariant, LoadingVariant } from './types';
+import type { ButtonColorScheme, ButtonSize, ButtonVariant, LoadingVariant } from './types';
 
 /**
  * Valid button variants for runtime validation
@@ -17,6 +17,13 @@ export const BUTTON_CONSTANTS = {
     'sidebar',
   ] as const satisfies readonly ButtonVariant[],
   VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const satisfies readonly ButtonSize[],
+  VALID_COLOR_SCHEMES: [
+    'brand',
+    'neutral',
+    'success',
+    'warning',
+    'danger',
+  ] as const satisfies readonly ButtonColorScheme[],
   VALID_LOADING_VARIANTS: ['spinner', 'skeleton'] as const satisfies readonly LoadingVariant[],
   DEFAULT_SPINNER_LABEL: 'Loading',
 } as const;

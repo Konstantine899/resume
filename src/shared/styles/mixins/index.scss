@@ -10,6 +10,7 @@
 @forward 'theme';
 @forward 'hover';
 @forward 'utilities';
+@forward 'button';
 
 // Re-export commonly used mixins for convenience
 @use 'responsive' as *;

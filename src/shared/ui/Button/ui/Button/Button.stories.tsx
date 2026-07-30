@@ -343,3 +343,90 @@ export const FormSubmit: Story = {
     await expect(button).toHaveTextContent('Submit');
   },
 };
+
+export const AsChildWithLink: Story = {
+  args: {
+    asChild: true,
+    variant: 'primary',
+    size: 'md',
+    children: (
+      <a href="https://example.com" target="_blank" rel="noopener">
+        Open Link
+      </a>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const link = canvas.getByTestId('button');
+    await expect(link).toBeInTheDocument();
+    await expect(link.tagName).toBe('A');
+    await expect(link).toHaveAttribute('href', 'https://example.com');
+    await expect(link).toHaveTextContent('Open Link');
+  },
+};
+
+export const VeryLongText: Story = {
+  args: {
+    children:
+      'This is an extremely long button text that should still render correctly without breaking the layout or overflowing its container in any way shape or form',
+    variant: 'primary',
+    size: 'md',
+  },
+  parameters: {
+    layout: 'padded',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent(/extremely long button text/);
+  },
+};
+
+export const EmptyChild: Story = {
+  args: {
+    children: '',
+    variant: 'primary',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('');
+  },
+};
+
+export const AllColorSchemes: Story = {
+  args: {
+    children: 'Button',
+    variant: 'primary',
+    size: 'md',
+  },
+  render: (args) => (
+    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <Button {...args} colorScheme="brand">
+        Brand
+      </Button>
+      <Button {...args} colorScheme="neutral">
+        Neutral
+      </Button>
+      <Button {...args} colorScheme="success">
+        Success
+      </Button>
+      <Button {...args} colorScheme="warning">
+        Warning
+      </Button>
+      <Button {...args} colorScheme="danger">
+        Danger
+      </Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(5);
+    await expect(buttons[0]).toHaveTextContent('Brand');
+    await expect(buttons[4]).toHaveTextContent('Danger');
+  },
+};

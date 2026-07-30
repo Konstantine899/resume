@@ -85,6 +85,21 @@ export const Ghost: Story = {
   },
 };
 
+export const Outline: Story = {
+  args: {
+    icon: <Mail size={20} />,
+    ariaLabel: 'Outline',
+    variant: 'outline',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveAttribute('aria-label', 'Outline');
+  },
+};
+
 export const Danger: Story = {
   args: {
     icon: <Mail size={20} />,
@@ -268,5 +283,45 @@ export const AllSizes: Story = {
     const canvas = within(canvasElement);
     const buttons = canvas.getAllByRole('button');
     await expect(buttons).toHaveLength(5);
+  },
+};
+
+export const AllColorSchemes: Story = {
+  args: {
+    icon: <Mail />,
+    ariaLabel: 'Icon button',
+    variant: 'primary',
+    size: 'md',
+  },
+  render: (args) => (
+    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <IconButton {...args} colorScheme="brand" ariaLabel="Brand" />
+      <IconButton {...args} colorScheme="neutral" ariaLabel="Neutral" />
+      <IconButton {...args} colorScheme="success" ariaLabel="Success" />
+      <IconButton {...args} colorScheme="warning" ariaLabel="Warning" />
+      <IconButton {...args} colorScheme="danger" ariaLabel="Danger" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(5);
+  },
+};
+
+export const AutoSizedIcon: Story = {
+  args: {
+    icon: <Mail />,
+    ariaLabel: 'Auto sized icon',
+    variant: 'primary',
+    size: 'lg',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveAttribute('aria-label', 'Auto sized icon');
+    const svg = canvasElement.querySelector('svg');
+    await expect(svg).toHaveAttribute('width', '24');
   },
 };

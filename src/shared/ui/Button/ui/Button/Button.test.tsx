@@ -40,7 +40,7 @@ describe('Button', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'outline', 'ghost', 'danger', 'sidebar'] as const;
+    const variants = ['primary', 'secondary', 'outline', 'ghost', 'sidebar'] as const;
 
     variants.forEach((variant) => {
       it(`должен рендериться с variant="${variant}"`, () => {
@@ -48,6 +48,14 @@ describe('Button', () => {
 
         expect(screen.getByRole('button')).toHaveClass(buttonStyles[variant]);
       });
+    });
+
+    it('variant="danger" маппится в primary + colorSchemeDanger', () => {
+      render(<Button variant="danger">Delete</Button>);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonStyles.primary);
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
     });
   });
 
@@ -309,6 +317,129 @@ describe('Button', () => {
       );
 
       expect(ref).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
+    });
+  });
+
+  describe('asChild', () => {
+    it('должен рендериться как <a> при asChild', () => {
+      render(
+        <Button asChild>
+          <a href="/about">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', '/about');
+    });
+
+    it('должен сохранять стили button при asChild', () => {
+      render(
+        <Button asChild variant="primary" size="lg">
+          <a href="/test">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link).toHaveClass(buttonStyles.button);
+      expect(link).toHaveClass(buttonStyles.primary);
+      expect(link).toHaveClass(buttonStyles.lg);
+    });
+
+    it('должен иметь aria-disabled при disabled=true и asChild', () => {
+      render(
+        <Button asChild disabled>
+          <a href="/test">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('не должен вызывать onClick при disabled=true и asChild', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button asChild disabled onClick={handleClick}>
+          <a href="/test">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      fireEvent.click(link);
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('должен рендериться как <div> при asChild', () => {
+      render(
+        <Button asChild>
+          <div>Div Button</div>
+        </Button>
+      );
+
+      const div = screen.getByTestId('button');
+      expect(div.tagName).toBe('DIV');
+      expect(div).toHaveTextContent('Div Button');
+    });
+
+    it('должен иметь aria-busy при loading=true и asChild', () => {
+      render(
+        <Button asChild loading>
+          <a href="/test">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link).toHaveAttribute('aria-busy', 'true');
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('не должен вызывать onClick при loading=true и asChild', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button asChild loading onClick={handleClick}>
+          <a href="/test">Link</a>
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      fireEvent.click(link);
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('должен передавать ref на anchor элемент при asChild', () => {
+      const ref = vi.fn();
+      render(
+        <Button asChild ref={ref}>
+          <a href="/about">Link</a>
+        </Button>
+      );
+
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
+    });
+  });
+
+  describe('colorScheme', () => {
+    it('должен рендериться с colorScheme="danger" без variant="danger"', () => {
+      render(<Button colorScheme="danger">Delete</Button>);
+
+      const button = screen.getByRole('button');
+      expect(button).toBeInTheDocument();
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
+    });
+
+    it('должен иметь variant="primary" классы при colorScheme="success"', () => {
+      render(<Button colorScheme="success">Success</Button>);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonStyles.primary);
+    });
+
+    it('variant="danger" должен давать colorSchemeDanger класс', () => {
+      render(<Button variant="danger">Delete</Button>);
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
     });
   });
 });

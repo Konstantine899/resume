@@ -9,7 +9,8 @@ export const validateButtonProps = (
   variant: string,
   size: string,
   loadingVariant: string,
-  loading?: boolean
+  loading?: boolean,
+  colorScheme?: string
 ): ButtonValidationWarning[] => {
   const warnings: ButtonValidationWarning[] = [];
 
@@ -43,6 +44,16 @@ export const validateButtonProps = (
       message:
         '[Button] loadingVariant is "skeleton" but loading is false. Skeleton will not be displayed.',
     });
+  }
+
+  if (colorScheme) {
+    const validSchemes = BUTTON_CONSTANTS.VALID_COLOR_SCHEMES as readonly string[];
+    if (!validSchemes.includes(colorScheme)) {
+      warnings.push({
+        prop: 'colorScheme',
+        message: `[Button] Invalid colorScheme "${colorScheme}". Valid values: ${validSchemes.join(', ')}`,
+      });
+    }
   }
 
   return warnings;

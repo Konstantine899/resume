@@ -7,7 +7,12 @@ import type { ReactNode } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ButtonLoader } from '../../ui/ButtonLoader';
 import { validateButtonProps } from '../utils/validateButtonProps';
-import type { ButtonVariant, ButtonSize, LoadingVariant } from '../../model/types';
+import type {
+  ButtonColorScheme,
+  ButtonVariant,
+  ButtonSize,
+  LoadingVariant,
+} from '../../model/types';
 import buttonStyles from '../../ui/Button/Button.module.scss';
 
 /**
@@ -17,6 +22,7 @@ import buttonStyles from '../../ui/Button/Button.module.scss';
 export interface UseButtonOptions {
   variant: ButtonVariant;
   size: ButtonSize;
+  colorScheme?: ButtonColorScheme;
   loading: boolean;
   loadingVariant: LoadingVariant;
   fullWidth: boolean;
@@ -58,6 +64,7 @@ export interface UseButtonReturn {
 export const useButton = ({
   variant,
   size,
+  colorScheme,
   loading,
   loadingVariant,
   fullWidth,
@@ -86,11 +93,12 @@ export const useButton = ({
         s.button,
         s[variant],
         s[size],
+        colorScheme && s[`color-scheme-${colorScheme}`],
         loading && s.loading,
         fullWidth && s.fullWidth,
         className
       ),
-    [variant, size, loading, fullWidth, className, s]
+    [variant, size, colorScheme, loading, fullWidth, className, s]
   );
 
   // Memoize content className

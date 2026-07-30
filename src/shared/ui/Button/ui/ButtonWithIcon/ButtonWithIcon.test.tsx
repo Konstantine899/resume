@@ -48,7 +48,7 @@ describe('ButtonWithIcon', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'outline', 'ghost', 'danger', 'sidebar'] as const;
+    const variants = ['primary', 'secondary', 'outline', 'ghost', 'sidebar'] as const;
 
     variants.forEach((variant) => {
       it(`должен рендериться с variant="${variant}"`, () => {
@@ -60,6 +60,18 @@ describe('ButtonWithIcon', () => {
 
         expect(screen.getByRole('button')).toHaveClass(buttonWithIconStyles[variant]);
       });
+    });
+
+    it('variant="danger" маппится в primary + colorSchemeDanger', () => {
+      render(
+        <ButtonWithIcon leftIcon={<Mail />} variant="danger">
+          Delete
+        </ButtonWithIcon>
+      );
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonWithIconStyles.primary);
+      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-danger']);
     });
   });
 
@@ -302,7 +314,8 @@ describe('ButtonWithIcon', () => {
 
       const link = screen.getByTestId('button-with-icon');
       expect(link).toHaveClass(buttonWithIconStyles.button);
-      expect(link).toHaveClass(buttonWithIconStyles.danger);
+      expect(link).toHaveClass(buttonWithIconStyles.primary);
+      expect(link).toHaveClass(buttonWithIconStyles['color-scheme-danger']);
     });
 
     it('должен иметь aria-disabled при disabled=true и component="a"', () => {
@@ -369,6 +382,30 @@ describe('ButtonWithIcon', () => {
       );
 
       expect(ref).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
+    });
+  });
+
+  describe('colorScheme', () => {
+    it('должен рендериться с colorScheme="success"', () => {
+      render(
+        <ButtonWithIcon leftIcon={<Mail />} colorScheme="success">
+          Approve
+        </ButtonWithIcon>
+      );
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-success']);
+    });
+
+    it('variant="danger" должен давать colorSchemeDanger класс', () => {
+      render(
+        <ButtonWithIcon leftIcon={<Mail />} variant="danger">
+          Delete
+        </ButtonWithIcon>
+      );
+
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-danger']);
     });
   });
 });

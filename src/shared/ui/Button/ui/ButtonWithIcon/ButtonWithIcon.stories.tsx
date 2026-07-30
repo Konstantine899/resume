@@ -130,6 +130,21 @@ export const Ghost: Story = {
   },
 };
 
+export const Danger: Story = {
+  args: {
+    children: 'Delete',
+    leftIcon: <Mail size={18} />,
+    variant: 'danger',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Delete');
+  },
+};
+
 export const Small: Story = {
   args: {
     children: 'Small',
@@ -281,6 +296,9 @@ export const AllSizes: Story = {
   },
   render: (args) => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <ButtonWithIcon {...args} size="xs" leftIcon={<Mail size={12} />}>
+        XSmall
+      </ButtonWithIcon>
       <ButtonWithIcon {...args} size="sm" leftIcon={<Mail size={16} />}>
         Small
       </ButtonWithIcon>
@@ -290,13 +308,103 @@ export const AllSizes: Story = {
       <ButtonWithIcon {...args} size="lg" leftIcon={<Mail size={24} />}>
         Large
       </ButtonWithIcon>
+      <ButtonWithIcon {...args} size="xl" leftIcon={<Mail size={28} />}>
+        XLarge
+      </ButtonWithIcon>
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const buttons = canvas.getAllByRole('button');
-    await expect(buttons).toHaveLength(3);
-    await expect(buttons[0]).toHaveTextContent('Small');
-    await expect(buttons[2]).toHaveTextContent('Large');
+    await expect(buttons).toHaveLength(5);
+    await expect(buttons[0]).toHaveTextContent('XSmall');
+    await expect(buttons[4]).toHaveTextContent('XLarge');
+  },
+};
+
+export const NoIcon: Story = {
+  args: {
+    children: 'Text Only',
+    variant: 'primary',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Text Only');
+  },
+};
+
+export const VeryLongText: Story = {
+  args: {
+    leftIcon: <Mail />,
+    children:
+      'This is an extremely long button text that should still render correctly without breaking the layout or overflowing its container in any way shape or form',
+    variant: 'primary',
+    size: 'md',
+  },
+  parameters: {
+    layout: 'padded',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent(/extremely long button text/);
+  },
+};
+
+export const AutoSizedIcons: Story = {
+  args: {
+    children: 'Auto Size',
+    leftIcon: <Mail />,
+    rightIcon: <ArrowRight />,
+    variant: 'primary',
+    size: 'md',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Auto Size');
+    const svgs = canvasElement.querySelectorAll('svg');
+    await expect(svgs.length).toBeGreaterThanOrEqual(2);
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute('width', '20');
+    });
+  },
+};
+
+export const AllColorSchemes: Story = {
+  args: {
+    children: 'Button',
+    leftIcon: <Mail />,
+    variant: 'primary',
+    size: 'md',
+  },
+  render: (args) => (
+    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <ButtonWithIcon {...args} colorScheme="brand">
+        Brand
+      </ButtonWithIcon>
+      <ButtonWithIcon {...args} colorScheme="neutral">
+        Neutral
+      </ButtonWithIcon>
+      <ButtonWithIcon {...args} colorScheme="success">
+        Success
+      </ButtonWithIcon>
+      <ButtonWithIcon {...args} colorScheme="warning">
+        Warning
+      </ButtonWithIcon>
+      <ButtonWithIcon {...args} colorScheme="danger">
+        Danger
+      </ButtonWithIcon>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const buttons = canvas.getAllByRole('button');
+    await expect(buttons).toHaveLength(5);
   },
 };

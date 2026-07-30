@@ -6,46 +6,20 @@
 
 // ============================================
 
-// CSS Custom Properties (Variables)
+// ButtonWithIcon Component — text + icons
+
+// Base, variants, states: shared/_button mixins
+
+// Sizes: component-specific (font + icon dimensions)
+
+// Internal: .icon, .text elements
 
 // ============================================
 
-$button-transition-duration: 200ms;
-$button-transition-timing: ease;
-$button-focus-outline: 2px solid $primary-light;
-$button-focus-offset: 2px;
-
 .button {
-  @include flex-center;
+  @include button-base;
 
-  position: relative;
-  display: inline-flex;
-  flex-shrink: 0;
   gap: $spacing-sm;
-  font-family: Inter, sans-serif;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  outline: none;
-  border: none;
-  border-radius: $border-radius-md;
-  transition: all $button-transition-duration $button-transition-timing;
-
-  // Reduced motion support
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-
-  &:disabled,
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  &:focus-visible {
-    outline: $button-focus-outline;
-    outline-offset: $button-focus-offset;
-  }
 
   // ============================================
 
@@ -54,68 +28,31 @@ $button-focus-offset: 2px;
   // ============================================
 
   &.primary {
-    color: white;
-    background-color: $primary-light;
-
-    &:hover:not(:disabled) {
-      background-color: color.adjust($primary-light, $lightness: -10%);
-    }
+    @include variant-primary;
   }
 
   &.secondary {
-    color: var(--foreground-muted);
-    background-color: transparent;
-    border: 1px solid var(--card-border);
-
-    &:hover:not(:disabled) {
-      background-color: var(--background-secondary);
-    }
+    @include variant-secondary;
   }
 
   &.outline {
-    color: $primary-light;
-    background-color: transparent;
-    border: 2px solid $primary-light;
-
-    &:hover:not(:disabled) {
-      background-color: rgb(244 179 119 / 0.1);
-    }
+    @include variant-outline;
   }
 
   &.ghost {
-    color: var(--foreground-muted);
-    background-color: transparent;
-
-    &:hover:not(:disabled) {
-      color: $primary-light;
-      background-color: rgb(244 179 119 / 0.1);
-    }
+    @include variant-ghost;
   }
 
   &.sidebar {
-    color: var(--foreground);
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
-
-    &:hover:not(:disabled) {
-      background-color: var(--background-secondary);
-      border-color: var(--foreground-muted);
-    }
-
-    &:focus-visible {
-      outline: $button-focus-outline;
-      outline-offset: $button-focus-offset;
-    }
+    @include variant-sidebar;
   }
 
   &.danger {
-    color: white;
-    background-color: $danger-color;
-
-    &:hover:not(:disabled) {
-      background-color: color.adjust($danger-color, $lightness: -10%);
-    }
+    @include variant-danger;
   }
+
+  // Color schemes
+  @include color-schemes;
 
   // ============================================
 
@@ -180,26 +117,11 @@ $button-focus-offset: 2px;
   // ============================================
 
   &.fullWidth {
-    width: 100%;
+    @include button-fullWidth;
   }
 
   &.loading {
-    .content {
-      visibility: hidden;
-    }
-
-    .loader,
-    .skeleton {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .skeleton {
-      width: 80%;
-      height: 60%;
-    }
+    @include button-loading;
   }
 
   // ============================================
@@ -227,14 +149,10 @@ $button-focus-offset: 2px;
   }
 
   .loader {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include button-loader;
   }
 
   .skeleton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include button-skeleton;
   }
 }

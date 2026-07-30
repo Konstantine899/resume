@@ -42,5 +42,6 @@
   "namePlaceholder": "name placeholder",
   "emailPlaceholder": "email placeholder",
   "messagePlaceholder": "message placeholder",
-  "skillsEmpty": "No skills listed"
+  "skillsEmpty": "No skills listed",
+  "loading": "Loading"
 }

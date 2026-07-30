@@ -1,6 +1,6 @@
 // src/shared/ui/Button/model/types.ts
 
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 /**
  * Варианты визуального стиля кнопки
@@ -36,10 +36,12 @@ export type LoadingVariant = 'spinner' | 'skeleton';
 
 /**
  * Базовые props для всех типов кнопок
- * @description Расширяет стандартные HTML button атрибуты
+ * @description Содержит только props, используемые компонентами Button.
+ * Без extends ButtonHTMLAttributes — type и другие button-атрибуты
+ * проксируются через PolymorphicProps при component="button".
  * @group Base
  */
-interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface BaseButtonProps {
   /**
    * Визуальный стиль кнопки
    * @default 'primary'
@@ -51,6 +53,13 @@ interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    * @default 'md'
    */
   size?: ButtonSize;
+
+  /**
+   * HTML type атрибут
+   * @default 'button'
+   * @description Проксируется только при component="button"
+   */
+  type?: 'button' | 'submit' | 'reset';
 
   /**
    * Отключенное состояние
@@ -276,13 +285,45 @@ export type PolymorphicProps<C extends React.ElementType, P = Record<string, nev
 export interface ButtonOwnProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  colorScheme?: ButtonColorScheme;
   loading?: boolean;
   loadingVariant?: LoadingVariant;
   fullWidth?: boolean;
   disabled?: boolean;
   className?: string;
   onClick?: React.MouseEventHandler;
+  /**
+   * Render the button as a child element instead of creating its own DOM node.
+   * @description When true, the button clones its single child and merges all
+   * button props (styles, events, aria attributes) into it. Useful for composition
+   * with `<a>`, `<Link>`, or other custom components.
+   *
+   * @example
+   * ```tsx
+   * <Button asChild>
+   *   <a href="/about">About</a>
+   * </Button>
+   * ```
+   */
+  asChild?: boolean;
 }
+
+// ============================================
+// Union type для экспорта
+// ============================================
+
+/**
+ * Semantic color scheme for Button components.
+ * @description Controls the color palette independently of the visual style (variant).
+ * Defaults to 'brand' when not specified.
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" colorScheme="danger">Delete</Button>
+ * <Button variant="outline" colorScheme="success">Approve</Button>
+ * ```
+ */
+export type ButtonColorScheme = 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
 
 // ============================================
 // Union type для экспорта
