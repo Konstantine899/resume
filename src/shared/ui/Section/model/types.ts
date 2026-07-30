@@ -27,11 +27,15 @@ export interface SectionOwnProps {
   as?: SectionAsElement;
   /** Дочерние элементы */
   children?: ReactNode;
+  /** Кастомный className */
+  className?: string;
 }
 
 /**
  * Generic polymorphic props for Section component
  * Allows type-safe ref forwarding based on the `as` prop
+ *
+ * @template C - The element type to render as (defaults to 'section')
  */
 export type SectionProps<C extends ElementType = 'section'> = SectionOwnProps &
   Omit<ComponentPropsWithRef<C>, keyof SectionOwnProps>;
@@ -49,7 +53,7 @@ export interface SectionHookProps {
  * Return type for the useSection hook
  */
 export interface UseSectionReturn {
-  /** Computed className string from CSS modules */
+  /** Computed className string (logical parts: "section sm custom-class") */
   sectionClassName: string;
   /** Data attributes to spread on the element */
   dataAttrs: Record<string, string>;

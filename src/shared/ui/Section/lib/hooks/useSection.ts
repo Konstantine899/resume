@@ -31,7 +31,7 @@ export const useSection = ({
 }: SectionHookProps): UseSectionReturn => {
   // Synchronous validation (development only)
   if (process.env.NODE_ENV === 'development') {
-    validateSectionProps({ size, as });
+    validateSectionProps({ size, as } as unknown as import('../../model/types').SectionProps);
   }
 
   // Memoize logical class parts (component will map to CSS module class names)

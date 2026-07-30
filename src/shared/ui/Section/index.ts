@@ -1,10 +1,10 @@
 // src/shared/ui/Section/index.ts
 
 export type {
-  SectionProps,
+  SectionOwnProps,
   SectionSize,
   SectionAsElement,
-  SectionOwnProps,
+  SectionProps,
   SectionHookProps,
   UseSectionReturn,
 } from './model/types';

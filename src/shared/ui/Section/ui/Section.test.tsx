@@ -372,3 +372,51 @@ describe('Polymorphic Rendering', () => {
     expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLElement));
   });
 });
+
+// ============================================
+// Type Safety (Generic Polymorphic)
+// ============================================
+
+describe('Type Safety (Generic Polymorphic)', () => {
+  it('должен правильно типизировать ref для as="article"', () => {
+    const refCallback = vi.fn();
+    render(
+      <Section as="article" ref={refCallback} data-testid="section">
+        Content
+      </Section>
+    );
+    expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLElement));
+  });
+
+  it('должен правильно типизировать ref для as="nav"', () => {
+    const refCallback = vi.fn();
+    render(
+      <Section as="nav" ref={refCallback} data-testid="section">
+        Content
+      </Section>
+    );
+    expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLElement));
+  });
+
+  it('должен передавать специфичные props для as="div"', () => {
+    render(
+      <Section as="div" data-testid="section" onClick={() => {}}>
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section).toBeInTheDocument();
+  });
+
+  it('должен комбинировать CSS module классы с logical classes', () => {
+    render(
+      <Section size="lg" className="custom" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.className).toContain('section');
+    expect(section.className).toContain('lg');
+    expect(section.className).toContain('custom');
+  });
+});
