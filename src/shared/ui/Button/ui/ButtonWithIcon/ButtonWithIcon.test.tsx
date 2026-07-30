@@ -64,7 +64,7 @@ describe('ButtonWithIcon', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg'] as const;
+    const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
     sizes.forEach((size) => {
       it(`должен рендериться с size="${size}"`, () => {

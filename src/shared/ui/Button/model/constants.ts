@@ -16,7 +16,7 @@ export const BUTTON_CONSTANTS = {
     'danger',
     'sidebar',
   ] as const satisfies readonly ButtonVariant[],
-  VALID_SIZES: ['sm', 'md', 'lg'] as const satisfies readonly ButtonSize[],
+  VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const satisfies readonly ButtonSize[],
   VALID_LOADING_VARIANTS: ['spinner', 'skeleton'] as const satisfies readonly LoadingVariant[],
   DEFAULT_SPINNER_LABEL: 'Loading',
 } as const;
@@ -33,7 +33,9 @@ export const BUTTON_CONSTANTS = {
  * ```
  */
 export const ICON_SIZE_MAP: Record<ButtonSize, number> = {
+  xs: 12,
   sm: 16,
   md: 20,
   lg: 24,
+  xl: 28,
 } as const;

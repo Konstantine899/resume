@@ -122,6 +122,11 @@ $button-focus-offset: 2px;
 
   // ============================================
 
+  &.xs {
+    padding: $spacing-xs $spacing-sm;
+    font-size: 0.75rem;
+  }
+
   &.sm {
     padding: $spacing-sm $spacing-md;
     font-size: 0.875rem;
@@ -135,6 +140,11 @@ $button-focus-offset: 2px;
   &.lg {
     padding: $spacing-lg $spacing-xl;
     font-size: 1.125rem;
+  }
+
+  &.xl {
+    padding: $spacing-xl $spacing-10;
+    font-size: 1.25rem;
   }
 
   // ============================================

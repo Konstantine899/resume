@@ -23,7 +23,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['sm', 'md', 'lg'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     loadingVariant: {
       control: 'select',
@@ -150,6 +150,34 @@ export const Large: Story = {
   },
 };
 
+export const XSmall: Story = {
+  args: {
+    children: 'XSmall',
+    size: 'xs',
+    variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('XSmall');
+  },
+};
+
+export const XLarge: Story = {
+  args: {
+    children: 'XLarge',
+    size: 'xl',
+    variant: 'primary',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('XLarge');
+  },
+};
+
 export const Disabled: Story = {
   args: {
     children: 'Disabled',
@@ -250,6 +278,9 @@ export const AllSizes: Story = {
   },
   render: (args) => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <Button {...args} size="xs">
+        XSmall
+      </Button>
       <Button {...args} size="sm">
         Small
       </Button>
@@ -259,14 +290,17 @@ export const AllSizes: Story = {
       <Button {...args} size="lg">
         Large
       </Button>
+      <Button {...args} size="xl">
+        XLarge
+      </Button>
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const buttons = canvas.getAllByRole('button');
-    await expect(buttons).toHaveLength(3);
-    await expect(buttons[0]).toHaveTextContent('Small');
-    await expect(buttons[2]).toHaveTextContent('Large');
+    await expect(buttons).toHaveLength(5);
+    await expect(buttons[0]).toHaveTextContent('XSmall');
+    await expect(buttons[4]).toHaveTextContent('XLarge');
   },
 };
 

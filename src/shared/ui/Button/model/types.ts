@@ -14,11 +14,13 @@ export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'dan
 /**
  * Размеры кнопки
  * @description Контролирует padding, font-size и высоту кнопки
+ * @example size="xs" — экстра-компактные (12px icon, 0.75rem text)
  * @example size="sm" — компактные кнопки (16px icon, 0.875rem text)
  * @example size="md" — стандартные кнопки (20px icon, 1rem text)
  * @example size="lg" — крупные кнопки (24px icon, 1.125rem text)
+ * @example size="xl" — экстра-крупные (28px icon, 1.25rem text)
  */
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * Варианты индикатора загрузки

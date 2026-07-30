@@ -41,7 +41,7 @@ describe('IconButton', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg'] as const;
+    const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
     sizes.forEach((size) => {
       it(`должен рендериться с size="${size}"`, () => {
@@ -215,6 +215,13 @@ describe('IconButton', () => {
   });
 
   describe('Icon size inference', () => {
+    it('должен устанавливать размер иконки 12 для size="xs"', () => {
+      const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" size="xs" />);
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '12');
+    });
+
     it('должен устанавливать размер иконки 16 для size="sm"', () => {
       const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" size="sm" />);
 
@@ -234,6 +241,13 @@ describe('IconButton', () => {
 
       const svg = container.querySelector('svg');
       expect(svg).toHaveAttribute('width', '24');
+    });
+
+    it('должен устанавливать размер иконки 28 для size="xl"', () => {
+      const { container } = render(<IconButton icon={<Mail />} ariaLabel="Mail" size="xl" />);
+
+      const svg = container.querySelector('svg');
+      expect(svg).toHaveAttribute('width', '28');
     });
 
     it('должен сохранять ручной размер иконки при override', () => {

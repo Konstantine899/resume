@@ -24,7 +24,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['sm', 'md', 'lg'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     loadingVariant: {
       control: 'select',
@@ -251,20 +251,22 @@ export const IconButtonGallery: Story = {
 
 export const AllSizes: Story = {
   args: {
-    icon: <Mail size={20} />,
+    icon: <Mail />,
     ariaLabel: 'Icon button',
     variant: 'primary',
   },
   render: (args) => (
     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-      <IconButton {...args} size="sm" icon={<Mail size={16} />} />
-      <IconButton {...args} size="md" icon={<Mail size={20} />} />
-      <IconButton {...args} size="lg" icon={<Mail size={24} />} />
+      <IconButton {...args} size="xs" />
+      <IconButton {...args} size="sm" />
+      <IconButton {...args} size="md" />
+      <IconButton {...args} size="lg" />
+      <IconButton {...args} size="xl" />
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const buttons = canvas.getAllByRole('button');
-    await expect(buttons).toHaveLength(3);
+    await expect(buttons).toHaveLength(5);
   },
 };

@@ -122,6 +122,16 @@ $button-focus-offset: 2px;
 
   // ============================================
 
+  &.xs {
+    width: 24px;
+    height: 24px;
+
+    .content {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
   &.sm {
     width: 32px;
     height: 32px;
@@ -149,6 +159,16 @@ $button-focus-offset: 2px;
     .content {
       width: 24px;
       height: 24px;
+    }
+  }
+
+  &.xl {
+    width: 56px;
+    height: 56px;
+
+    .content {
+      width: 28px;
+      height: 28px;
     }
   }
 
