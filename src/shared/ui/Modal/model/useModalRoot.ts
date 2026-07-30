@@ -1,13 +1,26 @@
+import { flushSync } from 'react-dom';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ModalRootProps } from './types';
 import styles from '../ui/ModalRoot/ModalRoot.module.scss';
 
-let openCount = 0;
+// Global ref to track number of open modals for scroll lock
+const openCountRef = { current: 0 };
 
+/**
+ * Reset internal modal open counter.
+ * @description Used for test cleanup only. Call between tests to reset scroll lock state.
+ * @example
+ * ```tsx
+ * afterEach(() => {
+ *   resetOpenCount();
+ *   document.body.style.overflow = '';
+ * });
+ * ```
+ */
 export function resetOpenCount(): void {
-  openCount = 0;
+  openCountRef.current = 0;
 }
 
 export function useModalRoot(props: ModalRootProps) {
@@ -52,7 +65,10 @@ export function useModalRoot(props: ModalRootProps) {
   const prevIsOpenRef = useRef(effectiveIsOpen);
   useEffect(() => {
     if (prevIsOpenRef.current && !effectiveIsOpen && forceMount) {
-      setIsClosing(true);
+      // Use flushSync to avoid cascading renders warning
+      flushSync(() => {
+        setIsClosing(true);
+      });
       closeTimeoutRef.current = window.setTimeout(() => {
         setIsClosing(false);
         closeTimeoutRef.current = null;
@@ -82,24 +98,28 @@ export function useModalRoot(props: ModalRootProps) {
   const untrapFocusRef = useRef<(() => void) | null>(null);
   const wasOpenedRef = useRef<boolean>(false);
   const onPointerDownOutsideRef = useRef(onPointerDownOutside);
-  onPointerDownOutsideRef.current = onPointerDownOutside;
   const titleId = useId();
   const subtitleId = useId();
+
+  // Update ref in effect, not during render
+  useEffect(() => {
+    onPointerDownOutsideRef.current = onPointerDownOutside;
+  }, [onPointerDownOutside]);
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!effectiveBlockScroll) return;
 
     if (effectiveIsOpen) {
-      openCount++;
-      if (openCount === 1) {
+      openCountRef.current++;
+      if (openCountRef.current === 1) {
         document.body.style.overflow = 'hidden';
       }
     }
 
     return () => {
-      openCount--;
-      if (openCount === 0) {
+      openCountRef.current--;
+      if (openCountRef.current === 0) {
         document.body.style.overflow = '';
       }
     };
@@ -159,7 +179,8 @@ export function useModalRoot(props: ModalRootProps) {
       wasOpenedRef.current = true;
       previousActiveElement.current = document.activeElement as HTMLElement;
 
-      focusTimeoutRef.current = window.setTimeout(() => {
+      // Use queueMicrotask instead of setTimeout(0) for better timing
+      queueMicrotask(() => {
         if (autoFocus) {
           if (initialFocusRef?.current) {
             initialFocusRef.current.focus();
@@ -176,7 +197,7 @@ export function useModalRoot(props: ModalRootProps) {
         }
 
         onOpened?.();
-      }, 0);
+      });
     }
 
     return () => {
@@ -208,7 +229,12 @@ export function useModalRoot(props: ModalRootProps) {
   ]);
 
   const handleOverlayClick = useCallback(() => {
-    const event = new PointerEvent('pointerdown', { cancelable: true });
+    // Fallback to MouseEvent for browsers without PointerEvent support (Safari <13)
+    const event =
+      typeof PointerEvent !== 'undefined'
+        ? new PointerEvent('pointerdown', { cancelable: true })
+        : (new MouseEvent('mousedown', { cancelable: true }) as PointerEvent);
+
     onPointerDownOutsideRef.current?.(event);
     if (event.defaultPrevented) return;
 
@@ -217,13 +243,17 @@ export function useModalRoot(props: ModalRootProps) {
     }
   }, [closeOnOverlayClick, canCloseModal, handleClose]);
 
-  const modalClassName = classNames(
-    styles.modal,
-    styles[`modal--${size}`],
-    scroll === 'body' && styles.modalBody,
-    isClosing && styles.closing,
-    disableAnimation && styles.noAnimation,
-    className
+  const modalClassName = useMemo(
+    () =>
+      classNames(
+        styles.modal,
+        styles[`modal--${size}`],
+        scroll === 'body' && styles.modalBody,
+        isClosing && styles.closing,
+        disableAnimation && styles.noAnimation,
+        className
+      ),
+    [size, scroll, isClosing, disableAnimation, className]
   );
 
   const dataState = effectiveIsOpen ? 'open' : 'closed';

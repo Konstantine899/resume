@@ -1,6 +1,6 @@
 import { Overlay } from '@/shared/ui/Overlay';
 import { Portal } from '@/shared/ui/Portal';
-import { cloneElement, isValidElement, memo } from 'react';
+import { Children, cloneElement, memo } from 'react';
 import { useModalRoot } from '../../model/useModalRoot';
 // eslint-disable-next-line react-refresh/only-export-components
 export { resetOpenCount } from '../../model/useModalRoot';
@@ -52,8 +52,8 @@ export const ModalRoot = memo((props: ModalRootProps) => {
       )}
 
       <div className={styles.modalContainer} role="presentation">
-        {asChild && isValidElement(children) ? (
-          cloneElement(children, rootProps)
+        {asChild && children ? (
+          cloneElement(Children.only(children) as React.ReactElement, rootProps)
         ) : (
           <Tag {...rootProps}>{children}</Tag>
         )}
