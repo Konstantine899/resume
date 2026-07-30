@@ -51,6 +51,7 @@ export const InputEmail = React.memo(
           icon={<Mail size={18} />}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          data-testid="input-email"
           {...props}
         />
       );

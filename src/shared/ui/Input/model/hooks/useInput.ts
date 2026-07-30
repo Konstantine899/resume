@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { INPUT_CONSTANTS } from '../constants';
 
 export interface UseInputOptions {
@@ -52,12 +52,15 @@ export function useInput(options: UseInputOptions): UseInputResult {
     maxLengthValue && charCount >= maxLengthValue * INPUT_CONSTANTS.COUNTER_WARNING_THRESHOLD
   );
 
-  const states: string[] = [];
-  if (loading) states.push('loading');
-  if (error) states.push('error');
-  if (disabled) states.push('disabled');
-  if (readOnly) states.push('readonly');
-  if (skeleton) states.push('skeleton');
+  const states = useMemo(() => {
+    const result: string[] = [];
+    if (loading) result.push('loading');
+    if (error) result.push('error');
+    if (disabled) result.push('disabled');
+    if (readOnly) result.push('readonly');
+    if (skeleton) result.push('skeleton');
+    return result;
+  }, [loading, error, disabled, readOnly, skeleton]);
 
   return {
     value,

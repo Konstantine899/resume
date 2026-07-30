@@ -52,6 +52,7 @@ export const InputPhone = React.memo(
           placeholder={placeholder}
           autoComplete={autoComplete}
           role="tel"
+          data-testid="input-phone"
           {...props}
         />
       );

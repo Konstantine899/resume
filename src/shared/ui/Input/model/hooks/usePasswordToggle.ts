@@ -18,7 +18,7 @@ export function usePasswordToggle(options: UsePasswordToggleOptions): UsePasswor
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
 
-  const inputType = isPassword && showPasswordToggle ? (showPassword ? 'text' : 'password') : type;
+  const inputType = showPasswordToggle && isPassword ? (showPassword ? 'text' : 'password') : type;
 
   const handleTogglePassword = useCallback(() => {
     setShowPassword((prev) => !prev);
