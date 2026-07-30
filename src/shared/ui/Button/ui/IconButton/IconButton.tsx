@@ -3,21 +3,11 @@
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import React, { cloneElement, isValidElement } from 'react';
+import React from 'react';
 import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
-import { ICON_SIZE_MAP } from '../../model/constants';
 import { useButton } from '../../lib/hooks/useButton';
+import { inferIconSize } from '../../lib/utils/inferIconSize';
 import styles from './IconButton.module.scss';
-
-/**
- * Infers icon size from button size when icon has no explicit size prop.
- */
-function inferIconSize(icon: React.ReactNode, size: ButtonSize): React.ReactNode {
-  if (!isValidElement(icon)) return icon;
-  const iconProps = icon.props as Record<string, unknown>;
-  if (iconProps.size !== undefined) return icon;
-  return cloneElement(icon, { size: ICON_SIZE_MAP[size] } as Record<string, unknown>);
-}
 
 /**
  * IconButton Component — кнопка только с иконкой

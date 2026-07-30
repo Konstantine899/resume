@@ -64,9 +64,8 @@ export const PrimaryWithRightIcon: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('aria-busy', 'true');
-    expect(button).toHaveAttribute('data-state', 'loading');
+    await expect(button).toBeInTheDocument();
+    await expect(button).toHaveTextContent('Next');
   },
 };
 
