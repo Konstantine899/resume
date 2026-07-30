@@ -21,6 +21,11 @@ describe('InputPhone', () => {
     expect(screen.getByPlaceholderText('Enter phone...')).toBeInTheDocument();
   });
 
+  it('supports i18n with custom placeholder (e.g., RU locale)', () => {
+    render(<InputPhone label="Телефон" placeholder="+7 (999) 000-00-00" />);
+    expect(screen.getByPlaceholderText('+7 (999) 000-00-00')).toBeInTheDocument();
+  });
+
   it('has autocomplete="tel"', () => {
     render(<InputPhone label="Phone" />);
     const input = screen.getByLabelText('Phone');

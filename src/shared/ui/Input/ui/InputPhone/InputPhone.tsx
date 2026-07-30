@@ -37,19 +37,28 @@ export interface InputPhoneProps {
  *
  * @example
  * ```tsx
- * <InputPhone label="Phone" placeholder="+1 (555) 000-0000" />
- * <InputPhone label="Phone" required error="Invalid phone number" />
+ * // Default US format
+ * <InputPhone label="Phone" />
+ *
+ * // Custom placeholder for RU locale
+ * <InputPhone label="Телефон" placeholder="+7 (999) 000-00-00" />
+ *
+ * // With i18n
+ * const { t } = useTranslation();
+ * <InputPhone label={t('form.phone')} placeholder={t('form.phonePlaceholder')} />
  * ```
  */
 export const InputPhone = React.memo(
   React.forwardRef<HTMLInputElement, InputPhoneProps>(
-    ({ placeholder = '+1 (555) 000-0000', autoComplete = 'tel', ...props }, ref) => {
+    ({ placeholder, autoComplete = 'tel', ...props }, ref) => {
+      const defaultPlaceholder = placeholder ?? '+1 (555) 000-0000';
+
       return (
         <Input
           ref={ref}
           type="tel"
           icon={<Phone size={18} />}
-          placeholder={placeholder}
+          placeholder={defaultPlaceholder}
           autoComplete={autoComplete}
           role="tel"
           data-testid="input-phone"
