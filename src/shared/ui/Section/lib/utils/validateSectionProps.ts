@@ -5,10 +5,26 @@ import { SECTION_CONSTANTS } from '../../model/constants';
 
 /**
  * Dev-валидация props для Section
- * @description Проверяет only as в development режиме
+ * @description Проверяет size и as в development режиме
  *
- * @note ESLint no-console отключён — намеренное использование console.warn
- *       для dev-only валидации, которая удаляется в production сборке.
+ * @remarks
+ * - Runs ONLY when `process.env.NODE_ENV === 'development'`
+ * - Uses `console.warn` (does NOT throw errors)
+ * - Zero production overhead: function body is effectively a no-op in production
+ * - Warning messages include valid values for quick debugging
+ *
+ * @param props - Section props to validate
+ *
+ * @example
+ * ```typescript
+ * // Development mode: logs warning
+ * validateSectionProps({ size: 'invalid' })
+ * // → console.warn: "Section: invalid size "invalid". Valid values: sm, md, lg, xl, xxl"
+ *
+ * // Production mode: no-op
+ * validateSectionProps({ size: 'invalid' })
+ * // → nothing happens
+ * ```
  */
 
 /* eslint-disable no-console */
@@ -16,7 +32,7 @@ import { SECTION_CONSTANTS } from '../../model/constants';
 export const validateSectionProps = (props: SectionProps): void => {
   if (process.env.NODE_ENV !== 'development') return;
 
-  const { size } = props;
+  const { size, as } = props;
 
   if (size && !SECTION_CONSTANTS.sizes.includes(size)) {
     console.warn(
@@ -24,9 +40,9 @@ export const validateSectionProps = (props: SectionProps): void => {
     );
   }
 
-  const as = props.as || 'section';
+  const asValue = as || 'section';
   const validAs = ['section', 'div', 'article', 'aside', 'main', 'nav'] as const;
-  if (as && !validAs.includes(as as (typeof validAs)[number])) {
-    console.warn(`Section: invalid as "${as}". Valid values: ${validAs.join(', ')}`);
+  if (asValue && !validAs.includes(asValue as (typeof validAs)[number])) {
+    console.warn(`Section: invalid as "${asValue}". Valid values: ${validAs.join(', ')}`);
   }
 };

@@ -56,7 +56,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['sm', 'md', 'lg', 'xl', '2xl'],
+      options: ['sm', 'md', 'lg', 'xl', 'xxl'],
       description: 'Размер вертикального отступа (padding top/bottom)',
       table: {
         defaultValue: { summary: 'md' },
@@ -130,7 +130,7 @@ export const SizeXl: Story = {
 
 export const Size2xl: Story = {
   args: {
-    size: '2xl',
+    size: 'xxl',
     children: 'Size: 2xl — 6rem vertical padding',
   },
 };
@@ -282,5 +282,120 @@ export const Interactive: Story = {
     expect(section.tagName).toBe('SECTION');
     expect(section).toHaveAttribute('data-size', 'md');
     expect(section).toHaveTextContent('Interactive Section');
+  },
+};
+
+export const PageLayout: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Section {...args} size="sm" as="header">
+        <Container size="xl" centered>
+          <div
+            style={{
+              padding: '20px',
+              backgroundColor: 'var(--primary)',
+              color: 'var(--background)',
+              borderRadius: '8px',
+            }}
+          >
+            <Heading level={1} size="l">
+              Header
+            </Heading>
+          </div>
+        </Container>
+      </Section>
+      <Section {...args} size="xl" as="main">
+        <Container size="lg" centered>
+          <div
+            style={{
+              padding: '40px 20px',
+              backgroundColor: 'var(--background-alt)',
+              borderRadius: '8px',
+              minHeight: '400px',
+            }}
+          >
+            <Heading level={2} size="xl">
+              Main Content
+            </Heading>
+            <p style={{ marginTop: '1rem' }}>Page content goes here...</p>
+          </div>
+        </Container>
+      </Section>
+      <Section {...args} size="md" as="footer">
+        <Container size="xl" centered>
+          <div
+            style={{
+              padding: '20px',
+              backgroundColor: 'var(--foreground)',
+              color: 'var(--background)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}
+          >
+            <p>Footer content</p>
+          </div>
+        </Container>
+      </Section>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Header')).toBeInTheDocument();
+    expect(canvas.getByText('Main Content')).toBeInTheDocument();
+    expect(canvas.getByText('Footer content')).toBeInTheDocument();
+  },
+};
+
+export const FormSection: Story = {
+  parameters: { layout: 'padded' },
+  render: (args) => (
+    <Section {...args} size="lg" as="section">
+      <Container size="sm" centered>
+        <Card>
+          <Card.Header>
+            <Heading level={3} size="m">
+              Contact Form
+            </Heading>
+          </Card.Header>
+          <Card.Body>
+            <form style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px' }}>Name</label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border)',
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px' }}>Email</label>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border)',
+                  }}
+                />
+              </div>
+            </form>
+          </Card.Body>
+        </Card>
+      </Container>
+    </Section>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText('Contact Form')).toBeInTheDocument();
+    expect(canvas.getByPlaceholderText('Your name')).toBeInTheDocument();
+    expect(canvas.getByPlaceholderText('your@email.com')).toBeInTheDocument();
   },
 };

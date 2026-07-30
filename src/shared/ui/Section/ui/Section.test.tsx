@@ -124,14 +124,14 @@ describe('Section', () => {
       expect(section.dataset.size).toBe('xl');
     });
 
-    it('должен применять size="2xl"', () => {
+    it('должен применять size="xxl"', () => {
       render(
-        <Section size="2xl" data-testid="section">
+        <Section size="xxl" data-testid="section">
           Content
         </Section>
       );
       const section = screen.getByTestId('section');
-      expect(section.dataset.size).toBe('2xl');
+      expect(section.dataset.size).toBe('xxl');
     });
   });
 
@@ -293,5 +293,82 @@ describe('Section', () => {
       );
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
+  });
+});
+
+// ============================================
+// Polymorphic Rendering
+// ============================================
+
+describe('Polymorphic Rendering', () => {
+  it('должен рендериться как <article> при as="article"', () => {
+    render(
+      <Section as="article" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.tagName).toBe('ARTICLE');
+  });
+
+  it('должен рендериться как <aside> при as="aside"', () => {
+    render(
+      <Section as="aside" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.tagName).toBe('ASIDE');
+  });
+
+  it('должен рендериться как <main> при as="main"', () => {
+    render(
+      <Section as="main" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.tagName).toBe('MAIN');
+  });
+
+  it('должен рендериться как <nav> при as="nav"', () => {
+    render(
+      <Section as="nav" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.tagName).toBe('NAV');
+  });
+
+  it('должен передавать data-as атрибут', () => {
+    render(
+      <Section as="article" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section).toHaveAttribute('data-as', 'article');
+  });
+
+  it('должен сохранять CSS классы при as="article"', () => {
+    render(
+      <Section as="article" size="lg" data-testid="section">
+        Content
+      </Section>
+    );
+    const section = screen.getByTestId('section');
+    expect(section.className).toContain('section');
+    expect(section.className).toContain('lg');
+  });
+
+  it('должен передавать ref правильно для разных элементов', () => {
+    const refCallback = vi.fn();
+    render(
+      <Section as="article" ref={refCallback} data-testid="section">
+        Content
+      </Section>
+    );
+    expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLElement));
   });
 });

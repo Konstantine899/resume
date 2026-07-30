@@ -28,9 +28,7 @@
     padding-bottom: 4rem;
   }
 
-  // Escape sequence для класса начинающегося с цифры (\32 = '2')
-  /* stylelint-disable-next-line selector-class-pattern */
-  &.\32 xl {
+  &.xxl {
     padding-top: 6rem;
     padding-bottom: 6rem;
   }

@@ -5,7 +5,7 @@ import type { SectionSize } from './types';
 /**
  * Доступные размеры Section
  */
-export const SECTION_SIZES: readonly SectionSize[] = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
+export const SECTION_SIZES: readonly SectionSize[] = ['sm', 'md', 'lg', 'xl', 'xxl'] as const;
 
 /**
  * Дефолтные значения props
@@ -22,7 +22,7 @@ export const SECTION_PADDING_VALUES: Record<SectionSize, string> = {
   md: '2rem',
   lg: '3rem',
   xl: '4rem',
-  '2xl': '6rem',
+  xxl: '6rem',
 } as const;
 
 /**
