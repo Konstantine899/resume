@@ -24,3 +24,10 @@ export type { InputGroupProps, InputGroupAddonProps } from './ui/InputGroup/Inpu
 
 export { InputSearch } from './ui/InputSearch/InputSearch';
 export type { InputSearchProps } from './ui/InputSearch/InputSearch';
+
+// Specialized inputs
+export { InputPhone } from './ui/InputPhone/InputPhone';
+export type { InputPhoneProps } from './ui/InputPhone/InputPhone';
+
+export { InputEmail } from './ui/InputEmail/InputEmail';
+export type { InputEmailProps } from './ui/InputEmail/InputEmail';

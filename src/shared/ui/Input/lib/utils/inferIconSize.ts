@@ -2,9 +2,11 @@ import React from 'react';
 import type { InputSize } from '../../model/types';
 
 export const INPUT_SIZE_TO_ICON = {
+  xs: 12,
   sm: 16,
   md: 20,
   lg: 24,
+  xl: 28,
 } as const;
 
 export function inferIconSize(icon: React.ReactNode, size: InputSize): React.ReactNode {

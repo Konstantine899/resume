@@ -36,8 +36,10 @@
 
   // Icon padding using CSS variables
   --icon-spacing: 0.75rem;
+  --icon-spacing-xs: 0.375rem;
   --icon-spacing-sm: 0.5rem;
   --icon-spacing-lg: 1rem;
+  --icon-spacing-xl: 1.25rem;
 
   &:has(.icon) .input,
   &:has(.iconFloating) .input {
@@ -53,6 +55,15 @@
   }
 
   // Size variations for icon padding
+  &:has(.icon) .input.xs,
+  &:has(.iconFloating) .input.xs {
+    padding-left: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+  }
+
+  &:has(.iconAfter) .input.xs {
+    padding-right: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+  }
+
   &:has(.icon) .input.sm,
   &:has(.iconFloating) .input.sm {
     padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
@@ -69,6 +80,15 @@
 
   &:has(.iconAfter) .input.lg {
     padding-right: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+  }
+
+  &:has(.icon) .input.xl,
+  &:has(.iconFloating) .input.xl {
+    padding-left: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+  }
+
+  &:has(.iconAfter) .input.xl {
+    padding-right: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
   }
 }
 
@@ -128,6 +148,11 @@
   }
 
   // Sizes
+  &.xs {
+    padding: 0.125rem 0.375rem;
+    font-size: 0.75rem;
+  }
+
   &.sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
@@ -141,6 +166,11 @@
   &.lg {
     padding: 0.75rem 1rem;
     font-size: 1.125rem;
+  }
+
+  &.xl {
+    padding: 1rem 1.25rem;
+    font-size: 1.25rem;
   }
 
   // States
@@ -186,8 +216,16 @@
   color: var(--foreground-muted);
   pointer-events: none;
 
+  .input.xs ~ & {
+    left: 0.375rem;
+  }
+
   .input.sm ~ & {
     left: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    left: 1rem;
   }
 }
 
@@ -199,8 +237,16 @@
   color: var(--foreground-muted);
   pointer-events: none;
 
+  .input.xs ~ & {
+    right: 0.375rem;
+  }
+
   .input.sm ~ & {
     right: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    right: 1rem;
   }
 }
 
@@ -234,8 +280,16 @@
     border-radius: 2px;
   }
 
+  .input.xs ~ & {
+    right: 0.375rem;
+  }
+
   .input.sm ~ & {
     right: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    right: 1rem;
   }
 }
 
@@ -281,12 +335,20 @@
       opacity: 0.6;
     }
 
+    &.xs:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-1.25rem) scale(0.65);
+    }
+
     &.sm:not(:placeholder-shown) ~ .floatingLabel {
       transform: translateY(-1.5rem) scale(0.75);
     }
 
     &.lg:not(:placeholder-shown) ~ .floatingLabel {
       transform: translateY(-2rem) scale(0.9);
+    }
+
+    &.xl:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-2.25rem) scale(0.95);
     }
   }
 }
@@ -307,6 +369,11 @@
     color: var(--form-error);
   }
 
+  .input.xs ~ & {
+    top: 0.125rem;
+    font-size: 0.75rem;
+  }
+
   .input.sm ~ & {
     top: 0.25rem;
     font-size: 0.875rem;
@@ -315,6 +382,11 @@
   .input.lg ~ & {
     top: 0.75rem;
     font-size: 1.125rem;
+  }
+
+  .input.xl ~ & {
+    top: 1rem;
+    font-size: 1.25rem;
   }
 }
 
@@ -328,12 +400,20 @@
   pointer-events: none;
   transform: translateY(-50%);
 
+  .input.xs ~ & {
+    left: 0.375rem;
+  }
+
   .input.sm ~ & {
     left: 0.5rem;
   }
 
   .input.lg ~ & {
     left: 1rem;
+  }
+
+  .input.xl ~ & {
+    left: 1.25rem;
   }
 }
 

@@ -2,7 +2,7 @@ import { InputHTMLAttributes } from 'react';
 
 export type InputVariant = 'default' | 'outline' | 'filled' | 'floating';
 
-export type InputSize = 'sm' | 'md' | 'lg';
+export type InputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type InputOwnProps = {
   variant?: InputVariant;
@@ -20,6 +20,7 @@ export type InputOwnProps = {
   required?: boolean;
   showPasswordToggle?: boolean;
   onClear?: () => void;
+  asChild?: boolean;
 } & ({ showCounter?: false; maxLength?: number } | { showCounter: true; maxLength: number }) &
   ({ clearable?: false } | { clearable: true });
 

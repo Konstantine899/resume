@@ -420,10 +420,22 @@ describe('Input', () => {
       expect(input?.className).toContain('sm');
     });
 
+    it('applies xs size', () => {
+      const { container } = render(<Input size="xs" />);
+      const input = container.querySelector('input');
+      expect(input?.className).toContain('xs');
+    });
+
     it('applies lg size', () => {
       const { container } = render(<Input size="lg" />);
       const input = container.querySelector('input');
       expect(input?.className).toContain('lg');
+    });
+
+    it('applies xl size', () => {
+      const { container } = render(<Input size="xl" />);
+      const input = container.querySelector('input');
+      expect(input?.className).toContain('xl');
     });
   });
 
@@ -751,6 +763,72 @@ describe('Input', () => {
       const ref = { current: null };
       render(<Input component="a" href="/test" ref={ref} label="Link" />);
       expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
+    });
+  });
+
+  describe('asChild prop', () => {
+    it('renders child element instead of input when asChild=true', () => {
+      render(
+        <Input asChild label="Test">
+          <textarea data-testid="custom-input" />
+        </Input>
+      );
+      expect(screen.getByTestId('custom-input')).toBeInTheDocument();
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
+
+    it('forwards className to child element', () => {
+      render(
+        <Input asChild className="custom-class" label="Test">
+          <input data-testid="custom" />
+        </Input>
+      );
+      const custom = screen.getByTestId('custom');
+      expect(custom.className).toContain('custom-class');
+      expect(custom.className).toContain('input');
+    });
+
+    it('forwards aria attributes to child', () => {
+      render(
+        <Input asChild label="Email" error="Invalid" id="test" required>
+          <input />
+        </Input>
+      );
+      const input = screen.getByLabelText('Email');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-required', 'true');
+    });
+
+    it('forwards value and onChange to child', async () => {
+      const handleChange = vi.fn();
+      render(
+        <Input asChild label="Test" onChange={handleChange}>
+          <input defaultValue="initial" />
+        </Input>
+      );
+      const input = screen.getByLabelText('Test');
+      await userEvent.type(input, 'x');
+      expect(handleChange).toHaveBeenCalled();
+    });
+
+    it('forwards ref to child element', () => {
+      const ref = { current: null };
+      render(
+        <Input asChild ref={ref} label="Test">
+          <textarea />
+        </Input>
+      );
+      expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    it('asChild takes precedence over component prop', () => {
+      render(
+        <Input asChild component="a" label="Test">
+          <input data-testid="asChild-input" />
+        </Input>
+      );
+      expect(screen.getByTestId('asChild-input')).toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
     });
   });
 

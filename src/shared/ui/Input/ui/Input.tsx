@@ -2,7 +2,7 @@
 // Input Component
 // ============================================
 
-import React, { useId, useCallback, useEffect } from 'react';
+import React, { useId, useCallback, useEffect, isValidElement } from 'react';
 import { classNames } from '@/shared/lib/utils';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { Paragraph } from '@/shared/ui/Paragraph';
@@ -52,6 +52,8 @@ function InputImpl<C extends React.ElementType = 'input'>(
     clearable = false,
     onClear,
     showPasswordToggle = false,
+    asChild = false,
+    children,
     ...props
   }: PolymorphicProps<C, InputOwnProps>,
   ref: React.ForwardedRef<React.ComponentRef<C>>
@@ -200,7 +202,39 @@ function InputImpl<C extends React.ElementType = 'input'>(
 
         {skeleton ? (
           <Skeleton variant="text" width="100%" height={INPUT_CONSTANTS.SKELETON_HEIGHT} />
+        ) : asChild && isValidElement(children) ? (
+          /* asChild mode: clone child element with all input props */
+          /* eslint-disable react-hooks/refs */
+          React.cloneElement(children, {
+            ref: mergedRef,
+            id: inputId,
+            className: classNames(
+              inputClasses,
+              (children.props as Record<string, unknown>).className as string | undefined
+            ),
+            disabled: disabled || undefined,
+            readOnly: readOnly || undefined,
+            required: required || undefined,
+            'aria-required': required || undefined,
+            'aria-invalid': Boolean(error),
+            'aria-busy': loading ? true : undefined,
+            'aria-describedby': describedBy,
+            value: value || undefined,
+            onChange: (e: React.ChangeEvent<HTMLElement>) => {
+              if (!isControlled) {
+                setInternalValue((e.target as HTMLInputElement).value);
+              }
+              (props.onChange as React.ChangeEventHandler<HTMLElement> | undefined)?.(e);
+            },
+            onBlur: (e: React.FocusEvent<HTMLElement>) => {
+              (props.onBlur as React.FocusEventHandler<HTMLElement> | undefined)?.(e);
+            },
+            placeholder: variant === 'floating' ? ' ' : props.placeholder,
+            type: inputType,
+            ...props,
+          } as Record<string, unknown>)
         ) : (
+          /* eslint-enable react-hooks/refs */
           <Tag
             ref={mergedRef}
             {...props}
