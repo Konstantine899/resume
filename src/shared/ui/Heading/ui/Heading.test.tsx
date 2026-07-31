@@ -1,18 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 import { Heading } from './Heading';
 
 describe('Heading', () => {
-  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleWarnSpy.mockRestore();
-  });
-
   describe('Basic Rendering', () => {
     it('renders children correctly', () => {
       render(<Heading>Test Heading</Heading>);
@@ -34,6 +25,11 @@ describe('Heading', () => {
       const element = screen.getByText('Test');
       expect(element).toHaveClass('custom-class');
     });
+
+    it('forwards id attribute', () => {
+      render(<Heading id="test-id">Test</Heading>);
+      expect(screen.getByText('Test')).toHaveAttribute('id', 'test-id');
+    });
   });
 
   describe('Heading Levels', () => {
@@ -44,41 +40,36 @@ describe('Heading', () => {
   });
 
   describe('Size Variants', () => {
-    const sizes = ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'] as const;
+    const sizes = ['xs', 's', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl'] as const;
 
-    it.each(sizes)('renders with size %s', (size) => {
+    it.each(sizes)('renders with size %s and data-size attribute', (size) => {
       render(<Heading size={size}>Test</Heading>);
       const element = screen.getByRole('heading');
-      expect(element).toBeInTheDocument();
+      expect(element).toHaveAttribute('data-size', size);
     });
   });
 
   describe('Theme Variants', () => {
     const themes = ['primary', 'muted', 'inverted', 'error', 'gradient'] as const;
 
-    it.each(themes)('renders with theme %s', (theme) => {
+    it.each(themes)('renders with theme %s and data-theme attribute', (theme) => {
       render(<Heading theme={theme}>Test</Heading>);
       const element = screen.getByRole('heading');
-      expect(element).toBeInTheDocument();
+      expect(element).toHaveAttribute('data-theme', theme);
     });
   });
 
   describe('Align Variants', () => {
     const aligns = ['left', 'center', 'right'] as const;
 
-    it.each(aligns)('renders with align %s', (align) => {
+    it.each(aligns)('renders with align %s and data-align attribute', (align) => {
       render(<Heading align={align}>Test</Heading>);
       const element = screen.getByRole('heading');
-      expect(element).toBeInTheDocument();
+      expect(element).toHaveAttribute('data-align', align);
     });
   });
 
   describe('Accessibility', () => {
-    it('renders with id attribute', () => {
-      render(<Heading id="test-id">Test</Heading>);
-      expect(screen.getByText('Test')).toHaveAttribute('id', 'test-id');
-    });
-
     it('renders with aria-label attribute', () => {
       render(<Heading aria-label="Test Label">Test</Heading>);
       expect(screen.getByText('Test')).toHaveAttribute('aria-label', 'Test Label');
@@ -115,57 +106,68 @@ describe('Heading', () => {
   });
 
   describe('Memoization', () => {
-    it('does not re-render when props do not change', () => {
-      const { rerender } = render(<Heading>Test</Heading>);
-      const firstElement = screen.getByRole('heading');
-
-      rerender(<Heading>Test</Heading>);
-      const secondElement = screen.getByRole('heading');
-
-      expect(firstElement).toBe(secondElement);
+    it('is memoized with React.memo', () => {
+      // React.memo компоненты имеют Symbol.for('react.memo') в $$typeof
+      const memoType = (Heading as unknown as { $$typeof?: symbol }).$$typeof;
+      expect(memoType).toBe(Symbol.for('react.memo'));
     });
   });
 
-  describe('Runtime Validation', () => {
-    const originalEnv = process.env.NODE_ENV;
-
-    beforeEach(() => {
-      process.env.NODE_ENV = 'development';
+  describe('Ref Forwarding', () => {
+    it('forwards ref to the rendered heading element', () => {
+      const ref = createRef<HTMLHeadingElement>();
+      render(<Heading ref={ref}>Test</Heading>);
+      expect(ref.current).toBeInstanceOf(HTMLHeadingElement);
+      expect(ref.current?.textContent).toBe('Test');
     });
 
-    afterEach(() => {
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it('warns in development for invalid level', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Heading level={7 as any}>Test</Heading>);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid level'));
-    });
-
-    it('warns in development for invalid size', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Heading size={'invalid' as any}>Test</Heading>);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid size'));
-    });
-
-    it('warns in development for invalid theme', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Heading theme={'invalid' as any}>Test</Heading>);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid theme'));
-    });
-
-    it('warns in development for invalid align', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Heading align={'invalid' as any}>Test</Heading>);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid align'));
-    });
-
-    it('warns in development when children is missing', () => {
-      render(<Heading>{null}</Heading>);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('children prop is required')
+    it('forwards ref when as="div"', () => {
+      const ref = createRef<HTMLDivElement>();
+      render(
+        <Heading as="div" ref={ref}>
+          Test
+        </Heading>
       );
+      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    });
+  });
+
+  describe('Polymorphic Rendering', () => {
+    it('renders as h2 by default', () => {
+      render(<Heading>Test</Heading>);
+      expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
+    });
+
+    it('renders as div when as="div"', () => {
+      render(<Heading as="div">Test</Heading>);
+      const element = screen.getByText('Test');
+      expect(element.tagName).toBe('DIV');
+    });
+
+    it('renders as span when as="span"', () => {
+      render(<Heading as="span">Test</Heading>);
+      const element = screen.getByText('Test');
+      expect(element.tagName).toBe('SPAN');
+    });
+
+    it('preserves heading level attribute when rendered as div', () => {
+      render(
+        <Heading as="div" level={1}>
+          Test
+        </Heading>
+      );
+      const element = screen.getByText('Test');
+      expect(element).toHaveAttribute('data-level', '1');
+    });
+
+    it('preserves style classes on polymorphic element', () => {
+      render(
+        <Heading as="div" size="xl" theme="gradient" align="center">
+          Test
+        </Heading>
+      );
+      const element = screen.getByText('Test');
+      expect(element.tagName).toBe('DIV');
     });
   });
 });

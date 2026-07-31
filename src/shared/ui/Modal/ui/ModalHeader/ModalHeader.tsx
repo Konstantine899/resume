@@ -5,6 +5,7 @@
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils';
 import type { ModalHeaderProps } from '../../model/types';
+import { Heading } from '@/shared/ui/Heading';
 import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import styles from './ModalHeader.module.scss';
@@ -40,9 +41,9 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
     <header className={headerClasses}>
       {title && (
         <div className={styles.headerContent}>
-          <h2 id={titleId} className={styles.title}>
+          <Heading level={2} size="xl" id={titleId}>
             {title}
-          </h2>
+          </Heading>
           {subtitle && (
             <Paragraph size="s" theme="muted" id={subtitleId}>
               {subtitle}

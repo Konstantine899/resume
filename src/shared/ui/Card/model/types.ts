@@ -168,6 +168,12 @@ export interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
   children: ReactNode;
   className?: string;
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  /** Visual size (maps to Heading size) */
+  size?: 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl' | '3xl' | '4xl' | '5xl';
+  /** Color theme (maps to Heading theme) */
+  theme?: 'primary' | 'muted' | 'inverted' | 'error' | 'gradient';
+  /** Text alignment */
+  align?: 'left' | 'center' | 'right';
 }
 
 // ============================================

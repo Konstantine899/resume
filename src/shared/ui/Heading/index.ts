@@ -1,18 +1,9 @@
-export {
-  HEADING_ALIGNS,
-  HEADING_LEVELS,
-  HEADING_SIZES,
-  HEADING_THEMES,
-  isValidHeadingAlign,
-  isValidHeadingLevel,
-  isValidHeadingSize,
-  isValidHeadingTheme,
-  mapHeadingSize,
-  mapSizeToClass,
-} from './model/constants';
+export { HEADING_ALIGNS, HEADING_LEVELS, HEADING_SIZES, HEADING_THEMES } from './model/constants';
 export type {
   HeadingAlign,
+  HeadingAsElement,
   HeadingLevel,
+  HeadingOwnProps,
   HeadingProps,
   HeadingSize,
   HeadingTheme,

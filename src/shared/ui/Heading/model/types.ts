@@ -1,3 +1,5 @@
+import type { ElementType, ComponentPropsWithRef, ReactNode } from 'react';
+
 /**
  * Уровень заголовка (h1-h6)
  * Определяет семантику и SEO важность
@@ -7,8 +9,9 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 /**
  * Визуальный размер заголовка
  * Не влияет на семантику, только на отображение
+ * @xxl renamed from '2xl' to avoid CSS class name issues
  */
-export type HeadingSize = 'xs' | 's' | 'm' | 'l' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
+export type HeadingSize = 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl' | '3xl' | '4xl' | '5xl';
 
 /**
  * Цветовая тема заголовка
@@ -22,66 +25,64 @@ export type HeadingTheme = 'primary' | 'muted' | 'inverted' | 'error' | 'gradien
 export type HeadingAlign = 'left' | 'center' | 'right';
 
 /**
- * Props для компонента Heading
+ * Семантический HTML элемент для заголовка
  */
-export interface HeadingProps {
-  /**
-   * Уровень заголовка (h1-h6). Влияет на семантику и SEO
-   * @default 2
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements
-   */
-  readonly level?: HeadingLevel;
+export type HeadingAsElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div' | 'span';
 
-  /**
-   * Визуальный размер заголовка
-   * @default 'm'
-   */
-  readonly size?: HeadingSize;
+/**
+ * Props owned by Heading (not inherited from HTML element)
+ */
+export interface HeadingOwnProps {
+  /** Semantic HTML элемент (переопределяет корневой элемент) */
+  as?: HeadingAsElement;
+  /** Семантический уровень заголовка (h1–h6) */
+  level?: HeadingLevel;
+  /** Визуальный размер (не влияет на семантику) */
+  size?: HeadingSize;
+  /** Цветовая тема */
+  theme?: HeadingTheme;
+  /** Выравнивание текста */
+  align?: HeadingAlign;
+  /** Дочерние элементы */
+  children?: ReactNode;
+  /** Кастомный className */
+  className?: string;
+  /** HTML id для якорных ссылок */
+  id?: string;
+  /** ARIA label */
+  'aria-label'?: string;
+  /** ARIA labelledby */
+  'aria-labelledby'?: string;
+  /** Data-testid для тестирования */
+  'data-testid'?: string;
+}
 
-  /**
-   * Цветовая тема
-   * @default 'primary'
-   */
-  readonly theme?: HeadingTheme;
+/**
+ * Generic polymorphic props for Heading component
+ * Позволяет переопределить корневой элемент через `as` prop
+ *
+ * @template C - Тип элемента (по умолчанию 'h2')
+ */
+export type HeadingProps<C extends ElementType = 'h2'> = HeadingOwnProps &
+  Omit<ComponentPropsWithRef<C>, keyof HeadingOwnProps>;
 
-  /**
-   * Выравнивание текста
-   * @default 'left'
-   */
-  readonly align?: HeadingAlign;
+/**
+ * Props для useHeading hook
+ */
+export interface HeadingHookProps {
+  level?: HeadingLevel;
+  size?: HeadingSize;
+  theme?: HeadingTheme;
+  align?: HeadingAlign;
+  className?: string;
+  /** Рендерить with gradient theme */
+  isGradient?: boolean;
+}
 
-  /**
-   * Дочерние элементы (текст или JSX)
-   * @required
-   */
-  readonly children: React.ReactNode;
-
-  /**
-   * Дополнительные CSS классы
-   */
-  readonly className?: string;
-
-  /**
-   * HTML id для якорных ссылок
-   * @example id="section-title"
-   */
-  readonly id?: string;
-
-  /**
-   * ARIA label для доступности
-   * @example aria-label="Projects Section"
-   */
-  readonly 'aria-label'?: string;
-
-  /**
-   * ARIA labelledby для связи с другим элементом
-   * @example aria-labelledby="title-id"
-   */
-  readonly 'aria-labelledby'?: string;
-
-  /**
-   * Data-testid для тестирования
-   * @default 'Heading'
-   */
-  readonly 'data-testid'?: string;
+/**
+ * Return type для useHeading hook
+ */
+export interface UseHeadingReturn {
+  headingClassName: string;
+  dataAttrs: Record<string, string>;
 }
