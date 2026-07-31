@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { InputLabel } from './InputLabel';
+import styles from '../Input.module.scss';
 
 describe('InputLabel', () => {
   it('renders label with htmlFor attribute', () => {
@@ -10,20 +11,25 @@ describe('InputLabel', () => {
   });
 
   it('renders required indicator when required is true', () => {
-    render(
+    const { container } = render(
       <InputLabel htmlFor="test-input" required>
         Email
       </InputLabel>
     );
-    expect(screen.getByText('*')).toBeInTheDocument();
+    const label = container.querySelector('label');
+    expect(label).toHaveClass(styles.required);
+    // Звёздочка рендерится через CSS ::after — label-текст остаётся чистым для getByLabelText
+    expect(screen.getByText('Email')).toBeInTheDocument();
   });
 
   it('does not render required indicator when required is false', () => {
-    render(
+    const { container } = render(
       <InputLabel htmlFor="test-input" required={false}>
         Email
       </InputLabel>
     );
+    const label = container.querySelector('label');
+    expect(label).not.toHaveClass(styles.required);
     expect(screen.queryByText('*')).not.toBeInTheDocument();
   });
 
@@ -62,12 +68,13 @@ describe('InputLabel', () => {
   });
 
   it('renders required indicator and label text', () => {
-    render(
+    const { container } = render(
       <InputLabel htmlFor="test-input" required>
         Email
       </InputLabel>
     );
-    expect(screen.getByText('*')).toBeInTheDocument();
+    const label = container.querySelector('label');
+    expect(label).toHaveClass(styles.required);
     expect(screen.getByText('Email')).toBeInTheDocument();
   });
 });

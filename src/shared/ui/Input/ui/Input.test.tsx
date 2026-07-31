@@ -43,14 +43,15 @@ describe('Input', () => {
 
     it('renders required indicator when required prop is true', () => {
       render(<Input label="Email" required />);
-      const requiredStar = screen.getByText('*');
-      expect(requiredStar).toBeInTheDocument();
-      expect(requiredStar.className).toContain('required');
+      // Звёздочка рендерится через CSS ::after — label-текст остаётся чистым
+      const label = screen.getByText('Email');
+      expect(label.className).toContain('required');
     });
 
     it('does not render required indicator when required is false', () => {
       render(<Input label="Email" required={false} />);
-      expect(screen.queryByText('*')).not.toBeInTheDocument();
+      const label = screen.getByText('Email');
+      expect(label.className).not.toContain('required');
     });
   });
 
@@ -593,7 +594,7 @@ describe('Input', () => {
       expect(input).toHaveAttribute('placeholder', 'your@email.com');
       expect(input).toHaveAttribute('aria-invalid', 'true');
       expect(input).toHaveAttribute('required');
-      expect(screen.getByText('*')).toBeInTheDocument();
+      expect(screen.getByText('Email')).toHaveClass(/required/);
       expect(screen.getByText('Invalid email')).toHaveAttribute('role', 'alert');
     });
   });
@@ -768,13 +769,13 @@ describe('Input', () => {
 
   describe('asChild prop', () => {
     it('renders child element instead of input when asChild=true', () => {
-      render(
+      const { container } = render(
         <Input asChild label="Test">
           <textarea data-testid="custom-input" />
         </Input>
       );
       expect(screen.getByTestId('custom-input')).toBeInTheDocument();
-      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
 
     it('forwards className to child element', () => {

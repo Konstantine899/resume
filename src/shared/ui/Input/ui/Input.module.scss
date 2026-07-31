@@ -24,9 +24,10 @@
   @include theme-transition;
 }
 
-.required {
-  margin-right: 0.25rem;
+.required::after {
+  margin-left: 0.25rem;
   color: var(--form-error);
+  content: '*';
 }
 
 .inputContainer {
@@ -364,10 +365,6 @@
   transition:
     transform var(--input-transition-duration) ease,
     color var(--input-transition-duration) ease;
-
-  .required {
-    color: var(--form-error);
-  }
 
   .input.xs ~ & {
     top: 0.125rem;
