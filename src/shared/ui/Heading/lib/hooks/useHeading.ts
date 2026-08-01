@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
+import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
 import type { HeadingHookProps, UseHeadingReturn } from '../../model/types';
 import styles from '../../ui/Heading.module.scss';
 
@@ -26,10 +27,11 @@ export function useHeading({
   isGradient = false,
 }: HeadingHookProps): UseHeadingReturn {
   return useMemo(() => {
-    const sizeBaseClass = `heading--${mapSizeToClass(size)}`;
-    const sizeClass = styles[sizeBaseClass] ?? '';
-    const themeClass = styles[`heading--theme-${theme}`] ?? '';
-    const alignClass = styles[`heading--align-${align}`] ?? '';
+    // resolveCssModuleKey: сборка экспортирует camelCase-ключи (camelCaseOnly),
+    // поэтому kebab-ключи вида `heading--size-2xl` резолвятся в `headingSize2Xl`.
+    const sizeClass = resolveCssModuleKey(styles, `heading--${mapSizeToClass(size)}`);
+    const themeClass = resolveCssModuleKey(styles, `heading--theme-${theme}`);
+    const alignClass = resolveCssModuleKey(styles, `heading--align-${align}`);
 
     const headingClassName = classNames(
       styles.heading,
