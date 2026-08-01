@@ -46,7 +46,14 @@ export const AvatarAbout = React.memo(
     );
 
     return (
-      <div className={wrapperClasses} role="img" aria-label={alt} data-state={imageStatus}>
+      <div
+        className={wrapperClasses}
+        role="img"
+        aria-label={alt}
+        data-state={imageStatus}
+        data-size={size}
+        data-variant="circle"
+      >
         <div className={styles.avatarCircle}>
           <div className={styles.avatarInner}>
             {showFallback ? (

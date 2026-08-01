@@ -58,7 +58,14 @@ export const AvatarHero = React.memo(
     );
 
     return (
-      <div className={wrapperClasses} role="img" aria-label={alt} data-state={imageStatus}>
+      <div
+        className={wrapperClasses}
+        role="img"
+        aria-label={alt}
+        data-state={imageStatus}
+        data-size={size}
+        data-variant="circle"
+      >
         {showGlow && <div className={styles.photoGlow} />}
         {showRing && <div className={styles.photoRing} />}
 

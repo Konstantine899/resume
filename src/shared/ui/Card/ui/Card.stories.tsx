@@ -343,7 +343,7 @@ export const CompoundWithImage: Story = {
   render: () => (
     <Card style={{ maxWidth: '480px' }}>
       <Card.Image
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=600&h=300&fit=crop"
+        src="/images/avatar/avatar003.jpg"
         alt="Abstract gradient background"
         objectFit="cover"
       />
@@ -472,7 +472,7 @@ export const CompleteCompoundCard: Story = {
   render: () => (
     <Card style={{ maxWidth: '560px' }}>
       <Card.Image
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=600&h=200&fit=crop"
+        src="/images/avatar/avatar003.jpg"
         alt="Abstract gradient background"
         objectFit="cover"
       />

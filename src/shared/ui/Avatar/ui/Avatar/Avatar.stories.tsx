@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, waitFor, within } from '@storybook/test';
 import { Avatar } from './Avatar';
 
 const meta = {
@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'John Doe',
     size: 'md',
     variant: 'circle',
@@ -52,8 +52,10 @@ export const Default: Story = {
     const canvas = within(canvasElement);
     const avatar = canvas.getByRole('img');
     expect(avatar).toBeInTheDocument();
-    expect(avatar).toHaveAttribute('alt', 'John Doe');
-    expect(avatar).toHaveAttribute('data-state', 'loaded');
+    expect(avatar).toHaveAttribute('aria-label', 'John Doe');
+    await waitFor(() => {
+      expect(avatar).toHaveAttribute('data-state', 'loaded');
+    });
     expect(avatar).toHaveAttribute('data-size', 'md');
     expect(avatar).toHaveAttribute('data-variant', 'circle');
   },
@@ -62,18 +64,8 @@ export const Default: Story = {
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="Circle"
-        size="md"
-        variant="circle"
-      />
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="Square"
-        size="md"
-        variant="square"
-      />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="Circle" size="md" variant="circle" />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="Square" size="md" variant="square" />
     </div>
   ),
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
@@ -87,26 +79,10 @@ export const Variants: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="SM"
-        size="sm"
-      />
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="MD"
-        size="md"
-      />
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="LG"
-        size="lg"
-      />
-      <Avatar
-        src="https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop"
-        alt="XL"
-        size="xl"
-      />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="SM" size="sm" />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="MD" size="md" />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="LG" size="lg" />
+      <Avatar src="/images/avatar/avatar003.jpg" alt="XL" size="xl" />
     </div>
   ),
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
@@ -150,7 +126,7 @@ export const LoadingState: Story = {
 
 export const WithGlowEffect: Story = {
   args: {
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Glowing avatar',
     size: 'lg',
     variant: 'circle',
@@ -168,7 +144,7 @@ export const WithGlowEffect: Story = {
 
 export const WithRingEffect: Story = {
   args: {
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Avatar with ring',
     size: 'lg',
     variant: 'circle',
@@ -183,7 +159,7 @@ export const WithRingEffect: Story = {
 
 export const CombinedEffects: Story = {
   args: {
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Avatar with all effects',
     size: 'xl',
     variant: 'circle',
@@ -202,7 +178,7 @@ export const CombinedEffects: Story = {
 export const PolymorphicAsArticle: Story = {
   args: {
     component: 'article',
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Article avatar',
     size: 'md',
   },
@@ -216,7 +192,7 @@ export const PolymorphicAsArticle: Story = {
 export const PolymorphicAsSection: Story = {
   args: {
     component: 'section',
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Section avatar',
     size: 'md',
   },
@@ -231,7 +207,7 @@ export const PolymorphicAsLink: Story = {
   args: {
     component: 'a',
     href: '/profile',
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Link avatar',
     size: 'md',
   },
@@ -245,7 +221,7 @@ export const PolymorphicAsLink: Story = {
 
 export const WithChildren: Story = {
   args: {
-    src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=200&h=200&fit=crop',
+    src: '/images/avatar/avatar003.jpg',
     alt: 'Avatar with badge',
     size: 'lg',
     children: (
@@ -267,7 +243,7 @@ export const WithChildren: Story = {
     const canvas = within(canvasElement);
     const avatar = canvas.getByRole('img');
     expect(avatar).toBeInTheDocument();
-    const badge = canvasElement.querySelector('[style*="background: #22c55e"]');
+    const badge = canvasElement.querySelector('[style*="rgb(34, 197, 94)"]');
     expect(badge).toBeInTheDocument();
   },
 };

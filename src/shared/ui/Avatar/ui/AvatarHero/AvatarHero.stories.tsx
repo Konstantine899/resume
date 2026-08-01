@@ -58,8 +58,8 @@ export const Default: Story = {
   ...storyDefault({ alt: 'Avatar', size: 'xl', showGlow: true, showRing: true }),
   play: async ({ canvasElement }) => {
     const avatar = canvasElement.querySelector('[role="img"]');
-    const glow = canvasElement.querySelector('.glow');
-    const ring = canvasElement.querySelector('.ring');
+    const glow = canvasElement.querySelector('[class*="photoGlow"]');
+    const ring = canvasElement.querySelector('[class*="photoRing"]');
     if (avatar) {
       await new Promise((resolve) => setTimeout(resolve, 100));
       expect(avatar.getAttribute('data-size')).toBe('xl');
