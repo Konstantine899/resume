@@ -1,10 +1,8 @@
-import { classNames } from '@/shared/lib/utils/classNames';
-import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
-import { memo, forwardRef, createElement } from 'react';
-import { type ParagraphProps } from '../model/types';
-import { isValidLineClamp } from '../model/constants';
+import { memo } from 'react';
+import type { ComponentRef, ElementType, ForwardedRef, ReactElement, Ref } from 'react';
+import { type ParagraphComponent, type ParagraphProps } from '../model/types';
+import { useParagraph } from '../lib/hooks/useParagraph';
 import { Slot } from '@/shared/ui/Slot';
-import cls from './Paragraph.module.scss';
 
 /**
  * Paragraph component for body text
@@ -16,101 +14,109 @@ import cls from './Paragraph.module.scss';
  * <Paragraph theme="error">Сообщение об ошибке</Paragraph>
  * <Paragraph lineClamp={3}>Длинный текст, который обрежется после 3 строк</Paragraph>
  * <Paragraph as="span" weight="semibold">Текст жирным в span</Paragraph>
+ * <Paragraph as="a" href="/about">Ссылка с типографикой абзаца</Paragraph>
  * <Paragraph truncate>Однострочное обрезание</Paragraph>
  * <Paragraph wrap="balance">Сбалансированный перенос</Paragraph>
  * ```
  */
-export const Paragraph = memo(
-  forwardRef<HTMLElement, ParagraphProps>((props, ref) => {
-    const {
-      size = 'm',
-      theme = 'primary',
-      align = 'left',
-      weight,
-      wrap,
-      truncate,
-      as: Component = 'p',
-      asChild,
-      children,
-      className,
-      'data-testid': dataTestId = 'Paragraph',
-      id,
-      lineClamp,
-    } = props;
+function ParagraphImpl<C extends ElementType = 'p'>(
+  props: ParagraphProps<C> & { ref?: ForwardedRef<ComponentRef<C>> },
+  _ref: ForwardedRef<ComponentRef<C>>
+): ReactElement {
+  const {
+    // React 19 передаёт ref как обычный prop (ref-as-prop);
+    // второй аргумент (forwardRef-конвенция) не заполняется для обычных функций.
+    ref: forwardedRef,
+    size = 'm',
+    theme = 'primary',
+    align = 'left',
+    weight,
+    wrap,
+    truncate,
+    as: Component = 'p',
+    asChild,
+    children,
+    className,
+    'data-testid': dataTestId = 'Paragraph',
+    id,
+    lineClamp,
+    ...restProps
+  } = props;
 
-    // Валидация lineClamp (только 2-5)
-    const validatedLineClamp = lineClamp && isValidLineClamp(lineClamp) ? lineClamp : undefined;
+  // Вся className-логика, data-атрибуты и dev-валидация живут в useParagraph
+  const { paragraphClassName, dataAttrs } = useParagraph({
+    size,
+    theme,
+    align,
+    weight,
+    wrap,
+    truncate,
+    lineClamp,
+    as: Component,
+    className,
+  });
 
-    if (process.env.NODE_ENV === 'development') {
-      if (lineClamp && !validatedLineClamp) {
-        // eslint-disable-next-line no-console
-        console.warn(`Paragraph: lineClamp должен быть от 2 до 5, получено: ${lineClamp}`);
-      }
-
-      if (truncate && lineClamp) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          'Paragraph: truncate и lineClamp не могут быть использованы одновременно.' +
-            ' Будет использован truncate.'
-        );
-      }
-    }
-
-    // Маппинг размера в класс SCSS модуля через утилиту
-    const sizeClass = mapSizeToClass(size);
-
-    const mods: Record<string, boolean | undefined> = {
-      [cls[sizeClass]]: true,
-      [cls[theme]]: true,
-      [cls[align]]: true,
-      ...(validatedLineClamp && !truncate && { [cls[`line-clamp-${validatedLineClamp}`]]: true }),
-      ...(weight && { [cls[weight]]: true }),
-      ...(wrap && { [cls[wrap]]: true }),
-      ...(truncate && { [cls.truncate]: true }),
-    };
-
-    const additional = [className];
-
-    if (
-      asChild &&
-      children &&
-      typeof children !== 'string' &&
-      typeof children !== 'number' &&
-      typeof children !== 'boolean'
-    ) {
-      return (
-        <Slot
-          ref={ref}
-          className={classNames(cls.paragraph, mods, additional)}
-          id={id}
-          data-testid={dataTestId}
-        >
-          {children}
-        </Slot>
-      );
-    }
-
-    // Если asChild=true но children не является ReactElement, рендерим как обычно
-    if (asChild && process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.warn(
-        'Paragraph: asChild requires a single ReactElement child. Falling back to default rendering.'
-      );
-    }
-
-    /* eslint-disable react-hooks/refs */
-    return createElement(
-      Component,
-      {
-        ref,
-        id,
-        className: classNames(cls.paragraph, mods, additional),
-        'data-testid': dataTestId,
-      },
-      children
+  if (
+    asChild &&
+    children &&
+    typeof children !== 'string' &&
+    typeof children !== 'number' &&
+    typeof children !== 'boolean'
+  ) {
+    return (
+      <Slot
+        ref={forwardedRef as ForwardedRef<HTMLElement>}
+        className={paragraphClassName}
+        id={id}
+        data-testid={dataTestId}
+      >
+        {children}
+      </Slot>
     );
-    /* eslint-enable react-hooks/refs */
-  })
+  }
+
+  // Если asChild=true но children не является ReactElement, рендерим как обычно
+  if (asChild && process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'Paragraph: asChild requires a single ReactElement child. Falling back to default rendering.'
+    );
+  }
+
+  const Tag = Component as ElementType;
+
+  return (
+    <Tag
+      ref={forwardedRef as Ref<ComponentRef<C>>}
+      id={id}
+      className={paragraphClassName}
+      data-testid={dataTestId}
+      {...dataAttrs}
+      {...restProps}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+ParagraphImpl.displayName = 'Paragraph';
+
+/**
+ * React.memo не умеет generic-функции, поэтому оборачиваем через
+ * промежуточный НЕ-generic каст, а generic typing применяется после memo
+ * (Heading precedent).
+ */
+const ParagraphMemo = memo(
+  ParagraphImpl as unknown as (
+    props: ParagraphProps<'p'> & { ref?: ForwardedRef<HTMLElement> }
+  ) => ReactElement
 );
 
-Paragraph.displayName = 'Paragraph';
+ParagraphMemo.displayName = 'Paragraph';
+
+/**
+ * Paragraph — полиморфный компонент для body-текста.
+ * Рендерится как `<p>` по умолчанию; `as` позволяет переопределить
+ * корневой элемент с сохранением типобезопасности (Heading parity).
+ */
+export const Paragraph = ParagraphMemo as unknown as ParagraphComponent;

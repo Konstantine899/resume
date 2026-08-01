@@ -1,11 +1,18 @@
 import { type Meta, type StoryObj } from '@storybook/react-vite';
+import { expect, within } from '@storybook/test';
 import type {
   ParagraphSize,
   ParagraphTheme,
   ParagraphWeight,
   ParagraphElement,
 } from '../model/types';
+import { Container } from '@/shared/ui/Container';
+import { Section } from '@/shared/ui/Section';
+import { Card } from '@/shared/ui/Card';
+import { ModalContent } from '@/shared/ui/Modal';
+import { Heading } from '@/shared/ui/Heading';
 import { Paragraph } from './Paragraph';
+import styles from './Paragraph.module.scss';
 
 /**
  * ## Paragraph Component
@@ -122,7 +129,7 @@ export const AllSizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {(['xs', 's', 'm', 'l', 'xl', '2xl'] as ParagraphSize[]).map((size) => (
-        <Paragraph key={size} size={size}>
+        <Paragraph key={size} size={size} data-testid={`paragraph-${size}`}>
           Размер: {size} -{' '}
           {size === 'xs'
             ? '12px'
@@ -139,6 +146,20 @@ export const AllSizes: Story = {
       ))}
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const sizeClasses: Array<[string, string]> = [
+      ['xs', styles.xs],
+      ['s', styles.s],
+      ['m', styles.m],
+      ['l', styles.l],
+      ['xl', styles.xl],
+      ['2xl', styles.size2Xl],
+    ];
+    for (const [size, cls] of sizeClasses) {
+      await expect(canvas.getByTestId(`paragraph-${size}`)).toHaveClass(cls);
+    }
+  },
 };
 
 export const SizeXS: Story = {
@@ -201,15 +222,32 @@ export const AllThemes: Story = {
           'error',
           'success',
           'warning',
+          'tertiary',
           'gradient',
         ] as ParagraphTheme[]
       ).map((theme) => (
-        <Paragraph key={theme} theme={theme}>
+        <Paragraph key={theme} theme={theme} data-testid={`paragraph-${theme}`}>
           Тема: {theme}
         </Paragraph>
       ))}
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const themeClasses: Array<[string, string]> = [
+      ['primary', styles.primary],
+      ['muted', styles.muted],
+      ['inverted', styles.inverted],
+      ['error', styles.error],
+      ['success', styles.success],
+      ['warning', styles.warning],
+      ['tertiary', styles.tertiary],
+      ['gradient', styles.gradient],
+    ];
+    for (const [theme, cls] of themeClasses) {
+      await expect(canvas.getByTestId(`paragraph-${theme}`)).toHaveClass(cls);
+    }
+  },
 };
 
 export const ThemePrimary: Story = {
@@ -627,6 +665,12 @@ export const AsChildWithButton: Story = {
       </Paragraph>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await expect(button).toHaveClass(styles.paragraph);
+    await expect(button).toHaveTextContent('Текст кнопки со стилями Paragraph');
+  },
 };
 
 export const AsChildWithDiv: Story = {
@@ -656,22 +700,30 @@ export const WeightAndElement: Story = {
 };
 
 /**
- * Truncate и lineClamp вместе — truncate имеет приоритет
+ * lineClamp — ограничение количества строк.
+ * truncate и lineClamp взаимоисключающие на уровне типов (PAR-03),
+ * поэтому story демонстрирует только lineClamp.
  */
 export const TruncateWithLineClamp: Story = {
-  args: {
-    truncate: true,
-    lineClamp: 3,
-    children:
-      'Этот текст получает и truncate, и lineClamp. truncate имеет приоритет — текст будет обрезан после первой строки, несмотря на lineClamp=3. В dev-режиме появится предупреждение в консоли.',
-  },
+  render: () => (
+    <Paragraph lineClamp={3} data-testid="paragraph-line-clamp-3">
+      Этот текст ограничен lineClamp=3 — после третьей строки появится многоточие. В dev-режиме
+      предупреждения не будет, так как truncate не передан.
+    </Paragraph>
+  ),
   parameters: {
     docs: {
       description: {
         story:
-          'При одновременной передаче truncate и lineClamp, truncate имеет приоритет. В dev-режиме появляется предупреждение в консоли.',
+          'lineClamp ограничивает текст тремя строками с многоточием. Одновременная передача truncate и lineClamp запрещена на уровне типов (PAR-03).',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('paragraph-line-clamp-3');
+    await expect(el).toHaveClass(styles.lineClamp3);
+    await expect(el).not.toHaveClass(styles.truncate);
   },
 };
 
@@ -682,13 +734,27 @@ export const WrapAndTruncate: Story = {
     children:
       'Очень длинный текст с nowrap и truncate — он не переносится и обрезается многоточием. Подходит для однострочных заголовков и меток.',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('Paragraph');
+    await expect(el).toHaveClass(styles.nowrap);
+    await expect(el).toHaveClass(styles.truncate);
+    await expect(el).not.toHaveClass(styles.balance);
+  },
 };
 export const TruncateOnSpan: Story = {
   args: {
     as: 'span',
     truncate: true,
+    'data-testid': 'paragraph-truncate-span',
     children:
       'Очень длинный текст внутри span с однострочным обрезанием. Он будет обрезан многоточием после первой строки независимо от длины.',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('paragraph-truncate-span');
+    await expect(el.tagName).toBe('SPAN');
+    await expect(el).toHaveClass(styles.truncate);
   },
 };
 
@@ -785,6 +851,13 @@ export const GradientQuote: Story = {
     size: 'xl',
     align: 'center',
     children: '"Код — это поэзия, которую пишут разработчики"',
+    'data-testid': 'gradient-quote',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('gradient-quote');
+    await expect(el).toHaveClass(styles.gradient);
+    expect(getComputedStyle(el).backgroundImage).toContain('linear-gradient');
   },
 };
 
@@ -813,5 +886,263 @@ export const DarkTheme: Story = {
   },
   parameters: {
     backgrounds: { default: 'dark' },
+  },
+};
+
+// ============================================
+// Композиция (Paragraph внутри других компонентов)
+// ============================================
+
+/**
+ * Paragraph внутри Container — контейнер ограничивает ширину, Paragraph типизирует текст
+ */
+export const ParagraphInContainer: Story = {
+  render: () => (
+    <Container size="md" data-testid="paragraph-container">
+      <Paragraph size="m">
+        Paragraph внутри Container — контейнер ограничивает ширину и центрирует контент, а
+        типографика остаётся за Paragraph.
+      </Paragraph>
+      <Paragraph size="s" theme="muted">
+        Второстепенный текст в том же контейнере — размер s и muted-тема.
+      </Paragraph>
+    </Container>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const container = canvas.getByTestId('paragraph-container');
+    await expect(container).toBeInTheDocument();
+    await expect(container).toHaveAttribute('data-size', 'md');
+    await expect(canvas.getByText(/Paragraph внутри Container/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Второстепенный текст/)).toBeInTheDocument();
+  },
+};
+
+/**
+ * Paragraph внутри Section — семантическая секция с вертикальными отступами
+ */
+export const ParagraphInSection: Story = {
+  render: () => (
+    <Section data-testid="paragraph-section">
+      <Heading level={2} size="l">
+        Section Title
+      </Heading>
+      <Paragraph size="m">
+        Paragraph внутри Section — секция добавляет вертикальные отступы, заголовок и текст
+        сохраняют свою типографику.
+      </Paragraph>
+    </Section>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('paragraph-section')).toBeInTheDocument();
+    await expect(canvas.getByText('Section Title')).toBeInTheDocument();
+    await expect(canvas.getByText(/Paragraph внутри Section/)).toBeInTheDocument();
+  },
+};
+
+/**
+ * Paragraph в Card — Card.Description рендерится через Paragraph (size="s" theme="muted"),
+ * Card.Meta — через Paragraph (size="xs" theme="tertiary") (PAR-11/12)
+ */
+export const ParagraphInCard: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div style={{ maxWidth: '400px' }}>
+      <Card data-testid="paragraph-card">
+        <Card.Title>Card with Paragraph typography</Card.Title>
+        <Card.Description>
+          Card.Description рендерится через Paragraph (size="s", theme="muted") — PAR-11.
+        </Card.Description>
+        <Card.Meta>March 2026 · 5 min read</Card.Meta>
+      </Card>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('paragraph-card')).toBeInTheDocument();
+    const description = canvas.getByText(/Card.Description рендерится через Paragraph/);
+    await expect(description.tagName).toBe('P');
+    await expect(description).toHaveAttribute('data-size', 's');
+    await expect(description).toHaveAttribute('data-theme', 'muted');
+    await expect(canvas.getByText('March 2026 · 5 min read')).toBeInTheDocument();
+  },
+};
+
+/**
+ * Paragraph в Modal — body-текст модального окна рендерится через Paragraph
+ * (паттерн "Modal body text uses Paragraph", PAR-13)
+ */
+export const ParagraphInModal: Story = {
+  render: () => (
+    <ModalContent>
+      <Paragraph>Body text inside ModalContent renders via the shared Paragraph.</Paragraph>
+      <Paragraph theme="muted">Secondary body text keeps typography consistent.</Paragraph>
+    </ModalContent>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText('Body text inside ModalContent renders via the shared Paragraph.')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Secondary body text keeps typography consistent.')
+    ).toBeInTheDocument();
+  },
+};
+
+// ============================================
+// Showcase stories
+// ============================================
+
+/**
+ * Полная типографическая шкала: Heading 3xl–5xl + Paragraph xs–2xl
+ */
+export const FullPageTypography: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div
+      style={{
+        maxWidth: '720px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      }}
+    >
+      <Heading level={1} size="5xl">
+        Display — 5xl
+      </Heading>
+      <Heading level={2} size="4xl">
+        Page Title — 4xl
+      </Heading>
+      <Heading level={3} size="3xl">
+        Section Title — 3xl
+      </Heading>
+      <Paragraph size="xl">Paragraph xl — 20px, для акцентного текста.</Paragraph>
+      <Paragraph size="l">Paragraph l — 18px, для основного контента.</Paragraph>
+      <Paragraph size="m">Paragraph m — 16px, основной текст по умолчанию.</Paragraph>
+      <Paragraph size="s">Paragraph s — 14px, для второстепенного текста.</Paragraph>
+      <Paragraph size="xs">Paragraph xs — 12px, для подписей и мета-информации.</Paragraph>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Display — 5xl')).toBeInTheDocument();
+    await expect(canvas.getByText('Page Title — 4xl')).toBeInTheDocument();
+    await expect(canvas.getByText('Section Title — 3xl')).toBeInTheDocument();
+    await expect(canvas.getByText(/Paragraph xl/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Paragraph xs/)).toBeInTheDocument();
+  },
+};
+
+/**
+ * Сравнение режимов переноса: wrap / nowrap / balance / pretty
+ */
+export const WrapModesComparison: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+      <Paragraph wrap="wrap" data-testid="wrap-wrap">
+        wrap: текст переносится по словам по умолчанию.
+        Оченьдлинноесловокотороеможетразорватьстроку.
+      </Paragraph>
+      <Paragraph wrap="nowrap" data-testid="wrap-nowrap">
+        nowrap: текст не переносится на новую строку. Оченьдлинноесловокотороеможетразорватьстроку.
+      </Paragraph>
+      <Paragraph wrap="balance" data-testid="wrap-balance">
+        balance: браузер балансирует длину строк для красивого результата.
+      </Paragraph>
+      <Paragraph wrap="pretty" data-testid="wrap-pretty">
+        pretty: браузер оптимизирует перенос, избегая «висячих» строк.
+      </Paragraph>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('wrap-wrap')).toHaveClass(styles.wrap);
+    await expect(canvas.getByTestId('wrap-nowrap')).toHaveClass(styles.nowrap);
+    await expect(canvas.getByTestId('wrap-balance')).toHaveClass(styles.balance);
+    await expect(canvas.getByTestId('wrap-pretty')).toHaveClass(styles.pretty);
+  },
+};
+
+/**
+ * Градиентная тема — акцентный градиентный текст в разных размерах
+ */
+export const GradientTheme: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '600px' }}>
+      <Paragraph theme="gradient" size="xl" align="center" data-testid="gradient-accent">
+        Gradient accent — крупный акцентный текст
+      </Paragraph>
+      <Paragraph theme="gradient" size="m" data-testid="gradient-body">
+        Gradient body — градиентный текст среднего размера для менее броских акцентов.
+      </Paragraph>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const accent = canvas.getByTestId('gradient-accent');
+    const body = canvas.getByTestId('gradient-body');
+    await expect(accent).toHaveClass(styles.gradient);
+    await expect(body).toHaveClass(styles.gradient);
+    expect(getComputedStyle(accent).backgroundImage).toContain('linear-gradient');
+  },
+};
+
+// ============================================
+// Edge cases
+// ============================================
+
+/**
+ * Пустые children — Paragraph рендерится без ошибок
+ */
+export const EmptyChildren: Story = {
+  render: () => <Paragraph data-testid="paragraph-empty" children="" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('paragraph-empty');
+    await expect(el).toBeInTheDocument();
+    await expect(el.tagName).toBe('P');
+  },
+};
+
+/**
+ * Конфликт as + asChild — asChild приоритетнее: рендерится дочерний элемент,
+ * `as` игнорируется, ошибки не возникает
+ */
+export const AsWithAsChildConflict: Story = {
+  render: () => (
+    <Paragraph as="span" asChild data-testid="paragraph-conflict">
+      <span>asChild wins over as — дочерний элемент рендерится со стилями Paragraph.</span>
+    </Paragraph>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('paragraph-conflict');
+    await expect(el).toBeInTheDocument();
+    await expect(el.tagName).toBe('SPAN');
+    await expect(el).toHaveClass(styles.paragraph);
+  },
+};
+
+/**
+ * Длинное неразрывное слово с wrap="nowrap" — текст не переносится и не ломает разметку
+ */
+export const LongUnbrokenString: Story = {
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div style={{ maxWidth: '400px' }}>
+      <Paragraph wrap="nowrap" data-testid="paragraph-long-nowrap">
+        Supercalifragilisticexpialidociousantidisestablishmentarianismfloccinaucinihilipilification
+      </Paragraph>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('paragraph-long-nowrap');
+    await expect(el).toBeInTheDocument();
+    await expect(el).toHaveClass(styles.nowrap);
   },
 };

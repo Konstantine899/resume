@@ -6,7 +6,7 @@
 
 // Gradient text
 .gradient-text {
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
+  background: var(--gradient-text, linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%));
   background-clip: text;
   filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
   -webkit-text-fill-color: transparent;

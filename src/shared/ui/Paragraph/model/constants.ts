@@ -30,6 +30,7 @@ export const PARAGRAPH_THEMES = [
   'success',
   'warning',
   'gradient',
+  'tertiary',
 ] as const satisfies readonly ParagraphTheme[];
 
 /**
@@ -68,43 +69,8 @@ export const PARAGRAPH_WRAPS = [
 ] as const satisfies readonly ParagraphWrap[];
 
 /**
- * Проверка валидности размера параграфа
- */
-export const isValidParagraphSize = (size: unknown): size is ParagraphSize => {
-  return PARAGRAPH_SIZES.includes(size as ParagraphSize);
-};
-
-/**
- * Проверка валидности темы параграфа
- */
-export const isValidParagraphTheme = (theme: unknown): theme is ParagraphTheme => {
-  return PARAGRAPH_THEMES.includes(theme as ParagraphTheme);
-};
-
-/**
- * Проверка валидности выравнивания параграфа
- */
-export const isValidParagraphAlign = (align: unknown): align is ParagraphAlign => {
-  return PARAGRAPH_ALIGNS.includes(align as ParagraphAlign);
-};
-
-/**
  * Проверка валидности lineClamp
  */
 export const isValidLineClamp = (lineClamp: unknown): lineClamp is LineClamp => {
   return LINE_CLAMP_VALUES.includes(lineClamp as LineClamp);
-};
-
-/**
- * Проверка валидности насыщенности шрифта
- */
-export const isValidParagraphWeight = (weight: unknown): weight is ParagraphWeight => {
-  return PARAGRAPH_WEIGHTS.includes(weight as ParagraphWeight);
-};
-
-/**
- * Проверка валидности режима переноса
- */
-export const isValidParagraphWrap = (wrap: unknown): wrap is ParagraphWrap => {
-  return PARAGRAPH_WRAPS.includes(wrap as ParagraphWrap);
 };

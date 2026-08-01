@@ -12,6 +12,7 @@ import { CardImage } from './CardImage';
 import { ProjectCard } from './ProjectCard';
 import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
+import cardDescriptionStyles from './CardDescription/CardDescription.module.scss';
 
 describe('Card', () => {
   describe('Rendering', () => {
@@ -455,15 +456,21 @@ describe('Card', () => {
       expect(screen.getByText('H2 Title').tagName).toBe('H2');
     });
 
-    it('renders Card.Description', () => {
+    it('renders Card.Description via Paragraph with s/muted classes', () => {
       render(
         <Card>
           <Card.Description>Description text</Card.Description>
         </Card>
       );
+      // Paragraph-agnostic: content renders as a <p> carrying the cardDescription class
       const desc = screen.getByText('Description text');
       expect(desc).toBeInTheDocument();
       expect(desc.tagName).toBe('P');
+      expect(desc).toHaveClass(cardDescriptionStyles.cardDescription);
+      // Paragraph-backed: carries the paragraph base class and size/theme data attributes
+      expect(desc).toHaveClass(/paragraph/);
+      expect(desc).toHaveAttribute('data-size', 's');
+      expect(desc).toHaveAttribute('data-theme', 'muted');
     });
 
     it('renders Card.Actions', () => {
@@ -501,13 +508,20 @@ describe('Card', () => {
       expect(actions).toBeInTheDocument();
     });
 
-    it('renders Card.Meta', () => {
+    it('renders Card.Meta text via Paragraph with xs/tertiary classes', () => {
       render(
         <Card>
           <Card.Meta>Meta info</Card.Meta>
         </Card>
       );
-      expect(screen.getByText('Meta info')).toBeInTheDocument();
+      // Paragraph-agnostic: the meta text renders (wrapper keeps its flex layout)
+      const metaText = screen.getByText('Meta info');
+      expect(metaText).toBeInTheDocument();
+      // Paragraph-backed: text carries the paragraph base class and xs/tertiary data attributes
+      expect(metaText.tagName).toBe('P');
+      expect(metaText).toHaveClass(/paragraph/);
+      expect(metaText).toHaveAttribute('data-size', 'xs');
+      expect(metaText).toHaveAttribute('data-theme', 'tertiary');
     });
 
     it('renders Card.Grid with default 3 columns', () => {

@@ -1,4 +1,11 @@
-import { type ReactNode } from 'react';
+import type {
+  ComponentPropsWithRef,
+  ComponentRef,
+  ElementType,
+  ForwardedRef,
+  ReactElement,
+  ReactNode,
+} from 'react';
 
 export type ParagraphSize = 'xs' | 's' | 'm' | 'l' | 'xl' | '2xl';
 
@@ -9,7 +16,8 @@ export type ParagraphTheme =
   | 'error'
   | 'success'
   | 'warning'
-  | 'gradient';
+  | 'gradient'
+  | 'tertiary';
 
 export type ParagraphAlign = 'left' | 'center' | 'right';
 
@@ -19,7 +27,8 @@ export type ParagraphAlign = 'left' | 'center' | 'right';
 export type LineClamp = 2 | 3 | 4 | 5;
 
 /**
- * HTML теги, которые может рендерить Paragraph
+ * HTML теги, которые изначально мог рендерить Paragraph.
+ * Кепнуто для стабильности публичного API — `as` теперь принимает любой ElementType.
  */
 export type ParagraphElement = 'p' | 'span' | 'div' | 'label';
 
@@ -33,7 +42,10 @@ export type ParagraphWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold
  */
 export type ParagraphWrap = 'wrap' | 'nowrap' | 'balance' | 'pretty';
 
-export interface ParagraphProps {
+/**
+ * Props, которыми владеет Paragraph (не наследуются от HTML-элемента)
+ */
+export interface ParagraphOwnProps {
   /**
    * Размер текста
    * @default 'm'
@@ -79,12 +91,6 @@ export interface ParagraphProps {
   lineClamp?: LineClamp;
 
   /**
-   * HTML тег для рендеринга
-   * @default 'p'
-   */
-  as?: ParagraphElement;
-
-  /**
    * Насыщенность шрифта
    * @default 'normal'
    */
@@ -110,3 +116,35 @@ export interface ParagraphProps {
    */
   asChild?: boolean;
 }
+
+/**
+ * Базовые props Paragraph + полиморфный `as` prop.
+ *
+ * @template C - Тип элемента для рендеринга (по умолчанию 'p')
+ */
+export type ParagraphBaseProps<C extends ElementType = 'p'> = { as?: C } & ParagraphOwnProps;
+
+/**
+ * Generic polymorphic props для Paragraph.
+ * Позволяет переопределить корневой элемент через `as` и получает
+ * элемент-специфичные пропсы (например `href` при `as="a"`) с типизацией.
+ *
+ * `truncate` и `lineClamp` смоделированы как discriminated union (PAR-03):
+ * передача `truncate` делает `lineClamp` compile-time ошибкой и наоборот —
+ * одновременно их передать нельзя. Рантайм dev-warn остаётся как defense-in-depth.
+ *
+ * @template C - Тип элемента (по умолчанию 'p')
+ */
+export type ParagraphProps<C extends ElementType = 'p'> = ParagraphBaseProps<C> &
+  Omit<ComponentPropsWithRef<C>, keyof ParagraphOwnProps | 'as'> &
+  ({ truncate?: true; lineClamp?: never } | { truncate?: false; lineClamp?: LineClamp });
+
+/**
+ * Публичный тип компонента с резолюцией ref в зависимости от `as`.
+ * `displayName` присутствует на рантайм-объекте (memo-обёртка).
+ */
+export type ParagraphComponent = (<C extends ElementType = 'p'>(
+  props: ParagraphProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }
+) => ReactElement) & {
+  displayName?: string;
+};

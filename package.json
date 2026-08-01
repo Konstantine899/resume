@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
     "analyze:scss": "tsx scripts/analyze-scss.ts",
-    "analyze:dead-code": "knip --include-files,dependencies,exports",
+    "analyze:dead-code": "knip --include files,dependencies,exports",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "type-check:strict": "tsc --noEmit --maxNodeModuleJsDepth 0 --skipLibCheck false",

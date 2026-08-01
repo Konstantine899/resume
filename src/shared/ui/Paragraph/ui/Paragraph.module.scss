@@ -59,6 +59,10 @@
     color: var(--form-warning);
   }
 
+  &.tertiary {
+    color: var(--text-tertiary);
+  }
+
   &.gradient {
     @include gradient-text;
   }
@@ -111,7 +115,6 @@
 
   // Wrap modes
   &.wrap {
-    overflow-wrap: break-word;
     overflow-wrap: break-word;
   }
 

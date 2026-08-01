@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { createRef } from 'react';
+import { readFileSync } from 'node:fs';
 import {
   type LineClamp,
   type ParagraphElement,
@@ -8,6 +10,16 @@ import {
 } from '../model/types';
 import { Paragraph } from './Paragraph';
 import cls from './Paragraph.module.scss';
+
+// SCSS source reads for theming-contract checks (PAR-05/06/09).
+// `?raw` imports are intercepted by vitest's css:false CSS-module stub
+// (returns the identity proxy, not the source), so read from disk directly.
+const readScss = (relativePath: string): string =>
+  readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
+
+const paragraphScss = readScss('./Paragraph.module.scss');
+const themeScss = readScss('../../../../shared/styles/globals/_theme.scss');
+const gradientScss = readScss('../../../../shared/styles/globals/_gradient.scss');
 
 describe('Paragraph', () => {
   beforeEach(() => {
@@ -155,6 +167,67 @@ describe('Paragraph', () => {
       render(<Paragraph theme="gradient">Gradient</Paragraph>);
 
       expect(getParagraph()).toHaveClass(cls.gradient);
+    });
+  });
+
+  describe('Theming contract (PAR-05/06/09)', () => {
+    // Source-level SCSS contract checks (raw imports).
+    // CSS var resolution is deferred to Phase 8 (screenshots/storybook):
+    // jsdom + vitest css:false don't compute real styles from CSS vars.
+
+    it('должен определять --gradient-text во всех трёх блоках _theme.scss (PAR-06)', () => {
+      // Slice-подход вместо regex-блоков: SCSS-интерполяция #{$var} содержит '}',
+      // поэтому [^}]* обрезает блок на первой интерполяции.
+      const rootStart = themeScss.indexOf(':root {');
+      const darkStart = themeScss.indexOf("[data-theme='dark'] {");
+      const lightStart = themeScss.indexOf("[data-theme='light'] {");
+
+      const rootBlock = themeScss.slice(rootStart, darkStart);
+      const darkBlock = themeScss.slice(darkStart, lightStart);
+      const lightBlock = themeScss.slice(lightStart);
+
+      expect(rootBlock).toContain('--gradient-text:');
+      expect(darkBlock).toContain('--gradient-text:');
+      expect(lightBlock).toContain('--gradient-text:');
+    });
+
+    it('должен резолвить var(--gradient-text, fallback) в утилите .gradient-text (PAR-09)', () => {
+      const gradientBlock = gradientScss.match(/\.gradient-text\s*\{([^}]*)\}/)?.[1] ?? '';
+
+      expect(gradientBlock).toMatch(/background:\s*var\(--gradient-text,\s*linear-gradient/);
+    });
+
+    it('должен объявлять overflow-wrap: break-word ровно один раз в блоке .wrap (PAR-09)', () => {
+      const wrapBlock = paragraphScss.match(/&\.wrap\s*\{([^}]*)\}/)?.[1] ?? '';
+      const overflowWrapCount = (wrapBlock.match(/overflow-wrap:\s*break-word/g) ?? []).length;
+
+      expect(overflowWrapCount).toBe(1);
+    });
+
+    it('должен определять .tertiary класс с var(--text-tertiary) в Paragraph.module.scss (PAR-05)', () => {
+      const tertiaryBlock = paragraphScss.match(/&\.tertiary\s*\{([^}]*)\}/)?.[1] ?? '';
+
+      expect(tertiaryBlock).toMatch(/color:\s*var\(--text-tertiary\)/);
+    });
+
+    it('должен проставлять data-theme="tertiary" при рендере (PAR-05)', () => {
+      render(<Paragraph theme="tertiary">Tertiary</Paragraph>);
+
+      // class-ассерт проксируется css:false стабом (identity-mapping);
+      // data-theme атрибут — реальная проверка потока theme → useParagraph → dataAttrs
+      expect(getParagraph()).toHaveAttribute('data-theme', 'tertiary');
+      expect(getParagraph()).toHaveClass(cls.tertiary);
+    });
+
+    it('не должен предупреждать о tertiary теме в dev режиме (PAR-05)', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      render(<Paragraph theme="tertiary">Tertiary</Paragraph>);
+
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
     });
   });
 
@@ -311,6 +384,100 @@ describe('Paragraph', () => {
     });
   });
 
+  describe('Polymorphic as prop', () => {
+    it('должен рендериться как a с href при as="a"', () => {
+      const { container } = render(
+        <Paragraph as="a" href="/about">
+          Link
+        </Paragraph>
+      );
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', '/about');
+      expect(link).toHaveClass(cls.paragraph);
+    });
+
+    it('должен пробрасывать элемент-специфичные пропсы (href, target, rel)', () => {
+      const { container } = render(
+        <Paragraph as="a" href="/about" target="_blank" rel="noopener">
+          Link
+        </Paragraph>
+      );
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', '/about');
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener');
+    });
+
+    it('должен мержить paragraph классы и custom className при as="a"', () => {
+      render(
+        <Paragraph as="a" href="/about" className="custom-class">
+          Link
+        </Paragraph>
+      );
+
+      const element = screen.getByTestId('Paragraph');
+      expect(element.tagName).toBe('A');
+      expect(element).toHaveClass(cls.paragraph);
+      expect(element).toHaveClass('custom-class');
+    });
+
+    it('должен пробрасывать merged className и пропсы в кастомный компонент', () => {
+      const CustomLink = ({
+        className,
+        href,
+        children,
+        'data-testid': dataTestId,
+      }: {
+        className?: string;
+        href?: string;
+        children?: React.ReactNode;
+        'data-testid'?: string;
+      }) => (
+        <a href={href} className={className} data-testid={dataTestId}>
+          {children}
+        </a>
+      );
+
+      render(
+        <Paragraph as={CustomLink} href="/x" className="custom-class">
+          Custom link
+        </Paragraph>
+      );
+
+      const customLink = screen.getByTestId('Paragraph');
+      expect(customLink.tagName).toBe('A');
+      expect(customLink).toHaveAttribute('href', '/x');
+      expect(customLink).toHaveClass(cls.paragraph);
+      expect(customLink).toHaveClass('custom-class');
+    });
+
+    it('должен отклонять button-специфичные пропсы при as="a" на уровне типов', () => {
+      render(
+        // @ts-expect-error — `disabled` не является валидным атрибутом <a>
+        <Paragraph as="a" disabled>
+          Link
+        </Paragraph>
+      );
+    });
+  });
+
+  describe('Polymorphic ref typing', () => {
+    it('должен резолвить ref как HTMLAnchorElement при as="a"', () => {
+      const ref = createRef<HTMLAnchorElement>();
+
+      render(
+        <Paragraph as="a" href="/about" ref={ref}>
+          Link
+        </Paragraph>
+      );
+
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
+    });
+  });
+
   describe('Weight prop', () => {
     const weights: ParagraphWeight[] = ['light', 'normal', 'medium', 'semibold', 'bold'];
 
@@ -377,6 +544,7 @@ describe('Paragraph', () => {
       vi.stubEnv('NODE_ENV', 'development');
 
       render(
+        // @ts-expect-error — truncate и lineClamp взаимоисключающие на уровне типов (PAR-03)
         <Paragraph truncate lineClamp={3}>
           Conflicting text
         </Paragraph>
@@ -391,6 +559,7 @@ describe('Paragraph', () => {
 
     it('должен применять truncate класс и не применять line-clamp при конфликте', () => {
       render(
+        // @ts-expect-error — truncate и lineClamp взаимоисключающие на уровне типов (PAR-03)
         <Paragraph truncate lineClamp={3}>
           Conflicting text
         </Paragraph>
@@ -405,6 +574,7 @@ describe('Paragraph', () => {
       vi.stubEnv('NODE_ENV', 'production');
 
       render(
+        // @ts-expect-error — truncate и lineClamp взаимоисключающие на уровне типов (PAR-03)
         <Paragraph truncate lineClamp={3}>
           Conflicting text
         </Paragraph>
@@ -413,6 +583,38 @@ describe('Paragraph', () => {
       expect(warnSpy).not.toHaveBeenCalled();
 
       warnSpy.mockRestore();
+    });
+  });
+
+  describe('Conditional props (compile-time)', () => {
+    // Примечание: случай `<Paragraph as="a" disabled>` (button-проп на <a>) уже покрыт
+    // тестом «должен отклонять button-специфичные пропсы при as="a" на уровне типов»
+    // в describe('Polymorphic as prop') — здесь не дублируется (PAR-03, без дублей).
+
+    it('должен отклонять truncate + lineClamp одновременно на уровне типов', () => {
+      render(
+        // @ts-expect-error — truncate делает lineClamp недоступным (PAR-03 discriminated union)
+        <Paragraph truncate lineClamp={3}>
+          Conflicting text
+        </Paragraph>
+      );
+
+      // Директива потреблена — runtime-поведение остаётся прежним (truncate имеет приоритет,
+      // dev-warn остаётся как defense-in-depth)
+      expect(getParagraph()).toHaveClass(cls.truncate);
+      expect(getParagraph()).not.toHaveClass(cls['line-clamp-3']);
+    });
+
+    it('должен компилироваться <Paragraph truncate> без lineClamp', () => {
+      render(<Paragraph truncate>Truncated only</Paragraph>);
+
+      expect(getParagraph()).toHaveClass(cls.truncate);
+    });
+
+    it('должен компилироваться <Paragraph lineClamp={3}> без truncate', () => {
+      render(<Paragraph lineClamp={3}>Clamped only</Paragraph>);
+
+      expect(getParagraph()).toHaveClass(cls['line-clamp-3']);
     });
   });
 
@@ -461,7 +663,7 @@ describe('Paragraph', () => {
       const refCallback = vi.fn();
 
       render(
-        <Paragraph asChild ref={refCallback as React.Ref<HTMLElement>}>
+        <Paragraph asChild ref={refCallback as React.Ref<HTMLParagraphElement>}>
           <span data-testid="ref-span">Ref test</span>
         </Paragraph>
       );
@@ -560,9 +762,9 @@ describe('Paragraph', () => {
   describe('Accessibility', () => {
     it('должен пробрасывать ref на элемент', () => {
       const ref = vi.fn();
-      render(<Paragraph ref={ref as React.Ref<HTMLElement>}>Text</Paragraph>);
+      render(<Paragraph ref={ref as React.Ref<HTMLParagraphElement>}>Text</Paragraph>);
 
-      expect(ref).toHaveBeenCalledWith(expect.any(HTMLElement));
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLParagraphElement));
     });
 
     it('должен иметь role="paragraph" при рендеринге p (семантический тег)', () => {

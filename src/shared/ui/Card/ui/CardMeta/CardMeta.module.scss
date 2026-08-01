@@ -1,9 +1,9 @@
 .cardMeta {
   display: flex;
   flex-wrap: wrap;
+
+  // flex gap between multiple children is preserved on the wrapper
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--text-tertiary, #9ca3af);
 }
