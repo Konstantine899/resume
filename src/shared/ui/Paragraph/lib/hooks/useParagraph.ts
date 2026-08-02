@@ -80,14 +80,23 @@ export const useParagraph = ({
         ? resolveCssModuleKey(cls, `line-clamp-${validatedLineClamp}`)
         : '';
 
+    // Все классы резолвятся через resolveCssModuleKey (camelCaseOnly build) и
+    // truthy-guard'ятся: при отсутствии ключа возвращается '' и класс не попадает
+    // в DOM (защита от случайного литерала "undefined").
+    const themeClass = resolveCssModuleKey(cls, theme);
+    const alignClass = resolveCssModuleKey(cls, align);
+    const weightClass = weight ? resolveCssModuleKey(cls, weight) : '';
+    const wrapClass = wrap ? resolveCssModuleKey(cls, wrap) : '';
+    const truncateClass = truncate ? resolveCssModuleKey(cls, 'truncate') : '';
+
     const mods: Record<string, boolean | undefined> = {
       ...(sizeClass && { [sizeClass]: true }),
-      [cls[theme]]: true,
-      [cls[align]]: true,
+      ...(themeClass && { [themeClass]: true }),
+      ...(alignClass && { [alignClass]: true }),
       ...(lineClampClass && { [lineClampClass]: true }),
-      ...(weight && { [cls[weight]]: true }),
-      ...(wrap && { [cls[wrap]]: true }),
-      ...(truncate && { [cls.truncate]: true }),
+      ...(weightClass && { [weightClass]: true }),
+      ...(wrapClass && { [wrapClass]: true }),
+      ...(truncateClass && { [truncateClass]: true }),
     };
 
     return classNames(cls.paragraph, mods, [className]);

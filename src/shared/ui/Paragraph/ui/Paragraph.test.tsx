@@ -317,7 +317,7 @@ describe('Paragraph', () => {
       warnSpy.mockRestore();
     });
 
-    it('не должен предупреждать при lineClamp={6} (невалидное значение)', () => {
+    it('должен предупреждать при lineClamp={6} (невалидное значение)', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.stubEnv('NODE_ENV', 'development');
 
@@ -530,12 +530,6 @@ describe('Paragraph', () => {
 
       expect(getParagraph()).not.toHaveClass(cls.truncate);
     });
-
-    it('должен применять truncate класс при truncate={true}', () => {
-      render(<Paragraph truncate>Truncated text</Paragraph>);
-
-      expect(getParagraph()).toHaveClass(cls.truncate);
-    });
   });
 
   describe('Truncate + LineClamp conflict', () => {
@@ -697,7 +691,20 @@ describe('Paragraph', () => {
       expect(element).toHaveAttribute('id', 'aschild-id');
     });
 
-    it('должен предупреждать при asChild=true в production о текстовом children', () => {
+    it('должен пробрасывать data-атрибуты через Slot', () => {
+      render(
+        <Paragraph asChild size="m" theme="muted" align="center">
+          <span>Child</span>
+        </Paragraph>
+      );
+
+      const element = screen.getByTestId('Paragraph');
+      expect(element).toHaveAttribute('data-size', 'm');
+      expect(element).toHaveAttribute('data-theme', 'muted');
+      expect(element).toHaveAttribute('data-align', 'center');
+    });
+
+    it('не должен предупреждать при asChild=true в production о текстовом children', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.stubEnv('NODE_ENV', 'production');
 

@@ -18,21 +18,20 @@
  * Returns an empty string instead of `undefined`, so callers never leak the
  * literal string `"undefined"` into the DOM class list.
  */
+const isOwnString = (styles: Record<string, string>, key: string): boolean =>
+  typeof styles[key] === 'string';
+
 export const resolveCssModuleKey = <T extends Record<string, string>>(
   styles: T,
   key: string
 ): string => {
-  const direct = styles[key];
-  if (direct) {
-    return direct;
+  if (isOwnString(styles, key)) {
+    return styles[key];
   }
 
   const camelized = key.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
-  if (camelized !== key) {
-    const camel = styles[camelized];
-    if (camel) {
-      return camel;
-    }
+  if (camelized !== key && isOwnString(styles, camelized)) {
+    return styles[camelized];
   }
 
   const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -40,5 +39,5 @@ export const resolveCssModuleKey = <T extends Record<string, string>>(
     (candidate) => candidate.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedKey
   );
 
-  return match ? styles[match] : '';
+  return match && isOwnString(styles, match) ? styles[match] : '';
 };

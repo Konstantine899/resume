@@ -20,4 +20,9 @@ export interface SlotProps {
    * Data-testid для тестирования
    */
   'data-testid'?: string;
+
+  /**
+   * Произвольные data-атрибуты, мержатся в дочерний элемент
+   */
+  dataAttrs?: Record<string, string>;
 }

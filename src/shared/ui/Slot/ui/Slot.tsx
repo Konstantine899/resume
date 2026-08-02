@@ -14,7 +14,7 @@ import type { SlotProps } from '../model/types';
  * ```
  */
 export const Slot = forwardRef<HTMLElement, SlotProps>((props, ref) => {
-  const { children, className, id, 'data-testid': dataTestId } = props;
+  const { children, className, id, 'data-testid': dataTestId, dataAttrs } = props;
 
   const child = Children.only(children);
 
@@ -40,6 +40,13 @@ export const Slot = forwardRef<HTMLElement, SlotProps>((props, ref) => {
 
   if (dataTestId) {
     mergedProps['data-testid'] = dataTestId;
+  }
+
+  // Forward arbitrary data-attributes (data-size, data-theme, data-as, etc.)
+  if (dataAttrs) {
+    Object.keys(dataAttrs).forEach((key) => {
+      mergedProps[key] = dataAttrs[key];
+    });
   }
 
   // Forward ref to child

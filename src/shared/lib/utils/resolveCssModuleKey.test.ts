@@ -34,4 +34,11 @@ describe('resolveCssModuleKey', () => {
     const resolved = resolveCssModuleKey(styles, 'unknown-class');
     expect(resolved.includes('undefined')).toBe(false);
   });
+
+  it('returns an empty string for prototype-key names, never a non-string', () => {
+    expect(resolveCssModuleKey(styles, '__proto__')).toBe('');
+    expect(resolveCssModuleKey(styles, 'constructor')).toBe('');
+    expect(resolveCssModuleKey(styles, 'toString')).toBe('');
+    expect(resolveCssModuleKey(styles, 'hasOwnProperty')).toBe('');
+  });
 });

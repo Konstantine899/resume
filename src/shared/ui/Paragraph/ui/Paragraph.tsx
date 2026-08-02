@@ -20,8 +20,7 @@ import { Slot } from '@/shared/ui/Slot';
  * ```
  */
 function ParagraphImpl<C extends ElementType = 'p'>(
-  props: ParagraphProps<C> & { ref?: ForwardedRef<ComponentRef<C>> },
-  _ref: ForwardedRef<ComponentRef<C>>
+  props: ParagraphProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }
 ): ReactElement {
   const {
     // React 19 передаёт ref как обычный prop (ref-as-prop);
@@ -69,6 +68,7 @@ function ParagraphImpl<C extends ElementType = 'p'>(
         className={paragraphClassName}
         id={id}
         data-testid={dataTestId}
+        dataAttrs={dataAttrs}
       >
         {children}
       </Slot>
@@ -98,8 +98,6 @@ function ParagraphImpl<C extends ElementType = 'p'>(
     </Tag>
   );
 }
-
-ParagraphImpl.displayName = 'Paragraph';
 
 /**
  * React.memo не умеет generic-функции, поэтому оборачиваем через
