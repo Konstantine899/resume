@@ -3,7 +3,7 @@
 import { memo, forwardRef } from 'react';
 import type { ElementType, ForwardedRef, ReactElement } from 'react';
 import { useDivider } from '../lib/hooks/useDivider';
-import type { DividerAsElement, DividerComponent, DividerProps } from '../model/types';
+import type { DividerComponent, DividerProps } from '../model/types';
 import styles from './Divider.module.scss';
 
 /**
@@ -18,7 +18,7 @@ import styles from './Divider.module.scss';
  *   the thickness is drawn via `border-top-width` (thickness fix).
  */
 
-const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 'div'>(
+const dividerRef = forwardRef(function DividerImpl<C extends ElementType = 'div'>(
   {
     as,
     orientation = 'horizontal',
@@ -26,6 +26,7 @@ const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 
     thickness = 1,
     className = '',
     children,
+    style: userStyle,
     ...restProps
   }: DividerProps<C>,
   ref: ForwardedRef<HTMLElement>
@@ -51,6 +52,8 @@ const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 
     hasChildren: textDivider,
   });
 
+  const mergedStyle = { ...style, ...userStyle };
+
   const Component = (as || 'div') as ElementType;
 
   return (
@@ -61,7 +64,7 @@ const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 
       aria-orientation={orientation}
       {...dataAttrs}
       {...restProps}
-      style={style}
+      style={mergedStyle}
     >
       {textDivider ? <span className={styles.text}>{children}</span> : null}
     </Component>
@@ -69,6 +72,10 @@ const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 
 });
 
 const DividerMemo = memo(
+  // `memo` cannot hold a generic signature, so we cast the generic impl to a
+  // concrete 'div'-typed props for memo's internal typing, then re-cast the
+  // memoized result to the public generic component below. Each cast restores
+  // the part `React.memo` discards; neither is a runtime operation.
   dividerRef as unknown as (
     props: DividerProps<'div'> & { ref?: ForwardedRef<HTMLElement> }
   ) => ReactElement
@@ -76,4 +83,7 @@ const DividerMemo = memo(
 
 DividerMemo.displayName = 'Divider';
 
+// Public API: a genuine generic component. Consumers see `C` inferred from
+// `as`, with element-specific props and per-element ref typing. The two casts
+// above intentionally disable cross-checking between impl and this signature.
 export const Divider = DividerMemo as unknown as DividerComponent;

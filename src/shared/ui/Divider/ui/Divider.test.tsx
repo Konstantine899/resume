@@ -412,5 +412,63 @@ describe('Divider', () => {
       const { result } = renderHook(() => useDivider({ hasChildren: true }));
       expect(result.current.dividerClassName).toContain('textDivider');
     });
+
+    it('должен проставлять --divider-line-thickness для text divider', () => {
+      const { result } = renderHook(() =>
+        useDivider({ hasChildren: true, thickness: 4, orientation: 'horizontal' })
+      );
+      expect(result.current.style).toEqual({ '--divider-line-thickness': '4px' });
+    });
+  });
+
+  // ============================================================
+  // Стайл-мердж (пользовательский style не затирается)
+  // ============================================================
+
+  describe('Style merge', () => {
+    it('должен сохранять пользовательский style при переданном custom style', () => {
+      render(<Divider style={{ marginTop: '10px', marginLeft: '5px' }} />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveStyle({ marginTop: '10px' });
+      expect(divider).toHaveStyle({ marginLeft: '5px' });
+    });
+
+    it('должен сохранять вычисленную геометрию (borderTopWidth) вместе с кастомным стилем', () => {
+      render(<Divider thickness={3} style={{ marginBottom: '5px' }} />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveStyle({ borderTopWidth: '3px' });
+      expect(divider).toHaveStyle({ marginBottom: '5px' });
+    });
+
+    it('должен давать приоритет пользовательскому style при конфликте с геометрией', () => {
+      render(<Divider thickness={3} style={{ borderTopWidth: '9px', marginLeft: '2px' }} />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveStyle({ borderTopWidth: '9px' });
+      expect(divider).toHaveStyle({ marginLeft: '2px' });
+    });
+  });
+
+  // ============================================================
+  // Text divider thickness (сегменты следуют thickness)
+  // ============================================================
+
+  describe('Text divider thickness', () => {
+    it('должен рисовать сегменты толщиной из thickness через CSS-переменную', () => {
+      render(<Divider thickness={6}>Label</Divider>);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveClass(/textDivider/);
+      expect(divider).toHaveStyle({ '--divider-line-thickness': '6px' });
+    });
+  });
+
+  // ============================================================
+  // Polymorphic typing (compile-time)
+  // ============================================================
+
+  describe('Polymorphic typing', () => {
+    it('@ts-expect-error: disabled не существует на as="a"', () => {
+      // @ts-expect-error disabled - свойство button, не anchor
+      render(<Divider as="a" disabled />);
+    });
   });
 });

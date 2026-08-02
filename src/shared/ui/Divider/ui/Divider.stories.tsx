@@ -491,7 +491,12 @@ export const AsHr: Story = {
       <p style={{ margin: '0 0 8px' }}>
         Before the semantic <code>&lt;hr&gt;</code>
       </p>
-      <Divider {...args} as="hr" />
+      <Divider
+        orientation={args.orientation}
+        variant={args.variant}
+        thickness={args.thickness}
+        as="hr"
+      />
       <p style={{ margin: '8px 0 0' }}>
         After the semantic <code>&lt;hr&gt;</code>
       </p>

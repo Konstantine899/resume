@@ -5,7 +5,6 @@ export type {
   DividerOrientation,
   DividerVariant,
   DividerOwnProps,
-  DividerAsElement,
   DividerComponent,
 } from './model/types';
 export { DIVIDER_CONSTANTS } from './model/constants';

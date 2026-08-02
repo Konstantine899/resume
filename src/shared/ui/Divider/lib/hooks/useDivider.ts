@@ -76,10 +76,13 @@ export function useDivider({
         verticalStyle.backgroundSize = `100% ${thickness}px`;
       }
       style = verticalStyle;
+    } else if (isTextDivider) {
+      // Text divider: the container draws no own line — ::before/::after
+      // pseudo-elements draw the segments. They source thickness from this
+      // CSS custom property (SCSS cannot read the inline border-top-width).
+      style = { '--divider-line-thickness': `${thickness}px` } as CSSProperties;
     }
-    // Text divider: the container draws no own line — ::before/::after
-    // pseudo-elements draw the line segments around the label.
 
-    return { dividerClassName, dataAttrs, style, isTextDivider };
+    return { dividerClassName, dataAttrs, style };
   }, [orientation, variant, thickness, className, isTextDivider]);
 }

@@ -25,40 +25,45 @@ export type DividerOrientation = 'horizontal' | 'vertical';
 export type DividerVariant = 'solid' | 'dashed' | 'dotted';
 
 /**
- * Polymorphic element accepted by Divider. Restricted to type-safe
- * HTML elements and custom React components.
- */
-export type DividerAsElement = ElementType;
-
-/**
- * Props owned by Divider (not inherited from any HTML element).
+ * Props, owned by Divider (не наследуются от HTML-элемента).
  */
 export interface DividerOwnProps {
-  /** Polymorphic root element (defaults to 'div') */
-  as?: DividerAsElement;
-  /** Divider orientation */
+  /** Ориентация div ider */
   orientation?: DividerOrientation;
-  /** Line style */
+  /** Стиль линии */
   variant?: DividerVariant;
-  /** Line thickness (in pixels) */
+  /** Толщина линии (в пикселях) */
   thickness?: number;
-  /** Custom class */
+  /** Кастомный класс */
   className?: string;
-  /** Text label for the text divider (horizontal only) */
+  /** Текстовая подпись для text divider (только horizontal) */
   children?: ReactNode;
 }
 
 /**
- * Generic polymorphic props for Divider.
- * Allows overriding the root element through the `as` prop.
+ * Базовые props Divider + полиморфный `as` prop.
  *
- * @template C - Element type (defaults to 'div')
+ * `as` привязан к дженерику `C`, поэтому TypeScript выводит тип элемента
+ * из переданного значения и сужает элемент-специфичные props (например
+ * `href` при `as="a"`) и тип ref. Паттерн совпадает с Paragraph/Heading.
+ *
+ * @template C - Тип элемента (по умолчанию 'div')
  */
-export type DividerProps<C extends ElementType = 'div'> = DividerOwnProps &
-  Omit<ComponentPropsWithRef<C>, keyof DividerOwnProps | 'as'>;
+export type DividerBaseProps<C extends ElementType = 'div'> = { as?: C } & DividerOwnProps;
 
 /**
- * Component type with generic ref support.
+ * Generic polymorphic props для Divider.
+ * Позволяет переопределить корневой элемент через `as` и получает
+ * элемент-специфичные проксы с типизацией.
+ *
+ * @template C - Тип элемента (по умолчанию 'div')
+ */
+export type DividerProps<C extends ElementType = 'div'> = DividerBaseProps<C> &
+  Omit<ComponentPropsWithRef<C>, keyof DividerOwnProps | 'as' | 'ref'>;
+
+/**
+ * Публичный тип компонента с резолюцией ref в зависимости от `as`.
+ * `displayName` присутствует на рантайм-объекте (memo-обёртка).
  */
 export type DividerComponent = (<C extends ElementType = 'div'>(
   props: DividerProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }

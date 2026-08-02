@@ -11,7 +11,6 @@ $divider-color: var(--border-color, #e5e7eb);
 $divider-gap: 0.75rem;
 
 .divider {
-  // Base styles
   position: relative;
   margin: 0;
   border: none;
@@ -73,12 +72,15 @@ $divider-gap: 0.75rem;
       flex: 1;
       height: 0;
       content: '';
-      border-top: 1px solid $divider-color;
+
+      // Segment thickness is sourced from the inline --divider-line-thickness
+
+      // set by useDivider (SCSS cannot read the inline border-top-width).
+      border-top: var(--divider-line-thickness, 1px) solid $divider-color;
     }
   }
 
   .text {
-    // The label inside the text divider. The segments always render solid.
     flex-shrink: 0;
   }
 }
