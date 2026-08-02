@@ -137,7 +137,7 @@ describe('useParagraph', () => {
       renderHook(() => useParagraph({ truncate: true, lineClamp: 3 }));
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('truncate и lineClamp не могут быть использованы одновременно')
+        expect.stringContaining('truncate and lineClamp cannot be used simultaneously')
       );
 
       warnSpy.mockRestore();

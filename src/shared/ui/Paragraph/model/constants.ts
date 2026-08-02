@@ -69,6 +69,20 @@ export const PARAGRAPH_WRAPS = [
 ] as const satisfies readonly ParagraphWrap[];
 
 /**
+ * Значения по умолчанию — единственный источник истины
+ * (используется и в компоненте, и в useParagraph).
+ */
+export const PARAGRAPH_DEFAULTS = {
+  size: 'm',
+  theme: 'primary',
+  align: 'left',
+} as const satisfies {
+  size: ParagraphSize;
+  theme: ParagraphTheme;
+  align: ParagraphAlign;
+};
+
+/**
  * Проверка валидности lineClamp
  */
 export const isValidLineClamp = (lineClamp: unknown): lineClamp is LineClamp => {

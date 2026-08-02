@@ -14,6 +14,15 @@ import { Heading } from '@/shared/ui/Heading';
 import { Paragraph } from './Paragraph';
 import styles from './Paragraph.module.scss';
 
+const SIZE_LABELS: Record<ParagraphSize, string> = {
+  xs: '12px',
+  s: '14px',
+  m: '16px',
+  l: '18px',
+  xl: '20px',
+  '2xl': '24px',
+};
+
 /**
  * ## Paragraph Component
  *
@@ -130,18 +139,7 @@ export const AllSizes: Story = {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {(['xs', 's', 'm', 'l', 'xl', '2xl'] as ParagraphSize[]).map((size) => (
         <Paragraph key={size} size={size} data-testid={`paragraph-${size}`}>
-          Размер: {size} -{' '}
-          {size === 'xs'
-            ? '12px'
-            : size === 's'
-              ? '14px'
-              : size === 'm'
-                ? '16px'
-                : size === 'l'
-                  ? '18px'
-                  : size === 'xl'
-                    ? '20px'
-                    : '24px'}
+          Размер: {size} - {SIZE_LABELS[size]}
         </Paragraph>
       ))}
     </div>
@@ -704,7 +702,7 @@ export const WeightAndElement: Story = {
  * truncate и lineClamp взаимоисключающие на уровне типов (PAR-03),
  * поэтому story демонстрирует только lineClamp.
  */
-export const TruncateWithLineClamp: Story = {
+export const LineClamp3Only: Story = {
   render: () => (
     <Paragraph lineClamp={3} data-testid="paragraph-line-clamp-3">
       Этот текст ограничен lineClamp=3 — после третьей строки появится многоточие. В dev-режиме

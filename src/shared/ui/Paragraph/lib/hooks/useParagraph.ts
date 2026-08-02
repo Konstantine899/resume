@@ -5,7 +5,7 @@ import type { ElementType } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { mapSizeToClass } from '@/shared/lib/utils/mapSizeToClass';
 import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
-import { isValidLineClamp } from '../../model/constants';
+import { isValidLineClamp, PARAGRAPH_DEFAULTS } from '../../model/constants';
 import {
   validateParagraphProps,
   type ParagraphValidationProps,
@@ -51,9 +51,9 @@ export interface UseParagraphReturn {
  * ```
  */
 export const useParagraph = ({
-  size = 'm',
-  theme = 'primary',
-  align = 'left',
+  size = PARAGRAPH_DEFAULTS.size,
+  theme = PARAGRAPH_DEFAULTS.theme,
+  align = PARAGRAPH_DEFAULTS.align,
   weight,
   wrap,
   truncate,
@@ -67,7 +67,7 @@ export const useParagraph = ({
   }
 
   // Валидация lineClamp (только 2-5) — поведение сохранено из Paragraph.tsx
-  const validatedLineClamp = lineClamp && isValidLineClamp(lineClamp) ? lineClamp : undefined;
+  const resolvedLineClamp = lineClamp && isValidLineClamp(lineClamp) ? lineClamp : undefined;
 
   // Мемоизированное вычисление className (mapSizeToClass + модификаторы)
   const paragraphClassName = useMemo(() => {
@@ -76,8 +76,8 @@ export const useParagraph = ({
     // поэтому kebab-ключи вида `size-2xl` резолвятся в `size2Xl`.
     const sizeClass = resolveCssModuleKey(cls, mapSizeToClass(size));
     const lineClampClass =
-      validatedLineClamp && !truncate
-        ? resolveCssModuleKey(cls, `line-clamp-${validatedLineClamp}`)
+      resolvedLineClamp && !truncate
+        ? resolveCssModuleKey(cls, `line-clamp-${resolvedLineClamp}`)
         : '';
 
     // Все классы резолвятся через resolveCssModuleKey (camelCaseOnly build) и
@@ -100,7 +100,7 @@ export const useParagraph = ({
     };
 
     return classNames(cls.paragraph, mods, [className]);
-  }, [size, theme, align, weight, wrap, truncate, validatedLineClamp, className]);
+  }, [size, theme, align, weight, wrap, truncate, resolvedLineClamp, className]);
 
   // Data-атрибуты для стилизации и тестирования.
   // data-as присутствует только для строковых элементов (компоненты его не имеют).

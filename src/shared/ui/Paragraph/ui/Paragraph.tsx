@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, isValidElement, Children } from 'react';
 import type { ComponentRef, ElementType, ForwardedRef, ReactElement, Ref } from 'react';
 import { type ParagraphComponent, type ParagraphProps } from '../model/types';
+import { PARAGRAPH_DEFAULTS } from '../model/constants';
 import { useParagraph } from '../lib/hooks/useParagraph';
 import { Slot } from '@/shared/ui/Slot';
 
@@ -26,9 +27,9 @@ function ParagraphImpl<C extends ElementType = 'p'>(
     // React 19 передаёт ref как обычный prop (ref-as-prop);
     // второй аргумент (forwardRef-конвенция) не заполняется для обычных функций.
     ref: forwardedRef,
-    size = 'm',
-    theme = 'primary',
-    align = 'left',
+    size = PARAGRAPH_DEFAULTS.size,
+    theme = PARAGRAPH_DEFAULTS.theme,
+    align = PARAGRAPH_DEFAULTS.align,
     weight,
     wrap,
     truncate,
@@ -55,13 +56,13 @@ function ParagraphImpl<C extends ElementType = 'p'>(
     className,
   });
 
-  if (
+  const asChildWithSingleElement =
     asChild &&
-    children &&
-    typeof children !== 'string' &&
-    typeof children !== 'number' &&
-    typeof children !== 'boolean'
-  ) {
+    typeof children !== 'undefined' &&
+    Children.count(children) === 1 &&
+    isValidElement(children);
+
+  if (asChildWithSingleElement) {
     return (
       <Slot
         ref={forwardedRef as ForwardedRef<HTMLElement>}
@@ -75,7 +76,7 @@ function ParagraphImpl<C extends ElementType = 'p'>(
     );
   }
 
-  // Если asChild=true но children не является ReactElement, рендерим как обычно
+  // Если asChild=true но children не является единственным ReactElement, рендерим как обычно
   if (asChild && process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console
     console.warn(

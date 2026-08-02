@@ -1,5 +1,7 @@
 // src/shared/ui/Paragraph/lib/utils/validateParagraphProps.ts
 
+/* eslint-disable no-console */
+
 import type {
   LineClamp,
   ParagraphAlign,
@@ -55,8 +57,6 @@ export interface ParagraphValidationProps {
  * ```
  */
 
-/* eslint-disable no-console */
-
 export const validateParagraphProps = (props: ParagraphValidationProps): void => {
   if (process.env.NODE_ENV !== 'development') return;
 
@@ -90,14 +90,13 @@ export const validateParagraphProps = (props: ParagraphValidationProps): void =>
 
   // lineClamp validation (2-5), preserved from Paragraph.tsx
   if (lineClamp && !isValidLineClamp(lineClamp)) {
-    console.warn(`Paragraph: lineClamp должен быть от 2 до 5, получено: ${lineClamp}`);
+    console.warn(`Paragraph: invalid lineClamp "${lineClamp}". Valid values: 2-5 (inclusive)`);
   }
 
   // truncate/lineClamp conflict warn, preserved from Paragraph.tsx
   if (truncate && lineClamp) {
     console.warn(
-      'Paragraph: truncate и lineClamp не могут быть использованы одновременно.' +
-        ' Будет использован truncate.'
+      'Paragraph: truncate and lineClamp cannot be used simultaneously. truncate takes precedence.'
     );
   }
 };

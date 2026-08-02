@@ -283,7 +283,7 @@ describe('Paragraph', () => {
       render(<Paragraph lineClamp={7 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        'Paragraph: lineClamp должен быть от 2 до 5, получено: 7'
+        'Paragraph: invalid lineClamp "7". Valid values: 2-5 (inclusive)'
       );
 
       warnSpy.mockRestore();
@@ -324,7 +324,7 @@ describe('Paragraph', () => {
       render(<Paragraph lineClamp={6 as unknown as LineClamp}>Text</Paragraph>);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        'Paragraph: lineClamp должен быть от 2 до 5, получено: 6'
+        'Paragraph: invalid lineClamp "6". Valid values: 2-5 (inclusive)'
       );
 
       warnSpy.mockRestore();
@@ -545,7 +545,7 @@ describe('Paragraph', () => {
       );
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('truncate и lineClamp не могут быть использованы одновременно')
+        expect.stringContaining('truncate and lineClamp cannot be used simultaneously')
       );
 
       warnSpy.mockRestore();
