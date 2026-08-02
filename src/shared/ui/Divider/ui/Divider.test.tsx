@@ -1,8 +1,9 @@
 // src/shared/ui/Divider/ui/Divider.test.tsx
 
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, renderHook } from '@testing-library/react';
 import { Divider } from './Divider';
+import { useDivider } from '../lib/hooks/useDivider';
 
 describe('Divider', () => {
   // ============================================
@@ -51,10 +52,10 @@ describe('Divider', () => {
       expect(divider).toHaveAttribute('aria-orientation', 'vertical');
     });
 
-    it('должен применять height для horizontal', () => {
+    it('должен применять borderTopWidth для horizontal', () => {
       render(<Divider thickness={2} />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '2px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '2px' });
     });
 
     it('должен применять width для vertical', () => {
@@ -96,13 +97,13 @@ describe('Divider', () => {
     it('должен применять thickness по умолчанию (1px)', () => {
       render(<Divider />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '1px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '1px' });
     });
 
     it('должен применять кастомный thickness', () => {
       render(<Divider thickness={5} />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '5px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '5px' });
     });
 
     it('должен применять thickness для vertical', () => {
@@ -114,13 +115,13 @@ describe('Divider', () => {
     it('должен применять минимальный thickness (1px)', () => {
       render(<Divider thickness={1} />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '1px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '1px' });
     });
 
     it('должен применять максимальный thickness (10px)', () => {
       render(<Divider thickness={10} />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '10px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '10px' });
     });
   });
 
@@ -221,7 +222,7 @@ describe('Divider', () => {
     it('должен рендериться с thickness=0 (edge case)', () => {
       render(<Divider thickness={0} />);
       const divider = screen.getByRole('separator');
-      expect(divider).toHaveStyle({ height: '0px' });
+      expect(divider).toHaveStyle({ borderTopWidth: '0px' });
     });
 
     it('должен комбинировать className с базовыми классами', () => {
@@ -294,6 +295,122 @@ describe('Divider', () => {
       render(<Divider variant="dashed" />);
       const divider = screen.getByRole('separator');
       expect(divider).toHaveAttribute('data-variant', 'dashed');
+    });
+  });
+
+  // ============================================
+  // Polymorphic rendering (as prop)
+  // ============================================
+
+  describe('Polymorphic', () => {
+    it('должен рендериться как <hr> при as="hr"', () => {
+      render(<Divider as="hr" orientation="horizontal" />);
+      const divider = screen.getByRole('separator');
+      expect(divider.tagName).toBe('HR');
+      expect(divider).toHaveClass(/divider/);
+      expect(divider).toHaveAttribute('aria-orientation', 'horizontal');
+    });
+
+    it('должен передавать merged className и кастомные props кастомному компоненту', () => {
+      const CustomLine = (props: React.HTMLAttributes<HTMLDivElement>) => (
+        <div data-custom-line="true" {...props} />
+      );
+      render(<Divider as={CustomLine} data-x="1" />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveAttribute('data-custom-line', 'true');
+      expect(divider).toHaveAttribute('data-x', '1');
+      expect(divider).toHaveClass(/divider/);
+    });
+  });
+
+  // ============================================
+  // Ref types
+  // ============================================
+
+  describe('forwardRef per as', () => {
+    it('должен передавать ref как HTMLDivElement по умолчанию', () => {
+      const ref = { current: null };
+      render(<Divider ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    });
+
+    it('должен передавать ref как HTMLHRElement при as="hr"', () => {
+      const ref = { current: null };
+      render(<Divider as="hr" ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLHRElement);
+    });
+  });
+
+  // ============================================
+  // Thickness fix (DIVIDER-04/05)
+  // ============================================
+
+  describe('Thickness fix', () => {
+    it('должен рендерить dashed vertical с масштабированным backgroundSize (th*8)', () => {
+      render(<Divider orientation="vertical" variant="dashed" thickness={3} />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveStyle({ backgroundSize: '100% 24px' });
+    });
+
+    it('должен рендерить dotted vertical с backgroundSize = thickness', () => {
+      render(<Divider orientation="vertical" variant="dotted" thickness={2} />);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveStyle({ backgroundSize: '100% 2px' });
+    });
+  });
+
+  // ============================================
+  // Text divider (children)
+  // ============================================
+
+  describe('Text divider', () => {
+    it('должен рендерить label между линиями (textDivider)', () => {
+      render(<Divider variant="dashed">Section Label</Divider>);
+      const divider = screen.getByRole('separator');
+      expect(divider).toHaveClass(/textDivider/);
+      expect(divider).toHaveTextContent('Section Label');
+    });
+
+    it('должен рендерить чистую линию для пустых children', () => {
+      render(<Divider>{''}</Divider>);
+      const divider = screen.getByRole('separator');
+      expect(divider).not.toHaveClass(/textDivider/);
+      expect(divider.textContent).toBe('');
+    });
+
+    it('должен предупреждать и игнорировать children при vertical', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      process.env.NODE_ENV = 'development';
+      render(<Divider orientation="vertical">Should Be Ignored</Divider>);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('only supported with orientation="horizontal"')
+      );
+      const divider = screen.getByRole('separator');
+      expect(divider).not.toHaveClass(/textDivider/);
+      warnSpy.mockRestore();
+      delete process.env.NODE_ENV;
+    });
+  });
+
+  // ============================================
+  // useDivider hook (DIVIDER-03)
+  // ============================================
+
+  describe('useDivider hook', () => {
+    it('должен вычислять className и dataAttrs', () => {
+      const { result } = renderHook(() =>
+        useDivider({ orientation: 'vertical', variant: 'dashed', className: 'custom' })
+      );
+      expect(result.current.dividerClassName).toContain('custom');
+      expect(result.current.dataAttrs).toEqual({
+        'data-orientation': 'vertical',
+        'data-variant': 'dashed',
+      });
+    });
+
+    it('должен включить textDivider класс при hasChildren + horizontal', () => {
+      const { result } = renderHook(() => useDivider({ hasChildren: true }));
+      expect(result.current.dividerClassName).toContain('textDivider');
     });
   });
 });

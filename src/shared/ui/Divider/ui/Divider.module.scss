@@ -2,62 +2,81 @@
 
 @use '@/shared/styles/variables' as *;
 
-// Цвет разделителя (CSS variable with fallback)
+// Divider line color (theme-aware CSS variable with fallback)
 $divider-color: var(--divider-base, #e0e0e0);
 
+// Gap between the text label and the line segments (text divider)
+$divider-gap: 0.75rem;
+
 .divider {
-  // Базовые стили
+  // Base styles
   position: relative;
+  margin: 0;
   border: none;
 
-  // Горизонтальный разделитель — используем border-top
+  // ---- Horizontal divider: the line is drawn via border-top ----
+
+  // The border-top-width is set inline (from `thickness`) by useDivider.
   &.horizontal {
     width: 100%;
-    border-top-width: 1px;
+    height: 0;
 
-    // Solid variant — сплошная линия
     &.solid {
       border-top-color: $divider-color;
       border-top-style: solid;
     }
 
-    // Dashed variant — пунктирная линия
     &.dashed {
       border-top-color: $divider-color;
       border-top-style: dashed;
     }
 
-    // Dotted variant — точечная линия
     &.dotted {
       border-top-color: $divider-color;
       border-top-style: dotted;
     }
   }
 
-  // Вертикальный разделитель — используем background gradient
+  // ---- Vertical divider: drawn via background ----
   &.vertical {
     display: inline-block;
-    width: 1px;
     height: 100%;
     vertical-align: middle;
 
-    // Solid variant — сплошная линия
     &.solid {
       background: $divider-color;
     }
 
-    // Dashed variant — пунктирная линия
+    // Background-size scaled inline by useDivider (dashed: thickness * 8)
     &.dashed {
       background-image: linear-gradient(180deg, $divider-color 50%, transparent 50%);
       background-repeat: repeat-y;
-      background-size: 100% 8px;
     }
 
-    // Dotted variant — точечная линия
+    // Background-size scaled inline by useDivider (dotted: thickness)
     &.dotted {
       background-image: radial-gradient($divider-color 1px, transparent 1px);
       background-repeat: repeat-y;
-      background-size: 100% 4px;
     }
+  }
+
+  // ---- Text divider (children): line segments around a centered label ----
+  &.textDivider {
+    display: flex;
+    gap: var(--divider-gap, $divider-gap);
+    align-items: center;
+
+    &::before,
+    &::after {
+      flex: 1;
+      height: 0;
+      content: '';
+      border-top: 1px solid $divider-color;
+    }
+  }
+
+  .text {
+    // The label inside the text divider. The segments always render solid.
+    flex-shrink: 0;
   }
 }

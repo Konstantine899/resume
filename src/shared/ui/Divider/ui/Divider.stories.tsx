@@ -3,6 +3,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from '@storybook/test';
 import { Divider } from './Divider';
+import { Card } from '@/shared/ui/Card';
+import { Modal } from '@/shared/ui/Modal';
 
 const meta = {
   title: 'Shared/Divider',
@@ -394,7 +396,198 @@ export const Interactive: Story = {
     const dashedDivider = canvas.getByTestId('divider-dashed');
     expect(dashedDivider).toHaveClass(/dashed/);
 
-    // Test 4: Verify thickness
-    expect(dashedDivider).toHaveStyle({ height: '2px' });
+    // Test 4: Verify thickness is drawn via border-top-width (horizontal)
+    expect(dashedDivider).toHaveStyle({ borderTopWidth: '2px' });
+  },
+};
+
+// ============================================
+// Play functions on key stories
+// ============================================
+
+export const SolidPlay: Story = {
+  ...Solid,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveAttribute('data-variant', 'solid');
+    expect(divider).toHaveAttribute('data-orientation', 'horizontal');
+    expect(divider).toHaveStyle({ borderTopWidth: '1px' });
+  },
+};
+
+export const DashedPlay: Story = {
+  ...Dashed,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveAttribute('data-variant', 'dashed');
+    expect(divider).toHaveStyle({ borderTopWidth: '2px' });
+  },
+};
+
+export const DottedPlay: Story = {
+  ...Dotted,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveAttribute('data-variant', 'dotted');
+    expect(divider).toHaveStyle({ borderTopWidth: '2px' });
+  },
+};
+
+export const HorizontalPlay: Story = {
+  ...Horizontal,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveAttribute('aria-orientation', 'horizontal');
+    expect(divider).toHaveStyle({ borderTopWidth: '1px' });
+  },
+};
+
+export const VerticalPlay: Story = {
+  ...Vertical,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveAttribute('aria-orientation', 'vertical');
+    expect(divider).toHaveAttribute('data-variant', 'solid');
+    expect(divider).toHaveStyle({ width: '1px' });
+  },
+};
+
+export const AllVariantsPlay: Story = {
+  ...AllVariants,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dividers = canvas.getAllByRole('separator');
+    expect(dividers).toHaveLength(3);
+    expect(dividers[0]).toHaveAttribute('data-variant', 'solid');
+    expect(dividers[1]).toHaveAttribute('data-variant', 'dashed');
+    expect(dividers[2]).toHaveAttribute('data-variant', 'dotted');
+  },
+};
+
+export const AllThicknessesPlay: Story = {
+  ...AllThicknesses,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dividers = canvas.getAllByRole('separator');
+    expect(dividers).toHaveLength(5);
+    expect(dividers[0]).toHaveStyle({ borderTopWidth: '1px' });
+    expect(dividers[1]).toHaveStyle({ borderTopWidth: '2px' });
+    expect(dividers[4]).toHaveStyle({ borderTopWidth: '10px' });
+  },
+};
+
+// ============================================
+// Semantic + composition + text-divider stories
+// ============================================
+
+export const AsHr: Story = {
+  render: (args) => (
+    <Container>
+      <p style={{ margin: '0 0 8px' }}>
+        Before the semantic <code>&lt;hr&gt;</code>
+      </p>
+      <Divider {...args} as="hr" />
+      <p style={{ margin: '8px 0 0' }}>
+        After the semantic <code>&lt;hr&gt;</code>
+      </p>
+    </Container>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const hr = canvas.getByRole('separator');
+    expect(hr.tagName).toBe('HR');
+    expect(hr).toHaveAttribute('aria-orientation', 'horizontal');
+  },
+};
+
+export const TextDivider: Story = {
+  render: (args) => (
+    <Container>
+      <Divider {...args}>Или continue</Divider>
+    </Container>
+  ),
+  args: {
+    orientation: 'horizontal',
+    variant: 'solid',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    expect(divider).toHaveTextContent('Или continue');
+    expect(canvas.getByText('Или continue')).toBeInTheDocument();
+  },
+};
+
+export const TextDividerEmpty: Story = {
+  render: (args) => (
+    <Container>
+      <Divider {...args}>{''}</Divider>
+    </Container>
+  ),
+  args: {
+    orientation: 'horizontal',
+    variant: 'solid',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider = canvas.getByRole('separator');
+    // Empty children fall back to a pure-line divider (no text node).
+    expect(divider).not.toHaveTextContent('continue');
+  },
+};
+
+// ============================================
+// Composition-stories (Card / Modal integration)
+// ============================================
+
+export const DividerInCard: Story = {
+  render: () => (
+    <Card variant="default" fullWidth style={{ maxWidth: '480px' }}>
+      <Card.Body>
+        <h4 style={{ margin: '0 0 8px' }}>Card Body</h4>
+        <p style={{ margin: 0, color: 'var(--foreground)' }}>
+          A card that separates its sections with the Divider.
+        </p>
+      </Card.Body>
+      <Card.Footer withBorder>
+        <button type="button" style={{ padding: '6px 16px' }}>
+          Cancel
+        </button>
+        <button type="button" style={{ padding: '6px 16px' }}>
+          Save
+        </button>
+      </Card.Footer>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Card.Footer renders a Divider between the body and the footer actions.
+    const dividers = canvas.queryAllByRole('separator');
+    expect(dividers.length).toBeGreaterThanOrEqual(1);
+  },
+};
+
+export const DividerInModal: Story = {
+  render: () => (
+    <Modal
+      isOpen
+      onClose={() => {}}
+      forceMount
+      title="Settings"
+      footer={<button type="button">Save</button>}
+    >
+      <p style={{ margin: 0 }}>Modal body content separated by Dividers.</p>
+    </Modal>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Header/Content and Content/Footer are separated by sibling Dividers.
+    const dividers = canvas.getAllByRole('separator');
+    expect(dividers.length).toBeGreaterThanOrEqual(2);
   },
 };

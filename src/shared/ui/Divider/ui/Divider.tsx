@@ -1,100 +1,79 @@
 // src/shared/ui/Divider/ui/Divider.tsx
 
-import { validateDividerProps } from '@/shared/ui/Divider/lib/utils/validateDividerProps';
-import { DIVIDER_CONSTANTS } from '@/shared/ui/Divider/model/constants';
-import { classNames } from '@/shared/lib/utils/classNames';
-import { forwardRef, memo, useEffect, useMemo } from 'react';
-import type { DividerProps } from '../model/types';
+import { memo, forwardRef } from 'react';
+import type { ElementType, ForwardedRef, ReactElement } from 'react';
+import { useDivider } from '../lib/hooks/useDivider';
+import type { DividerAsElement, DividerComponent, DividerProps } from '../model/types';
 import styles from './Divider.module.scss';
 
 /**
- * Divider Component — визуальный разделитель контента
+ * Divider — polymorphic visual separator.
  *
- * @param orientation - Ориентация разделителя ('horizontal' | 'vertical')
- * @param variant    - Стиль линии ('solid' | 'dashed' | 'dotted')
- * @param thickness  - Толщина линии в px (1-10)
- * @param className  - Дополнительный CSS-класс
- *
- * @example
- * // Basic usage (default: orientation="horizontal", variant="solid")
- * ```tsx
- * <Divider />
- * ```
- *
- * @example
- * // With vertical orientation
- * ```tsx
- * <Divider orientation="vertical" thickness={2} />
- * ```
- *
- * @example
- * // With dashed variant and custom thickness
- * ```tsx
- * <Divider variant="dashed" thickness={3} />
- * ```
- *
- * @example
- * // With accessibility attributes
- * ```tsx
- * <Divider aria-label="Section separator" role="separator" />
- * ```
- *
- * @example
- * // All variants
- * ```tsx
- * <div>
- *   <Divider variant="solid" />
- *   <Divider variant="dashed" />
- *   <Divider variant="dotted" />
- * </div>
- * ```
+ * @remarks
+ * - Renders as `<div>` with `role="separator"` by default.
+ * - `as` overrides the root element (e.g. `as="hr"` for semantics).
+ * - `children` enables the text-divider layout (label between lines),
+ *   only supported for `orientation="horizontal"`.
+ * - `thickness` drives the line thickness (1-10px). For the horizontal line
+ *   the thickness is drawn via `border-top-width` (thickness fix).
  */
-const DividerComponent = forwardRef<HTMLDivElement, DividerProps>(
-  (
-    {
-      orientation = 'horizontal',
-      variant = 'solid',
-      thickness = DIVIDER_CONSTANTS.DEFAULT_THICKNESS,
-      className = '',
-      ...restProps
-    },
-    ref
-  ) => {
-    // Runtime validation in development mode
-    useEffect(() => {
-      validateDividerProps(orientation, variant, thickness);
-    }, [orientation, variant, thickness]);
 
-    // Memoize className calculation
-    const dividerClassName = useMemo(
-      () => classNames(styles.divider, styles[orientation], styles[variant], className),
-      [orientation, variant, className]
-    );
+const dividerRef = forwardRef(function DividerImpl<C extends DividerAsElement = 'div'>(
+  {
+    as,
+    orientation = 'horizontal',
+    variant = 'solid',
+    thickness = 1,
+    className = '',
+    children,
+    ...restProps
+  }: DividerProps<C>,
+  ref: ForwardedRef<HTMLElement>
+): ReactElement {
+  const hasChildren = children != null && children !== '';
+  // Children are only valid for horizontal orientation: warn and fall
+  // back to a pure line when combined with vertical orientation.
+  const textDivider = hasChildren && orientation === 'horizontal';
+  const pureLineChildren = hasChildren && orientation === 'vertical';
 
-    // Memoize style object
-    const dividerStyle = useMemo(
-      () => ({
-        [orientation === 'horizontal' ? 'height' : 'width']: `${thickness}px`,
-      }),
-      [orientation, thickness]
-    );
-
-    return (
-      <div
-        ref={ref}
-        className={dividerClassName}
-        style={dividerStyle}
-        role="separator"
-        aria-orientation={orientation}
-        data-orientation={orientation}
-        data-variant={variant}
-        {...restProps}
-      />
+  if (pureLineChildren && process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'Divider: children are only supported with orientation="horizontal". Children ignored.'
     );
   }
+
+  const { dividerClassName, dataAttrs, style } = useDivider({
+    orientation,
+    variant,
+    thickness,
+    className,
+    hasChildren: textDivider,
+  });
+
+  const Component = (as || 'div') as ElementType;
+
+  return (
+    <Component
+      ref={ref}
+      className={dividerClassName}
+      role="separator"
+      aria-orientation={orientation}
+      {...dataAttrs}
+      {...restProps}
+      style={style}
+    >
+      {textDivider ? <span className={styles.text}>{children}</span> : null}
+    </Component>
+  );
+});
+
+const DividerMemo = memo(
+  dividerRef as unknown as (
+    props: DividerProps<'div'> & { ref?: ForwardedRef<HTMLElement> }
+  ) => ReactElement
 );
 
-DividerComponent.displayName = 'Divider';
+DividerMemo.displayName = 'Divider';
 
-export const Divider = memo(DividerComponent);
-Divider.displayName = 'Divider';
+export const Divider = DividerMemo as unknown as DividerComponent;
