@@ -3,12 +3,23 @@
 .cardHeader {
   margin-bottom: $spacing-md;
 
+  .divider {
+    margin-top: $spacing-md;
+  }
+
   &.withBorder {
-    padding-bottom: $spacing-md;
-    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0;
   }
 
   &:last-child {
+    .divider {
+      display: none;
+    }
+
     margin-bottom: 0;
   }
+}
+
+.content {
+  display: block;
 }

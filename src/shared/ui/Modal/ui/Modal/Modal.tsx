@@ -10,6 +10,7 @@ import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
 import { ModalAlert } from '../ModalAlert/ModalAlert';
 import { ModalDrawer } from '../ModalDrawer/ModalDrawer';
 import { ModalForm } from '../ModalForm/ModalForm';
+import { Divider } from '@/shared/ui/Divider';
 
 const ModalComponent = memo((props: ModalProps) => {
   const {
@@ -105,19 +106,28 @@ const ModalComponent = memo((props: ModalProps) => {
   );
 
   if (shouldRenderWrapper) {
+    const renderHeader = Boolean(title || showCloseButton);
     return (
       <ModalRoot {...(rootProps as ModalRootProps)}>
-        {(title || showCloseButton) && (
-          <ModalHeader
-            title={title}
-            subtitle={subtitle}
-            showCloseButton={showCloseButton}
-            onClose={onClose}
-            closeIcon={closeIcon}
-          />
+        {renderHeader && (
+          <>
+            <ModalHeader
+              title={title}
+              subtitle={subtitle}
+              showCloseButton={showCloseButton}
+              onClose={onClose}
+              closeIcon={closeIcon}
+            />
+            <Divider />
+          </>
         )}
         <ModalContent>{children}</ModalContent>
-        {footer && <ModalFooter>{footer}</ModalFooter>}
+        {footer && (
+          <>
+            <Divider />
+            <ModalFooter>{footer}</ModalFooter>
+          </>
+        )}
       </ModalRoot>
     );
   }

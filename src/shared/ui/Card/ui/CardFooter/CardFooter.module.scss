@@ -4,13 +4,25 @@
   padding-top: $spacing-md;
   margin-top: $spacing-md;
 
-  &.withBorder {
-    border-top: 1px solid var(--card-border);
+  .divider {
+    margin-bottom: $spacing-md;
   }
 
   &:first-child {
+    .divider {
+      display: none;
+    }
+
+    // When the footer is the first card section, the divider/hint above is
+
+    // hidden but the wrap keeps a minimal top inset so the content is not glued
+
+    // to the card top edge.
     padding-top: 0;
     margin-top: 0;
-    border-top: none;
   }
+}
+
+.content {
+  display: block;
 }

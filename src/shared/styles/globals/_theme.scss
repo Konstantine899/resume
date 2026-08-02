@@ -19,6 +19,7 @@
   --gradient-text: #{$gradient-text};
   --card-bg: rgb(255 255 255 / 0.98);
   --card-border: rgb(0 0 0 / 0.12);
+  --divider-base: rgb(0 0 0 / 0.12);
   --shadow-color: rgb(0 0 0 / 0.1);
   --border-color: #{$border-color};
   --background-secondary: #1e1c1b;
@@ -60,6 +61,7 @@
   --text-tertiary: #6b7280;
   --card-bg: rgb(41 39 38 / 0.9);
   --card-border: rgb(255 255 255 / 0.1);
+  --divider-base: rgb(255 255 255 / 0.1);
   --shadow-color: rgb(0 0 0 / 0.3);
   --border-color: #4b5563;
   --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
@@ -99,6 +101,7 @@
   --gradient-text: #{$gradient-text};
   --card-bg: rgb(255 255 255 / 0.98);
   --card-border: rgb(0 0 0 / 0.12);
+  --divider-base: rgb(0 0 0 / 0.12);
   --shadow-color: rgb(0 0 0 / 0.1);
   --border-color: #d1d5db;
   --secondary: #6c757d;

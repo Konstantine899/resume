@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Divider } from '@/shared/ui/Divider';
 import type { CardHeaderProps } from '../../model/types';
 import styles from './CardHeader.module.scss';
 
@@ -28,7 +29,8 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 
   return (
     <div className={headerClasses} {...props}>
-      {children}
+      <div className={styles.content}>{children}</div>
+      {withBorder && <Divider className={styles.divider} />}
     </div>
   );
 };

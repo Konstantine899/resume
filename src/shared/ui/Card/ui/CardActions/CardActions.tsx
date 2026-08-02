@@ -1,4 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Divider } from '@/shared/ui/Divider';
 import type { CardActionsProps } from '../../model/types';
 import styles from './CardActions.module.scss';
 
@@ -16,7 +17,8 @@ export const CardActions: React.FC<CardActionsProps> = ({
 
   return (
     <div className={actionsClasses} {...props}>
-      {children}
+      <Divider className={styles.divider} />
+      <div className={styles.actionsInner}>{children}</div>
     </div>
   );
 };

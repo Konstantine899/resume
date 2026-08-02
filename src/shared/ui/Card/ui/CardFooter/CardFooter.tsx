@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Divider } from '@/shared/ui/Divider';
 import type { CardFooterProps } from '../../model/types';
 import styles from './CardFooter.module.scss';
 
@@ -30,7 +31,8 @@ export const CardFooter: React.FC<CardFooterProps> = ({
 
   return (
     <div className={footerClasses} {...props}>
-      {children}
+      {withBorder && <Divider className={styles.divider} />}
+      <div className={styles.content}>{children}</div>
     </div>
   );
 };

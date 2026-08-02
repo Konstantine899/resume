@@ -13,7 +13,6 @@
   @include flex-center;
 
   gap: $spacing-sm;
-  padding: $spacing-lg $spacing-xl;
+  padding: $spacing-md $spacing-xl;
   background-color: var(--background-alt, $background-alt);
-  border-top: $border-width solid var(--card-border, $border-color);
 }

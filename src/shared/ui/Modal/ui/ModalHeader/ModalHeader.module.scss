@@ -13,8 +13,8 @@
 .header {
   @include flex-between;
 
-  padding: $spacing-lg $spacing-xl;
-  border-bottom: $border-width solid var(--card-border, $border-color);
+  // padding-bottom adjusted in ModalContent/spacing comments
+  padding: $spacing-lg $spacing-xl $spacing-md;
 }
 
 .headerContent {
