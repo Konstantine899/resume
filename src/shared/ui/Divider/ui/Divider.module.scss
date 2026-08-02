@@ -2,8 +2,10 @@
 
 @use '@/shared/styles/variables' as *;
 
-// Divider line color (theme-aware CSS variable with fallback)
-$divider-color: var(--divider-base, #e0e0e0);
+// Divider line color — uses the app design-system border token (--border-color)
+
+// with a fallback only in case the token is not defined.
+$divider-color: var(--border-color, #e5e7eb);
 
 // Gap between the text label and the line segments (text divider)
 $divider-gap: 0.75rem;
