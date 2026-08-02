@@ -16,6 +16,7 @@ const withProviders = (Story: React.ComponentType, context: { globals: { theme?:
             data-theme={theme}
             style={{
               background: 'var(--background)',
+              color: 'var(--text-primary)',
               minHeight: '100vh',
               minWidth: '100vw',
               margin: 0,

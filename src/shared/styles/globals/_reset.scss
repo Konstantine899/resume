@@ -24,8 +24,8 @@ html {
 }
 
 body {
-  color: $text-primary;
-  background-color: $background;
+  color: var(--foreground, $text-primary);
+  background-color: var(--background, $background);
 }
 
 // Reset links
