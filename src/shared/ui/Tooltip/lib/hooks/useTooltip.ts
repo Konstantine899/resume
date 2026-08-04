@@ -33,7 +33,6 @@ export const useTooltip = ({
   showDelay = TOOLTIP_CONSTANTS.DEFAULT_SHOW_DELAY,
   hideDelay = TOOLTIP_CONSTANTS.DEFAULT_HIDE_DELAY,
   disabled = false,
-  skeleton = false,
   offset = TOOLTIP_CONSTANTS.DEFAULT_OFFSET,
   maxWidth = TOOLTIP_CONSTANTS.DEFAULT_MAX_WIDTH,
   autoAdjust = true,
@@ -44,7 +43,6 @@ export const useTooltip = ({
   | 'showDelay'
   | 'hideDelay'
   | 'disabled'
-  | 'skeleton'
   | 'offset'
   | 'maxWidth'
   | 'autoAdjust'
@@ -251,6 +249,6 @@ export const useTooltip = ({
     tooltipRef,
     tooltipId,
     handlers,
-    shouldRender: isVisible && !disabled && !skeleton,
+    shouldRender: isVisible && !disabled,
   };
 };

@@ -79,6 +79,56 @@ describe('Tooltip', () => {
     });
   });
 
+  describe('Color prop', () => {
+    it('должен применять color через CSS-переменную --tooltip-bg', async () => {
+      render(
+        <Tooltip content="Tooltip" color="#7c3aed" trigger="hover">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toHaveStyle({ '--tooltip-bg': '#7c3aed' });
+      });
+    });
+
+    it('не должен устанавливать --tooltip-bg без color prop', async () => {
+      render(
+        <Tooltip content="Tooltip" trigger="hover">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).not.toHaveStyle({ '--tooltip-bg': '#7c3aed' });
+      });
+    });
+
+    it('должен применять arrowShadowColor через CSS-переменную --tooltip-arrow-shadow', async () => {
+      render(
+        <Tooltip content="Tooltip" arrowShadowColor="rgba(0, 0, 0, 0.5)" trigger="hover">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toHaveStyle({
+          '--tooltip-arrow-shadow': 'rgba(0, 0, 0, 0.5)',
+        });
+      });
+    });
+  });
+
   describe('Positions', () => {
     const positions = ['top', 'bottom', 'left', 'right'] as const;
 
@@ -827,9 +877,9 @@ describe('Tooltip', () => {
   });
 
   describe('Skeleton', () => {
-    it('должен скрывать tooltip когда skeleton=true', async () => {
+    it('должен показывать tooltip с Skeleton вместо content когда skeleton=true', async () => {
       render(
-        <Tooltip content="Tooltip" trigger="hover" skeleton>
+        <Tooltip content="Реальный контент" trigger="hover" skeleton>
           <button>Trigger</button>
         </Tooltip>
       );
@@ -838,8 +888,14 @@ describe('Tooltip', () => {
       fireEvent.mouseEnter(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
       });
+
+      const tooltip = screen.getByRole('tooltip');
+      // Контент заменён Skeleton (role="status" + aria-busy)
+      expect(tooltip).not.toHaveTextContent('Реальный контент');
+      expect(tooltip.querySelector('[role="status"]')).toHaveAttribute('aria-busy', 'true');
+      expect(tooltip).toHaveAttribute('data-skeleton', 'true');
     });
 
     it('должен рендерить children когда skeleton=true', () => {
@@ -850,6 +906,23 @@ describe('Tooltip', () => {
       );
 
       expect(screen.getByText('Trigger')).toBeInTheDocument();
+    });
+
+    it('должен показывать реальный content когда skeleton=false', async () => {
+      render(
+        <Tooltip content="Реальный контент" trigger="hover">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Реальный контент');
+      expect(screen.getByRole('tooltip')).not.toHaveAttribute('data-skeleton');
     });
   });
 

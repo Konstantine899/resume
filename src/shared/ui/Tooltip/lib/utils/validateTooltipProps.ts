@@ -1,7 +1,20 @@
-import type { TooltipPosition, TooltipTrigger } from '../../model/types';
+import type { TooltipPosition, TooltipTriggerType } from '../../model/types';
 
-const VALID_POSITIONS: TooltipPosition[] = ['top', 'bottom', 'left', 'right'];
-const VALID_TRIGGERS: TooltipTrigger[] = ['hover', 'focus', 'click'];
+const VALID_POSITIONS: TooltipPosition[] = [
+  'top-start',
+  'top',
+  'top-end',
+  'bottom-start',
+  'bottom',
+  'bottom-end',
+  'left-start',
+  'left',
+  'left-end',
+  'right-start',
+  'right',
+  'right-end',
+];
+const VALID_TRIGGERS: TooltipTriggerType[] = ['hover', 'focus', 'click'];
 
 export interface ValidationWarning {
   prop: string;
@@ -10,7 +23,7 @@ export interface ValidationWarning {
 
 export const validateTooltipProps = (
   position: TooltipPosition,
-  trigger: TooltipTrigger
+  trigger: TooltipTriggerType
 ): ValidationWarning[] => {
   const warnings: ValidationWarning[] = [];
 

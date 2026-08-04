@@ -72,41 +72,130 @@ $tooltip-scale-visible: 1;
     height: 8px;
     content: '';
     background-color: var(--tooltip-bg, #1f2937);
+    box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));
     transform: rotate(45deg);
   }
 
   // Position variants with arrows
-  &.top {
-    &::after {
+  &.top,
+  &.top-start,
+  &.top-end,
+  &.bottom,
+  &.bottom-start,
+  &.bottom-end {
+    &::after,
+    > .arrow {
+      left: 50%;
+      margin-left: -4px;
+    }
+  }
+
+  &.top,
+  &.top-start,
+  &.top-end {
+    &::after,
+    > .arrow {
       bottom: -4px;
-      left: 50%;
-      margin-left: -4px;
     }
   }
 
-  &.bottom {
-    &::after {
+  &.bottom,
+  &.bottom-start,
+  &.bottom-end {
+    &::after,
+    > .arrow {
       top: -4px;
-      left: 50%;
-      margin-left: -4px;
     }
   }
 
-  &.left {
-    &::after {
+  // Align variants: start = arrow слева, end = arrow справа
+  &.top-start,
+  &.bottom-start {
+    &::after,
+    > .arrow {
+      left: 16px;
+      margin-left: 0;
+    }
+  }
+
+  &.top-end,
+  &.bottom-end {
+    &::after,
+    > .arrow {
+      right: 16px;
+      margin-left: 0;
+    }
+  }
+
+  &.left,
+  &.left-start,
+  &.left-end,
+  &.right,
+  &.right-start,
+  &.right-end {
+    &::after,
+    > .arrow {
       top: 50%;
+      margin-top: -4px;
+    }
+  }
+
+  &.left,
+  &.left-start,
+  &.left-end {
+    &::after,
+    > .arrow {
       right: -4px;
-      margin-top: -4px;
     }
   }
 
-  &.right {
-    &::after {
-      top: 50%;
+  &.right,
+  &.right-start,
+  &.right-end {
+    &::after,
+    > .arrow {
       left: -4px;
-      margin-top: -4px;
     }
   }
+
+  // Align variants: start = arrow сверху, end = arrow снизу
+  &.left-start,
+  &.right-start {
+    &::after,
+    > .arrow {
+      top: 16px;
+      margin-top: 0;
+    }
+  }
+
+  &.left-end,
+  &.right-end {
+    &::after,
+    > .arrow {
+      bottom: 16px;
+      margin-top: 0;
+    }
+  }
+
+  // Compound API: стрелка рендерится как элемент <Tooltip.Arrow />,
+
+  // поэтому встроенная псевдо-стрелка отключается.
+  &.compound {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+// Стрелка как отдельный элемент (compound API).
+.arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  content: '';
+  background-color: var(--tooltip-bg, #1f2937);
+  box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));
+  transform: rotate(45deg);
 }
 
 .trigger {

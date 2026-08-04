@@ -1,6 +1,9 @@
+/* eslint-disable react-refresh/only-export-components */
 import { cn } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
+import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
 import { Portal } from '@/shared/ui/Portal';
+import { Skeleton } from '@/shared/ui/Skeleton';
 import { memo } from 'react';
 import type {
   ComponentRef,
@@ -12,6 +15,10 @@ import type {
   Ref,
 } from 'react';
 import { useTooltip } from '../lib/hooks/useTooltip';
+import { TooltipProvider } from '../lib/context/TooltipContext';
+import { TooltipTrigger } from './TooltipTrigger/TooltipTrigger';
+import { TooltipContent } from './TooltipContent/TooltipContent';
+import { TooltipArrow } from './TooltipArrow/TooltipArrow';
 import type { TooltipComponent, TooltipProps } from '../model/types';
 import styles from './Tooltip.module.scss';
 
@@ -54,6 +61,8 @@ function TooltipImpl<C extends ElementType = 'span'>(
     offset,
     maxWidth,
     autoAdjust,
+    color,
+    arrowShadowColor,
     role: roleProp,
     onMouseEnter: userOnMouseEnter,
     onMouseLeave: userOnMouseLeave,
@@ -79,7 +88,6 @@ function TooltipImpl<C extends ElementType = 'span'>(
     showDelay,
     hideDelay,
     disabled,
-    skeleton,
     offset,
     maxWidth,
     autoAdjust,
@@ -101,6 +109,15 @@ function TooltipImpl<C extends ElementType = 'span'>(
       )
     );
   })();
+
+  // color prop (AntD-style): задаёт фон тултипа через CSS-переменную, стрелка
+  // (`::after`/`.arrow`) наследует её автоматически (var(--tooltip-bg)).
+  const colorVar = color ? ({ '--tooltip-bg': color } as React.CSSProperties) : undefined;
+
+  // arrowShadowColor: тень стрелки через CSS-переменную.
+  const arrowShadowVar = arrowShadowColor
+    ? ({ '--tooltip-arrow-shadow': arrowShadowColor } as React.CSSProperties)
+    : undefined;
 
   return (
     <>
@@ -156,15 +173,16 @@ function TooltipImpl<C extends ElementType = 'span'>(
             role="tooltip"
             className={cn(
               styles.tooltip,
-              styles[adjustedPosition],
+              resolveCssModuleKey(styles, adjustedPosition),
               styles.visible,
               overlayClassName
             )}
-            style={{ ...calculatedStyle, ...overlayRest }}
+            style={{ ...calculatedStyle, ...overlayRest, ...colorVar, ...arrowShadowVar }}
             onMouseEnter={activeTrigger === 'hover' ? handlers.handleMouseEnter : undefined}
             onMouseLeave={activeTrigger === 'hover' ? handlers.handleMouseLeave : undefined}
+            {...(skeleton ? { 'data-skeleton': 'true' } : {})}
           >
-            {content}
+            {skeleton ? <Skeleton variant="text" width="120px" lines={2} /> : content}
           </div>
         </Portal>
       )}
@@ -188,5 +206,13 @@ TooltipMemo.displayName = 'Tooltip';
 /**
  * Tooltip — полиморфная всплывающая подсказка.
  * Тип ref зависит от `as` (default 'span').
+ *
+ * Монолитный API (`<Tooltip content=...>`) — обёртка над compound API
+ * (`Tooltip.Provider` + `Tooltip.Trigger` + `Tooltip.Content`).
  */
-export const Tooltip = TooltipMemo as unknown as TooltipComponent;
+export const Tooltip = Object.assign(TooltipMemo as unknown as TooltipComponent, {
+  Provider: TooltipProvider,
+  Trigger: TooltipTrigger,
+  Content: TooltipContent,
+  Arrow: TooltipArrow,
+});
