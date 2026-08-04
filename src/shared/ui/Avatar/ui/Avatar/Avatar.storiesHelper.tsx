@@ -173,49 +173,9 @@ export function storyGradientStates(
 }
 
 /** Responsive sizes with labels */
-export function storyResponsiveSizes(
-  Component: ComponentType<any>,
-  sizes: Array<{ size: string; label: string }>,
-  extraProps?: Record<string, unknown>
-): StoryFactory {
-  return {
-    render: () => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {sizes.map(({ size, label }) => (
-          <div key={size} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <Component alt={size.toUpperCase()} {...extraProps} size={size} />
-            <span style={{ fontSize: '14px', color: '#666' }}>{label}</span>
-          </div>
-        ))}
-      </div>
-    ),
-    parameters: {
-      docs: {
-        description: { story: 'Responsive sizes with labels.' },
-      },
-    },
-  };
-}
-
 // ============================================
 // Component-specific factories
 // ============================================
-
-/** AvatarHero: without glow and ring */
-export function storyHeroWithoutEffects(Component: ComponentType<any>): StoryFactory {
-  return {
-    render: () => (
-      <Component alt="Hero without Effects" size="xl" showGlow={false} showRing={false} />
-    ),
-    parameters: {
-      docs: {
-        description: {
-          story: 'AvatarHero without glow and ring effects (minimal variant).',
-        },
-      },
-    },
-  };
-}
 
 /** AvatarHero: effects comparison grid */
 export function storyHeroEffectsComparison(

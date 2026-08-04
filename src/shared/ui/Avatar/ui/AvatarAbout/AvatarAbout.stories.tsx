@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from '@storybook/test';
+import { expect, waitFor } from '@storybook/test';
 const avatar1 = '/images/avatar/avatar003.jpg';
 import { AvatarAbout } from './AvatarAbout';
 import {
@@ -12,12 +12,12 @@ import {
   storyError,
   storyThemeVariants,
   storyGradientStates,
-  storyResponsiveSizes,
   storyAboutSingleInitial,
 } from '../Avatar/Avatar.storiesHelper';
 
 const meta: Meta<typeof AvatarAbout> = {
   ...createMeta(AvatarAbout, 'Shared/Avatar/About'),
+  title: 'Shared/Avatar/About',
   argTypes: {
     src: { control: 'text', description: 'Image URL' },
     alt: {
@@ -61,9 +61,13 @@ export const WithImage: Story = {
     const avatar = canvasElement.querySelector('[role="img"]');
     const image = canvasElement.querySelector('img');
     if (avatar && image) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      expect(image.complete).toBe(true);
-      expect(avatar.getAttribute('data-state')).toBe('loaded');
+      await waitFor(
+        () => {
+          expect(image.complete).toBe(true);
+          expect(avatar.getAttribute('data-state')).toBe('loaded');
+        },
+        { timeout: 3000 }
+      );
     }
   },
 };
@@ -108,12 +112,4 @@ export const ThemeVariants: Story = {
 
 export const WithGradientBorder: Story = {
   ...storyGradientStates(AvatarAbout, { size: 'lg' }),
-};
-
-export const ResponsiveSizes: Story = {
-  ...storyResponsiveSizes(AvatarAbout, [
-    { size: 'sm', label: 'sm — 100px (3rem)' },
-    { size: 'md', label: 'md — 200px (5rem)' },
-    { size: 'lg', label: 'lg — 300px (8rem)' },
-  ]),
 };

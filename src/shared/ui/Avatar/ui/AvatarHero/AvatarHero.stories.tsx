@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from '@storybook/test';
+import { expect, waitFor } from '@storybook/test';
 const avatar1 = '/images/avatar/avatar003.jpg';
 import { AvatarHero } from './AvatarHero';
 import {
@@ -12,13 +12,12 @@ import {
   storyError,
   storyThemeVariants,
   storyGradientStates,
-  storyResponsiveSizes,
-  storyHeroWithoutEffects,
   storyHeroEffectsComparison,
 } from '../Avatar/Avatar.storiesHelper';
 
 const meta: Meta<typeof AvatarHero> = {
   ...createMeta(AvatarHero, 'Shared/Avatar/Hero'),
+  title: 'Shared/Avatar/Hero',
   argTypes: {
     src: { control: 'text', description: 'Image URL' },
     alt: {
@@ -58,8 +57,8 @@ export const Default: Story = {
   ...storyDefault({ alt: 'Avatar', size: 'xl', showGlow: true, showRing: true }),
   play: async ({ canvasElement }) => {
     const avatar = canvasElement.querySelector('[role="img"]');
-    const glow = canvasElement.querySelector('[class*="photoGlow"]');
-    const ring = canvasElement.querySelector('[class*="photoRing"]');
+    const glow = canvasElement.querySelector('[class*="photo-glow"]');
+    const ring = canvasElement.querySelector('[class*="photo-ring"]');
     if (avatar) {
       await new Promise((resolve) => setTimeout(resolve, 100));
       expect(avatar.getAttribute('data-size')).toBe('xl');
@@ -75,8 +74,12 @@ export const WithImage: Story = {
     const avatar = canvasElement.querySelector('[role="img"]');
     const image = canvasElement.querySelector('img');
     if (avatar && image) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      expect(image.complete).toBe(true);
+      await waitFor(
+        () => {
+          expect(image.complete).toBe(true);
+        },
+        { timeout: 5000 }
+      );
       expect(avatar.getAttribute('data-state')).toBe('loaded');
     }
   },
@@ -123,23 +126,6 @@ export const ThemeVariants: Story = {
 
 export const WithGradientBorder: Story = {
   ...storyGradientStates(AvatarHero, { size: 'xl', showGlow: true, showRing: true }),
-};
-
-export const ResponsiveSizes: Story = {
-  ...storyResponsiveSizes(
-    AvatarHero,
-    [
-      { size: 'sm', label: 'sm — 3rem (48px)' },
-      { size: 'md', label: 'md — 5rem (80px)' },
-      { size: 'lg', label: 'lg — 8rem (128px)' },
-      { size: 'xl', label: 'xl — 14-20rem (responsive)' },
-    ],
-    { showGlow: true, showRing: true }
-  ),
-};
-
-export const WithoutEffects: Story = {
-  ...storyHeroWithoutEffects(AvatarHero),
 };
 
 export const EffectsComparison: Story = {

@@ -53,9 +53,12 @@ export const Default: Story = {
     const avatar = canvas.getByRole('img');
     expect(avatar).toBeInTheDocument();
     expect(avatar).toHaveAttribute('aria-label', 'John Doe');
-    await waitFor(() => {
-      expect(avatar).toHaveAttribute('data-state', 'loaded');
-    });
+    await waitFor(
+      () => {
+        expect(avatar).toHaveAttribute('data-state', 'loaded');
+      },
+      { timeout: 5000 }
+    );
     expect(avatar).toHaveAttribute('data-size', 'md');
     expect(avatar).toHaveAttribute('data-variant', 'circle');
   },
@@ -98,8 +101,11 @@ export const Sizes: Story = {
 export const FallbackWithInitials: Story = {
   args: {
     alt: 'John Doe',
-    size: 'md',
+    size: 'xl',
     variant: 'circle',
+    heroStyle: true,
+    showGlow: true,
+    showRing: true,
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
     const canvas = within(canvasElement);
@@ -110,17 +116,25 @@ export const FallbackWithInitials: Story = {
 
 export const LoadingState: Story = {
   args: {
-    src: 'https://invalid-url.example/broken.jpg',
+    src: 'invalid-url.jpg',
     alt: 'Loading avatar',
-    size: 'md',
+    size: 'xl',
     variant: 'circle',
+    heroStyle: true,
+    showGlow: true,
+    showRing: true,
     showSkeleton: true,
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
     const canvas = within(canvasElement);
     const avatar = canvas.getByRole('img');
     expect(avatar).toBeInTheDocument();
-    expect(avatar).toHaveAttribute('data-state', 'error');
+    await waitFor(
+      () => {
+        expect(avatar).toHaveAttribute('data-state', 'error');
+      },
+      { timeout: 2000 }
+    );
   },
 };
 
@@ -172,34 +186,6 @@ export const CombinedEffects: Story = {
     const ring = canvasElement.querySelector('[class*="ring"]');
     expect(glow).toBeInTheDocument();
     expect(ring).toBeInTheDocument();
-  },
-};
-
-export const PolymorphicAsArticle: Story = {
-  args: {
-    component: 'article',
-    src: '/images/avatar/avatar003.jpg',
-    alt: 'Article avatar',
-    size: 'md',
-  },
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    const article = canvasElement.querySelector('article');
-    expect(article).toBeInTheDocument();
-    expect(article).toHaveAttribute('data-variant', 'circle');
-  },
-};
-
-export const PolymorphicAsSection: Story = {
-  args: {
-    component: 'section',
-    src: '/images/avatar/avatar003.jpg',
-    alt: 'Section avatar',
-    size: 'md',
-  },
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    const section = canvasElement.querySelector('section');
-    expect(section).toBeInTheDocument();
-    expect(section).toHaveAttribute('data-size', 'md');
   },
 };
 

@@ -1,4 +1,5 @@
 // Avatar Mixins
+
 // Moved from shared/styles/mixins/_avatar.scss
 
 @use '@/shared/styles/variables' as *;
@@ -32,8 +33,13 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @mixin avatar-skeleton-wrapper {
@@ -50,13 +56,9 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom right, #1a1918, #292726);
+  background: #3a2e28;
   border-radius: 50%;
   transition: background $transition-duration $transition-easing;
-
-  [data-theme='light'] & {
-    background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
-  }
 }
 
 @mixin avatar-glow {
@@ -66,6 +68,7 @@
   border-radius: 50%;
   opacity: 0.3;
   filter: blur(40px);
+
   @include pulse-glow;
 }
 
@@ -96,7 +99,12 @@
 
 @mixin avatar-reduced-motion {
   @media (prefers-reduced-motion: reduce) {
-    .photo-glow { animation: none; }
-    .skeleton { animation: none; }
+    .photo-glow {
+      animation: none;
+    }
+
+    .skeleton {
+      animation: none;
+    }
   }
 }

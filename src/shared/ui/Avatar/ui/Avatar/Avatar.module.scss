@@ -38,12 +38,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--card-bg, #292726);
+      background: #3a2e28;
       border-radius: 50%;
-
-      [data-theme='light'] & {
-        background: var(--card-bg-light, #f5f3f0);
-      }
     }
   }
 
