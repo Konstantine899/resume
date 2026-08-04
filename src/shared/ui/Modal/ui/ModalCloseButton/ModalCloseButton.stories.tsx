@@ -22,7 +22,7 @@ export const Default: Story = {
     const button = canvas.getByRole('button');
 
     expect(button).toBeInTheDocument();
-    expect(button).toHaveAttribute('aria-label', 'Закрыть модальное окно');
+    expect(button).toHaveAttribute('aria-label', 'Close modal');
   },
 };
 

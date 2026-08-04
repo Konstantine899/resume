@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from '@storybook/test';
+import { expect, within } from '@storybook/test';
 import React from 'react';
 import { Spinner } from './Spinner';
 
@@ -149,13 +149,14 @@ export const DoubleRing: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const spinner = canvasElement.querySelector('[role="status"]');
+    const canvas = within(canvasElement);
+    const spinner = canvas.getByRole('status');
     expect(spinner).toBeInTheDocument();
-    expect(spinner?.getAttribute('data-variant')).toBe('double-ring');
-    const outerRing = canvasElement.querySelector('.outerRing');
-    const innerRing = canvasElement.querySelector('.innerRing');
-    expect(outerRing).toBeInTheDocument();
-    expect(innerRing).toBeInTheDocument();
+    expect(spinner.getAttribute('data-variant')).toBe('double-ring');
+    const outerRing = canvasElement.querySelector('[class*="outerRing"]');
+    const innerRing = canvasElement.querySelector('[class*="innerRing"]');
+    expect(outerRing).toBeTruthy();
+    expect(innerRing).toBeTruthy();
   },
 };
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from '@storybook/test';
 import { useModal } from '@/shared/lib/hooks/useModal';
 import { Button } from '@/shared/ui/Button';
 import { ModalDrawer } from './ModalDrawer';
@@ -36,10 +36,10 @@ export const RightDrawer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /open drawer/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Right Drawer')).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /close modal/i })).toBeInTheDocument();
+    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /close modal/i })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -60,9 +60,9 @@ export const LeftDrawer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /left drawer/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Left Drawer')).toBeInTheDocument();
+    expect(within(dialog).getByText('Left Drawer')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -86,9 +86,9 @@ export const LargeDrawer: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /large drawer/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Section 10')).toBeInTheDocument();
+    expect(screen.getByText('Section 10')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },

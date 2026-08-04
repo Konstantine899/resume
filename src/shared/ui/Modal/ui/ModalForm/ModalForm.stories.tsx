@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from '@storybook/test';
 import { useModal } from '@/shared/lib/hooks/useModal';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -45,11 +45,11 @@ export const DefaultForm: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /open form/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Contact Form')).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /submit/i })).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByText('Contact Form')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -80,9 +80,9 @@ export const LoadingForm: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /loading form/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    const submitButton = canvas.getByRole('button', { name: /saving/i });
+    const submitButton = within(dialog).getByRole('button', { name: /loading/i });
     expect(submitButton).toBeDisabled();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
@@ -115,9 +115,9 @@ export const CustomLabels: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /custom labels/i }));
-    const dialog = await canvas.findByRole('dialog');
-    expect(canvas.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /keep/i })).toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog');
+    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /keep/i })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },

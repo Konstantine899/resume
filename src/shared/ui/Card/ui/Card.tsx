@@ -107,7 +107,7 @@ const CardComponent = memo((props: CardProps) => {
   }
 
   if (safeVariant === 'contact') {
-    return <ContactCard {...(rest as unknown as ContactCardProps)} />;
+    return <ContactCard {...(rest as unknown as ContactCardProps)}>{children}</ContactCard>;
   }
 
   // For 'skill' and 'about' variants, wrap content in Container for max-width and centering

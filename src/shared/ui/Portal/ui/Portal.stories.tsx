@@ -1,4 +1,4 @@
-import { expect, within } from '@storybook/test';
+import { expect, waitFor } from '@storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Portal } from './Portal';
 
@@ -49,11 +49,11 @@ export const Default: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    expect(canvas.getByText(/rendered in document.body/)).toBeInTheDocument();
-    // Content is also in document.body
-    expect(document.body.textContent).toContain('rendered in');
+  play: async () => {
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('rendered in');
+    });
+    expect(document.body.textContent).toContain('document.body');
   },
 };
 
@@ -83,8 +83,9 @@ export const CustomElement: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    expect(canvas.getByText(/custom container element/)).toBeInTheDocument();
+  play: async () => {
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('custom container element');
+    });
   },
 };

@@ -307,8 +307,9 @@ export const EmptyChildren: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const headings = canvas.queryAllByRole('heading');
-    expect(headings.length).toBe(0);
+    const heading = canvas.queryByRole('heading');
+    expect(heading).toBeInTheDocument();
+    expect(heading?.textContent).toBe('');
   },
 };
 

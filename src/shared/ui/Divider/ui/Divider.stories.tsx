@@ -1,7 +1,7 @@
 // src/shared/ui/Divider/ui/Divider.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, screen, within } from '@storybook/test';
 import { Divider } from './Divider';
 import { Card } from '@/shared/ui/Card';
 import { Modal } from '@/shared/ui/Modal';
@@ -589,10 +589,9 @@ export const DividerInModal: Story = {
       <p style={{ margin: 0 }}>Modal body content separated by Dividers.</p>
     </Modal>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async () => {
     // Header/Content and Content/Footer are separated by sibling Dividers.
-    const dividers = canvas.getAllByRole('separator');
+    const dividers = screen.getAllByRole('separator');
     expect(dividers.length).toBeGreaterThanOrEqual(2);
   },
 };

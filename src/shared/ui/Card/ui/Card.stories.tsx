@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from '@storybook/test';
 import React from 'react';
 import { Card } from './Card';
 import { Mail } from 'lucide-react';
@@ -161,7 +161,7 @@ export const AllSizes: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const cards = canvasElement.querySelectorAll('[data-size]');
+    const cards = canvasElement.querySelectorAll('[role="group"]');
     expect(cards).toHaveLength(3);
     expect(cards[0]).toHaveAttribute('data-size', 'compact');
     expect(cards[1]).toHaveAttribute('data-size', 'default');
@@ -615,11 +615,11 @@ export const ContainerIntegrationComparison: Story = {
     expect(canvas.getByText('Default Variant (NO Container)')).toBeInTheDocument();
 
     // Verify skill has Container wrapper
-    const skillCard = canvas.getByText('Skill card content').closest('[data-size="xl"]');
+    const skillCard = screen.getByText(/Skill card content/).closest('[data-size="xl"]');
     expect(skillCard).toBeInTheDocument();
 
     // Verify about has Container wrapper
-    const aboutCard = canvas.getByText('About card content').closest('[data-size="lg"]');
+    const aboutCard = screen.getByText(/About card content/).closest('[data-size="lg"]');
     expect(aboutCard).toBeInTheDocument();
   },
 };

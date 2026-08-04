@@ -1,6 +1,6 @@
 import { Icon } from '@/shared/ui/Icon';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, waitFor, within } from '@storybook/test';
+import { expect, screen, userEvent, waitFor, within } from '@storybook/test';
 import { HelpCircle, Info } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 
@@ -108,7 +108,7 @@ export const Default: Story = {
 
     // Hover to show
     await userEvent.hover(button);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     expect(tooltip).toHaveTextContent('Это всплывающая подсказка');
 
@@ -133,10 +133,9 @@ export const BottomPosition: Story = {
     children: <button style={{ padding: '0.5rem 1rem' }}>Hover me</button>,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-position="bottom"]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -155,10 +154,9 @@ export const LeftPosition: Story = {
     children: <button style={{ padding: '0.5rem 1rem' }}>Hover me</button>,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-position="left"]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -177,10 +175,9 @@ export const RightPosition: Story = {
     children: <button style={{ padding: '0.5rem 1rem' }}>Hover me</button>,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-position="right"]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -201,7 +198,7 @@ export const ClickTrigger: Story = {
     content: 'Нажмите ещё раз чтобы закрыть',
     trigger: 'click',
     position: 'bottom',
-    children: <button style={{ padding: '0.5rem 1rem' }}>Click me</button>,
+    children: <span style={{ display: 'inline-block', padding: '0.5rem 1rem' }}>Click me</span>,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -209,7 +206,7 @@ export const ClickTrigger: Story = {
 
     // Click to open
     await userEvent.click(button);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     expect(tooltip).toHaveTextContent('Нажмите ещё раз чтобы закрыть');
 
@@ -237,6 +234,17 @@ export const FocusTrigger: Story = {
       />
     ),
   },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    trigger.focus();
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('Нажмите Tab для фокуса');
+    trigger.blur();
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+  },
 };
 
 // ============================================
@@ -255,10 +263,9 @@ export const LongContent: Story = {
     children: <button style={{ padding: '0.5rem 1rem' }}>Long text</button>,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toHaveTextContent('очень длинная подсказка');
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -285,6 +292,18 @@ export const RichContent: Story = {
     maxWidth: 280,
     children: <Icon name={Info} size={24} />,
   },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('Заголовок');
+    expect(tooltip).toHaveTextContent('console.log');
+    await userEvent.unhover(trigger);
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
+  },
 };
 
 /**
@@ -310,10 +329,9 @@ export const WithButton: Story = {
     ),
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -332,10 +350,9 @@ export const WithIcon: Story = {
     children: <Icon name={HelpCircle} size={20} />,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
     await userEvent.hover(trigger);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
     await userEvent.unhover(trigger);
     await waitFor(() => {
@@ -359,6 +376,20 @@ export const CustomDelays: Story = {
     position: 'top',
     children: <button style={{ padding: '0.5rem 1rem' }}>Slow tooltip</button>,
   },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    // показ с задержкой 1000мс
+    const tooltip = await screen.findByRole('tooltip', {}, { timeout: 1500 });
+    expect(tooltip).toBeInTheDocument();
+    await userEvent.unhover(trigger);
+    await waitFor(
+      () => {
+        expect(tooltip).not.toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
+  },
 };
 
 /**
@@ -370,6 +401,16 @@ export const CustomOffset: Story = {
     offset: 20,
     position: 'bottom',
     children: <button style={{ padding: '0.5rem 1rem' }}>Large offset</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    await userEvent.unhover(trigger);
+    await waitFor(() => {
+      expect(tooltip).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -395,7 +436,7 @@ export const Disabled: Story = {
     const button = canvas.getByRole('button', { name: 'Disabled' });
     await userEvent.hover(button);
     await waitFor(() => {
-      expect(canvas.queryByRole('tooltip')).not.toBeInTheDocument();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   },
 };
@@ -413,6 +454,18 @@ export const NoAutoAdjust: Story = {
         Edge case
       </button>
     ),
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    // без авто-коррекции позиционный data-атрибут остаётся 'top'
+    expect(trigger).toHaveAttribute('data-tooltip-position', 'top');
+    await userEvent.unhover(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -444,6 +497,18 @@ export const Accessibility: Story = {
       </button>
     ),
   },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    expect(trigger).toHaveAttribute('aria-label', 'Кнопка отправки формы');
+    trigger.focus();
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-describedby', tooltip.id);
+    trigger.blur();
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+  },
 };
 
 /**
@@ -454,7 +519,9 @@ export const KeyboardNavigation: Story = {
     content: 'Нажмите Escape для закрытия',
     trigger: 'click',
     position: 'bottom',
-    children: <button style={{ padding: '0.5rem 1rem' }}>Click + Escape</button>,
+    children: (
+      <span style={{ display: 'inline-block', padding: '0.5rem 1rem' }}>Click + Escape</span>
+    ),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -462,7 +529,7 @@ export const KeyboardNavigation: Story = {
 
     // Click to open
     await userEvent.click(button);
-    const tooltip = await canvas.findByRole('tooltip');
+    const tooltip = await screen.findByRole('tooltip');
     expect(tooltip).toBeInTheDocument();
 
     // Press Escape to close
@@ -491,6 +558,17 @@ export const EdgeOfScreen: Story = {
       </button>
     ),
   },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('авто-скорректировать');
+    await userEvent.unhover(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+  },
 };
 
 /**
@@ -502,5 +580,19 @@ export const NarrowTooltip: Story = {
     maxWidth: 100,
     position: 'top',
     children: <button style={{ padding: '0.5rem 1rem' }}>Narrow</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    await userEvent.hover(trigger);
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    // maxWidth применяется из пропса (после позиционирования)
+    await waitFor(() => {
+      expect(tooltip).toHaveStyle({ maxWidth: '100px' });
+    });
+    await userEvent.unhover(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   },
 };

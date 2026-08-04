@@ -60,22 +60,9 @@ export const useModal = (initialState: boolean = false): UseModalReturn => {
     return undefined;
   }, [isOpen]);
 
-  // Закрытие по ESC
-  useEffect(() => {
-    if (!isOpen) return undefined;
-
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEsc);
-
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [isOpen]);
+  // NOTE: ESC-обработка живёт в ModalRoot (useModalRoot) с учётом
+  // closeOnEsc / canClose. НЕ дублируем её здесь — иначе useModal() +
+  // <Modal closeOnEsc={false}> закрывался бы по ESC вопреки настройке.
 
   return { isOpen, open, close, toggle };
 };

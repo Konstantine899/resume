@@ -892,4 +892,140 @@ describe('Tooltip', () => {
       expect(trigger).toHaveAttribute('data-skeleton', 'true');
     });
   });
+
+  describe('Polymorphic as', () => {
+    it('должен рендерить триггер как элемент указанный в as', () => {
+      render(
+        <Tooltip content="Tooltip" as="a" href="/profile">
+          <button>Link trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Link trigger').parentElement as HTMLAnchorElement;
+      expect(trigger.tagName).toBe('A');
+      expect(trigger).toHaveAttribute('href', '/profile');
+    });
+
+    it('должен рендерить span по умолчанию', () => {
+      render(
+        <Tooltip content="Tooltip">
+          <button>Default trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Default trigger').parentElement as HTMLElement;
+      expect(trigger.tagName).toBe('SPAN');
+    });
+
+    it('должен форвардить ref на триггер с типом элемента из as', () => {
+      const ref = { current: null as HTMLAnchorElement | null };
+      render(
+        <Tooltip content="Tooltip" as="a" ref={ref}>
+          <button>Ref trigger</button>
+        </Tooltip>
+      );
+
+      expect(ref.current).not.toBeNull();
+      expect(ref.current instanceof HTMLAnchorElement).toBe(true);
+    });
+
+    it('должен пробросить элемент-специфичные пропсы (aria-label на as)', () => {
+      render(
+        <Tooltip content="Tooltip" as="button" aria-label="Custom aria">
+          <span>Button trigger</span>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Button trigger').parentElement as HTMLElement;
+      expect(trigger).toHaveAttribute('aria-label', 'Custom aria');
+    });
+  });
+
+  describe('Overlay кастомизация', () => {
+    it('должен применить overlayClassName на контент тултипа', async () => {
+      render(
+        <Tooltip content="Tooltip content" overlayClassName="custom-overlay-class">
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toHaveClass('custom-overlay-class');
+      });
+    });
+
+    it('должен применить overlayStyle на контент тултипа', async () => {
+      render(
+        <Tooltip content="Tooltip content" overlayStyle={{ color: 'red', fontSize: '20px' }}>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        expect(tooltip).toHaveStyle({ color: 'rgb(255, 0, 0)', fontSize: '20px' });
+      });
+    });
+  });
+
+  describe('Handler precedence', () => {
+    it('должен сохранить consumer onClick при click-триггере', () => {
+      const userClick = vi.fn();
+      render(
+        <Tooltip content="Tooltip" trigger="click" onClick={userClick}>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      fireEvent.click(trigger);
+
+      expect(userClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен сохранить consumer onKeyDown при focus-триггере', () => {
+      const userKeyDown = vi.fn();
+      render(
+        <Tooltip content="Tooltip" trigger="focus" onKeyDown={userKeyDown}>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      fireEvent.keyDown(trigger, { key: 'Enter' });
+
+      expect(userKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('OverlayStyle позиционная защита', () => {
+    it('не должен позволять overlayStyle перезаписать top/left/maxWidth', async () => {
+      render(
+        <Tooltip
+          content="Tooltip"
+          overlayStyle={{ top: '999px', left: '999px', maxWidth: '999px', color: 'blue' }}
+        >
+          <button>Trigger</button>
+        </Tooltip>
+      );
+
+      const trigger = screen.getByText('Trigger').parentElement as HTMLElement;
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = screen.getByRole('tooltip');
+        // позиционные ключи берутся из calculatedStyle (100/200/top из mock)
+        expect(tooltip).toHaveStyle({ top: '100px', left: '200px', maxWidth: '250px' });
+        // прочие overlay-стили применяются
+        expect(tooltip).toHaveStyle({ color: 'rgb(0, 0, 255)' });
+      });
+    });
+  });
 });

@@ -89,7 +89,7 @@ export const AllSizes: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const inputs = canvas.getAllByLabelText('Phone');
+    const inputs = canvas.getAllByRole('tel');
     expect(inputs).toHaveLength(5);
   },
 };

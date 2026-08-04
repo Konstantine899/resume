@@ -48,7 +48,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       {children}
 
       <Portal>
-        <div className={styles.container} aria-label="Notifications">
+        <div className={styles.container} role="region" aria-label="Notifications">
           {toasts.map((toast) => (
             <Toast
               key={toast.id}

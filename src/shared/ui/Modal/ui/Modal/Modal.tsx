@@ -7,9 +7,6 @@ import { ModalHeader } from '../ModalHeader/ModalHeader';
 import { ModalContent } from '../ModalContent/ModalContent';
 import { ModalFooter } from '../ModalFooter/ModalFooter';
 import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
-import { ModalAlert } from '../ModalAlert/ModalAlert';
-import { ModalDrawer } from '../ModalDrawer/ModalDrawer';
-import { ModalForm } from '../ModalForm/ModalForm';
 import { Divider } from '@/shared/ui/Divider';
 
 const ModalComponent = memo((props: ModalProps) => {
@@ -143,7 +140,9 @@ export const Modal = Object.assign(ModalComponent, {
   Content: ModalContent,
   Footer: ModalFooter,
   CloseButton: ModalCloseButton,
-  Alert: ModalAlert,
-  Drawer: ModalDrawer,
-  Form: ModalForm,
 });
+
+// The Alert/Drawer/Form compound members are assembled in ./index.ts instead
+// of here to avoid the circular import Modal <-> ModalAlert/ModalForm (those
+// sub-components render <Modal> internally). Reading them eagerly at module-eval
+// time throws a TDZ ReferenceError.

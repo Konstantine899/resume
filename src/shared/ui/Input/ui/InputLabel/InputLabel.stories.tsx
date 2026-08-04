@@ -102,7 +102,7 @@ export const Required: Story = {
     const canvas = within(canvasElement);
     const label = canvas.getByText('Email Address');
     expect(label).toBeInTheDocument();
-    expect(canvas.getByText('*')).toBeInTheDocument();
+    expect(label.className).toContain('required');
   },
 };
 

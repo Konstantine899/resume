@@ -42,7 +42,7 @@ describe('Skills', () => {
     it('должен рендерить заголовок "Мои навыки"', () => {
       render(<Skills />);
 
-      expect(screen.getByText('mySkills')).toBeInTheDocument();
+      expect(screen.getByText('My Skills')).toBeInTheDocument();
     });
 
     it('должен рендерить все категории из SKILLS_DATA', () => {

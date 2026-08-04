@@ -5,7 +5,7 @@
 import { useModal } from '@/shared/lib/hooks/useModal';
 import { Button } from '@/shared/ui/Button';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from '@storybook/test';
 import { Modal } from './Modal';
 
 const meta = {
@@ -70,12 +70,12 @@ export const Small: Story = {
     await userEvent.click(button);
 
     // Wait for modal to open
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('aria-modal', 'true');
 
     // Check title
-    expect(canvas.getByText('Small')).toBeInTheDocument();
+    expect(within(dialog).getByText('Small')).toBeInTheDocument();
 
     // Close by ESC
     await userEvent.keyboard('{Escape}');
@@ -99,9 +99,9 @@ export const Medium: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /medium/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Medium')).toBeInTheDocument();
+    expect(within(dialog).getByText('Medium')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -123,9 +123,9 @@ export const Large: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /large/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Large')).toBeInTheDocument();
+    expect(within(dialog).getByText('Large')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -147,9 +147,9 @@ export const ExtraLarge: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /extra large/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Extra Large')).toBeInTheDocument();
+    expect(within(dialog).getByText('Extra Large')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -171,9 +171,9 @@ export const FullScreen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /full screen/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Full Screen')).toBeInTheDocument();
+    expect(within(dialog).getByText('Full Screen')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -195,9 +195,9 @@ export const ExtraSmall: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /extra small/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Extra Small')).toBeInTheDocument();
+    expect(within(dialog).getByText('Extra Small')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -219,9 +219,9 @@ export const DoubleExtraLarge: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /2xl/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Double Extra Large')).toBeInTheDocument();
+    expect(within(dialog).getByText('Double Extra Large')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -243,9 +243,9 @@ export const TripleExtraLarge: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /3xl/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Triple Extra Large')).toBeInTheDocument();
+    expect(within(dialog).getByText('Triple Extra Large')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -319,11 +319,11 @@ export const SizeComparison: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /xs \(360px\)/i }));
-    expect(await canvas.findByText('XS')).toBeInTheDocument();
+    expect(await screen.findByText(/^XS$/)).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
 
     await userEvent.click(canvas.getByRole('button', { name: /3xl \(1200px\)/i }));
-    expect(await canvas.findByText('3XL')).toBeInTheDocument();
+    expect(await screen.findByText(/^3XL$/)).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
   },
 };
@@ -346,8 +346,12 @@ export const WithFooter: Story = {
           subtitle="Subtitle here"
           footer={
             <div style={{ display: 'flex', gap: '8px' }}>
-              <Button variant="secondary">Cancel</Button>
-              <Button variant="primary">Save</Button>
+              <Button variant="secondary" onClick={close}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={close}>
+                Save
+              </Button>
             </div>
           }
         >
@@ -361,19 +365,19 @@ export const WithFooter: Story = {
 
     // Open modal
     await userEvent.click(canvas.getByRole('button', { name: /with footer/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
 
     // Check all parts exist
-    expect(canvas.getByText('With Footer')).toBeInTheDocument();
-    expect(canvas.getByText('Subtitle here')).toBeInTheDocument();
-    expect(canvas.getByText('Modal with header, content, and footer.')).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /save/i })).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /закрыть/i })).toBeInTheDocument();
+    expect(within(dialog).getByText('With Footer')).toBeInTheDocument();
+    expect(within(dialog).getByText('Subtitle here')).toBeInTheDocument();
+    expect(within(dialog).getByText('Modal with header, content, and footer.')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /save/i })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /close modal/i })).toBeInTheDocument();
 
     // Close by clicking footer button
-    await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+    await userEvent.click(within(dialog).getByRole('button', { name: /save/i }));
     await expect(dialog).not.toBeInTheDocument();
   },
 };
@@ -398,9 +402,9 @@ export const NoAnimation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /no animation/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('No Animation')).toBeInTheDocument();
+    expect(within(dialog).getByText('No Animation')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -424,7 +428,7 @@ export const NoOverlay: Story = {
 
     // Open modal
     await userEvent.click(canvas.getByRole('button', { name: /no overlay/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
 
     // Verify no overlay element with aria-hidden
@@ -455,11 +459,11 @@ export const NoCloseButton: Story = {
 
     // Open modal
     await userEvent.click(canvas.getByRole('button', { name: /no close button/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
 
     // Verify no close button
-    expect(canvas.queryByRole('button', { name: /закрыть/i })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: /close modal/i })).not.toBeInTheDocument();
 
     // Close by ESC
     await userEvent.keyboard('{Escape}');
@@ -485,6 +489,7 @@ export const BlockingModal: Story = {
           canClose={false}
           closeOnEsc={false}
           closeOnOverlayClick={false}
+          showCloseButton={false}
           footer={<Button onClick={close}>I Understand</Button>}
         >
           <p>Must click button to close</p>
@@ -497,7 +502,7 @@ export const BlockingModal: Story = {
 
     // Open modal
     await userEvent.click(canvas.getByRole('button', { name: /blocking/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
 
     // Try ESC - should NOT close
@@ -505,10 +510,10 @@ export const BlockingModal: Story = {
     await expect(dialog).toBeInTheDocument();
 
     // Try close button - should NOT exist
-    expect(canvas.queryByRole('button', { name: /закрыть/i })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: /close modal/i })).not.toBeInTheDocument();
 
     // Close by clicking footer button
-    await userEvent.click(canvas.getByRole('button', { name: /i understand/i }));
+    await userEvent.click(within(dialog).getByRole('button', { name: /i understand/i }));
     await expect(dialog).not.toBeInTheDocument();
   },
 };
@@ -545,11 +550,11 @@ export const LoadingState: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /loading/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Saving...')).toBeInTheDocument();
-    expect(canvas.getByText('Please wait')).toBeInTheDocument();
-    expect(canvas.getByText('Saving your changes...')).toBeInTheDocument();
+    expect(within(dialog).getByText('Saving...')).toBeInTheDocument();
+    expect(within(dialog).getByText('Please wait')).toBeInTheDocument();
+    expect(within(dialog).getByText('Saving your changes...')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -599,14 +604,14 @@ export const ErrorState: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /error/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Error')).toBeInTheDocument();
-    expect(canvas.getByText('Failed to save')).toBeInTheDocument();
-    expect(canvas.getByText('Server Error')).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /close/i })).toBeInTheDocument();
-    expect(canvas.getByRole('button', { name: /try again/i })).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole('button', { name: /close/i }));
+    expect(within(dialog).getByText('Error')).toBeInTheDocument();
+    expect(within(dialog).getByText('Failed to save')).toBeInTheDocument();
+    expect(within(dialog).getByText(/Server Error/)).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /close modal/i })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /try again/i })).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: /close modal/i }));
     await expect(dialog).not.toBeInTheDocument();
   },
 };
@@ -641,16 +646,16 @@ export const MultipleModals: Story = {
 
     // Open Modal 1
     await userEvent.click(canvas.getByRole('button', { name: /open modal 1/i }));
-    const modal1 = await canvas.findByRole('dialog');
+    const modal1 = await screen.findByRole('dialog');
     expect(modal1).toBeInTheDocument();
-    expect(canvas.getByText('Modal 1')).toBeInTheDocument();
-    expect(canvas.getByText('First modal')).toBeInTheDocument();
+    expect(within(modal1).getByText('Modal 1')).toBeInTheDocument();
+    expect(within(modal1).getByText('First modal')).toBeInTheDocument();
 
     // Open Modal 2 from inside Modal 1
-    await userEvent.click(canvas.getByRole('button', { name: /open second/i }));
-    const modal2 = await canvas.findByText('Second modal');
-    expect(modal2).toBeInTheDocument();
-    expect(canvas.getByText('Modal 2')).toBeInTheDocument();
+    await userEvent.click(within(modal1).getByRole('button', { name: /open second/i }));
+    const dialogs = await screen.findAllByRole('dialog');
+    const modal2 = dialogs[dialogs.length - 1];
+    expect(within(modal2).getByText('Modal 2')).toBeInTheDocument();
 
     // Close Modal 2
     await userEvent.keyboard('{Escape}');
@@ -687,9 +692,9 @@ export const LongTitle: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /long title/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText(/very long modal title/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/very long modal title/)).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -718,9 +723,9 @@ export const LongContent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /long content/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(canvas.getByText('Content paragraph 30.')).toBeInTheDocument();
+    expect(within(dialog).getByText(/Content paragraph 30\./)).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -745,13 +750,13 @@ export const RapidToggle: Story = {
 
     // Rapid open/close sequence
     await userEvent.click(button);
-    const dialog1 = await canvas.findByRole('dialog');
+    const dialog1 = await screen.findByRole('dialog');
     await userEvent.keyboard('{Escape}');
     await expect(dialog1).not.toBeInTheDocument();
 
     // Open again immediately
     await userEvent.click(button);
-    const dialog2 = await canvas.findByRole('dialog');
+    const dialog2 = await screen.findByRole('dialog');
     expect(dialog2).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog2).not.toBeInTheDocument();
@@ -778,10 +783,10 @@ export const AsSection: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /as section/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog.tagName).toBe('SECTION');
-    expect(canvas.getByText('Polymorphic Section')).toBeInTheDocument();
+    expect(within(dialog).getByText('Polymorphic Section')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -803,10 +808,10 @@ export const AsArticle: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /as article/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog.tagName).toBe('ARTICLE');
-    expect(canvas.getByText('Polymorphic Article')).toBeInTheDocument();
+    expect(within(dialog).getByText('Polymorphic Article')).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
@@ -864,11 +869,11 @@ export const FormModal: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /form/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
 
-    const nameInput = canvas.getByLabelText('Name');
-    const emailInput = canvas.getByLabelText('Email');
+    const nameInput = within(dialog).getByLabelText('Name');
+    const emailInput = within(dialog).getByLabelText('Email');
     expect(nameInput).toBeInTheDocument();
     expect(emailInput).toBeInTheDocument();
 
@@ -877,7 +882,7 @@ export const FormModal: Story = {
     expect(nameInput).toHaveValue('John Doe');
     expect(emailInput).toHaveValue('john@example.com');
 
-    await userEvent.click(canvas.getByRole('button', { name: /submit/i }));
+    await userEvent.click(within(dialog).getByRole('button', { name: /submit/i }));
     await expect(dialog).not.toBeInTheDocument();
   },
 };
@@ -903,11 +908,11 @@ export const NonModal: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /non-modal panel/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('aria-modal', 'false');
     expect(
-      canvas.getByText('Non-modal panel without overlay, focus trap, or scroll lock.')
+      within(dialog).getByText('Non-modal panel without overlay, focus trap, or scroll lock.')
     ).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
@@ -931,7 +936,7 @@ export const NonModalLarge: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: /large panel/i }));
-    const dialog = await canvas.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('aria-modal', 'false');
     await userEvent.keyboard('{Escape}');

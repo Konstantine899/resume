@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import styles from './NavItem.module.scss';
 
 export interface NavItemProps {
@@ -35,19 +36,48 @@ export const NavItem: React.FC<NavItemProps> = ({
   // Текст показываем когда: развернут ИЛИ hover expansion ИЛИ мобильная версия
   const showLabel = !isCollapsed || isHoverExpanded || variant === 'mobile';
 
-  return (
-    <a
-      href={href}
-      onClick={handleClick}
-      onKeyDown={onKeyDown}
-      className={`${styles.navItem} ${variant === 'desktop' ? styles.desktop : styles.mobile} ${!isCollapsed || isHoverExpanded ? styles.expanded : ''} ${isActive ? styles.active : ''}`}
-      role="menuitem"
-      aria-current={isActive ? 'page' : undefined}
-      title={isCollapsed && !isHoverExpanded ? label : undefined}
-      data-desktop-nav-item={variant === 'desktop' ? true : undefined}
-    >
+  // Collapsed-desktop: рендерим только иконку, label уходит в Tooltip.
+  // Невизуальный (фокус) триггер, чтобы не мешать hover-expand навигации.
+  // role="menuitem" пробрасывается через Tooltip (полиморфный as).
+  const iconOnlyDesktop = variant === 'desktop' && isCollapsed && !isHoverExpanded;
+
+  const anchorClassName = `${styles.navItem} ${styles.desktop} ${!isCollapsed || isHoverExpanded ? styles.expanded : ''} ${isActive ? styles.active : ''}`;
+  const anchorContent = (
+    <>
       <Icon className={styles.navIcon} aria-hidden="true" />
       {showLabel && <span className={styles.navLabel}>{label}</span>}
+    </>
+  );
+
+  // В collapsed-desktop используем Tooltip как триггер-ссылочку (as="a")
+  // с сохранением всех навигационных атрибутов и роли menuitem.
+  const anchorProps = {
+    href,
+    onClick: handleClick,
+    onKeyDown,
+    role: 'menuitem' as const,
+    'aria-current': isActive ? ('page' as const) : undefined,
+    'data-desktop-nav-item': variant === 'desktop' ? true : undefined,
+  };
+
+  if (iconOnlyDesktop) {
+    return (
+      <Tooltip
+        {...anchorProps}
+        as="a"
+        content={label}
+        position="right"
+        trigger="focus"
+        className={anchorClassName}
+      >
+        {anchorContent}
+      </Tooltip>
+    );
+  }
+
+  return (
+    <a {...anchorProps} className={anchorClassName}>
+      {anchorContent}
     </a>
   );
 };

@@ -377,7 +377,7 @@ export interface ModalAlertProps {
   /**
    * Иконка для отображения
    * @description Отображается над заголовком
-   * @example <Modal.Alert icon={<AlertTriangle />} variant="destructive" />
+   * @example <ModalAlert icon={<AlertTriangle />} variant="destructive" />
    */
   icon?: ReactNode;
 

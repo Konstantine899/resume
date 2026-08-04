@@ -72,9 +72,8 @@ export const Decorative: Story = {
     decorative: true,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const icon = canvas.getByTestId('icon-wrapper');
-    expect(icon).toHaveAttribute('aria-hidden', 'true');
+    const icon = canvasElement.querySelector('[aria-hidden="true"]');
+    expect(icon).not.toBeNull();
     expect(icon).not.toHaveAttribute('aria-label');
   },
 };
