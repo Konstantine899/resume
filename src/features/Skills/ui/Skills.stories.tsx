@@ -12,7 +12,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from '@storybook/test';
-import { ThemeProvider } from '@app/providers';
+import { ThemeProvider } from '@/shared/lib/contexts/ThemeContext';
 import { Skills } from './Skills';
 
 // ============================================

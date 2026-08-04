@@ -13,7 +13,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, screen, userEvent, waitFor, within } from '@storybook/test';
 import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
-import SkillsCode from '@features/Hero';
 import { Code } from './Code';
 
 // ============================================
@@ -40,6 +39,38 @@ const sampleCode = (
     {'\n'}
     <span className="property">console</span>.<span className="property">log</span>(
     <span className="property">message</span>);
+  </>
+);
+
+/**
+ * Локальный аналог SkillsCode (из features/Hero) — разметка «developer object»,
+ * чтобы не нарушать FSD: shared/ui/Code не может импортировать features/Hero.
+ */
+const skillsCodeContent = (
+  <>
+    <span className="keyword">const</span> <span className="property">developer</span> ={' '}
+    <span className="punctuation">{'{'}</span>
+    {'\n'}
+    {'  '}
+    <span className="property">fullName</span>:{' '}
+    <span className="string">&apos;Konstantin&apos;</span>,{'\n'}
+    {'  '}
+    <span className="property">profession</span>:{' '}
+    <span className="string">&apos;Full Stack Developer&apos;</span>,{'\n'}
+    {'  '}
+    <span className="property">yearsOfExperience</span>: <span className="number">7</span>,{'\n'}
+    {'  '}
+    <span className="property">skills</span>: <span className="punctuation">{'['}</span>
+    {'\n'}
+    {'    '}
+    <span className="string">&apos;TypeScript&apos;</span>,{'\n'}
+    {'    '}
+    <span className="string">&apos;React&apos;</span>,{'\n'}
+    {'    '}
+    <span className="string">&apos;Node.js&apos;</span>,{'\n'}
+    {'  '}
+    <span className="punctuation">{']'}</span>,{'\n'}
+    <span className="punctuation">{'}'}</span>;
   </>
 );
 
@@ -357,7 +388,7 @@ export const BlockCopyError: Story = {
 export const BlockSkillsCode: Story = {
   name: 'Block / SkillsCode',
   args: {
-    children: <SkillsCode />,
+    children: skillsCodeContent,
     variant: 'block',
     title: 'developer.ts',
     language: 'TypeScript',
@@ -422,7 +453,7 @@ export const InlineSkeleton: Story = {
 export const BlockSkeleton: Story = {
   name: 'Block / Skeleton',
   args: {
-    children: <SkillsCode />,
+    children: skillsCodeContent,
     variant: 'block',
     title: 'developer.ts',
     language: 'TypeScript',
