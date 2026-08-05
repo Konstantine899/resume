@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, screen, userEvent, waitFor, within } from '@storybook/test';
-import { Info, Settings, User } from 'lucide-react';
-import { Avatar } from '@/shared/ui/Avatar';
-import { Button } from '@/shared/ui/Button';
+import { createElement } from 'react';
+import { Info, Mail, Settings, User } from 'lucide-react';
+import { AvatarHero } from '@/shared/ui/Avatar';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { Code } from '@/shared/ui/Code';
+import { ContactCard } from '@/shared/ui/Card';
+import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import { Popover } from './Popover';
 
 const meta = {
@@ -27,12 +33,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// ─── Basic Stories ───
+
 export const Default: Story = {
   args: {
-    content: 'Это содержимое попапа',
+    content: <Paragraph>Это содержимое попапа</Paragraph>,
     position: 'top',
     size: 'md',
-    children: <button className="px-4 py-2 bg-blue-500 text-white rounded">Click me</button>,
+    children: <Button variant="primary">Click me</Button>,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -58,7 +66,13 @@ export const WithTitle: Story = {
   args: {
     ...Default.args,
     title: 'Заголовок',
-    content: 'Контент с заголовком',
+    content: (
+      <>
+        <Paragraph size="m" theme="primary">
+          Контент с заголовком
+        </Paragraph>
+      </>
+    ),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -77,7 +91,7 @@ export const Small: Story = {
   args: {
     ...Default.args,
     size: 'sm',
-    content: 'Маленький попап',
+    content: <Paragraph size="s">Маленький попап</Paragraph>,
   },
 };
 
@@ -85,39 +99,41 @@ export const Large: Story = {
   args: {
     ...Default.args,
     size: 'lg',
-    content: 'Большой попап с длинным контентом для демонстрации максимального размера',
+    content: (
+      <Paragraph>
+        Большой попап с длинным контентом для демонстрации максимального размера
+      </Paragraph>
+    ),
   },
 };
 
 export const AllPositions: Story = {
   args: {
-    content: 'Position test',
-    children: <button>Click</button>,
+    content: <Paragraph>Position test</Paragraph>,
+    children: <Button variant="outline">Click</Button>,
   },
   render: (args) => (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <Popover {...args} position="top" content="Top position">
-        <button>Top</button>
+      <Popover {...args} position="top" content={<Paragraph>Top position</Paragraph>}>
+        <Button variant="outline">Top</Button>
       </Popover>
-      <Popover {...args} position="bottom" content="Bottom position">
-        <button>Bottom</button>
+      <Popover {...args} position="bottom" content={<Paragraph>Bottom position</Paragraph>}>
+        <Button variant="outline">Bottom</Button>
       </Popover>
-      <Popover {...args} position="left" content="Left position">
-        <button>Left</button>
+      <Popover {...args} position="left" content={<Paragraph>Left position</Paragraph>}>
+        <Button variant="outline">Left</Button>
       </Popover>
-      <Popover {...args} position="right" content="Right position">
-        <button>Right</button>
+      <Popover {...args} position="right" content={<Paragraph>Right position</Paragraph>}>
+        <Button variant="outline">Right</Button>
       </Popover>
-      <Popover {...args} position="center" content="Center position">
-        <button>Center</button>
+      <Popover {...args} position="center" content={<Paragraph>Center position</Paragraph>}>
+        <Button variant="outline">Center</Button>
       </Popover>
     </div>
   ),
   play: async ({ canvasElement }) => {
     const positions = ['top', 'bottom', 'left', 'right', 'center'] as const;
     for (const pos of positions) {
-      // Триггеры — span[role="button"] c data-position; внутри ещё вложенный
-      // <button>, поэтому ищем по data-position, а не по имени.
       const trigger = canvasElement.querySelector(
         `[data-testid="popover-trigger"][data-position="${pos}"]`
       ) as HTMLElement | null;
@@ -140,10 +156,10 @@ export const AllPositions: Story = {
 
 export const Center: Story = {
   args: {
-    content: 'Центрированный попап поверх триггера',
+    content: <Paragraph>Центрированный попап поверх триггера</Paragraph>,
     position: 'center',
     size: 'md',
-    children: <button className="px-4 py-2 bg-purple-500 text-white rounded">Center</button>,
+    children: <Button variant="primary">Center</Button>,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -157,15 +173,17 @@ export const Center: Story = {
   },
 };
 
+// ─── Icon Stories ───
+
 export const WithIcon: Story = {
   args: {
     content: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Info size={16} />
-        <span>Информация</span>
+        {createElement(Info, { size: 16, 'aria-hidden': 'true' })}
+        <Paragraph size="m">Информация</Paragraph>
       </div>
     ),
-    children: <Settings size={20} />,
+    children: <IconButton icon={createElement(Settings, {})} ariaLabel="Settings" />,
   },
 };
 
@@ -175,21 +193,25 @@ export const WithComplexContent: Story = {
     content: (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <User size={16} />
-          <span>Пользователь</span>
+          <User size={16} aria-hidden="true" />
+          <Paragraph size="m">Пользователь</Paragraph>
         </div>
-        <div style={{ fontSize: '12px', opacity: 0.7 }}>user@example.com</div>
+        <Paragraph size="xs" theme="muted">
+          user@example.com
+        </Paragraph>
       </div>
     ),
-    children: <button className="px-4 py-2 bg-gray-500 text-white rounded">Профиль</button>,
+    children: <Button variant="primary">Профиль</Button>,
   },
 };
+
+// ─── Behavior Stories ───
 
 export const CloseOnContentClick: Story = {
   args: {
     ...Default.args,
     closeOnContentClick: true,
-    content: 'Кликни здесь чтобы закрыть',
+    content: <Paragraph>Кликни здесь чтобы закрыть</Paragraph>,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -212,7 +234,7 @@ export const NoCloseOnContentClick: Story = {
   args: {
     ...Default.args,
     closeOnContentClick: false,
-    content: 'Этот попап не закроется при клике',
+    content: <Paragraph>Этот попап не закроется при клике</Paragraph>,
   },
 };
 
@@ -220,7 +242,11 @@ export const Disabled: Story = {
   args: {
     ...Default.args,
     disabled: true,
-    children: <button className="px-4 py-2 bg-gray-300 text-gray-500 rounded">Disabled</button>,
+    children: (
+      <Button variant="primary" disabled>
+        Disabled
+      </Button>
+    ),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -233,21 +259,27 @@ export const Disabled: Story = {
   },
 };
 
-// ─── Composition stories (CRIT#9: интеграция в Button/Icon/Avatar) ───
+// ─── Composition Stories (CRIT#9: интеграция в Button/Icon/Avatar) ───
 
 export const WithButton: Story = {
   args: {
     title: 'Меню',
     content: (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <button>Редактировать</button>
-        <button>Дублировать</button>
-        <button>Удалить</button>
+        <Button variant="ghost" size="sm">
+          Редактировать
+        </Button>
+        <Button variant="ghost" size="sm">
+          Дублировать
+        </Button>
+        <Button variant="ghost" size="sm">
+          Удалить
+        </Button>
       </div>
     ),
     children: (
       <Button variant="primary">
-        Actions <Settings size={14} />
+        Actions <Settings size={14} aria-hidden="true" />
       </Button>
     ),
   },
@@ -266,12 +298,14 @@ export const WithIconMenu: Story = {
   args: {
     content: (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <span>Контекстное меню для значка</span>
-        <span>Настройки</span>
+        <Paragraph size="m">Контекстное меню для значка</Paragraph>
+        <Button variant="ghost" size="sm">
+          Настройки
+        </Button>
       </div>
     ),
     position: 'bottom',
-    children: <Settings size={20} />,
+    children: <IconButton icon={createElement(Settings, {})} ariaLabel="Settings menu" />,
   },
   play: async ({ canvasElement }) => {
     const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
@@ -288,12 +322,16 @@ export const WithAvatarProfile: Story = {
     title: 'Профиль',
     content: (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <span>Настройки</span>
-        <span>Выйти</span>
+        <Button variant="ghost" size="sm">
+          Настройки
+        </Button>
+        <Button variant="ghost" size="sm">
+          Выйти
+        </Button>
       </div>
     ),
     position: 'bottom',
-    children: <Avatar alt="User" />,
+    children: <AvatarHero alt="User" size="xl" />,
   },
   play: async ({ canvasElement }) => {
     const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
@@ -319,7 +357,7 @@ export const DropdownMenu: Story = {
         </Button>
       </div>
     ),
-    children: <Avatar alt="Profile" />,
+    children: <AvatarHero alt="Profile" size="xl" />,
   },
   play: async ({ canvasElement }) => {
     const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
@@ -329,5 +367,106 @@ export const DropdownMenu: Story = {
     expect(popover).toBeInTheDocument();
     expect(popover).toHaveTextContent('Настройки');
     expect(popover).toHaveTextContent('Выйти');
+  },
+};
+
+// ─── Real-world Pattern Stories (новые) ───
+
+export const WithLink: Story = {
+  args: {
+    title: 'Навигация',
+    content: (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <Link href="#about" variant="ghost" underline="hover">
+          О себе
+        </Link>
+        <Link href="#contact" variant="ghost" underline="hover">
+          Контакты
+        </Link>
+      </div>
+    ),
+    position: 'right',
+    children: (
+      <Link href="#home" variant="ghost" underline="never">
+        K
+      </Link>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Навигация');
+  },
+};
+
+export const WithContactCard: Story = {
+  args: {
+    content: (
+      <ContactCard title="Контакты" icon={createElement(Mail, { size: 24, 'aria-hidden': 'true' })}>
+        <Paragraph size="s" theme="muted">
+          Я всегда открыт для обсуждения новых проектов
+        </Paragraph>
+      </ContactCard>
+    ),
+    position: 'top',
+    children: <Button variant="primary">Связаться</Button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Связаться');
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Контакты');
+  },
+};
+
+export const WithCode: Story = {
+  args: {
+    title: 'Навыки',
+    content: (
+      <Code variant="block" language="typescript" copyable={false}>
+        {`const skills = ['React', 'TypeScript', 'Node.js'];`}
+      </Code>
+    ),
+    position: 'bottom',
+    children: <Button variant="outline">Показать навыки</Button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Показать навыки');
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Навыки');
+    expect(popover).toHaveTextContent('const skills');
+  },
+};
+
+export const WithTooltipAndPopover: Story = {
+  args: {
+    title: 'Подсказка + Поповер',
+    content: <Paragraph>Дополнительная информация</Paragraph>,
+    position: 'right',
+    children: (
+      <Tooltip content="Нажми для меню" position="top">
+        <Button variant="primary">Меню</Button>
+      </Tooltip>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Меню');
+
+    // Клик для открытия Popover (Tooltip на hover/focus)
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Подсказка + Поповер');
   },
 };
