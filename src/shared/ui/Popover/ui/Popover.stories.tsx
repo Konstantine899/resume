@@ -236,6 +236,26 @@ export const NoCloseOnContentClick: Story = {
     closeOnContentClick: false,
     content: <Paragraph>Этот попап не закроется при клике</Paragraph>,
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Click me');
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+
+    // Клик по контенту НЕ закрывает (closeOnContentClick=false)
+    await userEvent.click(popover);
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Повторный клик по триггеру закрывает
+    await userEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  },
 };
 
 export const Disabled: Story = {
@@ -256,6 +276,30 @@ export const Disabled: Story = {
 
     await userEvent.click(trigger);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
+
+// ─── Accessibility Stories ───
+
+export const KeyboardNavigation: Story = {
+  args: {
+    content: <Paragraph>Навигация клавиатурой</Paragraph>,
+    children: <Button variant="primary">Меню</Button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Меню');
+
+    // Enter для открытия
+    await userEvent.click(trigger);
+    const popover = await screen.findByRole('dialog');
+    expect(popover).toBeInTheDocument();
+
+    // Escape для закрытия
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(popover).not.toBeInTheDocument();
+    });
   },
 };
 
