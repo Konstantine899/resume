@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, screen, userEvent, waitFor, within } from '@storybook/test';
 import { Info, Settings, User } from 'lucide-react';
+import { Avatar } from '@/shared/ui/Avatar';
+import { Button } from '@/shared/ui/Button';
 import { Popover } from './Popover';
 
 const meta = {
@@ -31,6 +34,24 @@ export const Default: Story = {
     size: 'md',
     children: <button className="px-4 py-2 bg-blue-500 text-white rounded">Click me</button>,
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Click me');
+
+    await userEvent.click(trigger);
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Это содержимое попапа');
+    expect(popover).toHaveAttribute('data-position', 'top');
+    expect(popover).toHaveAttribute('data-testid', 'popover-content');
+
+    // Клик по триггеру повторно — закрыть
+    await userEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  },
 };
 
 export const WithTitle: Story = {
@@ -38,6 +59,17 @@ export const WithTitle: Story = {
     ...Default.args,
     title: 'Заголовок',
     content: 'Контент с заголовком',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Click me');
+
+    await userEvent.click(trigger);
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Заголовок');
+    expect(popover).toHaveTextContent('Контент с заголовком');
   },
 };
 
@@ -81,6 +113,29 @@ export const AllPositions: Story = {
       </Popover>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const positions = ['top', 'bottom', 'left', 'right', 'center'] as const;
+    for (const pos of positions) {
+      // Триггеры — span[role="button"] c data-position; внутри ещё вложенный
+      // <button>, поэтому ищем по data-position, а не по имени.
+      const trigger = canvasElement.querySelector(
+        `[data-testid="popover-trigger"][data-position="${pos}"]`
+      ) as HTMLElement | null;
+      expect(trigger).not.toBeNull();
+
+      await userEvent.click(trigger as HTMLElement);
+
+      const popover = screen.getByRole('dialog');
+      expect(popover).toHaveAttribute('data-position', pos);
+      expect(popover.textContent).toMatch(new RegExp(`^${pos} position`, 'i'));
+
+      // Закрыть перед следующей итерацией
+      await userEvent.click(trigger as HTMLElement);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    }
+  },
 };
 
 export const Center: Story = {
@@ -89,6 +144,16 @@ export const Center: Story = {
     position: 'center',
     size: 'md',
     children: <button className="px-4 py-2 bg-purple-500 text-white rounded">Center</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Center');
+
+    await userEvent.click(trigger);
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toHaveAttribute('data-position', 'center');
+    expect(popover).toHaveTextContent('Центрированный попап поверх триггера');
   },
 };
 
@@ -126,6 +191,21 @@ export const CloseOnContentClick: Story = {
     closeOnContentClick: true,
     content: 'Кликни здесь чтобы закрыть',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Click me');
+
+    await userEvent.click(trigger);
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+
+    // Клик по контенту при closeOnContentClick=true — закрыть
+    await userEvent.click(popover);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  },
 };
 
 export const NoCloseOnContentClick: Story = {
@@ -141,5 +221,113 @@ export const Disabled: Story = {
     ...Default.args,
     disabled: true,
     children: <button className="px-4 py-2 bg-gray-300 text-gray-500 rounded">Disabled</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Disabled');
+
+    expect(trigger.closest('[data-testid="popover-trigger"]')).toHaveAttribute('tabIndex', '-1');
+
+    await userEvent.click(trigger);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
+
+// ─── Composition stories (CRIT#9: интеграция в Button/Icon/Avatar) ───
+
+export const WithButton: Story = {
+  args: {
+    title: 'Меню',
+    content: (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <button>Редактировать</button>
+        <button>Дублировать</button>
+        <button>Удалить</button>
+      </div>
+    ),
+    children: (
+      <Button variant="primary">
+        Actions <Settings size={14} />
+      </Button>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByText('Actions');
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Редактировать');
+  },
+};
+
+export const WithIconMenu: Story = {
+  args: {
+    content: (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <span>Контекстное меню для значка</span>
+        <span>Настройки</span>
+      </div>
+    ),
+    position: 'bottom',
+    children: <Settings size={20} />,
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Контекстное меню для значка');
+  },
+};
+
+export const WithAvatarProfile: Story = {
+  args: {
+    title: 'Профиль',
+    content: (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <span>Настройки</span>
+        <span>Выйти</span>
+      </div>
+    ),
+    position: 'bottom',
+    children: <Avatar alt="User" />,
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Настройки');
+  },
+};
+
+export const DropdownMenu: Story = {
+  args: {
+    title: 'Профиль',
+    position: 'bottom',
+    content: (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <Button variant="ghost" size="sm">
+          Настройки
+        </Button>
+        <Button variant="ghost" size="sm">
+          Выйти
+        </Button>
+      </div>
+    ),
+    children: <Avatar alt="Profile" />,
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = canvasElement.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
+
+    await userEvent.click(trigger);
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+    expect(popover).toHaveTextContent('Настройки');
+    expect(popover).toHaveTextContent('Выйти');
   },
 };

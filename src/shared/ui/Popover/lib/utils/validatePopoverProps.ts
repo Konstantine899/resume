@@ -1,4 +1,4 @@
-import { PopoverProps } from '../../model/types';
+import type { PopoverProps } from '../../model/types';
 import { POPOVER_POSITIONS, POPOVER_SIZES_ARRAY } from '../../model/constants';
 
 /**

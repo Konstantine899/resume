@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useClickOutside } from '@/shared/lib/hooks/useClickOutside';
 import { POPOVER_CONSTANTS } from '../../model/constants';
 import type { PopoverPosition } from '../../model/types';
 import { calculatePopoverPosition } from '../utils/popoverPosition';
@@ -17,6 +18,10 @@ interface UsePopoverReturn {
   shouldRender: boolean;
   open: () => void;
   close: () => void;
+  /** Разрешён ли popover (не disabled) */
+  enabled: boolean;
+  /** Отключён ли поповер */
+  disabled: boolean;
 }
 
 interface UsePopoverOptions {
@@ -106,23 +111,36 @@ export const usePopover = ({
   }, [position, offset, autoAdjust]);
 
   /**
-   * Подписка на resize и scroll события для обновления позиции
-   * Навешивается только когда popover видим
+   * rAF-throttle: не чаще одного пересчёта на кадр при scroll/resize
+   */
+  const rafRef = useRef<number | null>(null);
+  const scheduleUpdate = useCallback(() => {
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      updatePosition();
+    });
+  }, [updatePosition]);
+
+  /**
+   * Подписка на resize и scroll события для обновления позиции.
+   * Навешивается только когда popover видим; rAF-throttle + cancel на unmount.
    */
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) return undefined;
 
-    const handleResize = () => updatePosition();
-    const handleScroll = () => updatePosition();
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('scroll', scheduleUpdate, true);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', scheduleUpdate);
+      window.removeEventListener('scroll', scheduleUpdate, true);
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
-  }, [isVisible, updatePosition]);
+  }, [isVisible, scheduleUpdate]);
 
   /**
    * Обновление позиции при показе popover
@@ -141,24 +159,20 @@ export const usePopover = ({
   }, [isVisible, updatePosition]);
 
   /**
-   * Закрытие по клику вне popover
-   * Проверяет что клик не по триггеру и не по popover
+   * Закрытие по клику вне popover (общий useClickOutside).
+   * excludeRefs — триггер и сам popover: клики по ним не считаются внешними
+   * (по триггеру — toggle в handleClick, внутри popover — handleContentClick).
    */
-  useEffect(() => {
-    if (!closeOnClickOutside || !isVisible) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const isClickInsidePopover = popoverRef.current?.contains(event.target as Node);
-      const isClickInsideTrigger = triggerRef.current?.contains(event.target as Node);
-
-      if (!isClickInsidePopover && !isClickInsideTrigger) {
-        setIsVisible(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [closeOnClickOutside, isVisible]);
+  useClickOutside(
+    () => {
+      setIsVisible(false);
+    },
+    {
+      enabled: closeOnClickOutside && isVisible && !disabled,
+      event: 'mousedown',
+      excludeRefs: [triggerRef, popoverRef],
+    }
+  );
 
   /**
    * Закрытие по нажатию ESC
@@ -199,6 +213,9 @@ export const usePopover = ({
    */
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // e.repeat-гард: удержание Enter/Space не должно циклически
+      // переключать open/close (a11y).
+      if (e.repeat) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         if (!disabled) {
@@ -240,5 +257,7 @@ export const usePopover = ({
     shouldRender: isVisible && !disabled,
     open,
     close,
+    enabled: !disabled,
+    disabled,
   };
 };

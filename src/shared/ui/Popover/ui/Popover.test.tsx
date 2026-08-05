@@ -528,4 +528,170 @@ describe('Popover', () => {
       expect(Popover.displayName).toBe('Popover');
     });
   });
+
+  describe('Polymorphic API', () => {
+    it('должен рендерить триггер как <a> с href при as="a"', () => {
+      render(
+        <Popover as="a" href="/profile" content="Content">
+          Link
+        </Popover>
+      );
+
+      const trigger = screen.getByTestId('popover-trigger');
+      expect(trigger.tagName).toBe('A');
+      expect(trigger).toHaveAttribute('href', '/profile');
+    });
+
+    it('должен форвардить ref на триггер с типом элемента из as', () => {
+      const ref = { current: null as HTMLAnchorElement | null };
+      render(
+        <Popover as="a" ref={ref} content="Content">
+          Link
+        </Popover>
+      );
+
+      expect(ref.current).not.toBeNull();
+      expect(ref.current instanceof HTMLAnchorElement).toBe(true);
+    });
+
+    it('должен по умолчанию рендерить <span> триггер', () => {
+      render(
+        <Popover content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      expect(screen.getByTestId('popover-trigger').tagName).toBe('SPAN');
+    });
+
+    it('должен сохранять элемент-специфичные пропсы при as="a"', async () => {
+      render(
+        <Popover as="a" href="/x" target="_blank" content="Content">
+          Link
+        </Popover>
+      );
+
+      const trigger = screen.getByTestId('popover-trigger');
+      expect(trigger).toHaveAttribute('target', '_blank');
+      expect(trigger).toHaveAttribute('role', 'button');
+    });
+
+    it('должен поддерживать custom component через as', () => {
+      const CustomLink = ({
+        children,
+        ...props
+      }: React.ComponentProps<'a'>): React.ReactElement => (
+        <a data-custom="true" {...props}>
+          {children}
+        </a>
+      );
+
+      render(
+        <Popover as={CustomLink} href="/custom" content="Content">
+          Custom
+        </Popover>
+      );
+
+      const trigger = screen.getByTestId('popover-trigger');
+      expect(trigger.tagName).toBe('A');
+      expect(trigger).toHaveAttribute('data-custom', 'true');
+      expect(trigger).toHaveAttribute('href', '/custom');
+    });
+
+    it('должен вызывать пользовательский onClick вместе с popover-обработчиком (M1)', () => {
+      const userClick = vi.fn();
+      render(
+        <Popover onClick={userClick} content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      fireEvent.click(screen.getByTestId('popover-trigger'));
+
+      expect(userClick).toHaveBeenCalledTimes(1);
+      // Поповер тоже сработал (открылся)
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('должен вызывать пользовательский onKeyDown вместе с popover-обработчиком (M1)', () => {
+      const userKeyDown = vi.fn();
+      render(
+        <Popover onKeyDown={userKeyDown} content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('popover-trigger'), { key: 'Enter' });
+
+      expect(userKeyDown).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('должен ставить aria-disabled=true при disabled (Mi2)', () => {
+      render(
+        <Popover disabled content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      expect(screen.getByTestId('popover-trigger')).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('не должен ставить aria-disabled когда не disabled', () => {
+      render(
+        <Popover content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      expect(screen.getByTestId('popover-trigger')).not.toHaveAttribute('aria-disabled');
+    });
+
+    it('должен отражать auto-adjust во data-position монолита (M2)', async () => {
+      // Монолит с position="top" у края viewport: usePopover флипает на bottom.
+      // Content должен читать adjustedPosition из контекста, а не статичный position.
+      render(
+        <Popover position="top" content="Content">
+          <button>Trigger</button>
+        </Popover>
+      );
+
+      const trigger = screen.getByTestId('popover-trigger');
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        const dialog = screen.getByRole('dialog');
+        // В jsdom viewport 0x0 — autoAdjust флипает top на bottom
+        expect(dialog).toHaveAttribute('data-position', 'bottom');
+      });
+    });
+  });
+
+  describe('Compound API (статики)', () => {
+    it('должен экспортировать Provider/Trigger/Content как статики', () => {
+      expect(Popover.Provider).toBeDefined();
+      expect(Popover.Trigger).toBeDefined();
+      expect(Popover.Content).toBeDefined();
+    });
+
+    it('должен сохранять монолитную работу через compound части', async () => {
+      render(
+        <Popover.Provider position="bottom">
+          <Popover.Trigger as="button">
+            <span>Compound</span>
+          </Popover.Trigger>
+          <Popover.Content>Compound content</Popover.Content>
+        </Popover.Provider>
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      await waitFor(() => {
+        const dialog = screen.getByRole('dialog');
+        expect(dialog).toBeInTheDocument();
+        expect(dialog).toHaveTextContent('Compound content');
+        expect(dialog).toHaveAttribute('data-position', 'bottom');
+      });
+    });
+  });
 });

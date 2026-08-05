@@ -46,15 +46,4 @@ export const POPOVER_CONSTANTS = {
   DEFAULT_POSITION: POPOVER_DEFAULTS.position,
   ESCAPE_KEY: 'Escape',
   defaults: POPOVER_DEFAULTS,
-  validPositions: POPOVER_POSITIONS,
-  validSizes: POPOVER_SIZES_ARRAY,
 } as const;
-
-export const VALID_POSITIONS: readonly PopoverPosition[] = [
-  'top',
-  'bottom',
-  'left',
-  'right',
-  'center',
-];
-export const VALID_SIZES: readonly PopoverSize[] = ['sm', 'md', 'lg', 'auto'];
