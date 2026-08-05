@@ -9,6 +9,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}', '.opencode/plugins/**/*.{test,spec}.{js,ts}'],
+    // Запрет .only в тестах (MINOR: не даёт случайно закоммитить
+    // частичный прогон как полный). default: !process.env.CI.
+    allowOnly: false,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

@@ -11,7 +11,8 @@ import styles from '../Tooltip.module.scss';
  * TooltipContent — контент тултипа, рендерится в Portal вне иерархии.
  *
  * Потребляет состояние из TooltipProvider:
- * - `shouldRender` решает, рендерить ли контент
+ * - `isVisibleEnabled` решает, рендерить ли контент (видим и не отключён)
+ * - `positioned` — позиция вычислена (переход от hidden к visible без прыжка)
  * - `calculatedStyle` — вычисленная позиция (top/left/maxWidth)
  * - `adjustedPosition` — класс позиции (top/bottom/left/right)
  *
@@ -32,17 +33,18 @@ const TooltipContentImpl = memo((props: TooltipContentProps) => {
   const {
     calculatedStyle,
     adjustedPosition,
+    positioned,
     tooltipRef,
     tooltipId,
     activeTrigger,
-    shouldRender,
+    isVisibleEnabled,
     handlers,
     color,
     arrowShadowColor,
     skeleton,
   } = useTooltipContext();
 
-  if (!shouldRender) return null;
+  if (!isVisibleEnabled) return null;
 
   // Защита позиционных ключей: overlayStyle не должен перезаписывать
   // top/left/maxWidth, вычисленные useTooltip (иначе можно сломать
@@ -75,7 +77,8 @@ const TooltipContentImpl = memo((props: TooltipContentProps) => {
           styles.tooltip,
           styles.compound,
           resolveCssModuleKey(styles, adjustedPosition),
-          styles.visible,
+          // Позиция вычислена — включаем видимость и transition после top/left.
+          positioned && styles.visible,
           overlayClassName
         )}
         style={{ ...calculatedStyle, ...overlayRest, ...colorVar, ...arrowShadowVar }}

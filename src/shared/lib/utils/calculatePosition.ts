@@ -15,19 +15,22 @@
  * - для left/right: start = верхний край, end = нижний край
  */
 
-export type Placement =
-  | 'top-start'
-  | 'top'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left'
-  | 'left-end'
-  | 'right-start'
-  | 'right'
-  | 'right-end';
+export const PLACEMENTS = [
+  'top-start',
+  'top',
+  'top-end',
+  'bottom-start',
+  'bottom',
+  'bottom-end',
+  'left-start',
+  'left',
+  'left-end',
+  'right-start',
+  'right',
+  'right-end',
+] as const;
+
+export type Placement = (typeof PLACEMENTS)[number];
 
 export interface PositionParams {
   placement: Placement;

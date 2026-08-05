@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/utils/classNames';
-import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
+import { mergeRefs, useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { Children, cloneElement, isValidElement, memo } from 'react';
 import type {
   ComponentRef,
@@ -23,9 +23,9 @@ import styles from '../Tooltip.module.scss';
  * - ARIA (aria-describedby, aria-label, role, tabIndex)
  * - data-атрибуты для тестирования и стилизации
  *
- * `asChild` клонирует единственного дочернего ReactElement и мержит все
- * пропсы триггера в него (Radix Slot pattern) — полезно когда триггер
- * должен быть Button/Input/Icon.
+ * `asChild` клонирует единственного дочернего ReactElement (Radix Slot pattern)
+ * и МЕРЖИТ пропсы: обработчики вызываются и ребёнка, и тултипа; refs
+ * объединяются; role/tabIndex/aria не перезаписывают установленные ребёнком.
  *
  * @example
  * ```tsx
@@ -71,6 +71,10 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
   const triggerRefCallback = useMergeRefs(forwardedRef as Ref<HTMLElement>, triggerRef);
   const Tag = Component as ElementType;
 
+  const needsKeyboardProps = activeTrigger === 'click' || activeTrigger === 'focus';
+  const defaultTriggerRole = needsKeyboardProps ? 'button' : undefined;
+
+  // Базовые пропсы триггера. Обработчики делегируют приоритет user-обработчику.
   const triggerProps = {
     ...restProps,
     ref: triggerRefCallback,
@@ -99,17 +103,16 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
       userOnKeyDown?.(e);
       handlers.handleKeyDown(e);
     },
-    tabIndex: activeTrigger === 'click' || activeTrigger === 'focus' ? 0 : undefined,
+    tabIndex: needsKeyboardProps ? 0 : undefined,
     'aria-describedby': isVisible ? tooltipId : undefined,
     ...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
-    role:
-      roleProp ?? (activeTrigger === 'click' || activeTrigger === 'focus' ? 'button' : undefined),
+    role: roleProp ?? defaultTriggerRole,
     'data-tooltip-visible': isVisible,
     'data-tooltip-position': adjustedPosition,
     'data-tooltip-trigger': activeTrigger,
     'data-tooltip-disabled': disabled,
     ...(skeleton ? { 'data-skeleton': 'true' } : {}),
-  } as Record<string, unknown>;
+  };
 
   if (asChild) {
     const child = Children.only(children);
@@ -118,10 +121,56 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
     }
 
     const childProps = child.props as Record<string, unknown>;
-    return cloneElement(child, {
-      ...triggerProps,
+    // ref может лежать на самом ReactElement (React 19) — извлекаем для слияния.
+    // mergeRefs (не хук) — безопасно вызывать в условной ветке asChild.
+    const childRef = (child as unknown as { ref?: Ref<unknown> }).ref;
+    const mergedRef = mergeRefs(childRef as Ref<HTMLElement> | null, triggerRefCallback);
+
+    const mergedProps = {
+      ...childProps,
+      // ref объединяем: и дочерний, и тултипный.
+      ref: mergedRef,
       className: cn(childProps.className as string | undefined, styles.trigger, className),
-    } as Record<string, unknown>) as ReactElement;
+      // Роль/таб-индекс ребёнка НЕ перезаписываем: если ребёнок задал явно — сохраняем.
+      role: (childProps.role as string | undefined) ?? defaultTriggerRole,
+      tabIndex:
+        (childProps.tabIndex as number | null | undefined) ?? (needsKeyboardProps ? 0 : undefined),
+      'aria-describedby': isVisible ? tooltipId : undefined,
+      'data-tooltip-visible': isVisible,
+      'data-tooltip-position': adjustedPosition,
+      'data-tooltip-trigger': activeTrigger,
+      'data-tooltip-disabled': disabled,
+      ...(skeleton ? { 'data-skeleton': 'true' } : {}),
+      // Event-обработчики мержим, а не перезаписываем.
+      onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+        (childProps.onMouseEnter as ((ev: MouseEvent<HTMLElement>) => void) | undefined)?.(e);
+        handlers.handleMouseEnter();
+      },
+      onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+        (childProps.onMouseLeave as ((ev: MouseEvent<HTMLElement>) => void) | undefined)?.(e);
+        handlers.handleMouseLeave();
+      },
+      onFocus: (e: React.FocusEvent<HTMLElement>) => {
+        (childProps.onFocus as ((ev: React.FocusEvent<HTMLElement>) => void) | undefined)?.(e);
+        handlers.handleFocus();
+      },
+      onBlur: (e: React.FocusEvent<HTMLElement>) => {
+        (childProps.onBlur as ((ev: React.FocusEvent<HTMLElement>) => void) | undefined)?.(e);
+        handlers.handleBlur();
+      },
+      onClick: (e: MouseEvent<HTMLElement>) => {
+        (childProps.onClick as ((ev: MouseEvent<HTMLElement>) => void) | undefined)?.(e);
+        userOnClick?.(e);
+        handlers.handleClick(e);
+      },
+      onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+        (childProps.onKeyDown as ((ev: KeyboardEvent<HTMLElement>) => void) | undefined)?.(e);
+        userOnKeyDown?.(e);
+        handlers.handleKeyDown(e);
+      },
+    };
+
+    return cloneElement(child, mergedProps as Record<string, unknown>) as ReactElement;
   }
 
   return <Tag {...triggerProps}>{children}</Tag>;

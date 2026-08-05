@@ -13,15 +13,6 @@ vi.mock('@/shared/lib/utils/debounce', () => ({
   }),
 }));
 
-// Моки для position utils
-vi.mock('../lib/utils/tooltipPosition', () => ({
-  calculateTooltipPosition: vi.fn(() => ({
-    top: 100,
-    left: 200,
-    adjustedPosition: 'top',
-  })),
-}));
-
 describe('Tooltip', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -516,17 +507,10 @@ describe('Tooltip', () => {
       const trigger = screen.getByText('Hover me');
       fireEvent.mouseEnter(trigger);
 
-      // Unmount до истечения delay
+      // Unmount до истечения delay ставит cancel() в cleanup.
+      // После unmount не должно быть утечки timers — висячих тултипов нет.
       unmount();
-
-      // Ждём дольше чем delay
-      await waitFor(
-        () => {
-          // Не должно быть ошибок
-          expect(true).toBe(true);
-        },
-        { timeout: 200 }
-      );
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
@@ -728,7 +712,9 @@ describe('Tooltip', () => {
 
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('mousedown', expect.any(Function));
+      // useClickOutside подписывается в capture-фазе (3-й аргумент true),
+      // чтобы закрывать даже при stopPropagation в вложенных обработчиках.
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mousedown', expect.any(Function), true);
 
       addEventListenerSpy.mockRestore();
       removeEventListenerSpy.mockRestore();
@@ -1094,8 +1080,9 @@ describe('Tooltip', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip');
-        // позиционные ключи берутся из calculatedStyle (100/200/top из mock)
-        expect(tooltip).toHaveStyle({ top: '100px', left: '200px', maxWidth: '250px' });
+        // позиционные ключи (top/left/maxWidth) берутся из calculatedStyle,
+        // а не из overlayStyle — поэтому overlay '999px' НЕ применяется
+        expect(tooltip).not.toHaveStyle({ top: '999px', left: '999px', maxWidth: '999px' });
         // прочие overlay-стили применяются
         expect(tooltip).toHaveStyle({ color: 'rgb(0, 0, 255)' });
       });

@@ -6,20 +6,13 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
+import type { Placement } from '@/shared/lib/utils/calculatePosition';
 
-export type TooltipPosition =
-  | 'top-start'
-  | 'top'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left'
-  | 'left-end'
-  | 'right-start'
-  | 'right'
-  | 'right-end';
+/**
+ * Позиция тултипа — алиас на общий `Placement` (shared/lib/utils/calculatePosition).
+ * Единый источник 12 placement вариантов: не дублировать union в 5 файлах.
+ */
+export type TooltipPosition = Placement;
 export type TooltipTriggerType = 'hover' | 'focus' | 'click';
 
 /**
@@ -28,14 +21,14 @@ export type TooltipTriggerType = 'hover' | 'focus' | 'click';
  * Числа, булевы значения и фрагменты исключены — контент тултипа
  * не должен быть пустым/невидимым.
  */
-export type TooltipContent = string | ReactElement | null;
+export type TooltipContentValue = string | ReactElement | null;
 
 /**
- * Props, которыми владеет Tooltip (не наследуются от HTML-элемента триггера).
+ * Конфигурация состояния тултипа — общая для монолита (TooltipOwnProps)
+ * и Provider (TooltipProviderOwnProps). Единый источник, чтобы добавление
+ * пропса не требовало правки двух интерфейсов.
  */
-export interface TooltipOwnProps {
-  /** Контент тултипа (строка, ReactElement или null) */
-  content: TooltipContent;
+export interface TooltipConfig {
   /** Позиция относительно триггера */
   position?: TooltipPosition;
   /** Триггер активации */
@@ -44,6 +37,28 @@ export interface TooltipOwnProps {
   showDelay?: number;
   /** Задержка скрытия (мс) */
   hideDelay?: number;
+  /** Отключить тултип */
+  disabled?: boolean;
+  /** Скелетон (показывает только children) */
+  skeleton?: boolean;
+  /** Смещение от триггера (px) */
+  offset?: number;
+  /** Максимальная ширина */
+  maxWidth?: number;
+  /** Авто-смена позиции при выходе за границы */
+  autoAdjust?: boolean;
+  /** Цвет фона тултипа (AntD-style). Стрелка наследует цвет автоматически. */
+  color?: string;
+  /** Цвет тени стрелки (drop-shadow). По умолчанию — как у тултипа. */
+  arrowShadowColor?: string;
+}
+
+/**
+ * Props, которыми владеет монолитный Tooltip (не наследуются от HTML-элемента триггера).
+ */
+export interface TooltipOwnProps extends TooltipConfig {
+  /** Контент тултипа (строка, ReactElement или null) */
+  content: TooltipContentValue;
   /** Дочерний элемент (триггер) */
   children: ReactNode;
   /** Дополнительный класс на триггере */
@@ -52,22 +67,8 @@ export interface TooltipOwnProps {
   overlayClassName?: string;
   /** Инлайн-стили на контенте тултипа (overlay) */
   overlayStyle?: React.CSSProperties;
-  /** Отключить тултип */
-  disabled?: boolean;
-  /** Максимальная ширина */
-  maxWidth?: number;
   /** Accessibility description */
   ariaLabel?: string;
-  /** Скелетон (показывает только children) */
-  skeleton?: boolean;
-  /** Смещение от триггера (px) */
-  offset?: number;
-  /** Авто-смена позиции при выходе за границы */
-  autoAdjust?: boolean;
-  /** Цвет фона тултипа (AntD-style). Стрелка наследует цвет автоматически. */
-  color?: string;
-  /** Цвет тени стрелки (drop-shadow). По умолчанию — как у тултипа. */
-  arrowShadowColor?: string;
 }
 
 /**
@@ -102,33 +103,11 @@ export type TooltipComponent = (<C extends ElementType = 'span'>(
 };
 
 /**
- * Пропсы TooltipProvider — конфигурация состояния тултипа.
- * Все пропсы опциональны кроме children (содержит Trigger + Content).
+ * Пропсы TooltipProvider — конфигурация состояния тултипа + children
+ * (содержит Trigger + Content).
  */
-export interface TooltipProviderOwnProps {
+export interface TooltipProviderOwnProps extends TooltipConfig {
   children: ReactNode;
-  /** Позиция относительно триггера */
-  position?: TooltipPosition;
-  /** Триггер активации */
-  trigger?: TooltipTriggerType;
-  /** Задержка показа (мс) */
-  showDelay?: number;
-  /** Задержка скрытия (мс) */
-  hideDelay?: number;
-  /** Отключить тултип */
-  disabled?: boolean;
-  /** Скелетон (показывает только children) */
-  skeleton?: boolean;
-  /** Смещение от триггера (px) */
-  offset?: number;
-  /** Максимальная ширина */
-  maxWidth?: number;
-  /** Авто-смена позиции при выходе за границы */
-  autoAdjust?: boolean;
-  /** Цвет фона тултипа (AntD-style). Стрелка наследует цвет автоматически. */
-  color?: string;
-  /** Цвет тени стрелки (drop-shadow). По умолчанию — как у тултипа. */
-  arrowShadowColor?: string;
 }
 
 export type TooltipProviderProps = TooltipProviderOwnProps;
@@ -157,10 +136,10 @@ export type TooltipTriggerProps<C extends ElementType = 'span'> = TooltipTrigger
   };
 
 /**
- * Тип полиморфного компонента TooltipTrigger.
+ * Тип полиморфного компонента TooltipTrigger (ref резолвится по `as`).
  */
 export type TooltipTriggerComponent = <C extends ElementType = 'span'>(
-  props: TooltipTriggerProps<C>
+  props: TooltipTriggerProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }
 ) => ReactElement;
 
 /**
@@ -206,6 +185,8 @@ export interface TooltipContextValue {
   activeTrigger: TooltipTriggerType;
   disabled: boolean;
   skeleton: boolean;
+  /** Позиция уже вычислена (тултип можно показывать с transition) */
+  positioned: boolean;
   /** Цвет фона тултипа (CSS var --tooltip-bg) */
   color?: string;
   /** Цвет тени стрелки (CSS var --tooltip-arrow-shadow) */
@@ -218,5 +199,6 @@ export interface TooltipContextValue {
     handleClick: (e: React.MouseEvent) => void;
     handleKeyDown: (e: React.KeyboardEvent) => void;
   };
-  shouldRender: boolean;
+  /** Рендерить контент: видим и не отключён */
+  isVisibleEnabled: boolean;
 }

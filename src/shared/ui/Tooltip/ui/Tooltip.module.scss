@@ -14,6 +14,14 @@ $tooltip-focus-offset: 2px;
 $tooltip-scale-hidden: 0.95;
 $tooltip-scale-visible: 1;
 
+// Геометрия стрелки — единые токены вместо магических чисел
+
+// (8px × 8px квадрат, повёрнутый на 45°; -4px = половина стороны).
+
+$tooltip-arrow-size: 8px;
+$tooltip-arrow-half: -4px;
+$tooltip-arrow-offset: 16px;
+
 // ============================================
 
 // Tooltip Component Styles
@@ -68,8 +76,8 @@ $tooltip-scale-visible: 1;
   // Arrow positioning
   &::after {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: $tooltip-arrow-size;
+    height: $tooltip-arrow-size;
     content: '';
     background-color: var(--tooltip-bg, #1f2937);
     box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));
@@ -86,7 +94,7 @@ $tooltip-scale-visible: 1;
     &::after,
     > .arrow {
       left: 50%;
-      margin-left: -4px;
+      margin-left: $tooltip-arrow-half;
     }
   }
 
@@ -95,7 +103,7 @@ $tooltip-scale-visible: 1;
   &.top-end {
     &::after,
     > .arrow {
-      bottom: -4px;
+      bottom: $tooltip-arrow-half;
     }
   }
 
@@ -104,7 +112,7 @@ $tooltip-scale-visible: 1;
   &.bottom-end {
     &::after,
     > .arrow {
-      top: -4px;
+      top: $tooltip-arrow-half;
     }
   }
 
@@ -113,7 +121,7 @@ $tooltip-scale-visible: 1;
   &.bottom-start {
     &::after,
     > .arrow {
-      left: 16px;
+      left: $tooltip-arrow-offset;
       margin-left: 0;
     }
   }
@@ -122,7 +130,7 @@ $tooltip-scale-visible: 1;
   &.bottom-end {
     &::after,
     > .arrow {
-      right: 16px;
+      right: $tooltip-arrow-offset;
       margin-left: 0;
     }
   }
@@ -136,7 +144,7 @@ $tooltip-scale-visible: 1;
     &::after,
     > .arrow {
       top: 50%;
-      margin-top: -4px;
+      margin-top: $tooltip-arrow-half;
     }
   }
 
@@ -145,7 +153,7 @@ $tooltip-scale-visible: 1;
   &.left-end {
     &::after,
     > .arrow {
-      right: -4px;
+      right: $tooltip-arrow-half;
     }
   }
 
@@ -154,7 +162,7 @@ $tooltip-scale-visible: 1;
   &.right-end {
     &::after,
     > .arrow {
-      left: -4px;
+      left: $tooltip-arrow-half;
     }
   }
 
@@ -163,7 +171,7 @@ $tooltip-scale-visible: 1;
   &.right-start {
     &::after,
     > .arrow {
-      top: 16px;
+      top: $tooltip-arrow-offset;
       margin-top: 0;
     }
   }
@@ -172,7 +180,7 @@ $tooltip-scale-visible: 1;
   &.right-end {
     &::after,
     > .arrow {
-      bottom: 16px;
+      bottom: $tooltip-arrow-offset;
       margin-top: 0;
     }
   }
@@ -190,8 +198,8 @@ $tooltip-scale-visible: 1;
 // Стрелка как отдельный элемент (compound API).
 .arrow {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: $tooltip-arrow-size;
+  height: $tooltip-arrow-size;
   content: '';
   background-color: var(--tooltip-bg, #1f2937);
   box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));

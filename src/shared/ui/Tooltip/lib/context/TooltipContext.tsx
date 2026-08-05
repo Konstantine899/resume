@@ -8,7 +8,7 @@ import { useTooltip } from '../hooks/useTooltip';
  * частями: TooltipTrigger, TooltipContent, TooltipArrow.
  *
  * Паттерн: Radix/shadcn compound — Provider владеет состоянием через useTooltip,
- * части потребляют его. Монолитный Tooltip — удобная обёртка над этим же API.
+ * части потребляют его. Монолитный Tooltip — обёртка над этим же API.
  */
 export const TooltipContext = createContext<TooltipContextValue | null>(null);
 
@@ -54,6 +54,8 @@ export const TooltipProvider = memo((props: TooltipProviderProps) => {
     offset,
     maxWidth,
     autoAdjust,
+    color,
+    arrowShadowColor,
   });
 
   const activeTrigger = trigger ?? 'hover';
@@ -73,15 +75,19 @@ export const TooltipProvider = memo((props: TooltipProviderProps) => {
 TooltipProvider.displayName = 'TooltipProvider';
 
 /**
- * Значение по умолчанию для частей, отрендеренных вне Provider:
- * noop-состояние — Trigger рендерится без поведения, Content рендерит null.
+ * Noop-значение для частей, отрендеренных вне Provider:
+ * Trigger рендерится без поведения, Content рендерит null.
  * Это позволяет безопасно использовать части вне Provider (Storybook,
  * изоляция компонентов) без падения.
+ *
+ * Каждый lookup создаёт свежий объект с собственными refs — общий объект
+ * с мутабельными refs ломал бы использование частей вне Provider.
  */
-const NOOP_CONTEXT: TooltipContextValue = {
+const createNoopContext = (): TooltipContextValue => ({
   isVisible: false,
   calculatedStyle: {},
   adjustedPosition: 'top',
+  positioned: false,
   triggerRef: { current: null },
   tooltipRef: { current: null },
   tooltipId: '',
@@ -98,8 +104,8 @@ const NOOP_CONTEXT: TooltipContextValue = {
     handleClick: () => undefined,
     handleKeyDown: () => undefined,
   },
-  shouldRender: false,
-};
+  isVisibleEnabled: false,
+});
 
 /**
  * Хук доступа к состоянию Tooltip. Должен вызываться внутри TooltipProvider.
@@ -107,5 +113,5 @@ const NOOP_CONTEXT: TooltipContextValue = {
  */
 export const useTooltipContext = (): TooltipContextValue => {
   const ctx = useContext(TooltipContext);
-  return ctx ?? NOOP_CONTEXT;
+  return ctx ?? createNoopContext();
 };

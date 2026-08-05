@@ -1,26 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
-import { cn } from '@/shared/lib/utils/classNames';
-import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
-import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
-import { Portal } from '@/shared/ui/Portal';
-import { Skeleton } from '@/shared/ui/Skeleton';
 import { memo } from 'react';
-import type {
-  ComponentRef,
-  ElementType,
-  ForwardedRef,
-  MouseEvent,
-  KeyboardEvent,
-  ReactElement,
-  Ref,
-} from 'react';
-import { useTooltip } from '../lib/hooks/useTooltip';
+import type { ComponentRef, ElementType, ForwardedRef, ReactElement } from 'react';
 import { TooltipProvider } from '../lib/context/TooltipContext';
 import { TooltipTrigger } from './TooltipTrigger/TooltipTrigger';
 import { TooltipContent } from './TooltipContent/TooltipContent';
 import { TooltipArrow } from './TooltipArrow/TooltipArrow';
-import type { TooltipComponent, TooltipProps } from '../model/types';
-import styles from './Tooltip.module.scss';
+import type { TooltipComponent, TooltipProps, TooltipTriggerProps } from '../model/types';
 
 /**
  * Tooltip — всплывающая подсказка для предоставления дополнительной информации
@@ -28,6 +13,10 @@ import styles from './Tooltip.module.scss';
  *
  * Триггер полиморфный: по умолчанию `<span>`, `as` позволяет рендерить любой
  * элемент или компонент с типобезопасным ref (`as="a"` → `HTMLAnchorElement`).
+ *
+ * Композиционная обёртка над compound API (Provider + Trigger + Content):
+ * НЕ дублирует логику Trigger/Content, а собирает их. Единый источник поведения —
+ * useTooltip + части, так что добавление пропса не требует правки двух мест.
  *
  * @example
  * ```tsx
@@ -45,7 +34,7 @@ function TooltipImpl<C extends ElementType = 'span'>(
 ): ReactElement {
   const {
     ref: forwardedRef,
-    as: Component = 'span',
+    as = 'span',
     content,
     children,
     className,
@@ -63,130 +52,53 @@ function TooltipImpl<C extends ElementType = 'span'>(
     autoAdjust,
     color,
     arrowShadowColor,
-    role: roleProp,
-    onMouseEnter: userOnMouseEnter,
-    onMouseLeave: userOnMouseLeave,
-    onFocus: userOnFocus,
-    onBlur: userOnBlur,
-    onClick: userOnClick,
-    onKeyDown: userOnKeyDown,
+    role,
+    onMouseEnter,
+    onMouseLeave,
+    onFocus,
+    onBlur,
+    onClick,
+    onKeyDown,
     ...restProps
   } = props;
 
-  const {
-    isVisible,
-    calculatedStyle,
-    adjustedPosition,
-    triggerRef,
-    tooltipRef,
-    handlers,
-    shouldRender,
-    tooltipId,
-  } = useTooltip({
-    position,
-    trigger,
-    showDelay,
-    hideDelay,
-    disabled,
-    offset,
-    maxWidth,
-    autoAdjust,
-  });
-
-  const triggerRefCallback = useMergeRefs(forwardedRef as Ref<HTMLElement>, triggerRef);
-  const Tag = Component as ElementType;
-
-  const activeTrigger = trigger ?? 'hover';
-
-  // overlayStyle позволяет кастомизировать внешний вид, но никогда не должен
-  // перезаписывать вычисленные позиционные ключи (top/left/maxWidth) — иначе
-  // пользователь может случайно сломать позиционирование тултипа.
-  const overlayRest = (() => {
-    if (!overlayStyle) return undefined;
-    return Object.fromEntries(
-      Object.entries(overlayStyle).filter(
-        ([key]) => key !== 'top' && key !== 'left' && key !== 'maxWidth'
-      )
-    );
-  })();
-
-  // color prop (AntD-style): задаёт фон тултипа через CSS-переменную, стрелка
-  // (`::after`/`.arrow`) наследует её автоматически (var(--tooltip-bg)).
-  const colorVar = color ? ({ '--tooltip-bg': color } as React.CSSProperties) : undefined;
-
-  // arrowShadowColor: тень стрелки через CSS-переменную.
-  const arrowShadowVar = arrowShadowColor
-    ? ({ '--tooltip-arrow-shadow': arrowShadowColor } as React.CSSProperties)
-    : undefined;
+  // Обёртка прокидывает пропсы триггера дальше: тип выводится из as,
+  // поэтому объект собирается и кастуется как TooltipTriggerProps<C>
+  // (generic forwarding — известное ограничение TS, см. Button/Paragraph).
+  const triggerProps = {
+    ref: forwardedRef,
+    as: as as C,
+    className,
+    ariaLabel,
+    role,
+    onMouseEnter,
+    onMouseLeave,
+    onFocus,
+    onBlur,
+    onClick,
+    onKeyDown,
+    ...restProps,
+  } as unknown as TooltipTriggerProps<C>;
 
   return (
-    <>
-      <Tag
-        {...restProps}
-        ref={triggerRefCallback}
-        className={cn(styles.trigger, className)}
-        onMouseEnter={(e: MouseEvent<HTMLElement>) => {
-          userOnMouseEnter?.(e);
-          handlers.handleMouseEnter();
-        }}
-        onMouseLeave={(e: MouseEvent<HTMLElement>) => {
-          userOnMouseLeave?.(e);
-          handlers.handleMouseLeave();
-        }}
-        onFocus={(e: React.FocusEvent<HTMLElement>) => {
-          userOnFocus?.(e);
-          handlers.handleFocus();
-        }}
-        onBlur={(e: React.FocusEvent<HTMLElement>) => {
-          userOnBlur?.(e);
-          handlers.handleBlur();
-        }}
-        onClick={(e: MouseEvent<HTMLElement>) => {
-          userOnClick?.(e);
-          handlers.handleClick(e);
-        }}
-        onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
-          userOnKeyDown?.(e);
-          handlers.handleKeyDown(e);
-        }}
-        tabIndex={activeTrigger === 'click' || activeTrigger === 'focus' ? 0 : undefined}
-        aria-describedby={isVisible ? tooltipId : undefined}
-        {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-        role={
-          roleProp ??
-          (activeTrigger === 'click' || activeTrigger === 'focus' ? 'button' : undefined)
-        }
-        data-tooltip-visible={isVisible}
-        data-tooltip-position={adjustedPosition}
-        data-tooltip-trigger={activeTrigger}
-        data-tooltip-disabled={Boolean(disabled)}
-        {...(skeleton ? { 'data-skeleton': 'true' } : {})}
-      >
-        {children}
-      </Tag>
-
-      {shouldRender && (
-        <Portal>
-          <div
-            ref={tooltipRef}
-            id={tooltipId}
-            role="tooltip"
-            className={cn(
-              styles.tooltip,
-              resolveCssModuleKey(styles, adjustedPosition),
-              styles.visible,
-              overlayClassName
-            )}
-            style={{ ...calculatedStyle, ...overlayRest, ...colorVar, ...arrowShadowVar }}
-            onMouseEnter={activeTrigger === 'hover' ? handlers.handleMouseEnter : undefined}
-            onMouseLeave={activeTrigger === 'hover' ? handlers.handleMouseLeave : undefined}
-            {...(skeleton ? { 'data-skeleton': 'true' } : {})}
-          >
-            {skeleton ? <Skeleton variant="text" width="120px" lines={2} /> : content}
-          </div>
-        </Portal>
-      )}
-    </>
+    <TooltipProvider
+      position={position}
+      trigger={trigger}
+      showDelay={showDelay}
+      hideDelay={hideDelay}
+      disabled={disabled}
+      skeleton={skeleton}
+      offset={offset}
+      maxWidth={maxWidth}
+      autoAdjust={autoAdjust}
+      color={color}
+      arrowShadowColor={arrowShadowColor}
+    >
+      <TooltipTrigger {...triggerProps}>{children}</TooltipTrigger>
+      <TooltipContent overlayClassName={overlayClassName} overlayStyle={overlayStyle}>
+        {content}
+      </TooltipContent>
+    </TooltipProvider>
   );
 }
 

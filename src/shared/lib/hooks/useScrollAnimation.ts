@@ -3,7 +3,7 @@
 // ============================================
 
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { debounce } from '../utils/debounce';
+import { debounce, type DebouncedFunction } from '../utils/debounce';
 
 export interface UseScrollAnimationOptions {
   /** Threshold for intersection (0-1) */
@@ -118,7 +118,9 @@ export const useScrollAnimation = ({
   // Create debounced handler ONCE — only recreate when debounceDelay changes.
   // The inner callback reads handleIntersectionRef.current so it always
   // uses the latest handler without recreating the debounced wrapper.
-  const debouncedHandlerRef = useRef<ReturnType<typeof debounce> | null>(null);
+  const debouncedHandlerRef = useRef<DebouncedFunction<
+    (entries: IntersectionObserverEntry[]) => void
+  > | null>(null);
 
   useEffect(() => {
     debouncedHandlerRef.current = debounce((entries: IntersectionObserverEntry[]) => {

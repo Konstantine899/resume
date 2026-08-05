@@ -12,15 +12,6 @@ vi.mock('@/shared/lib/utils/debounce', () => ({
   }),
 }));
 
-// Моки для position utils
-vi.mock('../lib/utils/tooltipPosition', () => ({
-  calculateTooltipPosition: vi.fn(() => ({
-    top: 100,
-    left: 200,
-    adjustedPosition: 'top',
-  })),
-}));
-
 describe('Tooltip compound API', () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -71,4 +71,34 @@ describe('debounce', () => {
     vi.advanceTimersByTime(100);
     expect(fn).toHaveBeenCalledTimes(2);
   });
+
+  it('cancel() prevents the pending call from firing', () => {
+    const fn = vi.fn();
+    const debouncedFn = debounce(fn, 100);
+
+    debouncedFn();
+    debouncedFn.cancel();
+
+    vi.advanceTimersByTime(200);
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('cancel() is safe when no call is pending', () => {
+    const fn = vi.fn();
+    const debouncedFn = debounce(fn, 100);
+
+    expect(() => debouncedFn.cancel()).not.toThrow();
+  });
+
+  it('cancel() between calls does not prevent a later call', () => {
+    const fn = vi.fn();
+    const debouncedFn = debounce(fn, 100);
+
+    debouncedFn();
+    debouncedFn.cancel();
+    debouncedFn();
+
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
 });
