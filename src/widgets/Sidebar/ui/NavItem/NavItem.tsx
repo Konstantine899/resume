@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
+import { Link } from '@/shared/ui/Link';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import styles from './NavItem.module.scss';
 
@@ -76,8 +77,8 @@ export const NavItem: React.FC<NavItemProps> = ({
   }
 
   return (
-    <a {...anchorProps} className={anchorClassName}>
+    <Link unstyled variant="ghost" underline="never" {...anchorProps} className={anchorClassName}>
       {anchorContent}
-    </a>
+    </Link>
   );
 };

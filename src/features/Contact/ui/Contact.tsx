@@ -2,6 +2,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { ContactCard } from '@/shared/ui/Card';
+import { Link } from '@/shared/ui/Link';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
@@ -88,16 +89,17 @@ export function Contact() {
               {SOCIAL_LINKS.map((link, index: number) => {
                 const Icon = link.icon as React.ComponentType<{ className?: string }>;
                 return (
-                  <a
+                  <Link
                     key={index}
                     href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    external
+                    variant="ghost"
+                    underline="never"
                     className={styles.socialLink}
                   >
                     <Icon className={styles.icon} />
                     <span>{link.name}</span>
-                  </a>
+                  </Link>
                 );
               })}
             </div>

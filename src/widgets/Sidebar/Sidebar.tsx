@@ -6,6 +6,7 @@ import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
 import { IconButton } from '@/shared/ui/Button';
+import { Link } from '@/shared/ui/Link';
 import { Menu } from 'lucide-react';
 import React from 'react';
 import styles from './Sidebar.module.scss';
@@ -37,9 +38,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Skip Link */}
-      <a href="#main-content" className={styles.skipLink}>
+      <Link
+        href="#main-content"
+        unstyled
+        variant="ghost"
+        underline="never"
+        className={styles.skipLink}
+      >
         Skip to main content
-      </a>
+      </Link>
 
       {/* Accessibility Announcements */}
       <div role="status" aria-live="polite" aria-atomic="true" className={styles.srOnly}>

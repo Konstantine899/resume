@@ -2,12 +2,13 @@
 // Home Page
 // ============================================
 import { About } from '@/features/About';
-import { Contact } from '@/features/Contact/ui/Contact';
+import { Contact } from '@/features/Contact';
 import { Hero } from '@/features/Hero';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
 import { WorkHistory } from '@/features/WorkHistory';
 import { Sidebar } from '@/widgets/Sidebar';
+import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './HomePage.module.scss';
 
@@ -19,9 +20,15 @@ export const HomePage: React.FC = () => {
   return (
     <div className={styles.homePage}>
       {/* Skip link for accessibility */}
-      <a href="#main-content" className={styles.skipToMain}>
+      <Link
+        href="#main-content"
+        unstyled
+        variant="ghost"
+        underline="never"
+        className={styles.skipToMain}
+      >
         Skip to main content
-      </a>
+      </Link>
 
       {/* Sidebar (includes desktopSpacer internally) */}
       <Sidebar />

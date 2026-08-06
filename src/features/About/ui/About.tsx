@@ -2,6 +2,7 @@ import { DEVELOPER_DATA } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { AvatarAbout } from '@/shared/ui/Avatar';
+import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import type { AboutFeatureProps } from '../model/types';
 import styles from './About.module.scss';
@@ -27,9 +28,15 @@ export const About: React.FC<AboutFeatureProps> = ({
           <h3 className={styles.title}>{t('about')}</h3>
           <Paragraph className={styles.description}>{t('aboutDescription')}</Paragraph>
 
-          <a href="#contact" className={styles.ctaButton}>
+          <Link
+            href="#contact"
+            unstyled
+            variant="ghost"
+            underline="never"
+            className={styles.ctaButton}
+          >
             {t('getInTouch')}
-          </a>
+          </Link>
         </div>
       </AnimatedSection>
     </section>

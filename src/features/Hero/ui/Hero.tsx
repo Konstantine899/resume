@@ -6,6 +6,7 @@ import { DEVELOPER_DATA } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 const avatarImage = '/images/avatar/avatar003.jpg';
 import { Code } from '@/shared/ui/Code';
+import { Link } from '@/shared/ui/Link';
 import React, { useEffect, useState } from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
@@ -65,8 +66,11 @@ export const Hero: React.FC<HeroProps> = ({
           </Code>
 
           {/* Resume Button */}
-          <a
+          <Link
             href="#"
+            unstyled
+            variant="ghost"
+            underline="never"
             className={styles.resumeButton}
             onClick={(e) => {
               e.preventDefault();
@@ -74,7 +78,7 @@ export const Hero: React.FC<HeroProps> = ({
             }}
           >
             {t(`getResume`)}
-          </a>
+          </Link>
         </div>
 
         {/* Right side - Photo */}
