@@ -1,7 +1,8 @@
 // src/shared/ui/Link/model/types.ts
 
 import type { LucideIcon } from 'lucide-react';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ElementType, ReactNode } from 'react';
+import type { IconSize } from '@/shared/ui/Icon';
 
 /**
  * Варианты отображения ссылки
@@ -35,8 +36,9 @@ export type LinkSize = 'sm' | 'md' | 'lg';
 export type LinkUnderline = 'always' | 'hover' | 'never';
 
 /**
- * Props для компонента Link
- * @description Расширяет стандартные HTML anchor атрибуты
+ * Props, которыми владеет Link (не наследуются от HTML-элемента).
+ * @description Link-специфичные пропсы. HTML-атрибуты (href, target, rel и т.д.)
+ * проксируются через generic `LinkProps<C>` при component="a".
  * @group Base
  *
  * @example
@@ -59,7 +61,7 @@ export type LinkUnderline = 'always' | 'hover' | 'never';
  * <Link href="/profile" skeleton>Profile</Link>
  * ```
  */
-export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface LinkOwnProps {
   /** URL ссылки */
   href: string;
   /** Текст ссылки */
@@ -92,4 +94,72 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
    * @description При true отображает Skeleton вместо текста
    */
   skeleton?: boolean;
+}
+
+/**
+ * Generic полиморфные props для компонента Link.
+ * @description Позволяет переопределить корневой элемент через `component`.
+ * По умолчанию рендерится как `<a>` (backward compatible).
+ *
+ * @template C - Тип элемента (по умолчанию 'a')
+ *
+ * @example
+ * ```tsx
+ * <Link component="a" href="/about">About</Link>
+ * <Link component={RouterLink} href="/x">Go</Link>
+ * ```
+ */
+export type LinkProps<C extends ElementType = 'a'> = LinkOwnProps &
+  Omit<ComponentPropsWithRef<C>, keyof LinkOwnProps | 'component'> & { component?: C };
+
+/**
+ * Props для useLink hook
+ */
+export interface LinkHookProps {
+  /** URL ссылки */
+  href: string;
+  /** Вариант отображения */
+  variant?: LinkVariant;
+  /** Размер */
+  size?: LinkSize;
+  /** Внешняя ссылка (откроется в новой вкладке) */
+  external?: boolean;
+  /** Показать иконку внешней ссылки для external ссылок */
+  showExternalIcon?: boolean;
+  /** Отключить стилизацию */
+  unstyled?: boolean;
+  /** Подчеркивание */
+  underline?: LinkUnderline;
+  /** Добавить hover lift эффект */
+  withLift?: boolean;
+  /** Режим скелетона (заглушка загрузки) */
+  skeleton?: boolean;
+  /** Валидация href (предупреждение если пустой) */
+  requireHref?: boolean;
+  /** Кастомный className (дописывается к вычисленному) */
+  className?: string;
+  /** Кастомный rel (мержится с noopener noreferrer для внешних ссылок) */
+  rel?: string;
+  /** Кастомный target (перекрывается на _blank для внешних ссылок) */
+  target?: string;
+  /** Корневой элемент (строка или компонент) — влияет на data-as */
+  component?: ElementType;
+}
+
+/**
+ * Возвращаемое значение хука useLink
+ */
+export interface UseLinkReturn {
+  /** Вычисленный className (CSS module классы + модификаторы + custom className) */
+  linkClassName: string;
+  /** Data-атрибуты для распространения на элемент */
+  dataAttrs: Record<string, string>;
+  /** Является ли ссылка внешней (external prop или http(s):// href) */
+  isExternal: boolean;
+  /** Итоговый rel (с noopener noreferrer для внешних ссылок) */
+  relValue: string | undefined;
+  /** Итоговый target (_blank для внешних ссылок) */
+  targetValue: string | undefined;
+  /** Инференс размера иконки из размера ссылки (ICON_SIZE_MAP) */
+  iconSize: IconSize;
 }

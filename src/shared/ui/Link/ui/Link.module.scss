@@ -98,7 +98,7 @@ $link-active-scale: 0.98;
   &.gradient {
     @include font-medium;
 
-    background: $gradient-text;
+    background: var(--gradient-text, $gradient-text);
     -webkit-text-fill-color: transparent;
     background-clip: text;
     filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));

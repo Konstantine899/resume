@@ -1,5 +1,6 @@
 // src/shared/ui/Link/ui/Link.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { MouseEvent } from 'react';
 import { ArrowRight, Github, Mail } from 'lucide-react';
 import { Link } from '../ui/Link';
 
@@ -196,7 +197,7 @@ export const InternalLink: Story = {
     href: '/about',
     children: 'Internal Link',
     variant: 'secondary',
-    onClick: (e) => {
+    onClick: (e: MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       // Internal navigation handler
     },
@@ -318,7 +319,7 @@ export const Skeleton: Story = {
 
 /** Skeleton в разных размерах */
 export const SkeletonSizes: Story = {
-  args: {} as import('../model/types').LinkProps,
+  args: { href: '#' },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>

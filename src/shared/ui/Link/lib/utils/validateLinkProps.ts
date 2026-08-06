@@ -1,13 +1,40 @@
 // src/shared/ui/Link/lib/utils/validateLinkProps.ts
 
-import type { LinkProps } from '../../model/types';
+/* eslint-disable no-console */
+
+import type { LinkOwnProps } from '../../model/types';
 import { LINK_CONSTANTS } from '../../model/constants';
 
-export function validateLinkProps(props: LinkProps): void {
+/**
+ * Dev-валидация props для Link.
+ * @description Проверяет href (обязательность и формат), variant, size, underline
+ * в development режиме.
+ *
+ * @remarks
+ * - Runs ONLY when `process.env.NODE_ENV === 'development'` (guard is internal,
+ *   so callers — Link component and useLink hook — do not need their own guard)
+ * - Uses `console.warn` (does NOT throw errors)
+ * - Zero production overhead: function body is effectively a no-op in production
+ *
+ * @param props - Link props to validate
+ *
+ * @example
+ * ```typescript
+ * // Development mode: logs warning
+ * validateLinkProps({ href: '', requireHref: true })
+ * // → console.warn: "[Link] href is required when requireHref is true"
+ *
+ * // Production mode: no-op
+ * validateLinkProps({ href: '' })
+ * // → nothing happens
+ * ```
+ */
+export function validateLinkProps(props: LinkOwnProps): void {
+  if (process.env.NODE_ENV !== 'development') return;
+
   const { href, variant, size, underline, requireHref, skeleton } = props;
 
   if (requireHref && !href && !skeleton) {
-    // eslint-disable-next-line no-console
     console.warn('[Link] href is required when requireHref is true');
   }
 
@@ -18,7 +45,6 @@ export function validateLinkProps(props: LinkProps): void {
     !href.startsWith('https://') &&
     !href.startsWith('#')
   ) {
-    // eslint-disable-next-line no-console
     console.warn(
       `[Link] href "${href}" may be invalid — expected absolute path, URL, or hash fragment`
     );
@@ -30,7 +56,6 @@ export function validateLinkProps(props: LinkProps): void {
       variant as (typeof LINK_CONSTANTS.VALID_VARIANTS)[number]
     )
   ) {
-    // eslint-disable-next-line no-console
     console.warn(`[Link] Invalid variant: "${variant}"`);
   }
 
@@ -38,7 +63,6 @@ export function validateLinkProps(props: LinkProps): void {
     size &&
     !LINK_CONSTANTS.VALID_SIZES.includes(size as (typeof LINK_CONSTANTS.VALID_SIZES)[number])
   ) {
-    // eslint-disable-next-line no-console
     console.warn(`[Link] Invalid size: "${size}"`);
   }
 
@@ -48,7 +72,6 @@ export function validateLinkProps(props: LinkProps): void {
       underline as (typeof LINK_CONSTANTS.VALID_UNDERLINE)[number]
     )
   ) {
-    // eslint-disable-next-line no-console
     console.warn(`[Link] Invalid underline value: "${underline}"`);
   }
 }
