@@ -149,4 +149,49 @@ describe('Link polymorphic `component` prop', () => {
       </Link>;
     });
   });
+
+  describe('a11y (LNK-17)', () => {
+    it('should expose a link role and be focusable via keyboard', () => {
+      render(
+        <Link component="a" href="/about" data-testid="a11y-link">
+          About
+        </Link>
+      );
+
+      const link = screen.getByRole('link', { name: 'About' });
+      // Anchor is focusable (not disabled) — tabindex resolves to 0
+      expect(link.tabIndex).toBe(0);
+      link.focus();
+      expect(link).toHaveFocus();
+    });
+
+    it('should label the external icon with an accessible name', () => {
+      render(
+        <Link component="a" href="https://github.com" external showExternalIcon>
+          GitHub
+        </Link>
+      );
+
+      const icon = screen
+        .getAllByRole('link', { name: /GitHub/ })[0]
+        .querySelector('[aria-label="Opens in new tab"]');
+      expect(icon).not.toBeNull();
+      expect(icon).toHaveAttribute('aria-label', 'Opens in new tab');
+      expect(icon).toHaveAttribute('title', 'Opens in new tab');
+    });
+
+    it('should be keyboard-focusable as a skip link in a consumer context', () => {
+      render(
+        <Link component="a" href="#main-content" className="skip-link">
+          Skip to content
+        </Link>
+      );
+
+      const skip = screen.getByRole('link', { name: 'Skip to content' });
+      expect(skip).toHaveAttribute('href', '#main-content');
+      expect(skip).toHaveAttribute('class', expect.stringContaining('skip-link'));
+      skip.focus();
+      expect(skip).toHaveFocus();
+    });
+  });
 });
