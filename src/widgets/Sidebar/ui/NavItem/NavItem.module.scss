@@ -2,6 +2,7 @@
 @use '@/shared/styles/mixins' as *;
 
 .navItem {
+  box-sizing: border-box;
   display: flex;
   gap: $spacing-3;
   align-items: center;
@@ -40,6 +41,7 @@
   &.expanded {
     justify-content: flex-start;
     width: 100%;
+    margin: 0;
   }
 }
 
