@@ -165,16 +165,15 @@ $link-active-scale: 0.98;
 
   // Using all:unset breaks consumer classes due to specificity cascade
   &.unstyled {
-    display: inline-flex;
-    gap: 0;
-    align-items: center;
+    // Reset only properties that Link adds
+    display: inline;
+    gap: inherit;
+    align-items: inherit;
     padding: 0;
     margin: 0;
-
-    // Reset only properties that Link adds
     font: inherit;
     color: inherit;
-    text-decoration: none;
+    text-decoration: inherit;
 
     // Keep cursor for interaction
     cursor: pointer;
