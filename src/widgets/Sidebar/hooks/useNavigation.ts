@@ -12,7 +12,7 @@ export const useNavigation = ({ onNavigation }: UseNavigationProps = {}) => {
   // Scroll detection для активной секции
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['#home', '#work', '#about', '#contact', '#skills'];
+      const sections = ['#home', '#work', '#experience', '#about', '#contact', '#skills'];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
