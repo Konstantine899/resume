@@ -164,6 +164,18 @@ describe('useLink', () => {
       expect(result.current.targetValue).toBe('_self');
       expect(result.current.relValue).toBeUndefined();
     });
+
+    it('should add noopener noreferrer for uppercase target="_BLANK" (guard W1, case-insensitive)', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: '/about', target: '_BLANK' }))
+      );
+
+      const { isExternal, targetValue, relValue } = result.current;
+      expect(isExternal).toBe(false);
+      expect(targetValue).toBe('_blank');
+      expect(relValue).toContain('noopener');
+      expect(relValue).toContain('noreferrer');
+    });
   });
 
   describe('icon size inference', () => {

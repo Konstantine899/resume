@@ -63,7 +63,9 @@ export const useLink = ({
       const { rel: externalRel, target: externalTarget } = getExternalLinkProps(rel);
       return { relValue: externalRel, targetValue: externalTarget };
     }
-    if (target === '_blank') {
+    // HTML spec matches target keywords ASCII case-insensitively, so cover
+    // case variants to avoid a tabnabbing escape path (guard W1).
+    if (target?.toLowerCase() === '_blank') {
       const { rel: secureRel, target: secureTarget } = getExternalLinkProps(rel);
       return { relValue: secureRel, targetValue: secureTarget };
     }
