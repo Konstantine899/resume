@@ -395,11 +395,13 @@ export const Skeleton: Story = {
     },
   },
   play: async ({ canvasElement }) => {
+    // Self-nulling assertion: throw if the skeleton placeholder is absent
+    // (do NOT silently skip when `skeleton` is not present).
     const skeleton = canvasElement.querySelector<HTMLElement>('[data-skeleton="true"]');
-    if (skeleton) {
-      await expect(skeleton).toHaveAttribute('aria-disabled', 'true');
-      await expect(skeleton).toHaveAttribute('data-skeleton', 'true');
-    }
+    expect(skeleton).not.toBeNull();
+    const skeletonEl = skeleton as HTMLElement;
+    await expect(skeletonEl).toHaveAttribute('aria-disabled', 'true');
+    await expect(skeletonEl).toHaveAttribute('data-skeleton', 'true');
   },
 };
 

@@ -32,10 +32,15 @@ import { LINK_CONSTANTS } from '../../model/constants';
 export function validateLinkProps(props: LinkOwnProps): void {
   if (process.env.NODE_ENV !== 'development') return;
 
-  const { href, variant, size, underline, requireHref, skeleton } = props;
+  const { href, variant, size, underline, requireHref, skeleton, external } = props;
 
   if (requireHref && !href && !skeleton) {
     console.warn('[Link] href is required when requireHref is true');
+  }
+
+  // R4: внешняя ссылка без href бессмысленна — предупреждаем независимо от requireHref
+  if (external && !href && !skeleton) {
+    console.warn('[Link] external link requires a non-empty href');
   }
 
   if (

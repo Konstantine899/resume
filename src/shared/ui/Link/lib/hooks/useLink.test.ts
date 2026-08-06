@@ -134,6 +134,36 @@ describe('useLink', () => {
       expect(result.current.relValue).toContain('noopener');
       expect(result.current.relValue).toContain('noreferrer');
     });
+
+    it('should add noopener noreferrer for target="_blank" even on non-external hrefs (R1 tabnabbing)', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: '/about', target: '_blank' }))
+      );
+
+      expect(result.current.isExternal).toBe(false);
+      expect(result.current.targetValue).toBe('_blank');
+      expect(result.current.relValue).toContain('noopener');
+      expect(result.current.relValue).toContain('noreferrer');
+    });
+
+    it('should merge caller rel when target="_blank" on a non-external href', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: '/about', target: '_blank', rel: 'author' }))
+      );
+
+      expect(result.current.relValue).toContain('author');
+      expect(result.current.relValue).toContain('noopener');
+      expect(result.current.relValue).toContain('noreferrer');
+    });
+
+    it('should keep target="_self" untouched without adding noopener', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: '/about', target: '_self' }))
+      );
+
+      expect(result.current.targetValue).toBe('_self');
+      expect(result.current.relValue).toBeUndefined();
+    });
   });
 
   describe('icon size inference', () => {
@@ -173,6 +203,30 @@ describe('useLink', () => {
       vi.stubEnv('NODE_ENV', 'production');
 
       renderHook(() => useLink(createDefaultProps({ variant: 'invalid' as LinkVariant })));
+
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+
+    it('should warn in development when external is true but href is empty (R4)', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      renderHook(() => useLink(createDefaultProps({ href: '', external: true })));
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('external link requires a non-empty href')
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('should not warn on empty external href in production (R4)', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'production');
+
+      renderHook(() => useLink(createDefaultProps({ href: '', external: true })));
 
       expect(warnSpy).not.toHaveBeenCalled();
 

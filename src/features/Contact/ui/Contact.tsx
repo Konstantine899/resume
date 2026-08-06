@@ -95,6 +95,7 @@ export function Contact() {
                     external
                     variant="ghost"
                     underline="never"
+                    showExternalIcon={false}
                     className={styles.socialLink}
                   >
                     <Icon className={styles.icon} />

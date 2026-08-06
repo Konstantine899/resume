@@ -124,8 +124,6 @@ export interface LinkHookProps {
   size?: LinkSize;
   /** Внешняя ссылка (откроется в новой вкладке) */
   external?: boolean;
-  /** Показать иконку внешней ссылки для external ссылок */
-  showExternalIcon?: boolean;
   /** Отключить стилизацию */
   unstyled?: boolean;
   /** Подчеркивание */

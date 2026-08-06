@@ -50,16 +50,22 @@ export const useLink = ({
   component,
 }: LinkHookProps): UseLinkReturn => {
   // Синхронная валидация (только development — guard внутри валидатора)
-  validateLinkProps({ href, variant, size, underline, requireHref, skeleton });
+  validateLinkProps({ href, variant, size, underline, requireHref, skeleton, external });
 
   // Memoized: Авто-определение внешних ссылок (delegates to shared utils)
   const isExternal = useMemo(() => external || isExternalLink(href), [external, href]);
 
-  // Memoized: Безопасные rel/target для внешних ссылок (delegates to shared utils)
+  // Memoized: Безопасные rel/target. R1 hardening: noopener noreferrer применяется
+  // для ЛЮБОГО `target="_blank"` (не только external), чтобы не-внешние ссылки
+  // с новой вкладкой тоже были защищены от tabnabbing.
   const { relValue, targetValue } = useMemo(() => {
     if (isExternal) {
       const { rel: externalRel, target: externalTarget } = getExternalLinkProps(rel);
       return { relValue: externalRel, targetValue: externalTarget };
+    }
+    if (target === '_blank') {
+      const { rel: secureRel, target: secureTarget } = getExternalLinkProps(rel);
+      return { relValue: secureRel, targetValue: secureTarget };
     }
     return { relValue: rel, targetValue: target };
   }, [isExternal, rel, target]);
