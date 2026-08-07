@@ -1,4 +1,5 @@
 import { IconButton } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { ChevronRight } from 'lucide-react';
 import React from 'react';
 import styles from './ToggleButton.module.scss';
@@ -25,7 +26,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
 
   return (
     <IconButton
-      icon={<ChevronRight />}
+      icon={<Icon name={ChevronRight} size={20} color="inherit" decorative />}
       ariaLabel={isExpanded ? t('collapseSidebar') : t('expandSidebar')}
       onClick={handleClick}
       size="md"

@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
+import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import styles from './NavItem.module.scss';
@@ -17,7 +18,7 @@ export interface NavItemProps {
 }
 
 export const NavItem: React.FC<NavItemProps> = ({
-  icon: Icon,
+  icon: NavIcon,
   label,
   href,
   isActive = false,
@@ -45,7 +46,7 @@ export const NavItem: React.FC<NavItemProps> = ({
   const anchorClassName = `${styles.navItem} ${styles.desktop} ${!isCollapsed || isHoverExpanded ? styles.expanded : ''} ${isActive ? styles.active : ''}`;
   const anchorContent = (
     <>
-      <Icon className={styles.navIcon} aria-hidden="true" />
+      <Icon name={NavIcon} size={20} color="inherit" decorative className={styles.navIcon} />
       {showLabel && <span className={styles.navLabel}>{label}</span>}
     </>
   );

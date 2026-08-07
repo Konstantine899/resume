@@ -1,6 +1,7 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ButtonWithIcon } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { Globe } from 'lucide-react';
 import React from 'react';
 import styles from './LanguageSwitch.module.scss';
@@ -41,7 +42,9 @@ export const LanguageSwitch: React.FC<LanguageSwitchComponentProps> = ({
 
   return (
     <ButtonWithIcon
-      leftIcon={<Globe className={languageIconClasses} aria-hidden="true" />}
+      leftIcon={
+        <Icon name={Globe} size={18} color="inherit" decorative className={languageIconClasses} />
+      }
       onClick={handleLanguageToggle}
       variant="ghost"
       size="md"

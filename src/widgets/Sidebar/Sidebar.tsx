@@ -6,6 +6,7 @@ import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
 import { IconButton } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import { Menu } from 'lucide-react';
 import React from 'react';
@@ -59,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <IconButton
         variant="sidebar"
         size="lg"
-        icon={<Menu className={styles.menuIcon} aria-hidden="true" />}
+        icon={<Icon name={Menu} size={20} color="inherit" decorative className={styles.menuIcon} />}
         onClick={() => setMobileMenuOpen(true)}
         ariaLabel="Open menu"
         aria-expanded={mobileMenuOpen}

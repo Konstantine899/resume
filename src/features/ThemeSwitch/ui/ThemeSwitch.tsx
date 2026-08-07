@@ -1,6 +1,7 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ButtonWithIcon } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { Moon, Sun } from 'lucide-react';
 import React from 'react';
 import { useThemeSwitch } from '../hooks/useThemeSwitch';
@@ -43,11 +44,13 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
   return (
     <ButtonWithIcon
       leftIcon={
-        theme === 'dark' ? (
-          <Moon className={themeIconClasses} aria-hidden="true" />
-        ) : (
-          <Sun className={themeIconClasses} aria-hidden="true" />
-        )
+        <Icon
+          name={theme === 'dark' ? Moon : Sun}
+          size={18}
+          color="inherit"
+          decorative
+          className={themeIconClasses}
+        />
       }
       onClick={handleThemeToggle}
       variant="ghost"

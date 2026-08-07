@@ -2,6 +2,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { ContactCard } from '@/shared/ui/Card';
+import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
@@ -109,7 +110,10 @@ export function Contact() {
 
         {/* Декоративная секция */}
         <AnimatedSection delay={400}>
-          <ContactCard title={t('contact')} icon={<Mail />}>
+          <ContactCard
+            title={t('contact')}
+            icon={<Icon name={Mail} size={40} color="inherit" decorative />}
+          >
             <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
           </ContactCard>
         </AnimatedSection>

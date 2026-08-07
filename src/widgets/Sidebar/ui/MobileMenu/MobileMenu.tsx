@@ -3,6 +3,7 @@ import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { IconButton } from '@/shared/ui/Button';
+import { Icon } from '@/shared/ui/Icon';
 import { Overlay } from '@/shared/ui/Overlay';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { X } from 'lucide-react';
@@ -52,7 +53,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
         <IconButton
           variant="ghost"
           size="md"
-          icon={<X className={styles.closeIcon} />}
+          icon={<Icon name={X} size={20} color="inherit" decorative className={styles.closeIcon} />}
           onClick={handleCloseClick}
           ariaLabel="Close menu"
           className={styles.closeButton}
