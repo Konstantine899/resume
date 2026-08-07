@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback } from 'react';
+import { forwardRef, memo } from 'react';
 import type {
   ComponentRef,
   ElementType,
@@ -7,6 +7,7 @@ import type {
   ReactElement,
   Ref,
 } from 'react';
+import { useKeyboardAction } from '@/shared/lib/hooks/useKeyboardAction';
 import { ICON_CONSTANTS } from '../model/constants';
 import type { IconProps } from '../model/types';
 import { useIcon } from '../lib/hooks/useIcon';
@@ -59,15 +60,10 @@ function IconImpl<C extends ElementType = 'span'>(
     onClick,
   });
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLSpanElement>) => {
-      if (!disabled && onClick && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault();
-        e.currentTarget.click();
-      }
-    },
-    [disabled, onClick]
-  );
+  // useKeyboardAction: Enter/Space → preventDefault + нативный click() на span
+  // ровно один раз. Единый источник действия — onClick span (мышь/клавиатура);
+  // enabled гейтит активность интерактивной иконки.
+  const handleKeyDown = useKeyboardAction({ disabled, enabled: isInteractive });
 
   const Component = (component || 'span') as ElementType;
   const isDefaultSpan = Component === 'span';
