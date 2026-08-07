@@ -4,6 +4,7 @@
 
 import { X } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { Icon } from '@/shared/ui/Icon';
 import type { ModalCloseButtonProps } from '../../model/types';
 import { MODAL_CONSTANTS } from '../../model/constants';
 import styles from './ModalCloseButton.module.scss';
@@ -31,7 +32,9 @@ export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
       onClick={handleClick}
       aria-label={ariaLabel}
     >
-      {closeIcon ?? <X size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} />}
+      {closeIcon ?? (
+        <Icon name={X} size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative />
+      )}
     </button>
   );
 });

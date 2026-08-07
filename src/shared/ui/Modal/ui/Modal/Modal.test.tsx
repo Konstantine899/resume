@@ -367,12 +367,12 @@ describe('Modal (Compound)', () => {
 
     it('should not render overlay when overlay=false', () => {
       render(<Modal {...defaultProps} overlay={false} />);
-      expect(document.querySelector('[aria-hidden="true"]')).toBeNull();
+      expect(document.querySelector('[data-dark]')).toBeNull();
     });
 
     it('should close on overlay click', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
-      const overlay = document.querySelector('[aria-hidden="true"]');
+      const overlay = document.querySelector('[data-dark]');
       if (overlay) {
         fireEvent.click(overlay);
         expect(defaultProps.onClose).toHaveBeenCalled();
@@ -393,7 +393,7 @@ describe('Modal (Compound)', () => {
           closeOnOverlayClick={true}
         />
       );
-      const overlay = document.querySelector('[aria-hidden="true"]');
+      const overlay = document.querySelector('[data-dark]');
       if (overlay) {
         fireEvent.click(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
@@ -413,7 +413,7 @@ describe('Modal (Compound)', () => {
           Content
         </Modal>
       );
-      const overlay = document.querySelector('[aria-hidden="true"]');
+      const overlay = document.querySelector('[data-dark]');
       if (overlay) {
         fireEvent.click(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
@@ -434,7 +434,7 @@ describe('Modal (Compound)', () => {
           Content
         </Modal>
       );
-      const overlay = document.querySelector('[aria-hidden="true"]');
+      const overlay = document.querySelector('[data-dark]');
       if (overlay) {
         fireEvent.click(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
@@ -626,7 +626,7 @@ describe('Modal (Compound)', () => {
           Content
         </Modal>
       );
-      const overlay = document.querySelector('[aria-hidden="true"]');
+      const overlay = document.querySelector('[data-dark]');
       expect(overlay).not.toBeInTheDocument();
     });
 

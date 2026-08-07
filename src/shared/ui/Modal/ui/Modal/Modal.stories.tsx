@@ -432,7 +432,7 @@ export const NoOverlay: Story = {
     expect(dialog).toBeInTheDocument();
 
     // Verify no overlay element with aria-hidden
-    const overlays = canvasElement.querySelectorAll('[aria-hidden="true"]');
+    const overlays = canvasElement.querySelectorAll('[data-dark]');
     expect(overlays.length).toBe(0);
 
     // Close by ESC

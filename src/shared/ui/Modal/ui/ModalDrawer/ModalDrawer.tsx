@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { memo, useMemo } from 'react';
+import { Icon } from '@/shared/ui/Icon';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ModalRoot } from '../ModalRoot/ModalRoot';
 import { ModalHeader } from '../ModalHeader/ModalHeader';
@@ -33,7 +34,11 @@ export const ModalDrawer = memo((props: ModalDrawerProps) => {
 
   return (
     <ModalRoot {...rootProps}>
-      <ModalHeader title={title} onClose={onClose} closeIcon={<X size={20} />} />
+      <ModalHeader
+        title={title}
+        onClose={onClose}
+        closeIcon={<Icon name={X} size={20} color="inherit" decorative />}
+      />
       <ModalContent>
         <div className={styles.content}>{children}</div>
       </ModalContent>

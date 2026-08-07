@@ -6,6 +6,7 @@ import { classNames } from '@/shared/lib/utils';
 import { X, Pause } from 'lucide-react';
 import { memo, useEffect, useState, useCallback, useRef } from 'react';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Icon } from '@/shared/ui/Icon';
 import { TOAST_CONSTANTS, TOAST_TYPES, TOAST_ICONS } from '../model/constants';
 import type { ToastProps } from '../model/types';
 import styles from './Toast.module.scss';
@@ -111,7 +112,7 @@ export const Toast = memo((props: ToastProps) => {
   }, [id, onClose]);
 
   // Fallback to info icon for invalid types
-  const Icon = TOAST_ICONS[type] ?? TOAST_ICONS.info;
+  const TypeIcon = TOAST_ICONS[type] ?? TOAST_ICONS.info;
 
   const mods = {
     [styles[type]]: true,
@@ -131,7 +132,7 @@ export const Toast = memo((props: ToastProps) => {
       onMouseLeave={duration > 0 ? resumeTimer : undefined}
     >
       <div className={styles.icon} aria-hidden="true">
-        <Icon size={TOAST_CONSTANTS.ICON_SIZE} />
+        <Icon name={TypeIcon} size={TOAST_CONSTANTS.ICON_SIZE} color="inherit" decorative />
       </div>
       <Paragraph as="span" id={`toast-message-${id}`}>
         {message}
@@ -143,7 +144,7 @@ export const Toast = memo((props: ToastProps) => {
         aria-label="Close notification"
         data-testid="toast-close"
       >
-        <X size={TOAST_CONSTANTS.CLOSE_ICON_SIZE} />
+        <Icon name={X} size={TOAST_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative />
       </button>
 
       {/* Progress Bar */}
@@ -161,7 +162,7 @@ export const Toast = memo((props: ToastProps) => {
       {/* Pause Indicator */}
       {isPaused && (
         <div className={styles.pauseIndicator} aria-hidden="true">
-          <Pause size={12} />
+          <Icon name={Pause} size={12} color="inherit" decorative />
         </div>
       )}
     </div>
