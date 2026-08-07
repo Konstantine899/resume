@@ -6,6 +6,7 @@ import React from 'react';
 import { Input } from '../Input';
 import type { InputSize, InputVariant } from '../../model/types';
 import { Mail } from 'lucide-react';
+import { Icon } from '@/shared/ui/Icon';
 
 export interface InputEmailProps {
   variant?: InputVariant;
@@ -48,7 +49,7 @@ export const InputEmail = React.memo(
         <Input
           ref={ref}
           type="email"
-          icon={<Mail size={18} />}
+          icon={<Icon name={Mail} size={18} color="inherit" decorative />}
           placeholder={placeholder}
           autoComplete={autoComplete}
           data-testid="input-email"

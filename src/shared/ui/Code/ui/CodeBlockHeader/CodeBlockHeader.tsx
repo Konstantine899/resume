@@ -5,6 +5,7 @@ import type { ButtonSize } from '@/shared/ui/Button/model/types';
 import { Check, Copy } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton } from '@/shared/ui/Skeleton';
+import { Icon } from '@/shared/ui/Icon';
 import type { CodeLanguage } from '../../model/types';
 import styles from './CodeBlockHeader.module.scss';
 
@@ -116,7 +117,13 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
             <ButtonWithIcon
               variant="ghost"
               size={copyButtonSize}
-              leftIcon={isCopied ? <CopiedIcon size={14} /> : <CopyIcon size={14} />}
+              leftIcon={
+                isCopied ? (
+                  <Icon name={CopiedIcon} size={14} color="inherit" decorative />
+                ) : (
+                  <Icon name={CopyIcon} size={14} color="inherit" decorative />
+                )
+              }
               onClick={onCopy}
               onKeyDown={onKeyDown}
               aria-label={isCopied ? 'Copied!' : 'Copy code'}

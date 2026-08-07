@@ -6,6 +6,7 @@ import React from 'react';
 import { Input } from '../Input';
 import type { InputSize, InputVariant } from '../../model/types';
 import { Phone } from 'lucide-react';
+import { Icon } from '@/shared/ui/Icon';
 
 export interface InputPhoneProps {
   variant?: InputVariant;
@@ -57,7 +58,7 @@ export const InputPhone = React.memo(
         <Input
           ref={ref}
           type="tel"
-          icon={<Phone size={18} />}
+          icon={<Icon name={Phone} size={18} color="inherit" decorative />}
           placeholder={defaultPlaceholder}
           autoComplete={autoComplete}
           role="tel"

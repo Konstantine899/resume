@@ -8,6 +8,7 @@ import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import type { InputOwnProps, PolymorphicProps } from '../model/types';
 import { Spinner } from '@/shared/ui/Spinner';
+import { Icon } from '@/shared/ui/Icon';
 import { Eye, EyeOff } from 'lucide-react';
 import { INPUT_CONSTANTS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
@@ -283,11 +284,12 @@ function InputImpl<C extends React.ElementType = 'input'>(
             aria-pressed={showPassword}
             tabIndex={0}
           >
-            {showPassword ? (
-              <EyeOff size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE} />
-            ) : (
-              <Eye size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE} />
-            )}
+            <Icon
+              name={showPassword ? EyeOff : Eye}
+              size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE}
+              color="inherit"
+              decorative
+            />
           </button>
         )}
 
