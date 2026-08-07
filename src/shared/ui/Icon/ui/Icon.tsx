@@ -1,4 +1,3 @@
-import { classNames } from '@/shared/lib/utils/classNames';
 import React, { forwardRef, memo, useCallback } from 'react';
 import type {
   ComponentRef,
@@ -8,9 +7,9 @@ import type {
   ReactElement,
   Ref,
 } from 'react';
-import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../model/constants';
+import { ICON_CONSTANTS } from '../model/constants';
 import type { IconProps } from '../model/types';
-import styles from './Icon.module.scss';
+import { useIcon } from '../lib/hooks/useIcon';
 
 /**
  * Icon — полиморфная иконка с `component` prop.
@@ -47,24 +46,18 @@ function IconImpl<C extends ElementType = 'span'>(
   }: IconProps<C>,
   ref: ForwardedRef<ComponentRef<C>>
 ): ReactElement {
-  const isInteractive = onClick !== undefined && !disabled;
-
-  const iconStyle: React.CSSProperties = {
-    width: getSizeInPixels(size),
-    height: getSizeInPixels(size),
-    color: getColorValue(color),
-  };
-
-  const iconClassName = classNames(
-    styles.icon,
-    disabled && styles.disabled,
-    isInteractive && styles.clickable,
-    className
-  );
-
-  const commonAriaProps = decorative
-    ? ({ 'aria-hidden': true } as const)
-    : ({ 'aria-label': ariaLabel } as const);
+  const { iconClassName, iconStyle, dataAttrs, ariaProps, isInteractive } = useIcon({
+    name: IconComponentChild,
+    component,
+    size,
+    color,
+    strokeWidth,
+    className,
+    ariaLabel,
+    decorative,
+    disabled,
+    onClick,
+  });
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLSpanElement>) => {
@@ -97,13 +90,11 @@ function IconImpl<C extends ElementType = 'span'>(
         onClick={disabled ? undefined : onClick}
         onKeyDown={handleKeyDown}
         tabIndex={disabled ? undefined : isInteractive ? 0 : undefined}
-        role={isInteractive ? 'button' : commonAriaProps['aria-hidden'] ? undefined : 'img'}
+        role={isInteractive ? 'button' : decorative ? undefined : 'img'}
         aria-pressed={isInteractive && isPressed !== undefined ? isPressed : undefined}
         data-testid={decorative ? undefined : 'icon-wrapper'}
-        data-size={size}
-        data-color={color}
-        data-interactive={isInteractive}
-        {...commonAriaProps}
+        {...dataAttrs}
+        {...ariaProps}
       >
         {iconChild}
       </span>
@@ -118,10 +109,8 @@ function IconImpl<C extends ElementType = 'span'>(
       className={iconClassName}
       id={id}
       onClick={onClick}
-      data-size={size}
-      data-color={color}
-      data-interactive={isInteractive}
-      {...commonAriaProps}
+      {...dataAttrs}
+      {...ariaProps}
       {...restProps}
     >
       {iconChild}
