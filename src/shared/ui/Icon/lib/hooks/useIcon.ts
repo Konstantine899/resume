@@ -1,42 +1,12 @@
 // src/shared/ui/Icon/lib/hooks/useIcon.ts
 
 import { useMemo } from 'react';
-import type { CSSProperties, ElementType, MouseEvent } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { getColorValue, getSizeInPixels, ICON_CONSTANTS } from '../../model/constants';
-import type { IconSize, IconStrokeWidth } from '../../model/types';
+import type { IconHookProps } from '../../model/types';
 import { validateIconProps } from '../utils/validateIconProps';
 import styles from '../../ui/Icon.module.scss';
-
-/**
- * Props для хука useIcon.
- * @description Подмножество `IconOwnProps`, необходимое для вычисления
- * className, стилей, data-атрибутов и aria-атрибутов. `onClick` уширен до
- * `MouseEvent<HTMLElement>` для полиморфизма (TS-only, runtime noop).
- */
-export interface IconHookProps {
-  /** Иконка из lucide-react (валидируется в dev) */
-  name: LucideIcon;
-  /** Размер в пикселях или preset (xs/sm/md/lg/xl) */
-  size?: number | IconSize;
-  /** Цвет из preset или кастомный CSS color */
-  color?: string;
-  /** Толщина линий (1-3) */
-  strokeWidth?: IconStrokeWidth;
-  /** Дополнительный CSS класс */
-  className?: string;
-  /** Альтернативный текст для доступности */
-  ariaLabel?: string;
-  /** Скрыть от скринридеров (декоративная иконка) */
-  decorative?: boolean;
-  /** Отключить интерактивность */
-  disabled?: boolean;
-  /** Обработчик клика */
-  onClick?: (e: MouseEvent<HTMLElement>) => void;
-  /** Корневой элемент (строка или компонент) */
-  component?: ElementType;
-}
 
 /**
  * Возвращаемое значение хука useIcon
@@ -93,7 +63,7 @@ export const useIcon = ({
   component,
 }: IconHookProps): UseIconReturn => {
   // Синхронная валидация (только development — guard внутри валидатора)
-  validateIconProps({ size, color, strokeWidth, name });
+  validateIconProps({ size, color, strokeWidth, name, ariaLabel, decorative, onClick });
 
   const isInteractive = onClick !== undefined && !disabled;
 

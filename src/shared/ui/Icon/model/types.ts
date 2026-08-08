@@ -50,6 +50,35 @@ export type IconProps<C extends ElementType = 'span'> = IconOwnProps &
   Omit<ComponentPropsWithRef<C>, keyof IconOwnProps | 'component'> & { component?: C };
 
 /**
+ * Props для хука `useIcon` — производные от `IconOwnProps` (единый источник)
+ * плюс `component` для вычисления `data-as`.
+ */
+export type IconHookProps = Pick<
+  IconOwnProps,
+  | 'name'
+  | 'size'
+  | 'color'
+  | 'strokeWidth'
+  | 'className'
+  | 'decorative'
+  | 'disabled'
+  | 'onClick'
+  | 'ariaLabel'
+> & { component?: ElementType };
+
+/**
+ * Props, валидируемые в development-режиме, — производные (partial) от
+ * `IconOwnProps`. `Partial` сохраняет опциональность size/color/strokeWidth,
+ * а `name`, `ariaLabel`, `decorative`, `onClick` — для a11y/валид-checkов.
+ */
+export type IconValidationProps = Partial<
+  Pick<
+    IconOwnProps,
+    'size' | 'color' | 'strokeWidth' | 'name' | 'ariaLabel' | 'decorative' | 'onClick'
+  >
+>;
+
+/**
  * Предопределённые размеры иконок
  */
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

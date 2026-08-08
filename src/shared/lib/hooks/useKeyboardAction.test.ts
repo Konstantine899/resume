@@ -31,10 +31,16 @@ describe('useKeyboardAction', () => {
     const { result } = renderHook(() => useKeyboardAction({ enabled: true }));
     const { element, clickSpy } = attach(result.current, onClick);
 
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    });
     act(() => {
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      element.dispatchEvent(event);
     });
 
+    expect(event.defaultPrevented).toBe(true);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
@@ -44,50 +50,80 @@ describe('useKeyboardAction', () => {
     const { result } = renderHook(() => useKeyboardAction({ enabled: true }));
     const { element, clickSpy } = attach(result.current, onClick);
 
+    const event = new KeyboardEvent('keydown', {
+      key: ' ',
+      bubbles: true,
+      cancelable: true,
+    });
     act(() => {
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+      element.dispatchEvent(event);
     });
 
+    expect(event.defaultPrevented).toBe(true);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('другие клавиши не активируют', () => {
+  it('другие клавиши не активируют и не отменяют дефолтное поведение', () => {
     const onClick = vi.fn();
     const { result } = renderHook(() => useKeyboardAction({ enabled: true }));
     const { element, clickSpy } = attach(result.current, onClick);
 
+    const letterEvent = new KeyboardEvent('keydown', {
+      key: 'a',
+      bubbles: true,
+      cancelable: true,
+    });
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    });
     act(() => {
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }));
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+      element.dispatchEvent(letterEvent);
+      element.dispatchEvent(tabEvent);
     });
 
+    expect(letterEvent.defaultPrevented).toBe(false);
+    expect(tabEvent.defaultPrevented).toBe(false);
     expect(clickSpy).not.toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('disabled не активирует', () => {
+  it('disabled не активирует и не отменяет дефолтное поведение', () => {
     const onClick = vi.fn();
     const { result } = renderHook(() => useKeyboardAction({ disabled: true, enabled: true }));
     const { element, clickSpy } = attach(result.current, onClick);
 
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    });
     act(() => {
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      element.dispatchEvent(event);
     });
 
+    expect(event.defaultPrevented).toBe(false);
     expect(clickSpy).not.toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('не активирует когда enabled=false', () => {
+  it('не активирует когда enabled=false и не отменяет дефолтное поведение', () => {
     const onClick = vi.fn();
     const { result } = renderHook(() => useKeyboardAction({ enabled: false }));
     const { element, clickSpy } = attach(result.current, onClick);
 
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    });
     act(() => {
-      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      element.dispatchEvent(event);
     });
 
+    expect(event.defaultPrevented).toBe(false);
     expect(clickSpy).not.toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
   });

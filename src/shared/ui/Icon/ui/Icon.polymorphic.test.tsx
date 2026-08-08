@@ -89,4 +89,46 @@ describe('Icon polymorphic', () => {
       expect(button).not.toHaveAttribute('data-testid');
     });
   });
+
+  describe('disabled gating (non-span path)', () => {
+    it('component="button" does not fire onClick when disabled and forwards native disabled', () => {
+      const handleClick = vi.fn();
+      const { container } = render(
+        <Icon component="button" name={Home} disabled onClick={handleClick} ariaLabel="Press" />
+      );
+      const button = container.querySelector('button') as HTMLButtonElement;
+      expect(button).toBeDisabled();
+      fireEvent.click(button);
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('component="a" sets aria-disabled when disabled and does not fire onClick', () => {
+      const handleClick = vi.fn();
+      const { container } = render(
+        <Icon
+          component="a"
+          href="#target"
+          name={Home}
+          disabled
+          onClick={handleClick}
+          ariaLabel="Link"
+        />
+      );
+      const anchor = container.querySelector('a') as HTMLAnchorElement;
+      expect(anchor).toHaveAttribute('aria-disabled', 'true');
+      fireEvent.click(anchor);
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('component="a" without disabled still fires onClick', () => {
+      const handleClick = vi.fn();
+      const { container } = render(
+        <Icon component="a" href="#target" name={Home} onClick={handleClick} ariaLabel="Link" />
+      );
+      const anchor = container.querySelector('a') as HTMLAnchorElement;
+      expect(anchor).not.toHaveAttribute('aria-disabled');
+      fireEvent.click(anchor);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+  });
 });

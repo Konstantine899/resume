@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Home } from 'lucide-react';
+import { getColorValue } from '../model/constants';
 import { Icon } from './Icon';
 
 describe('Icon', () => {
@@ -304,7 +305,8 @@ describe('Icon', () => {
     ])('renders with color %s', (color) => {
       render(<Icon name={Home} color={color} />);
       const svgElement = screen.getByRole('img').querySelector('svg');
-      expect(svgElement).toBeInTheDocument();
+      // браузер нормализует currentColor → currentcolor — сравниваем case-insensitive
+      expect(svgElement?.style.color?.toLowerCase()).toBe(getColorValue(color).toLowerCase());
     });
 
     it('renders with custom CSS color', () => {
@@ -356,9 +358,12 @@ describe('Icon', () => {
 
   describe('Memoization', () => {
     it('does not re-render when props do not change', () => {
-      const { rerender } = render(<Icon name={Home} size="md" color="primary" />);
-      rerender(<Icon name={Home} size="md" color="primary" />);
+      const refFn = vi.fn();
+      const { rerender } = render(<Icon name={Home} size="md" color="primary" ref={refFn} />);
+      rerender(<Icon name={Home} size="md" color="primary" ref={refFn} />);
       expect(screen.getByRole('img')).toBeInTheDocument();
+      // memo предотвращает повторный рендер при равных props → ref attach 1 раз
+      expect(refFn).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -371,12 +376,6 @@ describe('Icon', () => {
     it('handles empty string ariaLabel', () => {
       render(<Icon name={Home} ariaLabel="" />);
       expect(screen.getByRole('img')).toHaveAttribute('aria-label', '');
-    });
-
-    it('handles null children in Icon component', () => {
-      expect(() => {
-        render(<Icon name={Home} />);
-      }).not.toThrow();
     });
   });
 

@@ -24,6 +24,10 @@ import { useIcon } from '../lib/hooks/useIcon';
  * — для не-span элементов интерактивные атрибуты прокидываются через `restProps`
  *   без авт-`role`/`tabIndex` и без handleKeyDown — реальный элемент управляет
  *   своей семантикой и фокусируемостью (например, нативный `<button>`).
+ *
+ * Trust boundary: `restProps` (element-специфичные HTML-атрибуты поверх
+ * `IconOwnProps`) прокидываются на корневой узел as-is — потребитель несёт
+ * ответственность за их валидность/санитизацию.
  */
 type IconComponent = (<C extends ElementType = 'span'>(
   props: IconProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }
@@ -31,7 +35,7 @@ type IconComponent = (<C extends ElementType = 'span'>(
 
 function IconImpl<C extends ElementType = 'span'>(
   {
-    name: IconComponentChild,
+    name: IconGlyph,
     component,
     size = ICON_CONSTANTS.DEFAULT_SIZE,
     color = ICON_CONSTANTS.DEFAULT_COLOR,
@@ -48,7 +52,7 @@ function IconImpl<C extends ElementType = 'span'>(
   ref: ForwardedRef<ComponentRef<C>>
 ): ReactElement {
   const { iconClassName, iconStyle, dataAttrs, ariaProps, isInteractive } = useIcon({
-    name: IconComponentChild,
+    name: IconGlyph,
     component,
     size,
     color,
@@ -69,7 +73,7 @@ function IconImpl<C extends ElementType = 'span'>(
   const isDefaultSpan = Component === 'span';
 
   const iconChild = (
-    <IconComponentChild
+    <IconGlyph
       style={iconStyle}
       strokeWidth={strokeWidth}
       aria-hidden={decorative ? 'true' : undefined}
@@ -99,12 +103,24 @@ function IconImpl<C extends ElementType = 'span'>(
 
   // Не-span path — нативный элемент сам управляет своей семантикой.
   // Без auto `role="button"`/`tabIndex`/handleKeyDown, без data-testid.
+  // Гейт onClick идентичен span-path (disabled → undefined) — единый контракт.
+  // Элементы с нативным disabled (button/input/select/textarea) форвардят его;
+  // для `a` (нет disabled-атрибута) используется aria-disabled.
+  const isDisabledCapableElement =
+    typeof Component === 'string' &&
+    (Component === 'button' ||
+      Component === 'input' ||
+      Component === 'select' ||
+      Component === 'textarea');
+
   return (
     <Component
       ref={ref as Ref<ComponentRef<C>>}
       className={iconClassName}
       id={id}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      {...(isDisabledCapableElement ? { disabled } : {})}
+      {...(Component === 'a' && disabled ? { 'aria-disabled': true } : {})}
       {...dataAttrs}
       {...ariaProps}
       {...restProps}

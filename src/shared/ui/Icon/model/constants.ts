@@ -28,9 +28,14 @@ export const ICON_COLORS: Record<IconColor, string> = {
 
 /**
  * Получить размер в пикселях
+ * @description Числовые размеры возвращаются as-is, но не-положительные или
+ * не-конечные числа (0, -5, NaN, Infinity) фолбэчатся на `md` — иначе невидимая
+ * иконка (0px) или ломаный inline-style (NaN).
  */
 export const getSizeInPixels = (size: number | IconSize): number => {
-  if (typeof size === 'number') return size;
+  if (typeof size === 'number') {
+    return Number.isFinite(size) && size > 0 ? size : ICON_SIZES.md;
+  }
   return ICON_SIZES[size] || ICON_SIZES.md;
 };
 
@@ -38,7 +43,7 @@ export const getSizeInPixels = (size: number | IconSize): number => {
  * Получить цвет (CSS переменная или кастомный)
  */
 export const getColorValue = (color: string): string => {
-  if (color in ICON_COLORS) {
+  if (Object.prototype.hasOwnProperty.call(ICON_COLORS, color)) {
     return ICON_COLORS[color as IconColor];
   }
   return color;

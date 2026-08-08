@@ -58,9 +58,16 @@ describe('Icon Constants', () => {
     });
 
     it('returns default size md for invalid input', () => {
-      expect(getSizeInPixels('invalid' as any)).toBe(20);
-      expect(getSizeInPixels(null as any)).toBe(20);
-      expect(getSizeInPixels(undefined as any)).toBe(20);
+      expect(getSizeInPixels('invalid' as never)).toBe(20);
+      expect(getSizeInPixels(null as never)).toBe(20);
+      expect(getSizeInPixels(undefined as never)).toBe(20);
+    });
+
+    it('returns default size md for non-positive or non-finite numeric input', () => {
+      expect(getSizeInPixels(0)).toBe(20);
+      expect(getSizeInPixels(-5)).toBe(20);
+      expect(getSizeInPixels(Number.NaN)).toBe(20);
+      expect(getSizeInPixels(Number.POSITIVE_INFINITY)).toBe(20);
     });
   });
 

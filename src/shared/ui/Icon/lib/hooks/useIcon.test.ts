@@ -3,7 +3,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { Home } from 'lucide-react';
-import type { IconHookProps } from './useIcon';
+import type { IconHookProps } from '../../model/types';
 import { useIcon } from './useIcon';
 import { validateIconProps } from '../utils/validateIconProps';
 import type { IconStrokeWidth } from '../../model/types';
@@ -229,6 +229,39 @@ describe('useIcon', () => {
       validateIconProps({ size: 0, color: 'not-a-color', strokeWidth: 4 as never });
 
       expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+
+    it('should warn a11y when interactive non-decorative icon lacks ariaLabel', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      renderHook(() => useIcon(createDefaultProps({ onClick: vi.fn() })));
+
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('accessible name'));
+
+      warnSpy.mockRestore();
+    });
+
+    it('should not warn a11y when icon is decorative even without ariaLabel', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      renderHook(() => useIcon(createDefaultProps({ onClick: vi.fn(), decorative: true })));
+
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('accessible name'));
+
+      warnSpy.mockRestore();
+    });
+
+    it('should not warn a11y when ariaLabel is provided', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('NODE_ENV', 'development');
+
+      renderHook(() => useIcon(createDefaultProps({ onClick: vi.fn(), ariaLabel: 'Home' })));
+
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('accessible name'));
 
       warnSpy.mockRestore();
     });

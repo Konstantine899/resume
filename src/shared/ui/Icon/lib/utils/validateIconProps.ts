@@ -2,26 +2,8 @@
 
 /* eslint-disable no-console */
 
-import type { LucideIcon } from 'lucide-react';
-import type { IconSize, IconStrokeWidth } from '../../model/types';
+import type { IconValidationProps } from '../../model/types';
 import { ICON_CONSTANTS } from '../../model/constants';
-
-/**
- * Props, валидируемые в development-режиме.
- * @description Не все Icon пропсы валидируются — только те, где типизацию
- * можно обойти кастомными значениями (числовой size, произвольный color,
- * числовой strokeWidth, name как строка вместо LucideIcon).
- */
-export interface IconValidationProps {
-  /** Размер в пикселях или preset (xs/sm/md/lg/xl) */
-  size?: number | IconSize;
-  /** Цвет из preset или кастомный CSS color */
-  color?: string;
-  /** Толщина линий (1-3) */
-  strokeWidth?: IconStrokeWidth;
-  /** Иконка из lucide-react */
-  name?: LucideIcon;
-}
 
 /**
  * Проверяет, является ли строка правдоподобным CSS color.
@@ -64,7 +46,7 @@ const isPlausibleCssColor = (color: string): boolean => {
 export function validateIconProps(props: IconValidationProps): void {
   if (process.env.NODE_ENV !== 'development') return;
 
-  const { size, color, strokeWidth, name } = props;
+  const { size, color, strokeWidth, name, ariaLabel, decorative } = props;
 
   if (size !== undefined) {
     if (typeof size === 'number') {
@@ -107,5 +89,16 @@ export function validateIconProps(props: IconValidationProps): void {
 
   if (name !== undefined && typeof name !== 'function') {
     console.warn('[Icon] "name" must be a lucide icon component (LucideIcon)');
+  }
+
+  // A11y: не-декоративная иконка без ariaLabel не имеет accessible name.
+  // Касается и интерактивного пути (role="button" — имя обязательно) и
+  // не-интерактивного (role="img" — имя тоже нужно). decorative=true скрывает
+  // иконку от скринридеров — имени не требуется.
+  if (!decorative && !ariaLabel) {
+    console.warn(
+      '[Icon] Missing accessible name: non-decorative icon has no ariaLabel. ' +
+        'Pass ariaLabel (interactive icon) or set decorative (inert icon).'
+    );
   }
 }
