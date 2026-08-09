@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, fireEvent, waitFor, within } from '@storybook/test';
 import { useEffect, useState } from 'react';
 import { Image } from './Image';
 import type { ImageProps } from '../model/types';
@@ -264,6 +265,14 @@ export const Default: Story = {
     src: TEST_IMAGE_SVG,
     alt: 'Default image',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const img = canvas.getByRole('img', { name: 'Default image' });
+    const figure = img.closest('figure');
+    await expect(figure?.getAttribute('data-variant')).toBe('default');
+    await expect(figure?.getAttribute('data-size')).toBe('md');
+    await expect(figure?.getAttribute('data-loading')).toBeTruthy();
+  },
 };
 
 export const Rounded: Story = {
@@ -271,6 +280,11 @@ export const Rounded: Story = {
     src: TEST_IMAGE_SVG,
     alt: 'Rounded image',
     variant: 'rounded',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const img = canvas.getByRole('img', { name: 'Rounded image' });
+    await expect(img.closest('figure')?.getAttribute('data-variant')).toBe('rounded');
   },
 };
 
@@ -299,6 +313,13 @@ export const SizeSmall: Story = {
     src: TEST_IMAGE_SVG,
     alt: 'Small image',
     size: 'sm',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const img = canvas.getByRole('img', { name: 'Small image' });
+    const figure = img.closest('figure');
+    await expect(figure?.getAttribute('data-size')).toBe('sm');
+    await expect(figure?.getAttribute('style')).toContain('width: 64px');
   },
 };
 
@@ -384,6 +405,12 @@ export const PlaceholderSkeleton: Story = {
           'Первые 3 секунды демонстрируется анимация загрузки, затем изображение загружается.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Initial 3-second demo phase renders the shared Skeleton placeholder
+    await expect(canvas.getByRole('status')).toBeInTheDocument();
+    await expect(canvas.getByText(/Skeleton placeholder/)).toBeInTheDocument();
   },
 };
 
@@ -477,6 +504,13 @@ export const LoadingModes: Story = {
     src: '',
     alt: 'Loading modes',
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const eagerImg = canvas.getByRole('img', { name: 'Priority loading' });
+    const lazyImg = canvas.getByRole('img', { name: 'Lazy loading' });
+    await expect(eagerImg).toHaveAttribute('loading', 'eager');
+    await expect(lazyImg).toHaveAttribute('loading', 'lazy');
+  },
 };
 
 // ============================================
@@ -488,6 +522,26 @@ export const ErrorWithFallback: Story = {
     src: BROKEN_IMAGE_URL,
     alt: 'Error with fallback',
     fallback: TEST_IMAGE_SVG, // Use valid SVG as fallback image
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const img = canvas.getByRole('img', { name: 'Error with fallback' });
+
+    // Trigger the error path deterministically (jsdom/browser onError for the
+    // invalid SVG data-URI is not guaranteed in the test runner).
+    fireEvent.error(img);
+
+    // aria-describedby is set only in the error state (IMG-08)
+    await waitFor(() => {
+      expect(img.getAttribute('aria-describedby')).toBeTruthy();
+    });
+
+    // The describedby reference resolves to the fallback node (IMG-08)
+    const describedById = img.getAttribute('aria-describedby');
+    await expect(describedById).toBeTruthy();
+    const fallbackNode = describedById ? document.getElementById(describedById) : null;
+    await expect(fallbackNode).not.toBeNull();
+    await expect(fallbackNode?.tagName).toBe('IMG');
   },
 };
 
