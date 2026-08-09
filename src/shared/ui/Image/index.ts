@@ -26,16 +26,8 @@ export {
   IMAGE_LAZY_MODES,
   IMAGE_SIZE_VALUES,
   IMAGE_VARIANT_RADIUS,
-  PLACEHOLDER_CONFIG,
   INTERSECTION_OBSERVER_CONFIG,
   IMAGE_DEFAULTS,
-  SUPPORTED_IMAGE_TYPES,
   VALIDATION_MESSAGES,
-  ARIA_DEFAULTS,
 } from './model/constants';
-export { useImageLoading, useImageLoadingSimple } from './lib/hooks/useImageLoading';
-export {
-  validateImageProps,
-  normalizeImageProps,
-  logValidationWarnings,
-} from './lib/utils/imageValidation';
+export { useImageLoading } from './lib/hooks/useImageLoading';

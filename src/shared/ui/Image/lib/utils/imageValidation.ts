@@ -165,5 +165,3 @@ export function logValidationWarnings(props: Partial<ImageProps>, componentName 
     console.warn(`[${componentName}] Validation warnings:`, warnings.join('\n'));
   }
 }
-
-export default validateImageProps;

@@ -73,25 +73,6 @@ export const IMAGE_VARIANT_RADIUS: Record<ImageVariant, string> = {
 } as const;
 
 /**
- * Настройки placeholder по умолчанию
- * @description Конфигурация для разных типов placeholder'ов
- */
-export const PLACEHOLDER_CONFIG = {
-  blur: {
-    amount: 10,
-    transition: 'filter 0.3s ease',
-  },
-  skeleton: {
-    animation: 'skeleton-loading 1.5s ease-in-out infinite',
-    baseColor: 'rgba(0, 0, 0, 0.05)',
-    highlightColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  color: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-} as const;
-
-/**
  * Пороги для Intersection Observer
  * @description Конфигурация для lazy loading через Observer
  */
@@ -119,19 +100,6 @@ export const IMAGE_DEFAULTS = {
 } as const;
 
 /**
- * MIME типы изображений
- * @description Поддерживаемые форматы изображений
- */
-export const SUPPORTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-  'image/svg+xml',
-  'image/gif',
-] as const;
-
-/**
  * Сообщения об ошибках
  * @description Локализованные сообщения для валидации
  */
@@ -150,38 +118,4 @@ export const VALIDATION_MESSAGES = {
   INVALID_SRC: 'Invalid "src" prop: must be a non-empty string or object with src property',
   NEGATIVE_BLUR: 'blurAmount must be a positive number',
   INVALID_QUALITY: 'quality must be between 0 and 100',
-} as const;
-
-/**
- * ARIA атрибуты по умолчанию
- * @description Конфигурация доступности
- */
-export const ARIA_DEFAULTS = {
-  decorative: {
-    role: 'presentation',
-    'aria-hidden': true,
-  },
-  content: {
-    role: 'img',
-  },
-} as const;
-
-/**
- * Grouped constants for Image component
- * @description Single namespace providing access to all Image constants
- */
-export const IMAGE_CONSTANTS = {
-  variants: IMAGE_VARIANTS,
-  sizes: IMAGE_SIZES,
-  objectFits: IMAGE_OBJECT_FITS,
-  placeholders: IMAGE_PLACEHOLDERS,
-  lazyModes: IMAGE_LAZY_MODES,
-  sizeValues: IMAGE_SIZE_VALUES,
-  variantRadius: IMAGE_VARIANT_RADIUS,
-  defaults: IMAGE_DEFAULTS,
-  placeholderConfig: PLACEHOLDER_CONFIG,
-  intersectionObserverConfig: INTERSECTION_OBSERVER_CONFIG,
-  supportedImageTypes: SUPPORTED_IMAGE_TYPES,
-  validationMessages: VALIDATION_MESSAGES,
-  ariaDefaults: ARIA_DEFAULTS,
 } as const;

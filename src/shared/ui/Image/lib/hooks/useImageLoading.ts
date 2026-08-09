@@ -160,33 +160,3 @@ export function useImageLoading({
     onError,
   } as UseImageLoadingReturn;
 }
-
-/**
- * Упрощённая версия хука для базового использования
- * @description Автоматически определяет режим загрузки
- *
- * @param src - URL изображения
- * @param options - Дополнительные опции
- * @returns Состояние загрузки
- *
- * @example
- * const { isLoaded, isError } = useImageLoadingSimple('/image.jpg');
- */
-export function useImageLoadingSimple(
-  src: string,
-  options?: { priority?: boolean; lazy?: boolean }
-): Omit<UseImageLoadingReturn, 'ref' | 'startLoading' | 'reset' | 'onLoad' | 'onError'> {
-  const { priority = false, lazy = true } = options ?? {};
-
-  const config: UseImageLoadingConfig = {
-    src,
-    lazyMode: priority ? 'eager' : lazy ? 'native' : 'eager',
-    priority,
-  };
-
-  const { loadingStatus, isLoaded, isError, isLoading } = useImageLoading(config);
-
-  return { loadingStatus, isLoaded, isError, isLoading };
-}
-
-export default useImageLoading;
