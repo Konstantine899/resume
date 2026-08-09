@@ -17,6 +17,7 @@ export type {
   UseImageLoadingConfig,
   UseImageLoadingReturn,
   ImageValidationResult,
+  ImageLoadErrorInfo,
 } from './model/types';
 export {
   IMAGE_VARIANTS,

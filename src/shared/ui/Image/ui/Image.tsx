@@ -8,6 +8,7 @@ import { ImageProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
 import { Spinner } from '@/shared/ui/Spinner';
+import { ErrorBoundary, DEFAULT_BOUNDARY_FALLBACK } from '@/shared/ui/ErrorBoundary';
 import styles from './Image.module.scss';
 
 /**
@@ -66,6 +67,7 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     onLoadStart,
     onLoadSuccess,
     onLoadError,
+    onLoadErrorTelemetry,
     forceLoading = IMAGE_DEFAULTS.forceLoading,
     ...restProps
   } = props;
@@ -157,7 +159,7 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
           src={fallback}
           alt=""
           className={styles.fallback}
-          onError={onLoadError}
+          onError={handleLoadError}
           id={fallbackDescriptionId}
         />
       );
@@ -213,10 +215,18 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
       hookOnError(event);
       if (!forceLoading) {
+        // ERB-01: telemetry first (pure observer) — never reorders onLoadError (last).
+        onLoadErrorTelemetry?.({ src: resolvedSrc.src, alt, event });
+        // ERB-02: dev-only diagnostic (console.warn LOCKED — NOT console.error,
+        // Storybook test-runner flags console.error and would fail the plays).
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('[Image] Failed to load image', { src: resolvedSrc.src, alt });
+        }
         onLoadError?.(event);
       }
     },
-    [hookOnError, onLoadError, forceLoading]
+    [hookOnError, onLoadError, onLoadErrorTelemetry, alt, resolvedSrc.src, forceLoading]
   );
 
   // Handle ref forwarding: merge hook's imageRef with forwarded ref
@@ -254,7 +264,9 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
         {...restProps}
       />
 
-      {loadingStatus === 'error' && renderFallback()}
+      {loadingStatus === 'error' && (
+        <ErrorBoundary fallback={DEFAULT_BOUNDARY_FALLBACK}>{renderFallback()}</ErrorBoundary>
+      )}
 
       {children && <div className={styles.childrenOverlay}>{children}</div>}
     </figure>

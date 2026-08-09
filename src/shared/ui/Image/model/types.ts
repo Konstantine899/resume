@@ -214,6 +214,32 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
    * Обработчик ошибки загрузки
    */
   onLoadError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+
+  /**
+   * Телеметрия ошибки загрузки (ERB-01)
+   * @description Опциональный колбэк для аналитики/AI-тулинга. Вызывается в
+   * существующей воронке `if (!forceLoading)` — ПОСЛЕ hookOnError и ДО
+   * `onLoadError` (порядок: телеметрия → dev-warn → onLoadError). Аддитивный,
+   * опциональный, без дефолта; не переименовывает и не переупорядочивает
+   * существующий контракт `onLoadError`.
+   */
+  onLoadErrorTelemetry?: (info: ImageLoadErrorInfo) => void;
+}
+
+/**
+ * Полезная нагрузка телеметрии ошибки загрузки (ERB-01)
+ * @group Diagnostics
+ * @description Стабильная форма: `src` — resolved primitive source (строка из
+ * union `string | { src; srcSet? }`), `alt` — prop потребителя, `event` —
+ * оригинальный SyntheticEvent. Без дополнительных полей (тест shape-stable).
+ */
+export interface ImageLoadErrorInfo {
+  /** Resolved image source (primitive string from the src union) */
+  src: string;
+  /** Alt prop — идентификатор изображения для аналитики */
+  alt: string;
+  /** Оригинальный SyntheticEvent ошибки */
+  event: React.SyntheticEvent<HTMLImageElement, Event>;
 }
 
 /**
