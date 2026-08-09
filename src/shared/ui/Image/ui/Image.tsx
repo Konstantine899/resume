@@ -1,4 +1,6 @@
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import '@/shared/lib/i18n/config/i18n';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { useImageLoading } from '../lib/hooks/useImageLoading';
@@ -42,6 +44,7 @@ import styles from './Image.module.scss';
  * ```
  */
 const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
+  const { t } = useTranslation();
   const {
     src,
     alt,
@@ -67,9 +70,13 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     ...restProps
   } = props;
 
+  // IMG-04: single resolved-src source — object form carries the optional srcSet,
+  // string form normalizes to a source object so the srcset attribute stays absent.
+  const resolvedSrc = typeof src === 'object' ? src : { src, srcSet: undefined };
+
   // Hook-driven loading state (replaces inline useState<ImageState>)
   const hook = useImageLoading({
-    src: typeof src === 'string' ? src : src.src,
+    src: resolvedSrc.src,
     lazyMode,
     priority,
     forceLoading,
@@ -77,8 +84,10 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
 
   const { loadingStatus, isError } = hook;
 
-  // imageSrc computed directly from props (no useMemo needed)
-  const imageSrc = typeof src === 'string' ? src : src.src;
+  // IMG-08: single binding for the error description — the same id is attached
+  // to the fallback node so the aria-describedby reference resolves to a real element.
+  const fallbackDescriptionId =
+    isError && !decorative ? `image-${alt || 'error'}-error` : undefined;
 
   // Container style
   const containerStyle = useMemo(() => {
@@ -143,12 +152,28 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
   // Inline render for fallback (replaces useCallback — simpler, no deps issue)
   const renderFallback = () => {
     if (typeof fallback === 'string') {
-      return <img src={fallback} alt="" className={styles.fallback} onError={onLoadError} />;
+      return (
+        <img
+          src={fallback}
+          alt=""
+          className={styles.fallback}
+          onError={onLoadError}
+          id={fallbackDescriptionId}
+        />
+      );
     }
     if (fallback) {
-      return <div className={styles.fallback}>{fallback}</div>;
+      return (
+        <div className={styles.fallback} id={fallbackDescriptionId}>
+          {fallback}
+        </div>
+      );
     }
-    return <div className={styles.fallback}>Image not available</div>;
+    return (
+      <div className={styles.fallback} id={fallbackDescriptionId}>
+        {t('imageNotAvailable')}
+      </div>
+    );
   };
 
   // Aria attributes
@@ -164,9 +189,9 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
       role: 'img' as const,
       'aria-hidden': false,
       alt: alt || '',
-      ...(isError && { 'aria-describedby': `image-${alt || 'error'}-error` }),
+      ...(fallbackDescriptionId && { 'aria-describedby': fallbackDescriptionId }),
     };
-  }, [decorative, alt, isError]);
+  }, [decorative, alt, fallbackDescriptionId]);
 
   // Destructure hook's event callbacks for stable deps
   const { onLoad: hookOnLoad, onError: hookOnError } = hook;
@@ -216,7 +241,8 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
 
       <img
         ref={imageRefCallback}
-        src={imageSrc}
+        src={resolvedSrc.src}
+        srcSet={resolvedSrc.srcSet}
         loading={priority || lazyMode === 'eager' ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
@@ -239,5 +265,3 @@ ImageComponent.displayName = 'Image';
 
 export const Image = memo(ImageComponent);
 Image.displayName = 'Image';
-
-export default Image;

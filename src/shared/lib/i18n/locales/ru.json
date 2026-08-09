@@ -43,5 +43,6 @@
   "emailPlaceholder": "введите email",
   "messagePlaceholder": "введите сообщение",
   "skillsEmpty": "Навыки не указаны",
-  "loading": "Загрузка"
+  "loading": "Загрузка",
+  "imageNotAvailable": "Изображение недоступно"
 }

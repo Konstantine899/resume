@@ -43,5 +43,6 @@
   "emailPlaceholder": "email placeholder",
   "messagePlaceholder": "message placeholder",
   "skillsEmpty": "No skills listed",
-  "loading": "Loading"
+  "loading": "Loading",
+  "imageNotAvailable": "Image not available"
 }
