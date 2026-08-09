@@ -11,7 +11,7 @@
     "analyze:dead-code": "knip --include files,dependencies,exports",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "type-check:strict": "tsc --noEmit --maxNodeModuleJsDepth 0 --skipLibCheck false",
+    "type-check:strict": "tsc --noEmit --maxNodeModuleJsDepth 0",
     "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "lint:dev": "eslint . --ext .ts,.tsx",
