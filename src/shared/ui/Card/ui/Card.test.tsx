@@ -13,6 +13,7 @@ import { ProjectCard } from './ProjectCard';
 import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
 import cardDescriptionStyles from './CardDescription/CardDescription.module.scss';
+import projectCardStyles from './ProjectCard/ProjectCard.module.scss';
 
 describe('Card', () => {
   describe('Rendering', () => {
@@ -204,6 +205,24 @@ describe('Card', () => {
     it('renders ProjectCard', () => {
       render(<ProjectCard title="Test Project" description="Description" techIcons={[]} />);
       expect(screen.getByText('Test Project')).toBeInTheDocument();
+    });
+
+    it('renders ProjectCard with external link via Link component', () => {
+      render(
+        <ProjectCard
+          title="Test Project"
+          description="Description"
+          techIcons={[]}
+          link="https://example.com/project"
+        />
+      );
+      const link = screen.getByRole('link');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', 'https://example.com/project');
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
+      expect(link).toHaveAttribute('rel', expect.stringContaining('noreferrer'));
+      expect(link).toHaveClass(projectCardStyles.link);
     });
 
     it('renders WorkHistoryCard', () => {

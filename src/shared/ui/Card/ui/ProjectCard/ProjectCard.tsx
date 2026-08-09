@@ -5,6 +5,7 @@
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Link } from '@/shared/ui/Link';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
 
@@ -79,9 +80,9 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             <Paragraph as="span" size="xs" theme="muted">
               {linkLabel}
             </Paragraph>
-            <a href={link} target="_blank" rel="noopener noreferrer" className={styles.link}>
+            <Link href={link} external showExternalIcon={false} unstyled className={styles.link}>
               {link.replace(/^https?:\/\//, '')}
-            </a>
+            </Link>
           </div>
         )}
       </div>
