@@ -195,6 +195,28 @@ describe('Toast', () => {
       expect(mockOnClose).toHaveBeenCalledWith('test-1');
     });
 
+    it('должен вызвать onClose ровно один раз (guard от двойного вызова)', () => {
+      render(<Toast id="test-1" message="Test" onClose={mockOnClose} />);
+
+      fireEvent.click(screen.getByTestId('toast-close'));
+
+      // Advance well past the exit animation — guard must prevent a second call
+      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(1000);
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnClose).toHaveBeenCalledWith('test-1');
+    });
+
+    it('должен вызвать onClose ровно один раз при авто-закрытии', () => {
+      render(<Toast id="test-1" message="Test" duration={1000} onClose={mockOnClose} />);
+
+      vi.advanceTimersByTime(1000 + 300);
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnClose).toHaveBeenCalledWith('test-1');
+    });
+
     it('кнопка закрытия должна иметь aria-label', () => {
       render(<Toast id="test-1" message="Test" onClose={mockOnClose} />);
 
@@ -274,6 +296,87 @@ describe('Toast', () => {
 
       process.env.NODE_ENV = originalEnv;
       warnSpy.mockRestore();
+    });
+  });
+
+  describe('Action Button', () => {
+    it('должен рендерить action button когда action предоставлен', () => {
+      const action = { label: 'Undo', onClick: vi.fn() };
+      render(
+        <Toast
+          id="test-action-1"
+          message="File deleted"
+          type="warning"
+          action={action}
+          onClose={mockOnClose}
+        />
+      );
+
+      expect(screen.getByText('Undo')).toBeInTheDocument();
+      expect(screen.getByText('Undo').tagName).toBe('BUTTON');
+    });
+
+    it('должен вызывать action.onClick при клике без закрытия toast', () => {
+      const actionClick = vi.fn();
+      const action = { label: 'Undo', onClick: actionClick };
+      render(
+        <Toast
+          id="test-action-2"
+          message="File deleted"
+          type="warning"
+          action={action}
+          onClose={mockOnClose}
+        />
+      );
+
+      fireEvent.click(screen.getByText('Undo'));
+      expect(actionClick).toHaveBeenCalledTimes(1);
+      // Toast не должен закрыться сразу
+      expect(mockOnClose).not.toHaveBeenCalled();
+    });
+
+    it('должен иметь aria-label с текстом кнопки', () => {
+      const action = { label: 'Retry', onClick: vi.fn() };
+      render(
+        <Toast
+          id="test-action-3"
+          message="Failed"
+          type="error"
+          action={action}
+          onClose={mockOnClose}
+        />
+      );
+
+      expect(screen.getByText('Retry')).toHaveAttribute('aria-label', 'Retry');
+    });
+
+    it('не должен рендерить action button когда action не предоставлен', () => {
+      render(<Toast id="test-action-4" message="Simple message" onClose={mockOnClose} />);
+
+      expect(screen.queryByText('Undo')).not.toBeInTheDocument();
+    });
+
+    it('должен использовать secondary variant по умолчанию', () => {
+      const action = { label: 'View', onClick: vi.fn() };
+      render(
+        <Toast
+          id="test-action-5"
+          message="New notification"
+          action={action}
+          onClose={mockOnClose}
+        />
+      );
+
+      const button = screen.getByText('View');
+      expect(button.className).toContain('secondary');
+    });
+
+    it('должен применять primary variant когда указан', () => {
+      const action = { label: 'Primary', onClick: vi.fn(), variant: 'primary' as const };
+      render(<Toast id="test-action-6" message="Test" action={action} onClose={mockOnClose} />);
+
+      const button = screen.getByText('Primary');
+      expect(button.className).toContain('primary');
     });
   });
 

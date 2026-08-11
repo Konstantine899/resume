@@ -8,6 +8,10 @@
 export { Image } from './ui/Image';
 export type {
   ImageProps,
+  ImageBaseProps,
+  RemoteImageProps,
+  LocalImageProps,
+  ImageImportLoader,
   ImageVariant,
   ImageSize,
   ImageObjectFit,
@@ -18,6 +22,7 @@ export type {
   UseImageLoadingReturn,
   ImageValidationResult,
   ImageLoadErrorInfo,
+  ImageSource,
 } from './model/types';
 export {
   IMAGE_VARIANTS,

@@ -54,12 +54,48 @@ export const Toast = memo((props: ToastProps) => {
     message,
     type = 'info',
     duration = TOAST_CONSTANTS.DEFAULT_DURATION,
+    action,
+    forceClose = false,
     onClose,
   } = props;
 
   const [isClosing, setIsClosing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  // Guard against double onClose: setTimeout (testability/SSR) and onAnimationEnd (production)
+  // both race to close; whichever fires first wins, the other is ignored.
+  const closeTriggeredRef = useRef(false);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    // Fallback to setTimeout for environments where animationEnd might not fire (tests, SSR)
+    setTimeout(() => {
+      if (!closeTriggeredRef.current) {
+        closeTriggeredRef.current = true;
+        onClose(id);
+      }
+    }, TOAST_CONSTANTS.EXIT_ANIMATION_DURATION);
+  }, [id, onClose]);
+
+  const handleAnimationEnd = useCallback(
+    (e: React.AnimationEvent<HTMLDivElement>) => {
+      // In production browsers, this provides more reliable timing than setTimeout
+      if (e.animationName.includes('slideOutRight') && isClosing && !closeTriggeredRef.current) {
+        closeTriggeredRef.current = true;
+        onClose(id);
+      }
+    },
+    [isClosing, id, onClose]
+  );
+
+  // Trigger exit animation when forceClose is set
+  useEffect(() => {
+    if (forceClose && !isClosing) {
+      // Управляемый ответ на проп; handleClose идемпотентен (guards: isClosing + closeTriggeredRef)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleClose();
+    }
+  }, [forceClose, isClosing, handleClose]);
 
   // Валидация type
   if (process.env.NODE_ENV === 'development' && !TOAST_TYPES.includes(type)) {
@@ -73,6 +109,8 @@ export const Toast = memo((props: ToastProps) => {
 
     timerRef.current = setTimeout(() => {
       setIsClosing(true);
+      // Use setTimeout for auto-close to match test expectations
+      // onAnimationEnd is used for manual close only
       setTimeout(() => onClose(id), TOAST_CONSTANTS.EXIT_ANIMATION_DURATION);
     }, duration);
   }, [duration, id, onClose]);
@@ -103,13 +141,7 @@ export const Toast = memo((props: ToastProps) => {
         timerRef.current = null;
       }
     };
-  }, [duration, startTimer]);
-
-  // Handle close with exit animation
-  const handleClose = useCallback(() => {
-    setIsClosing(true);
-    setTimeout(() => onClose(id), TOAST_CONSTANTS.EXIT_ANIMATION_DURATION);
-  }, [id, onClose]);
+  }, [duration, startTimer, forceClose]);
 
   // Fallback to info icon for invalid types
   const TypeIcon = TOAST_ICONS[type] ?? TOAST_ICONS.info;
@@ -130,6 +162,7 @@ export const Toast = memo((props: ToastProps) => {
       data-type={type}
       onMouseEnter={duration > 0 ? pauseTimer : undefined}
       onMouseLeave={duration > 0 ? resumeTimer : undefined}
+      onAnimationEnd={handleAnimationEnd}
     >
       <div className={styles.icon} aria-hidden="true">
         <Icon name={TypeIcon} size={TOAST_CONSTANTS.ICON_SIZE} color="inherit" decorative />
@@ -137,6 +170,22 @@ export const Toast = memo((props: ToastProps) => {
       <Paragraph as="span" id={`toast-message-${id}`}>
         {message}
       </Paragraph>
+
+      {/* Action Button */}
+      {action && (
+        <button
+          type="button"
+          className={classNames(styles.action, styles[action.variant ?? 'secondary'])}
+          onClick={(e) => {
+            e.stopPropagation();
+            action.onClick();
+          }}
+          aria-label={action.label}
+        >
+          {action.label}
+        </button>
+      )}
+
       <button
         type="button"
         className={styles.closeButton}

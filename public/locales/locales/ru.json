@@ -43,5 +43,12 @@
   "emailPlaceholder": "введите email",
   "messagePlaceholder": "введите сообщение",
   "skillsEmpty": "Навыки не указаны",
-  "loading": "Загрузка"
+  "loading": "Загрузка",
+  "imageNotAvailable": "Изображение недоступно",
+  "imageAltDefault": "Изображение",
+  "imageAltDecorative": "",
+  "imageAltPortrait": "Портретное фото",
+  "imageAltLandscape": "Пейзажное изображение",
+  "imageAltProduct": "Изображение продукта",
+  "imageAltIcon": "Иконка"
 }

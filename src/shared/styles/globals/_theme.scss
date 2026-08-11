@@ -46,6 +46,11 @@
   --form-success: #{$form-success-color};
   --form-warning: #{$form-warning-color};
   --label-color: var(--foreground);
+
+  // Image component tokens
+  --image-placeholder-bg: rgb(0 0 0 / 0.05);
+  --image-fallback-text: rgb(0 0 0 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.05);
 }
 
 [data-theme='dark'] {
@@ -84,6 +89,11 @@
   --form-error: #ef4444;
   --form-success: #22c55e;
   --form-warning: #f59e0b;
+
+  // Image component tokens for dark theme
+  --image-placeholder-bg: rgb(255 255 255 / 0.05);
+  --image-fallback-text: rgb(255 255 255 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.1);
 }
 
 [data-theme='light'] {
@@ -120,4 +130,9 @@
   --form-error: #dc3545;
   --form-success: #28a745;
   --form-warning: #ffc107;
+
+  // Image component tokens for light theme
+  --image-placeholder-bg: rgb(0 0 0 / 0.05);
+  --image-fallback-text: rgb(0 0 0 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.05);
 }

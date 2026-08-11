@@ -1,53 +1,43 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/shared/lib/i18n/config/i18n';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { useImageLoading } from '../lib/hooks/useImageLoading';
-import { ImageProps } from '../model/types';
+import { ImageBaseProps, ImageProps, LocalImageProps, RemoteImageProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
-import { Skeleton } from '@/shared/ui/Skeleton';
 import { Spinner } from '@/shared/ui/Spinner';
 import { ErrorBoundary, DEFAULT_BOUNDARY_FALLBACK } from '@/shared/ui/ErrorBoundary';
+import { ImageSkeleton } from './ImageSkeleton/ImageSkeleton';
 import styles from './Image.module.scss';
 
 /**
- * Image component for displaying responsive, accessible images with loading states.
- *
- * @description
- * Supports multiple variants (default, rounded, circular, thumbnail),
- * sizes, object-fit modes, placeholders (skeleton, spinner, blur, color),
- * lazy loading strategies (native, intersection, eager), and error recovery.
- *
- * @example
- * ```tsx
- * // Basic usage
- * <Image src="/photo.jpg" alt="Description" />
- *
- * // With variant and size
- * <Image
- *   src="/avatar.png"
- *   alt="User avatar"
- *   variant="circular"
- *   size="sm"
- * />
- *
- * // With placeholder and lazy loading
- * <Image
- *   src="/large-photo.jpg"
- *   alt="Gallery photo"
- *   placeholder="blur"
- *   lazyMode="intersection"
- * />
- *
- * // Decorative image
- * <Image src="/bg.jpg" alt="" decorative />
- * ```
+ * Общие пропсы внутреннего рендера — resolved source + локальные флаги,
+ * которые выставляются обёртками (RemoteImage / LocalImage) из discriminated union.
  */
-const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
+type ImageRendererOwnProps = {
+  /** Resolved source (IMG-04): строка нормализуется в объект, srcSet отсутствует у строки */
+  resolvedSrc: { src: string; srcSet?: string };
+  /** Local-режим: loader ещё не отработал — держим skeleton без <img src=""> */
+  pendingLocal?: boolean;
+  /** Булев lazy алиас (RemoteImageProps.lazyLoad) → lazyMode='intersection' */
+  lazyLoad?: boolean;
+};
+
+type ImageRendererProps = ImageRendererOwnProps & ImageBaseProps;
+
+/**
+ * Общий рендер изображения.
+ * @description Не знает про discriminated union — получает уже разрешённый
+ * `resolvedSrc` и флаги от обёрток. Вся логика загрузки/placeholder/fallback/
+ * aria/телеметрии живёт здесь (единственная копия).
+ */
+const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, ref) => {
   const { t } = useTranslation();
   const {
-    src,
+    resolvedSrc,
+    pendingLocal = false,
+    lazyLoad = false,
     alt,
     variant = IMAGE_DEFAULTS.variant,
     size = IMAGE_DEFAULTS.size,
@@ -63,7 +53,10 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     decorative = IMAGE_DEFAULTS.decorative,
     width,
     height,
+    htmlWidth,
+    htmlHeight,
     priority = IMAGE_DEFAULTS.priority,
+    as: Component = 'figure',
     onLoadStart,
     onLoadSuccess,
     onLoadError,
@@ -72,16 +65,17 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
     ...restProps
   } = props;
 
-  // IMG-04: single resolved-src source — object form carries the optional srcSet,
-  // string form normalizes to a source object so the srcset attribute stays absent.
-  const resolvedSrc = typeof src === 'object' ? src : { src, srcSet: undefined };
+  // #4: булев lazyLoad-алиас переопределяет lazyMode на IO-стратегию
+  const effectiveLazyMode = lazyLoad ? 'intersection' : lazyMode;
 
   // Hook-driven loading state (replaces inline useState<ImageState>)
+  // pendingLocal держит статус 'loading', пока local-loader не резолвится —
+  // пустой src не рендерится до появления реального URL.
   const hook = useImageLoading({
     src: resolvedSrc.src,
-    lazyMode,
+    lazyMode: effectiveLazyMode,
     priority,
-    forceLoading,
+    forceLoading: forceLoading || pendingLocal,
   });
 
   const { loadingStatus, isError } = hook;
@@ -199,22 +193,22 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
   const { onLoad: hookOnLoad, onError: hookOnError } = hook;
 
   // Event handlers: wrap hook callbacks to bridge consumer props
-  // NOTE: forceLoading suppresses parent callbacks — keeps parent's imageStatus
-  // in 'loading' so the skeleton is not replaced by a fallback
+  // NOTE: forceLoading/pendingLocal suppress parent callbacks — keeps parent's
+  // imageStatus in 'loading' so the skeleton is not replaced by a fallback
   const handleLoadSuccess = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
       hookOnLoad(event);
-      if (!forceLoading) {
+      if (!forceLoading && !pendingLocal) {
         onLoadSuccess?.(event);
       }
     },
-    [hookOnLoad, onLoadSuccess, forceLoading]
+    [hookOnLoad, onLoadSuccess, forceLoading, pendingLocal]
   );
 
   const handleLoadError = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
       hookOnError(event);
-      if (!forceLoading) {
+      if (!forceLoading && !pendingLocal) {
         // ERB-01: telemetry first (pure observer) — never reorders onLoadError (last).
         onLoadErrorTelemetry?.({ src: resolvedSrc.src, alt, event });
         // ERB-02: dev-only diagnostic (console.warn LOCKED — NOT console.error,
@@ -226,14 +220,22 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
         onLoadError?.(event);
       }
     },
-    [hookOnError, onLoadError, onLoadErrorTelemetry, alt, resolvedSrc.src, forceLoading]
+    [
+      hookOnError,
+      onLoadError,
+      onLoadErrorTelemetry,
+      alt,
+      resolvedSrc.src,
+      forceLoading,
+      pendingLocal,
+    ]
   );
 
   // Handle ref forwarding: merge hook's imageRef with forwarded ref
   const imageRefCallback = useMergeRefs(hook.ref, ref);
 
   return (
-    <figure
+    <Component
       className={containerClasses}
       style={containerStyle}
       data-variant={variant}
@@ -241,10 +243,8 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
       data-loading={loadingStatus}
     >
       {showPlaceholder && (
-        <div className={placeholderClasses} aria-hidden="true">
-          {placeholder === 'skeleton' && (
-            <Skeleton variant="rectangular" width="100%" height="100%" />
-          )}
+        <div className={placeholderClasses}>
+          {placeholder === 'skeleton' && <ImageSkeleton className={placeholderClasses} />}
           {placeholder === 'spinner' && <Spinner />}
         </div>
       )}
@@ -253,13 +253,15 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
         ref={imageRefCallback}
         src={resolvedSrc.src}
         srcSet={resolvedSrc.srcSet}
-        loading={priority || lazyMode === 'eager' ? 'eager' : 'lazy'}
+        loading={priority || effectiveLazyMode === 'eager' ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         className={styles.image}
         style={imageStyle}
         onLoad={handleLoadSuccess}
         onError={handleLoadError}
+        width={htmlWidth}
+        height={htmlHeight}
         {...ariaProps}
         {...restProps}
       />
@@ -269,7 +271,67 @@ const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => 
       )}
 
       {children && <div className={styles.childrenOverlay}>{children}</div>}
-    </figure>
+    </Component>
+  );
+});
+
+ImageRenderer.displayName = 'ImageRenderer';
+
+/**
+ * Remote-обёртка: извлекает `src`/`lazyLoad`, нормализует в resolvedSrc (IMG-04).
+ */
+const RemoteImage = forwardRef<HTMLImageElement, RemoteImageProps>((props, ref) => {
+  const { src, lazyLoad, ...rest } = props;
+  // IMG-04: single resolved-src source — object form carries the optional srcSet,
+  // string form normalizes to a source object so the srcset attribute stays absent.
+  const resolvedSrc = typeof src === 'object' ? src : { src, srcSet: undefined };
+  return <ImageRenderer ref={ref} {...rest} resolvedSrc={resolvedSrc} lazyLoad={lazyLoad} />;
+});
+
+RemoteImage.displayName = 'RemoteImage';
+
+/**
+ * Local-обёртка: резолвит dynamic import в URL, держит skeleton (pendingLocal)
+ * до первого результата. Ошибка loader'а → пустой src → штатный error-flow.
+ */
+const LocalImage = forwardRef<HTMLImageElement, LocalImageProps>((props, ref) => {
+  const { import: loader, ...rest } = props;
+  const [url, setUrl] = useState<string | null>(null);
+  const [loaderFailed, setLoaderFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    loader()
+      .then((res) => {
+        if (active) setUrl(res.default);
+      })
+      .catch(() => {
+        if (active) setLoaderFailed(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loader]);
+
+  const resolvedSrc = { src: url ?? '', srcSet: undefined };
+  const pendingLocal = url === null && !loaderFailed;
+
+  return (
+    <ImageRenderer ref={ref} {...rest} resolvedSrc={resolvedSrc} pendingLocal={pendingLocal} />
+  );
+});
+
+LocalImage.displayName = 'LocalImage';
+
+/**
+ * Публичная точка входа — дискриминация discriminated union (#4):
+ * `type === 'local'` → local-источник (import), иначе remote (src).
+ */
+const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
+  return props.type === 'local' ? (
+    <LocalImage {...props} ref={ref} />
+  ) : (
+    <RemoteImage {...props} ref={ref} />
   );
 });
 

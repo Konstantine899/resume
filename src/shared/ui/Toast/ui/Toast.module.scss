@@ -166,8 +166,8 @@
     }
   }
 
-  // Dark mode overrides
-  @media (prefers-color-scheme: dark) {
+  // Dark mode overrides (theme-aware via [data-theme])
+  [data-theme='dark'] & {
     background: var(--toast-bg-dark, #1e1e1e);
 
     &.success .icon {
@@ -240,12 +240,81 @@
     opacity: 1;
   }
 
-  @media (prefers-color-scheme: dark) {
+  [data-theme='dark'] & {
     color: rgb(255 255 255 / 0.5);
 
     &:hover {
       color: rgb(255 255 255 / 0.8);
       background: rgb(255 255 255 / 0.1);
+    }
+  }
+}
+
+// ============================================
+
+// Action Button (Undo, Retry, View)
+
+// ============================================
+.action {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all $transition-fast ease-out;
+
+  // Secondary variant (default)
+  &.secondary {
+    color: var(--toast-action-secondary, $primary-color);
+    background: rgb(0 0 0 / 0.04);
+
+    &:hover {
+      background: rgb(0 0 0 / 0.08);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--toast-focus-ring, $primary-light);
+      outline-offset: 2px;
+    }
+
+    [data-theme='dark'] & {
+      color: var(--toast-action-secondary-dark, $primary-dark);
+      background: rgb(255 255 255 / 0.06);
+
+      &:hover {
+        background: rgb(255 255 255 / 0.1);
+      }
+
+      &:focus-visible {
+        outline-color: var(--toast-focus-ring-dark, $primary-dark);
+      }
+    }
+  }
+
+  // Primary variant (accent)
+  &.primary {
+    color: white;
+    background: $primary-color;
+
+    &:hover {
+      background: $primary-dark;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--toast-focus-ring, $primary-light);
+      outline-offset: 2px;
+    }
+
+    [data-theme='dark'] & {
+      background: $primary-dark;
+
+      &:hover {
+        background: $primary-color;
+      }
     }
   }
 }
@@ -322,7 +391,7 @@
     opacity: 1;
   }
 
-  @media (prefers-color-scheme: dark) {
+  [data-theme='dark'] & {
     color: rgb(255 255 255 / 0.3);
   }
 }

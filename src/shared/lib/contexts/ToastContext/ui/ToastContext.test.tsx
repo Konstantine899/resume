@@ -386,4 +386,115 @@ describe('useToast Hook', () => {
     fireEvent.click(screen.getByTestId('consumer-1'));
     expect(screen.getByText('Toast from consumer-1')).toBeInTheDocument();
   });
+
+  describe('clearAll', () => {
+    const createClearAllHelper = () => {
+      let clearAllFn!: () => void;
+
+      const Helper = () => {
+        const { clearAll } = useToast();
+        useEffect(() => {
+          clearAllFn = clearAll;
+        }, [clearAll]);
+        return null;
+      };
+
+      return { Helper, clearAll: () => clearAllFn };
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('должен быть доступен через useToast хук', () => {
+      const { Helper, clearAll } = createClearAllHelper();
+
+      render(
+        <ToastProvider>
+          <Helper />
+        </ToastProvider>
+      );
+
+      expect(clearAll).toBeDefined();
+      expect(typeof clearAll).toBe('function');
+    });
+
+    it('должен закрывать все toast', async () => {
+      const { Helper, clearAll } = createClearAllHelper();
+      const helpers = createAddToastHelper();
+
+      render(
+        <ToastProvider>
+          <helpers.Helper />
+          <Helper />
+        </ToastProvider>
+      );
+
+      // Add 2 toasts
+      act(() => {
+        helpers.addToast()('Test', 'info');
+        helpers.addToast()('Test 2', 'success');
+      });
+
+      expect(screen.getAllByTestId('toast')).toHaveLength(2);
+
+      // Call clearAll
+      act(() => {
+        clearAll()();
+      });
+
+      // Toasts should start closing (exit animation)
+      expect(screen.getAllByTestId('toast')).toHaveLength(2);
+    });
+
+    it('должен удалять все toast после exit animation', () => {
+      const { Helper, clearAll } = createClearAllHelper();
+      const helpers = createAddToastHelper();
+
+      render(
+        <ToastProvider>
+          <helpers.Helper />
+          <Helper />
+        </ToastProvider>
+      );
+
+      act(() => {
+        helpers.addToast()('Test', 'info');
+        helpers.addToast()('Test 2', 'success');
+      });
+
+      expect(screen.getAllByTestId('toast')).toHaveLength(2);
+
+      act(() => {
+        clearAll()();
+      });
+
+      // During exit animation toasts remain in the DOM with closing state
+      expect(screen.getAllByTestId('toast')).toHaveLength(2);
+
+      // After the exit animation the state is cleared
+      act(() => {
+        vi.advanceTimersByTime(TOAST_CONSTANTS.EXIT_ANIMATION_DURATION);
+      });
+
+      expect(screen.queryAllByTestId('toast')).toHaveLength(0);
+    });
+
+    it('должен работать когда toast пуст', () => {
+      const { Helper, clearAll } = createClearAllHelper();
+
+      render(
+        <ToastProvider>
+          <Helper />
+        </ToastProvider>
+      );
+
+      // Should not throw when no toasts
+      expect(() => clearAll()()).not.toThrow();
+    });
+  });
 });

@@ -49,6 +49,27 @@ export type ImagePlaceholder = 'blur' | 'skeleton' | 'color' | 'spinner';
  */
 export type ImageLazyMode = 'native' | 'intersection' | 'eager';
 
+/**
+ * Форматы изображений для оптимизации (Senior+ requirement #11)
+ * @description Поддерживаемые форматы для WebP/AVIF detection
+ */
+export type ImageFormat = 'jpeg' | 'png' | 'webp' | 'avif';
+
+/**
+ * Конфигурация LQIP placeholder (Senior+ requirement #12)
+ * @description Low-Quality Image Placeholder — маленькое размытое превью
+ */
+export interface LQIPConfig {
+  /** Включить LQIP режим */
+  enabled?: boolean;
+  /** Ширина превью (по умолчанию 20px) */
+  previewWidth?: number;
+  /** Сила blur эффекта (по умолчанию 20) */
+  blurAmount?: number;
+  /** Качество превью (0-100, по умолчанию 10) */
+  quality?: number;
+}
+
 // ============================================
 // Base props для Image компонента
 // ============================================
@@ -75,21 +96,58 @@ export type ImageLazyMode = 'native' | 'intersection' | 'eager';
  *   placeholder="blur"
  * />
  */
-export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'> {
-  /**
-   * URL изображения
-   * @required
-   * @description Может быть строкой или объектом для разных разрешений
-   */
-  src: string | { src: string; srcSet?: string };
+/**
+ * Polymorphic component prop для Image (MUI pattern).
+ * @description Позволяет рендерить Image как `<figure>` (default), `<picture>`, `<div>` или кастомный компонент.
+ * @example as="picture" — для `<picture>` с `<source>` элементами
+ * @example as="div" — для кастомной обёртки без семантики
+ * @default 'figure'
+ */
+export type ImageAsProp = React.ElementType;
 
+export interface ImageBaseProps extends Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  'src' | 'alt' | 'width' | 'height'
+> {
   /**
    * Альтернативный текст для доступности
-   * @required для content images
-   * @optional для decorative images (с aria-hidden)
-   * @description Обязательно для WCAG 2.1 AA compliance
+   * @description
+   * - Для content images (decorative=false или undefined): **обязателен** (WCAG 2.1 AA)
+   * - Для decorative images (decorative=true): опционален, рекомендуется пустая строка
+   * @example <Image alt="Photo description" /> — контентное изображение
+   * @example <Image decorative alt="" /> — декоративное изображение
    */
   alt: string;
+
+  /**
+   * Декоративное изображение (скрывает от скринридеров)
+   * @default false
+   * @description Если true, добавляет aria-hidden и делает alt опциональным
+   */
+  decorative?: boolean;
+
+  /**
+   * Polymorphic компонент для root элемента (MUI best practice)
+   * @default 'figure'
+   * @description Позволяет изменить root элемент с `<figure>` на `<picture>`, `<div>` или кастомный компонент
+   * @example <Image as="picture"> — для picture с source элементами
+   * @example <Image as="div"> — для не-семантической обёртки
+   */
+  as?: ImageAsProp;
+
+  /**
+   * Явный HTML атрибут width (Chakra UI pattern)
+   * @description Передаётся напрямую в `<img>` как HTML атрибут, не влияет на CSS
+   * @example htmlWidth={800} — для SEO и accessibility
+   */
+  htmlWidth?: number | string;
+
+  /**
+   * Явный HTML атрибут height (Chakra UI pattern)
+   * @description Передаётся напрямую в `<img>` как HTML атрибут, не влияет на CSS
+   * @example htmlHeight={600} — для SEO и accessibility
+   */
+  htmlHeight?: number | string;
 
   /**
    * Визуальный стиль изображения
@@ -160,13 +218,6 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
   children?: ReactNode;
 
   /**
-   * Декоративное изображение (скрывает от скринридеров)
-   * @default false
-   * @description Если true, добавляет aria-hidden и убирает alt
-   */
-  decorative?: boolean;
-
-  /**
    * Ширина изображения в viewport units
    * @description Переопределяет size prop
    */
@@ -225,6 +276,61 @@ export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 's
    */
   onLoadErrorTelemetry?: (info: ImageLoadErrorInfo) => void;
 }
+
+/**
+ * Лоадер локального изображения (discriminated union #4).
+ * @description Резолвится в `{ default: string }` — тот же контракт, что у
+ * Vite dynamic import (`import('./assets/hero.webp')`). Хэширование имени
+ * файла и кеширование — из коробки.
+ */
+export type ImageImportLoader = () => Promise<{ default: string }>;
+
+/**
+ * Remote-источник изображения (по умолчанию).
+ * @description `type?: 'remote'` опционален — вызов без `type` трактуется как
+ * remote-изображение (обратная совместимость со всеми потребителями).
+ * `src` обязателен; `lazyLoad` — булев алиас, включает IO-lazy стратегию.
+ */
+export interface RemoteImageProps extends ImageBaseProps {
+  /** Источник изображения (remote-режим, по умолчанию) */
+  type?: 'remote';
+  /** URL изображения — строка или объект `{ src; srcSet? }` (IMG-04) */
+  src: ImageSource;
+  /** Булев алиас lazy loading: true → `lazyMode='intersection'` */
+  lazyLoad?: boolean;
+}
+
+/**
+ * Local-источник изображения через dynamic import.
+ * @description `src` запрещён (`never`) — передача одновременно `src` и
+ * `import` становится ошибкой TypeScript (семантическая защита плана #4).
+ */
+export interface LocalImageProps extends ImageBaseProps {
+  /** Local-режим — обязателен */
+  type: 'local';
+  /** Запрещено для local (семантика: `import` вместо `src`) */
+  src?: never;
+  /** Лоадер ассета — Vite dynamic import */
+  import: ImageImportLoader;
+}
+
+/**
+ * Discriminated union пропсов Image (#4).
+ * @description Нельзя передать `src` и `import` одновременно — TS отвергает.
+ */
+export type ImageProps = RemoteImageProps | LocalImageProps;
+
+/**
+ * Image source type: either a string URL or an object with `src` and optional `srcSet` for responsive images.
+ * The object form enables native srcSet attribute passthrough when using the Image component.
+ * @example
+ * // String form
+ * <Image src="/photo.jpg" alt="Photo" />
+ * @example
+ * // Object form with srcSet
+ * <Image src={{ src: '/photo.jpg', srcSet: '/photo@2x.jpg 2x' }} alt="Photo" />
+ */
+export type ImageSource = string | { src: string; srcSet?: string };
 
 /**
  * Полезная нагрузка телеметрии ошибки загрузки (ERB-01)

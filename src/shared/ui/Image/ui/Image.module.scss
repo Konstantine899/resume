@@ -7,17 +7,29 @@
 // ============================================
 
 .container {
+  // CSS Custom Properties for runtime customization (Senior+ requirement #7)
+  --image-max-width: 100%;
+  --image-object-fit: cover;
+  --image-border-radius: 0;
+  --image-width: auto;
+  --image-height: auto;
+
   position: relative;
   display: inline-block;
   overflow: hidden;
-  background-color: rgb(0 0 0 / 0.05);
+  background-color: var(--image-placeholder-bg);
+  border-radius: var(--image-border-radius);
 }
 
 .image {
   display: block;
-  max-width: 100%;
-  height: auto;
-  transition: all $transition-duration $transition-easing;
+  width: var(--image-width);
+  max-width: var(--image-max-width);
+  height: var(--image-height);
+  object-fit: var(--image-object-fit);
+  transition:
+    opacity $transition-duration $transition-easing,
+    filter $transition-duration $transition-easing;
 
   &[loading='lazy'] {
     will-change: opacity;
@@ -47,7 +59,7 @@
   border-radius: 8px;
   box-shadow:
     0 2px 8px rgb(0 0 0 / 0.1),
-    0 0 0 1px rgb(0 0 0 / 0.05);
+    0 0 0 1px var(--image-placeholder-bg);
   transition:
     box-shadow $transition-duration $transition-easing,
     transform $transition-duration $transition-easing;
@@ -125,7 +137,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgb(0 0 0 / 0.05);
+  background-color: var(--image-placeholder-bg);
   transition: opacity $transition-duration $transition-easing;
 }
 
@@ -135,7 +147,7 @@
 }
 
 .placeholderColor {
-  background-color: rgb(0 0 0 / 0.05);
+  background-color: var(--image-placeholder-bg);
 }
 
 .placeholderHidden {
@@ -172,7 +184,7 @@
   }
 
   .placeholder {
-    background-color: rgb(255 0 0 / 0.05);
+    background-color: var(--image-error-bg);
     opacity: 1;
   }
 }
@@ -190,8 +202,8 @@
   width: 100%;
   height: 100%;
   font-size: 12px;
-  color: rgb(0 0 0 / 0.3);
-  background-color: rgb(0 0 0 / 0.05);
+  color: var(--image-fallback-text);
+  background-color: var(--image-placeholder-bg);
 }
 
 // ============================================
@@ -303,7 +315,7 @@
 
   .error {
     .placeholder {
-      background-color: rgb(255 0 0 / 0.1);
+      background-color: var(--image-error-bg);
     }
   }
 }

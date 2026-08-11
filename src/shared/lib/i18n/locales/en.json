@@ -44,5 +44,11 @@
   "messagePlaceholder": "message placeholder",
   "skillsEmpty": "No skills listed",
   "loading": "Loading",
-  "imageNotAvailable": "Image not available"
+  "imageNotAvailable": "Image not available",
+  "imageAltDefault": "Image",
+  "imageAltDecorative": "",
+  "imageAltPortrait": "Portrait photo",
+  "imageAltLandscape": "Landscape image",
+  "imageAltProduct": "Product image",
+  "imageAltIcon": "Icon"
 }

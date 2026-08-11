@@ -5,6 +5,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { userEvent, within, expect } from '@storybook/test';
 import { Toast } from './Toast';
+import { ToastProvider } from '@/shared/lib/contexts/ToastContext/ui/ToastContext';
+import { useToast } from '@/shared/lib/contexts/ToastContext/lib/hooks/useToast';
 import styles from './Toast.module.scss';
 
 const meta = {
@@ -163,3 +165,116 @@ export const AllTypes: Story = {
     expect(canvas.getAllByTestId('toast')).toHaveLength(4);
   },
 };
+
+export const WithAction: Story = {
+  args: {
+    id: 'action-1',
+    message: 'File deleted',
+    type: 'warning',
+    duration: 8000,
+    action: { label: 'Undo', onClick: () => undefined },
+    onClose: () => {},
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('action button visible', async () => {
+      const actionBtn = canvas.getByText('Undo');
+      expect(actionBtn).toBeInTheDocument();
+      expect(actionBtn.tagName).toBe('BUTTON');
+    });
+
+    await step('click action does not close toast', async () => {
+      await userEvent.click(canvas.getByText('Undo'));
+      expect(canvas.getByTestId('toast')).toBeInTheDocument();
+    });
+
+    await step('progress bar visible', async () => {
+      expect(canvas.getByTestId('toast-progress')).toBeInTheDocument();
+    });
+  },
+};
+
+export const WithPrimaryAction: Story = {
+  args: {
+    id: 'primary-action-1',
+    message: 'New update available',
+    type: 'info',
+    duration: 0,
+    action: {
+      label: 'Update',
+      onClick: () => undefined,
+      variant: 'primary',
+    },
+    onClose: () => {},
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('primary action button has correct variant', async () => {
+      const actionBtn = canvas.getByText('Update');
+      expect(actionBtn).toBeInTheDocument();
+      expect(actionBtn.className).toContain('primary');
+    });
+  },
+};
+
+export const ClearAllDemo = {
+  render: () => (
+    <ToastProvider>
+      <ClearAllContent />
+    </ToastProvider>
+  ),
+  play: async ({
+    canvasElement,
+    step,
+  }: {
+    canvasElement: HTMLElement;
+    step: (name: string, fn: () => Promise<void>) => Promise<void>;
+  }) => {
+    const canvas = within(canvasElement);
+
+    await step('add multiple toasts', async () => {
+      await userEvent.click(canvas.getByText('Add Success'));
+      await userEvent.click(canvas.getByText('Add Error'));
+      await userEvent.click(canvas.getByText('Add Info'));
+    });
+
+    await step('all toasts visible', async () => {
+      expect(canvas.getAllByTestId('toast')).toHaveLength(3);
+    });
+
+    await step('clear all triggers exit animation', async () => {
+      await userEvent.click(canvas.getByText('Clear All'));
+      // Toasts still visible during animation
+      expect(canvas.getAllByTestId('toast')).toHaveLength(3);
+    });
+  },
+};
+
+function ClearAllContent() {
+  const { addToast, clearAll } = useToast();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={() => addToast('Success!', 'success')}>Add Success</button>
+        <button onClick={() => addToast('Error', 'error')}>Add Error</button>
+        <button onClick={() => addToast('Info', 'info')}>Add Info</button>
+        <button onClick={() => addToast('Warning', 'warning')}>Add Warning</button>
+      </div>
+      <button
+        onClick={clearAll}
+        style={{
+          background: '#dc3545',
+          color: 'white',
+          border: 'none',
+          padding: '8px 16px',
+          borderRadius: 4,
+          cursor: 'pointer',
+        }}
+      >
+        Clear All
+      </button>
+    </div>
+  );
+}

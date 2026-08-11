@@ -26,6 +26,7 @@ interface ToastProviderProps {
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastState[]>([]);
+  const [isClearing, setIsClearing] = useState(false);
 
   const addToast = useCallback(
     (
@@ -43,8 +44,21 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
+  const clearAll = useCallback(() => {
+    if (toasts.length === 0) return;
+
+    // Set clearing flag to trigger exit animation on all toasts
+    setIsClearing(true);
+
+    // Clear state after exit animation completes
+    setTimeout(() => {
+      setToasts([]);
+      setIsClearing(false);
+    }, TOAST_CONSTANTS.EXIT_ANIMATION_DURATION);
+  }, [toasts.length]);
+
   return (
-    <ToastContext.Provider value={{ addToast, removeToast }}>
+    <ToastContext.Provider value={{ addToast, removeToast, clearAll }}>
       {children}
 
       <Portal>
@@ -57,6 +71,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
               type={toast.type}
               duration={toast.duration}
               onClose={removeToast}
+              forceClose={isClearing}
             />
           ))}
         </div>

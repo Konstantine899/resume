@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Image } from './Image';
-import { ImageProps } from '../model/types';
+import { RemoteImageProps } from '../model/types';
 
 const TEST_IMAGE_SRC = '/test-image.jpg';
 const TEST_IMAGE_ALT = 'Test image';
 const TEST_FALLBACK_SRC = '/fallback.jpg';
 
-const renderImage = (props: Partial<ImageProps> = {}) => {
+const renderImage = (props: Partial<RemoteImageProps> = {}) => {
   return render(
     <Image src={props.src || TEST_IMAGE_SRC} alt={props.alt || TEST_IMAGE_ALT} {...props} />
   );
@@ -611,8 +611,8 @@ describe('Image Component', () => {
   describe('Placeholder type CSS classes', () => {
     it('renders with placeholderBlur class for blur placeholder', () => {
       renderImage({ placeholder: 'blur', showPlaceholder: true });
-      const figure = screen.getByRole('img').closest('figure');
-      expect(figure?.querySelector('[aria-hidden="true"]')?.className).toMatch(/placeholderBlur/);
+      const placeholder = screen.getByRole('img').previousSibling;
+      expect((placeholder as HTMLElement).className).toMatch(/placeholderBlur/);
     });
 
     it('renders Skeleton component inside placeholder for skeleton variant', () => {
@@ -625,8 +625,8 @@ describe('Image Component', () => {
 
     it('renders with placeholderColor class for color placeholder', () => {
       renderImage({ placeholder: 'color', showPlaceholder: true });
-      const figure = screen.getByRole('img').closest('figure');
-      expect(figure?.querySelector('[aria-hidden="true"]')?.className).toMatch(/placeholderColor/);
+      const placeholder = screen.getByRole('img').previousSibling;
+      expect((placeholder as HTMLElement).className).toMatch(/placeholderColor/);
     });
   });
 

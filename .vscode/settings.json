@@ -31,5 +31,6 @@
         }
       }
     ]
-  }
+  },
+  "testing.automaticallyOpenTestResults": "neverOpen"
 }
