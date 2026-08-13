@@ -13,7 +13,7 @@ import { ToastContext } from '../../ui/ToastContext';
  * ```tsx
  * const { addToast, removeToast } = useToast();
  *
- * addToast('Success!', 'success');
+ * addToast({ message: 'Success!', type: 'success' });
  * ```
  */
 export const useToast = (): ToastContextType => {
@@ -23,5 +23,3 @@ export const useToast = (): ToastContextType => {
   }
   return context;
 };
-
-export default useToast;

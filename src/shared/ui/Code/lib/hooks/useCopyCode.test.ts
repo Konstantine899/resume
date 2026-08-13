@@ -137,7 +137,11 @@ describe('useCopyCode', () => {
       });
 
       return vi.waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith('Code copied to clipboard', 'success', 2000);
+        expect(addToast).toHaveBeenCalledWith({
+          message: 'Code copied to clipboard',
+          type: 'success',
+          duration: 2000,
+        });
       });
     });
 
@@ -154,7 +158,11 @@ describe('useCopyCode', () => {
       });
 
       return vi.waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith('Failed to copy code', 'error', 3000);
+        expect(addToast).toHaveBeenCalledWith({
+          message: 'Failed to copy code',
+          type: 'error',
+          duration: 3000,
+        });
       });
     });
   });

@@ -1,11 +1,11 @@
-import type { ToastType } from '@/shared/ui/Toast/model/types';
+import type { ToastOptions } from '@/shared/ui/Toast/model/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { extractTextFromNode } from '../utils/extractTextFromNode';
 
 interface UseCopyCodeOptions {
   showToastOnSuccess?: boolean;
   showToastOnError?: boolean;
-  addToast?: (message: string, type?: ToastType, duration?: number) => void;
+  addToast?: (options: ToastOptions) => void;
   onCopy?: () => void;
   enabled?: boolean;
 }
@@ -54,7 +54,7 @@ export const useCopyCode = (
       setIsError(true);
 
       if (showToastOnError && addToast) {
-        addToast('Failed to copy code', 'error', 3000);
+        addToast({ message: 'Failed to copy code', type: 'error', duration: 3000 });
       }
 
       return;
@@ -66,7 +66,7 @@ export const useCopyCode = (
         setIsCopied(true);
 
         if (showToastOnSuccess && addToast) {
-          addToast('Code copied to clipboard', 'success', 2000);
+          addToast({ message: 'Code copied to clipboard', type: 'success', duration: 2000 });
         }
 
         onCopy?.();
@@ -77,7 +77,7 @@ export const useCopyCode = (
         setIsError(true);
 
         if (showToastOnError && addToast) {
-          addToast('Failed to copy code', 'error', 3000);
+          addToast({ message: 'Failed to copy code', type: 'error', duration: 3000 });
         }
       });
   }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy, enabled]);

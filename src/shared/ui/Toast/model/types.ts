@@ -4,9 +4,16 @@
 
 /**
  * Type of toast notification
- * Determines icon and styling
+ * Determines icon and styling.
+ * `'loading'` renders a Spinner and never auto-closes (settled via updateToast).
  */
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = 'success' | 'error' | 'info' | 'warning' | 'loading';
+
+/**
+ * Settled toast types — everything except the transient `loading` state.
+ * Used to key TOAST_ICONS and as the settled variant's optional `type`.
+ */
+export type SettledToastType = Exclude<ToastType, 'loading'>;
 
 /**
  * Action button configuration for toast
@@ -84,3 +91,60 @@ export interface ToastProps {
   /** Callback when toast is closed */
   onClose: (id: string) => void;
 }
+
+/**
+ * i18n message specification for toast notifications.
+ * Allows passing translation keys with optional interpolation values.
+ */
+export interface ToastMessageI18n {
+  /** Translation key (e.g., 'fileSaved', 'errorOccurred') */
+  key: string;
+  /** Optional interpolation values for the translation */
+  values?: Record<string, string | number | boolean>;
+}
+
+/**
+ * Message can be a plain string (backward compatible) or an i18n specification.
+ * - Plain string: rendered as-is (existing behavior)
+ * - String with `t:` prefix: `t:myKey` → translated via `t('myKey')`
+ * - Object: `{ key: 'myKey', values: { name: 'John' } }` → `t('myKey', values)`
+ */
+export type ToastMessage = string | ToastMessageI18n;
+
+/**
+ * Options accepted by the object-form `addToast` (ToastContext).
+ * Discriminated union on `type`: the settled variant keeps `type`
+ * OPTIONAL (missing → `'info'` default, TOAST-01), while the loading
+ * variant accepts an explicit `duration` (the promise API passes `0`
+ * so the toast persists until it is settled) but no `action`.
+ *
+ * @example
+ * ```tsx
+ * addToast({ message: 'Saved', type: 'success' });
+ * addToast({ message: { key: 'fileSaved', values: { filename: 'doc.pdf' } }, type: 'success' });
+ * addToast({ message: 't:uploading', type: 'loading', duration: 0 });
+ * ```
+ */
+export type ToastOptions =
+  | {
+      /** Message to display (string or i18n spec) */
+      message: ToastMessage;
+      /** Type (default: 'info') */
+      type?: SettledToastType;
+      /** Auto-close duration in ms (0 = no auto-close) */
+      duration?: number;
+      /** Optional action button */
+      action?: ToastAction;
+      /** Explicit id (upsert semantics) */
+      id?: string;
+    }
+  | {
+      /** Message to display (string or i18n spec) */
+      message: ToastMessage;
+      /** Loading toast — rendered with a Spinner, settled via the promise API */
+      type: 'loading';
+      /** Auto-close duration in ms (0 = no auto-close; promise API passes 0) */
+      duration?: number;
+      /** Explicit id (upsert semantics) */
+      id?: string;
+    };

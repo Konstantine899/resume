@@ -66,6 +66,15 @@
 
 // ============================================
 .toast {
+  /* Component-local design tokens (modular system — NOT global, NOT in _theme.scss);
+     inherited by closeButton/action/pauseIndicator. */
+  --toast-bg: #fff;
+  --toast-close-icon: rgb(0 0 0 / 0.4);
+  --toast-close-icon-hover: rgb(0 0 0 / 0.7);
+  --toast-focus-ring: #{$primary-light};
+  --toast-action-secondary: #{$primary-color};
+  --toast-pause-text: rgb(0 0 0 / 0.3);
+
   position: relative;
   display: flex;
   gap: $spacing-3;
@@ -74,7 +83,7 @@
   max-width: 100%;
   padding: $spacing-3 $spacing-4;
   overflow: hidden;
-  background: var(--toast-bg, #fff);
+  background: var(--toast-bg);
 
   // Accent border left (4px)
   border-left: 4px solid;
@@ -82,10 +91,26 @@
   box-shadow:
     0 4px 12px rgb(0 0 0 / 0.15),
     0 1px 3px rgb(0 0 0 / 0.1);
+
+  // Theme transitions (transform included: spring-back on swipe release)
+
+  @include theme-transition;
+
+  transition:
+    transform $transition-fast ease-out,
+    background-color $transition-duration $transition-easing,
+    color $transition-duration $transition-easing,
+    border-color $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
-  // Theme transitions
-  @include theme-transition;
+  // Active swipe gesture (Swipe-to-dismiss): no transition lag while dragging
+  &.dragging {
+    touch-action: pan-y;
+    cursor: grabbing;
+    user-select: none;
+    transition: none;
+  }
 
   // Entrance animation
   @keyframes slideInRight {
@@ -168,7 +193,11 @@
 
   // Dark mode overrides (theme-aware via [data-theme])
   [data-theme='dark'] & {
-    background: var(--toast-bg-dark, #1e1e1e);
+    --toast-bg: #1e1e1e;
+    --toast-focus-ring: #{$primary-dark};
+    --toast-action-secondary: #{$primary-dark};
+
+    background: var(--toast-bg);
 
     &.success .icon {
       background: rgb(40 167 69 / 0.3);
@@ -220,7 +249,7 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  color: var(--toast-close-icon, rgb(0 0 0 / 0.4));
+  color: var(--toast-close-icon);
   cursor: pointer;
   background: transparent;
   border: none;
@@ -229,13 +258,13 @@
   transition: all $transition-fast ease-out;
 
   &:hover {
-    color: var(--toast-close-icon-hover, rgb(0 0 0 / 0.7));
+    color: var(--toast-close-icon-hover);
     background: rgb(0 0 0 / 0.06);
     opacity: 1;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--toast-focus-ring, $primary-light);
+    outline: 2px solid var(--toast-focus-ring);
     outline-offset: 2px;
     opacity: 1;
   }
@@ -269,7 +298,7 @@
 
   // Secondary variant (default)
   &.secondary {
-    color: var(--toast-action-secondary, $primary-color);
+    color: var(--toast-action-secondary);
     background: rgb(0 0 0 / 0.04);
 
     &:hover {
@@ -277,12 +306,12 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--toast-focus-ring, $primary-light);
+      outline: 2px solid var(--toast-focus-ring);
       outline-offset: 2px;
     }
 
     [data-theme='dark'] & {
-      color: var(--toast-action-secondary-dark, $primary-dark);
+      color: var(--toast-action-secondary);
       background: rgb(255 255 255 / 0.06);
 
       &:hover {
@@ -290,7 +319,7 @@
       }
 
       &:focus-visible {
-        outline-color: var(--toast-focus-ring-dark, $primary-dark);
+        outline-color: var(--toast-focus-ring);
       }
     }
   }
@@ -305,7 +334,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--toast-focus-ring, $primary-light);
+      outline: 2px solid var(--toast-focus-ring);
       outline-offset: 2px;
     }
 
@@ -383,7 +412,7 @@
   z-index: 3;
   font-size: 10px;
   font-weight: $font-weight-semibold;
-  color: var(--toast-pause-text, rgb(0 0 0 / 0.3));
+  color: var(--toast-pause-text);
   opacity: 0;
   transition: opacity $transition-fast;
 

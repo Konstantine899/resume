@@ -56,7 +56,7 @@ export function useContactForm(): UseContactFormReturn {
 
       // 4. Успех → Toast + сброс
       setStatus('success');
-      addToast('✅ Сообщение успешно отправлено!', 'success', 5000);
+      addToast({ message: '✅ Сообщение успешно отправлено!', type: 'success', duration: 5000 });
       resetForm();
     } catch (error) {
       // 5. Ошибка → Toast
@@ -67,7 +67,7 @@ export function useContactForm(): UseContactFormReturn {
           ? error.message
           : 'Не удалось отправить сообщение. Попробуйте позже.';
 
-      addToast(`❌ ${message}`, 'error', 5000);
+      addToast({ message: `❌ ${message}`, type: 'error', duration: 5000 });
     }
   };
 

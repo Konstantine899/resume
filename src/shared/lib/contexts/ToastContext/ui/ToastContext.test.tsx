@@ -4,52 +4,22 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { useEffect } from 'react';
+import { renderHook } from '@testing-library/react';
 import { ToastProvider } from './ToastContext';
 import { useToast } from '../lib/hooks/useToast';
-import type { ToastType } from '@/shared/ui/Toast/model/types';
 import { TOAST_CONSTANTS } from '@/shared/ui/Toast/model/constants';
 
 // ============================================
 // Test Helpers
 // ============================================
 
-/** Helper to capture addToast from context */
-const createAddToastHelper = () => {
-  let addToastFn!: (message: string, type?: ToastType, duration?: number) => void;
-
-  const Helper = () => {
-    const { addToast } = useToast();
-    useEffect(() => {
-      addToastFn = addToast;
-    }, [addToast]);
-    return null;
-  };
-
-  return { Helper, addToast: () => addToastFn };
-};
-
-/** Helper to capture both addToast and removeToast */
-const createToastHelpers = () => {
-  let addToastFn!: (message: string, type?: ToastType, duration?: number) => void;
-  let removeToastFn!: (id: string) => void;
-
-  const Helper = () => {
-    const { addToast, removeToast } = useToast();
-    useEffect(() => {
-      addToastFn = addToast;
-      removeToastFn = removeToast;
-    }, [addToast, removeToast]);
-    return null;
-  };
-
-  return { Helper, addToast: () => addToastFn, removeToast: () => removeToastFn };
-};
-
 /** Clean up stray toasts from Portal renders */
 const cleanupToasts = () => {
   document.body.querySelectorAll('[data-testid="toast"]').forEach((el) => el.remove());
 };
+
+/** Render hook with ToastProvider wrapper */
+const renderToastHook = () => renderHook(() => useToast(), { wrapper: ToastProvider });
 
 // ============================================
 // ToastProvider Tests
@@ -91,80 +61,50 @@ describe('ToastProvider', () => {
 
   describe('Toast addition', () => {
     it('должен показывать toast при вызове addToast', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Test message', 'success');
+        result.current.addToast({ message: 'Test message', type: 'success' });
       });
 
       expect(screen.getByTestId('toast')).toBeInTheDocument();
     });
 
     it('должен отображать правильный message в toast', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Hello World', 'success');
+        result.current.addToast({ message: 'Hello World', type: 'success' });
       });
 
       expect(screen.getByText('Hello World')).toBeInTheDocument();
     });
 
     it('должен отображать правильный data-type для success', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Test', 'success');
+        result.current.addToast({ message: 'Test', type: 'success' });
       });
 
       expect(screen.getByTestId('toast')).toHaveAttribute('data-type', 'success');
     });
 
     it('должен отображать правильный data-type для error', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Error occurred', 'error');
+        result.current.addToast({ message: 'Error occurred', type: 'error' });
       });
 
       expect(screen.getByTestId('toast')).toHaveAttribute('data-type', 'error');
     });
 
     it('должен отображать toast с кастомным типом и duration', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Warning message', 'warning', 3000);
+        result.current.addToast({ message: 'Warning message', type: 'warning', duration: 3000 });
       });
 
       expect(screen.getByText('Warning message')).toBeInTheDocument();
@@ -173,16 +113,10 @@ describe('ToastProvider', () => {
     });
 
     it('должен показывать progress bar по умолчанию', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('With progress', 'info', 5000);
+        result.current.addToast({ message: 'With progress', type: 'info', duration: 5000 });
       });
 
       expect(screen.getByTestId('toast-progress')).toBeInTheDocument();
@@ -201,16 +135,10 @@ describe('ToastProvider', () => {
     });
 
     it('должен удалять toast после auto-close', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Auto-close test', 'info', 3000);
+        result.current.addToast({ message: 'Auto-close test', type: 'info', duration: 3000 });
       });
 
       expect(screen.getByTestId('toast')).toBeInTheDocument();
@@ -223,16 +151,10 @@ describe('ToastProvider', () => {
     });
 
     it('должен удалять toast при клике на close button', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Closable', 'success');
+        result.current.addToast({ message: 'Closable', type: 'success' });
       });
 
       expect(screen.getByTestId('toast')).toBeInTheDocument();
@@ -250,18 +172,12 @@ describe('ToastProvider', () => {
     });
 
     it('должен поддерживать множественные toast уведомления', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Toast 1', 'success');
-        addToast()('Toast 2', 'error');
-        addToast()('Toast 3', 'info');
+        result.current.addToast({ message: 'Toast 1', type: 'success' });
+        result.current.addToast({ message: 'Toast 2', type: 'error' });
+        result.current.addToast({ message: 'Toast 3', type: 'info' });
       });
 
       const toasts = document.querySelectorAll('[data-testid="toast"]');
@@ -269,22 +185,16 @@ describe('ToastProvider', () => {
     });
 
     it('должен не удалять toast при вызове removeToast с несуществующим id', () => {
-      const { Helper, addToast, removeToast } = createToastHelpers();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Persistent toast', 'info');
+        result.current.addToast({ message: 'Persistent toast', type: 'info' });
       });
 
       expect(screen.getByText('Persistent toast')).toBeInTheDocument();
 
       act(() => {
-        removeToast()('non-existent-id');
+        result.current.removeToast('non-existent-id');
       });
 
       // Toast should still be present
@@ -307,16 +217,10 @@ describe('ToastProvider', () => {
     });
 
     it('должен рендерить toast с role="alert"', () => {
-      const { Helper, addToast } = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        addToast()('Accessible toast', 'success');
+        result.current.addToast({ message: 'Accessible toast', type: 'success' });
       });
 
       expect(screen.getByTestId('toast')).toHaveAttribute('role', 'alert');
@@ -348,7 +252,10 @@ describe('useToast Hook', () => {
     const TestOutsideProvider = () => {
       const { addToast } = useToast();
       return (
-        <button data-testid="outside-btn" onClick={() => addToast('test', 'info')}>
+        <button
+          data-testid="outside-btn"
+          onClick={() => addToast({ message: 'test', type: 'info' })}
+        >
           Click
         </button>
       );
@@ -367,7 +274,10 @@ describe('useToast Hook', () => {
     const ContextReader = ({ testId }: { testId: string }) => {
       const { addToast } = useToast();
       return (
-        <button data-testid={testId} onClick={() => addToast(`Toast from ${testId}`, 'info')}>
+        <button
+          data-testid={testId}
+          onClick={() => addToast({ message: `Toast from ${testId}`, type: 'info' })}
+        >
           Add
         </button>
       );
@@ -388,20 +298,6 @@ describe('useToast Hook', () => {
   });
 
   describe('clearAll', () => {
-    const createClearAllHelper = () => {
-      let clearAllFn!: () => void;
-
-      const Helper = () => {
-        const { clearAll } = useToast();
-        useEffect(() => {
-          clearAllFn = clearAll;
-        }, [clearAll]);
-        return null;
-      };
-
-      return { Helper, clearAll: () => clearAllFn };
-    };
-
     beforeEach(() => {
       vi.useFakeTimers();
     });
@@ -411,40 +307,26 @@ describe('useToast Hook', () => {
     });
 
     it('должен быть доступен через useToast хук', () => {
-      const { Helper, clearAll } = createClearAllHelper();
+      const { result } = renderToastHook();
 
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
-
-      expect(clearAll).toBeDefined();
-      expect(typeof clearAll).toBe('function');
+      expect(result.current.clearAll).toBeDefined();
+      expect(typeof result.current.clearAll).toBe('function');
     });
 
     it('должен закрывать все toast', async () => {
-      const { Helper, clearAll } = createClearAllHelper();
-      const helpers = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <helpers.Helper />
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       // Add 2 toasts
       act(() => {
-        helpers.addToast()('Test', 'info');
-        helpers.addToast()('Test 2', 'success');
+        result.current.addToast({ message: 'Test', type: 'info' });
+        result.current.addToast({ message: 'Test 2', type: 'success' });
       });
 
       expect(screen.getAllByTestId('toast')).toHaveLength(2);
 
       // Call clearAll
       act(() => {
-        clearAll()();
+        result.current.clearAll();
       });
 
       // Toasts should start closing (exit animation)
@@ -452,25 +334,17 @@ describe('useToast Hook', () => {
     });
 
     it('должен удалять все toast после exit animation', () => {
-      const { Helper, clearAll } = createClearAllHelper();
-      const helpers = createAddToastHelper();
-
-      render(
-        <ToastProvider>
-          <helpers.Helper />
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       act(() => {
-        helpers.addToast()('Test', 'info');
-        helpers.addToast()('Test 2', 'success');
+        result.current.addToast({ message: 'Test', type: 'info' });
+        result.current.addToast({ message: 'Test 2', type: 'success' });
       });
 
       expect(screen.getAllByTestId('toast')).toHaveLength(2);
 
       act(() => {
-        clearAll()();
+        result.current.clearAll();
       });
 
       // During exit animation toasts remain in the DOM with closing state
@@ -485,16 +359,42 @@ describe('useToast Hook', () => {
     });
 
     it('должен работать когда toast пуст', () => {
-      const { Helper, clearAll } = createClearAllHelper();
-
-      render(
-        <ToastProvider>
-          <Helper />
-        </ToastProvider>
-      );
+      const { result } = renderToastHook();
 
       // Should not throw when no toasts
-      expect(() => clearAll()()).not.toThrow();
+      expect(() => result.current.clearAll()).not.toThrow();
     });
+  });
+});
+
+// ============================================
+// Type-surface probes (@ts-expect-error)
+// ============================================
+
+// Type probes — these tests verify that invalid types are rejected at compile time.
+// Each test contains a @ts-expect-error directive that MUST be consumed by a type error.
+// If the directive is unused, type-check:strict will fail.
+
+describe('useToast Hook Type Probes', () => {
+  // Helper to force type inference
+  const asNumber = (n: number) => n;
+  const asInvalidType = () => 'not-a-valid-type' as string;
+
+  it('@ts-expect-error: message must be a string', () => {
+    const { result } = renderToastHook();
+    // @ts-expect-error — message property requires a string (or ToastMessage), not number
+    result.current.addToast({ message: asNumber(42), type: 'success' });
+  });
+
+  it('@ts-expect-error: invalid ToastType rejected', () => {
+    const { result } = renderToastHook();
+    // @ts-expect-error — type must be a valid ToastType literal, not arbitrary string
+    result.current.addToast({ message: 'x', type: asInvalidType() });
+  });
+
+  it('@ts-expect-error: removeToast id must be string', () => {
+    const { result } = renderToastHook();
+    // @ts-expect-error — id parameter requires a string, not number
+    result.current.removeToast(asNumber(123));
   });
 });

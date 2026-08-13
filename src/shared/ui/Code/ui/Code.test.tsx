@@ -172,7 +172,11 @@ describe('Code (Integration)', () => {
       fireEvent.click(screen.getByTestId('code-inline'));
 
       await vi.waitFor(() => {
-        expect(mockAddToast).toHaveBeenCalledWith('Code copied to clipboard', 'success', 2000);
+        expect(mockAddToast).toHaveBeenCalledWith({
+          message: 'Code copied to clipboard',
+          type: 'success',
+          duration: 2000,
+        });
       });
     });
 
