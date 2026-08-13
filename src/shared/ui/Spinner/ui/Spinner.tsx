@@ -86,8 +86,10 @@ export const Spinner = memo(
 
     // ---- Classes ----
 
-    // До истечения delay не рендерим ничего — без корня, role="status" и aria (SPR-03)
-    if (!visible) return null;
+    // До истечения delay не рендерим ничего — без корня, role="status" и aria (SPR-03).
+    // Footgun-фикс (4R R3): если delay → 0/undefined mid-flight (visible ещё false),
+    // рендер-условие показывает спиннер сразу, не оставляя его скрытым навсегда.
+    if (!visible && delay !== undefined && delay !== 0) return null;
 
     // Числовой size не имеет preset-класса — classNames отфильтрует undefined (SPR-06)
     const sizeClass = typeof size === 'number' ? undefined : styles[size];

@@ -12,6 +12,21 @@ const readScss = (relativePath: string): string =>
 
 const spinnerScss = readScss('./Spinner.module.scss');
 
+// Единый matchMedia-мок (4R R2: убирает троекратное дублирование литерала).
+// Компонент НЕ вызывает matchMedia (reduced-motion — CSS-only, design Decision 2) —
+// мок устанавливает «reduce-окружение» для DOM-контракта.
+const createMatchMediaMock = (matchesHandler: (query: string) => boolean) =>
+  vi.fn().mockImplementation((query: string) => ({
+    matches: matchesHandler(query),
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+
 describe('Spinner', () => {
   describe('Rendering', () => {
     it('должен рендериться с базовыми пропсами', () => {
@@ -203,32 +218,16 @@ describe('Spinner', () => {
     });
 
     it('должен отключать анимацию при prefers-reduced-motion: reduce', () => {
-      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-        matches: query === '(prefers-reduced-motion: reduce)',
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }));
+      window.matchMedia = createMatchMediaMock(
+        (query) => query === '(prefers-reduced-motion: reduce)'
+      );
 
       render(<Spinner />);
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
     it('должен иметь анимацию по умолчанию (без reduced-motion)', () => {
-      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }));
+      window.matchMedia = createMatchMediaMock(() => false);
 
       render(<Spinner />);
       expect(screen.getByRole('status')).toBeInTheDocument();
@@ -329,6 +328,22 @@ describe('Spinner', () => {
       expect(root.style.getPropertyValue('--double-ring-speed-inner')).toBe('1.3s');
       expect(root.style.getPropertyValue('--double-ring-thickness')).toBe('3px');
     });
+
+    it('не должен выставлять data-speed/data-thickness от алиасов', () => {
+      // 4R R3 INFO: алиасы — CSS-var-only; data-attrs остаются координатами канонических пропов
+      const { container } = render(
+        <Spinner animationDuration="fast" borderWidth="thick" variant="spinner" />
+      );
+      const root = container.firstChild as HTMLElement;
+
+      expect(root).not.toHaveAttribute('data-speed');
+      expect(root).not.toHaveAttribute('data-thickness');
+      // канонические пропы по-прежнему выставляют их
+      const canonical = render(<Spinner speed="fast" thickness="thick" variant="spinner" />);
+      const canonicalRoot = canonical.container.firstChild as HTMLElement;
+      expect(canonicalRoot).toHaveAttribute('data-speed', 'fast');
+      expect(canonicalRoot).toHaveAttribute('data-thickness', 'thick');
+    });
   });
 
   // ============================================
@@ -380,16 +395,29 @@ describe('Spinner', () => {
     });
 
     it('должен отменять таймер при размонтировании', () => {
-      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
       const { unmount } = render(<Spinner delay={500} />);
+      expect(vi.getTimerCount()).toBeGreaterThan(0);
 
       unmount();
       act(() => {
         vi.advanceTimersByTime(600);
       });
 
-      expect(clearTimeoutSpy).toHaveBeenCalled();
-      clearTimeoutSpy.mockRestore();
+      // 4R R3: getTimerCount детерминированнее глобального clearTimeout-spy
+      // (React scheduler может вызвать clearTimeout и без нашего таймера)
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('должен показать спиннер при изменении delay на 0 до срабатывания таймера', () => {
+      const { rerender } = render(<Spinner delay={300} />);
+
+      expect(screen.queryByRole('status')).toBeNull();
+
+      rerender(<Spinner delay={0} />);
+
+      // 4R R3: адаптируем footgun delay → 0: спиннер не должен остаться скрытым навсегда
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(vi.getTimerCount()).toBe(0);
     });
 
     it('delay={0} должен рендериться сразу', () => {
@@ -412,11 +440,17 @@ describe('Spinner', () => {
 
   describe('Reduced Motion source guard (SPR-04)', () => {
     it('должен объявлять animation: none для всех трёх motion-классов в reduce-блоке', () => {
-      const mediaBlock = spinnerScss.match(
-        /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*{([\s\S]*?)}/
-      )?.[1];
+      // 4R R3: якорь на литерал маркера + срез до закрывающей скобки — устойчивее к
+      // переформатированию SCSS, чем regex на весь блок (не падает от переноса строк).
+      const marker = '@media (prefers-reduced-motion: reduce)';
+      const markerIndex = spinnerScss.indexOf(marker);
 
-      expect(mediaBlock).toBeTruthy();
+      expect(markerIndex).toBeGreaterThan(-1);
+
+      const blockStart = spinnerScss.indexOf('{', markerIndex);
+      const blockEnd = spinnerScss.indexOf('}', blockStart);
+      const mediaBlock = spinnerScss.slice(blockStart, blockEnd + 1);
+
       expect(mediaBlock).toContain('.spinnerCircle');
       expect(mediaBlock).toContain('.outerRing');
       expect(mediaBlock).toContain('.innerRing');
@@ -430,43 +464,20 @@ describe('Spinner', () => {
 
   describe('Reduced Motion matchMedia contract (SPR-04)', () => {
     const originalMatchMedia = window.matchMedia;
-    const mediaQuery = '(prefers-reduced-motion: reduce)';
-    const registeredQueries: string[] = [];
 
     beforeEach(() => {
-      registeredQueries.length = 0;
-      window.matchMedia = vi.fn().mockImplementation((query: string) => {
-        registeredQueries.push(query);
-        return {
-          matches: query === mediaQuery,
-          media: query,
-          onchange: null,
-          addListener: vi.fn(),
-          removeListener: vi.fn(),
-          addEventListener: vi.fn(),
-          removeEventListener: vi.fn(),
-          dispatchEvent: vi.fn(),
-        };
-      });
+      window.matchMedia = createMatchMediaMock(
+        (query) => query === '(prefers-reduced-motion: reduce)'
+      );
     });
 
     afterEach(() => {
       window.matchMedia = originalMatchMedia;
     });
 
-    it('должен регистрировать запрос prefers-reduced-motion: reduce (harness-side)', () => {
-      // Компонент не вызывает matchMedia (reduced-motion — CSS-only, см. design Decision 2):
-      // детерминированная гарантия — source guard выше. Здесь проверяется, что mock-окружение
-      // перехватывает ровно запрос prefers-reduced-motion: reduce.
-      const reduceMedia = window.matchMedia(mediaQuery);
-      const otherMedia = window.matchMedia('(prefers-color-scheme: dark)');
-
-      expect(registeredQueries).toContain(mediaQuery);
-      expect(reduceMedia.matches).toBe(true);
-      expect(otherMedia.matches).toBe(false);
-    });
-
     it('должен сохранять статический DOM-контракт под reduce-окружением', () => {
+      // 4R R2/R3: тавтологический тест «мок регистрирует запрос» удалён — он проверял
+      // vi.fn, а не компонент. Детерминированная гарантия motion — source guard выше.
       render(<Spinner />);
 
       const spinner = screen.getByRole('status');
