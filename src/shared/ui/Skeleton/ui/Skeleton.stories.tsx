@@ -95,7 +95,7 @@ export const WithDelay: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const skeleton = canvas.getByRole('status');
-    expect(skeleton).toHaveStyle({ animationDelay: '0.5s', animationDuration: '2s' });
+    expect(skeleton).toHaveStyle({ '--skeleton-delay': '0.5s', '--skeleton-duration': '2s' });
   },
 };
 

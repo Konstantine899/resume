@@ -22,6 +22,11 @@ export const SKELETON_DEFAULTS = {
 } as const;
 
 /**
+ * Default aspect ratio fallback — used when ratio prop is invalid/absent at runtime
+ */
+export const DEFAULT_RATIO = '16/9' as const;
+
+/**
  * Константы для компонента Skeleton
  */
 export const SKELETON_CONSTANTS = {
@@ -40,6 +45,9 @@ export const SKELETON_CONSTANTS = {
 
   /** Длительность анимации по умолчанию (сек) */
   DEFAULT_DURATION: SKELETON_DEFAULTS.duration,
+
+  /** Дефолтное значение ratio */
+  DEFAULT_RATIO,
 
   /** Дефолтные значения */
   defaults: SKELETON_DEFAULTS,

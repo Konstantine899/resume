@@ -1,28 +1,37 @@
 // src/shared/ui/Skeleton/model/types.ts
 
-import type { HTMLAttributes } from 'react';
+import type { ComponentPropsWithRef, ElementType, ForwardedRef } from 'react';
 
 export type SkeletonVariant = 'text' | 'circular' | 'rectangular';
 
-export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
-  /** Вариант скелетона */
+/** Required ratio prop — AspectRatioString pattern */
+export type SkeletonRatioString = `${number}/${number}`;
+
+/** Own props — Skeleton-specific fields only */
+export interface SkeletonOwnProps {
+  /** @optional — aspect ratio like "16/9" (runtime fallback DEFAULT_RATIO) */
+  ratio?: SkeletonRatioString;
+  /** Variant */
   variant?: SkeletonVariant;
-
-  /** Ширина */
+  /** Width */
   width?: string | number;
-
-  /** Высота */
+  /** Height */
   height?: string | number;
-
-  /** Количество строк для текстового варианта */
+  /** Number of lines for text variant */
   lines?: number;
-
-  /** Задержка перед началом анимации */
+  /** Delay before animation starts */
   delay?: number;
-
-  /** Длительность анимации */
+  /** Animation duration */
   duration?: number;
-
-  /** Кастомный класс */
+  /** Custom className */
   className?: string;
 }
+
+/** Generic polymorphic props — merges own props with element props */
+export type SkeletonProps<C extends ElementType = 'div'> = SkeletonOwnProps &
+  Omit<ComponentPropsWithRef<C>, keyof SkeletonOwnProps | 'as' | 'ref'> & { as?: C };
+
+/** Component type for memo-cast */
+export type SkeletonComponent = (<C extends ElementType = 'div'>(
+  props: SkeletonProps<C> & { ref?: ForwardedRef<HTMLElement> }
+) => React.ReactElement) & { displayName?: string };

@@ -2,6 +2,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'fs';
 import { Skeleton } from './Skeleton';
 
 describe('Skeleton', () => {
@@ -63,16 +64,16 @@ describe('Skeleton', () => {
       expect(skeleton).toHaveStyle({ width: '150px', height: '50px' });
     });
 
-    it('должен применять delay', () => {
+    it('должен применять delay через CSS переменную --skeleton-delay', () => {
       render(<Skeleton delay={0.5} />);
       const skeleton = screen.getByRole('status');
-      expect(skeleton).toHaveStyle({ animationDelay: '0.5s' });
+      expect(skeleton).toHaveStyle({ '--skeleton-delay': '0.5s' });
     });
 
-    it('должен применять duration', () => {
+    it('должен применять duration через CSS переменную --skeleton-duration', () => {
       render(<Skeleton duration={2} />);
       const skeleton = screen.getByRole('status');
-      expect(skeleton).toHaveStyle({ animationDuration: '2s' });
+      expect(skeleton).toHaveStyle({ '--skeleton-duration': '2s' });
     });
 
     it('должен применять кастомные style', () => {
@@ -145,26 +146,26 @@ describe('Skeleton', () => {
       expect(lastLine).toBeInTheDocument();
     });
 
-    it('должен применять staggered delay для строк', () => {
+    it('должен применять staggered delay для строк через CSS переменную --skeleton-delay', () => {
       render(<Skeleton variant="text" lines={3} delay={0.2} />);
       const line0 = screen.getByTestId('skeleton-line-0');
       const line1 = screen.getByTestId('skeleton-line-1');
       const line2 = screen.getByTestId('skeleton-line-last');
 
-      // Проверяем с допустимой погрешностью floating point
-      expect(line0.style.animationDelay).toMatch(/^0\.2/);
-      expect(line1.style.animationDelay).toMatch(/^0\.3/);
-      expect(line2.style.animationDelay).toMatch(/^0\.4/);
+      // Проверяем CSS переменные с округлением до 3 знаков
+      expect(line0).toHaveStyle({ '--skeleton-delay': '0.2s' });
+      expect(line1).toHaveStyle({ '--skeleton-delay': '0.3s' });
+      expect(line2).toHaveStyle({ '--skeleton-delay': '0.4s' });
     });
 
-    it('должен применять duration ко всем строкам', () => {
+    it('должен применять duration ко всем строкам через CSS переменную --skeleton-duration', () => {
       render(<Skeleton variant="text" lines={3} duration={2.5} />);
       const line0 = screen.getByTestId('skeleton-line-0');
       const line1 = screen.getByTestId('skeleton-line-1');
       const line2 = screen.getByTestId('skeleton-line-last');
 
       [line0, line1, line2].forEach((line) => {
-        expect(line.style.animationDuration).toBe('2.5s');
+        expect(line).toHaveStyle({ '--skeleton-duration': '2.5s' });
       });
     });
 
@@ -334,54 +335,36 @@ describe('Skeleton', () => {
   });
 
   // ============================================
-  // Reduced Motion
+  // Reduced Motion — Source Guard (SKL-03)
   // ============================================
 
-  describe('Reduced Motion', () => {
-    const originalMatchMedia = window.matchMedia;
+  describe('Reduced Motion — Source Guard', () => {
+    // Источник: Paragraph PAR-09 / Spinner SPR-04 паттерн
+    // ?raw импорты не работают в vitest pipeline — используем disk read
+    const readScss = (relativePath: string): string =>
+      readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
 
-    afterEach(() => {
-      window.matchMedia = originalMatchMedia;
+    it('должен иметь @media (prefers-reduced-motion: reduce) блок с animation: none для ::after', () => {
+      const skeletonScss = readScss('./Skeleton.module.scss');
+
+      // Найти медиа-блок
+      const mediaBlockMatch = skeletonScss.match(
+        /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)\s*\{([\s\S]*?)\}/
+      );
+      expect(mediaBlockMatch).toBeTruthy();
+
+      const mediaContent = mediaBlockMatch?.[1] ?? '';
+      // Проверить что ::after имеет animation: none
+      expect(mediaContent).toMatch(/::after/);
+      expect(mediaContent).toMatch(/animation\s*:\s*none/);
     });
 
-    it('должен отключать анимацию при prefers-reduced-motion: reduce', () => {
-      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-        matches: query === '(prefers-reduced-motion: reduce)',
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }));
-
+    it('должен рендериться с role="status" независимо от reduced-motion', () => {
+      // Статический DOM контракт — без matchMedia моков
       render(<Skeleton variant="text" />);
       const skeleton = screen.getByRole('status');
-
-      // CSS модуль применяет animation: none через медиа-условие
-      // Проверяем что элемент рендерится корректно при reduced-motion
       expect(skeleton).toBeInTheDocument();
       expect(skeleton).toHaveClass(/skeleton/);
-    });
-
-    it('должен иметь анимацию по умолчанию (без reduced-motion)', () => {
-      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }));
-
-      render(<Skeleton variant="text" />);
-      const skeleton = screen.getByRole('status');
-
-      expect(skeleton).toBeInTheDocument();
-      expect(skeleton).toHaveStyle({ animationDuration: '1.5s' });
     });
   });
 
