@@ -1,7 +1,16 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { Spinner } from './Spinner';
 import styles from './Spinner.module.scss';
+
+// SCSS source read для reduced-motion контракта (SPR-04).
+// `?raw` импорты перехватываются vitest CSS-module стабом (возвращает identity proxy,
+// не исходник) — читаем с диска, паттерн PAR-09 (Paragraph.test.tsx).
+const readScss = (relativePath: string): string =>
+  readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
+
+const spinnerScss = readScss('./Spinner.module.scss');
 
 describe('Spinner', () => {
   describe('Rendering', () => {
@@ -232,6 +241,239 @@ describe('Spinner', () => {
 
       expect(screen.getByTestId('spinner')).toBeInTheDocument();
       expect(screen.getByTestId('spinner')).toHaveAttribute('id', 'custom-spinner');
+    });
+  });
+
+  // ============================================
+  // Numeric size override (SPR-06)
+  // ============================================
+
+  describe('Size override (SPR-06)', () => {
+    it('должен устанавливать --spinner-size: 48px для size={48}', () => {
+      const { container } = render(<Spinner size={48} />);
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--spinner-size')).toBe('48px');
+    });
+
+    it('не должен применять preset-класс размера для size={48}', () => {
+      const { container } = render(<Spinner size={48} />);
+      const root = container.firstChild as HTMLElement;
+
+      const presetClasses = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const;
+      for (const preset of presetClasses) {
+        expect(root).not.toHaveClass(styles[preset]);
+      }
+    });
+
+    it('не должен устанавливать data-size для числового size', () => {
+      render(<Spinner size={48} />);
+
+      expect(screen.getByRole('status')).not.toHaveAttribute('data-size');
+    });
+
+    it('должен рендериться byte-identical для size="md" (preset)', () => {
+      const { container } = render(<Spinner size="md" />);
+      const root = container.firstChild as HTMLElement;
+
+      expect(root).toHaveClass(styles.md);
+      expect(root.style.getPropertyValue('--spinner-size')).toBe('');
+      expect(root).toHaveAttribute('data-size', 'md');
+    });
+  });
+
+  // ============================================
+  // CSS-native alias props (SPR-07)
+  // ============================================
+
+  describe('Alias props (SPR-07)', () => {
+    it('animationDuration="fast" должен устанавливать --spinner-speed как speed="fast"', () => {
+      const { container } = render(<Spinner animationDuration="fast" variant="spinner" />);
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--spinner-speed')).toBe('0.4s');
+    });
+
+    it('borderWidth="thick" должен устанавливать --spinner-thickness как thickness="thick"', () => {
+      const { container } = render(<Spinner borderWidth="thick" variant="spinner" />);
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--spinner-thickness')).toBe('3px');
+    });
+
+    it('канонический speed должен выигрывать у animationDuration', () => {
+      const { container } = render(
+        <Spinner speed="slow" animationDuration="fast" variant="spinner" />
+      );
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--spinner-speed')).toBe('1.2s');
+    });
+
+    it('канонический thickness должен выигрывать у borderWidth', () => {
+      const { container } = render(
+        <Spinner thickness="thin" borderWidth="thick" variant="spinner" />
+      );
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--spinner-thickness')).toBe('1.5px');
+    });
+
+    it('должен устанавливать double-ring vars через алиасы', () => {
+      const { container } = render(
+        <Spinner variant="double-ring" animationDuration="slow" borderWidth="thin" />
+      );
+      const root = container.firstChild as HTMLElement;
+
+      expect(root.style.getPropertyValue('--double-ring-speed-outer')).toBe('1.5s');
+      expect(root.style.getPropertyValue('--double-ring-speed-inner')).toBe('1.3s');
+      expect(root.style.getPropertyValue('--double-ring-thickness')).toBe('3px');
+    });
+  });
+
+  // ============================================
+  // Compile-time type probes (SPR-06/07)
+  // ============================================
+
+  describe('Compile-time type probes (SPR-06/07)', () => {
+    it('должен отклонять size="huge" (не preset и не число)', () => {
+      // @ts-expect-error — size принимает только SpinnerSize | number
+      <Spinner size="huge" />;
+    });
+
+    it('должен отклонять невалидное значение animationDuration', () => {
+      // @ts-expect-error — animationDuration принимает только SpinnerSpeed
+      <Spinner animationDuration="blazing" />;
+    });
+  });
+
+  // ============================================
+  // Delay prop (SPR-03)
+  // ============================================
+
+  describe('Delay prop (SPR-03)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('не должен рендерить ничего до истечения delay', () => {
+      const { container } = render(<Spinner delay={300} />);
+
+      expect(screen.queryByRole('status')).toBeNull();
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('должен появиться после истечения delay с aria-busy', () => {
+      render(<Spinner delay={300} />);
+
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+
+      const spinner = screen.getByRole('status');
+      expect(spinner).toBeInTheDocument();
+      expect(spinner).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('должен отменять таймер при размонтировании', () => {
+      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+      const { unmount } = render(<Spinner delay={500} />);
+
+      unmount();
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      clearTimeoutSpy.mockRestore();
+    });
+
+    it('delay={0} должен рендериться сразу', () => {
+      render(<Spinner delay={0} />);
+
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    it('без delay должен рендериться немедленно (byte-identical)', () => {
+      const { container } = render(<Spinner />);
+
+      expect(container.firstChild).toBeInTheDocument();
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+  });
+
+  // ============================================
+  // Reduced motion — source guard (SPR-04)
+  // ============================================
+
+  describe('Reduced Motion source guard (SPR-04)', () => {
+    it('должен объявлять animation: none для всех трёх motion-классов в reduce-блоке', () => {
+      const mediaBlock = spinnerScss.match(
+        /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*{([\s\S]*?)}/
+      )?.[1];
+
+      expect(mediaBlock).toBeTruthy();
+      expect(mediaBlock).toContain('.spinnerCircle');
+      expect(mediaBlock).toContain('.outerRing');
+      expect(mediaBlock).toContain('.innerRing');
+      expect(mediaBlock).toContain('animation: none');
+    });
+  });
+
+  // ============================================
+  // Reduced motion — matchMedia + DOM contract (SPR-04)
+  // ============================================
+
+  describe('Reduced Motion matchMedia contract (SPR-04)', () => {
+    const originalMatchMedia = window.matchMedia;
+    const mediaQuery = '(prefers-reduced-motion: reduce)';
+    const registeredQueries: string[] = [];
+
+    beforeEach(() => {
+      registeredQueries.length = 0;
+      window.matchMedia = vi.fn().mockImplementation((query: string) => {
+        registeredQueries.push(query);
+        return {
+          matches: query === mediaQuery,
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        };
+      });
+    });
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+    });
+
+    it('должен регистрировать запрос prefers-reduced-motion: reduce (harness-side)', () => {
+      // Компонент не вызывает matchMedia (reduced-motion — CSS-only, см. design Decision 2):
+      // детерминированная гарантия — source guard выше. Здесь проверяется, что mock-окружение
+      // перехватывает ровно запрос prefers-reduced-motion: reduce.
+      const reduceMedia = window.matchMedia(mediaQuery);
+      const otherMedia = window.matchMedia('(prefers-color-scheme: dark)');
+
+      expect(registeredQueries).toContain(mediaQuery);
+      expect(reduceMedia.matches).toBe(true);
+      expect(otherMedia.matches).toBe(false);
+    });
+
+    it('должен сохранять статический DOM-контракт под reduce-окружением', () => {
+      render(<Spinner />);
+
+      const spinner = screen.getByRole('status');
+      expect(spinner).toHaveAttribute('aria-busy', 'true');
+      expect(spinner).toHaveAttribute('aria-live', 'polite');
+      expect(spinner).toHaveAttribute('data-variant', 'spinner');
+      expect(spinner).toHaveAttribute('data-size', 'md');
     });
   });
 });

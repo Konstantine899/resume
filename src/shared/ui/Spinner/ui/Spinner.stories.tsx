@@ -1,6 +1,8 @@
+// src/shared/ui/Spinner/ui/Spinner.stories.tsx
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from '@storybook/test';
-import React from 'react';
+import { Button } from '@/shared/ui/Button';
 import { Spinner } from './Spinner';
 
 const meta = {
@@ -19,14 +21,18 @@ const meta = {
 
 ## Размеры:
 - **xs** (12px), **sm** (24px), **md** (32px), **lg** (48px), **xl** (64px), **xxl** (96px)
+- **числовой** — произвольный размер в пикселях (\`size={48}\` → \`--spinner-size: 48px\`)
 
 ## Цвета:
 - **primary** (основной), **secondary** (вторичный), **accent** (акцентный), **orange** (оранжевый)
 
 ## Кастомизация:
-- **speed** — slow / normal / fast
-- **thickness** — thin / normal / thick
+- **speed** — slow / normal / fast (канонический проп)
+- **thickness** — thin / normal / thick (канонический проп)
 - **trackColor** — цвет фоновой части кольца
+- **delay** — задержка появления в мс (пока таймер не сработал, компонент ничего не рендерит)
+- **animationDuration** — алиас \`speed\` → \`--spinner-speed\`
+- **borderWidth** — алиас \`thickness\` → \`--spinner-thickness\`
 
 ## Accessibility:
 - \`role="status"\` — объявляет состояние загрузки скринридерам
@@ -52,7 +58,7 @@ const meta = {
     size: {
       control: 'radio',
       options: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
-      description: 'Размер спиннера',
+      description: 'Размер спиннера — пресет или число пикселей (size={48})',
     },
     color: {
       control: 'radio',
@@ -62,12 +68,12 @@ const meta = {
     speed: {
       control: 'radio',
       options: ['slow', 'normal', 'fast'],
-      description: 'Скорость анимации',
+      description: 'Скорость анимации (канонический проп)',
     },
     thickness: {
       control: 'radio',
       options: ['thin', 'normal', 'thick'],
-      description: 'Толщина линии',
+      description: 'Толщина линии (канонический проп)',
     },
     trackColor: {
       control: 'color',
@@ -77,12 +83,40 @@ const meta = {
       control: 'text',
       description: 'Текст для screen readers',
     },
+    delay: {
+      control: 'number',
+      description: 'Задержка появления в мс (AntD semantics)',
+    },
+    animationDuration: {
+      control: 'radio',
+      options: ['slow', 'normal', 'fast'],
+      description: 'Алиас speed → --spinner-speed (канонический speed побеждает)',
+    },
+    borderWidth: {
+      control: 'radio',
+      options: ['thin', 'normal', 'thick'],
+      description: 'Алиас thickness → --spinner-thickness (канонический thickness побеждает)',
+    },
   },
   args: {
     variant: 'spinner',
     size: 'md',
     color: 'primary',
   },
+  decorators: [
+    (Story) => (
+      <div
+        style={{
+          backgroundColor: 'var(--background)',
+          padding: '24px',
+          borderRadius: '12px',
+          minWidth: '200px',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof Spinner>;
 
 export default meta;
@@ -90,32 +124,24 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // ============================================
-// Helper Components
+// Play Helper — asserts a11y contract + data attrs
 // ============================================
 
-const ThemeContainer = ({ children }: { children: React.ReactNode }) => (
-  <div
-    style={{
-      backgroundColor: 'var(--background)',
-      padding: '24px',
-      borderRadius: '12px',
-      minWidth: '200px',
-    }}
-  >
-    {children}
-  </div>
-);
+function assertSpinnerAttrs(canvasElement: HTMLElement, expected: Record<string, string>) {
+  const spinner = canvasElement.querySelector('[role="status"]');
+  expect(spinner).toBeInTheDocument();
+  expect(spinner?.getAttribute('aria-busy')).toBe('true');
+  Object.entries(expected).forEach(([attr, value]) => {
+    expect(spinner?.getAttribute(attr)).toBe(value);
+  });
+}
 
 // ============================================
 // Basic Variants
 // ============================================
 
 export const SingleSpinner: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner variant="spinner" size="md" color="primary" />
-    </ThemeContainer>
-  ),
+  args: { variant: 'spinner', size: 'md', color: 'primary' },
   parameters: {
     docs: {
       description: {
@@ -123,22 +149,17 @@ export const SingleSpinner: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const spinner = canvasElement.querySelector('[role="status"]');
-    expect(spinner).toBeInTheDocument();
-    expect(spinner?.getAttribute('aria-busy')).toBe('true');
-    expect(spinner?.getAttribute('data-variant')).toBe('spinner');
-    expect(spinner?.getAttribute('data-size')).toBe('md');
-    expect(spinner?.getAttribute('data-color')).toBe('primary');
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'primary',
+    });
   },
 };
 
 export const DoubleRing: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner variant="double-ring" size="md" color="primary" />
-    </ThemeContainer>
-  ),
+  args: { variant: 'double-ring', size: 'md', color: 'primary' },
   parameters: {
     docs: {
       description: {
@@ -148,60 +169,17 @@ export const DoubleRing: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'double-ring',
+      'data-size': 'md',
+      'data-color': 'primary',
+    });
     const canvas = within(canvasElement);
     const spinner = canvas.getByRole('status');
-    expect(spinner).toBeInTheDocument();
-    expect(spinner.getAttribute('data-variant')).toBe('double-ring');
-    const outerRing = canvasElement.querySelector('[class*="outerRing"]');
-    const innerRing = canvasElement.querySelector('[class*="innerRing"]');
-    expect(outerRing).toBeTruthy();
-    expect(innerRing).toBeTruthy();
+    expect(spinner.querySelector('[class*="outerRing"]')).toBeTruthy();
+    expect(spinner.querySelector('[class*="innerRing"]')).toBeTruthy();
   },
-};
-
-// ============================================
-// Sizes
-// ============================================
-
-export const Small: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner size="sm" color="primary" />
-    </ThemeContainer>
-  ),
-};
-
-export const Medium: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner size="md" color="primary" />
-    </ThemeContainer>
-  ),
-};
-
-export const Large: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner size="lg" color="primary" />
-    </ThemeContainer>
-  ),
-};
-
-export const ExtraLarge: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner size="xl" color="primary" />
-    </ThemeContainer>
-  ),
-};
-
-export const DoubleExtraLarge: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner size="xxl" color="primary" />
-    </ThemeContainer>
-  ),
 };
 
 // ============================================
@@ -209,176 +187,157 @@ export const DoubleExtraLarge: Story = {
 // ============================================
 
 export const Primary: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner color="primary" />
-    </ThemeContainer>
-  ),
+  args: { color: 'primary' },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'primary',
+    });
+  },
 };
 
 export const Secondary: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner color="secondary" />
-    </ThemeContainer>
-  ),
+  args: { color: 'secondary' },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'secondary',
+    });
+  },
 };
 
 export const Accent: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner color="accent" />
-    </ThemeContainer>
-  ),
+  args: { color: 'accent' },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'accent',
+    });
+  },
 };
 
 export const Orange: Story = {
-  render: () => (
-    <ThemeContainer>
-      <Spinner color="orange" />
-    </ThemeContainer>
-  ),
+  args: { color: 'orange' },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'orange',
+    });
+  },
 };
 
 // ============================================
-// Customization
+// Customization (single-instance demos)
 // ============================================
 
 export const SlowSpeed: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner speed="slow" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Slow (1.2s)
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner speed="normal" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Normal (0.8s)
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner speed="fast" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Fast (0.4s)
-          </p>
-        </div>
-      </div>
-    </ThemeContainer>
-  ),
+  args: { speed: 'slow' },
   parameters: {
     docs: {
       description: {
         story:
-          'Speed slow (1.2s) / normal (0.8s) / fast (0.4s). Влияет на длительность полного оборота.',
+          'Одиночный демо-инстанс с speed="slow" (1.2s). Сравнение трёх скоростей доступно в Controls.',
       },
     },
   },
-};
-
-export const ThicknessOptions: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner thickness="thin" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Thin (1.5px)
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner thickness="normal" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Normal (2px)
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner thickness="thick" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Thick (3px)
-          </p>
-        </div>
-      </div>
-    </ThemeContainer>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Thickness thin (1.5px) / normal (2px) / thick (3px). Влияет на толщину линии кольца.',
-      },
-    },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'primary',
+      'data-speed': 'slow',
+    });
   },
 };
-
-export const WithTrackColor: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner trackColor="#e0e0e0" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Light track
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner trackColor="#50abc5" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Colored track
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner trackColor="transparent" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Transparent (default)
-          </p>
-        </div>
-      </div>
-    </ThemeContainer>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'trackColor задаёт цвет фоновой части кольца. По умолчанию transparent.',
-      },
-    },
-  },
-};
-
-// ============================================
-// Real-world Examples
-// ============================================
 
 export const InlineWithText: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Spinner size="sm" color="primary" />
-        <span style={{ color: 'var(--foreground)' }}>Загрузка данных...</span>
-      </div>
-    </ThemeContainer>
-  ),
+  args: { size: 'sm' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Инлайн-спиннер рядом с текстом — компактный size="sm".',
+      },
+    },
+  },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'sm',
+      'data-color': 'primary',
+    });
+  },
 };
 
 export const FullScreen: Story = {
-  render: () => (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'var(--background)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9999,
-      }}
-    >
-      <Spinner size="lg" color="primary" />
-    </div>
-  ),
+  args: { size: 'lg' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Крупный спиннер для полноэкранной зоны загрузки (size="lg").',
+      },
+    },
+  },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'lg',
+      'data-color': 'primary',
+    });
+  },
+};
+
+export const AvatarLoading: Story = {
+  args: { variant: 'double-ring', size: 'lg', label: 'Loading avatar' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Использование Spinner в Avatar компонентах. Double-ring variant с primary цветом для консистентности с дизайном.',
+      },
+    },
+  },
+  play: ({ canvasElement }) => {
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'double-ring',
+      'data-size': 'lg',
+      'data-color': 'primary',
+    });
+    expect(canvasElement.querySelector('[role="status"]')?.getAttribute('aria-label')).toBe(
+      'Loading avatar'
+    );
+  },
+};
+
+// ============================================
+// Reduced Motion Demo (DOM-only play)
+// ============================================
+
+export const ReducedMotion: Story = {
+  args: { variant: 'spinner', size: 'md', color: 'primary' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Accessibility — при `prefers-reduced-motion` в ОС все анимации отключаются.',
+      },
+    },
+    a11y: {
+      config: {
+        rules: [{ id: 'color-contrast', enabled: true }],
+      },
+    },
+  },
+  play: ({ canvasElement }) => {
+    // Статический DOM-контракт: motion проверяется source-guard'ом в unit-тестах (SPR-04)
+    assertSpinnerAttrs(canvasElement, {
+      'data-variant': 'spinner',
+      'data-size': 'md',
+      'data-color': 'primary',
+    });
+  },
 };
 
 // ============================================
@@ -387,23 +346,27 @@ export const FullScreen: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner variant="spinner" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Spinner
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner variant="double-ring" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Double Ring
-          </p>
-        </div>
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner variant="spinner" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Spinner
+        </p>
       </div>
-    </ThemeContainer>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner variant="double-ring" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Double Ring
+        </p>
+      </div>
+    </div>
   ),
+  play: ({ canvasElement }) => {
+    const variants = Array.from(canvasElement.querySelectorAll('[role="status"]')).map((s) =>
+      s.getAttribute('data-variant')
+    );
+    expect(variants).toEqual(['spinner', 'double-ring']);
+  },
 };
 
 // ============================================
@@ -412,22 +375,26 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-        {(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const).map((s) => (
-          <div
-            key={s}
-            style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}
-          >
-            <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
-              {s.toUpperCase()}
-            </span>
-            <Spinner size={s} color="primary" />
-          </div>
-        ))}
-      </div>
-    </ThemeContainer>
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+      {(['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const).map((s) => (
+        <div
+          key={s}
+          style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}
+        >
+          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+            {s.toUpperCase()}
+          </span>
+          <Spinner size={s} color="primary" />
+        </div>
+      ))}
+    </div>
   ),
+  play: ({ canvasElement }) => {
+    const sizes = Array.from(canvasElement.querySelectorAll('[role="status"]')).map((s) =>
+      s.getAttribute('data-size')
+    );
+    expect(sizes).toEqual(['xs', 'sm', 'md', 'lg', 'xl', 'xxl']);
+  },
 };
 
 // ============================================
@@ -465,33 +432,39 @@ export const ThemeComparison: Story = {
       </div>
     </div>
   ),
+  play: ({ canvasElement }) => {
+    const lightBlock = canvasElement.querySelector('[data-theme="light"]');
+    const darkBlock = canvasElement.querySelector('[data-theme="dark"]');
+    expect(lightBlock?.querySelector('[role="status"]')).toBeTruthy();
+    expect(darkBlock?.querySelector('[role="status"]')).toBeTruthy();
+    const spinners = canvasElement.querySelectorAll('[role="status"]');
+    expect(spinners).toHaveLength(2);
+  },
 };
 
 // ============================================
-// Avatar Use Case
+// Thickness Options
 // ============================================
 
-export const AvatarLoading: Story = {
+export const ThicknessOptions: Story = {
   render: () => (
-    <div
-      style={{
-        display: 'flex',
-        gap: '32px',
-        alignItems: 'center',
-        padding: '32px',
-        backgroundColor: 'var(--background)',
-      }}
-    >
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <Spinner variant="double-ring" size="lg" color="primary" label="Loading avatar" />
-        <p style={{ fontSize: '12px', marginTop: '16px', color: 'var(--foreground-muted)' }}>
-          Avatar About (LG)
+        <Spinner thickness="thin" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Thin (1.5px)
         </p>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <Spinner variant="double-ring" size="xl" color="primary" label="Loading avatar" />
-        <p style={{ fontSize: '12px', marginTop: '16px', color: 'var(--foreground-muted)' }}>
-          Avatar Hero (XL)
+        <Spinner thickness="normal" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Normal (2px)
+        </p>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner thickness="thick" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Thick (3px)
         </p>
       </div>
     </div>
@@ -500,71 +473,113 @@ export const AvatarLoading: Story = {
     docs: {
       description: {
         story:
-          'Использование Spinner в Avatar компонентах. Double-ring variant с primary цветом для консистентности с дизайном.',
+          'Thickness thin (1.5px) / normal (2px) / thick (3px). Влияет на толщину линии кольца.',
       },
     },
+  },
+  play: ({ canvasElement }) => {
+    const thicknesses = Array.from(canvasElement.querySelectorAll('[role="status"]')).map((s) =>
+      s.getAttribute('data-thickness')
+    );
+    expect(thicknesses).toEqual(['thin', 'normal', 'thick']);
   },
 };
 
 // ============================================
-// Speed with Double Ring
+// With Track Color
 // ============================================
 
-export const DoubleRingSpeed: Story = {
+export const WithTrackColor: Story = {
   render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner variant="double-ring" speed="slow" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Slow
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner variant="double-ring" speed="normal" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Normal
-          </p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <Spinner variant="double-ring" speed="fast" color="primary" />
-          <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
-            Fast
-          </p>
-        </div>
-      </div>
-    </ThemeContainer>
-  ),
-};
-
-// ============================================
-// Reduced Motion Demo
-// ============================================
-
-export const ReducedMotion: Story = {
-  render: () => (
-    <ThemeContainer>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-        <p style={{ fontSize: '14px', color: 'var(--foreground-muted)', marginBottom: '8px' }}>
-          При включении <code>prefers-reduced-motion</code> в ОС анимация автоматически отключается
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner trackColor="#e0e0e0" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Light track
         </p>
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-          <Spinner variant="spinner" color="primary" />
-          <Spinner variant="double-ring" color="primary" />
-        </div>
       </div>
-    </ThemeContainer>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner trackColor="#50abc5" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Colored track
+        </p>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner trackColor="transparent" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Transparent (default)
+        </p>
+      </div>
+    </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Accessibility — при `prefers-reduced-motion` в ОС все анимации отключаются.',
+        story: 'trackColor задаёт цвет фоновой части кольца. По умолчанию transparent.',
       },
     },
-    a11y: {
-      config: {
-        rules: [{ id: 'color-contrast', enabled: true }],
+  },
+  play: ({ canvasElement }) => {
+    expect(canvasElement.querySelectorAll('[role="status"]')).toHaveLength(3);
+  },
+};
+
+// ============================================
+// Double Ring Speed
+// ============================================
+
+export const DoubleRingSpeed: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner variant="double-ring" speed="slow" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>Slow</p>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner variant="double-ring" speed="normal" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>
+          Normal
+        </p>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <Spinner variant="double-ring" speed="fast" color="primary" />
+        <p style={{ fontSize: '12px', marginTop: '8px', color: 'var(--foreground-muted)' }}>Fast</p>
+      </div>
+    </div>
+  ),
+  play: ({ canvasElement }) => {
+    const speeds = Array.from(canvasElement.querySelectorAll('[role="status"]')).map((s) =>
+      s.getAttribute('data-speed')
+    );
+    expect(speeds).toEqual(['slow', 'normal', 'fast']);
+  },
+};
+
+// ============================================
+// Button Loader Integration (SPR-05)
+// ============================================
+
+export const ButtonLoaderIntegration: Story = {
+  render: () => (
+    <Button loading loadingVariant="spinner">
+      Loading
+    </Button>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Реальный потребительский паттерн — спиннер внутри loading-кнопки (ButtonLoader.tsx): ' +
+          '<Spinner size="sm" color="secondary">.',
       },
     },
+  },
+  play: ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    const spinner = button.querySelector('[role="status"]');
+    expect(spinner).toBeTruthy();
+    expect(spinner?.getAttribute('data-size')).toBe('sm');
+    expect(spinner?.getAttribute('data-color')).toBe('secondary');
   },
 };
