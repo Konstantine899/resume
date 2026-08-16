@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": [".opencode/docs/AGENTS.md", "docs/specs/*.md", ".opencode/instructions/*.md"],
+  "instructions": [".opencode/docs/AGENTS.md", ".opencode/instructions/*.md"],
   "model": "opencode/deepseek-v4-flash-free",
   "agent": {
     "guard": { "model": "ollama-cloud/qwen3.5:397b-cloud" },
@@ -61,11 +61,7 @@
       "gh *": "ask"
     },
     "skill": {
-      "*": "deny",
-      "component-boilerplate": "allow",
-      "fsd-design": "allow",
-      "storybook-setup": "allow",
-      "test-generation": "allow"
+      "*": "allow"
     }
   },
   "plugin": [
@@ -79,17 +75,13 @@
     "./plugins/adaptive-parallel-mcp.js",
     "./plugins/request-deduplication.js",
     "./plugins/mcp-connection-pool.js",
-    "./plugins/eslint-plugin-fsd-imports.js",
-    "opencode-shell-strategy",
-    "opencode-dynamic-context-pruning",
-    "opencode-type-inject",
-    "opencode-skillful"
+    "./plugins/eslint-plugin-fsd-imports.js"
   ],
   "formatter": true,
   "lsp": true,
   "compaction": {
     "auto": true,
-    "tail_turns": 10
+    "tail_turns": 30
   },
   "tool_output": {
     "max_lines": 300,

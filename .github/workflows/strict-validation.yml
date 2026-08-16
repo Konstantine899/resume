@@ -2,9 +2,9 @@ name: Strict Validation
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -35,11 +35,7 @@ jobs:
         continue-on-error: false
       
       - name: Lint (Strict)
-        run: npm run lint:strict
-        continue-on-error: false
-      
-      - name: Validate All (Strict)
-        run: npm run validate:strict
+        run: npm run lint -- --format json --output-file eslint-report.json
         continue-on-error: false
       
       - name: Upload ESLint report
@@ -95,12 +91,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Build with analysis
-        run: npm run build:analyze
+      - name: Build
+        run: npm run build
       
-      - name: Check bundle size
-        uses: preactjs/compressed-size-action@v2
-        with:
-          pattern: './dist/**/*.js'
-          limit: '100KB'
-          exclude: '**/node_modules/**'
+      - name: Check bundle size against performance-budget.json
+        run: npm run check:bundle

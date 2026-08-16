@@ -158,6 +158,7 @@ temp/
 .cache/
 .parcel-cache/
 .eslintcache
+eslint-report.json
 .stylelintcache
 tslint-cache
 .rpt2_cache/

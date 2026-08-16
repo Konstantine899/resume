@@ -18,7 +18,6 @@ resume/
 │   ├── shared/
 │   │   ├── ui/            UI kit (Button, Card, Input, Modal, Toast, etc.)
 │   │   ├── lib/           Utilities (contexts, helpers, i18n config)
-│   │   ├── api/           API client setup (EmailJS, etc.)
 │   │   └── types/         Shared TypeScript types
 │   └── tests/             Test utilities and setups
 ├── docs/
@@ -35,11 +34,12 @@ Key conventions:
 - Feature-Sliced Design v2.1 — see `fsd-design` skill for the full decision framework
 - New UI components go into `shared/ui/<ComponentName>/` with CSS Modules, stories, and tests
 - New features/entities use FSD slice structure: `model/`, `ui/`, `hooks/`, `index.ts`
+- EmailJS client lives in the Contact feature (`src/features/Contact/hooks/useContactForm.ts`), not in shared
 - All configs at root level (vite, vitest, typescript, eslint, stylelint)
 
 ## Project Characteristics
 
-- **State management**: React context + local state only. Redux Toolkit is in package.json but NOT used — do not introduce it without explicit request.
+- **State management**: React context + local state for now. Redux Toolkit is planned for introduction — follow the migration plan when it's added.
 - **Theme**: Light/dark mode via `ThemeContext` (`shared/lib/contexts/ThemeContext`), persisted in localStorage, CSS custom properties for color tokens.
 - **Styling**: SCSS Modules in `shared/styles/` with `variables/`, `mixins/`, `animations/`, `globals/`. All components use CSS Modules only.
 - **Contact form**: EmailJS via `@emailjs/browser` — requires `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY` env vars.
@@ -59,17 +59,18 @@ Key conventions:
 
 ## MCP Servers
 
-- **filesystem** — File operations
-- **memory** — Long-term knowledge graph persistence
-- **context7** — Library documentation and version queries
-- **eslint** — Code linting and rule enforcement
-- **playwright** — Browser automation
+- **filesystem** — File operations (project-local in `opencode.json`; global server is fallback)
 - **serena** — Code symbol navigation (WSL, LSP-based)
-- **sequential-thinking** — Multi-step task planning
+- **codebase-memory-mcp** — Code knowledge graph (global config)
+- Global config adds: **memory** (knowledge graph), **context7** (library docs), **eslint** (linting), **playwright** (browser automation), **sequential-thinking**, **engram** (persistent memory).
 
 ---
 
 ## Rules
+
+### Response Format
+
+Never output structured work-state summary blocks with headings like Objective, Important Details, Work State, Completed, Active, Blocked, Next Move, Relevant Files in any response or in reasoning. Answer directly and briefly in the user's language. No status headers, no session-summary templates, no progress reports unless explicitly requested.
 
 ### FSD Architecture
 
@@ -85,7 +86,7 @@ All code must pass ESLint with `--max-warnings 0`. The following are enforced as
 
 ### Security
 
-No secrets, credentials, tokens, or keys in code — use environment variables or GitHub Secrets. All user input must be validated and sanitized. No `console.log` in production code, no `eval()`, no `javascript:` URLs. The guard agent enforces prompt injection detection, PII masking, MCP premoderation, path traversal blocking, and rate limiting. All MCP calls pass through guard premoderation. Guard enforces session limits (50 file reads, 10 file writes, 20 MCP calls per session). Blocked paths include `.git/`, `node_modules/`, `.env*`, and lock files.
+No secrets, credentials, tokens, or keys in code — use environment variables or GitHub Secrets. All user input must be validated and sanitized. No `console.log` in production code, no `eval()`, no `javascript:` URLs. The guard agent enforces prompt injection detection, PII masking, MCP premoderation, path traversal blocking, and rate limiting. All MCP calls pass through guard premoderation. Blocked paths include `.git/`, `node_modules/`, `.env*`, and lock files.
 
 ### Performance
 
@@ -93,7 +94,7 @@ Component render budgets: simple < 8ms, medium < 16ms, complex < 50ms. Bundle ch
 
 ### Git Workflow
 
-GitHub Flow with squash merge to `main`. Branch prefix convention: `feature/`, `bugfix/`, `hotfix/`, `docs/`, `release/`. All commits must use conventional commit format (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`). Never use `--no-verify`. Pull requests require review before merge (2 reviewers for `main`, 1 for feature branches). Branch lifetime should not exceed 7 days. Use the `git-commit` agent for all commits.
+Solo project on GitHub. GitHub Flow with squash merge to `main`. Branch prefix convention: `feature/`, `bugfix/`, `hotfix/`, `docs/`, `release/`. All commits must use conventional commit format (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`). Never use `--no-verify`. A PR to `main` is self-reviewed before merge; no reviewer requirement. Use the `git-commit` agent for all commits.
 
 ### Testing
 
@@ -101,4 +102,4 @@ Unit tests: 70% of test suite, fast and isolated. Integration tests: 20%. E2E te
 
 ### GitHub
 
-Branch protection on `main` requires signed commits, 2 approving reviews, linear history, and passing status checks (TypeScript, ESLint, Tests, Security, Bundle Size, FSD Validation). `develop` requires 1 review and passing checks. Dependabot is configured for daily npm security updates. GitHub Actions use least-privilege permissions; only verified actions from `actions/` namespace are allowed. Secrets are managed through GitHub Secrets, never hardcoded.
+Single-maintenance GitHub repo (`main` + `dev` + short-lived feature branches). CI status checks (TypeScript, ESLint, Tests, Bundle Size, FSD Validation) must pass on PRs. GitHub Actions use least-privilege permissions; only verified actions from `actions/` namespace are allowed. Secrets are managed through GitHub Secrets, never hardcoded.

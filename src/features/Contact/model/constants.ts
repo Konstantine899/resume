@@ -2,7 +2,7 @@
 // Contact Feature Constants
 // ============================================
 
-import { FaGithub, FaLinkedin, FaTelegram } from 'react-icons/fa';
+import { Github, Linkedin, Send } from 'lucide-react';
 
 export const CONTACT_EMAIL = 'kostay375298918971@gmail.com';
 
@@ -10,16 +10,16 @@ export const SOCIAL_LINKS = [
   {
     name: 'GitHub',
     href: 'https://github.com/konstantin-atroshchenko',
-    icon: FaGithub,
+    icon: Github,
   },
   {
     name: 'LinkedIn',
     href: 'https://linkedin.com/in/konstantin-atroshchenko',
-    icon: FaLinkedin,
+    icon: Linkedin,
   },
   {
     name: 'Telegram',
     href: 'https://t.me/konstantin_atroshchenko',
-    icon: FaTelegram,
+    icon: Send,
   },
 ];
