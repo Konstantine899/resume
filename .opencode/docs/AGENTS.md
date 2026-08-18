@@ -98,7 +98,9 @@ Solo project on GitHub. GitHub Flow with squash merge to `main`. Branch prefix c
 
 ### Testing
 
-Unit tests: 70% of test suite, fast and isolated. Integration tests: 20%. E2E tests: 10% covering critical user journeys. All tests must have assertions — no fake or empty test bodies. Coverage targets: 90%+ lines, 85%+ branches, 95%+ functions. Flaky tests are not tolerated (retry on failure, detect non-determinism). See the `test-generation` skill for test patterns and the `integration-test` agent for Playwright workflows.
+Unit tests: 70% of test suite, fast and isolated. Integration tests: 20%. E2E tests: 10% covering critical user journeys. All tests must have assertions — no fake or empty test bodies. Coverage targets: 90%+ lines, 85%+ branches, 95%+ functions. Flaky tests are not tolerated (retry on failure, detect non-determinism). Use the `integration-test` agent for Playwright workflows.
+
+Write tests and stories by following existing components in `src/shared/ui/` as the source of truth (e.g. `Button.test.tsx`, `*.stories.tsx`) — do not invent patterns. Forbidden in tests: asserting raw CSS class names (CSS Modules hash them, e.g. `toHaveClass('primary')` fails — use `data-testid` or `toHaveClass(/variant/)` instead), relative imports in mocks (`vi.mock('../../...')` — use the `@/` alias), and brittle text selectors (`getByText('Error')` — prefer `getByRole`/`getByLabelText`).
 
 ### GitHub
 
