@@ -203,6 +203,7 @@ pnpm-lock.yaml
 .opencode/agents/
 .opencode/skills/
 !.opencode/skills/fsd-design/
+!.opencode/skills/reuse-first/
 !.opencode/commands/
 
 # ============================================
