@@ -3,9 +3,15 @@
 // ============================================
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import emailjs from '@emailjs/browser';
 import { useState } from 'react';
 import type { ContactFormData, FormStatus } from '../model/types';
+
+interface UseContactFormOptions {
+  /** Overrides the default EmailJS send call (used for testing). */
+  send?: (form: HTMLFormElement) => Promise<unknown>;
+}
 
 interface UseContactFormReturn {
   formData: ContactFormData;
@@ -16,8 +22,31 @@ interface UseContactFormReturn {
   resetForm: () => void;
 }
 
-export function useContactForm(): UseContactFormReturn {
-  const { addToast } = useToast(); // ✅ Получаем функцию добавления toast
+/** Thrown when the required EmailJS environment variables are missing. */
+class EmailJSConfigError extends Error {
+  constructor() {
+    super('EmailJS configuration is missing');
+    this.name = 'EmailJSConfigError';
+  }
+}
+
+/** Default EmailJS send implementation (ADR 0003 — direct SDK call). */
+async function emailjsSend(form: HTMLFormElement): Promise<unknown> {
+  const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  if (!serviceID || !templateID || !publicKey) {
+    throw new EmailJSConfigError();
+  }
+
+  return emailjs.sendForm(serviceID, templateID, form, publicKey);
+}
+
+export function useContactForm(options?: UseContactFormOptions): UseContactFormReturn {
+  const { addToast } = useToast();
+  const { t } = useLanguage();
+  const sendForm = options?.send ?? emailjsSend;
 
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
@@ -36,38 +65,29 @@ export function useContactForm(): UseContactFormReturn {
     setStatus('submitting');
 
     try {
-      // 1. Валидация формы
+      // 1. Validation
       if (!formData.name || !formData.email || !formData.message) {
-        throw new Error('Все поля обязательны для заполнения');
+        setStatus('error');
+        addToast({ message: t('contactFormRequired'), type: 'error', duration: 5000 });
+        return;
       }
 
-      // 2. EmailJS конфигурация
-      const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-      if (!serviceID || !templateID || !publicKey) {
-        throw new Error('EmailJS конфигурация не завершена');
-      }
-
-      // 3. Отправка формы
+      // 2. Send (EmailJS by default, injected in tests)
       const formElement = e.target as HTMLFormElement;
-      await emailjs.sendForm(serviceID, templateID, formElement, publicKey);
+      await sendForm(formElement);
 
-      // 4. Успех → Toast + сброс
+      // 3. Success → Toast + reset
       setStatus('success');
-      addToast({ message: '✅ Сообщение успешно отправлено!', type: 'success', duration: 5000 });
+      addToast({ message: t('contactFormSent'), type: 'success', duration: 5000 });
       resetForm();
     } catch (error) {
-      // 5. Ошибка → Toast
+      // 4. Error → Toast
       setStatus('error');
 
       const message =
-        error instanceof Error
-          ? error.message
-          : 'Не удалось отправить сообщение. Попробуйте позже.';
+        error instanceof EmailJSConfigError ? t('contactFormConfigError') : t('contactFormError');
 
-      addToast({ message: `❌ ${message}`, type: 'error', duration: 5000 });
+      addToast({ message, type: 'error', duration: 5000 });
     }
   };
 

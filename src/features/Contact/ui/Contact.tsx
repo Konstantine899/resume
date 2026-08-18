@@ -1,9 +1,11 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { Button } from '@/shared/ui/Button';
 import { ContactCard } from '@/shared/ui/Card';
 import { Icon } from '@/shared/ui/Icon';
+import { Input, InputEmail } from '@/shared/ui/Input';
 import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
@@ -33,7 +35,7 @@ export function Contact() {
               noValidate // ✅ Браузерная валидация отключена (своя в хуке)
             >
               {/* Имя */}
-              <input
+              <Input
                 type="text"
                 name="user_name"
                 placeholder={t('namePlaceholder')}
@@ -42,12 +44,10 @@ export function Contact() {
                 disabled={status === 'submitting'}
                 className={styles.input}
                 required
-                aria-required="true"
               />
 
               {/* Email */}
-              <input
-                type="email"
+              <InputEmail
                 name="user_email"
                 placeholder={t('emailPlaceholder')}
                 value={formData.email}
@@ -55,7 +55,6 @@ export function Contact() {
                 disabled={status === 'submitting'}
                 className={styles.input}
                 required
-                aria-required="true"
               />
 
               {/* Сообщение */}
@@ -72,14 +71,13 @@ export function Contact() {
               />
 
               {/* Кнопка отправки */}
-              <button
+              <Button
                 type="submit"
-                disabled={status === 'submitting'}
+                loading={status === 'submitting'}
                 className={styles.submitButton}
-                aria-busy={status === 'submitting'}
               >
                 {status === 'submitting' ? t('sending') : t('sendMessage')}
-              </button>
+              </Button>
 
               {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
               {/* Теперь уведомления показываются через Toast */}
