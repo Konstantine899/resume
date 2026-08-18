@@ -202,6 +202,7 @@ pnpm-lock.yaml
 .opencode/rules/
 .opencode/agents/
 .opencode/skills/
+!.opencode/skills/fsd-design/
 !.opencode/commands/
 
 # ============================================
