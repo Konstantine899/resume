@@ -204,6 +204,7 @@ pnpm-lock.yaml
 .opencode/skills/
 !.opencode/skills/fsd-design/
 !.opencode/skills/reuse-first/
+!.opencode/skills/i18n-first/
 !.opencode/commands/
 
 # ============================================
