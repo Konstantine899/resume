@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import i18n from '@/shared/lib/i18n/config/i18n';
+import { i18n } from '@/shared/lib/i18n';
 import { Image } from './Image';
 import type { LocalImageProps, RemoteImageProps } from '../model/types';
 
@@ -57,15 +57,14 @@ describe('Image improvements (UI Kit Best Practices)', () => {
 
     it('allows empty alt for decorative images', () => {
       renderImage({ alt: '', decorative: true, src: TEST_IMAGE_SVG });
-      // Wait for image to load so the img element renders with correct role
-      const img = screen.getByRole('img');
+      const img = screen.getByRole('presentation', { hidden: true });
       expect(img).toHaveAttribute('alt', '');
       expect(img.closest('figure')).toHaveClass(/decorative/);
     });
 
     it('applies decorative class to container', () => {
       renderImage({ alt: 'Decorative', decorative: true, src: TEST_IMAGE_SVG });
-      const figure = screen.getByRole('img').closest('figure');
+      const figure = screen.getByRole('presentation', { hidden: true }).closest('figure');
       expect(figure).toHaveClass(/decorative/);
     });
   });
@@ -483,7 +482,7 @@ describe('Image missing coverage (Этап 4)', () => {
 
   it('handles empty alt for decorative images', () => {
     render(<Image src={TEST_IMAGE_SVG} alt="" decorative />);
-    const img = screen.getByRole('img');
+    const img = screen.getByRole('presentation', { hidden: true });
     expect(img).toHaveAttribute('alt', '');
     expect(img.closest('figure')).toHaveClass(/decorative/);
   });

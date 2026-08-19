@@ -1,5 +1,25 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as imageFormatDetection from './imageFormatDetection';
+
+// jsdom не умеет canvas 2d (getContext возвращает null без пакета canvas)
+// и canvas.toDataURL('image/webp'|'image/avif') — мокаем современный браузер:
+// getContext → пустой 2d-контекст, toDataURL(type) → data:type.
+
+beforeEach(() => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+    () => ({}) as unknown as CanvasRenderingContext2D
+  );
+  vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation(function (
+    this: HTMLCanvasElement,
+    type?: string
+  ) {
+    return `data:${type ?? 'image/png'}`;
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('Image format detection (requirement #11)', () => {
   describe('canUseWebp', () => {

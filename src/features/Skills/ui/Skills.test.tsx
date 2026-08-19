@@ -19,7 +19,9 @@ vi.mock('@/shared/lib/contexts/ThemeContext', () => ({
 
 // Mock LanguageContext
 vi.mock('@/shared/lib/i18n/hooks', () => ({
-  useLanguage: () => ({ t: (key: string) => key }),
+  useLanguage: () => ({
+    t: (key: string) => ({ mySkills: 'My Skills' })[key] ?? key,
+  }),
 }));
 
 describe('Skills', () => {

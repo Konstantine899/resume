@@ -90,7 +90,7 @@ export function useImageDragDrop(options: ImageDragDropOptions = {}): ImageDragD
       e.stopPropagation();
       dragCounter.current += 1;
 
-      if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
         const isImage = Array.from(e.dataTransfer.items).some(
           (item) => item.kind === 'file' && acceptedTypes.includes(item.type)
         );
