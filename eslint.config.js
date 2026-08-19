@@ -101,6 +101,7 @@ export default tseslint.config(
       // FSD Architecture rules
       'fsd-imports/layer-dependency': 'error',
       'fsd-imports/no-circular': 'error',
+      'fsd-imports/tests-public-api-only': 'error',
       'fsd-imports/public-api-only': [
         'error',
         {

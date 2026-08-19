@@ -2,7 +2,7 @@ import { describe, it, expect, assert } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Mail } from 'lucide-react';
 import { Input } from './Input';
-import { setupUserEvent } from '@/shared/tests/test-utils';
+import { setupUserEvent } from '@/shared/tests';
 
 describe('Input — Keyboard Navigation', () => {
   it('clear button is reachable via Tab key', async () => {

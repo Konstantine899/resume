@@ -25,10 +25,10 @@ import { Mail } from 'lucide-react';
 // ---- Icon containers / migrated sites ----
 import { ModalCloseButton } from '@/shared/ui/Modal';
 import { Toast } from '@/shared/ui/Toast';
-import { TOAST_ICONS, TOAST_TYPES } from '@/shared/ui/Toast/model/constants';
+import { TOAST_ICONS, TOAST_TYPES } from '@/shared/ui/Toast';
 import { Input, InputEmail, InputPhone, InputSearch } from '@/shared/ui/Input';
 import { Sidebar, MobileMenu, ToggleButton, NavItem } from '@/widgets/Sidebar';
-import { getNavItems } from '@/widgets/Sidebar/model/constants';
+import { getNavItems } from '@/widgets/Sidebar';
 import { ContactCard } from '@/shared/ui/Card';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { LanguageSwitch } from '@/features/LanguageSwitch';

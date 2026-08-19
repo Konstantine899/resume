@@ -8,9 +8,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useEffect } from 'react';
-import { ToastProvider } from '@/shared/lib/contexts/ToastContext/ui/ToastContext';
-import { useToast } from '@/shared/lib/contexts/ToastContext/lib/hooks/useToast';
-import type { ToastContextType } from '@/shared/lib/contexts/ToastContext/model/types';
+import { ToastProvider, useToast, type ToastContextType } from '@/shared/lib/contexts/ToastContext';
 import { TOAST_CONSTANTS } from '../model/constants';
 import type { ToastOptions } from '../model/types';
 import { Toast } from './Toast';

@@ -7,7 +7,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
 import { ToastProvider } from './ToastContext';
 import { useToast } from '../lib/hooks/useToast';
-import { TOAST_CONSTANTS } from '@/shared/ui/Toast/model/constants';
+import { TOAST_CONSTANTS } from '@/shared/ui/Toast';
 
 // ============================================
 // Test Helpers
