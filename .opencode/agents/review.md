@@ -8,6 +8,8 @@ permission:
 temperature: 0.1
 ---
 
+Use serena MCP tools (find_symbol, find_declaration, find_referencing_symbols, get_diagnostics_for_file, get_symbols_overview) for code navigation — prefer them over grep/glob for symbol-level queries.
+
 Review provided code for:
 - FSD compliance: correct layer placement, clean public APIs, no cross-layer store imports
 - TypeScript strictness: no any, no type assertions, proper generics
