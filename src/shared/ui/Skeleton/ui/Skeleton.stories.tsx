@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, userEvent, within } from '@storybook/test';
 import { Skeleton } from './Skeleton';
 
 const meta = {
@@ -18,6 +19,15 @@ const meta = {
 - **text** — для заголовков, параграфов и текстовых блоков
 - **circular** — для аватаров, иконок и круглых элементов
 - **rectangular** — для изображений, карточек и прямоугольных блоков
+- **rounded** — для скруглённых блоков (border-radius из \`$border-radius-md\`, переопределяется через \`--skeleton-radius\`)
+
+## Stagger-задержка:
+- \`staggerStep\` (0-1, дефолт \`0.1\`) — шаг задержки между строками в multi-line text варианте
+
+## CSS-переменные:
+- \`--skeleton-duration\`, \`--skeleton-delay\` — управление анимацией
+- \`--skeleton-highlight\` — цвет блика shimmer-эффекта (переопределяется пользователем)
+- \`--skeleton-radius\` — радиус скругления для rounded варианта
 
 ## Accessibility:
 - \`role="status"\` — объявляет состояние загрузки скринридерам
@@ -36,7 +46,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['text', 'circular', 'rectangular'],
+      options: ['text', 'circular', 'rectangular', 'rounded'],
       description: 'Вариант скелетона',
     },
     width: { control: 'text', description: 'Ширина (px, %, rem)' },
@@ -49,9 +59,21 @@ const meta = {
       control: { type: 'range', min: 0, max: 2, step: 0.1 },
       description: 'Задержка анимации (сек)',
     },
+    staggerStep: {
+      control: { type: 'range', min: 0, max: 1, step: 0.05 },
+      description: 'Шаг stagger-задержки между строками (multi-line text)',
+    },
     duration: {
       control: { type: 'range', min: 0.5, max: 3, step: 0.1 },
       description: 'Длительность анимации (сек)',
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Признак состояния загрузки (true → скелетон, false → children)',
+    },
+    children: {
+      control: 'text',
+      description: 'Контент, рендерится когда loading === false',
     },
   },
 } satisfies Meta<typeof Skeleton>;
@@ -90,12 +112,64 @@ export const Rectangular: Story = {
   },
 };
 
+export const Rounded: Story = {
+  args: { variant: 'rounded', width: '200px', height: '60px' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveAttribute('aria-busy', 'true');
+    expect(skeleton).toHaveClass(/rounded/);
+  },
+};
+
 export const WithDelay: Story = {
   args: { variant: 'text', width: '200px', height: '20px', delay: 0.5, duration: 2 },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const skeleton = canvas.getByRole('status');
     expect(skeleton).toHaveStyle({ '--skeleton-delay': '0.5s', '--skeleton-duration': '2s' });
+  },
+};
+
+export const CustomHighlight: Story = {
+  args: { variant: 'text', width: '200px', height: '20px' },
+  render: (args) => (
+    <Skeleton {...args} style={{ '--skeleton-highlight': 'rgba(255, 0, 0, 0.4)' }} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const skeleton = canvas.getByRole('status');
+    expect(skeleton).toHaveStyle({ '--skeleton-highlight': 'rgba(255, 0, 0, 0.4)' });
+  },
+};
+
+export const LoadingWrapper: Story = {
+  render: () => {
+    const [loading, setLoading] = useState(true);
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <button type="button" onClick={() => setLoading((prev) => !prev)}>
+          Toggle loading
+        </button>
+        <Skeleton loading={loading} width="200px" height="20px">
+          <div data-testid="loading-wrapper-content">Контент загружен</div>
+        </Skeleton>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // loading=true (default) → скелетон виден, контент скрыт
+    expect(canvas.getByRole('status')).toBeInTheDocument();
+    expect(canvas.queryByTestId('loading-wrapper-content')).not.toBeInTheDocument();
+    // Клик → loading=false → контент виден, скелетон исчезает
+    await userEvent.click(canvas.getByRole('button', { name: 'Toggle loading' }));
+    expect(canvas.getByTestId('loading-wrapper-content')).toBeInTheDocument();
+    expect(canvas.queryByRole('status')).not.toBeInTheDocument();
+    // Повторный клик → скелетон снова виден
+    await userEvent.click(canvas.getByRole('button', { name: 'Toggle loading' }));
+    expect(canvas.getByRole('status')).toBeInTheDocument();
+    expect(canvas.queryByTestId('loading-wrapper-content')).not.toBeInTheDocument();
   },
 };
 
@@ -258,11 +332,12 @@ export const AllVariants: Story = {
         <Skeleton variant="text" width="100px" height="20px" />
         <Skeleton variant="circular" width="60px" height="60px" />
         <Skeleton variant="rectangular" width="150px" height="100px" />
+        <Skeleton variant="rounded" width="150px" height="100px" />
       </div>
     ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const skeletons = canvas.getAllByRole('status');
-    expect(skeletons).toHaveLength(3);
+    expect(skeletons).toHaveLength(4);
   },
 };

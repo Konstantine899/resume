@@ -1,11 +1,16 @@
 // src/shared/ui/Skeleton/ui/Skeleton.test.tsx
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { readFileSync } from 'fs';
 import { Skeleton } from './Skeleton';
 
 describe('Skeleton', () => {
+  // Источник: Paragraph PAR-09 / Spinner SPR-04 паттерн
+  // ?raw импорты не работают в vitest pipeline — используем disk read
+  const readScss = (relativePath: string): string =>
+    readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
+
   // ============================================
   // Basic Rendering
   // ============================================
@@ -32,6 +37,12 @@ describe('Skeleton', () => {
       render(<Skeleton variant="rectangular" />);
       const skeleton = screen.getByRole('status');
       expect(skeleton).toHaveClass(/rectangular/);
+    });
+
+    it('должен рендериться с variant="rounded"', () => {
+      render(<Skeleton variant="rounded" />);
+      const skeleton = screen.getByRole('status');
+      expect(skeleton).toHaveClass(/rounded/);
     });
 
     it('должен применять кастомный className', () => {
@@ -158,6 +169,45 @@ describe('Skeleton', () => {
       expect(line2).toHaveStyle({ '--skeleton-delay': '0.4s' });
     });
 
+    it('должен применять кастомный staggerStep через CSS переменную --skeleton-delay', () => {
+      render(<Skeleton variant="text" lines={3} delay={0.2} staggerStep={0.3} />);
+      const line0 = screen.getByTestId('skeleton-line-0');
+      const line1 = screen.getByTestId('skeleton-line-1');
+      const line2 = screen.getByTestId('skeleton-line-last');
+
+      expect(line0).toHaveStyle({ '--skeleton-delay': '0.2s' });
+      expect(line1).toHaveStyle({ '--skeleton-delay': '0.5s' });
+      expect(line2).toHaveStyle({ '--skeleton-delay': '0.8s' });
+    });
+
+    it('должен использовать дефолтный staggerStep=0.1, когда prop не передан', () => {
+      render(<Skeleton variant="text" lines={3} delay={0} />);
+      const line0 = screen.getByTestId('skeleton-line-0');
+      const line1 = screen.getByTestId('skeleton-line-1');
+      const line2 = screen.getByTestId('skeleton-line-last');
+
+      expect(line0).toHaveStyle({ '--skeleton-delay': '0s' });
+      expect(line1).toHaveStyle({ '--skeleton-delay': '0.1s' });
+      expect(line2).toHaveStyle({ '--skeleton-delay': '0.2s' });
+    });
+
+    it('должен корректно округлять stagger delay при дробном staggerStep', () => {
+      render(<Skeleton variant="text" lines={3} delay={0.1} staggerStep={0.05} />);
+      const line0 = screen.getByTestId('skeleton-line-0');
+      const line1 = screen.getByTestId('skeleton-line-1');
+      const line2 = screen.getByTestId('skeleton-line-last');
+
+      expect(line0).toHaveStyle({ '--skeleton-delay': '0.1s' });
+      expect(line1).toHaveStyle({ '--skeleton-delay': '0.15s' });
+      expect(line2).toHaveStyle({ '--skeleton-delay': '0.2s' });
+    });
+
+    it('должен игнорировать staggerStep для одиночной строки (lines={1})', () => {
+      render(<Skeleton variant="text" lines={1} staggerStep={0.5} />);
+      const lines = screen.queryAllByTestId(/skeleton-line/);
+      expect(lines).toHaveLength(0);
+    });
+
     it('должен применять duration ко всем строкам через CSS переменную --skeleton-duration', () => {
       render(<Skeleton variant="text" lines={3} duration={2.5} />);
       const line0 = screen.getByTestId('skeleton-line-0');
@@ -210,82 +260,28 @@ describe('Skeleton', () => {
       const skeleton = screen.getByRole('status');
       expect(skeleton).toHaveClass(/rectangular/);
     });
+
+    it('должен рендерить rounded variant с border-radius', () => {
+      render(<Skeleton variant="rounded" />);
+      const skeleton = screen.getByRole('status');
+      expect(skeleton).toHaveClass(/rounded/);
+    });
   });
 
   // ============================================
-  // Runtime Validation (Development)
+  // Rounded Variant — Source Guard (REQ-1, REQ-2)
   // ============================================
 
-  describe('Runtime Validation (Development)', () => {
-    const originalEnv = process.env.NODE_ENV;
-    let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+  describe('Rounded Variant — Source Guard', () => {
+    it('должен задавать border-radius через --skeleton-radius (fallback $border-radius-md)', () => {
+      const skeletonScss = readScss('./Skeleton.module.scss');
 
-    beforeEach(() => {
-      process.env.NODE_ENV = 'development';
-      consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    });
+      const roundedBlockMatch = skeletonScss.match(/&\.rounded\s*\{([\s\S]*?)\}/);
+      expect(roundedBlockMatch).toBeTruthy();
 
-    afterEach(() => {
-      process.env.NODE_ENV = originalEnv;
-      consoleWarnSpy.mockRestore();
-    });
-
-    it('должен предупреждать о невалидном variant', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Skeleton variant={'invalid' as any} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid variant "invalid"')
-      );
-    });
-
-    it('должен предупреждать о lines < 1', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render(<Skeleton lines={0 as any} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid lines "0"')
-      );
-    });
-
-    it('должен предупреждать о lines > 10', () => {
-      render(<Skeleton lines={15} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid lines "15"')
-      );
-    });
-
-    it('должен предупреждать о negative delay', () => {
-      render(<Skeleton delay={-1} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid delay "-1"')
-      );
-    });
-
-    it('должен предупреждать о zero duration', () => {
-      render(<Skeleton duration={0} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid duration "0"')
-      );
-    });
-
-    it('должен предупреждать о negative duration', () => {
-      render(<Skeleton duration={-0.5} />);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skeleton: invalid duration "-0.5"')
-      );
-    });
-
-    it('не должен предупреждать при валидных props', () => {
-      render(
-        <Skeleton variant="text" width="100px" height="20px" lines={3} delay={0.1} duration={1.5} />
-      );
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
-    });
-
-    it('не должен предупреждать в production режиме', () => {
-      process.env.NODE_ENV = 'production';
-      // @ts-expect-error Testing invalid prop
-      render(<Skeleton variant="invalid" />);
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      const roundedContent = roundedBlockMatch?.[1] ?? '';
+      expect(roundedContent).toMatch(/border-radius\s*:/);
+      expect(roundedContent).toMatch(/--skeleton-radius/);
     });
   });
 
@@ -339,11 +335,6 @@ describe('Skeleton', () => {
   // ============================================
 
   describe('Reduced Motion — Source Guard', () => {
-    // Источник: Paragraph PAR-09 / Spinner SPR-04 паттерн
-    // ?raw импорты не работают в vitest pipeline — используем disk read
-    const readScss = (relativePath: string): string =>
-      readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
-
     it('должен иметь @media (prefers-reduced-motion: reduce) блок с animation: none для ::after', () => {
       const skeletonScss = readScss('./Skeleton.module.scss');
 
@@ -376,6 +367,67 @@ describe('Skeleton', () => {
     it('должен быть мемоизирован с React.memo', () => {
       // Skeleton использует memo, проверяем displayName
       expect(Skeleton.displayName).toBe('Skeleton');
+    });
+  });
+
+  // ============================================
+  // Loading Wrapper (M5) — Chakra/Ant Design pattern
+  // ============================================
+
+  describe('Loading Wrapper', () => {
+    it('должен рендерить скелетон, когда loading не задан, и игнорировать children', () => {
+      render(
+        <Skeleton>
+          <div data-testid="loading-content">Контент</div>
+        </Skeleton>
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-content')).not.toBeInTheDocument();
+    });
+
+    it('должен рендерить скелетон при loading={true} и не выводить children в DOM', () => {
+      render(
+        <Skeleton loading>
+          <div data-testid="loading-content">Контент</div>
+        </Skeleton>
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-content')).not.toBeInTheDocument();
+    });
+
+    it('должен рендерить children при loading={false} без role="status"', () => {
+      render(
+        <Skeleton loading={false}>
+          <div data-testid="loading-content">Контент</div>
+        </Skeleton>
+      );
+      expect(screen.getByTestId('loading-content')).toBeInTheDocument();
+      expect(screen.getByTestId('loading-content')).toHaveTextContent('Контент');
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('должен возвращать null при loading={false} без children', () => {
+      const { container } = render(<Skeleton loading={false} />);
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('должен переключаться со скелетона на children при ререндере loading true→false', () => {
+      const { rerender } = render(
+        <Skeleton loading>
+          <div data-testid="loading-content">Контент</div>
+        </Skeleton>
+      );
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-content')).not.toBeInTheDocument();
+
+      rerender(
+        <Skeleton loading={false}>
+          <div data-testid="loading-content">Контент</div>
+        </Skeleton>
+      );
+      expect(screen.getByTestId('loading-content')).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
   });
 });

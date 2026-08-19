@@ -53,6 +53,12 @@
   &.rectangular {
     border-radius: $border-radius-lg;
   }
+
+  &.rounded {
+    border-radius: var(--skeleton-radius, $border-radius-md);
+
+    // md-радиус по умолчанию, переопределяется через --skeleton-radius (REQ-2)
+  }
 }
 
 @keyframes shimmer {

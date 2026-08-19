@@ -11,9 +11,10 @@ import styles from './Skeleton.module.scss';
  * Skeleton — компонент для отображения состояния загрузки контента.
  *
  * @description
- * Поддерживает полиморфный `as` prop, три варианта (text, circular, rectangular), multi-line,
- * настраиваемые width/height, stagger-delay для строк, shimmer анимацию.
- * Использует CSS-переменные `--skeleton-duration`, `--skeleton-delay`.
+ * Поддерживает полиморфный `as` prop, четыре варианта (text, circular, rectangular, rounded),
+ * multi-line, настраиваемые width/height, stagger-delay для строк (staggerStep), shimmer анимацию.
+ * Использует CSS-переменные `--skeleton-duration`, `--skeleton-delay`, `--skeleton-highlight`.
+ * Вариант `rounded` переопределяется через `--skeleton-radius`.
  *
  * @group UI Components
  *
@@ -23,6 +24,7 @@ import styles from './Skeleton.module.scss';
  * <Skeleton ratio="4/3" variant="circular" width="48px" height="48px" />
  * <Skeleton ratio="16/9" variant="text" width="300px" lines={4} />
  * <Skeleton ratio="16/9" as="article" className="custom" />
+ * <Skeleton loading={isLoading}><Content /></Skeleton>
  * ```
  */
 
@@ -38,13 +40,16 @@ function SkeletonImpl<C extends ElementType = 'div'>(
     height,
     lines,
     delay,
+    staggerStep,
     duration,
     className,
+    loading,
+    children,
     'aria-label': ariaLabel,
     ...restProps
   }: SkeletonProps<C> & { ref?: ForwardedRef<HTMLElement> },
   ref: ForwardedRef<HTMLElement>
-): ReactElement {
+): ReactElement | null {
   const { t } = useTranslation();
 
   // Delegate to useSkeleton hook (ariaLabel computed inside hook from t('loading'))
@@ -62,12 +67,20 @@ function SkeletonImpl<C extends ElementType = 'div'>(
     height,
     lines,
     delay,
+    staggerStep,
     duration,
     className,
     as,
     ariaLabel: ariaLabel ?? t('loading'),
   });
   const Component = (as ?? 'div') as ElementType;
+
+  // Loading wrapper (Chakra/Ant Design pattern) — all hooks run above so the
+  // conditional return below never changes the hook order across renders.
+  // loading === false → render children (без обёртки, без role/aria, ref не применяется)
+  if (loading === false) {
+    return children ? <>{children}</> : null;
+  }
 
   // For text variant with multiple lines
   if (variant === 'text' && linesArray) {

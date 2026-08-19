@@ -1,8 +1,8 @@
 // src/shared/ui/Skeleton/model/types.ts
 
-import type { ComponentPropsWithRef, ElementType, ForwardedRef } from 'react';
+import type { ComponentPropsWithRef, ElementType, ForwardedRef, ReactNode } from 'react';
 
-export type SkeletonVariant = 'text' | 'circular' | 'rectangular';
+export type SkeletonVariant = 'text' | 'circular' | 'rectangular' | 'rounded';
 
 /** Required ratio prop — AspectRatioString pattern */
 export type SkeletonRatioString = `${number}/${number}`;
@@ -21,10 +21,16 @@ export interface SkeletonOwnProps {
   lines?: number;
   /** Delay before animation starts */
   delay?: number;
+  /** Шаг stagger-задержки между строками (multi-line text), диапазон 0-1 */
+  staggerStep?: number;
   /** Animation duration */
   duration?: number;
   /** Custom className */
   className?: string;
+  /** Loading wrapper — undefined/true → skeleton; false → children */
+  loading?: boolean;
+  /** Content rendered when loading === false (ignored while skeleton is shown) */
+  children?: ReactNode;
 }
 
 /** Generic polymorphic props — merges own props with element props */
