@@ -76,13 +76,15 @@ Never output structured work-state summary blocks with headings like Objective, 
 
 The project follows Feature-Sliced Design (FSD) v2.1 with strict layer hierarchy: `app` > `pages` > `widgets` > `features` > `entities` > `shared`. A layer may import from itself and all layers below it, never from layers above. Direct cross-imports between features or widgets are forbidden. All slice public APIs must use named exports through `index.ts`. See the `fsd-design` skill for the full decision framework and architecture guidance.
 
+**Test boundary (`fsd-imports/tests-public-api-only`)**: unit tests may freely import *inside their own slice* (co-located `*.test.*` next to the code), but imports of *another* slice's internals are forbidden — they must go through that slice's `index.ts` (its deepest existing public API). Deep imports like `@/widgets/Sidebar/model/constants` or `@/shared/ui/Toast/model/constants` are errors in tests; use `@/widgets/Sidebar` / `@/shared/ui/Toast`. `src/__tests__/` has no own slice, so any deep import there is a violation.
+
 ### Code Style
 
 TypeScript strict mode is required: no `any` types, no implicit any, no unused variables (except `_` prefix). React hooks must have complete dependency arrays; no direct state mutations. CSS Modules only, no `!important`, no global styles. Use semantic HTML elements. Named exports are preferred over default exports in public APIs.
 
 ### Strict Validation
 
-All code must pass ESLint with `--max-warnings 0`. The following are enforced as errors: `no-explicit-any`, `no-unused-vars`, `no-non-null-assertion`, `no-implicit-coercion`, `no-console`, `no-eval`, `react-hooks/exhaustive-deps`, `import/no-cycle`, and `fsd-imports/*` rules. TypeScript strict mode is enabled with all strict flags. Pre-commit hooks block commits on any lint error or type error.
+All code must pass ESLint with `--max-warnings 0`. The following are enforced as errors: `no-explicit-any`, `no-unused-vars`, `no-non-null-assertion`, `no-implicit-coercion`, `no-console`, `no-eval`, `react-hooks/exhaustive-deps`, `import/no-cycle`, and `fsd-imports/*` rules (`layer-dependency`, `no-circular`, `public-api-only`, `tests-public-api-only`). TypeScript strict mode is enabled with all strict flags. Pre-commit hooks block commits on any lint error or type error. The FSD plugin lives in `.opencode/plugins/eslint-plugin-fsd-imports.js` with its own vitest suite (`.opencode/plugins/eslint-plugin-fsd-imports.test.js`) — when changing the rules, run `npx vitest run .opencode/plugins`.
 
 ### Security
 
@@ -101,6 +103,10 @@ Solo project on GitHub. GitHub Flow with squash merge to `main`. Branch prefix c
 Unit tests: 70% of test suite, fast and isolated. Integration tests: 20%. E2E tests: 10% covering critical user journeys. All tests must have assertions — no fake or empty test bodies. Coverage targets: 90%+ lines, 85%+ branches, 95%+ functions. Flaky tests are not tolerated (retry on failure, detect non-determinism). Use the `integration-test` agent for Playwright workflows.
 
 Write tests and stories by following existing components in `src/shared/ui/` as the source of truth (e.g. `Button.test.tsx`, `*.stories.tsx`) — do not invent patterns. Forbidden in tests: asserting raw CSS class names (CSS Modules hash them, e.g. `toHaveClass('primary')` fails — use `data-testid` or `toHaveClass(/variant/)` instead), relative imports in mocks (`vi.mock('../../...')` — use the `@/` alias), and brittle text selectors (`getByText('Error')` — prefer `getByRole`/`getByLabelText`).
+
+i18n mocks: `vi.mock('@/shared/lib/i18n/hooks')` returns `t: (key) => key` by default; when a test asserts a *translated* value (e.g. `My Skills`), the mock must return a translation map `{ mySkills: 'My Skills' }[key] ?? key` — not a bare passthrough. Decorative images render with `role="presentation"` (aria-hidden), so decorative-image tests query `getByRole('presentation', { hidden: true })`, never `getByRole('img')`.
+
+Playwright specs (`src/__tests__/*.spec.ts`, e.g. `image-stories-visual.spec.ts`) are excluded from vitest (`vitest.config.ts` exclude) and run via `npx playwright test` against Storybook on port 6006.
 
 ### GitHub
 
