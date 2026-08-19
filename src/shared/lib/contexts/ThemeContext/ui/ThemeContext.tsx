@@ -2,27 +2,12 @@
 // Theme Context (Shared Layer)
 // ============================================
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-
-type Theme = 'light' | 'dark';
+import React, { createContext, useEffect, useRef, useState } from 'react';
+import type { Theme, ThemeContextType } from '../model/types';
 
 const TRANSITION_DURATION = 400;
 
-export interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-  isTransitioning: boolean;
-}
-
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
 
 // Функция для получения начальной темы
 const getInitialTheme = (): Theme => {

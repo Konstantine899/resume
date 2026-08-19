@@ -2,8 +2,7 @@
 // Updated App Component with FSD Structure
 // ============================================
 
-import { I18nProvider } from '@/app/providers/I18nProvider';
-import { ThemeProvider } from '@/app/providers/ThemeProvider';
+import { I18nProvider, ThemeProvider } from '@/app/providers';
 import { HomePage } from '@/pages/Home';
 import '@/shared/styles/globals/index.scss';
 

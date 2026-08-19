@@ -38,7 +38,7 @@ export const searchJobs = (jobs: Job[], query: string, language: 'en' | 'ru' = '
     (job) =>
       job.company.toLowerCase().includes(lowerQuery) ||
       job.position.toLowerCase().includes(lowerQuery) ||
-      job.description[language].some((desc: any) => desc.toLowerCase().includes(lowerQuery))
+      job.description[language].some((desc) => desc.toLowerCase().includes(lowerQuery))
   );
 };
 
