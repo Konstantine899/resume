@@ -101,9 +101,9 @@
         }
       }
     },
-    "deepseek": {
+    "opencode": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "DeepSeek",
+      "name": "OpenCode Provider",
       "models": {
         "deepseek-v4-flash-free": {
           "name": "DeepSeek V4 Flash Free",
