@@ -978,34 +978,17 @@
     }
   },
   "mcp": {
-    "serena": {
-      "type": "local",
-      "command": [
-        "wsl",
-        "--exec",
-        "bash",
-        "-c",
-        "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"
-      ],
+    "context7": {
       "enabled": true,
-      "timeout": 60000,
-      "operationTimeout": {
-        "find_symbol": 30000,
-        "replace_symbol_body": 45000,
-        "get_symbols_overview": 20000,
-        "find_referencing_symbols": 30000
-      },
-      "fallback": {
-        "enabled": true,
-        "strategy": "filesystem_grep",
-        "maxFiles": 50,
-        "alertOnFallback": true
-      }
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
     },
-    "obsidian": {
+    "codebase-memory-mcp": {
       "type": "local",
-      "command": ["node", "D:/Dev/projects/resume/.opencode/obsidian-debug.js"],
-      "enabled": true
+      "command": ["C:/Users/Konstantine/.local/bin/codebase-memory-mcp.exe"],
+      "args": [],
+      "enabled": true,
+      "timeout": 30000
     }
   },
   "build": {
@@ -1014,12 +997,17 @@
     "model": "opencode/hy3-free",
     "max_tokens": 8000,
     "permission": { "bash": "deny", "edit": "deny", "write": "deny" },
-    "tools": { "bash": false, "edit": false, "question": true, "read": true, "task": true, "write": false, "context7*": true },
+    "tools": {
+      "bash": false,
+      "edit": false,
+      "question": true,
+      "read": true,
+      "task": true,
+      "write": false,
+      "context7*": true
+    },
     "prompt": "You are in Build mode using Hy3 Free. Focus on analysis, architecture, and planning."
   },
 
   "share": "disabled"
 }
-
-
-
