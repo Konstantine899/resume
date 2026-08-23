@@ -3,9 +3,6 @@
   "tools": {
     "context7*": false
   },
-  "lsp": {
-    "typescript": {}
-  },
   "agent": {
     "jd-fix-agent-deepseek": {
       "description": "Surgical fix agent (DeepSeek) for judgment-day protocol",
@@ -1023,6 +1020,7 @@
 
   "share": "disabled"
 }
+
 
 
 
