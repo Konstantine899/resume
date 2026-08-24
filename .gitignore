@@ -181,6 +181,10 @@ pnpm-lock.yaml
 *.md
 !CHANGELOG.md
 !docs/**/*.md
+!README.md
+!CONTRIBUTING.md
+!SECURITY.md
+!RELEASE.md
 
 # ============================================
 # OPENCODE - COMMIT THESE (Configuration)
