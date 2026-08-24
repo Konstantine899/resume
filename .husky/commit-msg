@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
-. "$(dirname "$0")/_/h"
 
-# Conventional Commit validation
+# Skip validation for merge/squash commits (git passes the source as $2).
+# Without this, a strict conventional-commit hook would block `git merge`.
+if [ "$2" = "merge" ] || [ "$2" = "squash" ]; then
+  exit 0
+fi
+
 commit_msg_file="$1"
 commit_msg=$(cat "$commit_msg_file")
 
