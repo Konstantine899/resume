@@ -1,0 +1,426 @@
+// ============================================
+
+// Toast Component Styles (Senior+ 2026)
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/z-index' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// Toast Container (Stack)
+
+// ============================================
+.toastContainer {
+  position: fixed;
+  top: $spacing-6;
+  right: $spacing-6;
+  bottom: auto;
+  z-index: $z-toast;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  width: fit-content;
+  max-width: 420px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+
+    // Stack cascade effect
+    transition: transform $transition-fast ease-out;
+
+    &:nth-child(1) {
+      z-index: 3;
+      transform: scale(1);
+    }
+
+    &:nth-child(2) {
+      z-index: 2;
+      opacity: 0.9;
+      transform: scale(0.96) translateY(-4px);
+    }
+
+    &:nth-child(n + 3) {
+      z-index: 1;
+      opacity: 0.8;
+      transform: scale(0.92) translateY(-8px);
+    }
+  }
+
+  @media (width <= 640px) {
+    inset: auto $spacing-4 $spacing-4;
+    max-width: none;
+  }
+}
+
+// ============================================
+
+// Toast Item
+
+// ============================================
+.toast {
+  /* Component-local design tokens (modular system — NOT global, NOT in _theme.scss);
+     inherited by closeButton/action/pauseIndicator. */
+  --toast-bg: #fff;
+  --toast-close-icon: rgb(0 0 0 / 0.4);
+  --toast-close-icon-hover: rgb(0 0 0 / 0.7);
+  --toast-focus-ring: #{$primary-light};
+  --toast-action-secondary: #{$primary-color};
+  --toast-pause-text: rgb(0 0 0 / 0.3);
+
+  position: relative;
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  padding: $spacing-3 $spacing-4;
+  overflow: hidden;
+  background: var(--toast-bg);
+
+  // Accent border left (4px)
+  border-left: 4px solid;
+  border-radius: $border-radius-lg;
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 0.15),
+    0 1px 3px rgb(0 0 0 / 0.1);
+
+  // Theme transitions (transform included: spring-back on swipe release)
+
+  @include theme-transition;
+
+  transition:
+    transform $transition-fast ease-out,
+    background-color $transition-duration $transition-easing,
+    color $transition-duration $transition-easing,
+    border-color $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  // Active swipe gesture (Swipe-to-dismiss): no transition lag while dragging
+  &.dragging {
+    touch-action: pan-y;
+    cursor: grabbing;
+    user-select: none;
+    transition: none;
+  }
+
+  // Entrance animation
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%) scale(0.9);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  // Exit animation
+  &.closing {
+    animation: slideOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(100%) scale(0.9);
+    }
+  }
+
+  // Hover lift effect
+  &:hover {
+    box-shadow:
+      0 8px 24px rgb(0 0 0 / 0.18),
+      0 2px 6px rgb(0 0 0 / 0.12);
+    transform: translateY(-2px);
+  }
+
+  // ============================================
+
+  // Type Variants (Accent colors + Icon backgrounds)
+
+  // ============================================
+  &.success {
+    border-left-color: $success-color;
+
+    .icon {
+      color: $success-color;
+      background: rgb(40 167 69 / 0.15);
+    }
+  }
+
+  &.error {
+    border-left-color: $danger-color;
+
+    .icon {
+      color: $danger-color;
+      background: rgb(220 53 69 / 0.15);
+    }
+  }
+
+  &.warning {
+    border-left-color: $warning-color;
+
+    .icon {
+      color: $warning-color;
+      background: rgb(255 193 7 / 0.2);
+    }
+  }
+
+  &.info {
+    border-left-color: $info-color;
+
+    .icon {
+      color: $info-color;
+      background: rgb(23 162 184 / 0.15);
+    }
+  }
+
+  // Dark mode overrides (theme-aware via [data-theme])
+  [data-theme='dark'] & {
+    --toast-bg: #1e1e1e;
+    --toast-focus-ring: #{$primary-dark};
+    --toast-action-secondary: #{$primary-dark};
+
+    background: var(--toast-bg);
+
+    &.success .icon {
+      background: rgb(40 167 69 / 0.3);
+    }
+
+    &.error .icon {
+      background: rgb(220 53 69 / 0.3);
+    }
+
+    &.warning .icon {
+      background: rgb(255 193 7 / 0.35);
+    }
+
+    &.info .icon {
+      background: rgb(23 162 184 / 0.3);
+    }
+  }
+}
+
+// ============================================
+
+// Icon Circle
+
+// ============================================
+.icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+// ============================================
+
+// Close Button (fade on hover)
+
+// ============================================
+.closeButton {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--toast-close-icon);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  opacity: 0.6;
+  transition: all $transition-fast ease-out;
+
+  &:hover {
+    color: var(--toast-close-icon-hover);
+    background: rgb(0 0 0 / 0.06);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--toast-focus-ring);
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  [data-theme='dark'] & {
+    color: rgb(255 255 255 / 0.5);
+
+    &:hover {
+      color: rgb(255 255 255 / 0.8);
+      background: rgb(255 255 255 / 0.1);
+    }
+  }
+}
+
+// ============================================
+
+// Action Button (Undo, Retry, View)
+
+// ============================================
+.action {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all $transition-fast ease-out;
+
+  // Secondary variant (default)
+  &.secondary {
+    color: var(--toast-action-secondary);
+    background: rgb(0 0 0 / 0.04);
+
+    &:hover {
+      background: rgb(0 0 0 / 0.08);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--toast-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [data-theme='dark'] & {
+      color: var(--toast-action-secondary);
+      background: rgb(255 255 255 / 0.06);
+
+      &:hover {
+        background: rgb(255 255 255 / 0.1);
+      }
+
+      &:focus-visible {
+        outline-color: var(--toast-focus-ring);
+      }
+    }
+  }
+
+  // Primary variant (accent)
+  &.primary {
+    color: white;
+    background: $primary-color;
+
+    &:hover {
+      background: $primary-dark;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--toast-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [data-theme='dark'] & {
+      background: $primary-dark;
+
+      &:hover {
+        background: $primary-color;
+      }
+    }
+  }
+}
+
+// ============================================
+
+// Progress Bar (auto-close visualization)
+
+// ============================================
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: 3px;
+  background: currentcolor;
+  opacity: 0.3;
+  transform-origin: left;
+
+  // Animation duration set inline via style prop
+  animation: progress linear forwards;
+  animation-play-state: running;
+
+  // Pause on hover
+  .toast:hover & {
+    animation-play-state: paused;
+  }
+
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+
+    to {
+      width: 0%;
+    }
+  }
+
+  // Type-specific colors
+  .success & {
+    background: $success-color;
+  }
+
+  .error & {
+    background: $danger-color;
+  }
+
+  .warning & {
+    background: $warning-color;
+  }
+
+  .info & {
+    background: $info-color;
+  }
+}
+
+// ============================================
+
+// Pause Indicator (when hover pauses timer)
+
+// ============================================
+.pauseIndicator {
+  position: absolute;
+  top: $spacing-2;
+  right: $spacing-2;
+  z-index: 3;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: var(--toast-pause-text);
+  opacity: 0;
+  transition: opacity $transition-fast;
+
+  .toast:hover & {
+    opacity: 1;
+  }
+
+  [data-theme='dark'] & {
+    color: rgb(255 255 255 / 0.3);
+  }
+}

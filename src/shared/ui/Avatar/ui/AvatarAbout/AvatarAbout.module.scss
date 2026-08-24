@@ -1,0 +1,77 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/ui/Avatar/model/avatar-mixins' as *;
+
+.avatarAbout {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // Sizes
+  &.sm {
+    width: 100px;
+    height: 100px;
+
+    .avatar-circle {
+      padding: 2px;
+    }
+
+    .initial {
+      font-size: 2.5rem;
+
+      @include avatar-initial;
+    }
+  }
+
+  &.md {
+    width: 200px;
+    height: 200px;
+
+    .avatar-circle {
+      padding: 4px;
+    }
+
+    .initial {
+      font-size: 4rem;
+
+      @include avatar-initial;
+    }
+  }
+
+  &.lg {
+    width: 300px;
+    height: 300px;
+
+    .avatar-circle {
+      padding: 6px;
+    }
+
+    .initial {
+      font-size: 6rem;
+
+      @include avatar-initial;
+    }
+  }
+
+  // Circle (тонкая градиентная рамка)
+  .avatar-circle {
+    @include avatar-circle;
+
+    background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
+  }
+
+  // Inner
+  .avatar-inner {
+    @include avatar-inner;
+
+    overflow: hidden;
+    background: #3a2e28;
+    border-radius: 50%;
+
+    .initial {
+      @include avatar-initial;
+    }
+  }
+
+  @include avatar-reduced-motion;
+}

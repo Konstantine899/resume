@@ -5,19 +5,19 @@
 /**
  * Type for class names argument
  */
-type ClassValue = 
-  | string 
-  | number 
-  | boolean 
-  | null 
-  | undefined 
-  | { [key: string]: boolean | null | undefined } 
+type ClassValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | { [key: string]: boolean | null | undefined }
   | ClassValue[];
 
 /**
  * A utility function for conditionally joining CSS class names together
  * Similar to the popular 'classnames' library but with TypeScript support
- * 
+ *
  * @example
  * ```ts
  * classNames('btn', 'btn-primary', { active: isActive, disabled: isDisabled });
@@ -56,7 +56,7 @@ export const cn = classNames;
 
 /**
  * Create a BEM-style class name generator
- * 
+ *
  * @example
  * ```ts
  * const bem = createBEM('button');
@@ -70,22 +70,22 @@ export const createBEM = (block: string) => {
     if (!element && !modifier) {
       return block;
     }
-    
+
     if (element && !modifier) {
       return `${block}__${element}`;
     }
-    
+
     if (!element && modifier) {
       return `${block}--${modifier}`;
     }
-    
+
     return `${block}__${element}--${modifier}`;
   };
 };
 
 /**
  * Create namespaced class names for SCSS modules
- * 
+ *
  * @example
  * ```ts
  * const styles = { button: 'button_abc123', primary: 'primary_abc123' };
@@ -96,7 +96,7 @@ export const createBEM = (block: string) => {
 export const createNamespace = (styles: Record<string, string>) => {
   return (...classNames: string[]): string => {
     return classNames
-      .map(className => styles[className] || className)
+      .map((className) => styles[className] || className)
       .filter(Boolean)
       .join(' ');
   };

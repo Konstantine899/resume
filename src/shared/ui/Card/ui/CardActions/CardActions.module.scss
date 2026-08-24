@@ -1,0 +1,48 @@
+.cardActions {
+  // Outer block — no flex layout here; alignment is delegated to `.actionsInner`
+  display: block;
+
+  // Visual separator rendered as a `<Divider>` first child
+  .divider {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  // First-child guard: when CardActions is the first card section, hide the
+
+  // divider and collapse the spacing so no border shows above it.
+  &:first-child {
+    .divider {
+      display: none;
+    }
+
+    .actionsInner {
+      padding-top: 0;
+    }
+  }
+}
+
+.actionsInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.alignStart {
+  .actionsInner {
+    justify-content: flex-start;
+  }
+}
+
+.alignCenter {
+  .actionsInner {
+    justify-content: center;
+  }
+}
+
+.alignEnd {
+  .actionsInner {
+    justify-content: flex-end;
+  }
+}

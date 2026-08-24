@@ -1,0 +1,12 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.navigation {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $spacing-4;
+  align-items: flex-start;
+  width: 100%;
+  padding: $spacing-4 0;
+}

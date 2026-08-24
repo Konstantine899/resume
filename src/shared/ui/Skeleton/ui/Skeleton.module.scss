@@ -1,0 +1,68 @@
+// src/shared/ui/Skeleton/ui/Skeleton.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton-base);
+  border-radius: $border-radius-md;
+
+  // Shimmer эффект с CSS-переменными для duration/delay
+  &::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
+    transform: translateX(-100%);
+    animation: shimmer var(--skeleton-duration, 1.5s) var(--skeleton-delay, 0s) infinite;
+  }
+
+  // Reduced motion: отключаем анимацию для пользователей с prefers-reduced-motion
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+    }
+  }
+
+  // Варианты
+  &.text {
+    display: inline-block;
+    vertical-align: middle;
+
+    .line {
+      display: block;
+      height: 1em;
+      margin-bottom: $spacing-sm;
+      background: var(--skeleton-base);
+      border-radius: $border-radius-sm;
+
+      &.lastLine {
+        width: 60%;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &.circular {
+    border-radius: $radius-full;
+
+    // Pulse анимация убрана - используется только shimmer эффект
+  }
+
+  &.rectangular {
+    border-radius: $border-radius-lg;
+  }
+
+  &.rounded {
+    border-radius: var(--skeleton-radius, $border-radius-md);
+
+    // md-радиус по умолчанию, переопределяется через --skeleton-radius (REQ-2)
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

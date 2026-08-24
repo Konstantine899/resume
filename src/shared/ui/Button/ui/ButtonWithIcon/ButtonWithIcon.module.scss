@@ -1,0 +1,158 @@
+// src/shared/ui/Button/ui/ButtonWithIcon/ButtonWithIcon.module.scss
+
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// ButtonWithIcon Component — text + icons
+
+// Base, variants, states: shared/_button mixins
+
+// Sizes: component-specific (font + icon dimensions)
+
+// Internal: .icon, .text elements
+
+// ============================================
+
+.button {
+  @include button-base;
+
+  gap: $spacing-sm;
+
+  // ============================================
+
+  // Variants
+
+  // ============================================
+
+  &.primary {
+    @include variant-primary;
+  }
+
+  &.secondary {
+    @include variant-secondary;
+  }
+
+  &.outline {
+    @include variant-outline;
+  }
+
+  &.ghost {
+    @include variant-ghost;
+  }
+
+  &.sidebar {
+    @include variant-sidebar;
+  }
+
+  &.danger {
+    @include variant-danger;
+  }
+
+  // Color schemes
+  @include color-schemes;
+
+  // ============================================
+
+  // Sizes
+
+  // ============================================
+
+  &.xs {
+    padding: $spacing-xs $spacing-sm;
+    font-size: 0.75rem;
+
+    .icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &.sm {
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &.md {
+    padding: $spacing-md $spacing-lg;
+    font-size: 1rem;
+
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &.lg {
+    padding: $spacing-lg $spacing-xl;
+    font-size: 1.125rem;
+
+    .icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &.xl {
+    padding: $spacing-xl $spacing-10;
+    font-size: 1.25rem;
+
+    .icon {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  // ============================================
+
+  // States & Modifiers
+
+  // ============================================
+
+  &.fullWidth {
+    @include button-fullWidth;
+  }
+
+  &.loading {
+    @include button-loading;
+  }
+
+  // ============================================
+
+  // Internal Elements
+
+  // ============================================
+
+  .content {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .text {
+    display: flex;
+    align-items: center;
+  }
+
+  .loader {
+    @include button-loader;
+  }
+
+  .skeleton {
+    @include button-skeleton;
+  }
+}

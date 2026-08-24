@@ -1,0 +1,167 @@
+// ============================================
+
+// Home Page - SCSS Module
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// PAGE CONTAINER (was .homePage)
+
+// ============================================
+.homePage {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--background);
+  transition: background-color $transition-duration $transition-easing;
+}
+
+// ============================================
+
+// MAIN CONTENT
+
+// ============================================
+.mainContent {
+  position: relative;
+  z-index: 1; // Below sidebar (z-index: 50)
+  flex: 1;
+  width: 100%;
+  min-width: 0; // Prevent flex overflow
+
+  // Mobile: no margin (sidebar is overlay)
+  margin-left: 0;
+  overflow-x: hidden;
+
+  // Desktop: spacer handles the offset
+  @include md {
+    margin-left: 0;
+  }
+}
+
+// ============================================
+
+// SECTION STYLES (for individual features)
+
+// ============================================
+.section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $spacing-20 $spacing-md;
+
+  @include sm {
+    padding: $spacing-20 $spacing-lg;
+  }
+
+  @include md {
+    padding: $spacing-20 $spacing-xl;
+  }
+}
+
+// ============================================
+
+// SMOOTH SCROLL
+
+// ============================================
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: $spacing-20;
+}
+
+.home,
+.work,
+.about,
+.contact,
+.skills {
+  scroll-margin-top: $spacing-20;
+
+  @include md {
+    scroll-margin-top: $spacing-20;
+  }
+}
+
+// ============================================
+
+// LOADING STATE
+
+// ============================================
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: $font-size-xl;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+// ============================================
+
+// ERROR STATE
+
+// ============================================
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $spacing-20;
+  font-size: $font-size-xl;
+  color: #dc3545;
+  text-align: center;
+  background: var(--background);
+}
+
+// ============================================
+
+// ACCESSIBILITY
+
+// ============================================
+.skipToMain {
+  position: absolute;
+  top: auto;
+  left: -9999px;
+  z-index: -999;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+
+  &:focus {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    z-index: 9999;
+    width: auto;
+    height: auto;
+    padding: $spacing-md $spacing-lg;
+    overflow: visible;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    background: var(--primary);
+    border-radius: $border-radius-md;
+  }
+}
+
+// ============================================
+
+// REDUCED MOTION
+
+// ============================================
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .homePage {
+    transition: none;
+  }
+}

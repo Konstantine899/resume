@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# Run lint-staged without stash to avoid recovery issues on failure
+if [ -f "package.json" ] && grep -q '"lint-staged"' package.json 2>/dev/null; then
+  npx lint-staged --no-stash
+elif [ -f ".lintstagedrc" ] || [ -f ".lintstagedrc.json" ] || [ -f ".lintstagedrc.js" ] || [ -f ".lintstagedrc.yaml" ] || [ -f ".lintstagedrc.yml" ]; then
+  npx lint-staged --no-stash
+else
+  echo "⚠️  lint-staged config not found, skipping..."
+fi

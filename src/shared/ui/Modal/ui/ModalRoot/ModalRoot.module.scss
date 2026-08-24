@@ -1,0 +1,132 @@
+// ============================================
+
+// ModalRoot Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/z-index' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/mixins/layout' as *;
+@use '@/shared/styles/animations/scale' as *;
+@use '@/shared/styles/animations/fade' as *;
+@use '../../model/modal-constants' as *;
+
+// Overlay
+.overlay {
+  z-index: $z-overlay;
+}
+
+// Modal Container (центрирование)
+.modalContainer {
+  @include flex-center;
+
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  padding: $spacing-md;
+  pointer-events: none;
+}
+
+// Modal Base
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: $modal-width-md;
+  max-height: $modal-max-height;
+  overflow: hidden;
+  pointer-events: auto;
+  background-color: var(--card-bg, #fff);
+  border: $border-width solid var(--card-border, $border-color);
+  border-radius: $radius-2xl;
+  box-shadow: $modal-shadow;
+
+  // Анимация
+  &:not(.noAnimation) {
+    animation: scaleIn $animation-duration $transition-easing;
+  }
+
+  // Close animation (forceMount mode)
+  &.closing {
+    pointer-events: none;
+    animation: scaleOut $animation-duration $transition-easing forwards;
+  }
+
+  &.noAnimation {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    animation: none;
+  }
+}
+
+// Sizes (BEM pattern for CSS Modules compatibility)
+.modal--xs {
+  max-width: $modal-width-xs;
+}
+
+.modal--sm {
+  max-width: $modal-width-sm;
+}
+
+.modal--md {
+  max-width: $modal-width-md;
+}
+
+.modal--lg {
+  max-width: $modal-width-lg;
+}
+
+.modal--xl {
+  max-width: $modal-width-xl;
+}
+
+.modal--2xl {
+  max-width: $modal-width-2xl;
+}
+
+.modal--3xl {
+  max-width: $modal-width-3xl;
+}
+
+.modal--full {
+  max-width: calc(100vw - #{$spacing-md * 2});
+  max-height: calc(100vh - #{$spacing-md * 2});
+}
+
+// Body scroll mode — модалка растёт с контентом, скролл на body
+.modalBody {
+  max-height: none;
+  overflow: visible;
+
+  // В full screen режиме без ограничений
+  &.modal--full {
+    max-width: none;
+    max-height: none;
+  }
+}
+
+// Адаптивность
+@media (width <= 640px) {
+  .modalContainer {
+    align-items: flex-end;
+    padding: $spacing-sm;
+  }
+
+  .modal {
+    max-height: calc(100vh - #{$spacing-md});
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+
+  .modal--full {
+    max-width: 100%;
+    max-height: calc(100vh - #{$spacing-md});
+  }
+}

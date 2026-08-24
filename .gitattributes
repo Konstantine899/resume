@@ -1,0 +1,19 @@
+# ============================================
+# GIT ATTRIBUTES — Line endings & binary types
+# ============================================
+# Normalize all text files to LF (matching Prettier's endOfLine: "lf")
+* text=auto eol=lf
+
+# SVG has semantic line content
+*.svg text eol=lf
+
+# Binary files — never normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff2 binary
+*.eot binary
+*.ttf binary

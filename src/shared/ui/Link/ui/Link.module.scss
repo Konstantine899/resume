@@ -1,0 +1,258 @@
+// src/shared/ui/Link/Link.module.scss
+@use 'sass:color';
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/radius' as *;
+@use '@/shared/styles/variables/transition' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// CSS Custom Properties (Variables)
+
+// ============================================
+
+$link-transition-duration: 200ms;
+$link-transition-timing: ease;
+$link-focus-outline: 2px solid var(--link-primary, $primary-light);
+$link-focus-offset: 2px;
+$link-active-scale: 0.98;
+
+.link {
+  display: inline-flex;
+  gap: $spacing-1;
+  align-items: center;
+  font-family: $font-family-base;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $link-transition-duration $link-transition-timing;
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &.withLift {
+      transform: none;
+    }
+
+    .externalIcon {
+      transition: none;
+    }
+  }
+
+  // ============================================
+
+  // Sizes
+
+  // ============================================
+
+  &.sm {
+    @include text-xs;
+  }
+
+  &.md {
+    @include text-sm;
+  }
+
+  &.lg {
+    @include text-base;
+  }
+
+  // ============================================
+
+  // Variants
+
+  // ============================================
+
+  &.primary {
+    @include font-medium;
+
+    color: var(--link-primary, $primary-light);
+
+    &:hover {
+      color: var(--link-primary-hover, color.adjust($primary-light, $lightness: 10%));
+    }
+  }
+
+  &.secondary {
+    @include font-normal;
+
+    color: var(--link-secondary, $text-muted);
+
+    &:hover {
+      color: var(--link-secondary-hover, $text-primary);
+    }
+  }
+
+  &.ghost {
+    @include font-normal;
+
+    color: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.gradient {
+    @include font-medium;
+
+    background: var(--gradient-text, $gradient-text);
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
+
+    &:hover {
+      filter: drop-shadow(4px 4px 8px rgb(0 0 0 / 0.6));
+    }
+  }
+
+  // ============================================
+
+  // Underline variants
+
+  // ============================================
+
+  &.underlineAlways {
+    text-decoration: underline;
+  }
+
+  &.underlineHover {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.underlineNever {
+    text-decoration: none;
+  }
+
+  // ============================================
+
+  // Icons
+
+  // ============================================
+
+  .icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    justify-content: center;
+  }
+
+  .externalIcon {
+    margin-left: $spacing-1;
+    opacity: 0.7;
+    transition:
+      opacity $link-transition-duration $link-transition-timing,
+      transform $link-transition-duration $link-transition-timing;
+
+    &:hover {
+      opacity: 1;
+      transform: translate(2px, -2px);
+    }
+  }
+
+  // ============================================
+
+  // Modifiers
+
+  // ============================================
+
+  // Unstyled - reset only Link's own styles, preserve consumer styling
+
+  // Using all:unset breaks consumer classes due to specificity cascade
+  &.unstyled {
+    font: inherit;
+    color: inherit;
+    text-decoration: inherit;
+
+    // Keep cursor for interaction
+    cursor: pointer;
+    background: none;
+    border: none;
+    transform: none;
+    transition: none;
+  }
+
+  // Hover lift
+  &.withLift {
+    @include hover-lift;
+  }
+
+  // ============================================
+
+  // Accessibility
+
+  // ============================================
+
+  &:focus-visible {
+    outline: $link-focus-outline;
+    outline-offset: $link-focus-offset;
+    border-radius: $border-radius-sm;
+  }
+
+  // Disabled
+  &[aria-disabled='true'] {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // ============================================
+
+  // States
+
+  // ============================================
+
+  // Active
+  &:active {
+    transform: scale($link-active-scale);
+  }
+
+  // Skeleton loading mode
+  &.skeleton {
+    pointer-events: none;
+    cursor: default;
+
+    .skeletonPlaceholder {
+      display: inline-block;
+      width: 60%;
+      min-width: 80px;
+      height: 1em;
+      vertical-align: middle;
+      border-radius: 4px;
+    }
+  }
+}
+
+// ============================================
+
+// Theme overrides
+
+// ============================================
+
+// Light theme overrides
+[data-theme='light'] .link {
+  &.primary {
+    color: var(--link-primary-light, $primary-dark);
+
+    &:hover {
+      color: var(--link-primary-light-hover, color.adjust($primary-dark, $lightness: -10%));
+    }
+  }
+
+  &.secondary {
+    color: var(--link-secondary-light, $text-secondary);
+
+    &:hover {
+      color: var(--link-secondary-light-hover, $text-primary);
+    }
+  }
+
+  &:focus-visible {
+    outline-color: var(--link-primary-light, $primary-dark);
+  }
+}

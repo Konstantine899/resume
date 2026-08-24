@@ -1,0 +1,321 @@
+@use '@/shared/styles/variables' as *;
+
+// ============================================
+
+// Base Image Styles
+
+// ============================================
+
+.container {
+  // CSS Custom Properties for runtime customization (Senior+ requirement #7)
+  --image-max-width: 100%;
+  --image-object-fit: cover;
+  --image-border-radius: 0;
+  --image-width: auto;
+  --image-height: auto;
+
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background-color: var(--image-placeholder-bg);
+  border-radius: var(--image-border-radius);
+}
+
+.image {
+  display: block;
+  width: var(--image-width);
+  max-width: var(--image-max-width);
+  height: var(--image-height);
+  object-fit: var(--image-object-fit);
+  transition:
+    opacity $transition-duration $transition-easing,
+    filter $transition-duration $transition-easing;
+
+  &[loading='lazy'] {
+    will-change: opacity;
+  }
+}
+
+// ============================================
+
+// Variants
+
+// ============================================
+
+.variantDefault {
+  border-radius: 0;
+}
+
+.variantRounded {
+  border-radius: 12px;
+}
+
+.variantCircular {
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.variantThumbnail {
+  border-radius: 8px;
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 0.1),
+    0 0 0 1px var(--image-placeholder-bg);
+  transition:
+    box-shadow $transition-duration $transition-easing,
+    transform $transition-duration $transition-easing;
+
+  &:hover {
+    box-shadow:
+      0 4px 16px rgb(0 0 0 / 0.15),
+      0 0 0 1px rgb(0 0 0 / 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+// ============================================
+
+// Sizes
+
+// ============================================
+
+.sizeSm {
+  width: 64px;
+  height: 64px;
+}
+
+.sizeMd {
+  width: 128px;
+  height: 128px;
+}
+
+.sizeLg {
+  width: 256px;
+  height: 256px;
+}
+
+.sizeFull {
+  width: 100%;
+  height: auto;
+}
+
+// ============================================
+
+// Object Fit
+
+// ============================================
+
+.objectFitCover {
+  object-fit: cover;
+}
+
+.objectFitContain {
+  object-fit: contain;
+}
+
+.objectFitFill {
+  object-fit: fill;
+}
+
+.objectFitNone {
+  object-fit: none;
+}
+
+.objectFitScaleDown {
+  object-fit: scale-down;
+}
+
+// ============================================
+
+// Placeholder States
+
+// ============================================
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--image-placeholder-bg);
+  transition: opacity $transition-duration $transition-easing;
+}
+
+.placeholderBlur {
+  opacity: 0.6;
+  filter: blur(10px);
+}
+
+.placeholderColor {
+  background-color: var(--image-placeholder-bg);
+}
+
+.placeholderHidden {
+  pointer-events: none;
+  opacity: 0;
+}
+
+// ============================================
+
+// Loading States
+
+// ============================================
+
+.loading {
+  .image {
+    opacity: 0;
+  }
+}
+
+.loaded {
+  .image {
+    opacity: 1;
+  }
+
+  .placeholder {
+    pointer-events: none;
+    opacity: 0;
+  }
+}
+
+.error {
+  .image {
+    opacity: 0;
+  }
+
+  .placeholder {
+    background-color: var(--image-error-bg);
+    opacity: 1;
+  }
+}
+
+// ============================================
+
+// Fallback
+
+// ============================================
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  color: var(--image-fallback-text);
+  background-color: var(--image-placeholder-bg);
+}
+
+// ============================================
+
+// Children Overlay
+
+// ============================================
+
+.childrenOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+// ============================================
+
+// Decorative
+
+// ============================================
+
+.decorative {
+  pointer-events: none;
+  user-select: none;
+}
+
+// ============================================
+
+// Priority Loading
+
+// ============================================
+
+.priority {
+  image-rendering: crisp-edges;
+}
+
+// ============================================
+
+// Responsive
+
+// ============================================
+
+@media (max-width: $breakpoint-sm) {
+  .sizeLg {
+    width: 192px;
+    height: 192px;
+  }
+}
+
+@media (max-width: $breakpoint-xs) {
+  .sizeMd {
+    width: 96px;
+    height: 96px;
+  }
+
+  .sizeLg {
+    width: 128px;
+    height: 128px;
+  }
+}
+
+// ============================================
+
+// Accessibility
+
+// ============================================
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .variantThumbnail,
+  .placeholder {
+    transition: none;
+    animation: none;
+  }
+}
+
+// ============================================
+
+// Focus States
+
+// ============================================
+
+.container:focus-within {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// ============================================
+
+// Dark Mode
+
+// ============================================
+
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .fallback {
+    color: rgb(255 255 255 / 0.3);
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .error {
+    .placeholder {
+      background-color: var(--image-error-bg);
+    }
+  }
+}

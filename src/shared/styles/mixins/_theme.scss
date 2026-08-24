@@ -1,0 +1,16 @@
+// ============================================
+
+// Theme & Card Mixins
+
+// ============================================
+
+@use '../variables/transition' as *;
+
+// Theme transition (shared utility - used by 12+ components)
+@mixin theme-transition {
+  transition:
+    background-color $transition-duration $transition-easing,
+    color $transition-duration $transition-easing,
+    border-color $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+}

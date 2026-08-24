@@ -1,0 +1,20 @@
+// ============================================
+
+// Hover Effects Mixins
+
+// ============================================
+
+@use '../variables/transition' as *;
+@use '../variables/shadows' as *;
+
+// Lift effect
+@mixin hover-lift {
+  transition:
+    transform $transition-duration $transition-easing,
+    box-shadow $transition-duration $transition-easing;
+
+  &:hover {
+    box-shadow: $shadow-xl;
+    transform: translateY(-4px);
+  }
+}

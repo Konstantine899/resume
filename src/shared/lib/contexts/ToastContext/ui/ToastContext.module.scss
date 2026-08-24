@@ -1,0 +1,66 @@
+// ============================================
+
+// Toast Context Styles
+
+// ============================================
+
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.container {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: fit-content;
+  max-width: 400px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  @media (width <= 640px) {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+// ============================================
+
+// Position Modifiers
+
+// ============================================
+
+.container--top-right {
+  inset: 24px 24px auto auto;
+
+  @media (width <= 640px) {
+    inset: auto 16px 16px;
+  }
+}
+
+.container--bottom-right {
+  inset: auto 24px 24px auto;
+
+  @media (width <= 640px) {
+    inset: 16px;
+  }
+}
+
+.container--top-left {
+  inset: 24px auto auto 24px;
+
+  @media (width <= 640px) {
+    inset: auto 16px 16px;
+  }
+}
+
+.container--bottom-left {
+  inset: auto auto 24px 24px;
+
+  @media (width <= 640px) {
+    inset: 16px;
+  }
+}

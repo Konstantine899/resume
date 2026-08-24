@@ -2,25 +2,27 @@
 // Updated App Component with FSD Structure
 // ============================================
 
-import React from 'react';
+import { I18nProvider, ThemeProvider } from '@/app/providers';
 import { HomePage } from '@/pages/Home';
-import { ThemeProvider } from '@/app/providers/ThemeProvider';
-import { LanguageProvider } from '@/app/providers/LanguageProvider';
-import '@/shared/styles/globals.scss';
+import '@/shared/styles/globals/index.scss';
 
+import React from 'react';
+import { ToastProvider } from './shared/lib/contexts/ToastContext';
 /**
  * Main App Component
- * 
+ *
  * This component will be replaced by the FSD structure.
  * Currently serves as a bridge during migration.
  */
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <HomePage />
-      </LanguageProvider>
-    </ThemeProvider>
+    <ToastProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </I18nProvider>
+    </ToastProvider>
   );
 };
 

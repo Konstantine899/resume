@@ -1,0 +1,16 @@
+// Sidebar-specific Variables
+
+// Moved from shared/styles/variables/_sidebar.scss
+
+@use '@/shared/styles/variables/spacing' as *;
+@use '@/shared/styles/variables/transition' as *;
+
+$sidebar-width-collapsed: 4rem !default;
+$sidebar-width-expanded: 12rem !default;
+$sidebar-mobile-width: 16rem !default;
+$sidebar-mobile-width-sm: 18rem !default;
+$sidebar-mobile-max-width: 400px !default;
+$sidebar-transition: 0.3s ease !default;
+$sidebar-z-index: 100 !default;
+$burger-size: 3rem !default;
+$nav-item-height: 2.5rem !default;

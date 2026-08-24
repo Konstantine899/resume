@@ -32,6 +32,26 @@ export function buildViteConfig(options: BuildOptions): UserConfig {
           entryFileNames: '[name].[hash].js',
           chunkFileNames: '[name].[hash].js',
           assetFileNames: '[name].[hash].[ext]',
+          manualChunks(id) {
+            if (
+              id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler')
+            ) {
+              return 'vendor';
+            }
+            if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+              return 'i18n';
+            }
+            if (
+              id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/zod') ||
+              id.includes('node_modules/@hookform') ||
+              id.includes('node_modules/@emailjs')
+            ) {
+              return 'forms';
+            }
+          },
         },
       },
     },

@@ -1,0 +1,332 @@
+{
+  "description": "Agent Pipelines — автоматические цепочки выполнения задач",
+
+  "pipelines": {
+    "create-component": {
+      "name": "Создание компонента",
+      "description": "Полный цикл создания UI компонента",
+      "trigger": ["create component", "создай компонент", "new component"],
+      "steps": [
+        {
+          "id": "1-create",
+          "agent": "general",
+          "task": "create",
+          "description": "Создание компонента с типами и стилями",
+          "timeout": 60,
+          "onFail": "stop",
+          "output": "component-files"
+        },
+        {
+          "id": "2-review",
+          "agent": "review",
+          "task": "review",
+          "description": "Code review созданного компонента",
+          "timeout": 45,
+          "onFail": "stop",
+          "input": "component-files",
+          "criteria": {
+            "minScore": 7,
+            "blockers": ["security", "types", "architecture"]
+          }
+        },
+        {
+          "id": "6-summary",
+          "agent": "review",
+          "task": "summary",
+          "description": "Итоговый отчёт",
+          "timeout": 10,
+          "onFail": "never",
+          "input": ["component-files", "review-result", "test-result", "story-result"]
+        }
+      ],
+      "settings": {
+        "parallel": true,
+        "parallelGroups": [
+          ["1-create"],
+          ["2-review"]
+        ],
+        "stopOnFail": true,
+        "autoCommit": false,
+        "notifyOnComplete": true
+      }
+    },
+
+    "code-review": {
+      "name": "Code Review",
+      "description": "Комплексная проверка кода с adversarial паттерном",
+      "trigger": ["code review", "review code", "проверь код", "аудит кода"],
+      "steps": [
+        {
+          "id": "1-review",
+          "agent": "review",
+          "task": "review",
+          "description": "Основной code review",
+          "timeout": 60,
+          "onFail": "stop",
+          "criteria": {
+            "minScore": 6,
+            "focus": ["bugs", "performance", "readability"]
+          },
+          "output": "review-result"
+        },
+        {
+          "id": "2-critic",
+          "agent": "review",
+          "task": "adversarial-review",
+          "description": "Адверсариальный review",
+          "timeout": 45,
+          "onFail": "continue",
+          "input": "review-result",
+          "focus": ["security", "edge-cases", "architecture"],
+          "output": "critic-result"
+        },
+        {
+          "id": "3-fix",
+          "agent": "review",
+          "task": "fix-from-critic",
+          "description": "Исправление проблем от review",
+          "timeout": 60,
+          "onFail": "retry",
+          "maxRetries": 2,
+          "input": "critic-result",
+          "output": "fixed-code"
+        },
+        {
+          "id": "4-verify",
+          "agent": "review",
+          "task": "verify-fixes",
+          "description": "Проверка исправлений",
+          "timeout": 30,
+          "onFail": "retry",
+          "input": "fixed-code",
+          "maxIterations": 3
+        },
+        {
+          "id": "5-security",
+          "agent": "review",
+          "task": "security-audit",
+          "description": "Проверка безопасности",
+          "timeout": 45,
+          "onFail": "continue",
+          "focus": ["xss", "injection", "auth", "data-leak"]
+        },
+        {
+          "id": "6-performance",
+          "agent": "review",
+          "task": "analyze",
+          "description": "Анализ производительности",
+          "timeout": 45,
+          "onFail": "continue",
+          "metrics": ["render-time", "bundle-size", "memory"]
+        },
+        {
+          "id": "8-summary",
+          "agent": "review",
+          "task": "report",
+          "description": "Итоговый отчёт",
+          "timeout": 15,
+          "onFail": "never",
+          "format": "markdown",
+          "input": ["review-result", "fixed-code"]
+        }
+      ],
+      "settings": {
+        "parallel": true,
+        "parallelGroups": [["5-security", "6-performance"]],
+        "stopOnFail": false,
+        "autoCommit": false,
+        "notifyOnComplete": true,
+        "memoryIntegration": {
+          "enabled": true,
+          "saveSession": true,
+          "contextTTL": 86400
+        }
+      }
+    },
+
+    "fix-bug": {
+      "name": "Исправление бага",
+      "description": "Диагностика и исправление ошибки",
+      "trigger": ["fix bug", "исправь баг", "bug fix", "error fix"],
+      "steps": [
+        {
+          "id": "1-diagnose",
+          "agent": "review",
+          "task": "diagnose",
+          "description": "Диагностика проблемы",
+          "timeout": 45,
+          "onFail": "stop",
+          "output": "diagnosis"
+        },
+        {
+          "id": "2-fix",
+          "agent": "review",
+          "task": "fix",
+          "description": "Исправление ошибки",
+          "timeout": 60,
+          "onFail": "retry",
+          "maxRetries": 2,
+          "input": "diagnosis"
+        },
+        {
+          "id": "3-verify",
+          "agent": "review",
+          "task": "verify",
+          "description": "Проверка исправления",
+          "timeout": 30,
+          "onFail": "retry",
+          "input": "fix-result"
+        }
+      ],
+      "settings": {
+        "parallel": false,
+        "stopOnFail": true,
+        "autoCommit": false,
+        "notifyOnComplete": true
+      }
+    },
+
+    "refactor": {
+      "name": "Рефакторинг",
+      "description": "Безопасный рефакторинг кода",
+      "trigger": ["refactor", "рефакторинг", "improve code", "улучши код"],
+      "steps": [
+        {
+          "id": "1-analyze",
+          "agent": "review",
+          "task": "analyze",
+          "description": "Анализ технического долга",
+          "timeout": 45,
+          "onFail": "stop",
+          "output": "debt-report"
+        },
+        {
+          "id": "2-plan",
+          "agent": "review",
+          "task": "plan",
+          "description": "План рефакторинга",
+          "timeout": 30,
+          "onFail": "stop",
+          "input": "debt-report"
+        },
+        {
+          "id": "3-execute",
+          "agent": "review",
+          "task": "refactor",
+          "description": "Выполнение рефакторинга",
+          "timeout": 90,
+          "onFail": "rollback",
+          "input": "plan",
+          "preserveBehavior": true
+        }
+      ],
+      "settings": {
+        "parallel": false,
+        "stopOnFail": true,
+        "autoCommit": false,
+        "notifyOnComplete": true,
+        "backup": true
+      }
+    },
+
+    "integration-test": {
+      "name": "Интеграционное тестирование",
+      "description": "Создание интеграционных тестов",
+      "trigger": ["integration test", "интеграционный тест", "e2e test"],
+      "steps": [
+        {
+          "id": "1-analyze",
+          "agent": "integration-test",
+          "task": "analyze",
+          "description": "Анализ компонента/фичи",
+          "timeout": 30,
+          "onFail": "stop",
+          "output": "test-plan"
+        },
+        {
+          "id": "2-mock",
+          "agent": "integration-test",
+          "task": "setup-mocks",
+          "description": "Настройка MSW моков",
+          "timeout": 30,
+          "onFail": "continue",
+          "input": "test-plan"
+        },
+        {
+          "id": "3-write",
+          "agent": "integration-test",
+          "task": "write",
+          "description": "Написание тестов",
+          "timeout": 60,
+          "onFail": "retry",
+          "maxRetries": 2,
+          "input": ["test-plan", "mocks"],
+          "coverage": {
+            "min": 90,
+            "required": ["happy-path", "error-states", "loading"]
+          }
+        },
+        {
+          "id": "4-run",
+          "agent": "integration-test",
+          "task": "execute",
+          "description": "Запуск тестов",
+          "timeout": 90,
+          "onFail": "report",
+          "input": "tests"
+        },
+        {
+          "id": "5-report",
+          "agent": "integration-test",
+          "task": "report",
+          "description": "Отчёт о тестах",
+          "timeout": 15,
+          "onFail": "never",
+          "input": "test-results"
+        }
+      ],
+      "settings": {
+        "parallel": false,
+        "stopOnFail": false,
+        "autoCommit": false,
+        "notifyOnComplete": true
+      }
+    }
+  },
+
+  "globalSettings": {
+    "maxConcurrentPipelines": 3,
+    "defaultTimeout": 300,
+    "retryOnFail": true,
+    "maxRetries": 3,
+    "retryStrategy": {
+      "type": "exponential_backoff_jitter",
+      "baseDelay": 1000,
+      "maxDelay": 30000,
+      "multiplier": 2,
+      "jitter": 0.2
+    },
+    "adaptiveConcurrency": {
+      "enabled": true,
+      "min": 2,
+      "max": 5,
+      "basedOn": "resourceUsage"
+    },
+    "logLevel": "INFO",
+    "logFile": ".opencode/logs/pipelines.log"
+  },
+
+  "pipelineIntegration": {
+    "enabled": true,
+    "skipCompletedChecks": true,
+    "useHigherStandard": true,
+    "aggregateResults": true
+  },
+
+  "notifications": {
+    "onComplete": true,
+    "onFail": true,
+    "onWarning": true,
+    "channels": ["console", "log"]
+  }
+}

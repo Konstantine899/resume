@@ -2,8 +2,7 @@ import { Alias } from 'vite';
 import { BuildOptions } from './types/config';
 
 export function buildResolvers(options: BuildOptions): Alias[] {
-
-   return [
+  return [
     // Базовый алиас @ -> src
     { find: '@', replacement: options.paths.src },
 
@@ -12,7 +11,7 @@ export function buildResolvers(options: BuildOptions): Alias[] {
     { find: '@app', replacement: options.paths.app },
     { find: '@pages', replacement: options.paths.pages },
     { find: '@widgets', replacement: options.paths.widgets },
-    { find: '@features', replacement:options.paths.features },
+    { find: '@features', replacement: options.paths.features },
     { find: '@entities', replacement: options.paths.entities },
     { find: '@shared', replacement: options.paths.shared },
   ];

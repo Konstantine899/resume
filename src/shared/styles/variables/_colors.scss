@@ -1,0 +1,68 @@
+// ============================================
+
+// Color Variables
+
+// ============================================
+
+// Tooltip theme variables
+:root {
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #fff;
+  --tooltip-focus: #3b82f6;
+}
+
+[data-theme='light'] {
+  --tooltip-bg: #374151;
+  --tooltip-text: #f9fafb;
+}
+
+[data-theme='dark'] {
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #f3f4f6;
+}
+
+// Standard palette
+$primary-color: #007bff !default;
+$secondary-color: #6c757d !default;
+$success-color: #28a745 !default;
+$danger-color: #dc3545 !default;
+$warning-color: #ffc107 !default;
+$info-color: #17a2b8 !default;
+
+// Portfolio theme colors
+$primary-light: #f4b377 !default;
+$primary-dark: #d94744 !default;
+$accent: #50abc5 !default;
+
+// Spinner colors
+$spinner-color: #de8041 !default;
+
+// Text colors
+$text-primary: #1a1716 !default;
+$text-secondary: #4b5563 !default;
+$text-muted: #9ca3af !default;
+
+// Background colors
+$background: #fff !default;
+$background-alt: #f5f3f0 !default;
+
+// Border colors
+$border-color: #e5e7eb !default;
+$border-color-dark: #d1d5db !default;
+
+// Form colors
+$form-error-color: #dc3545 !default;
+$form-success-color: #22c55e !default;
+$form-warning-color: #f59e0b !default;
+
+// Gradient variables
+$gradient-primary: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%) !default;
+$gradient-text: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%) !default;
+$gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%) !default;
+
+// Gradient map
+$gradients: (
+  primary: $gradient-primary,
+  text: $gradient-text,
+  work-history: $gradient-work-history,
+) !default;

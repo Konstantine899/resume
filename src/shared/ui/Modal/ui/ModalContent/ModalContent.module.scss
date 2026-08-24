@@ -1,0 +1,26 @@
+// ============================================
+
+// ModalContent Styles
+
+// ============================================
+
+@use '@/shared/styles/variables/spacing' as *;
+@use '../../model/modal-constants' as *;
+
+.content {
+  flex: 1;
+  padding: $spacing-xl;
+  overflow-y: auto;
+
+  // --foreground is always defined in both themes — no fallback needed.
+
+  // Modal body text should use the shared Paragraph component (see stories).
+  color: var(--foreground);
+}
+
+// When scroll="body" — parent modal container has data-scroll-body attribute
+
+// stylelint-disable-next-line selector-pseudo-class-no-unknown
+:global([data-scroll-body]) .content {
+  overflow: visible;
+}

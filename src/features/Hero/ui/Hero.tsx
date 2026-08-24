@@ -1,144 +1,96 @@
 // ============================================
 // Hero Feature
 // ============================================
+import { DEVELOPER_DATA } from '@/entities/Developer';
 
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
-import { useTheme } from '@/features/ThemeSwitch/hooks/useTheme';
-import { Button } from '@/shared/ui/Button';
-import { Card } from '@/shared/ui/Card';
-import React from 'react';
-import styles from '../styles/Hero.module.scss';
-import type { HeroProps } from '../types';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
+const avatarImage = '/images/avatar/avatar003.jpg';
+import { Code } from '@/shared/ui/Code';
+import { Link } from '@/shared/ui/Link';
+import React, { useEffect, useState } from 'react';
+import { HeroProps } from '../model/types';
+import styles from './Hero.module.scss';
+import { HeroAvatar } from './HeroAvatar';
+import SkillsCode from './SkillsCode/SkillsCode';
+
+type AvatarState = 'loading' | 'loaded' | 'error';
 
 /**
  * Hero Feature Component
- *
  * Main hero section with introduction and call-to-action.
- * Follows FSD architecture - features layer for user scenarios.
  */
 export const Hero: React.FC<HeroProps> = ({
   className = '',
   onGetResume,
-  'data-testid': testId = 'hero'
+  'data-testid': testId = 'hero',
 }) => {
-  const { theme } = useTheme();
   const { t } = useLanguage();
+  const [avatarState, setAvatarState] = useState<AvatarState>('loading');
 
-  const handleGetResume = () => {
-    onGetResume?.();
-  };
+  // Имитация загрузки аватара (для демонстрации состояний)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Можно переключать состояния для тестирования:
+      // 'loaded' — успех
+      // 'error' — ошибка
+      setAvatarState('loaded');
+    }, 2000); // 2 секунды имитация загрузки
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <section
-      id="home"
-      className={`${styles.hero} ${className}`}
-      data-testid={testId}
-    >
+    <section id="home" className={`${styles.hero} ${className}`} data-testid={testId}>
       {/* Gradient Background */}
-      <div
-        className={styles.gradientBackground}
-        data-theme={theme}
-      />
+      <div className={styles.gradientBackground} />
 
       {/* Overlay for better text contrast */}
-      <div
-        className={styles.overlay}
-        data-theme={theme}
-      />
-
+      <div className={styles.overlay} />
       <div className={styles.content}>
         {/* Left side - Text content */}
-        <div className={styles.textContent}>
+        <div className={styles.leftContent}>
           {/* Greeting */}
-          <h1 className={styles.greeting}>
-            {t.greeting}
-          </h1>
+          <h1 className={styles.greeting}>{t(`greeting`)}</h1>
+          <h2 className={styles.name}>{t(`name`)}</h2>
 
-          <h2 className={styles.name}>
-            {t.name}
-          </h2>
-
-          {/* Code Block */}
-          <Card className={styles.codeBlock}>
-            {/* Terminal dots */}
-            <div className={styles.terminalDots}>
-              <div className={`${styles.terminalDot} ${styles.red}`} />
-              <div className={`${styles.terminalDot} ${styles.yellow}`} />
-              <div className={`${styles.terminalDot} ${styles.green}`} />
-            </div>
-
-            {/* Code content */}
-            <div className={styles.codeContent}>
-              <pre className={styles.codePre}>
-                <span className={styles.codeVariable}>konstantin</span>
-                <span className={styles.codeOperator}> = </span>
-                <span className={styles.codeBrace}>{'{'}</span>
-                {'\n\n'}
-                <span className={styles.codeProperty}>  fullName: </span>
-                <span className={styles.codeString}>'{t.fullName}'</span>
-                <span className={styles.codeComma}>,</span>
-                {'\n'}
-                <span className={styles.codeProperty}>  profession: </span>
-                <span className={styles.codeString}>'{t.profession}'</span>
-                <span className={styles.codeComma}>,</span>
-                {'\n'}
-                <span className={styles.codeProperty}>  specialties: </span>
-                <span className={styles.codeStringAccent}>'{t.specialties}'</span>
-                <span className={styles.codeComma}>,</span>
-                {'\n'}
-                <span className={styles.codeProperty}>  skills: </span>
-                <span className={styles.codeString}>'{t.skillsLabel}'</span>
-                <span className={styles.codeComma}>,</span>
-                {'\n'}
-                <span className={styles.codeProperty}>  {t.yearsOfExperience}: </span>
-                <span className={styles.codeNumber}>6</span>
-                <span className={styles.codeComma}>,</span>
-                {'\n'}
-                <span className={styles.codeProperty}>  {t.age}: </span>
-                <span className={styles.codeNumber}>20</span>
-                {'\n\n'}
-                <span className={styles.codeBrace}>{'};'}</span>
-              </pre>
-            </div>
-          </Card>
+          {/* Code Block с навыками */}
+          <Code
+            variant="block"
+            title="developer.ts"
+            language="TypeScript"
+            copyable
+            showLineNumbers
+            className={styles.codeBlock}
+          >
+            <SkillsCode />
+          </Code>
 
           {/* Resume Button */}
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleGetResume}
+          <Link
+            href="#"
+            unstyled
+            variant="ghost"
+            underline="never"
             className={styles.resumeButton}
+            onClick={(e) => {
+              e.preventDefault();
+              onGetResume?.();
+            }}
           >
-            {t.getResume}
-          </Button>
+            {t(`getResume`)}
+          </Link>
         </div>
 
         {/* Right side - Photo */}
-        <div className={styles.photoSection}>
-          <div className={styles.photoContainer}>
-            {/* Outer glow effect */}
-            <div className={styles.photoGlow} />
-
-            {/* Photo circle */}
-            <div className={styles.photoCircle}>
-              <div
-                className={styles.photoInner}
-                data-theme={theme}
-              >
-                {/* Placeholder with initials - replace src with actual photo */}
-                <span className={styles.photoInitial}>M</span>
-              </div>
-            </div>
-
-            {/* Decorative ring */}
-            <div className={styles.photoRing} />
-          </div>
-        </div>
+        <HeroAvatar
+          state={avatarState}
+          fullName={DEVELOPER_DATA.fullName}
+          avatarImage={avatarImage}
+        />
       </div>
     </section>
   );
 };
 
 Hero.displayName = 'Hero';
-
 export default Hero;

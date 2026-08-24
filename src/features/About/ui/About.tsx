@@ -1,64 +1,44 @@
-// ============================================
-// About Feature
-// ============================================
-
-import { useLanguage } from '@/shared/lib/contexts';
+import { DEVELOPER_DATA } from '@/entities/Developer';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import { Card } from '@/shared/ui/Card';
-import React from 'react';
-import styles from '../styles/About.module.scss';
-import type { AboutProps } from '../types';
+import { AvatarAbout } from '@/shared/ui/Avatar';
+import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import type { AboutFeatureProps } from '../model/types';
+import styles from './About.module.scss';
 
-/**
- * About Feature Component
- *
- * Displays personal information and bio.
- * Follows FSD architecture - features layer for user scenarios.
- */
-export const About: React.FC<AboutProps> = ({
+export const About: React.FC<AboutFeatureProps> = ({
   className = '',
-  'data-testid': testId = 'about'
+  'data-testid': testId = 'about',
 }) => {
   const { t } = useLanguage();
 
   return (
-    <section
-      id="about"
-      className={`${styles.about} ${className}`}
-      data-testid={testId}
-    >
+    <section id="about" className={`${styles.container} ${className}`} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.sectionTitle}>{t.about}</h2>
+        <h2 className={styles.sectionTitle}>{t('aboutTitle')}</h2>
       </AnimatedSection>
 
-      <AnimatedSection animation="fadeUp" delay={100}>
-        <Card className={styles.aboutCard}>
-          <div className={styles.aboutContent}>
-            <p className={styles.aboutDescription}>
-              {t.aboutDescription}
-            </p>
-
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>6+</span>
-                <span className={styles.statLabel}>Years Experience</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>50+</span>
-                <span className={styles.statLabel}>Projects Completed</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>20+</span>
-                <span className={styles.statLabel}>Happy Clients</span>
-              </div>
-            </div>
+      <AnimatedSection delay={200}>
+        <div className={styles.content}>
+          <div className={styles.avatarContainer}>
+            <AvatarAbout alt={DEVELOPER_DATA.fullName} size="sm" />
           </div>
-        </Card>
+
+          <h3 className={styles.title}>{t('about')}</h3>
+          <Paragraph className={styles.description}>{t('aboutDescription')}</Paragraph>
+
+          <Link
+            href="#contact"
+            unstyled
+            variant="ghost"
+            underline="never"
+            className={styles.ctaButton}
+          >
+            {t('getInTouch')}
+          </Link>
+        </div>
       </AnimatedSection>
     </section>
   );
 };
-
-About.displayName = 'About';
-
-export default About;

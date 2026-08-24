@@ -1,0 +1,28 @@
+// ============================================
+
+// Global Typography
+
+// ============================================
+
+@use '../variables/typography' as *;
+
+// Base typography settings (применяются в html через reset)
+
+// Дополнительные глобальные стили можно добавлять здесь
+
+// Headings base
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+}
+
+// Code blocks
+code,
+pre {
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+}

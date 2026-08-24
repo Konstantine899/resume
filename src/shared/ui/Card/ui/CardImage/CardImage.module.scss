@@ -1,0 +1,12 @@
+@use '@/shared/styles/variables' as *;
+
+.cardImage {
+  width: 100%;
+  height: auto;
+  margin-bottom: $spacing-md;
+  border-radius: $border-radius-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}

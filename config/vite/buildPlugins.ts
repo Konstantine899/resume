@@ -3,13 +3,14 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import { buildSvgPlugin } from './loaders/buildSvgPlugin';
+import { buildPurgeCssPlugin } from './plugins/buildPurgeCssPlugin';
+import { buildSvgPlugin } from './plugins/buildSvgPlugin';
+import { scssUnusedAnalyzer } from './plugins/scssUnusedAnalyzer';
 import { BuildOptions } from './types/config';
 
 export function buildPlugins(options: BuildOptions): PluginOption[] {
   const { isDev, paths, analyze } = options;
   const isProd = !isDev;
-
 
   const plugins: PluginOption[] = [
     // 1. Обработка SVG
@@ -18,10 +19,16 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     // 2. Проверка типов TypeScript и ESLint в отдельном потоке
     checker({
       typescript: true,
+      eslint: undefined,
       overlay: {
         initialIsOpen: false,
-        // Путь к оверлею ошибок в браузере
       },
+    }),
+
+    // 3. ✅ SCSS Analyzer - только в dev для скорости
+    scssUnusedAnalyzer({
+      srcPath: paths.src,
+      isDev,
     }),
 
     // 3. Копирование статических файлов (locales)
@@ -29,8 +36,8 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     viteStaticCopy({
       targets: [
         {
-           src: paths.locales,
-           dest: paths.buildLocales,
+          src: paths.locales,
+          dest: paths.buildLocales,
         },
       ],
     }),
@@ -46,7 +53,8 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
         brotliSize: true,
       })
     );
+    plugins.push(buildPurgeCssPlugin(isDev));
   }
 
-   return plugins.filter(Boolean) as PluginOption[];
+  return plugins.filter(Boolean) as PluginOption[];
 }

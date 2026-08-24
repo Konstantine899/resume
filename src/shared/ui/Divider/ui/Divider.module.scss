@@ -1,0 +1,86 @@
+// src/shared/ui/Divider/ui/Divider.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+// Divider line color — uses the app design-system border token (--border-color)
+
+// with a fallback only in case the token is not defined.
+$divider-color: var(--border-color, #e5e7eb);
+
+// Gap between the text label and the line segments (text divider)
+$divider-gap: 0.75rem;
+
+.divider {
+  position: relative;
+  margin: 0;
+  border: none;
+
+  // ---- Horizontal divider: the line is drawn via border-top ----
+
+  // The border-top-width is set inline (from `thickness`) by useDivider.
+  &.horizontal {
+    width: 100%;
+    height: 0;
+
+    &.solid {
+      border-top-color: $divider-color;
+      border-top-style: solid;
+    }
+
+    &.dashed {
+      border-top-color: $divider-color;
+      border-top-style: dashed;
+    }
+
+    &.dotted {
+      border-top-color: $divider-color;
+      border-top-style: dotted;
+    }
+  }
+
+  // ---- Vertical divider: drawn via background ----
+  &.vertical {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+
+    &.solid {
+      background: $divider-color;
+    }
+
+    // Background-size scaled inline by useDivider (dashed: thickness * 8)
+    &.dashed {
+      background-image: linear-gradient(180deg, $divider-color 50%, transparent 50%);
+      background-repeat: repeat-y;
+    }
+
+    // Background-size scaled inline by useDivider (dotted: thickness)
+    &.dotted {
+      background-image: radial-gradient($divider-color 1px, transparent 1px);
+      background-repeat: repeat-y;
+    }
+  }
+
+  // ---- Text divider (children): line segments around a centered label ----
+  &.textDivider {
+    display: flex;
+    gap: var(--divider-gap, $divider-gap);
+    align-items: center;
+
+    &::before,
+    &::after {
+      flex: 1;
+      height: 0;
+      content: '';
+
+      // Segment thickness is sourced from the inline --divider-line-thickness
+
+      // set by useDivider (SCSS cannot read the inline border-top-width).
+      border-top: var(--divider-line-thickness, 1px) solid $divider-color;
+    }
+  }
+
+  .text {
+    flex-shrink: 0;
+  }
+}

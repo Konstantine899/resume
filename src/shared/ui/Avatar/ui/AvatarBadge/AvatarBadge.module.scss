@@ -1,0 +1,24 @@
+.badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-block;
+  border: 2px solid var(--card-bg, #fff);
+  border-radius: 50%;
+
+  &.statusOnline {
+    background-color: var(--success, #22c55e);
+  }
+
+  &.statusOffline {
+    background-color: var(--text-muted, #9ca3af);
+  }
+
+  &.statusBusy {
+    background-color: var(--danger, #ef4444);
+  }
+
+  &.statusAway {
+    background-color: var(--warning, #f59e0b);
+  }
+}

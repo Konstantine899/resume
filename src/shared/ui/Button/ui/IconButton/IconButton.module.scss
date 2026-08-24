@@ -1,0 +1,145 @@
+// src/shared/ui/Button/ui/IconButton/IconButton.module.scss
+
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// IconButton Component — icon-only button
+
+// Base, variants, states: shared/_button mixins
+
+// Sizes: component-specific (fixed dimensions)
+
+// ============================================
+
+.button {
+  @include button-base;
+
+  // ============================================
+
+  // Variants
+
+  // ============================================
+
+  &.primary {
+    @include variant-primary;
+  }
+
+  &.secondary {
+    @include variant-secondary;
+  }
+
+  &.outline {
+    @include variant-outline;
+  }
+
+  &.ghost {
+    @include variant-ghost;
+  }
+
+  &.sidebar {
+    @include variant-sidebar;
+  }
+
+  &.danger {
+    @include variant-danger;
+  }
+
+  // Color schemes
+  @include color-schemes;
+
+  // ============================================
+
+  // Sizes — icon only buttons have fixed dimensions
+
+  // ============================================
+
+  &.xs {
+    width: 24px;
+    height: 24px;
+
+    .content {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &.sm {
+    width: 32px;
+    height: 32px;
+
+    .content {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &.md {
+    width: 40px;
+    height: 40px;
+
+    .content {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &.lg {
+    width: 48px;
+    height: 48px;
+
+    .content {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &.xl {
+    width: 56px;
+    height: 56px;
+
+    .content {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  // ============================================
+
+  // States & Modifiers
+
+  // ============================================
+
+  &.fullWidth {
+    @include button-fullWidth;
+  }
+
+  &.loading {
+    @include button-loading;
+
+    .skeleton {
+      width: 50%;
+      height: 50%;
+    }
+  }
+
+  // ============================================
+
+  // Internal Elements
+
+  // ============================================
+
+  .content {
+    @include button-content;
+  }
+
+  .loader {
+    @include button-loader;
+  }
+
+  .skeleton {
+    @include button-skeleton;
+  }
+}

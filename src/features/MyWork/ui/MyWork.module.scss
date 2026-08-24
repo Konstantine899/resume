@@ -1,0 +1,453 @@
+// ============================================
+
+// MyWork Feature - SCSS Module
+
+// ============================================
+
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/ui/Section/model/section-mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+// ============================================
+
+// SECTION CONTAINER
+
+// ============================================
+
+.section {
+  width: 100%;
+  max-width: 100%;
+  padding: $spacing-12 $spacing-4 $spacing-12 $spacing-4;
+
+  // px-4 sm:px-6 md:px-12 lg:px-20 xl:px-24
+  overflow: hidden;
+
+  // theme-bg overflow-hidden w-full max-w-full
+  background-color: var(--background);
+
+  @include sm {
+    padding-top: $spacing-16;
+    padding-bottom: $spacing-16;
+  }
+
+  @include md {
+    padding-top: $spacing-20;
+    padding-bottom: $spacing-20;
+  }
+
+  @include sm {
+    padding-right: $spacing-6;
+    padding-left: $spacing-6;
+  }
+
+  @include md {
+    padding-right: $spacing-12;
+    padding-left: $spacing-12;
+  }
+
+  @include lg {
+    padding-right: $spacing-20;
+    padding-left: $spacing-20;
+  }
+
+  @include xl {
+    padding-right: $spacing-24;
+    padding-left: $spacing-24;
+  }
+}
+
+// ============================================
+
+// SECTION TITLE
+
+// ============================================
+
+.title {
+  @include section-title;
+
+  margin-bottom: $spacing-8;
+
+  @include sm {
+    margin-bottom: $spacing-10;
+  }
+
+  @include md {
+    margin-bottom: $spacing-12;
+  }
+}
+
+// ============================================
+
+// PROJECTS GRID
+
+// ============================================
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-4;
+  width: 100%;
+  max-width: 100%;
+
+  @include sm {
+    gap: $spacing-6;
+  }
+}
+
+// ============================================
+
+// CARD-SPECIFIC VARIABLES
+
+// ============================================
+
+$project-card-hover-scale: 1.01;
+$project-card-hover-border: rgb(251 146 60 / 0.3); // orange-500/30
+$project-card-hover-shadow: rgb(251 146 60 / 0.1); // orange-500/10
+$project-card-transition: 0.3s $transition-easing;
+$bg-image-transition: 0.5s $transition-easing;
+$tech-icon-size-base: 1rem; // w-4 h-4 (16px)
+$tech-icon-size-sm: 1.25rem; // sm:w-5 sm:h-5 (20px)
+$tech-icon-size-md: 1.5rem; // md:w-6 md:h-6 (24px)
+
+$project-link-color: #d94744;
+$project-link-hover: #f4b377;
+$bg-image-opacity: 0.1;
+$bg-image-hover-opacity: 0.25;
+
+// ============================================
+
+// BACKGROUND IMAGE OVERLAY
+
+// ============================================
+
+.backgroundImage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  // pointer-events-none (не блокирует клики)
+  pointer-events: none;
+  background-position: right center;
+
+  // background-size: cover background-position: right center
+  background-size: cover;
+  opacity: $bg-image-opacity;
+
+  // transition-opacity duration-500
+  transition: opacity $bg-image-transition;
+
+  .projectCard:hover & {
+    opacity: $bg-image-hover-opacity;
+  }
+}
+
+// ============================================
+
+// GRADIENT OVERLAY (Text Contrast)
+
+// ============================================
+
+.gradientOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to right, rgb(41 39 38), rgb(41 39 38 / 0.9), transparent);
+  transition: background $bg-image-transition;
+
+  // Light theme override
+  [data-theme='light'] & {
+    background: linear-gradient(
+      to right,
+      rgb(245 243 240) 0%,
+      rgb(245 243 240 / 0.95) 50%,
+      rgb(245 243 240 / 0.7) 100%
+    );
+  }
+}
+
+// ============================================
+
+// PROJECT CONTENT
+
+// ============================================
+
+.content {
+  position: relative;
+  z-index: 10;
+  min-width: 0; // Prevent flex overflow
+}
+
+// ============================================
+
+// PROJECT TITLE
+
+// ============================================
+
+.projectTitle {
+  @include text-lg;
+  @include font-semibold;
+
+  @include sm {
+    @include text-xl;
+  }
+
+  @include md {
+    @include text-2xl;
+  }
+
+  margin-bottom: $spacing-2;
+
+  // theme-text mb-2 sm:mb-3
+  color: var(--foreground);
+
+  // group-hover:text-[#f4b377] transition-colors
+  transition: color $project-card-transition;
+
+  @include sm {
+    margin-bottom: $spacing-3;
+  }
+
+  .projectCard:hover & {
+    color: #f4b377;
+  }
+}
+
+// ============================================
+
+// PROJECT DESCRIPTION
+
+// ============================================
+
+.projectDescription {
+  max-width: 42rem; // max-w-2xl
+  margin-bottom: $spacing-3;
+
+  // theme-text-muted mb-3 sm:mb-4 max-w-2xl text-sm sm:text-base break-words
+  color: var(--foreground-muted);
+  overflow-wrap: break-word;
+
+  @include sm {
+    @include text-sm;
+
+    margin-bottom: $spacing-4;
+  }
+
+  @include md {
+    @include text-base;
+  }
+}
+
+// ============================================
+
+// TECH ICONS ROW
+
+// ============================================
+
+.techRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+  margin-bottom: $spacing-3;
+
+  @include sm {
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+  }
+
+  .techLabel {
+    margin-right: $spacing-1;
+
+    // theme-text-muted mr-1 sm:mr-2 text-xs sm:text-sm md:text-base
+    color: var(--foreground-muted);
+
+    @include text-xs;
+
+    @include sm {
+      margin-right: $spacing-2;
+
+      @include text-sm;
+    }
+
+    @include md {
+      @include text-base;
+    }
+  }
+
+  .techIcon {
+    width: $tech-icon-size-base;
+    height: $tech-icon-size-base;
+
+    // hover:scale-125 transition-transform
+    transition: transform $transition-fast;
+
+    @include sm {
+      width: $tech-icon-size-sm;
+      height: $tech-icon-size-sm;
+    }
+
+    @include md {
+      width: $tech-icon-size-md;
+      height: $tech-icon-size-md;
+    }
+
+    &:hover {
+      transform: scale(1.25);
+    }
+
+    // invert (для тёмных иконок)
+    &.invert {
+      filter: invert(1);
+    }
+  }
+}
+
+// ============================================
+
+// PROJECT LINK
+
+// ============================================
+
+.projectLink {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  align-items: center;
+
+  @include sm {
+    gap: $spacing-2;
+  }
+
+  .linkLabel {
+    color: var(--foreground-muted);
+
+    @include text-xs;
+
+    @include sm {
+      @include text-sm;
+    }
+
+    @include md {
+      @include text-base;
+    }
+  }
+
+  .linkUrl {
+    max-width: 100%;
+
+    // text-[#d94744] hover:text-[#f4b377] transition-colors
+    color: $project-link-color;
+    word-break: break-all;
+    text-decoration: none;
+
+    // underline-offset-4 hover:underline
+    text-underline-offset: 4px;
+    transition:
+      color $transition-fast,
+      text-decoration $transition-fast;
+
+    // text-xs sm:text-sm md:text-base break-all max-w-full
+    @include text-xs;
+
+    @include sm {
+      @include text-sm;
+    }
+
+    @include md {
+      @include text-base;
+    }
+
+    &:hover {
+      color: $project-link-hover;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ============================================
+
+// ANIMATION WRAPPER (AnimatedSection)
+
+// ============================================
+
+.animatedWrapper {
+  &.fadeUp {
+    @include animate-fade-up;
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+// ============================================
+
+// ACCESSIBILITY
+
+// ============================================
+
+.projectLink .linkUrl:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backgroundImage,
+  .gradientOverlay,
+  .techIcon,
+  .projectLink .linkUrl,
+  .projectTitle,
+  .projectCard {
+    transition: none;
+  }
+
+  .techIcon:hover {
+    transform: none;
+  }
+
+  .projectCard:hover {
+    transform: none;
+  }
+}
+
+// ============================================
+
+// THEME ADJUSTMENTS
+
+// ============================================
+
+[data-theme='dark'] {
+  .techIcon.invert {
+    filter: invert(1);
+  }
+}
+
+[data-theme='light'] {
+  .techIcon.invert {
+    filter: none;
+  }
+}
+
+// ============================================
+
+// EMPTY STATE (Optional)
+
+// ============================================
+
+.emptyState {
+  padding: $spacing-12;
+  color: var(--foreground-muted);
+  text-align: center;
+
+  @include text-lg;
+
+  .icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto $spacing-6;
+    opacity: 0.5;
+  }
+}

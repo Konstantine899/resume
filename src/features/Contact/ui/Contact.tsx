@@ -1,118 +1,121 @@
-// ============================================
-// Contact Feature
-// ============================================
-
-import React, { useState } from 'react';
-import { useLanguage } from '@/features/LanguageSwitch/hooks/useLanguage';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
-import { Input } from '@/shared/ui/Input';
-import { Textarea } from '@/shared/ui/Textarea';
-import type { ContactProps } from '../types';
-import styles from '../styles/Contact.module.scss';
+import { ContactCard } from '@/shared/ui/Card';
+import { Icon } from '@/shared/ui/Icon';
+import { Input, InputEmail } from '@/shared/ui/Input';
+import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import { Mail } from 'lucide-react';
+import { useRef } from 'react';
+import { useContactForm } from '../hooks/useContactForm';
+import { SOCIAL_LINKS } from '../model/constants';
+import styles from './Contact.module.scss';
 
-/**
- * Contact Feature Component
- * 
- * Contact form and information.
- * Follows FSD architecture - features layer for user scenarios.
- */
-export const Contact: React.FC<ContactProps> = ({
-  className = '',
-  'data-testid': testId = 'contact'
-}) => {
+export function Contact() {
+  const formRef = useRef<HTMLFormElement>(null);
   const { t } = useLanguage();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Message sent! (This is a demo)');
-      setFormData({ name: '', email: '', message: '' });
-    }, 2000);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+  // ✅ Используем хук формы (внутри уже есть Toast)
+  const { formData, status, setFormData, handleSubmit } = useContactForm();
 
   return (
-    <section 
-      id="contact" 
-      className={`${styles.contact} ${className}`}
-      data-testid={testId}
-    >
+    <section id="contact" className={styles.container}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.sectionTitle}>{t.contact}</h2>
+        <h2 className={styles.title}>{t('contact')}</h2>
       </AnimatedSection>
-      
-      <AnimatedSection animation="fadeUp" delay={100}>
-        <Card className={styles.contactCard}>
-          <div className={styles.contactContent}>
-            <div className={styles.contactInfo}>
-              <h3 className={styles.contactSubtitle}>{t.getInTouch}</h3>
-              <p className={styles.contactDescription}>
-                Feel free to reach out for collaborations or just a friendly hello!
-              </p>
-              <div className={styles.contactEmail}>
-                <strong>Email:</strong> maximus@example.com
-              </div>
-            </div>
-            
-            <form className={styles.contactForm} onSubmit={handleSubmit}>
+
+      <div className={styles.grid}>
+        <AnimatedSection delay={200}>
+          <div className={styles.formContainer}>
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className={styles.form}
+              noValidate // ✅ Браузерная валидация отключена (своя в хуке)
+            >
+              {/* Имя */}
               <Input
-                name="name"
-                placeholder={t.name}
+                type="text"
+                name="user_name"
+                placeholder={t('namePlaceholder')}
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                disabled={status === 'submitting'}
+                className={styles.input}
                 required
               />
-              <Input
-                name="email"
-                type="email"
-                placeholder={t.email}
+
+              {/* Email */}
+              <InputEmail
+                name="user_email"
+                placeholder={t('emailPlaceholder')}
                 value={formData.email}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                disabled={status === 'submitting'}
+                className={styles.input}
                 required
               />
-              <Textarea
+
+              {/* Сообщение */}
+              <textarea
                 name="message"
-                placeholder={t.message}
+                placeholder={t('messagePlaceholder')}
+                rows={4}
                 value={formData.message}
-                onChange={handleChange}
-                rows={5}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                disabled={status === 'submitting'}
+                className={styles.textarea}
                 required
+                aria-required="true"
               />
+
+              {/* Кнопка отправки */}
               <Button
                 type="submit"
-                variant="primary"
-                size="lg"
-                loading={isSubmitting}
-                fullWidth
+                loading={status === 'submitting'}
+                className={styles.submitButton}
               >
-                {isSubmitting ? t.sending : t.sendMessage}
+                {status === 'submitting' ? t('sending') : t('sendMessage')}
               </Button>
+
+              {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
+              {/* Теперь уведомления показываются через Toast */}
             </form>
+
+            {/* Социальные ссылки */}
+            <div className={styles.socialLinks}>
+              {SOCIAL_LINKS.map((link, index: number) => {
+                const Icon = link.icon as React.ComponentType<{ className?: string }>;
+                return (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    external
+                    variant="ghost"
+                    underline="never"
+                    showExternalIcon={false}
+                    className={styles.socialLink}
+                  >
+                    <Icon className={styles.icon} />
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </Card>
-      </AnimatedSection>
+        </AnimatedSection>
+
+        {/* Декоративная секция */}
+        <AnimatedSection delay={400}>
+          <ContactCard
+            title={t('contact')}
+            icon={<Icon name={Mail} size={40} color="inherit" decorative />}
+          >
+            <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
+          </ContactCard>
+        </AnimatedSection>
+      </div>
     </section>
   );
-};
-
-Contact.displayName = 'Contact';
-
-export default Contact;
+}

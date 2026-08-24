@@ -2,26 +2,23 @@
 // Job Entity - TypeScript Types
 // ============================================
 
+export interface JobItem {
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+  technologies?: string[];
+}
+
 /**
  * Job employment type
  */
-export type EmploymentType =
-  | 'full-time'
-  | 'part-time'
-  | 'contract'
-  | 'freelance'
-  | 'internship';
+export type EmploymentType = 'full-time' | 'part-time' | 'contract' | 'freelance' | 'internship';
 
 /**
  * Job level types
  */
-export type JobLevel =
-  | 'junior'
-  | 'middle'
-  | 'senior'
-  | 'lead'
-  | 'principal'
-  | 'architect';
+export type JobLevel = 'junior' | 'middle' | 'senior' | 'lead' | 'principal' | 'architect';
 
 /**
  * Job interface
@@ -89,4 +86,3 @@ export interface JobFilters {
  * Job key type
  */
 export type JobKey = keyof Job;
-

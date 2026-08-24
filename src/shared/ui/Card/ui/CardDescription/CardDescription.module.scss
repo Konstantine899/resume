@@ -1,0 +1,12 @@
+.cardDescription {
+  margin: 0 0 1rem;
+
+  // line-height override: must beat `.paragraph.s` (specificity 0,2,0) from the
+
+  // Paragraph module — same-class selector raises specificity to 0,2,0 and this
+
+  // module's CSS is emitted after Paragraph's (CardDescription imports Paragraph first)
+  &.cardDescription {
+    line-height: 1.6;
+  }
+}

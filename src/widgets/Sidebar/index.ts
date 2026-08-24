@@ -2,5 +2,21 @@
 // Sidebar Widget - Public API
 // ============================================
 
-export { Sidebar } from './ui/Sidebar';
-export type { SidebarProps, SidebarState, NavItem } from './types';
+// Main Component
+export type { SidebarProps } from './model/types';
+export { Sidebar } from './Sidebar';
+
+// UI Components (for advanced usage)
+export { MobileMenu } from './ui/MobileMenu';
+export { Navigation } from './ui/Navigation';
+export { NavItem } from './ui/NavItem';
+export { SidebarHeader } from './ui/SidebarHeader';
+export { ToggleButton } from './ui/ToggleButton';
+
+// Hooks (for custom implementations)
+export { useNavigation } from './hooks/useNavigation';
+export { useSidebar } from './hooks/useSidebar';
+
+// Model
+export { getNavItems, SIDEBAR_STORAGE_KEY } from './model/constants';
+export type { NavItem as NavItemType } from './model/types';

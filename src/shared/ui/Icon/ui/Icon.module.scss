@@ -1,0 +1,35 @@
+// Focus styles
+$icon-focus-outline: 2px solid var(--primary);
+$icon-focus-radius: 4px;
+$icon-transition: 0.2s ease;
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  transition: opacity $icon-transition;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:active {
+      opacity: 0.6;
+    }
+
+    &:focus-visible {
+      outline: $icon-focus-outline;
+      outline-offset: 2px;
+      border-radius: $icon-focus-radius;
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}

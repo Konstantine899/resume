@@ -1,0 +1,514 @@
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/mixins/theme' as *;
+
+.inputWrapper {
+  --input-transition-duration: 0.2s;
+  --input-border-radius: 0.375rem;
+  --input-gap: 0.25rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--input-gap);
+
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+.label {
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+
+  @include theme-transition;
+}
+
+.required::after {
+  margin-left: 0.25rem;
+  color: var(--form-error);
+  content: '*';
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  // Icon padding using CSS variables
+  --icon-spacing: 0.75rem;
+  --icon-spacing-xs: 0.375rem;
+  --icon-spacing-sm: 0.5rem;
+  --icon-spacing-lg: 1rem;
+  --icon-spacing-xl: 1.25rem;
+
+  &:has(.icon) .input,
+  &:has(.iconFloating) .input {
+    padding-left: calc(var(--icon-spacing) * 2 + 1rem);
+  }
+
+  &:has(.iconAfter) .input {
+    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+  }
+
+  &:has(.clearButton) .input {
+    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+  }
+
+  // Size variations for icon padding
+  &:has(.icon) .input.xs,
+  &:has(.iconFloating) .input.xs {
+    padding-left: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+  }
+
+  &:has(.iconAfter) .input.xs {
+    padding-right: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+  }
+
+  &:has(.icon) .input.sm,
+  &:has(.iconFloating) .input.sm {
+    padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+  }
+
+  &:has(.iconAfter) .input.sm {
+    padding-right: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+  }
+
+  &:has(.icon) .input.lg,
+  &:has(.iconFloating) .input.lg {
+    padding-left: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+  }
+
+  &:has(.iconAfter) .input.lg {
+    padding-right: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+  }
+
+  &:has(.icon) .input.xl,
+  &:has(.iconFloating) .input.xl {
+    padding-left: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+  }
+
+  &:has(.iconAfter) .input.xl {
+    padding-right: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+  }
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-family: Inter, sans-serif;
+  font-size: 1rem;
+  color: var(--foreground);
+  outline: none;
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-border-radius);
+  transition:
+    border-color var(--input-transition-duration) ease,
+    box-shadow var(--input-transition-duration) ease;
+
+  @include theme-transition;
+
+  &::placeholder {
+    color: var(--foreground-muted);
+  }
+
+  &:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: var(--background-alt);
+    opacity: 0.6;
+  }
+
+  &[readonly] {
+    cursor: default;
+    background-color: var(--background-alt);
+  }
+
+  &.outline {
+    border: 2px solid var(--border-color);
+
+    &:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
+    }
+  }
+
+  &.filled {
+    background-color: var(--background-alt);
+    border: none;
+
+    &:focus {
+      background-color: var(--background);
+      box-shadow: 0 0 0 2px rgb(244 179 119 / 0.2);
+    }
+  }
+
+  // Sizes
+  &.xs {
+    padding: 0.125rem 0.375rem;
+    font-size: 0.75rem;
+  }
+
+  &.sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  &.md {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+
+  &.lg {
+    padding: 0.75rem 1rem;
+    font-size: 1.125rem;
+  }
+
+  &.xl {
+    padding: 1rem 1.25rem;
+    font-size: 1.25rem;
+  }
+
+  // States
+  &.error {
+    border-color: var(--form-error);
+
+    &:focus {
+      border-color: var(--form-error);
+      box-shadow: 0 0 0 3px rgb(220 53 69 / 0.2);
+    }
+  }
+
+  &.success {
+    border-color: var(--form-success);
+
+    &:focus {
+      border-color: var(--form-success);
+      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
+    }
+  }
+
+  &.loading {
+    background-image: linear-gradient(
+      90deg,
+      var(--background-alt) 25%,
+      var(--background) 50%,
+      var(--background-alt) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+.icon {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+
+  .input.xs ~ & {
+    left: 0.375rem;
+  }
+
+  .input.sm ~ & {
+    left: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    left: 1rem;
+  }
+}
+
+.iconAfter {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+
+  .input.xs ~ & {
+    right: 0.375rem;
+  }
+
+  .input.sm ~ & {
+    right: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    right: 1rem;
+  }
+}
+
+.loadingIndicator {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.clearButton {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: color var(--input-transition-duration) ease;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .input.xs ~ & {
+    right: 0.375rem;
+  }
+
+  .input.sm ~ & {
+    right: 0.5rem;
+  }
+
+  .input.xl ~ & {
+    right: 1rem;
+  }
+}
+
+.counter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+
+  .warning {
+    font-weight: 600;
+    color: var(--form-warning);
+  }
+
+  @include theme-transition;
+}
+
+// Floating Label styles
+.floatingLabelWrapper {
+  position: relative;
+
+  .input {
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:not(:placeholder-shown) ~ .floatingLabel {
+      color: var(--primary);
+      transform: translateY(-1.75rem) scale(0.85);
+    }
+
+    &:focus ~ .floatingLabel {
+      color: var(--primary);
+    }
+
+    &:focus::placeholder {
+      color: transparent;
+    }
+
+    &:disabled ~ .floatingLabel {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &.xs:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-1.25rem) scale(0.65);
+    }
+
+    &.sm:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-1.5rem) scale(0.75);
+    }
+
+    &.lg:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-2rem) scale(0.9);
+    }
+
+    &.xl:not(:placeholder-shown) ~ .floatingLabel {
+      transform: translateY(-2.25rem) scale(0.95);
+    }
+  }
+}
+
+.floatingLabel {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem;
+  font-size: 1rem;
+  color: var(--foreground-muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    transform var(--input-transition-duration) ease,
+    color var(--input-transition-duration) ease;
+
+  .input.xs ~ & {
+    top: 0.125rem;
+    font-size: 0.75rem;
+  }
+
+  .input.sm ~ & {
+    top: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .input.lg ~ & {
+    top: 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .input.xl ~ & {
+    top: 1rem;
+    font-size: 1.25rem;
+  }
+}
+
+.iconFloating {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--foreground-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+
+  .input.xs ~ & {
+    left: 0.375rem;
+  }
+
+  .input.sm ~ & {
+    left: 0.5rem;
+  }
+
+  .input.lg ~ & {
+    left: 1rem;
+  }
+
+  .input.xl ~ & {
+    left: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .label,
+  .floatingLabel,
+  .counter,
+  .clearButton,
+  .passwordToggle,
+  .addonStart,
+  .addonEnd {
+    transition: none;
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// InputGroup styles
+.inputGroup {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  .input {
+    flex: 1;
+    border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
+
+    &:first-child {
+      border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
+    }
+
+    &:last-child {
+      border-radius: 0 var(--input-border-radius) var(--input-border-radius) 0;
+    }
+  }
+}
+
+.addonStart,
+.addonEnd {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+  background-color: var(--background-alt);
+  border: 1px solid var(--border-color);
+
+  @include theme-transition;
+}
+
+.addonStart {
+  border-right: none;
+  border-radius: var(--input-border-radius) 0 0 var(--input-border-radius);
+}
+
+.addonEnd {
+  border-left: none;
+  border-radius: 0 var(--input-border-radius) var(--input-border-radius) 0;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: color var(--input-transition-duration) ease;
+
+  &:hover {
+    color: var(--foreground);
+  }
+
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .input.sm ~ & {
+    right: 0.5rem;
+  }
+
+  .input.lg ~ & {
+    right: 1rem;
+  }
+}

@@ -1,0 +1,46 @@
+.group {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+
+  .avatar {
+    margin-left: -8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  .overflow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: -8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary, #4b5563);
+    background-color: var(--background-alt, #e5e7eb);
+    border-radius: 50%;
+  }
+
+  &.sizeSm .overflow {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  &.sizeMd .overflow {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  &.sizeLg .overflow,
+  &.sizeXl .overflow {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+}

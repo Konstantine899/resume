@@ -1,0 +1,75 @@
+// ============================================
+
+// AnimatedSection Styles
+
+// ============================================
+
+// Animation offsets (CSS custom properties for JS control)
+$animation-offset-sm: 20px;
+$animation-offset-lg: 100px;
+
+.animatedSection {
+  opacity: 0;
+  transition:
+    opacity var(--animation-duration, 700ms) ease,
+    transform var(--animation-duration, 700ms) ease;
+  transition-delay: var(--animation-delay, 0ms);
+
+  // Animation types
+  &.fadeIn {
+    transform: none;
+  }
+
+  &.fadeUp {
+    transform: translateY($animation-offset-sm);
+  }
+
+  &.fadeDown {
+    transform: translateY(-$animation-offset-sm);
+  }
+
+  &.slideInLeft {
+    transform: translateX(-$animation-offset-lg);
+  }
+
+  &.slideInRight {
+    transform: translateX($animation-offset-lg);
+  }
+
+  &.scaleIn {
+    transform: scale(0.9);
+  }
+
+  // Visible state (animation complete)
+  &.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  // Animating state (during animation)
+  &.animating {
+    transition-delay: 0ms;
+  }
+
+  // No animation mode
+  &.none {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  // Accessibility: Reduced Motion
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    &.fadeIn,
+    &.fadeUp,
+    &.fadeDown,
+    &.slideInLeft,
+    &.slideInRight,
+    &.scaleIn {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}

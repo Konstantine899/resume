@@ -1,0 +1,33 @@
+// ============================================
+
+// Utility Mixins
+
+// ============================================
+
+@use '../variables/colors' as *;
+@use '../variables/radius' as *;
+
+// Terminal dots
+@mixin terminal-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+@mixin terminal-dot-red {
+  @include terminal-dot;
+
+  background-color: #ff5f56;
+}
+
+@mixin terminal-dot-yellow {
+  @include terminal-dot;
+
+  background-color: #ffbd2e;
+}
+
+@mixin terminal-dot-green {
+  @include terminal-dot;
+
+  background-color: #27ca40;
+}

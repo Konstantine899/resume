@@ -1,0 +1,72 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/styles/animations' as *;
+
+.button {
+  @include flex-center;
+
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all 0.2s ease;
+
+  &--expanded {
+    justify-content: flex-start;
+  }
+
+  &--collapsed {
+    justify-content: center;
+  }
+
+  &:hover {
+    background: rgba($primary-light, 0.1);
+  }
+}
+
+.controlIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  &.spinning {
+    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+.controlText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  min-width: 0;
+  overflow: hidden;
+  font-size: $font-size-sm;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.languageFull {
+  font-size: $font-size-sm;
+}
+
+.spinning {
+  animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes theme-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}

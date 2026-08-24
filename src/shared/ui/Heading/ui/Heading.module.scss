@@ -1,0 +1,116 @@
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/mixins/typography' as *;
+@use '@/shared/styles/mixins/theme' as *;
+@use '@/shared/styles/mixins/responsive' as *;
+
+// ============================================
+
+// Heading Component
+
+// ============================================
+
+// BEM: .heading, .heading--size-*, .heading--theme-*, .heading--align-*
+
+// ============================================
+
+.heading {
+  margin: 0;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-base;
+  color: var(--foreground);
+
+  @include theme-transition;
+
+  // ============================================
+
+  // Sizes (BEM: .heading--size-*)
+
+  // ============================================
+
+  &--xs {
+    @include text-xs;
+  }
+
+  &--s {
+    @include text-sm;
+  }
+
+  &--m {
+    @include text-base;
+  }
+
+  &--l {
+    @include text-lg;
+  }
+
+  &--xl {
+    @include text-xl;
+  }
+
+  &--xxl {
+    @include text-2xl;
+  }
+
+  &--size-3xl {
+    font-size: $font-size-3xl;
+    line-height: $line-height-base;
+  }
+
+  &--size-4xl {
+    font-size: $font-size-4xl;
+    line-height: $line-height-base;
+  }
+
+  &--size-5xl {
+    font-size: $font-size-5xl;
+    line-height: $line-height-base;
+
+    @include lg {
+      font-size: $font-size-6xl;
+    }
+  }
+
+  // ============================================
+
+  // Themes (BEM: .heading--theme-*)
+
+  // ============================================
+
+  &--primary {
+    color: var(--foreground);
+  }
+
+  &--muted {
+    color: var(--foreground-muted);
+  }
+
+  &--inverted {
+    color: var(--text-inverted, #fff);
+  }
+
+  &--error {
+    color: var(--form-error);
+  }
+
+  &--gradient {
+    @include gradient-text;
+  }
+
+  // ============================================
+
+  // Align (BEM: .heading--align-*)
+
+  // ============================================
+
+  &--left {
+    text-align: left;
+  }
+
+  &--center {
+    text-align: center;
+  }
+
+  &--right {
+    text-align: right;
+  }
+}

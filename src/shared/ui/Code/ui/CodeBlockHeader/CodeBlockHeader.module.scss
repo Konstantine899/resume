@@ -1,0 +1,107 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.blockHeader {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  background: rgb(41 39 38 / 0.5);
+  border-bottom: 1px solid rgb(244 179 119 / 0.1);
+}
+
+.blockHeaderLeft {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+}
+
+.blockTitle {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $primary-light;
+}
+
+.language {
+  padding: $spacing-1 $spacing-2;
+  font-size: $font-size-xs;
+  color: $primary-light;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgb(244 179 119 / 0.1);
+  border-radius: $border-radius-sm;
+}
+
+.terminalDots {
+  display: flex;
+  gap: $spacing-sm;
+
+  .dot {
+    @include terminal-dot;
+
+    &.red {
+      @include terminal-dot-red;
+    }
+
+    &.yellow {
+      @include terminal-dot-yellow;
+    }
+
+    &.green {
+      @include terminal-dot-green;
+    }
+  }
+}
+
+@include sm {
+  .blockHeader {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .blockHeaderLeft {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .blockTitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copyButton {
+    flex-shrink: 0;
+  }
+}
+
+// Copied state
+.copied {
+  color: #22c55e;
+}
+
+// Skeleton styles
+.blockTitleSkeleton {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.languageSkeleton {
+  background: rgb(244 179 119 / 0.1);
+  border-radius: $border-radius-sm;
+}
+
+.copyButtonSkeleton {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blockHeader {
+    transition: none;
+  }
+}

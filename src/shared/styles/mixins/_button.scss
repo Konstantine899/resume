@@ -1,0 +1,270 @@
+// ============================================
+
+// Button Base Mixins
+
+// Shared across Button, IconButton, ButtonWithIcon
+
+// ============================================
+
+@use 'sass:color';
+@use '../variables' as *;
+@use 'layout' as *;
+
+// ============================================
+
+// Variables
+
+// ============================================
+
+$button-transition-duration: 200ms;
+$button-transition-timing: ease;
+$button-focus-offset: 2px;
+
+// ============================================
+
+// Color Scheme CSS Variables
+
+// Set on .button, overridable via .colorScheme-*
+
+// ============================================
+
+@mixin color-scheme-variables {
+  // Default: brand
+  --btn-fill: #f4b377;
+  --btn-fill-hover: #{color.adjust(#f4b377, $lightness: -10%)};
+  --btn-fill-text: white;
+  --btn-color: #f4b377;
+  --btn-color-subtle: rgb(244 179 119 / 0.1);
+  --btn-focus-outline: 2px solid #f4b377;
+}
+
+@mixin color-scheme-brand {
+  --btn-fill: #f4b377;
+  --btn-fill-hover: #{color.adjust(#f4b377, $lightness: -10%)};
+  --btn-fill-text: white;
+  --btn-color: #f4b377;
+  --btn-color-subtle: rgb(244 179 119 / 0.1);
+  --btn-focus-outline: 2px solid #f4b377;
+}
+
+@mixin color-scheme-neutral {
+  --btn-fill: var(--secondary);
+  --btn-fill-hover: #5a6268;
+  --btn-fill-text: white;
+  --btn-color: var(--secondary);
+  --btn-color-subtle: rgb(108 117 125 / 0.15);
+  --btn-focus-outline: 2px solid var(--secondary);
+}
+
+@mixin color-scheme-success {
+  --btn-fill: var(--success);
+  --btn-fill-hover: #1e7e34;
+  --btn-fill-text: white;
+  --btn-color: var(--success);
+  --btn-color-subtle: rgb(40 167 69 / 0.15);
+  --btn-focus-outline: 2px solid var(--success);
+}
+
+@mixin color-scheme-warning {
+  --btn-fill: var(--warning);
+  --btn-fill-hover: #d39e00;
+  --btn-fill-text: #1a1716;
+  --btn-color: var(--warning);
+  --btn-color-subtle: rgb(255 193 7 / 0.2);
+  --btn-focus-outline: 2px solid var(--warning);
+}
+
+@mixin color-scheme-danger {
+  --btn-fill: var(--danger);
+  --btn-fill-hover: #b52d3a;
+  --btn-fill-text: white;
+  --btn-color: var(--danger);
+  --btn-color-subtle: rgb(220 53 69 / 0.15);
+  --btn-focus-outline: 2px solid var(--danger);
+}
+
+// ============================================
+
+// .button base — shared structural styles
+
+// ============================================
+
+@mixin button-base {
+  @include flex-center;
+  @include color-scheme-variables;
+
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: $border-radius-md;
+  transition: all $button-transition-duration $button-transition-timing;
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &:disabled,
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: var(--btn-focus-outline, 2px solid #f4b377);
+    outline-offset: $button-focus-offset;
+  }
+}
+
+// ============================================
+
+// Variant mixins — use CSS variables from colorScheme
+
+// ============================================
+
+@mixin variant-primary {
+  color: var(--btn-fill-text, white);
+  background-color: var(--btn-fill);
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-fill-hover);
+  }
+}
+
+@mixin variant-secondary {
+  color: var(--foreground-muted);
+  background-color: transparent;
+  border: 1px solid var(--card-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--background-secondary);
+    border-color: var(--btn-color);
+  }
+}
+
+@mixin variant-outline {
+  color: var(--btn-color);
+  background-color: transparent;
+  border: 2px solid var(--btn-color);
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-color-subtle);
+  }
+}
+
+@mixin variant-ghost {
+  color: var(--foreground-muted);
+  background-color: transparent;
+
+  &:hover:not(:disabled) {
+    color: var(--btn-color);
+    background-color: var(--btn-color-subtle);
+  }
+}
+
+@mixin variant-sidebar {
+  color: var(--foreground);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--background-secondary);
+    border-color: var(--foreground-muted);
+  }
+
+  &:focus-visible {
+    outline: var(--btn-focus-outline, 2px solid #f4b377);
+    outline-offset: $button-focus-offset;
+  }
+}
+
+@mixin variant-danger {
+  @include variant-primary;
+}
+
+// ============================================
+
+// Color scheme classes — include in each button component
+
+// ============================================
+
+@mixin color-schemes {
+  &.color-scheme-brand {
+    @include color-scheme-brand;
+  }
+
+  &.color-scheme-neutral {
+    @include color-scheme-neutral;
+  }
+
+  &.color-scheme-success {
+    @include color-scheme-success;
+  }
+
+  &.color-scheme-warning {
+    @include color-scheme-warning;
+  }
+
+  &.color-scheme-danger {
+    @include color-scheme-danger;
+  }
+}
+
+// ============================================
+
+// State mixins
+
+// ============================================
+
+@mixin button-fullWidth {
+  width: 100%;
+}
+
+@mixin button-loading {
+  .content {
+    visibility: hidden;
+  }
+
+  .loader,
+  .skeleton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .skeleton {
+    width: 80%;
+    height: 60%;
+  }
+}
+
+// ============================================
+
+// Internal element mixins
+
+// ============================================
+
+@mixin button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-skeleton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

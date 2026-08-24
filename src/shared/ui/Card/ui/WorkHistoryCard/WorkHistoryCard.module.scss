@@ -1,0 +1,155 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.workHistoryCard {
+  position: relative;
+  padding: $spacing-3;
+  background-color: rgb(41 39 38 / 0.8);
+  border-left: 4px solid #f4b377;
+  border-radius: $radius-xl;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.5s ease;
+
+  @include sm {
+    padding: $spacing-4;
+  }
+
+  @include md {
+    padding: $spacing-6;
+  }
+
+  // Light theme override
+  [data-theme='light'] & {
+    background-color: rgb(255 255 255 / 0.9);
+  }
+
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: $spacing-3;
+
+    @include sm {
+      align-items: center;
+    }
+  }
+
+  .titleSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .title {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: #f4b377;
+
+    @include sm {
+      font-size: $font-size-base;
+    }
+
+    @include md {
+      font-size: $font-size-lg;
+    }
+
+    @include lg {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .periodSection {
+    display: flex;
+    gap: $spacing-2;
+    align-items: center;
+    margin-bottom: $spacing-2;
+    font-size: $font-size-xs;
+    color: #d1d5db;
+
+    @include sm {
+      margin-bottom: $spacing-3;
+      font-size: $font-size-sm;
+    }
+  }
+
+  .periodBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-1 $spacing-2;
+    font-size: $font-size-xs;
+    font-weight: 600;
+    color: #f4b377;
+    background: rgb(244 179 119 / 0.2);
+    border: 1px solid #f4b377;
+    border-radius: $radius-full;
+  }
+
+  .location {
+    display: flex;
+    gap: $spacing-2;
+    align-items: center;
+    margin-bottom: $spacing-3;
+    font-size: $font-size-xs;
+    color: #d1d5db;
+
+    @include sm {
+      font-size: $font-size-sm;
+    }
+
+    .locationIcon {
+      font-size: inherit;
+    }
+  }
+
+  .achievements {
+    padding-left: $spacing-4;
+    margin: 0;
+    font-size: $font-size-xs;
+    line-height: $line-height-base;
+    color: #e5e7eb;
+
+    @include sm {
+      font-size: $font-size-sm;
+    }
+
+    @include md {
+      font-size: $font-size-base;
+    }
+
+    li {
+      margin-bottom: $spacing-2;
+    }
+  }
+
+  .techStack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    padding-top: $spacing-3;
+    margin-top: $spacing-3;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .techBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-1 $spacing-3;
+    font-size: $font-size-xs;
+    font-weight: 500;
+    color: #f4b377;
+    background: rgb(244 179 119 / 0.1);
+    border: 1px solid rgb(244 179 119 / 0.3);
+    border-radius: $radius-full;
+    transition: all $transition-duration $transition-easing;
+
+    &:hover {
+      background: rgb(244 179 119 / 0.2);
+      transform: translateY(-2px);
+    }
+  }
+}

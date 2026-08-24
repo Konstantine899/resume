@@ -1,0 +1,115 @@
+// src/shared/ui/Button/ui/Button/Button.module.scss
+
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// Button Component — text-only button
+
+// Base, variants, states: shared/_button mixins
+
+// Sizes: component-specific
+
+// ============================================
+
+.button {
+  @include button-base;
+
+  // ============================================
+
+  // Variants
+
+  // ============================================
+
+  &.primary {
+    @include variant-primary;
+  }
+
+  &.secondary {
+    @include variant-secondary;
+  }
+
+  &.outline {
+    @include variant-outline;
+  }
+
+  &.ghost {
+    @include variant-ghost;
+  }
+
+  &.sidebar {
+    @include variant-sidebar;
+  }
+
+  &.danger {
+    @include variant-danger;
+  }
+
+  // Color schemes
+  @include color-schemes;
+
+  // ============================================
+
+  // Sizes
+
+  // ============================================
+
+  &.xs {
+    padding: $spacing-xs $spacing-sm;
+    font-size: 0.75rem;
+  }
+
+  &.sm {
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+  }
+
+  &.md {
+    padding: $spacing-md $spacing-lg;
+    font-size: 1rem;
+  }
+
+  &.lg {
+    padding: $spacing-lg $spacing-xl;
+    font-size: 1.125rem;
+  }
+
+  &.xl {
+    padding: $spacing-xl $spacing-10;
+    font-size: 1.25rem;
+  }
+
+  // ============================================
+
+  // States & Modifiers
+
+  // ============================================
+
+  &.fullWidth {
+    @include button-fullWidth;
+  }
+
+  &.loading {
+    @include button-loading;
+  }
+
+  // ============================================
+
+  // Internal Elements
+
+  // ============================================
+
+  .content {
+    @include button-content;
+  }
+
+  .loader {
+    @include button-loader;
+  }
+
+  .skeleton {
+    @include button-skeleton;
+  }
+}

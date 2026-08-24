@@ -1,0 +1,35 @@
+// src/shared/ui/Section/ui/Section.module.scss
+
+.section {
+  position: relative;
+  width: 100%;
+
+  // Size-based vertical padding (top/bottom only)
+
+  // Горизонтальный padding и max-width управляются через Container
+
+  &.sm {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  &.md {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  &.lg {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  &.xl {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  &.xxl {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}

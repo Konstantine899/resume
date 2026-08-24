@@ -1,0 +1,138 @@
+// ============================================
+
+// Theme CSS Custom Properties
+
+// ============================================
+
+@use '../variables/colors' as *;
+
+:root {
+  --background: #{$background};
+  --background-alt: #{$background-alt};
+  --foreground: #{$text-primary};
+  --foreground-muted: #{$text-muted};
+
+  // Aliases for text colors (used by Card and other components)
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-tertiary: #{$text-muted};
+  --gradient-text: #{$gradient-text};
+  --card-bg: rgb(255 255 255 / 0.98);
+  --card-border: rgb(0 0 0 / 0.12);
+  --shadow-color: rgb(0 0 0 / 0.1);
+  --border-color: #{$border-color};
+  --background-secondary: #1e1c1b;
+  --primary: #f4b377;
+  --primary-dark: #d94744;
+  --accent: #50abc5;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --code-bg: rgb(41 39 38 / 0.95);
+
+  // Skeleton colors
+  --skeleton-base: rgb(200 200 200 / 0.3);
+  --skeleton-highlight: rgb(255 255 255 / 0.4);
+
+  // Link colors (default - тёмная тема)
+  --link-primary: #f4b377;
+  --link-primary-hover: #f9c997;
+  --link-secondary: #e8e6e3;
+  --link-secondary-hover: #fff;
+
+  // Form variables (NEW)
+  --form-error: #{$form-error-color};
+  --form-success: #{$form-success-color};
+  --form-warning: #{$form-warning-color};
+  --label-color: var(--foreground);
+
+  // Image component tokens
+  --image-placeholder-bg: rgb(0 0 0 / 0.05);
+  --image-fallback-text: rgb(0 0 0 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.05);
+}
+
+[data-theme='dark'] {
+  --background: #292726;
+  --background-alt: #1e1c1b;
+  --foreground: #e8e6e3;
+  --foreground-muted: #9ca3af;
+
+  // Aliases for text colors
+  --text-primary: #e8e6e3;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --card-bg: rgb(41 39 38 / 0.9);
+  --card-border: rgb(255 255 255 / 0.1);
+  --shadow-color: rgb(0 0 0 / 0.3);
+  --border-color: #4b5563;
+  --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
+  --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+  --gradient-text: #{$gradient-text};
+  --secondary: #6c757d;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  // Skeleton colors for dark theme
+  --skeleton-base: #292726;
+  --skeleton-highlight: rgb(255 255 255 / 0.15);
+
+  // Link colors for dark theme
+  --link-primary: #f4b377;
+  --link-primary-hover: #f9c997;
+  --link-secondary: #e8e6e3;
+  --link-secondary-hover: #fff;
+
+  // Form variables for dark theme
+  --form-error: #ef4444;
+  --form-success: #22c55e;
+  --form-warning: #f59e0b;
+
+  // Image component tokens for dark theme
+  --image-placeholder-bg: rgb(255 255 255 / 0.05);
+  --image-fallback-text: rgb(255 255 255 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.1);
+}
+
+[data-theme='light'] {
+  --background: #f5f3f0;
+  --background-alt: #e5e7eb;
+  --foreground: #1a1716;
+  --foreground-muted: #4b5563;
+
+  // Aliases for text colors
+  --text-primary: #1a1716;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --gradient-text: #{$gradient-text};
+  --card-bg: rgb(255 255 255 / 0.98);
+  --card-border: rgb(0 0 0 / 0.12);
+  --shadow-color: rgb(0 0 0 / 0.1);
+  --border-color: #d1d5db;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+
+  // Skeleton colors for light theme
+  --skeleton-base: rgb(0 0 0 / 0.08);
+  --skeleton-highlight: rgb(255 255 255 / 0.6);
+
+  // Link colors for light theme (тёмные ссылки на светлом фоне)
+  --link-primary: #d97b3d;
+  --link-primary-hover: #b85f2b;
+  --link-secondary: #4b5563;
+  --link-secondary-hover: #1a1716;
+
+  // Form variables for light theme
+  --form-error: #dc3545;
+  --form-success: #28a745;
+  --form-warning: #ffc107;
+
+  // Image component tokens for light theme
+  --image-placeholder-bg: rgb(0 0 0 / 0.05);
+  --image-fallback-text: rgb(0 0 0 / 0.3);
+  --image-error-bg: rgb(255 0 0 / 0.05);
+}

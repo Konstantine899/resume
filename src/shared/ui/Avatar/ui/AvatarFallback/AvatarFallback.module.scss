@@ -1,0 +1,78 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '../../model/avatar-mixins' as *;
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-semibold;
+  color: white;
+  user-select: none;
+
+  // Variant shapes
+  &.circle {
+    border-radius: 50%;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg;
+  }
+
+  // Sizes
+  &.sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  &.md {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+
+  &.lg {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+  }
+
+  &.xl {
+    width: 96px;
+    height: 96px;
+    font-size: 24px;
+  }
+
+  // Fill container mode — растягивается на весь родитель
+
+  // Используется в AvatarHero/AvatarAbout внутри photoInner/avatarInner
+  &.fillContainer {
+    width: 100%;
+    height: 100%;
+    background: none;
+
+    &.sm {
+      font-size: 2.5rem;
+
+      @include avatar-initial;
+    }
+
+    &.md {
+      font-size: 4rem;
+
+      @include avatar-initial;
+    }
+
+    &.lg,
+    &.xl {
+      font-size: 6rem;
+
+      @include avatar-initial;
+    }
+  }
+}
+
+.initials {
+  line-height: 1;
+}

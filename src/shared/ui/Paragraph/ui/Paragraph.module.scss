@@ -1,0 +1,139 @@
+@use '@/shared/styles/variables/typography' as *;
+@use '@/shared/styles/mixins/typography' as *;
+@use '@/shared/styles/mixins/theme' as *;
+
+.paragraph {
+  margin: 0;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-base;
+
+  @include theme-transition;
+
+  // Sizes
+  &.xs {
+    @include text-xs;
+  }
+
+  &.s {
+    @include text-sm;
+  }
+
+  &.m {
+    @include text-base;
+  }
+
+  &.l {
+    @include text-lg;
+  }
+
+  &.xl {
+    @include text-xl;
+  }
+
+  &.size-2xl {
+    @include text-2xl;
+  }
+
+  // Themes
+  &.primary {
+    color: var(--foreground);
+  }
+
+  &.muted {
+    color: var(--foreground-muted);
+  }
+
+  &.inverted {
+    color: #fff;
+  }
+
+  &.error {
+    color: var(--form-error);
+  }
+
+  &.success {
+    color: var(--form-success);
+  }
+
+  &.warning {
+    color: var(--form-warning);
+  }
+
+  &.tertiary {
+    color: var(--text-tertiary);
+  }
+
+  &.gradient {
+    @include gradient-text;
+  }
+
+  // Align
+  &.left {
+    text-align: left;
+  }
+
+  &.center {
+    text-align: center;
+  }
+
+  &.right {
+    text-align: right;
+  }
+
+  // Line clamp (ограничение строк)
+  @for $i from 2 through 5 {
+    &.line-clamp-#{$i} {
+      display: -webkit-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: $i;
+      line-clamp: $i;
+      -webkit-box-orient: vertical;
+    }
+  }
+
+  // Font weights (via typography mixins)
+  &.light {
+    @include font-light;
+  }
+
+  &.normal {
+    @include font-normal;
+  }
+
+  &.medium {
+    @include font-medium;
+  }
+
+  &.semibold {
+    @include font-semibold;
+  }
+
+  &.bold {
+    @include font-bold;
+  }
+
+  // Wrap modes
+  &.wrap {
+    overflow-wrap: break-word;
+  }
+
+  &.nowrap {
+    white-space: nowrap;
+  }
+
+  &.balance {
+    text-wrap: balance;
+  }
+
+  &.pretty {
+    text-wrap: pretty;
+  }
+
+  // Truncate (single line)
+  &.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
