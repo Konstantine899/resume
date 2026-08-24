@@ -3,7 +3,12 @@
   "plugins": ["stylelint-order", "stylelint-scss"],
   "rules": {
     "scss/no-global-function-names": true,
-    "scss/double-slash-comment-empty-line-before": "always",
+    "scss/double-slash-comment-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"]
+      }
+    ],
     "scss/comment-no-empty": true,
     "function-url-quotes": "always",
     "number-max-precision": 5,

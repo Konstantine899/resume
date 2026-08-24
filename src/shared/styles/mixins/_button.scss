@@ -29,7 +29,7 @@ $button-focus-offset: 2px;
 // ============================================
 
 @mixin color-scheme-variables {
-  /* Default: brand */
+  // Default: brand
   --btn-fill: #f4b377;
   --btn-fill-hover: #{color.adjust(#f4b377, $lightness: -10%)};
   --btn-fill-text: white;
