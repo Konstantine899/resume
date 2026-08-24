@@ -165,7 +165,7 @@ export const SwipeToDismiss: Story = {
     ]);
 
     // Exit animation started (toast still mounted)
-    expect(toast.className).toContain(styles.closing);
+    expect(toast.className).toContain(styles.closing ?? '');
   },
 };
 
@@ -177,7 +177,7 @@ export const AllTypes: Story = {
     onClose: () => {},
   },
   render: () => (
-    <div className={styles.toastContainer}>
+    <div className={styles.toastContainer ?? ''}>
       <Toast id="1" message="Success!" type="success" onClose={() => {}} />
       <Toast id="2" message="Error occurred" type="error" onClose={() => {}} />
       <Toast id="3" message="Info message" type="info" onClose={() => {}} />
@@ -202,7 +202,7 @@ export const AllTypes: Story = {
 
     // Close the warning toast
     const closeButtons = canvas.getAllByTestId('toast-close');
-    await userEvent.click(closeButtons[3]);
+    await userEvent.click(closeButtons[3] as HTMLElement);
 
     // All 4 should still be visible (exit animation not complete)
     expect(canvas.getAllByTestId('toast')).toHaveLength(4);
@@ -439,11 +439,11 @@ export const Persistent: Story = {
     // Still mounted after a short real wait (no timer is running)
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(canvas.getByTestId('toast')).toBeInTheDocument();
-    expect(toast.className).not.toContain(styles.closing);
+    expect(toast.className).not.toContain(styles.closing ?? '');
 
     // Manual close still starts the exit animation
     await userEvent.click(canvas.getByTestId('toast-close'));
-    expect(toast.className).toContain(styles.closing);
+    expect(toast.className).toContain(styles.closing ?? '');
   },
 };
 
@@ -469,7 +469,7 @@ export const Loading: Story = {
     expect(canvas.queryByTestId('toast-progress')).not.toBeInTheDocument();
 
     await userEvent.click(canvas.getByTestId('toast-close'));
-    expect(toast.className).toContain(styles.closing);
+    expect(toast.className).toContain(styles.closing ?? '');
   },
 };
 
@@ -486,12 +486,12 @@ export const ExitAnimation: Story = {
 
     const toast = canvas.getByTestId('toast');
     expect(toast).toBeInTheDocument();
-    expect(toast.className).not.toContain(styles.closing);
+    expect(toast.className).not.toContain(styles.closing ?? '');
 
     await userEvent.click(canvas.getByTestId('toast-close'));
 
     // Exit animation started: closing class applied, toast still mounted
-    expect(toast.className).toContain(styles.closing);
+    expect(toast.className).toContain(styles.closing ?? '');
     expect(canvas.getByTestId('toast')).toBeInTheDocument();
   },
 };
@@ -505,7 +505,7 @@ export const EmptyMessage: Story = {
     onClose: () => {},
   },
   render: () => (
-    <div className={styles.toastContainer}>
+    <div className={styles.toastContainer ?? ''}>
       <Toast id="empty-1" message="" type="info" duration={0} onClose={() => {}} />
       <Toast id="empty-2" message="   " type="warning" duration={0} onClose={() => {}} />
     </div>

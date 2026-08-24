@@ -8,23 +8,23 @@ describe('AvatarBadge', () => {
     const { container } = render(<AvatarBadge />);
     const badge = container.firstChild as HTMLElement;
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass(styles.badge);
-    expect(badge).toHaveClass(styles.statusOffline);
+    expect(badge).toHaveClass(styles.badge ?? '');
+    expect(badge).toHaveClass(styles.statusOffline ?? '');
   });
 
   it('renders with online status', () => {
     const { container } = render(<AvatarBadge status="online" />);
-    expect(container.firstChild).toHaveClass(styles.statusOnline);
+    expect(container.firstChild).toHaveClass(styles.statusOnline ?? '');
   });
 
   it('renders with busy status', () => {
     const { container } = render(<AvatarBadge status="busy" />);
-    expect(container.firstChild).toHaveClass(styles.statusBusy);
+    expect(container.firstChild).toHaveClass(styles.statusBusy ?? '');
   });
 
   it('renders with away status', () => {
     const { container } = render(<AvatarBadge status="away" />);
-    expect(container.firstChild).toHaveClass(styles.statusAway);
+    expect(container.firstChild).toHaveClass(styles.statusAway ?? '');
   });
 
   it('has role="status"', () => {

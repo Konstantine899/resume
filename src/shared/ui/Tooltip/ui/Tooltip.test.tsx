@@ -136,7 +136,7 @@ describe('Tooltip', () => {
 
         await waitFor(() => {
           const tooltip = screen.getByRole('tooltip');
-          expect(tooltip).toHaveClass(tooltipStyles[position]);
+          expect(tooltip).toHaveClass(tooltipStyles[position] ?? '');
         });
       });
     });
@@ -544,7 +544,7 @@ describe('Tooltip', () => {
 
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip');
-        expect(tooltip).toHaveClass(tooltipStyles.left);
+        expect(tooltip).toHaveClass(tooltipStyles.left ?? '');
       });
     });
 
@@ -770,7 +770,7 @@ describe('Tooltip', () => {
       await waitFor(() => {
         const tooltip = screen.getByRole('tooltip');
         expect(tooltip).toBeInTheDocument();
-        expect(tooltip).toHaveClass(tooltipStyles.right);
+        expect(tooltip).toHaveClass(tooltipStyles.right ?? '');
       });
     });
 

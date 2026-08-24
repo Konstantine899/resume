@@ -87,9 +87,9 @@ export const Variants: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('variant-primary')).toHaveClass(styles.primary);
-    await expect(canvas.getByTestId('variant-secondary')).toHaveClass(styles.secondary);
-    await expect(canvas.getByTestId('variant-ghost')).toHaveClass(styles.ghost);
+    await expect(canvas.getByTestId('variant-primary')).toHaveClass(styles.primary ?? '');
+    await expect(canvas.getByTestId('variant-secondary')).toHaveClass(styles.secondary ?? '');
+    await expect(canvas.getByTestId('variant-ghost')).toHaveClass(styles.ghost ?? '');
   },
 };
 
@@ -116,10 +116,10 @@ export const AllVariants: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('av-primary')).toHaveClass(styles.primary);
-    await expect(canvas.getByTestId('av-secondary')).toHaveClass(styles.secondary);
-    await expect(canvas.getByTestId('av-ghost')).toHaveClass(styles.ghost);
-    await expect(canvas.getByTestId('av-gradient')).toHaveClass(styles.gradient);
+    await expect(canvas.getByTestId('av-primary')).toHaveClass(styles.primary ?? '');
+    await expect(canvas.getByTestId('av-secondary')).toHaveClass(styles.secondary ?? '');
+    await expect(canvas.getByTestId('av-ghost')).toHaveClass(styles.ghost ?? '');
+    await expect(canvas.getByTestId('av-gradient')).toHaveClass(styles.gradient ?? '');
   },
 };
 
@@ -145,9 +145,9 @@ export const Sizes: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('size-sm')).toHaveClass(styles.sm);
-    await expect(canvas.getByTestId('size-md')).toHaveClass(styles.md);
-    await expect(canvas.getByTestId('size-lg')).toHaveClass(styles.lg);
+    await expect(canvas.getByTestId('size-sm')).toHaveClass(styles.sm ?? '');
+    await expect(canvas.getByTestId('size-md')).toHaveClass(styles.md ?? '');
+    await expect(canvas.getByTestId('size-lg')).toHaveClass(styles.lg ?? '');
   },
 };
 
@@ -229,7 +229,7 @@ export const Gradient: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const link = canvas.getByRole('link', { name: 'Gradient Link' });
-    await expect(link).toHaveClass(styles.gradient);
+    await expect(link).toHaveClass(styles.gradient ?? '');
     // Computed background resolves the --gradient-text var (LNK-06 / PAR-06)
     expect(getComputedStyle(link).backgroundImage).toContain('linear-gradient');
   },
@@ -245,7 +245,9 @@ export const WithLift: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('link', { name: 'Link with Lift' })).toHaveClass(styles.withLift);
+    await expect(canvas.getByRole('link', { name: 'Link with Lift' })).toHaveClass(
+      styles.withLift ?? ''
+    );
   },
 };
 
@@ -265,8 +267,8 @@ export const FullyFeatured: Story = {
     const canvas = within(canvasElement);
     const link = canvas.getByRole('link', { name: /Fully Featured/ });
     await expect(link).toHaveAttribute('target', '_blank');
-    await expect(link).toHaveClass(styles.lg);
-    await expect(link).toHaveClass(styles.withLift);
+    await expect(link).toHaveClass(styles.lg ?? '');
+    await expect(link).toHaveClass(styles.withLift ?? '');
   },
 };
 
@@ -493,8 +495,8 @@ export const CustomComponent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const link = canvas.getByTestId('poly-custom-link');
-    await expect(link).toHaveClass(styles.link);
-    await expect(link).toHaveClass(styles.primary);
+    await expect(link).toHaveClass(styles.link ?? '');
+    await expect(link).toHaveClass(styles.primary ?? '');
     await expect(link).toHaveClass('merged-class');
     await expect(link).toHaveAttribute('href', '/profile');
   },

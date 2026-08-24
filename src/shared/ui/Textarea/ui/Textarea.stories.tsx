@@ -274,9 +274,9 @@ export const AllSizes: Story = {
     const canvas = within(canvasElement);
     const textareas = canvas.getAllByTestId('textarea');
     await expect(textareas).toHaveLength(3);
-    await expect(textareas[0].className).toMatch(/sm/);
-    await expect(textareas[1].className).toMatch(/md/);
-    await expect(textareas[2].className).toMatch(/lg/);
+    await expect(textareas[0]?.className ?? '').toMatch(/sm/);
+    await expect(textareas[1]?.className ?? '').toMatch(/md/);
+    await expect(textareas[2]?.className ?? '').toMatch(/lg/);
   },
 };
 
@@ -292,9 +292,9 @@ export const AllVariants: Story = {
     const canvas = within(canvasElement);
     const textareas = canvas.getAllByTestId('textarea');
     await expect(textareas).toHaveLength(3);
-    await expect(textareas[0].className).toMatch(/default/);
-    await expect(textareas[1].className).toMatch(/outline/);
-    await expect(textareas[2].className).toMatch(/filled/);
+    await expect(textareas[0]?.className ?? '').toMatch(/default/);
+    await expect(textareas[1]?.className ?? '').toMatch(/outline/);
+    await expect(textareas[2]?.className ?? '').toMatch(/filled/);
   },
 };
 

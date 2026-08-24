@@ -207,9 +207,9 @@ export const Toast = memo((props: ToastProps) => {
   const TypeIcon = TOAST_ICONS[settledType] ?? TOAST_ICONS.info;
 
   const mods = {
-    [styles[type]]: true,
-    [styles.closing]: isClosing,
-    [styles.dragging]: isDragging,
+    [styles[type] ?? '']: true,
+    [styles.closing ?? '']: isClosing,
+    [styles.dragging ?? '']: isDragging,
   };
 
   const showProgress = duration > 0 && !isClosing;
@@ -217,7 +217,7 @@ export const Toast = memo((props: ToastProps) => {
   return (
     <div
       ref={toastRef}
-      className={classNames(styles.toast, mods, [className])}
+      className={classNames(styles.toast ?? '', mods, [className])}
       role="alert"
       aria-live="assertive"
       data-testid="toast"
@@ -234,7 +234,7 @@ export const Toast = memo((props: ToastProps) => {
     >
       {isLoading ? (
         <>
-          <div className={styles.icon} aria-hidden="true">
+          <div className={styles.icon ?? ''} aria-hidden="true">
             <Spinner label={message} />
           </div>
           <Paragraph as="span" id={`toast-message-${id}`}>
@@ -243,7 +243,7 @@ export const Toast = memo((props: ToastProps) => {
         </>
       ) : (
         <>
-          <div className={styles.icon} aria-hidden="true">
+          <div className={styles.icon ?? ''} aria-hidden="true">
             <Icon name={TypeIcon} size={TOAST_CONSTANTS.ICON_SIZE} color="inherit" decorative />
           </div>
           <Paragraph as="span" id={`toast-message-${id}`}>
@@ -256,7 +256,7 @@ export const Toast = memo((props: ToastProps) => {
       {action && !isLoading && (
         <button
           type="button"
-          className={classNames(styles.action, styles[action.variant ?? 'secondary'])}
+          className={classNames(styles.action ?? '', styles[action.variant ?? 'secondary'] ?? '')}
           onClick={(e) => {
             e.stopPropagation();
             action.onClick();
@@ -272,7 +272,7 @@ export const Toast = memo((props: ToastProps) => {
         <button
           ref={closeButtonRef}
           type="button"
-          className={styles.closeButton}
+          className={styles.closeButton ?? ''}
           onClick={handleClose}
           aria-label="Close notification"
           data-testid="toast-close"
@@ -284,7 +284,7 @@ export const Toast = memo((props: ToastProps) => {
       {/* Progress Bar — hidden for loading toasts */}
       {showProgress && !isLoading && (
         <div
-          className={styles.progressBar}
+          className={styles.progressBar ?? ''}
           style={{
             animationDuration: `${duration}ms`,
             opacity: isPaused ? 0.5 : 0.3,
@@ -295,7 +295,7 @@ export const Toast = memo((props: ToastProps) => {
 
       {/* Pause Indicator */}
       {isPaused && (
-        <div className={styles.pauseIndicator} aria-hidden="true">
+        <div className={styles.pauseIndicator ?? ''} aria-hidden="true">
           <Icon name={Pause} size={12} color="inherit" decorative />
         </div>
       )}

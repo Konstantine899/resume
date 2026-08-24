@@ -205,10 +205,10 @@ describe('Image improvements (ERB-01 onLoadErrorTelemetry)', () => {
     await triggerError();
 
     expect(telemetry).toHaveBeenCalledTimes(1);
-    const info = telemetry.mock.calls[0][0];
-    expect(info.src).toBe('/photo.jpg');
-    expect(info.alt).toBe(TEST_IMAGE_ALT);
-    expect(info.event).toBeDefined();
+    const info = telemetry.mock.calls[0]?.[0];
+    expect(info?.src).toBe('/photo.jpg');
+    expect(info?.alt).toBe(TEST_IMAGE_ALT);
+    expect(info?.event).toBeDefined();
   });
 
   it('uses the resolved src from the object src union', async () => {
@@ -219,8 +219,8 @@ describe('Image improvements (ERB-01 onLoadErrorTelemetry)', () => {
     });
     await triggerError();
 
-    const info = telemetry.mock.calls[0][0];
-    expect(info.src).toBe('/obj.jpg');
+    const info = telemetry.mock.calls[0]?.[0];
+    expect(info?.src).toBe('/obj.jpg');
   });
 
   it('is suppressed while forceLoading is active (funnel gate)', () => {
@@ -235,7 +235,7 @@ describe('Image improvements (ERB-01 onLoadErrorTelemetry)', () => {
     renderImage({ onLoadErrorTelemetry: telemetry });
     await triggerError();
 
-    expect(Object.keys(telemetry.mock.calls[0][0]).sort()).toEqual(['alt', 'event', 'src']);
+    expect(Object.keys(telemetry.mock.calls[0]?.[0] ?? {}).sort()).toEqual(['alt', 'event', 'src']);
   });
 
   it('does not reorder or gate the existing onLoadError callback', async () => {

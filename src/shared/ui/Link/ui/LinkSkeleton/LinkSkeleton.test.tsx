@@ -8,7 +8,7 @@ import linkStyles from '../Link.module.scss';
 
 describe('LinkSkeleton', () => {
   it('should render a span with aria-disabled and data-skeleton', () => {
-    render(<LinkSkeleton className={linkStyles.link} />);
+    render(<LinkSkeleton className={linkStyles.link ?? ''} />);
 
     const skeleton = screen.getByRole('status').closest('span');
     expect(skeleton).toHaveAttribute('aria-disabled', 'true');
@@ -23,16 +23,16 @@ describe('LinkSkeleton', () => {
   });
 
   it('should render a Skeleton variant="text" inside the placeholder', () => {
-    render(<LinkSkeleton className={linkStyles.link} />);
+    render(<LinkSkeleton className={linkStyles.link ?? ''} />);
 
     const skeleton = screen.getByRole('status');
     expect(skeleton).toBeInTheDocument();
     expect(skeleton).toHaveAttribute('data-variant', 'text');
-    expect(skeleton).toHaveClass(linkStyles.skeletonPlaceholder);
+    expect(skeleton).toHaveClass(linkStyles.skeletonPlaceholder ?? '');
   });
 
   it('should not render an anchor element', () => {
-    render(<LinkSkeleton className={linkStyles.link} />);
+    render(<LinkSkeleton className={linkStyles.link ?? ''} />);
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.queryByRole('link')).toBeNull();

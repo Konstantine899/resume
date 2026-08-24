@@ -4,7 +4,7 @@ import { Project, ProjectCategory, ProjectStatus } from './types';
 // ============================================
 // Централизованный словарь иконок технологий
 // ============================================
-export const TECH_ICONS: Record<string, TechIcon> = {
+export const TECH_ICONS = {
   // Frontend
   react: {
     url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
@@ -58,7 +58,7 @@ export const TECH_ICONS: Record<string, TechIcon> = {
     url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/d3js/d3js-original.svg',
     invertInDark: true,
   },
-};
+} satisfies Record<string, TechIcon>;
 
 // ============================================
 // Проекты портфолио

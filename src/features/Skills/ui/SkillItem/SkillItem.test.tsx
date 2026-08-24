@@ -77,13 +77,13 @@ describe('SkillItem', () => {
 
       const list = container.querySelector('[role="list"]');
       expect(list).toBeInTheDocument();
-      expect(list?.classList.contains(styles.skillsGrid)).toBe(true);
+      expect(list?.classList.contains(styles.skillsGrid ?? '')).toBe(true);
     });
 
     it('должен рендерить каждую технологию как listitem', () => {
       const { container } = render(<SkillItem categoryData={mockBackendCategory} />);
 
-      const techItems = container.querySelectorAll(`.${styles.techItem}`);
+      const techItems = container.querySelectorAll(`.${styles.techItem ?? ''}`);
       expect(techItems).toHaveLength(2);
       expect(techItems[0]).toHaveAttribute('aria-label', 'Node.js');
       expect(techItems[1]).toHaveAttribute('aria-label', 'Express');
@@ -92,7 +92,7 @@ describe('SkillItem', () => {
     it('должен иметь aria-label на каждой технологии', () => {
       const { container } = render(<SkillItem categoryData={mockTestingCategory} />);
 
-      const techItems = container.querySelectorAll(`.${styles.techItem}`);
+      const techItems = container.querySelectorAll(`.${styles.techItem ?? ''}`);
       expect(techItems[0]).toHaveAttribute('aria-label', 'Jest');
       expect(techItems[1]).toHaveAttribute('aria-label', 'React Testing Library');
     });
@@ -112,7 +112,7 @@ describe('SkillItem', () => {
     it('должен принимать prop delay для анимации', () => {
       const { container } = render(<SkillItem categoryData={mockFrontendCategory} delay={150} />);
 
-      const item = container.querySelector(`.${styles.skillItem}`);
+      const item = container.querySelector(`.${styles.skillItem ?? ''}`);
       expect(item?.getAttribute('style')).toContain('animation-delay: 150ms');
     });
 
@@ -142,7 +142,7 @@ describe('SkillItem', () => {
     it('должен иметь aria-label на каждой технологии', () => {
       const { container } = render(<SkillItem categoryData={mockBackendCategory} />);
 
-      const techItems = container.querySelectorAll(`.${styles.techItem}`);
+      const techItems = container.querySelectorAll(`.${styles.techItem ?? ''}`);
       expect(techItems[0]).toHaveAttribute('aria-label', 'Node.js');
       expect(techItems[1]).toHaveAttribute('aria-label', 'Express');
     });
@@ -195,7 +195,7 @@ describe('SkillItem', () => {
     it('должен рендерить правильное количество технологий', () => {
       const { container } = render(<SkillItem categoryData={mockFrontendCategory} />);
 
-      const techItems = container.querySelectorAll(`.${styles.techItem}`);
+      const techItems = container.querySelectorAll(`.${styles.techItem ?? ''}`);
       expect(techItems).toHaveLength(3);
     });
   });

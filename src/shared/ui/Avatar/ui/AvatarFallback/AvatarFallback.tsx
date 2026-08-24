@@ -39,13 +39,19 @@ export const AvatarFallback = React.memo(
 
     return (
       <div
-        className={classNames(styles.fallback, styles[size], styles[variant], className, {
-          [styles.fillContainer]: fillContainer,
-        })}
+        className={classNames(
+          styles.fallback ?? '',
+          styles[size] ?? '',
+          styles[variant] ?? '',
+          className,
+          {
+            [styles.fillContainer ?? '']: fillContainer,
+          }
+        )}
         style={backgroundColor ? { backgroundColor } : undefined}
         aria-hidden="true"
       >
-        <span className={styles.initials}>{initials}</span>
+        <span className={styles.initials ?? ''}>{initials}</span>
       </div>
     );
   }

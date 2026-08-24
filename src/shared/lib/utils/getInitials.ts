@@ -35,7 +35,7 @@ export const getInitials = (
     .filter((name) => name.length > 0);
 
   // Получаем ВСЕ инициалы из имён
-  const allInitials = names.map((name) => name[0].toUpperCase()).join('');
+  const allInitials = names.map((name) => name[0]?.toUpperCase() ?? '').join('');
 
   // Если указан индекс - возвращаем конкретный символ (игнорируя maxInitials)
   if (index !== undefined) {

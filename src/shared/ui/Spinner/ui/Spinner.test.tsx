@@ -70,16 +70,20 @@ describe('Spinner', () => {
     it('должен рендерить spinnerCircle для spinner', () => {
       render(<Spinner variant="spinner" />);
 
-      const circle = screen.getByRole('status').querySelector(`.${styles.spinnerCircle}`);
+      const circle = screen.getByRole('status').querySelector(`.${styles.spinnerCircle ?? ''}`);
       expect(circle).toBeInTheDocument();
-      expect(circle).toHaveClass(styles.spinnerCircle);
+      expect(circle).toHaveClass(styles.spinnerCircle ?? '');
     });
 
     it('должен рендерить outerRing и innerRing для double-ring', () => {
       render(<Spinner variant="double-ring" />);
 
-      expect(screen.getByRole('status').querySelector(`.${styles.outerRing}`)).toBeInTheDocument();
-      expect(screen.getByRole('status').querySelector(`.${styles.innerRing}`)).toBeInTheDocument();
+      expect(
+        screen.getByRole('status').querySelector(`.${styles.outerRing ?? ''}`)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('status').querySelector(`.${styles.innerRing ?? ''}`)
+      ).toBeInTheDocument();
     });
   });
 
@@ -261,7 +265,7 @@ describe('Spinner', () => {
 
       const presetClasses = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const;
       for (const preset of presetClasses) {
-        expect(root).not.toHaveClass(styles[preset]);
+        expect(root).not.toHaveClass(styles[preset] ?? '');
       }
     });
 
@@ -275,7 +279,7 @@ describe('Spinner', () => {
       const { container } = render(<Spinner size="md" />);
       const root = container.firstChild as HTMLElement;
 
-      expect(root).toHaveClass(styles.md);
+      expect(root).toHaveClass(styles.md ?? '');
       expect(root.style.getPropertyValue('--spinner-size')).toBe('');
       expect(root).toHaveAttribute('data-size', 'md');
     });

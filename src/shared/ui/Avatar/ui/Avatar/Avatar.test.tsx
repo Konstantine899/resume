@@ -237,7 +237,7 @@ describe('AvatarFallback', () => {
   it('должен применять класс fallback', () => {
     const { container } = render(<AvatarFallback name="Test" size="sm" />);
 
-    expect(container.firstChild).toHaveClass(fallbackStyles.fallback);
+    expect(container.firstChild).toHaveClass(fallbackStyles.fallback ?? '');
   });
 
   it('должен применять кастомный className', () => {

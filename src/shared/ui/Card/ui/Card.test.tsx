@@ -222,7 +222,7 @@ describe('Card', () => {
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
       expect(link).toHaveAttribute('rel', expect.stringContaining('noreferrer'));
-      expect(link).toHaveClass(projectCardStyles.link);
+      expect(link).toHaveClass(projectCardStyles.link ?? '');
     });
 
     it('renders WorkHistoryCard', () => {
@@ -485,7 +485,7 @@ describe('Card', () => {
       const desc = screen.getByText('Description text');
       expect(desc).toBeInTheDocument();
       expect(desc.tagName).toBe('P');
-      expect(desc).toHaveClass(cardDescriptionStyles.cardDescription);
+      expect(desc).toHaveClass(cardDescriptionStyles.cardDescription ?? '');
       // Paragraph-backed: carries the paragraph base class and size/theme data attributes
       expect(desc).toHaveClass(/paragraph/);
       expect(desc).toHaveAttribute('data-size', 's');

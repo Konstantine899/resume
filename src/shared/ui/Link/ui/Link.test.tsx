@@ -62,7 +62,7 @@ describe('Link', () => {
           </Link>
         );
 
-        expect(screen.getByRole('link')).toHaveClass(linkStyles[variant]);
+        expect(screen.getByRole('link')).toHaveClass(linkStyles[variant] ?? '');
       });
     });
   });
@@ -78,7 +78,7 @@ describe('Link', () => {
           </Link>
         );
 
-        expect(screen.getByRole('link')).toHaveClass(linkStyles[size]);
+        expect(screen.getByRole('link')).toHaveClass(linkStyles[size] ?? '');
       });
     });
   });
@@ -91,7 +91,7 @@ describe('Link', () => {
         </Link>
       );
 
-      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineAlways);
+      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineAlways ?? '');
     });
 
     it('должен рендериться с underline="hover"', () => {
@@ -101,7 +101,7 @@ describe('Link', () => {
         </Link>
       );
 
-      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineHover);
+      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineHover ?? '');
     });
 
     it('должен рендериться с underline="never"', () => {
@@ -111,7 +111,7 @@ describe('Link', () => {
         </Link>
       );
 
-      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineNever);
+      expect(screen.getByRole('link')).toHaveClass(linkStyles.underlineNever ?? '');
     });
   });
 
@@ -160,7 +160,7 @@ describe('Link', () => {
 
       // Github icon должен рендериться (проверяем наличие SVG с классом lucide-github)
       const link = screen.getByRole('link');
-      const externalIconContainer = link.querySelector(`.${linkStyles.externalIcon}`);
+      const externalIconContainer = link.querySelector(`.${linkStyles.externalIcon ?? ''}`);
       expect(externalIconContainer).toBeInTheDocument();
       expect(externalIconContainer?.querySelector('.lucide-github')).toBeInTheDocument();
     });
@@ -187,7 +187,7 @@ describe('Link', () => {
       );
 
       const link = screen.getByRole('link');
-      const iconContainers = link.querySelectorAll(`.${linkStyles.icon}`);
+      const iconContainers = link.querySelectorAll(`.${linkStyles.icon ?? ''}`);
       expect(iconContainers.length).toBe(1);
       expect(iconContainers[0]).toHaveAttribute('aria-hidden', 'true');
     });
@@ -200,7 +200,7 @@ describe('Link', () => {
       );
 
       const link = screen.getByRole('link');
-      const iconContainers = link.querySelectorAll(`.${linkStyles.icon}`);
+      const iconContainers = link.querySelectorAll(`.${linkStyles.icon ?? ''}`);
       expect(iconContainers.length).toBe(1);
     });
 
@@ -212,7 +212,7 @@ describe('Link', () => {
       );
 
       const link = screen.getByRole('link');
-      const iconContainers = link.querySelectorAll(`.${linkStyles.icon}`);
+      const iconContainers = link.querySelectorAll(`.${linkStyles.icon ?? ''}`);
       expect(iconContainers.length).toBe(2);
     });
 
@@ -223,7 +223,7 @@ describe('Link', () => {
         </Link>
       );
 
-      const iconContainer = screen.getByRole('link').querySelector(`.${linkStyles.icon}`);
+      const iconContainer = screen.getByRole('link').querySelector(`.${linkStyles.icon ?? ''}`);
       expect(iconContainer).toHaveAttribute('aria-hidden', 'true');
     });
   });
@@ -313,7 +313,7 @@ describe('Link', () => {
         </Link>
       );
 
-      expect(screen.getByRole('link')).toHaveClass(linkStyles.unstyled);
+      expect(screen.getByRole('link')).toHaveClass(linkStyles.unstyled ?? '');
     });
   });
 
@@ -325,7 +325,7 @@ describe('Link', () => {
         </Link>
       );
 
-      expect(screen.getByRole('link')).toHaveClass(linkStyles.withLift);
+      expect(screen.getByRole('link')).toHaveClass(linkStyles.withLift ?? '');
     });
   });
 
@@ -568,10 +568,10 @@ describe('Link', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveClass(linkStyles.gradient);
-      expect(link).toHaveClass(linkStyles.lg);
-      expect(link).toHaveClass(linkStyles.withLift);
-      expect(link).toHaveClass(linkStyles.underlineHover);
+      expect(link).toHaveClass(linkStyles.gradient ?? '');
+      expect(link).toHaveClass(linkStyles.lg ?? '');
+      expect(link).toHaveClass(linkStyles.withLift ?? '');
+      expect(link).toHaveClass(linkStyles.underlineHover ?? '');
       expect(link).toHaveAttribute('target', '_blank');
     });
   });

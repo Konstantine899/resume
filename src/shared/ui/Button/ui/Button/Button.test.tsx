@@ -46,7 +46,7 @@ describe('Button', () => {
       it(`должен рендериться с variant="${variant}"`, () => {
         render(<Button variant={variant}>Button</Button>);
 
-        expect(screen.getByRole('button')).toHaveClass(buttonStyles[variant]);
+        expect(screen.getByRole('button')).toHaveClass(buttonStyles[variant] ?? '');
       });
     });
 
@@ -54,8 +54,8 @@ describe('Button', () => {
       render(<Button variant="danger">Delete</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonStyles.primary);
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(buttonStyles.primary ?? '');
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
     });
   });
 
@@ -66,7 +66,7 @@ describe('Button', () => {
       it(`должен рендериться с size="${size}"`, () => {
         render(<Button size={size}>Button</Button>);
 
-        expect(screen.getByRole('button')).toHaveClass(buttonStyles[size]);
+        expect(screen.getByRole('button')).toHaveClass(buttonStyles[size] ?? '');
       });
     });
   });
@@ -95,7 +95,7 @@ describe('Button', () => {
     it('должен применять fullWidth класс', () => {
       render(<Button fullWidth>Full Width</Button>);
 
-      expect(screen.getByRole('button')).toHaveClass(buttonStyles.fullWidth);
+      expect(screen.getByRole('button')).toHaveClass(buttonStyles.fullWidth ?? '');
     });
   });
 
@@ -117,14 +117,14 @@ describe('Button', () => {
         </Button>
       );
 
-      expect(screen.getByRole('button')).toHaveClass(buttonStyles.loading);
+      expect(screen.getByRole('button')).toHaveClass(buttonStyles.loading ?? '');
     });
 
     it('должен скрывать контент при loading=true', () => {
       render(<Button loading>Loading</Button>);
 
-      const content = screen.getByRole('button').querySelector(`.${buttonStyles.content}`);
-      expect(content).toHaveClass(buttonStyles.hidden);
+      const content = screen.getByRole('button').querySelector(`.${buttonStyles.content ?? ''}`);
+      expect(content).toHaveClass(buttonStyles.hidden ?? '');
     });
   });
 
@@ -221,9 +221,9 @@ describe('Button', () => {
       );
 
       const link = screen.getByTestId('button');
-      expect(link).toHaveClass(buttonStyles.button);
-      expect(link).toHaveClass(buttonStyles.primary);
-      expect(link).toHaveClass(buttonStyles.lg);
+      expect(link).toHaveClass(buttonStyles.button ?? '');
+      expect(link).toHaveClass(buttonStyles.primary ?? '');
+      expect(link).toHaveClass(buttonStyles.lg ?? '');
     });
 
     it('должен иметь aria-disabled при disabled=true и component="a"', () => {
@@ -341,9 +341,9 @@ describe('Button', () => {
       );
 
       const link = screen.getByTestId('button');
-      expect(link).toHaveClass(buttonStyles.button);
-      expect(link).toHaveClass(buttonStyles.primary);
-      expect(link).toHaveClass(buttonStyles.lg);
+      expect(link).toHaveClass(buttonStyles.button ?? '');
+      expect(link).toHaveClass(buttonStyles.primary ?? '');
+      expect(link).toHaveClass(buttonStyles.lg ?? '');
     });
 
     it('должен иметь aria-disabled при disabled=true и asChild', () => {
@@ -425,21 +425,21 @@ describe('Button', () => {
 
       const button = screen.getByRole('button');
       expect(button).toBeInTheDocument();
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
     });
 
     it('должен иметь variant="primary" классы при colorScheme="success"', () => {
       render(<Button colorScheme="success">Success</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonStyles.primary);
+      expect(button).toHaveClass(buttonStyles.primary ?? '');
     });
 
     it('variant="danger" должен давать colorSchemeDanger класс', () => {
       render(<Button variant="danger">Delete</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
     });
   });
 });

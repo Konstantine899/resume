@@ -147,12 +147,12 @@ export const AllSizes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const sizeClasses: Array<[string, string]> = [
-      ['xs', styles.xs],
-      ['s', styles.s],
-      ['m', styles.m],
-      ['l', styles.l],
-      ['xl', styles.xl],
-      ['2xl', styles.size2Xl],
+      ['xs', styles.xs ?? ''],
+      ['s', styles.s ?? ''],
+      ['m', styles.m ?? ''],
+      ['l', styles.l ?? ''],
+      ['xl', styles.xl ?? ''],
+      ['2xl', styles.size2Xl ?? ''],
     ];
     for (const [size, cls] of sizeClasses) {
       await expect(canvas.getByTestId(`paragraph-${size}`)).toHaveClass(cls);
@@ -233,14 +233,14 @@ export const AllThemes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const themeClasses: Array<[string, string]> = [
-      ['primary', styles.primary],
-      ['muted', styles.muted],
-      ['inverted', styles.inverted],
-      ['error', styles.error],
-      ['success', styles.success],
-      ['warning', styles.warning],
-      ['tertiary', styles.tertiary],
-      ['gradient', styles.gradient],
+      ['primary', styles.primary ?? ''],
+      ['muted', styles.muted ?? ''],
+      ['inverted', styles.inverted ?? ''],
+      ['error', styles.error ?? ''],
+      ['success', styles.success ?? ''],
+      ['warning', styles.warning ?? ''],
+      ['tertiary', styles.tertiary ?? ''],
+      ['gradient', styles.gradient ?? ''],
     ];
     for (const [theme, cls] of themeClasses) {
       await expect(canvas.getByTestId(`paragraph-${theme}`)).toHaveClass(cls);
@@ -666,7 +666,7 @@ export const AsChildWithButton: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    await expect(button).toHaveClass(styles.paragraph);
+    await expect(button).toHaveClass(styles.paragraph ?? '');
     await expect(button).toHaveTextContent('Текст кнопки со стилями Paragraph');
   },
 };
@@ -720,8 +720,8 @@ export const LineClamp3Only: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const el = canvas.getByTestId('paragraph-line-clamp-3');
-    await expect(el).toHaveClass(styles.lineClamp3);
-    await expect(el).not.toHaveClass(styles.truncate);
+    await expect(el).toHaveClass(styles.lineClamp3 ?? '');
+    await expect(el).not.toHaveClass(styles.truncate ?? '');
   },
 };
 
@@ -735,9 +735,9 @@ export const WrapAndTruncate: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const el = canvas.getByTestId('Paragraph');
-    await expect(el).toHaveClass(styles.nowrap);
-    await expect(el).toHaveClass(styles.truncate);
-    await expect(el).not.toHaveClass(styles.balance);
+    await expect(el).toHaveClass(styles.nowrap ?? '');
+    await expect(el).toHaveClass(styles.truncate ?? '');
+    await expect(el).not.toHaveClass(styles.balance ?? '');
   },
 };
 export const TruncateOnSpan: Story = {
@@ -752,7 +752,7 @@ export const TruncateOnSpan: Story = {
     const canvas = within(canvasElement);
     const el = canvas.getByTestId('paragraph-truncate-span');
     await expect(el.tagName).toBe('SPAN');
-    await expect(el).toHaveClass(styles.truncate);
+    await expect(el).toHaveClass(styles.truncate ?? '');
   },
 };
 
@@ -854,7 +854,7 @@ export const GradientQuote: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const el = canvas.getByTestId('gradient-quote');
-    await expect(el).toHaveClass(styles.gradient);
+    await expect(el).toHaveClass(styles.gradient ?? '');
     expect(getComputedStyle(el).backgroundImage).toContain('linear-gradient');
   },
 };
@@ -1058,10 +1058,10 @@ export const WrapModesComparison: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('wrap-wrap')).toHaveClass(styles.wrap);
-    await expect(canvas.getByTestId('wrap-nowrap')).toHaveClass(styles.nowrap);
-    await expect(canvas.getByTestId('wrap-balance')).toHaveClass(styles.balance);
-    await expect(canvas.getByTestId('wrap-pretty')).toHaveClass(styles.pretty);
+    await expect(canvas.getByTestId('wrap-wrap')).toHaveClass(styles.wrap ?? '');
+    await expect(canvas.getByTestId('wrap-nowrap')).toHaveClass(styles.nowrap ?? '');
+    await expect(canvas.getByTestId('wrap-balance')).toHaveClass(styles.balance ?? '');
+    await expect(canvas.getByTestId('wrap-pretty')).toHaveClass(styles.pretty ?? '');
   },
 };
 
@@ -1083,8 +1083,8 @@ export const GradientTheme: Story = {
     const canvas = within(canvasElement);
     const accent = canvas.getByTestId('gradient-accent');
     const body = canvas.getByTestId('gradient-body');
-    await expect(accent).toHaveClass(styles.gradient);
-    await expect(body).toHaveClass(styles.gradient);
+    await expect(accent).toHaveClass(styles.gradient ?? '');
+    await expect(body).toHaveClass(styles.gradient ?? '');
     expect(getComputedStyle(accent).backgroundImage).toContain('linear-gradient');
   },
 };
@@ -1121,7 +1121,7 @@ export const AsWithAsChildConflict: Story = {
     const el = canvas.getByTestId('paragraph-conflict');
     await expect(el).toBeInTheDocument();
     await expect(el.tagName).toBe('SPAN');
-    await expect(el).toHaveClass(styles.paragraph);
+    await expect(el).toHaveClass(styles.paragraph ?? '');
   },
 };
 
@@ -1141,6 +1141,6 @@ export const LongUnbrokenString: Story = {
     const canvas = within(canvasElement);
     const el = canvas.getByTestId('paragraph-long-nowrap');
     await expect(el).toBeInTheDocument();
-    await expect(el).toHaveClass(styles.nowrap);
+    await expect(el).toHaveClass(styles.nowrap ?? '');
   },
 };
