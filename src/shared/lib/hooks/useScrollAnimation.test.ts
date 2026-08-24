@@ -241,9 +241,9 @@ describe('useScrollAnimation', () => {
 
       // Fire rapid intersection events
       act(() => {
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
       });
 
       // Should NOT have fired yet (debounce delay is 200ms)
@@ -284,7 +284,7 @@ describe('useScrollAnimation', () => {
 
       // Single intersection event
       act(() => {
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
       });
 
       // After 200ms — should NOT have fired (debounceDelay is 500ms)
@@ -330,11 +330,11 @@ describe('useScrollAnimation', () => {
       const observer = MockIntersectionObserver.instances[0];
       expect(observer).toBeDefined();
 
-      const disconnectSpy = observer.disconnect;
+      const disconnectSpy = observer?.disconnect;
 
       // Trigger intersection → animation starts
       act(() => {
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
       });
 
       // Advance past debounce delay
@@ -354,7 +354,7 @@ describe('useScrollAnimation', () => {
 
       // Fire another intersection (should be ignored due to hasAnimated)
       act(() => {
-        observer.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
+        observer?.trigger([{ isIntersecting: true } as IntersectionObserverEntry]);
       });
 
       act(() => {

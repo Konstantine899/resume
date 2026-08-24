@@ -26,12 +26,12 @@ describe('Label', () => {
 
     it('должен применять wrapper класс', () => {
       const { container } = render(<Label htmlFor="test">Label</Label>);
-      expect(container.firstChild).toHaveClass(styles.wrapper);
+      expect(container.firstChild).toHaveClass(styles.wrapper ?? '');
     });
 
     it('должен применять label класс', () => {
       render(<Label htmlFor="test">Label</Label>);
-      expect(getLabelElement()).toHaveClass(styles.label);
+      expect(getLabelElement()).toHaveClass(styles.label ?? '');
     });
 
     it('должен применять custom className', () => {
@@ -56,12 +56,12 @@ describe('Label', () => {
           Small
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.sm);
+      expect(getLabelElement()).toHaveClass(styles.sm ?? '');
     });
 
     it('должен применять md размер по умолчанию', () => {
       render(<Label htmlFor="test">Medium</Label>);
-      expect(getLabelElement()).toHaveClass(styles.md);
+      expect(getLabelElement()).toHaveClass(styles.md ?? '');
     });
 
     it('должен применять lg размер', () => {
@@ -70,7 +70,7 @@ describe('Label', () => {
           Large
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.lg);
+      expect(getLabelElement()).toHaveClass(styles.lg ?? '');
     });
   });
 
@@ -81,7 +81,7 @@ describe('Label', () => {
           Error Label
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.error);
+      expect(getLabelElement()).toHaveClass(styles.error ?? '');
     });
 
     it('должен применять success variant', () => {
@@ -90,7 +90,7 @@ describe('Label', () => {
           Success Label
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.success);
+      expect(getLabelElement()).toHaveClass(styles.success ?? '');
     });
 
     it('должен применять warning variant', () => {
@@ -99,7 +99,7 @@ describe('Label', () => {
           Warning Label
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.warning);
+      expect(getLabelElement()).toHaveClass(styles.warning ?? '');
     });
 
     it('error должен иметь приоритет над success', () => {
@@ -108,8 +108,8 @@ describe('Label', () => {
           Priority Test
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.error);
-      expect(getLabelElement()).not.toHaveClass(styles.success);
+      expect(getLabelElement()).toHaveClass(styles.error ?? '');
+      expect(getLabelElement()).not.toHaveClass(styles.success ?? '');
     });
 
     it('error должен иметь приоритет над variant', () => {
@@ -118,8 +118,8 @@ describe('Label', () => {
           Priority Test
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.error);
-      expect(getLabelElement()).not.toHaveClass(styles.warning);
+      expect(getLabelElement()).toHaveClass(styles.error ?? '');
+      expect(getLabelElement()).not.toHaveClass(styles.warning ?? '');
     });
   });
 
@@ -130,7 +130,7 @@ describe('Label', () => {
           Required
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.required);
+      expect(getLabelElement()).toHaveClass(styles.required ?? '');
     });
 
     it('должен устанавливать data-required атрибут', () => {
@@ -193,7 +193,7 @@ describe('Label', () => {
 
     it('не должен рендерить description когда не указан', () => {
       const { container } = render(<Label htmlFor="test">Label</Label>);
-      expect(container.querySelector(`.${styles.description}`)).not.toBeInTheDocument();
+      expect(container.querySelector(`.${styles.description ?? ''}`)).not.toBeInTheDocument();
     });
 
     it('не должен устанавливать aria-describedby когда нет description', () => {
@@ -314,12 +314,12 @@ describe('Label', () => {
           Loading
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.skeletonMode);
+      expect(getLabelElement()).toHaveClass(styles.skeletonMode ?? '');
     });
 
     it('не должен применять skeletonMode класс при skeleton=false', () => {
       render(<Label htmlFor="test">Normal</Label>);
-      expect(getLabelElement()).not.toHaveClass(styles.skeletonMode);
+      expect(getLabelElement()).not.toHaveClass(styles.skeletonMode ?? '');
     });
   });
 
@@ -397,17 +397,17 @@ describe('Label', () => {
   describe('Default Props', () => {
     it('должен использовать md размер по умолчанию', () => {
       render(<Label htmlFor="test">Label</Label>);
-      expect(getLabelElement()).toHaveClass(styles.md);
+      expect(getLabelElement()).toHaveClass(styles.md ?? '');
     });
 
     it('должен использовать default variant по умолчанию', () => {
       render(<Label htmlFor="test">Label</Label>);
-      expect(getLabelElement()).toHaveClass(styles.default);
+      expect(getLabelElement()).toHaveClass(styles.default ?? '');
     });
 
     it('должен использовать required=false по умолчанию', () => {
       render(<Label htmlFor="test">Label</Label>);
-      expect(getLabelElement()).not.toHaveClass(styles.required);
+      expect(getLabelElement()).not.toHaveClass(styles.required ?? '');
     });
 
     it('должен использовать skeleton=false по умолчанию', () => {
@@ -441,7 +441,7 @@ describe('Label', () => {
         </Label>
       );
       const child = screen.getByText('Child');
-      expect(child).toHaveClass(styles.label);
+      expect(child).toHaveClass(styles.label ?? '');
       expect(child).toHaveClass('extra');
     });
 
@@ -485,7 +485,7 @@ describe('Label', () => {
           Floating
         </Label>
       );
-      expect(getLabelElement()).toHaveClass(styles.floating);
+      expect(getLabelElement()).toHaveClass(styles.floating ?? '');
     });
   });
 

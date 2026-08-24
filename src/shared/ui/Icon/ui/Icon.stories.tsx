@@ -357,7 +357,7 @@ export const ActionIcons: Story = {
     const canvas = within(canvasElement);
     const buttons = canvas.getAllByRole('button');
     expect(buttons).toHaveLength(4);
-    await userEvent.click(buttons[0]);
+    await userEvent.click(buttons[0] as HTMLElement);
     expect(onAction).toHaveBeenCalled();
   },
 };

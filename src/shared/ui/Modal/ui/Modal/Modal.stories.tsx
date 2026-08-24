@@ -654,7 +654,7 @@ export const MultipleModals: Story = {
     // Open Modal 2 from inside Modal 1
     await userEvent.click(within(modal1).getByRole('button', { name: /open second/i }));
     const dialogs = await screen.findAllByRole('dialog');
-    const modal2 = dialogs[dialogs.length - 1];
+    const modal2 = dialogs[dialogs.length - 1] as HTMLElement;
     expect(within(modal2).getByText('Modal 2')).toBeInTheDocument();
 
     // Close Modal 2

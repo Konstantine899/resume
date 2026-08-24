@@ -17,7 +17,7 @@ describe('InputLabel', () => {
       </InputLabel>
     );
     const label = container.querySelector('label');
-    expect(label).toHaveClass(styles.required);
+    expect(label).toHaveClass(styles.required ?? '');
     // Звёздочка рендерится через CSS ::after — label-текст остаётся чистым для getByLabelText
     expect(screen.getByText('Email')).toBeInTheDocument();
   });
@@ -29,7 +29,7 @@ describe('InputLabel', () => {
       </InputLabel>
     );
     const label = container.querySelector('label');
-    expect(label).not.toHaveClass(styles.required);
+    expect(label).not.toHaveClass(styles.required ?? '');
     expect(screen.queryByText('*')).not.toBeInTheDocument();
   });
 
@@ -74,7 +74,7 @@ describe('InputLabel', () => {
       </InputLabel>
     );
     const label = container.querySelector('label');
-    expect(label).toHaveClass(styles.required);
+    expect(label).toHaveClass(styles.required ?? '');
     expect(screen.getByText('Email')).toBeInTheDocument();
   });
 });

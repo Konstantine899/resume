@@ -29,7 +29,11 @@ export const InputLabel = React.memo(
       return (
         <label
           htmlFor={htmlFor}
-          className={classNames(styles.floatingLabel, { [styles.required]: required }, className)}
+          className={classNames(
+            styles.floatingLabel ?? '',
+            { [styles.required ?? '']: required },
+            className
+          )}
         >
           {children}
         </label>
@@ -39,7 +43,7 @@ export const InputLabel = React.memo(
     return (
       <label
         htmlFor={htmlFor}
-        className={classNames(styles.label, { [styles.required]: required }, className)}
+        className={classNames(styles.label ?? '', { [styles.required ?? '']: required }, className)}
       >
         {children}
       </label>

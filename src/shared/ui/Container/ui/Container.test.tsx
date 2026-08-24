@@ -299,7 +299,7 @@ describe('Container', () => {
         </Container>
       );
       expect(refCallback).toHaveBeenCalled();
-      expect(refCallback.mock.calls[0][0]?.tagName).toBe('SECTION');
+      expect(refCallback.mock.calls[0]?.[0]?.tagName).toBe('SECTION');
     });
   });
 
@@ -508,9 +508,9 @@ describe('Container', () => {
         </Container>
       );
       const container = screen.getByTestId('container');
-      expect(container.className).toContain(containerStyles.container);
-      expect(container.className).toContain(containerStyles.lg);
-      expect(container.className).toContain(containerStyles['padding-md']);
+      expect(container.className).toContain(containerStyles.container ?? '');
+      expect(container.className).toContain(containerStyles.lg ?? '');
+      expect(container.className).toContain(containerStyles['padding-md'] ?? '');
     });
 
     it('должен передавать data-size и data-padding при component="article"', () => {

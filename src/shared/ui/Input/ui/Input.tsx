@@ -134,20 +134,20 @@ function InputImpl<C extends React.ElementType = 'input'>(
 
   // Build CSS classes (используем classNames)
   const inputClasses = classNames(
-    styles.input,
-    styles[variant],
-    styles[size],
+    styles.input ?? '',
+    styles[variant] ?? '',
+    styles[size] ?? '',
     {
-      [styles.error]: Boolean(error),
-      [styles.success]: Boolean(success),
-      [styles.loading]: Boolean(loading),
-      [styles.fullWidth]: fullWidth,
+      [styles.error ?? '']: Boolean(error),
+      [styles.success ?? '']: Boolean(success),
+      [styles.loading ?? '']: Boolean(loading),
+      [styles.fullWidth ?? '']: fullWidth,
     },
     className
   );
 
-  const wrapperClasses = classNames(styles.inputWrapper, {
-    [styles.fullWidth]: fullWidth,
+  const wrapperClasses = classNames(styles.inputWrapper ?? '', {
+    [styles.fullWidth ?? '']: fullWidth,
   });
 
   // Accessibility props
@@ -187,13 +187,13 @@ function InputImpl<C extends React.ElementType = 'input'>(
       )}
 
       <div
-        className={classNames(styles.inputContainer, {
-          [styles.floatingLabelWrapper]: variant === 'floating',
+        className={classNames(styles.inputContainer ?? '', {
+          [styles.floatingLabelWrapper ?? '']: variant === 'floating',
         })}
       >
         {icon && (
           <span
-            className={variant === 'floating' ? styles.iconFloating : styles.icon}
+            className={variant === 'floating' ? (styles.iconFloating ?? '') : (styles.icon ?? '')}
             aria-hidden="true"
             data-testid={variant === 'floating' ? 'icon-floating' : 'icon'}
           >
@@ -277,7 +277,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
         {showPasswordToggle && isPassword && !skeleton && (
           <button
             type="button"
-            className={styles.passwordToggle}
+            className={styles.passwordToggle ?? ''}
             onClick={handleTogglePassword}
             onKeyDown={handlePasswordToggleKeyDown}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
@@ -301,7 +301,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
           !skeleton && (
             <button
               type="button"
-              className={styles.clearButton}
+              className={styles.clearButton ?? ''}
               onClick={handleClear}
               aria-label="Clear input"
               tabIndex={0}
@@ -311,13 +311,13 @@ function InputImpl<C extends React.ElementType = 'input'>(
           )}
 
         {iconAfter && !loading && !clearable && !skeleton && (
-          <span className={styles.iconAfter} aria-hidden="true">
+          <span className={styles.iconAfter ?? ''} aria-hidden="true">
             {inferIconSize(iconAfter, size)}
           </span>
         )}
 
         {loading && !skeleton && (
-          <span className={styles.loadingIndicator}>
+          <span className={styles.loadingIndicator ?? ''}>
             <Spinner size="sm" />
           </span>
         )}
@@ -336,8 +336,14 @@ function InputImpl<C extends React.ElementType = 'input'>(
       )}
 
       {showCharCounter && !skeleton && (
-        <span id={counterId} className={styles.counter} data-testid="counter" aria-live="polite">
-          <span className={isWarning ? styles.warning : ''}>{charCount}</span>/{maxLengthValue}
+        <span
+          id={counterId}
+          className={styles.counter ?? ''}
+          data-testid="counter"
+          aria-live="polite"
+        >
+          <span className={isWarning ? (styles.warning ?? '') : ''}>{charCount}</span>/
+          {maxLengthValue}
         </span>
       )}
     </div>

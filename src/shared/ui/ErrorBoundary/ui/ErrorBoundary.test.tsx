@@ -46,8 +46,8 @@ describe('ErrorBoundary (ERB-03/05)', () => {
 
     expect(screen.getByText('fallback')).toBeInTheDocument();
     expect(onError).toHaveBeenCalledTimes(1);
-    expect(onError.mock.calls[0][0]).toBeInstanceOf(Error);
-    expect(onError.mock.calls[0][0].message).toBe('child render boom');
+    expect(onError.mock.calls[0]?.[0]).toBeInstanceOf(Error);
+    expect(onError.mock.calls[0]?.[0]?.message).toBe('child render boom');
   });
 
   it('renders the result of a fallback function receiving (error, errorInfo)', () => {

@@ -112,7 +112,7 @@ describe('Slot', () => {
       );
 
       expect(refCallback).toHaveBeenCalled();
-      expect(refCallback.mock.calls[0][0]).toBeInstanceOf(HTMLSpanElement);
+      expect(refCallback.mock.calls[0]?.[0]).toBeInstanceOf(HTMLSpanElement);
     });
   });
 });

@@ -86,8 +86,8 @@ export function useAvatar({
   // Compute className
   const avatarClassName = useMemo(
     () =>
-      classNames(styles.avatar, styles[size], styles[variant], className, {
-        [styles.heroStyle]: heroStyle,
+      classNames(styles.avatar ?? '', styles[size] ?? '', styles[variant] ?? '', className, {
+        [styles.heroStyle ?? '']: heroStyle,
       }),
     [size, variant, heroStyle, className]
   );

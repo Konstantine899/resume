@@ -31,7 +31,7 @@ describe('CodeInlineUi', () => {
         const { container } = render(<CodeInlineUi size={size}>const x = 10;</CodeInlineUi>);
 
         const codeEl = container.querySelector('code');
-        expect(codeEl).toHaveClass(styles[size]);
+        expect(codeEl).toHaveClass(styles[size] ?? '');
       });
     });
 
@@ -39,7 +39,7 @@ describe('CodeInlineUi', () => {
       const { container } = render(<CodeInlineUi>const x = 10;</CodeInlineUi>);
 
       const codeEl = container.querySelector('code');
-      expect(codeEl).toHaveClass(styles.md);
+      expect(codeEl).toHaveClass(styles.md ?? '');
     });
   });
 
@@ -48,7 +48,7 @@ describe('CodeInlineUi', () => {
       const { container } = render(<CodeInlineUi copyable>const x = 10;</CodeInlineUi>);
 
       const codeEl = container.querySelector('code');
-      expect(codeEl).toHaveClass(styles.copyable);
+      expect(codeEl).toHaveClass(styles.copyable ?? '');
     });
 
     it('должен иметь класс .copied при isCopied=true', () => {
@@ -59,7 +59,7 @@ describe('CodeInlineUi', () => {
       );
 
       const codeEl = container.querySelector('code');
-      expect(codeEl).toHaveClass(styles.copied);
+      expect(codeEl).toHaveClass(styles.copied ?? '');
     });
 
     it('НЕ должен иметь класс .copyable при disabled=true', () => {
@@ -70,7 +70,7 @@ describe('CodeInlineUi', () => {
       );
 
       const codeEl = container.querySelector('code');
-      expect(codeEl).not.toHaveClass(styles.copyable);
+      expect(codeEl).not.toHaveClass(styles.copyable ?? '');
     });
 
     it('должен вызывать onCopy при клике', () => {

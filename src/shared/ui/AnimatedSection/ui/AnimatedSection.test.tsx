@@ -46,13 +46,13 @@ describe('AnimatedSection', () => {
     it('applies animatedSection base class', () => {
       const { container } = render(<AnimatedSection>Content</AnimatedSection>);
 
-      expect(container.firstChild).toHaveClass(styles.animatedSection);
+      expect(container.firstChild).toHaveClass(styles.animatedSection ?? '');
     });
 
     it('applies animation class', () => {
       const { container } = render(<AnimatedSection animation="fadeUp">Content</AnimatedSection>);
 
-      expect(container.firstChild).toHaveClass(styles.fadeUp);
+      expect(container.firstChild).toHaveClass(styles.fadeUp ?? '');
     });
 
     it('applies custom className', () => {
@@ -128,7 +128,7 @@ describe('AnimatedSection', () => {
       vi.advanceTimersByTime(700);
 
       const element = container.firstChild as HTMLElement;
-      expect(element).toHaveClass(styles.visible);
+      expect(element).toHaveClass(styles.visible ?? '');
     });
 
     it('applies animating class during animation', () => {
@@ -140,7 +140,7 @@ describe('AnimatedSection', () => {
 
       // During animation (before completion)
       const element = container.firstChild as HTMLElement;
-      expect(element).toHaveClass(styles.animating);
+      expect(element).toHaveClass(styles.animating ?? '');
     });
   });
 
@@ -192,7 +192,7 @@ describe('AnimatedSection', () => {
       vi.advanceTimersByTime(700);
 
       const element = container.firstChild as HTMLElement;
-      expect(element).toHaveClass(styles.visible);
+      expect(element).toHaveClass(styles.visible ?? '');
     });
 
     it('handles onHover trigger', () => {
@@ -206,7 +206,7 @@ describe('AnimatedSection', () => {
       vi.advanceTimersByTime(700);
 
       const element = container.firstChild as HTMLElement;
-      expect(element).toHaveClass(styles.visible);
+      expect(element).toHaveClass(styles.visible ?? '');
     });
 
     it('handles onScroll trigger (IntersectionObserver)', () => {
@@ -268,7 +268,7 @@ describe('AnimatedSection', () => {
     it('uses default animation (fadeUp)', () => {
       const { container } = render(<AnimatedSection>Content</AnimatedSection>);
 
-      expect(container.firstChild).toHaveClass(styles.fadeUp);
+      expect(container.firstChild).toHaveClass(styles.fadeUp ?? '');
     });
 
     it('uses default trigger (onScroll)', () => {

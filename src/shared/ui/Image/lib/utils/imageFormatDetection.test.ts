@@ -67,22 +67,22 @@ describe('Image format detection (requirement #11)', () => {
 
     it('includes srcSet with multiple resolutions', () => {
       const result = imageFormatDetection.generateResponsiveSrcSet('/images/photo');
-      const first = result[0];
-      expect(first.srcSet).toContain('1x');
-      expect(first.srcSet).toContain('2x');
-      expect(first.srcSet).toContain('3x');
+      const [first] = result;
+      expect(first?.srcSet).toContain('1x');
+      expect(first?.srcSet).toContain('2x');
+      expect(first?.srcSet).toContain('3x');
     });
 
     it('includes sizes attribute', () => {
       const result = imageFormatDetection.generateResponsiveSrcSet('/images/photo');
-      const first = result[0];
-      expect(first.sizes).toContain('max-width');
+      const [first] = result;
+      expect(first?.sizes).toContain('max-width');
     });
 
     it('includes type attribute', () => {
       const result = imageFormatDetection.generateResponsiveSrcSet('/images/photo');
-      const first = result[0];
-      expect(first.type).toMatch(/^image\/(avif|webp|jpeg)$/);
+      const [first] = result;
+      expect(first?.type).toMatch(/^image\/(avif|webp|jpeg)$/);
     });
   });
 });

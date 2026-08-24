@@ -68,9 +68,9 @@ describe('Link polymorphic `component` prop', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveClass(linkStyles.link);
-      expect(link).toHaveClass(linkStyles.gradient);
-      expect(link).toHaveClass(linkStyles.lg);
+      expect(link).toHaveClass(linkStyles.link ?? '');
+      expect(link).toHaveClass(linkStyles.gradient ?? '');
+      expect(link).toHaveClass(linkStyles.lg ?? '');
       expect(link).toHaveClass('custom-class');
     });
   });
@@ -85,7 +85,7 @@ describe('Link polymorphic `component` prop', () => {
 
       const link = screen.getByTestId('custom-link');
       expect(link.tagName).toBe('A');
-      expect(link).toHaveClass(linkStyles.link);
+      expect(link).toHaveClass(linkStyles.link ?? '');
       expect(link).toHaveClass('custom-class');
     });
 
@@ -174,7 +174,7 @@ describe('Link polymorphic `component` prop', () => {
 
       const icon = screen
         .getAllByRole('link', { name: /GitHub/ })[0]
-        .querySelector('[aria-label="Opens in new tab"]');
+        ?.querySelector('[aria-label="Opens in new tab"]');
       expect(icon).not.toBeNull();
       expect(icon).toHaveAttribute('aria-label', 'Opens in new tab');
       expect(icon).toHaveAttribute('title', 'Opens in new tab');

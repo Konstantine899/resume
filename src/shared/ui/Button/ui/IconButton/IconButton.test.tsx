@@ -35,7 +35,7 @@ describe('IconButton', () => {
       it(`должен рендериться с variant="${variant}"`, () => {
         render(<IconButton icon={<Mail />} ariaLabel="Icon" variant={variant} />);
 
-        expect(screen.getByRole('button')).toHaveClass(iconButtonStyles[variant]);
+        expect(screen.getByRole('button')).toHaveClass(iconButtonStyles[variant] ?? '');
       });
     });
 
@@ -43,8 +43,8 @@ describe('IconButton', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Delete" variant="danger" />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(iconButtonStyles.primary);
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(iconButtonStyles.primary ?? '');
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
     });
   });
 
@@ -55,7 +55,7 @@ describe('IconButton', () => {
       it(`должен рендериться с size="${size}"`, () => {
         render(<IconButton icon={<Mail />} ariaLabel="Icon" size={size} />);
 
-        expect(screen.getByRole('button')).toHaveClass(iconButtonStyles[size]);
+        expect(screen.getByRole('button')).toHaveClass(iconButtonStyles[size] ?? '');
       });
     });
   });
@@ -104,7 +104,7 @@ describe('IconButton', () => {
     it('должен показывать skeleton при loadingVariant="skeleton"', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Icon" loading loadingVariant="skeleton" />);
 
-      expect(screen.getByRole('button')).toHaveClass(iconButtonStyles.loading);
+      expect(screen.getByRole('button')).toHaveClass(iconButtonStyles.loading ?? '');
     });
   });
 
@@ -168,8 +168,8 @@ describe('IconButton', () => {
       );
 
       const link = screen.getByTestId('icon-button');
-      expect(link).toHaveClass(iconButtonStyles.button);
-      expect(link).toHaveClass(iconButtonStyles.ghost);
+      expect(link).toHaveClass(iconButtonStyles.button ?? '');
+      expect(link).toHaveClass(iconButtonStyles.ghost ?? '');
     });
 
     it('должен иметь aria-disabled при disabled=true и component="a"', () => {
@@ -273,14 +273,14 @@ describe('IconButton', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Delete" colorScheme="danger" />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
     });
 
     it('variant="danger" должен давать colorSchemeDanger класс', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Delete" variant="danger" />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger']);
+      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
     });
   });
 });

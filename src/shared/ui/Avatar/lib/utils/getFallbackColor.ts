@@ -18,5 +18,5 @@ import { FALLBACK_COLORS } from '@/shared/ui/Avatar/model/constants';
  */
 export const getFallbackColor = (name: string): string => {
   const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
+  return FALLBACK_COLORS[hash % FALLBACK_COLORS.length] ?? '';
 };

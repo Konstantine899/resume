@@ -742,9 +742,9 @@ export const PolymorphicAsProp: Story = {
     const canvas = within(canvasElement);
     const images = canvas.getAllByRole('img');
     expect(images).toHaveLength(3);
-    expect(images[0].closest('figure')).toBeInTheDocument();
-    expect(images[1].closest('picture')).toBeInTheDocument();
-    expect(images[2].closest('div')).toBeInTheDocument();
+    expect(images[0]?.closest('figure')).toBeInTheDocument();
+    expect(images[1]?.closest('picture')).toBeInTheDocument();
+    expect(images[2]?.closest('div')).toBeInTheDocument();
     // Verify all have correct variant classes
     const figures = images.map((img) => img.closest('figure') as HTMLElement);
     await expect(figures[0]).toHaveClass(/variantRounded/);
@@ -862,10 +862,10 @@ export const AllVariants: StoryObj<typeof Image> = {
     const images = canvas.getAllByRole('img');
     expect(images).toHaveLength(4);
     const figures = images.map((img) => img.closest('figure') as HTMLElement);
-    await expect(figures[0].getAttribute('data-variant')).toBe('default');
-    await expect(figures[1].getAttribute('data-variant')).toBe('rounded');
-    await expect(figures[2].getAttribute('data-variant')).toBe('circular');
-    await expect(figures[3].getAttribute('data-variant')).toBe('thumbnail');
+    await expect(figures[0]?.getAttribute('data-variant')).toBe('default');
+    await expect(figures[1]?.getAttribute('data-variant')).toBe('rounded');
+    await expect(figures[2]?.getAttribute('data-variant')).toBe('circular');
+    await expect(figures[3]?.getAttribute('data-variant')).toBe('thumbnail');
   },
 };
 
@@ -886,10 +886,10 @@ export const AllSizes: StoryObj<typeof Image> = {
     const images = canvas.getAllByRole('img');
     expect(images).toHaveLength(4);
     const figures = images.map((img) => img.closest('figure') as HTMLElement);
-    await expect(figures[0].getAttribute('data-size')).toBe('sm');
-    await expect(figures[1].getAttribute('data-size')).toBe('md');
-    await expect(figures[2].getAttribute('data-size')).toBe('lg');
-    await expect(figures[3].getAttribute('data-size')).toBe('full');
+    await expect(figures[0]?.getAttribute('data-size')).toBe('sm');
+    await expect(figures[1]?.getAttribute('data-size')).toBe('md');
+    await expect(figures[2]?.getAttribute('data-size')).toBe('lg');
+    await expect(figures[3]?.getAttribute('data-size')).toBe('full');
     // Verify actual dimensions
     await expect(figures[0]).toHaveStyle({ width: '64px', height: '64px' });
     await expect(figures[1]).toHaveStyle({ width: '128px', height: '128px' });
@@ -954,11 +954,11 @@ export const DecorativeAndContentComparison: StoryObj<typeof Image> = {
     const images = canvas.getAllByRole('img');
     expect(images).toHaveLength(2);
     await expect(images[0]).toHaveAttribute('alt', 'Descriptive alt text for screen readers');
-    await expect(images[0].closest('figure')).not.toHaveClass(/decorative/);
+    await expect(images[0]?.closest('figure')).not.toHaveClass(/decorative/);
     await expect(images[1]).toHaveAttribute('alt', '');
-    await expect(images[1].closest('figure')).toHaveClass(/decorative/);
+    await expect(images[1]?.closest('figure')).toHaveClass(/decorative/);
     // Verify decorative image has pointer-events: none
-    const decorativeFigure = images[1].closest('figure');
+    const decorativeFigure = images[1]?.closest('figure');
     await expect(decorativeFigure).toHaveStyle({ 'pointer-events': 'none' });
   },
 };
