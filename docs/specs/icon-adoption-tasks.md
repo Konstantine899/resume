@@ -1,0 +1,86 @@
+# Tasks: Icon Adoption — Migrate raw `LucideIcon` consumers to `<Icon>`
+
+**Change**: icon-adoption · **Date**: 2026-08-07
+**Source**: `icon-adoption-spec.md` (ICON-AD-01..08) + `icon-adoption-design.md` (byte-compat contract, per-site table)
+**Gate**: 17 render sites, 0 test fixtures changed (noop-gate) · **Zero** `Icon`/`Button`/`Input` conduit API changes (Option A site-per-site).
+
+## Review Workload Forecast
+
+| Field                   | Value                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| Estimated changed lines | ~590–650 (`additions + deletions`)                                              |
+| 400-line budget risk    | High                                                                            |
+| Chained PRs recommended | Yes                                                                             |
+| Suggested split         | PR1 shared+Modal+Toast → PR2 Input+Code → PR3 Sidebar+features → PR4 tests+docs |
+| Delivery strategy       | ask-on-risk                                                                     |
+| Chain strategy          | pending (ask user)                                                              |
+
+```text
+Decision needed before apply: Yes
+Chained PRs recommended: Yes
+Chain strategy: pending
+400-line budget risk: High
+```
+
+### Suggested Work Units
+
+| Unit | Goal                                     | PR  | Focused test command                                                                                           | Runtime harness                                                                  | Rollback                                                               |
+| ---- | ---------------------------------------- | --- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1    | Modal + Toast (sites 1–5)                | PR1 | `npx vitest run src/shared/ui/Modal src/shared/ui/Toast`                                                       | `npm run type-check:strict` (catches Toast `Icon` shadow); `npx vitest run`      | revert commit; `<Icon>` import additive, `closeIcon` conduit untouched |
+| 2    | Input + Code (sites 6–10)                | PR2 | `npx vitest run src/shared/ui/Input src/shared/ui/Code`                                                        | `npm run type-check:strict`; verify InputSearch infers 20                        | revert commit; `inferIconSize`/conduits untouched                      |
+| 3    | Sidebar/widgets + features (sites 11–17) | PR3 | `npx vitest run src/widgets/Sidebar src/features/ThemeSwitch src/features/LanguageSwitch src/features/Contact` | `storybook:test`; screenshot diff (Sidebar, Button, Input, Modal boxes)          | revert commit; site snaps to raw lucide                                |
+| 4    | Tests + docs + verify (ICON-AD-08)       | PR4 | `npx vitest run src/__tests__/icon-adoption.test.tsx`                                                          | full gate: type-check, lint, vitest, storybook, dead-code, 4-box screenshot diff | revert tests/docs commit                                               |
+
+Chain strategy: `pending` — ask user at apply (stacked-to-main vs feature-branch-chain). Each PR reverts surgically (`git revert <unit-commit>`); `<Icon>` import additive, every conduit API untouched.
+
+## Tasks
+
+| ID       | Batch  | Title                                                      | Files                                      | Work                                                                                                                                                                                                                                                                                                                             | Acceptance                                                                                                                | Deps     |
+| -------- | ------ | ---------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------- |
+| T1       | PR1    | Toast: rename local `Icon`→`TypeIcon` + type-icon (site 3) | `src/shared/ui/Toast/ui/Toast.tsx:114`     | rename `const Icon = TOAST_ICONS[type]` → `const TypeIcon`; `<Icon name={TypeIcon} size={TOAST_CONSTANTS.ICON_SIZE} color="inherit" decorative/>` (line 134); ADD `import { Icon } from '@/shared/ui/Icon'`                                                                                                                      | `type-check:strict` passes (shadow gone); `Toast.test.tsx:231` (firstElementChild = `.icon` div, untouched wrapper) green | —        |
+| T2       | PR1    | Toast: close + pause (sites 4–5)                           | `Toast.tsx:146,164`                        | `<Icon name={X} size={TOAST_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative/>`; `<Icon name={Pause} size={12} color="inherit" decorative/>`; lucide `X, Pause` import KEPT                                                                                                                                                 | `toast-close` role/testid + timer tests green                                                                             | T1       |
+| T3       | PR1    | ModalCloseButton default icon (site 1)                     | `ModalCloseButton.tsx:5,34`                | `closeIcon ?? <Icon name={X} size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative/>`; ADD Icon import, KEEP `import { X }`                                                                                                                                                                                          | `button.querySelector('svg')` (test:42) still matches (descendant)                                                        | —        |
+| T4       | PR1    | ModalDrawer closeIcon (site 2)                             | `ModalDrawer.tsx:1,36`                     | `closeIcon={<Icon name={X} size={20} color="inherit" decorative/>}`                                                                                                                                                                                                                                                              | ModalDrawer suite green; custom `closeIcon` prop unaffected                                                               | T3       |
+| T5       | PR2    | Input.tsx password Eye/EyeOff (site 7)                     | `Input/ui/Input.tsx:11,287-289`            | `<Icon name={showPassword?EyeOff:Eye} size={INPUT_CONSTANTS.PASSWORD_TOGGLE_ICON_SIZE} color="inherit" decorative/>`                                                                                                                                                                                                             | `Input.test.tsx` green (conduit icon wrapper + aria-hidden span untouched)                                                | —        |
+| T6       | PR2    | InputSearch (Search, site 8)                               | `InputSearch.tsx:2,33`                     | `<Icon name={Search} color="inherit" decorative/>` — NO size (conduit `inferIconSize` injects input-size px)                                                                                                                                                                                                                     | Search svg = 20 (md default) via infer; `analyze:dead-code` no new `Search`                                               | T5       |
+| T7       | PR2    | InputEmail + InputPhone (sites 9–10)                       | `InputEmail.tsx:51`, `InputPhone.tsx:60`   | `<Icon name={Mail} size={18} color="inherit" decorative/>`; `<Icon name={Phone} size={18} color="inherit" decorative/>`                                                                                                                                                                                                          | svg width=18 (explicit beats infer)                                                                                       | —        |
+| T8       | PR2    | CodeBlockHeader copy/check (site 6)                        | `CodeBlockHeader.tsx:5-6,119`              | `leftIcon={isCopied ? <Icon name={CopiedIcon} size={14} color="inherit" decorative/> : <Icon name={CopyIcon} size={14} color="inherit" decorative/>}` where `CopyIcon`/`CopiedIcon = icons?.copy/copied ?? Copy/Check`                                                                                                           | `code-copy-button.querySelector('svg')` (tests 56/63) still matches                                                       | —        |
+| T9       | PR3    | Sidebar menu (site 11)                                     | `Sidebar.tsx:62`                           | `icon={<Icon name={Menu} size={20} color="inherit" decorative className={styles.menuIcon}/>}` — explicit 20 (conduit IconButton lg would inject 24)                                                                                                                                                                              | svg size 20 NOT 24; `styles.menuIcon` kept                                                                                | —        |
+| T10      | PR3    | MobileMenu X (site 12)                                     | `MobileMenu/ui/.../MobileMenu.tsx:55`      | `<Icon name={X} size={20} color="inherit" decorative className={styles.closeIcon}/>`                                                                                                                                                                                                                                             | svg width 20; aria-hidden handled by decorative                                                                           | —        |
+| T11      | PR3    | ToggleButton ChevronRight (site 13)                        | `ToggleButton/ui/ToggleButton.tsx:28`      | `<Icon name={ChevronRight} size={20} color="inherit" decorative/>`                                                                                                                                                                                                                                                               | svg width 20                                                                                                              | —        |
+| T12      | PR3    | NavItem navIcon (site 14)                                  | `NavItem/NavItem.tsx:1,20,48`              | rename destructure `icon: Icon` → `icon: NavIcon`; `<Icon name={NavIcon} size={20} color="inherit" decorative className={styles.navIcon}/>`; keep `LucideIcon` prop                                                                                                                                                              | `role=menuitem`/href + `.navIcon` invariants green                                                                        | —        |
+| T13      | PR3    | ThemeSwitch Moon/Sun (site 15)                             | `ThemeSwitch/ui/ThemeSwitch.tsx:4,47-49`   | `<Icon name={themeIcon === 'dark' ? Moon : Sun} size={18} color="inherit" decorative className={themeIconClasses}/>`                                                                                                                                                                                                             | wrapper `controlIcon` spin+transition preserved (moved svg→span); svg 18 NOT 20 (md conduit infer)                        | —        |
+| T14      | PR3    | LanguageSwitch Globe (site 16)                             | `LanguageSwitch/ui/LanguageSwitch.tsx:44`  | `<Icon name={Globe} size={18} color="inherit" decorative className={languageIconClasses}/>`                                                                                                                                                                                                                                      | svg 18 NOT 20; spinning class kept                                                                                        | —        |
+| T15      | PR4    | Contact ContactCard Mail (site 17)                         | `Contact/ui/Contact.tsx:6,112`             | `<Icon name={Mail} size={40} color="inherit" decorative/>`; social-links map-local `const Icon` (line 90) is block-scoped — no import collision; keep lucide `Mail` import                                                                                                                                                       | `Contact.test` green; svg width 40 (`40px` @lg accepted delta, SCSS untouched)                                            | —        |
+| T16      | PR4    | RED size-guard aggregator                                  | `src/__tests__/icon-adoption.test.tsx` NEW | Render each representative site; assert per group: wrapper `<span class=icon>` present + `data-size`/`data-color="inherit"`/no-`role`; svg inline width 40/20/18/16/14/12; NO size on InputSearch (infer→20); anti-regression: ThemeSwitch NOT 20/24, Sidebar NOT 24; `TOAST_ICONS` + `getNavItems` not mutated across 2 renders | all game node() asserts pass                                                                                              | T1..T15  |
+| T17      | PR4    | Docs + contract entry                                      | `docs/specs/ui-kit-contract.md`            | note Icon adoption coverage                                                                                                                                                                                                                                                                                                      | diff review                                                                                                               | T16      |
+| [` ] T18 | verify | Final gate                                                 | (none)                                     | `npm Fn: `type-check:strict`; `npm run lint`0 new;`npx vitest run`; `npm run analyze:dead`no new dead names;`npm run storybook:test`; screenshot diff Menu/close/nav/control/Contact boxes (zero regression)                                                                                                                     | all green; no fixture modified                                                                                            | T16, T17 |
+
+## Implementation Order
+
+Each PR = one chained work-unit, ordered by dependency & risk:
+
+1. **Batch 1 (PR1)** T1→T4 — **Toast rename first (blocking)** resolving the `Icon` shadow before any `<Icon>` import lands; then type-icon/close/pause; then ModalCloseButton + ModalDrawer (smallest, recurring color/decorative pattern).
+2. **Batch 2 (PR2)** T5→T8 — Input (conduit-sensitive, `inferIconSize` + wrapping) then Code copy/check.
+3. **Batch 3 (PR3)** T9→T15 — Button-conduit & widget sites (explicit sizes, SCSS boxes) then feature toggles — lowest-risk to leave last.
+4. **Batch 4 (PR4)** T16→T18 — RED-sized assertions as guards for size/box, then docs, then full gate.
+
+## Implementation notes
+
+- **Name collision guard**: `Toast.tsx:114` local `const Icon`; `Contact.tsx:90` block-scoped map `const Icon` (no collision — block scope); `NavItem.tsx:20` destructured `icon: Icon` — rename to `NavIcon`. These three are the only places where importing the `Icon` component could collide. Type-check catches all.
+- **Import pattern**: lucide import KEPT for `name` values; add `import { Icon } from '@/shared/ui/Icon'`; delete removed raw lucide renders-only.
+
+## Summary
+
+| Batch              | Tasks   | Focus                             | PR  |
+| ------------------ | ------- | --------------------------------- | --- |
+| shared+Modal+Toast | T1–T4   | rename + color/decorative pattern | PR1 |
+| Input+Code         | T5–T8   | conduit/inferIconSize joins       | PR2 |
+| Sidebar+features   | T9–T15  | Button-scss boxes + sizes         | PR3 |
+| tests+docs+verify  | T16–T18 | RED size guards + gate            | PR4 |
+
+**Total ~500–650** changed lines → **High** 400-line risk; **chained PRs Yes**; chain strategy pending (ask user at apply).
+
+### Rollback / Revert
+
+Each `git revert <batch-commit>` is surgical — sites return to raw lucide, `<Icon>` import removable, conduits untouched.
