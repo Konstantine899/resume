@@ -10,13 +10,13 @@ commit_msg_file="$1"
 commit_msg=$(cat "$commit_msg_file")
 
 # Pattern: type(scope?): message (at least 1 char after colon-space)
-if ! echo "$commit_msg" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|ci|build|revert)(\([a-zA-Z0-9._-]+\))?: .+$'; then
+if ! echo "$commit_msg" | grep -qE '^(feat|fix|chore|docs|refactor|test|style|perf|ci|build|revert|merge)(\([a-zA-Z0-9._-]+\))?: .+$'; then
   echo ""
   echo "  ❌ Commit message must follow conventional format:"
   echo ""
   echo "     type(scope): message"
   echo ""
-  echo "     Types: feat | fix | chore | docs | refactor | test | style | perf | ci | build | revert"
+  echo "     Types: feat | fix | chore | docs | refactor | test | style | perf | ci | build | revert | merge"
   echo "     Scope is optional: type(component): message"
   echo "     Message must be at least 1 character after colon-space"
   echo ""
