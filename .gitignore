@@ -180,6 +180,7 @@ pnpm-lock.yaml
 
 *.md
 !CHANGELOG.md
+!docs/**/*.md
 
 # ============================================
 # OPENCODE - COMMIT THESE (Configuration)
@@ -241,6 +242,7 @@ pnpm-lock.yaml
 .circleci/
 .travis.yml
 .github/workflows/
+!.github/workflows/
 .gitlab-ci.yml
 azure-pipelines.yml
 
