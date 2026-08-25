@@ -66,14 +66,14 @@ interface UsePopoverOptions {
  * ```
  */
 export const usePopover = ({
-  position = POPOVER_CONSTANTS.DEFAULT_POSITION,
-  offset = POPOVER_CONSTANTS.DEFAULT_OFFSET,
+  position = POPOVER_CONSTANTS?.DEFAULT_POSITION ?? 'top',
+  offset = POPOVER_CONSTANTS?.DEFAULT_OFFSET ?? 8,
   autoAdjust = true,
   disabled = false,
   closeOnContentClick = true,
   closeOnClickOutside = true,
   closeOnEsc = true,
-}: UsePopoverOptions): UsePopoverReturn => {
+}: UsePopoverOptions = {}): UsePopoverReturn => {
   const [isVisible, setIsVisible] = useState(false);
   const [calculatedStyle, setCalculatedStyle] = useState<React.CSSProperties>({});
   const [adjustedPosition, setAdjustedPosition] = useState<PopoverPosition>(position);
