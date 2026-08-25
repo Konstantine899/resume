@@ -1,5 +1,5 @@
 import { Alias } from 'vite';
-import { BuildOptions } from './types/config';
+import { BuildOptions } from './types/config.ts';
 
 export function buildResolvers(options: BuildOptions): Alias[] {
   return [

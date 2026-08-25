@@ -1,4 +1,4 @@
-import { BuildOptions } from '../types/config';
+import { BuildOptions } from '../types/config.ts';
 
 export function buildCssModulesConfig({ isDev }: BuildOptions) {
   return {

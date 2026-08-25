@@ -3,10 +3,10 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import { buildPurgeCssPlugin } from './plugins/buildPurgeCssPlugin';
-import { buildSvgPlugin } from './plugins/buildSvgPlugin';
-import { scssUnusedAnalyzer } from './plugins/scssUnusedAnalyzer';
-import { BuildOptions } from './types/config';
+import { buildPurgeCssPlugin } from './plugins/buildPurgeCssPlugin.ts';
+import { buildSvgPlugin } from './plugins/buildSvgPlugin.ts';
+import { scssUnusedAnalyzer } from './plugins/scssUnusedAnalyzer.ts';
+import { BuildOptions } from './types/config.ts';
 
 export function buildPlugins(options: BuildOptions): PluginOption[] {
   const { isDev, paths, analyze } = options;

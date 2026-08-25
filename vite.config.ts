@@ -1,6 +1,6 @@
 import path from 'path';
 import { defineConfig, loadEnv, normalizePath } from 'vite';
-import { buildViteConfig } from './config/vite/buildViteConfig';
+import { buildViteConfig } from './config/vite/buildViteConfig.ts';
 import { BuildMode, BuildOptions, BuildPath } from './config/vite/types/config';
 
 export default defineConfig(({ mode }) => {

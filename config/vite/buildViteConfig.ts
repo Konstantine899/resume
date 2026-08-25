@@ -1,10 +1,10 @@
 import react from '@vitejs/plugin-react';
 import { UserConfig } from 'vite';
-import { buildPlugins } from './buildPlugins';
-import { buildResolvers } from './buildResolvers';
-import { buildServer } from './buildServer';
-import { buildCssModulesConfig } from './loaders/buildCssModules';
-import { BuildOptions } from './types/config';
+import { buildPlugins } from './buildPlugins.ts';
+import { buildResolvers } from './buildResolvers.ts';
+import { buildServer } from './buildServer.ts';
+import { buildCssModulesConfig } from './loaders/buildCssModules.ts';
+import { BuildOptions } from './types/config.ts';
 
 export function buildViteConfig(options: BuildOptions): UserConfig {
   const { isDev, apiUrl, project } = options;
