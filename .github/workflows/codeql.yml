@@ -1,0 +1,39 @@
+name: CodeQL
+
+# Ф5: SAST-аудит первого кода. Дополняет npm audit (зависимости) и gitleaks (секреты).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Еженедельно в понедельник в 04:23 UTC — ловит новые паттерны между PR.
+    - cron: '23 4 * * 1'
+
+permissions:
+  # Только то, что нужно CodeQL для загрузки SARIF.
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # JS/TS анализируется по исходникам напрямую — сборка не нужна.
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
+          upload: true
