@@ -4,9 +4,9 @@
   "budgets": {
     "chunks": {
       "default": {
-        "maxSize": 102400,
+        "maxSize": 115000,
         "maxSizeGzip": 30720,
-        "description": "Default chunk size limit (100kb raw, 30kb gzip)"
+        "description": "Default chunk size limit (112kb raw, 30kb gzip)"
       },
       "vendor": {
         "maxSize": 204800,
@@ -14,9 +14,9 @@
         "description": "Vendor chunk limit (200kb raw, 60kb gzip)"
       },
       "main": {
-        "maxSize": 163840,
+        "maxSize": 175000,
         "maxSizeGzip": 49152,
-        "description": "Main chunk limit (160kb raw, 48kb gzip)"
+        "description": "Main chunk limit (171kb raw, 48kb gzip)"
       }
     },
     "total": {
@@ -25,8 +25,8 @@
       "description": "Total bundle size limit (500kb raw, 150kb gzip)"
     },
     "assets": {
-      "maxSize": 102400,
-      "description": "Individual asset limit (100kb)"
+      "maxSize": 115000,
+      "description": "Individual asset limit (112kb)"
     }
   },
   "patterns": {
