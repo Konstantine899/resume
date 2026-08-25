@@ -1,4 +1,4 @@
-import { BuildOptions } from './types/config';
+import { BuildOptions } from './types/config.ts';
 
 export function buildServer(options: BuildOptions) {
   return {
