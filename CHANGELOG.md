@@ -1,3 +1,13 @@
+# [1.1.0](https://github.com/Konstantine899/resume/compare/v1.0.0...v1.1.0) (2026-08-25)
+
+### Bug Fixes
+
+- make usePopover() callable without arguments ([#27](https://github.com/Konstantine899/resume/issues/27)) ([bb80828](https://github.com/Konstantine899/resume/commit/bb80828161e8cc7d6a0f4395d0b2b7ec3e7fd2f2)), closes [#26](https://github.com/Konstantine899/resume/issues/26)
+
+### Features
+
+- add CodeQL code-security-auditor (Ф5) ([#25](https://github.com/Konstantine899/resume/issues/25)) ([8fe8ee0](https://github.com/Konstantine899/resume/commit/8fe8ee013b697eaa26ec80cc67887ca14aac0f5e)), closes [#24](https://github.com/Konstantine899/resume/issues/24)
+
 # 1.0.0 (2026-08-25)
 
 ### Bug Fixes
