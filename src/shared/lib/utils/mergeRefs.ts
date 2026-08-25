@@ -45,6 +45,5 @@ export function mergeRefs<T>(...refs: ReactRef<T>[]): (node: T | null) => void {
  * @returns A stable callback ref
  */
 export function useMergeRefs<T>(...refs: ReactRef<T>[]): (node: T | null) => void {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useCallback(mergeRefs(...refs), [refs]);
+  return useCallback((node: T | null) => mergeRefs(...refs)(node), [refs]);
 }

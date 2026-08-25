@@ -113,7 +113,6 @@ export const Toast = memo((props: ToastProps) => {
   useEffect(() => {
     if (forceClose && !isClosing) {
       // Управляемый ответ на проп; handleClose идемпотентен (guards: isClosing + closeTriggeredRef)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleClose();
     }
   }, [forceClose, isClosing, handleClose]);
