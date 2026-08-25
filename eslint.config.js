@@ -18,7 +18,7 @@ import reactPlugin from 'eslint-plugin-react';
 
 // Local FSD imports plugin
 const require = createRequire(import.meta.url);
-const fsdImports = require('./.opencode/eslint/eslint-plugin-fsd-imports.js');
+const fsdImports = require('./.opencode/eslint/eslint-plugin-fsd-imports.cjs');
 
 // Strict mode rules for P0 security enforcement
 const strictRules = {
