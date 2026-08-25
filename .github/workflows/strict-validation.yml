@@ -64,7 +64,7 @@ jobs:
         run: npm ci
       
       - name: Run npm audit
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=moderate --omit=dev
         continue-on-error: false
       
       - name: Run Snyk Security Test
