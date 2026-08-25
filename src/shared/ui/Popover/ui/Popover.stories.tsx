@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, waitFor, within } from '@storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { createElement } from 'react';
 import { Info, Mail, Settings, User } from 'lucide-react';
 import { AvatarHero } from '@/shared/ui/Avatar';

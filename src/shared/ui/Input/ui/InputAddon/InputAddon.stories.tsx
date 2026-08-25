@@ -1,7 +1,7 @@
 // InputAddon Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mail, Search } from 'lucide-react';
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 import { InputAddon } from './InputAddon';
 
 const inputContainerStyle: React.CSSProperties = {

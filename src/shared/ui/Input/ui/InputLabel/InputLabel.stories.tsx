@@ -1,6 +1,6 @@
 // InputLabel Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 import { InputLabel } from './InputLabel';
 
 const wrapperStyle: React.CSSProperties = {

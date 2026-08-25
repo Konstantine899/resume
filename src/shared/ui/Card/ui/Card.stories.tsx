@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 import React from 'react';
 import { Card } from './Card';
 import { Button } from '@/shared/ui/Button';

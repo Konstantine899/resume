@@ -1,7 +1,7 @@
 // src/shared/ui/Divider/ui/Divider.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, within } from '@storybook/test';
+import { expect, screen, within } from 'storybook/test';
 import { Divider } from './Divider';
 import { Card } from '@/shared/ui/Card';
 import { Modal } from '@/shared/ui/Modal';

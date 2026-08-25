@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, waitFor } from '@storybook/test';
+import { expect, waitFor } from 'storybook/test';
 const avatar1 = '/images/avatar/avatar003.jpg';
 import { AvatarHero } from './AvatarHero';
 import {

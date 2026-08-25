@@ -1,6 +1,6 @@
 // src/shared/ui/Link/ui/Link.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 import type { MouseEvent, ReactNode } from 'react';
 import { ArrowRight, Github, Linkedin, Mail } from 'lucide-react';
 import { Container } from '@/shared/ui/Container';

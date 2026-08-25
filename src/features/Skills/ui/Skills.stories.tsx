@@ -6,12 +6,12 @@
 // Требования:
 //   - ≥6 историй с play-функциями
 //   - Покрытие: Default, WithAllCategories, Empty, LightTheme, DarkTheme, Responsive
-//   - Использование @storybook/test для взаимодействий
+//   - Использование storybook/test для взаимодействий
 //   - Обёртка ThemeProvider для контекста темизации
 // ============================================
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import { ThemeProvider } from '@/shared/lib/contexts/ThemeContext';
 import { Skills } from './Skills';
 

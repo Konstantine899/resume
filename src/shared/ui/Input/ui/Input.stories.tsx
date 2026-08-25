@@ -1,7 +1,7 @@
 // Input Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CheckCircle, Mail, Search } from 'lucide-react';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import { Input } from './Input';
 import { Button } from '@/shared/ui/Button';
 
