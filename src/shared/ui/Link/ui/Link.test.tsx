@@ -2,7 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Mail, ArrowRight, Github } from 'lucide-react';
+import { Mail, ArrowRight, Code2 } from 'lucide-react';
 import { Link } from './Link';
 import linkStyles from './Link.module.scss';
 
@@ -153,16 +153,16 @@ describe('Link', () => {
 
     it('должен использовать кастомную externalIcon', () => {
       render(
-        <Link href="https://github.com" externalIcon={Github}>
+        <Link href="https://github.com" externalIcon={Code2}>
           GitHub
         </Link>
       );
 
-      // Github icon должен рендериться (проверяем наличие SVG с классом lucide-github)
+      // Code2 (alias of CodeXml in lucide v1) должен рендериться (класс lucide-code-xml)
       const link = screen.getByRole('link');
       const externalIconContainer = link.querySelector(`.${linkStyles.externalIcon ?? ''}`);
       expect(externalIconContainer).toBeInTheDocument();
-      expect(externalIconContainer?.querySelector('.lucide-github')).toBeInTheDocument();
+      expect(externalIconContainer?.querySelector('.lucide-code-xml')).toBeInTheDocument();
     });
 
     it('должен определять https:// как внешнюю ссылку', () => {
@@ -559,7 +559,7 @@ describe('Link', () => {
           variant="gradient"
           size="lg"
           external
-          icon={<Github size={20} />}
+          icon={<Code2 size={20} />}
           withLift
           underline="hover"
         >
