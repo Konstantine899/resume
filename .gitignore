@@ -19,6 +19,7 @@
 .opencode/tmp/
 .opencode/cache/
 .opencode/node_modules/
+.opencode/profiles/
 
 # Log files anywhere in .opencode
 .opencode/**/*.log
