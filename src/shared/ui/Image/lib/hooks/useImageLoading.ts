@@ -43,16 +43,11 @@ export function useImageLoading({
   const hasStartedRef = useRef(false);
 
   // Вычисляемые значения (plain const — no useMemo needed)
-  const isLoaded = loadingStatus === 'loaded';
-  const isError = loadingStatus === 'error';
-  const isLoading = loadingStatus === 'loading';
-
-  // Принудительное состояние loading (для Storybook демо)
-  useEffect(() => {
-    if (forceLoading) {
-      setLoadingStatus('loading');
-    }
-  }, [forceLoading]);
+  // forceLoading принудительно показывает 'loading' (Storybook демо) — производное значение, без эффекта
+  const displayStatus = forceLoading ? 'loading' : loadingStatus;
+  const isLoaded = displayStatus === 'loaded';
+  const isError = displayStatus === 'error';
+  const isLoading = displayStatus === 'loading';
 
   // Обработчик успешной загрузки (React event callback — LOAD-2)
   const onLoad = useCallback(
@@ -96,9 +91,8 @@ export function useImageLoading({
     }
     hasStartedRef.current = true;
 
-    // Если priority или eager mode, загружаем сразу
+    // Если priority или eager mode, загружаем сразу (img грузится по src; startLoading здесь избыточен — статус уже 'loading')
     if (priority || lazyMode === 'eager') {
-      startLoading();
       return;
     }
 
@@ -149,7 +143,7 @@ export function useImageLoading({
 
   // Возвращаем imageRef напрямую (без externalRef indirection)
   return {
-    loadingStatus,
+    loadingStatus: displayStatus,
     isLoaded,
     isError,
     isLoading,
