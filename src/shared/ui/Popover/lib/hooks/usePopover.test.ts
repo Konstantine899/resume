@@ -56,4 +56,10 @@ describe('usePopover', () => {
     act(() => result.current.close());
     expect(result.current.shouldRender).toBe(false);
   });
+
+  it('does not crash when called without options (defaults apply)', () => {
+    const { result } = renderHook(() => usePopover());
+    expect(result.current.isVisible).toBe(false);
+    expect(result.current.adjustedPosition).toBe('top');
+  });
 });
