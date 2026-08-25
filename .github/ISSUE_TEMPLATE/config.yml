@@ -1,0 +1,5 @@
+# Default triage label applied to every new issue (see docs/agents/triage-labels.md)
+blank_issues_enabled: true
+default_labels:
+  - needs-triage
+contact_links: []

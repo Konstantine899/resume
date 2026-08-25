@@ -1,0 +1,26 @@
+name: Feature request
+description: Предложить улучшение или новую фичу
+title: "[feat]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Проблема
+      description: Какую боль закрывает предложение?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Предлагаемое решение
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Альтернативы
+      description: Какие ещё варианты рассматривались
+  - type: textarea
+    id: context
+    attributes:
+      label: Доп. контекст

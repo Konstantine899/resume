@@ -186,6 +186,11 @@ pnpm-lock.yaml
 !SECURITY.md
 !RELEASE.md
 
+# GitHub templates (must be tracked; *.md is ignored above)
+!.github/PULL_REQUEST_TEMPLATE.md
+!.github/PULL_REQUEST_TEMPLATE/**/*.md
+!.github/ISSUE_TEMPLATE/**/*.md
+
 # ============================================
 # OPENCODE - COMMIT THESE (Configuration)
 # ============================================
