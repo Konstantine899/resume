@@ -131,7 +131,7 @@ module.exports = {
         schema: [],
       },
       create(context) {
-        const filePath = context.getFilename();
+        const filePath = context.filename;
         const sourceLayer = getLayerFromPath(filePath);
 
         if (!sourceLayer) return {};
@@ -269,7 +269,7 @@ module.exports = {
         schema: [],
       },
       create(context) {
-        const filePath = context.getFilename();
+        const filePath = context.filename;
         const normalizedPath = filePath.replace(/\\/g, '/');
 
         // Rule applies only to test files (co-located or __tests__ dir)
@@ -278,7 +278,7 @@ module.exports = {
           normalizedPath.includes('__tests__');
         if (!isTestFile) return {};
 
-        const cwd = (context.getCwd && context.getCwd()) || process.cwd();
+        const cwd = context.cwd || process.cwd();
         const srcRoot = path.join(cwd, 'src');
 
         /**
@@ -360,7 +360,7 @@ module.exports = {
         schema: [],
       },
       create(context) {
-        const filePath = context.getFilename();
+        const filePath = context.filename;
         const sourceLayer = getLayerFromPath(filePath);
         if (!sourceLayer) return {};
 
