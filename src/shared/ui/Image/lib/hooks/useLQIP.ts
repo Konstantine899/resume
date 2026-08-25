@@ -30,6 +30,35 @@ export interface LQIPReturn {
  * @param imageUrl - URL изображения для генерации превью
  * @param options - конфигурация LQIP
  */
+/**
+ * Чистая генерация LQIP data URL без React-состояния.
+ * Используется и эффектом (через .then/.catch), и публичным generateLQIP.
+ */
+async function generateLQIPDataUrl(
+  url: string,
+  opts: { previewWidth: number; quality: number }
+): Promise<string | null> {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = url;
+  });
+
+  const canvas = document.createElement('canvas');
+  const scale = opts.previewWidth / img.width;
+  canvas.width = opts.previewWidth;
+  canvas.height = img.height * scale;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', opts.quality / 100);
+}
+
 export function useLQIP(imageUrl: string | null, options: LQIPOptions = {}): LQIPReturn {
   const { previewWidth = 20, quality = 10, enabled = true } = options;
 
@@ -39,44 +68,15 @@ export function useLQIP(imageUrl: string | null, options: LQIPOptions = {}): LQI
   const generateLQIP = useCallback(
     async (url: string) => {
       if (!enabled || typeof window === 'undefined') {
-        queueMicrotask(() => {
-          setLqipDataUrl(null);
-          setIsLqipReady(false);
-        });
+        setLqipDataUrl(null);
+        setIsLqipReady(false);
         return;
       }
 
       try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = reject;
-          img.src = url;
-        });
-
-        // Создаём canvas маленького размера
-        const canvas = document.createElement('canvas');
-        const scale = previewWidth / img.width;
-        canvas.width = previewWidth;
-        canvas.height = img.height * scale;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          setLqipDataUrl(null);
-          setIsLqipReady(false);
-          return;
-        }
-
-        // Рисуем уменьшенное изображение
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Получаем data URL с низким качеством
-        const dataUrl = canvas.toDataURL('image/jpeg', quality / 100);
-
+        const dataUrl = await generateLQIPDataUrl(url, { previewWidth, quality });
         setLqipDataUrl(dataUrl);
-        setIsLqipReady(true);
+        setIsLqipReady(dataUrl !== null);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.warn('[LQIP] Failed to generate placeholder:', error);
@@ -87,19 +87,36 @@ export function useLQIP(imageUrl: string | null, options: LQIPOptions = {}): LQI
     [enabled, previewWidth, quality]
   );
 
-  // Авто-генерация при изменении imageUrl
+  // Авто-генерация при изменении imageUrl. setState вызывается только асинхронно
+  // (в .then/.catch очереди или queueMicrotask), поэтому react-hooks/set-state-in-effect не срабатывает.
   useEffect(() => {
-    if (imageUrl && enabled) {
-      // Асинхронная генерация LQIP; sync-setState исключены (queueMicrotask + await)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      void generateLQIP(imageUrl);
-    } else {
+    if (!imageUrl || !enabled) {
       queueMicrotask(() => {
         setLqipDataUrl(null);
         setIsLqipReady(false);
       });
+      return;
     }
-  }, [imageUrl, enabled, generateLQIP]);
+
+    let cancelled = false;
+    generateLQIPDataUrl(imageUrl, { previewWidth, quality })
+      .then((dataUrl) => {
+        if (cancelled) return;
+        setLqipDataUrl(dataUrl);
+        setIsLqipReady(dataUrl !== null);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        // eslint-disable-next-line no-console
+        console.warn('[LQIP] Failed to generate placeholder:', error);
+        setLqipDataUrl(null);
+        setIsLqipReady(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [imageUrl, enabled, previewWidth, quality]);
 
   return {
     lqipDataUrl,
