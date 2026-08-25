@@ -6,7 +6,7 @@
 // Требования:
 //   - ≥6 историй с play-функциями
 //   - Покрытие: Default, WithAllCategories, Empty, LightTheme, DarkTheme, Responsive
-//   - Использование @storybook/test для взаимодействий
+//   - Использование storybook/test для взаимодействий
 //   - Обёртка ThemeProvider для контекста темизации
 // ============================================
 
