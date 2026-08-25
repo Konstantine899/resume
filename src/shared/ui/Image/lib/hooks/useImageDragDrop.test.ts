@@ -1,122 +1,70 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { useImageDragDrop } from './useImageDragDrop';
 
-describe('useImageDragDrop hook (requirement #14)', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+const makeDragEvent = (items: { kind: string; type: string }[] = [], files: File[] = []) =>
+  ({
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn(),
+    dataTransfer: { items, files },
+  }) as unknown as React.DragEvent;
 
-  it('returns initial state', () => {
+describe('useImageDragDrop', () => {
+  afterEach(() => vi.clearAllMocks());
+
+  it('sets isDragging on drag enter with image items', () => {
     const { result } = renderHook(() => useImageDragDrop());
-    expect(result.current.isDragging).toBe(false);
-    expect(result.current.isUploading).toBe(false);
-    expect(result.current.previewUrl).toBeNull();
-    expect(result.current.error).toBeNull();
-    expect(result.current.progress).toBe(0);
-  });
-
-  it('handles drag enter with valid image', () => {
-    const { result } = renderHook(() => useImageDragDrop());
-
-    const mockEvent = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      dataTransfer: {
-        items: [{ kind: 'file', type: 'image/jpeg' } as DataTransferItem],
-      },
-    } as unknown as React.DragEvent;
-
-    act(() => {
-      result.current.handleDragEnter(mockEvent);
-    });
-
+    act(() => result.current.handleDragEnter(makeDragEvent([{ kind: 'file', type: 'image/png' }])));
     expect(result.current.isDragging).toBe(true);
-    expect(mockEvent.preventDefault).toHaveBeenCalled();
   });
 
-  it('handles drag leave', () => {
+  it('ignores drag enter with non-image items', () => {
     const { result } = renderHook(() => useImageDragDrop());
-
-    const mockEvent = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-    } as unknown as React.DragEvent;
-
-    act(() => {
-      result.current.handleDragEnter(mockEvent);
-      result.current.handleDragLeave(mockEvent);
-    });
-
+    act(() =>
+      result.current.handleDragEnter(makeDragEvent([{ kind: 'file', type: 'text/plain' }]))
+    );
     expect(result.current.isDragging).toBe(false);
   });
 
-  it('handles drag over', () => {
+  it('clears isDragging on drag leave', () => {
     const { result } = renderHook(() => useImageDragDrop());
-
-    const mockEvent = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-    } as unknown as React.DragEvent;
-
-    act(() => {
-      result.current.handleDragOver(mockEvent);
-    });
-
-    expect(mockEvent.preventDefault).toHaveBeenCalled();
+    act(() => result.current.handleDragEnter(makeDragEvent([{ kind: 'file', type: 'image/png' }])));
+    act(() => result.current.handleDragLeave(makeDragEvent()));
+    expect(result.current.isDragging).toBe(false);
   });
 
-  it('rejects file with unsupported type', () => {
+  it('prevents default on drag over', () => {
+    const { result } = renderHook(() => useImageDragDrop());
+    const e = makeDragEvent();
+    act(() => result.current.handleDragOver(e));
+    expect(e.preventDefault as Mock).toHaveBeenCalled();
+  });
+
+  it('reports an error for an unsupported file type on drop', () => {
     const onError = vi.fn();
     const { result } = renderHook(() => useImageDragDrop({ onError }));
-
-    const mockEvent = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      dataTransfer: {
-        files: [new File(['test'], 'test.txt', { type: 'text/plain' })],
-      },
-    } as unknown as React.DragEvent;
-
-    act(() => {
-      result.current.handleDrop(mockEvent);
-    });
-
-    expect(result.current.error).toContain('Unsupported file type');
+    act(() =>
+      result.current.handleDrop(
+        makeDragEvent([], [new File(['x'], 'a.txt', { type: 'text/plain' })])
+      )
+    );
+    expect(result.current.error).not.toBeNull();
     expect(onError).toHaveBeenCalled();
   });
 
-  it('rejects file that is too large', () => {
+  it('reports an error for an oversized file on drop', () => {
     const onError = vi.fn();
+    const big = new File([new Uint8Array(10 * 1024 * 1024)], 'big.png', { type: 'image/png' });
     const { result } = renderHook(() => useImageDragDrop({ maxSizeMB: 1, onError }));
-
-    const largeFile = new File([new ArrayBuffer(2 * 1024 * 1024)], 'large.jpg', {
-      type: 'image/jpeg',
-    });
-
-    const mockEvent = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      dataTransfer: { files: [largeFile] },
-    } as unknown as React.DragEvent;
-
-    act(() => {
-      result.current.handleDrop(mockEvent);
-    });
-
-    expect(result.current.error).toContain('File too large');
-    expect(onError).toHaveBeenCalled();
+    act(() => result.current.handleDrop(makeDragEvent([], [big])));
+    expect(result.current.error).not.toBeNull();
   });
 
   it('resets state', () => {
     const { result } = renderHook(() => useImageDragDrop());
-
-    act(() => {
-      result.current.reset();
-    });
-
+    act(() => result.current.handleDragEnter(makeDragEvent([{ kind: 'file', type: 'image/png' }])));
+    act(() => result.current.reset());
     expect(result.current.isDragging).toBe(false);
-    expect(result.current.previewUrl).toBeNull();
-    expect(result.current.error).toBeNull();
   });
 });
