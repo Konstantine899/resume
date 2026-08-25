@@ -4,7 +4,7 @@
 
 import { useState, type FormEvent } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { userEvent, within, screen, expect, waitFor } from '@storybook/test';
+import { userEvent, within, screen, expect, waitFor } from 'storybook/test';
 import { Toast } from './Toast';
 import { ToastProvider } from '@/shared/lib/contexts/ToastContext/ui/ToastContext';
 import { useToast } from '@/shared/lib/contexts/ToastContext/lib/hooks/useToast';

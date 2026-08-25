@@ -1,7 +1,7 @@
 // src/shared/ui/Spinner/ui/Spinner.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 import { Button } from '@/shared/ui/Button';
 import { Spinner } from './Spinner';
 

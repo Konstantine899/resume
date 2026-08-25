@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, within } from '@storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 import { useModal } from '@/shared/lib/hooks/useModal';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';

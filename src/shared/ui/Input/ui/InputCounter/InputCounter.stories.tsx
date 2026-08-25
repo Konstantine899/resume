@@ -1,6 +1,6 @@
 // InputCounter Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 import { InputCounter } from './InputCounter';
 
 const wrapperStyle: React.CSSProperties = {

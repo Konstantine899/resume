@@ -1,6 +1,6 @@
 // InputGroup Component Stories
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 import { InputGroup } from './InputGroup';
 import { Input } from '../Input';
 

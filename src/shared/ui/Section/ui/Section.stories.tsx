@@ -1,7 +1,7 @@
 // src/shared/ui/Section/ui/Section.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 import { Section } from './Section';
 import { Container } from '@/shared/ui/Container';
 import { Card } from '@/shared/ui/Card';

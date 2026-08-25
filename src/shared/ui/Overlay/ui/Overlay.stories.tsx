@@ -1,5 +1,5 @@
 import { Card } from '@/shared/ui/Card';
-import { expect, within, fireEvent, fn } from '@storybook/test';
+import { expect, within, fireEvent, fn } from 'storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Overlay } from './Overlay';
 

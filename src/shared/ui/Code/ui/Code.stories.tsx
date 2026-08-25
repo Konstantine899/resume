@@ -11,7 +11,7 @@
 // ============================================
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, screen, userEvent, waitFor, within } from '@storybook/test';
+import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import { Code } from './Code';
 

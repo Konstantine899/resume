@@ -1,7 +1,7 @@
 // src/shared/ui/Button/ui/IconButton/IconButton.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, userEvent, within } from '@storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { ArrowRight, Mail, Menu, User } from 'lucide-react';
 import { IconButton } from './IconButton';
 
