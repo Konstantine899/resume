@@ -2,7 +2,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, screen, userEvent, within } from 'storybook/test';
 import type { MouseEvent, ReactNode } from 'react';
-import { ArrowRight, Code2, Briefcase, Mail } from 'lucide-react';
+import { ArrowRight, Mail } from 'lucide-react';
+import { GitHubIcon, LinkedInIcon } from '@/shared/ui/Icon';
 import { Container } from '@/shared/ui/Container';
 import { Section } from '@/shared/ui/Section';
 import { Popover } from '@/shared/ui/Popover';
@@ -214,7 +215,7 @@ export const CustomExternalIcon: Story = {
     href: 'https://github.com',
     children: 'GitHub Profile',
     external: true,
-    externalIcon: Code2,
+    externalIcon: GitHubIcon,
   },
 };
 
@@ -259,7 +260,7 @@ export const FullyFeatured: Story = {
     variant: 'primary',
     size: 'lg',
     external: true,
-    icon: <Code2 size={16} />,
+    icon: <GitHubIcon size={16} />,
     withLift: true,
     underline: 'hover',
   },
@@ -641,10 +642,10 @@ export const FooterLinkGroup: Story = {
   args: { href: '#' },
   render: () => (
     <footer data-testid="footer-group" style={{ display: 'flex', gap: '24px' }}>
-      <Link href="https://github.com" external size="sm" icon={<Code2 size={14} />}>
+      <Link href="https://github.com" external size="sm" icon={<GitHubIcon size={14} />}>
         GitHub
       </Link>
-      <Link href="https://www.linkedin.com" external size="sm" icon={<Briefcase size={14} />}>
+      <Link href="https://www.linkedin.com" external size="sm" icon={<LinkedInIcon size={14} />}>
         LinkedIn
       </Link>
       <Link href="mailto:hello@example.com" external size="sm" icon={<Mail size={14} />}>

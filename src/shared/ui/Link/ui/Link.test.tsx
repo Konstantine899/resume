@@ -2,7 +2,8 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Mail, ArrowRight, Code2 } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
+import { GitHubIcon } from '@/shared/ui/Icon';
 import { Link } from './Link';
 import linkStyles from './Link.module.scss';
 
@@ -153,16 +154,16 @@ describe('Link', () => {
 
     it('должен использовать кастомную externalIcon', () => {
       render(
-        <Link href="https://github.com" externalIcon={Code2}>
+        <Link href="https://github.com" externalIcon={GitHubIcon}>
           GitHub
         </Link>
       );
 
-      // Code2 (alias of CodeXml in lucide v1) должен рендериться (класс lucide-code-xml)
+      // GitHubIcon (inline SVG) должен рендериться (класс brand-github)
       const link = screen.getByRole('link');
       const externalIconContainer = link.querySelector(`.${linkStyles.externalIcon ?? ''}`);
       expect(externalIconContainer).toBeInTheDocument();
-      expect(externalIconContainer?.querySelector('.lucide-code-xml')).toBeInTheDocument();
+      expect(externalIconContainer?.querySelector('.brand-github')).toBeInTheDocument();
     });
 
     it('должен определять https:// как внешнюю ссылку', () => {
@@ -559,7 +560,7 @@ describe('Link', () => {
           variant="gradient"
           size="lg"
           external
-          icon={<Code2 size={20} />}
+          icon={<GitHubIcon size={20} />}
           withLift
           underline="hover"
         >
