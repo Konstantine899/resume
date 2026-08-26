@@ -2,7 +2,7 @@
 // AnimatedSection Component - TypeScript Types
 // ============================================
 
-import { ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, type ElementType } from 'react';
 
 /**
  * Animation types
@@ -78,5 +78,11 @@ export interface AnimatedSectionProps extends ComponentPropsWithoutRef<'div'> {
    * HTML element type
    * @default 'div'
    */
-  as?: keyof React.JSX.IntrinsicElements;
+  as?: ElementType;
+
+  /**
+   * Stagger delay between direct children (ms)
+   * @default 0
+   */
+  stagger?: number;
 }

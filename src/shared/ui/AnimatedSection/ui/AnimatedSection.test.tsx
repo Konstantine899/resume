@@ -3,7 +3,8 @@
 // ============================================
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { type ReactNode } from 'react';
 import { AnimatedSection } from './AnimatedSection';
 import styles from './AnimatedSection.module.scss';
 
@@ -296,6 +297,67 @@ describe('AnimatedSection', () => {
 
       const element = container.firstChild as HTMLElement;
       expect(element).toBeInTheDocument();
+    });
+  });
+
+  // ============================================
+  // SR4: Accessibility (aria-hidden during motion)
+  // ============================================
+  describe('a11y aria-hidden (SR4)', () => {
+    it('sets aria-hidden during animation and removes it after', () => {
+      const { container } = render(
+        <AnimatedSection trigger="manual" animate={true}>
+          Content
+        </AnimatedSection>
+      );
+      const element = container.firstChild as HTMLElement;
+      expect(element).toHaveAttribute('aria-hidden', 'true');
+
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+      expect(element).not.toHaveAttribute('aria-hidden');
+    });
+  });
+
+  // ============================================
+  // SR2: polymorphic as prop accepts custom components (ElementType)
+  // ============================================
+  describe('polymorphic as prop (SR2)', () => {
+    it('renders a custom component via as prop', () => {
+      const Custom = ({ children }: { children?: ReactNode }) => <article>{children}</article>;
+      const { container } = render(<AnimatedSection as={Custom}>Content</AnimatedSection>);
+      expect((container.firstChild as HTMLElement).tagName).toBe('ARTICLE');
+    });
+  });
+
+  // ============================================
+  // SR1: stagger
+  // ============================================
+  describe('stagger (SR1)', () => {
+    it('applies incremental transition-delay to direct children', () => {
+      render(
+        <AnimatedSection stagger={100}>
+          <div data-testid="c1">A</div>
+          <div data-testid="c2">B</div>
+        </AnimatedSection>
+      );
+      expect(screen.getByTestId('c1').style.transitionDelay).toBe('0ms');
+      expect(screen.getByTestId('c2').style.transitionDelay).toBe('100ms');
+    });
+  });
+
+  // ============================================
+  // SR5: reduced-motion (CSS-only) smoke test
+  // ============================================
+  describe('reduced-motion (SR5)', () => {
+    it('renders children without crashing (a11y handled via CSS media query)', () => {
+      render(
+        <AnimatedSection>
+          <span data-testid="rm">Reduced</span>
+        </AnimatedSection>
+      );
+      expect(screen.getByTestId('rm')).toBeInTheDocument();
     });
   });
 });
