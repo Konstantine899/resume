@@ -103,5 +103,3 @@ export const useCopyCode = (
 
   return { isCopied, isError, handleCopy, reset, resetError };
 };
-
-export default useCopyCode;
