@@ -60,5 +60,7 @@
   "copy": "Copy",
   "copied": "Copied!",
   "copyCode": "Copy code",
-  "clickToCopy": "Click to copy code"
+  "clickToCopy": "Click to copy code",
+  "codeBlock": "Code block",
+  "codeBlockWithTitle": "Code block: {{title}}"
 }

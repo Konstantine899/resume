@@ -6,6 +6,7 @@ import { countLines } from '../../lib/utils/countLines';
 import { CodeBlockHeader } from '../CodeBlockHeader/CodeBlockHeader';
 import { CodeSkeleton } from '../CodeSkeleton/CodeSkeleton';
 import styles from './CodeBlock.module.scss';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 
 export interface CodeBlockUiProps extends CodeBlockProps {
   isCopied?: boolean;
@@ -44,6 +45,8 @@ export const CodeBlockUi = memo(
       },
       ref
     ) => {
+      const { t } = useLanguage();
+
       const linesCount = useMemo(() => {
         if (!showLineNumbers) return 0;
         return countLines(children);
@@ -61,7 +64,7 @@ export const CodeBlockUi = memo(
             className={classNames(styles.blockContainer, className)}
             data-testid="code-block"
             role="region"
-            aria-label={ariaLabel || (title ? `Code block: ${title}` : 'Code block')}
+            aria-label={ariaLabel || (title ? t('codeBlockWithTitle', { title }) : t('codeBlock'))}
             data-variant="block"
             data-size={size}
             data-skeleton="true"
