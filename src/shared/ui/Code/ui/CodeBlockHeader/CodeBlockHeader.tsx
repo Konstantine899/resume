@@ -141,5 +141,3 @@ CodeBlockHeaderInner.displayName = 'CodeBlockHeader';
 
 /** CodeBlockHeader — обёрнут в React.memo для оптимизации ре-рендеров */
 export const CodeBlockHeader = memo(CodeBlockHeaderInner);
-
-export default CodeBlockHeader;

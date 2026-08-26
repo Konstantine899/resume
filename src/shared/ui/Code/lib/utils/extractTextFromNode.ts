@@ -49,5 +49,3 @@ export const extractTextFromNode = (node: React.ReactNode): string => {
 
   return '';
 };
-
-export default extractTextFromNode;

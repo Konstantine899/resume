@@ -12,5 +12,3 @@ export const countLines = (node: React.ReactNode): number => {
   if (text.length === 0) return 0;
   return text.split('\n').length;
 };
-
-export default countLines;
