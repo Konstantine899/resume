@@ -4,14 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 export type CodeSize = 'sm' | 'md' | 'lg';
 export type CodeVariant = 'inline' | 'block';
 export type CodeLanguage =
-  | 'typescript'
-  | 'javascript'
-  | 'css'
-  | 'html'
-  | 'json'
-  | 'bash'
-  | 'python'
-  | string;
+  'typescript' | 'javascript' | 'css' | 'html' | 'json' | 'bash' | 'python' | string;
 
 export interface CodeIcons {
   /** Иконка копирования */
@@ -81,6 +74,8 @@ export interface CodeProps {
   title?: string;
   /** Callback при копировании */
   onCopy?: () => void;
+  /** Результат копирования: true — успех, false — ошибка. Тост/уведомление решает consumer (Inversion of Control) */
+  onCopyResult?: (success: boolean) => void;
   /** Отключить копирование */
   disabled?: boolean;
   /** Accessibility label */

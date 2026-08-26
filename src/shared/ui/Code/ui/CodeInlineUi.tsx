@@ -2,9 +2,9 @@
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { forwardRef, memo, useCallback } from 'react';
-import { Skeleton } from '@/shared/ui/Skeleton';
 import type { CodeInlineProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
+import { CodeSkeleton } from './CodeSkeleton/CodeSkeleton';
 import styles from './CodeInlineUi.module.scss';
 
 export interface CodeInlineUiProps extends CodeInlineProps {
@@ -47,16 +47,7 @@ export const CodeInlineUi = memo(
       }, [copyable, disabled, onCopy]);
 
       if (skeleton) {
-        return (
-          <Skeleton
-            variant="text"
-            width={size === 'lg' ? '120px' : size === 'sm' ? '60px' : '80px'}
-            height={size === 'lg' ? '1.5em' : '1em'}
-            className={className}
-            aria-busy="true"
-            data-skeleton="true"
-          />
-        );
+        return <CodeSkeleton variant="inline" size={size} className={className} />;
       }
 
       const codeClassName = classNames(
