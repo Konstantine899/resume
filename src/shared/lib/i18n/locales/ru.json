@@ -54,5 +54,7 @@
   "imageAltPortrait": "Портретное фото",
   "imageAltLandscape": "Пейзажное изображение",
   "imageAltProduct": "Изображение продукта",
-  "imageAltIcon": "Иконка"
+  "imageAltIcon": "Иконка",
+  "codeCopied": "Код скопирован в буфер обмена",
+  "codeCopyFailed": "Не удалось скопировать код"
 }

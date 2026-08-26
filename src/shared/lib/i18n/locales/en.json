@@ -54,5 +54,7 @@
   "imageAltPortrait": "Portrait photo",
   "imageAltLandscape": "Landscape image",
   "imageAltProduct": "Product image",
-  "imageAltIcon": "Icon"
+  "imageAltIcon": "Icon",
+  "codeCopied": "Code copied to clipboard",
+  "codeCopyFailed": "Failed to copy code"
 }
