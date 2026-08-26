@@ -65,7 +65,7 @@ export const Hero: React.FC<HeroProps> = ({
             className={styles.codeBlock}
             onCopyResult={(success) =>
               addToast({
-                message: success ? 'Code copied to clipboard' : 'Failed to copy code',
+                message: success ? t(`codeCopied`) : t(`codeCopyFailed`),
                 type: success ? 'success' : 'error',
                 duration: success ? 2000 : 3000,
               })

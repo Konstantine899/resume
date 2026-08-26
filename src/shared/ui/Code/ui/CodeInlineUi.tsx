@@ -1,6 +1,7 @@
 // src/shared/ui/Code/ui/CodeInlineUi.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { cloneElement, forwardRef, isValidElement, memo, useCallback } from 'react';
 import type { CodeInlineProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
@@ -60,26 +61,35 @@ export const CodeInlineUi = memo(
       );
 
       // asChild: клонируем единственного дочернего ReactElement (Radix Slot pattern),
-      // мержим стили/attrs/обработчики копирования (как Button.asChild)
+      // КОМПОНУЕМ (не перезаписываем) обработчики и ref ребёнка с логикой копирования —
+      // иначе интерактивный дочерний элемент теряет свои onClick/onKeyDown/ref.
       if (asChild) {
         if (!isValidElement(children)) {
           return null;
         }
         const child = children as React.ReactElement;
         const childProps = child.props as Record<string, unknown>;
+        const childRef = (child as { ref?: React.Ref<HTMLElement> }).ref;
+        const childOnClick = childProps.onClick as ((e: React.MouseEvent) => void) | undefined;
+        const childOnKeyDown = childProps.onKeyDown as
+          ((e: React.KeyboardEvent) => void) | undefined;
         const cloned = cloneElement(child, {
           className: classNames(codeClassName, childProps.className as string | undefined),
-          onClick: copyable && !disabled ? handleClick : undefined,
-          onKeyDown: copyable && !disabled ? onKeyDown : undefined,
+          onClick: (e: React.MouseEvent) => {
+            childOnClick?.(e);
+            if (copyable && !disabled) handleClick();
+          },
+          onKeyDown: (e: React.KeyboardEvent) => {
+            childOnKeyDown?.(e);
+            if (copyable && !disabled) onKeyDown?.(e);
+          },
           tabIndex: copyable && !disabled ? 0 : undefined,
           role: copyable && !disabled ? 'button' : undefined,
           'aria-label': ariaLabel || (copyable ? 'Click to copy code' : undefined),
           'data-testid': 'code-inline',
           'data-size': size,
           'data-variant': 'inline',
-          'data-skeleton': skeleton || undefined,
-          'aria-busy': skeleton || undefined,
-          ref,
+          ref: mergeRefs(childRef as React.Ref<HTMLElement>, ref as React.Ref<HTMLElement>),
         } as Record<string, unknown>);
         return cloned as React.ReactElement;
       }
