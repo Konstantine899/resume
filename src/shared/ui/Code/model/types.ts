@@ -24,6 +24,8 @@ export interface CodeInlineProps {
   className?: string;
   /** Отключить копирование */
   disabled?: boolean;
+  /** Рендерить как дочерний элемент (Radix Slot pattern) */
+  asChild?: boolean;
 }
 
 export interface CodeBlockProps {
@@ -86,4 +88,8 @@ export interface CodeProps {
   copyButtonSize?: ButtonSize;
   /** Показывать скелетон загрузки */
   skeleton?: boolean;
+  /** Рендерить как дочерний элемент (Radix Slot pattern, только inline variant) */
+  asChild?: boolean;
+  /** Таймаут сброса состояния isCopied, мс (по умолчанию 2000) */
+  copyTimeout?: number;
 }
