@@ -1,7 +1,7 @@
 // src/shared/ui/Code/ui/CodeInlineUi.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { forwardRef, memo, useCallback } from 'react';
+import { cloneElement, forwardRef, isValidElement, memo, useCallback } from 'react';
 import type { CodeInlineProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
 import { CodeSkeleton } from './CodeSkeleton/CodeSkeleton';
@@ -37,6 +37,7 @@ export const CodeInlineUi = memo(
         className,
         disabled = CODE_DEFAULTS.disabled,
         skeleton = false,
+        asChild = false,
       },
       ref
     ) => {
@@ -57,6 +58,31 @@ export const CodeInlineUi = memo(
         isCopied && styles.copied,
         className
       );
+
+      // asChild: клонируем единственного дочернего ReactElement (Radix Slot pattern),
+      // мержим стили/attrs/обработчики копирования (как Button.asChild)
+      if (asChild) {
+        if (!isValidElement(children)) {
+          return null;
+        }
+        const child = children as React.ReactElement;
+        const childProps = child.props as Record<string, unknown>;
+        const cloned = cloneElement(child, {
+          className: classNames(codeClassName, childProps.className as string | undefined),
+          onClick: copyable && !disabled ? handleClick : undefined,
+          onKeyDown: copyable && !disabled ? onKeyDown : undefined,
+          tabIndex: copyable && !disabled ? 0 : undefined,
+          role: copyable && !disabled ? 'button' : undefined,
+          'aria-label': ariaLabel || (copyable ? 'Click to copy code' : undefined),
+          'data-testid': 'code-inline',
+          'data-size': size,
+          'data-variant': 'inline',
+          'data-skeleton': skeleton || undefined,
+          'aria-busy': skeleton || undefined,
+          ref,
+        } as Record<string, unknown>);
+        return cloned as React.ReactElement;
+      }
 
       return (
         <code

@@ -6,6 +6,8 @@ interface UseCopyCodeOptions {
   onCopyResult?: (success: boolean) => void;
   onCopy?: () => void;
   enabled?: boolean;
+  /** Таймаут сброса состояния isCopied, мс (по умолчанию 2000) */
+  copyTimeout?: number;
 }
 
 interface UseCopyCodeReturn {
@@ -32,7 +34,7 @@ export const useCopyCode = (
   code: React.ReactNode,
   options: UseCopyCodeOptions = {}
 ): UseCopyCodeReturn => {
-  const { onCopyResult, onCopy, enabled = true } = options;
+  const { onCopyResult, onCopy, enabled = true, copyTimeout = 2000 } = options;
 
   const [isCopied, setIsCopied] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -70,10 +72,10 @@ export const useCopyCode = (
 
     const timeoutId = setTimeout(() => {
       setIsCopied(false);
-    }, 2000);
+    }, copyTimeout);
 
     return () => clearTimeout(timeoutId);
-  }, [isCopied, enabled]);
+  }, [isCopied, enabled, copyTimeout]);
 
   const reset = useCallback(() => {
     setIsCopied(false);

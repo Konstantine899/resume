@@ -242,4 +242,48 @@ describe('useCopyCode', () => {
       expect(writeText).toHaveBeenCalledWith('const');
     });
   });
+
+  describe('copyTimeout', () => {
+    it('сбрасывает isCopied через таймаут по умолчанию (2000мс)', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      const { result } = renderHook(() => useCopyCode('test'));
+      await act(async () => {
+        result.current.handleCopy();
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1999);
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(result.current.isCopied).toBe(false);
+    });
+
+    it('уважает кастомный copyTimeout', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      const { result } = renderHook(() => useCopyCode('test', { copyTimeout: 500 }));
+      await act(async () => {
+        result.current.handleCopy();
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(result.current.isCopied).toBe(false);
+    });
+  });
 });
