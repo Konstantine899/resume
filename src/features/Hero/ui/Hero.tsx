@@ -102,4 +102,3 @@ export const Hero: React.FC<HeroProps> = ({
 };
 
 Hero.displayName = 'Hero';
-export default Hero;

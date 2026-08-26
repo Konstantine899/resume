@@ -56,5 +56,9 @@
   "imageAltProduct": "Product image",
   "imageAltIcon": "Icon",
   "codeCopied": "Code copied to clipboard",
-  "codeCopyFailed": "Failed to copy code"
+  "codeCopyFailed": "Failed to copy code",
+  "copy": "Copy",
+  "copied": "Copied!",
+  "copyCode": "Copy code",
+  "clickToCopy": "Click to copy code"
 }
