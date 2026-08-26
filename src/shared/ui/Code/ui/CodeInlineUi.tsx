@@ -2,6 +2,7 @@
 
 import { classNames } from '@/shared/lib/utils/classNames';
 import { mergeRefs } from '@/shared/lib/utils/mergeRefs';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { cloneElement, forwardRef, isValidElement, memo, useCallback } from 'react';
 import type { CodeInlineProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
@@ -48,6 +49,8 @@ export const CodeInlineUi = memo(
         }
       }, [copyable, disabled, onCopy]);
 
+      const { t } = useLanguage();
+
       if (skeleton) {
         return <CodeSkeleton variant="inline" size={size} className={className} />;
       }
@@ -85,7 +88,7 @@ export const CodeInlineUi = memo(
           },
           tabIndex: copyable && !disabled ? 0 : undefined,
           role: copyable && !disabled ? 'button' : undefined,
-          'aria-label': ariaLabel || (copyable ? 'Click to copy code' : undefined),
+          'aria-label': ariaLabel || (copyable ? t('clickToCopy') : undefined),
           'data-testid': 'code-inline',
           'data-size': size,
           'data-variant': 'inline',
@@ -102,7 +105,7 @@ export const CodeInlineUi = memo(
           onKeyDown={copyable && !disabled ? onKeyDown : undefined}
           tabIndex={copyable && !disabled ? 0 : undefined}
           role={copyable && !disabled ? 'button' : undefined}
-          aria-label={ariaLabel || (copyable ? 'Click to copy code' : undefined)}
+          aria-label={ariaLabel || (copyable ? t('clickToCopy') : undefined)}
           data-testid="code-inline"
           data-size={size}
           data-variant="inline"

@@ -2,6 +2,18 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeBlockHeader } from './CodeBlockHeader';
 
+vi.mock('@/shared/lib/i18n/hooks', () => ({
+  useLanguage: () => ({
+    t: (key: string) =>
+      ({
+        copy: 'Copy',
+        copied: 'Copied!',
+        copyCode: 'Copy code',
+        clickToCopy: 'Click to copy code',
+      })[key] ?? key,
+  }),
+}));
+
 describe('CodeBlockHeader', () => {
   beforeEach(() => {
     vi.clearAllMocks();

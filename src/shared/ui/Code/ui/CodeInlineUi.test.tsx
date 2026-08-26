@@ -3,6 +3,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeInlineUi } from './CodeInlineUi';
 import styles from './CodeInlineUi.module.scss';
 
+vi.mock('@/shared/lib/i18n/hooks', () => ({
+  useLanguage: () => ({
+    t: (key: string) =>
+      ({
+        copy: 'Copy',
+        copied: 'Copied!',
+        copyCode: 'Copy code',
+        clickToCopy: 'Click to copy code',
+      })[key] ?? key,
+  }),
+}));
+
 describe('CodeInlineUi', () => {
   beforeEach(() => {
     vi.clearAllMocks();
