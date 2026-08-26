@@ -7,6 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Icon } from '@/shared/ui/Icon';
 import type { CodeLanguage } from '../../model/types';
 import styles from './CodeBlockHeader.module.scss';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 
 export interface CodeBlockHeaderProps {
   /** Язык программирования */
@@ -63,6 +64,7 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
 }) => {
   const CopyIcon = icons?.copy ?? Copy;
   const CopiedIcon = icons?.copied ?? Check;
+  const { t } = useLanguage();
 
   return (
     <div className={classNames(styles.blockHeader, className)}>
@@ -97,11 +99,11 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
           }
           onClick={onCopy}
           onKeyDown={onKeyDown}
-          aria-label={isCopied ? 'Copied!' : 'Copy code'}
+          aria-label={isCopied ? t('copied') : t('copyCode')}
           data-testid="code-copy-button"
           className={classNames(styles.copyButton, isCopied && styles.copied)}
         >
-          {isCopied ? 'Copied!' : 'Copy'}
+          {isCopied ? t('copied') : t('copy')}
         </ButtonWithIcon>
       )}
     </div>
