@@ -14,6 +14,7 @@ $animation-offset-lg: 100px;
     opacity var(--animation-duration, 700ms) ease,
     transform var(--animation-duration, 700ms) ease;
   transition-delay: var(--animation-delay, 0ms);
+  will-change: opacity, transform;
 
   // Animation types
   &.fadeIn {
@@ -56,6 +57,24 @@ $animation-offset-lg: 100px;
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  // Stagger children (SR1)
+  .staggerChild {
+    opacity: 0;
+    transform: translateY($animation-offset-sm);
+    transition:
+      opacity var(--animation-duration, 700ms) ease,
+      transform var(--animation-duration, 700ms) ease;
+  }
+
+  &.visible .staggerChild {
+    opacity: 1;
+    transform: none;
+  }
+
+  &.animating .staggerChild {
+    transition-delay: 0ms;
   }
 
   // Accessibility: Reduced Motion

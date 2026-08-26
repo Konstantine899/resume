@@ -2,7 +2,16 @@
 // AnimatedSection Component
 // ============================================
 
-import { forwardRef, memo, useEffect, type CSSProperties, type ElementType } from 'react';
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  memo,
+  useEffect,
+  type CSSProperties,
+  type ReactElement,
+} from 'react';
 import { useScrollAnimation } from '@/shared/lib/hooks/useScrollAnimation';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
@@ -59,6 +68,7 @@ export const AnimatedSection = memo(
         onAnimationStart,
         onAnimationComplete,
         as: Component = 'div',
+        stagger = 0,
         ...props
       },
       ref
@@ -114,7 +124,25 @@ export const AnimatedSection = memo(
       // Build data-state for accessibility and testing
       const dataState = isVisible ? 'visible' : hasAnimated ? 'animated' : 'hidden';
 
-      const ComponentElement = Component as ElementType;
+      const ComponentElement = Component;
+
+      const renderedChildren =
+        stagger > 0
+          ? Children.map(children, (child, index) => {
+              if (!isValidElement(child)) return child;
+              const childProps = child.props as { className?: string; style?: CSSProperties };
+              return cloneElement(
+                child as ReactElement<{ className?: string; style?: CSSProperties }>,
+                {
+                  className: classNames(styles.staggerChild, childProps.className),
+                  style: {
+                    ...childProps.style,
+                    transitionDelay: `${delay + index * stagger}ms`,
+                  },
+                }
+              );
+            })
+          : children;
 
       return (
         <ComponentElement
@@ -122,11 +150,12 @@ export const AnimatedSection = memo(
           className={animationClasses}
           style={inlineStyles}
           onMouseEnter={trigger === 'onHover' ? triggerAnimation : undefined}
+          aria-hidden={isAnimating || undefined}
           data-testid="animated-section"
           data-state={dataState}
           {...props}
         >
-          {children}
+          {renderedChildren}
         </ComponentElement>
       );
     }

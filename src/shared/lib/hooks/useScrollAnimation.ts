@@ -194,5 +194,3 @@ export const useScrollAnimation = ({
     resetAnimation,
   };
 };
-
-export default useScrollAnimation;
