@@ -3,6 +3,28 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeBlockUi } from './CodeBlock';
 import styles from './CodeBlock.module.scss';
 
+vi.mock('@/shared/lib/i18n/hooks', () => ({
+  useLanguage: () => ({
+    t: (key: string, opts?: Record<string, unknown>) => {
+      const map: Record<string, string> = {
+        copy: 'Copy',
+        copied: 'Copied!',
+        copyCode: 'Copy code',
+        clickToCopy: 'Click to copy code',
+        codeBlock: 'Code block',
+        codeBlockWithTitle: 'Code block: {{title}}',
+      };
+      let value = map[key] ?? key;
+      if (opts) {
+        for (const [k, val] of Object.entries(opts)) {
+          value = value.replace(new RegExp(`{{${k}}}`, 'g'), String(val));
+        }
+      }
+      return value;
+    },
+  }),
+}));
+
 describe('CodeBlockUi', () => {
   beforeEach(() => {
     vi.clearAllMocks();
