@@ -1,13 +1,13 @@
-import type { ToastOptions } from '@/shared/ui/Toast/model/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { extractTextFromNode } from '../utils/extractTextFromNode';
 
 interface UseCopyCodeOptions {
-  showToastOnSuccess?: boolean;
-  showToastOnError?: boolean;
-  addToast?: (options: ToastOptions) => void;
+  /** Результат копирования: true — успех, false — ошибка. Тост/уведомление решает consumer (IoC) */
+  onCopyResult?: (success: boolean) => void;
   onCopy?: () => void;
   enabled?: boolean;
+  /** Таймаут сброса состояния isCopied, мс (по умолчанию 2000) */
+  copyTimeout?: number;
 }
 
 interface UseCopyCodeReturn {
@@ -23,21 +23,18 @@ interface UseCopyCodeReturn {
  * Использует `navigator.clipboard.writeText()` синхронно в обработчике клика,
  * без async/await, чтобы не терять user gesture (transient activation).
  *
+ * Хук НЕ зависит от UI/Toast — результат копирования сообщается через `onCopyResult`,
+ * а отображение тоста (или иное поведение) решает вызывающая сторона.
+ *
  * @param code - React-узел для извлечения текста
- * @param options - Опции: тосты, колбэки
+ * @param options - Опции: колбэк результата, колбэк копирования
  * @returns Объект с состояниями и обработчиками копирования
  */
 export const useCopyCode = (
   code: React.ReactNode,
   options: UseCopyCodeOptions = {}
 ): UseCopyCodeReturn => {
-  const {
-    showToastOnSuccess = false,
-    showToastOnError = true,
-    addToast,
-    onCopy,
-    enabled = true,
-  } = options;
+  const { onCopyResult, onCopy, enabled = true, copyTimeout = 2000 } = options;
 
   const [isCopied, setIsCopied] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -52,11 +49,7 @@ export const useCopyCode = (
 
     if (!navigator.clipboard) {
       setIsError(true);
-
-      if (showToastOnError && addToast) {
-        addToast({ message: 'Failed to copy code', type: 'error', duration: 3000 });
-      }
-
+      onCopyResult?.(false);
       return;
     }
 
@@ -64,23 +57,14 @@ export const useCopyCode = (
       .writeText(codeText)
       .then(() => {
         setIsCopied(true);
-
-        if (showToastOnSuccess && addToast) {
-          addToast({ message: 'Code copied to clipboard', type: 'success', duration: 2000 });
-        }
-
+        onCopyResult?.(true);
         onCopy?.();
-
-        // Таймаут сброса обрабатывается в useEffect для cleanup при unmount
       })
       .catch(() => {
         setIsError(true);
-
-        if (showToastOnError && addToast) {
-          addToast({ message: 'Failed to copy code', type: 'error', duration: 3000 });
-        }
+        onCopyResult?.(false);
       });
-  }, [codeText, showToastOnSuccess, showToastOnError, addToast, onCopy, enabled]);
+  }, [codeText, onCopyResult, onCopy, enabled]);
 
   // Cleanup таймаута при размонтировании или изменении isCopied
   useEffect(() => {
@@ -88,10 +72,10 @@ export const useCopyCode = (
 
     const timeoutId = setTimeout(() => {
       setIsCopied(false);
-    }, 2000);
+    }, copyTimeout);
 
     return () => clearTimeout(timeoutId);
-  }, [isCopied, enabled]);
+  }, [isCopied, enabled, copyTimeout]);
 
   const reset = useCallback(() => {
     setIsCopied(false);

@@ -1,10 +1,10 @@
 import { classNames } from '@/shared/lib/utils/classNames';
 import { forwardRef, memo, useMemo } from 'react';
-import { Skeleton } from '@/shared/ui/Skeleton';
 import type { CodeBlockProps } from '../../model/types';
 import { CODE_DEFAULTS } from '../../model/constants';
 import { countLines } from '../../lib/utils/countLines';
 import { CodeBlockHeader } from '../CodeBlockHeader/CodeBlockHeader';
+import { CodeSkeleton } from '../CodeSkeleton/CodeSkeleton';
 import styles from './CodeBlock.module.scss';
 
 export interface CodeBlockUiProps extends CodeBlockProps {
@@ -67,23 +67,7 @@ export const CodeBlockUi = memo(
             data-skeleton="true"
             aria-busy="true"
           >
-            <CodeBlockHeader
-              language={language}
-              title={title}
-              copyable={copyable}
-              icons={icons}
-              copyButtonSize={copyButtonSize}
-              skeleton
-            />
-            <div className={styles.blockContent}>
-              <Skeleton
-                variant="rectangular"
-                width="100%"
-                height={maxHeight || '310px'}
-                aria-busy="true"
-                data-skeleton="true"
-              />
-            </div>
+            <CodeSkeleton variant="block" language={language} title={title} copyable={copyable} />
           </div>
         );
       }

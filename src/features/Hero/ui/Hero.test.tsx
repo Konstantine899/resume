@@ -7,6 +7,11 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
+// Code теперь decoupled от Toast; Hero подключает тост через useToast — даём no-op
+vi.mock('@/shared/lib/contexts/ToastContext', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+}));
+
 // Visual leaf components that are not the integration target — keep the test
 // focused on the Link CTA wiring.
 vi.mock('@/shared/ui/Code', () => ({

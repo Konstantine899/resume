@@ -7,6 +7,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 const avatarImage = '/images/avatar/avatar003.jpg';
 import { Code } from '@/shared/ui/Code';
 import { Link } from '@/shared/ui/Link';
+import { useToast } from '@/shared/lib/contexts/ToastContext';
 import React, { useEffect, useState } from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
@@ -25,6 +26,7 @@ export const Hero: React.FC<HeroProps> = ({
   'data-testid': testId = 'hero',
 }) => {
   const { t } = useLanguage();
+  const { addToast } = useToast();
   const [avatarState, setAvatarState] = useState<AvatarState>('loading');
 
   // Имитация загрузки аватара (для демонстрации состояний)
@@ -61,6 +63,13 @@ export const Hero: React.FC<HeroProps> = ({
             copyable
             showLineNumbers
             className={styles.codeBlock}
+            onCopyResult={(success) =>
+              addToast({
+                message: success ? t(`codeCopied`) : t(`codeCopyFailed`),
+                type: success ? 'success' : 'error',
+                duration: success ? 2000 : 3000,
+              })
+            }
           >
             <SkillsCode />
           </Code>

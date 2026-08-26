@@ -1,4 +1,3 @@
-import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { forwardRef, useCallback } from 'react';
 import type { CodeProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
@@ -13,14 +12,23 @@ import { CodeBlockUi } from './CodeBlock/CodeBlock';
  * Поддерживает skeleton-режим для состояния загрузки.
  */
 export const Code = forwardRef<HTMLElement, CodeProps>(
-  ({ children, variant = CODE_DEFAULTS.variant, onCopy, skeleton = false, ...props }, ref) => {
-    const { addToast } = useToast();
-
-    const { isCopied, handleCopy } = useCopyCode(children, {
-      addToast,
-      showToastOnSuccess: true,
-      showToastOnError: true,
+  (
+    {
+      children,
+      variant = CODE_DEFAULTS.variant,
       onCopy,
+      onCopyResult,
+      skeleton = false,
+      asChild,
+      copyTimeout,
+      ...props
+    },
+    ref
+  ) => {
+    const { isCopied, handleCopy } = useCopyCode(children, {
+      onCopyResult,
+      onCopy,
+      copyTimeout,
       enabled: !skeleton,
     });
 
@@ -60,6 +68,7 @@ export const Code = forwardRef<HTMLElement, CodeProps>(
         <CodeInlineUi
           {...props}
           ref={ref}
+          asChild={asChild}
           isCopied={isCopied}
           onCopy={handleCopy}
           onKeyDown={handleKeyDown}

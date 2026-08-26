@@ -205,4 +205,59 @@ describe('CodeInlineUi', () => {
       expect(skeleton).toHaveAttribute('aria-busy', 'true');
     });
   });
+
+  describe('asChild', () => {
+    it('должен рендерить предоставленный дочерний элемент вместо <code>', () => {
+      render(
+        <CodeInlineUi asChild>
+          <span>const x = 10;</span>
+        </CodeInlineUi>
+      );
+
+      const el = screen.getByTestId('code-inline');
+      expect(el.tagName).toBe('SPAN');
+      expect(el).toHaveTextContent('const x = 10;');
+    });
+
+    it('должен мержить code-классы и кастомный className в дочерний элемент', () => {
+      const { container } = render(
+        <CodeInlineUi asChild className="custom-class">
+          <span>code</span>
+        </CodeInlineUi>
+      );
+
+      const el = container.querySelector('span');
+      expect(el).toHaveClass(styles.code ?? '');
+      expect(el).toHaveClass('custom-class');
+    });
+
+    it('должен вызывать onCopy при клике на дочерний элемент (copyable)', () => {
+      const handleCopy = vi.fn();
+      render(
+        <CodeInlineUi asChild copyable onCopy={handleCopy}>
+          <span>code</span>
+        </CodeInlineUi>
+      );
+
+      fireEvent.click(screen.getByTestId('code-inline'));
+      expect(handleCopy).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен иметь role="button" и tabIndex при copyable', () => {
+      render(
+        <CodeInlineUi asChild copyable>
+          <span>code</span>
+        </CodeInlineUi>
+      );
+
+      const el = screen.getByTestId('code-inline');
+      expect(el).toHaveAttribute('role', 'button');
+      expect(el).toHaveAttribute('tabIndex', '0');
+    });
+
+    it('должен возвращать null при asChild без валидного дочернего элемента', () => {
+      const { container } = render(<CodeInlineUi asChild>{'plain text'}</CodeInlineUi>);
+      expect(container).toBeEmptyDOMElement();
+    });
+  });
 });

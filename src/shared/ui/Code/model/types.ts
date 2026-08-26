@@ -4,14 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 export type CodeSize = 'sm' | 'md' | 'lg';
 export type CodeVariant = 'inline' | 'block';
 export type CodeLanguage =
-  | 'typescript'
-  | 'javascript'
-  | 'css'
-  | 'html'
-  | 'json'
-  | 'bash'
-  | 'python'
-  | string;
+  'typescript' | 'javascript' | 'css' | 'html' | 'json' | 'bash' | 'python' | string;
 
 export interface CodeIcons {
   /** Иконка копирования */
@@ -31,6 +24,8 @@ export interface CodeInlineProps {
   className?: string;
   /** Отключить копирование */
   disabled?: boolean;
+  /** Рендерить как дочерний элемент (Radix Slot pattern) */
+  asChild?: boolean;
 }
 
 export interface CodeBlockProps {
@@ -81,6 +76,8 @@ export interface CodeProps {
   title?: string;
   /** Callback при копировании */
   onCopy?: () => void;
+  /** Результат копирования: true — успех, false — ошибка. Тост/уведомление решает consumer (Inversion of Control) */
+  onCopyResult?: (success: boolean) => void;
   /** Отключить копирование */
   disabled?: boolean;
   /** Accessibility label */
@@ -91,4 +88,8 @@ export interface CodeProps {
   copyButtonSize?: ButtonSize;
   /** Показывать скелетон загрузки */
   skeleton?: boolean;
+  /** Рендерить как дочерний элемент (Radix Slot pattern, только inline variant) */
+  asChild?: boolean;
+  /** Таймаут сброса состояния isCopied, мс (по умолчанию 2000) */
+  copyTimeout?: number;
 }

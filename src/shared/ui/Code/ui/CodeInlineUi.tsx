@@ -1,10 +1,11 @@
 // src/shared/ui/Code/ui/CodeInlineUi.tsx
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import { forwardRef, memo, useCallback } from 'react';
-import { Skeleton } from '@/shared/ui/Skeleton';
+import { mergeRefs } from '@/shared/lib/utils/mergeRefs';
+import { cloneElement, forwardRef, isValidElement, memo, useCallback } from 'react';
 import type { CodeInlineProps } from '../model/types';
 import { CODE_DEFAULTS } from '../model/constants';
+import { CodeSkeleton } from './CodeSkeleton/CodeSkeleton';
 import styles from './CodeInlineUi.module.scss';
 
 export interface CodeInlineUiProps extends CodeInlineProps {
@@ -37,6 +38,7 @@ export const CodeInlineUi = memo(
         className,
         disabled = CODE_DEFAULTS.disabled,
         skeleton = false,
+        asChild = false,
       },
       ref
     ) => {
@@ -47,16 +49,7 @@ export const CodeInlineUi = memo(
       }, [copyable, disabled, onCopy]);
 
       if (skeleton) {
-        return (
-          <Skeleton
-            variant="text"
-            width={size === 'lg' ? '120px' : size === 'sm' ? '60px' : '80px'}
-            height={size === 'lg' ? '1.5em' : '1em'}
-            className={className}
-            aria-busy="true"
-            data-skeleton="true"
-          />
-        );
+        return <CodeSkeleton variant="inline" size={size} className={className} />;
       }
 
       const codeClassName = classNames(
@@ -66,6 +59,40 @@ export const CodeInlineUi = memo(
         isCopied && styles.copied,
         className
       );
+
+      // asChild: клонируем единственного дочернего ReactElement (Radix Slot pattern),
+      // КОМПОНУЕМ (не перезаписываем) обработчики и ref ребёнка с логикой копирования —
+      // иначе интерактивный дочерний элемент теряет свои onClick/onKeyDown/ref.
+      if (asChild) {
+        if (!isValidElement(children)) {
+          return null;
+        }
+        const child = children as React.ReactElement;
+        const childProps = child.props as Record<string, unknown>;
+        const childRef = (child as { ref?: React.Ref<HTMLElement> }).ref;
+        const childOnClick = childProps.onClick as ((e: React.MouseEvent) => void) | undefined;
+        const childOnKeyDown = childProps.onKeyDown as
+          ((e: React.KeyboardEvent) => void) | undefined;
+        const cloned = cloneElement(child, {
+          className: classNames(codeClassName, childProps.className as string | undefined),
+          onClick: (e: React.MouseEvent) => {
+            childOnClick?.(e);
+            if (copyable && !disabled) handleClick();
+          },
+          onKeyDown: (e: React.KeyboardEvent) => {
+            childOnKeyDown?.(e);
+            if (copyable && !disabled) onKeyDown?.(e);
+          },
+          tabIndex: copyable && !disabled ? 0 : undefined,
+          role: copyable && !disabled ? 'button' : undefined,
+          'aria-label': ariaLabel || (copyable ? 'Click to copy code' : undefined),
+          'data-testid': 'code-inline',
+          'data-size': size,
+          'data-variant': 'inline',
+          ref: mergeRefs(childRef as React.Ref<HTMLElement>, ref as React.Ref<HTMLElement>),
+        } as Record<string, unknown>);
+        return cloned as React.ReactElement;
+      }
 
       return (
         <code

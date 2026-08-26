@@ -4,7 +4,6 @@ import { ButtonWithIcon } from '@/shared/ui/Button';
 import type { ButtonSize } from '@/shared/ui/Button/model/types';
 import { Check, Copy } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Skeleton } from '@/shared/ui/Skeleton';
 import { Icon } from '@/shared/ui/Icon';
 import type { CodeLanguage } from '../../model/types';
 import styles from './CodeBlockHeader.module.scss';
@@ -33,8 +32,6 @@ export interface CodeBlockHeaderProps {
   copyButtonSize?: ButtonSize;
   /** Дополнительный класс */
   className?: string;
-  /** Скелетон режим */
-  skeleton?: boolean;
 }
 
 /**
@@ -51,7 +48,6 @@ export interface CodeBlockHeaderProps {
  * @param icons - Кастомные иконки copy/copied
  * @param copyButtonSize - Размер кнопки копирования
  * @param className - Дополнительный CSS-класс
- * @param skeleton - Показывать скелетон загрузки
  */
 const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
   language,
@@ -64,7 +60,6 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
   icons,
   copyButtonSize = 'sm',
   className,
-  skeleton = false,
 }) => {
   const CopyIcon = icons?.copy ?? Copy;
   const CopiedIcon = icons?.copied ?? Check;
@@ -80,59 +75,35 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
         </div>
 
         {/* Language & Title */}
-        {skeleton ? (
-          <div className={styles.blockTitleSkeleton}>
-            {language && (
-              <Skeleton
-                variant="text"
-                width="36px"
-                height="0.75rem"
-                className={styles.languageSkeleton}
-              />
-            )}
-            {title && <Skeleton variant="text" width="120px" height="0.875rem" />}
+        {title && (
+          <div className={styles.blockTitle}>
+            {language && <span className={styles.language}>{language}</span>}
+            {title}
           </div>
-        ) : (
-          title && (
-            <div className={styles.blockTitle}>
-              {language && <span className={styles.language}>{language}</span>}
-              {title}
-            </div>
-          )
         )}
       </div>
 
       {/* Copy button */}
-      {skeleton
-        ? copyable && (
-            <Skeleton
-              variant="rectangular"
-              width="64px"
-              height="28px"
-              className={styles.copyButtonSkeleton}
-            />
-          )
-        : copyable &&
-          !disabled && (
-            <ButtonWithIcon
-              variant="ghost"
-              size={copyButtonSize}
-              leftIcon={
-                isCopied ? (
-                  <Icon name={CopiedIcon} size={14} color="inherit" decorative />
-                ) : (
-                  <Icon name={CopyIcon} size={14} color="inherit" decorative />
-                )
-              }
-              onClick={onCopy}
-              onKeyDown={onKeyDown}
-              aria-label={isCopied ? 'Copied!' : 'Copy code'}
-              data-testid="code-copy-button"
-              className={classNames(styles.copyButton, isCopied && styles.copied)}
-            >
-              {isCopied ? 'Copied!' : 'Copy'}
-            </ButtonWithIcon>
-          )}
+      {copyable && !disabled && (
+        <ButtonWithIcon
+          variant="ghost"
+          size={copyButtonSize}
+          leftIcon={
+            isCopied ? (
+              <Icon name={CopiedIcon} size={14} color="inherit" decorative />
+            ) : (
+              <Icon name={CopyIcon} size={14} color="inherit" decorative />
+            )
+          }
+          onClick={onCopy}
+          onKeyDown={onKeyDown}
+          aria-label={isCopied ? 'Copied!' : 'Copy code'}
+          data-testid="code-copy-button"
+          className={classNames(styles.copyButton, isCopied && styles.copied)}
+        >
+          {isCopied ? 'Copied!' : 'Copy'}
+        </ButtonWithIcon>
+      )}
     </div>
   );
 };

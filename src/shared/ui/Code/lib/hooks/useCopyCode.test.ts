@@ -123,47 +123,47 @@ describe('useCopyCode', () => {
     });
   });
 
-  describe('options — addToast', () => {
-    it('вызывает addToast при showToastOnSuccess=true', () => {
+  describe('options — onCopyResult', () => {
+    it('вызывает onCopyResult(true) при успешном копировании', () => {
       const writeText = vi.fn().mockResolvedValue(undefined);
       Object.assign(navigator, { clipboard: { writeText } });
-      const addToast = vi.fn();
+      const onCopyResult = vi.fn();
 
-      const { result } = renderHook(() =>
-        useCopyCode('test', { showToastOnSuccess: true, addToast })
-      );
+      const { result } = renderHook(() => useCopyCode('test', { onCopyResult }));
       act(() => {
         result.current.handleCopy();
       });
 
       return vi.waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith({
-          message: 'Code copied to clipboard',
-          type: 'success',
-          duration: 2000,
-        });
+        expect(onCopyResult).toHaveBeenCalledWith(true);
       });
     });
 
-    it('вызывает addToast при showToastOnError=true', () => {
+    it('вызывает onCopyResult(false) при ошибке clipboard', () => {
       const writeText = vi.fn().mockRejectedValue(new Error('fail'));
       Object.assign(navigator, { clipboard: { writeText } });
-      const addToast = vi.fn();
+      const onCopyResult = vi.fn();
 
-      const { result } = renderHook(() =>
-        useCopyCode('test', { showToastOnError: true, addToast })
-      );
+      const { result } = renderHook(() => useCopyCode('test', { onCopyResult }));
       act(() => {
         result.current.handleCopy();
       });
 
       return vi.waitFor(() => {
-        expect(addToast).toHaveBeenCalledWith({
-          message: 'Failed to copy code',
-          type: 'error',
-          duration: 3000,
-        });
+        expect(onCopyResult).toHaveBeenCalledWith(false);
       });
+    });
+
+    it('вызывает onCopyResult(false) когда clipboard = undefined', () => {
+      Object.assign(navigator, { clipboard: undefined });
+      const onCopyResult = vi.fn();
+
+      const { result } = renderHook(() => useCopyCode('test', { onCopyResult }));
+      act(() => {
+        result.current.handleCopy();
+      });
+
+      expect(onCopyResult).toHaveBeenCalledWith(false);
     });
   });
 
@@ -240,6 +240,50 @@ describe('useCopyCode', () => {
       });
 
       expect(writeText).toHaveBeenCalledWith('const');
+    });
+  });
+
+  describe('copyTimeout', () => {
+    it('сбрасывает isCopied через таймаут по умолчанию (2000мс)', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      const { result } = renderHook(() => useCopyCode('test'));
+      await act(async () => {
+        result.current.handleCopy();
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1999);
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(result.current.isCopied).toBe(false);
+    });
+
+    it('уважает кастомный copyTimeout', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      const { result } = renderHook(() => useCopyCode('test', { copyTimeout: 500 }));
+      await act(async () => {
+        result.current.handleCopy();
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(result.current.isCopied).toBe(true);
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(result.current.isCopied).toBe(false);
     });
   });
 });
