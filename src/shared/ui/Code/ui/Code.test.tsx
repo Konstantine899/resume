@@ -2,12 +2,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Code } from './Code';
 
-// Mock useToast
-const mockAddToast = vi.fn();
-vi.mock('@/shared/lib/contexts/ToastContext', () => ({
-  useToast: () => ({ addToast: mockAddToast }),
-}));
-
 // Mock navigator.clipboard
 const mockWriteText = vi.fn();
 beforeEach(() => {
@@ -161,10 +155,11 @@ describe('Code (Integration)', () => {
       });
     });
 
-    it('должен добавлять toast при успешном копировании', async () => {
+    it('должен вызывать onCopyResult(true) при успешном копировании', async () => {
       mockWriteText.mockResolvedValue(undefined);
+      const onCopyResult = vi.fn();
       render(
-        <Code variant="inline" copyable>
+        <Code variant="inline" copyable onCopyResult={onCopyResult}>
           npm install
         </Code>
       );
@@ -172,11 +167,7 @@ describe('Code (Integration)', () => {
       fireEvent.click(screen.getByTestId('code-inline'));
 
       await vi.waitFor(() => {
-        expect(mockAddToast).toHaveBeenCalledWith({
-          message: 'Code copied to clipboard',
-          type: 'success',
-          duration: 2000,
-        });
+        expect(onCopyResult).toHaveBeenCalledWith(true);
       });
     });
 
