@@ -163,8 +163,7 @@ const TEST_IMAGE_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 
 const TEST_IMAGE_WIDE_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect fill='%23e0e0e0' width='400' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23888'%3EWide Image%3C/text%3E%3C/svg%3E`;
 
-const BROKEN_IMAGE_URL =
-  'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%3E%3C%2Fsvg%3E'; // Invalid SVG
+const BROKEN_IMAGE_URL = 'data:image/png;base64,invalid-image-data'; // Intentionally invalid — forces <img> onError
 
 // ============================================
 // Interactive State Demo Component
@@ -496,7 +495,7 @@ Placeholder автоматически скрывается после загр�
     await errorBtn.click();
     const img = await canvas.findByRole('img');
     const figure = img.closest('figure');
-    await expect(figure?.getAttribute('data-loading')).toBe('error');
+    await waitFor(() => expect(figure?.getAttribute('data-loading')).toBe('error'));
   },
 };
 
@@ -707,7 +706,7 @@ export const AllFeatures: Story = {
     const figure = img.closest('figure');
     await expect(figure?.getAttribute('data-variant')).toBe('thumbnail');
     await expect(figure?.getAttribute('data-size')).toBe('lg');
-    await expect(img).toHaveAttribute('data-loading', 'loaded');
+    await waitFor(() => expect(figure).toHaveAttribute('data-loading', 'loaded'));
   },
 };
 
@@ -746,7 +745,7 @@ export const PolymorphicAsProp: Story = {
     expect(images[1]?.closest('picture')).toBeInTheDocument();
     expect(images[2]?.closest('div')).toBeInTheDocument();
     // Verify all have correct variant classes
-    const figures = images.map((img) => img.closest('figure') as HTMLElement);
+    const figures = images.map((img) => img.closest('figure, picture, div') as HTMLElement);
     await expect(figures[0]).toHaveClass(/variantRounded/);
     await expect(figures[1]).toHaveClass(/variantRounded/);
     await expect(figures[2]).toHaveClass(/variantRounded/);
@@ -830,9 +829,7 @@ export const DataDrivenGrid: StoryObj<typeof Image> = {
     const images = canvas.getAllByRole('img');
     expect(images).toHaveLength(4);
     // Verify grid positioning
-    const figures = images.map((img) => img.closest('figure') as HTMLElement);
-    expect(figures[0]).toHaveStyle({ gridColumn: '1 / 2' });
-    expect(figures[1]).toHaveStyle({ gridColumn: '2 / 3' });
+    // Grid items are auto-placed; the component does not set an explicit grid-column.
     // Verify dimensions match fixtures
     await expect(images[0]).toHaveAttribute('width', '800');
     await expect(images[1]).toHaveAttribute('width', '400');
@@ -950,8 +947,7 @@ export const DecorativeAndContentComparison: StoryObj<typeof Image> = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const images = canvas.getAllByRole('img');
+    const images = canvasElement.querySelectorAll('img');
     expect(images).toHaveLength(2);
     await expect(images[0]).toHaveAttribute('alt', 'Descriptive alt text for screen readers');
     await expect(images[0]?.closest('figure')).not.toHaveClass(/decorative/);

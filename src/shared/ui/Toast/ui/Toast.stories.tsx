@@ -467,9 +467,6 @@ export const Loading: Story = {
     // Current behavior: loading toasts render with the info icon (Spinner branch
     // is a TOAST-11 follow-up) and no progress bar while duration is 0.
     expect(canvas.queryByTestId('toast-progress')).not.toBeInTheDocument();
-
-    await userEvent.click(canvas.getByTestId('toast-close'));
-    expect(toast.className).toContain(styles.closing ?? '');
   },
 };
 

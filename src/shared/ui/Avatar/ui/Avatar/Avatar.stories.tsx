@@ -43,7 +43,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'John Doe',
     size: 'md',
     variant: 'circle',
@@ -140,7 +140,7 @@ export const LoadingState: Story = {
 
 export const WithGlowEffect: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Glowing avatar',
     size: 'lg',
     variant: 'circle',
@@ -158,7 +158,7 @@ export const WithGlowEffect: Story = {
 
 export const WithRingEffect: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Avatar with ring',
     size: 'lg',
     variant: 'circle',
@@ -173,7 +173,7 @@ export const WithRingEffect: Story = {
 
 export const CombinedEffects: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Avatar with all effects',
     size: 'xl',
     variant: 'circle',
@@ -193,7 +193,7 @@ export const PolymorphicAsLink: Story = {
   args: {
     component: 'a',
     href: '/profile',
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Link avatar',
     size: 'md',
   },
@@ -207,7 +207,7 @@ export const PolymorphicAsLink: Story = {
 
 export const WithChildren: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Avatar with badge',
     size: 'lg',
     children: (

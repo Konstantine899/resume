@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Meta } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
-const avatar1 = '/images/avatar/avatar003.jpg';
+// Self-contained loadable placeholder used by avatar stories. The previous path
+// (/images/avatar/avatar003.jpg) pointed at a static asset that does not exist
+// in the repo, so the avatar never reached the `loaded` state in tests.
+const avatar1 =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E";
 
 // ============================================
 // Shared configuration
