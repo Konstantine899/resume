@@ -109,7 +109,7 @@ export const WithError: Story = {
     const errorEl = canvas.getByTestId('textarea-error');
     await expect(textarea).toHaveAttribute('aria-invalid', 'true');
     await expect(errorEl).toHaveTextContent('Message is required');
-    await expect(errorEl.querySelector('[role="alert"]')).toBeInTheDocument();
+    await expect(errorEl).toHaveAttribute('role', 'alert');
   },
 };
 

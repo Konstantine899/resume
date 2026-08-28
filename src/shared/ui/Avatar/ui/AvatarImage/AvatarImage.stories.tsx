@@ -48,7 +48,7 @@ const getContainer = (canvasElement: HTMLElement): HTMLElement => {
 
 export const Default: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'John Doe',
     size: 'md',
     variant: 'circle',
@@ -85,7 +85,7 @@ export const AllSizes: Story = {
 
 export const SquareVariant: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Square avatar',
     size: 'lg',
     variant: 'square',
@@ -98,7 +98,7 @@ export const SquareVariant: Story = {
 
 export const Loading: Story = {
   args: {
-    src: '/images/avatar/avatar003.jpg',
+    src: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E",
     alt: 'Loading avatar',
     size: 'md',
     variant: 'circle',
