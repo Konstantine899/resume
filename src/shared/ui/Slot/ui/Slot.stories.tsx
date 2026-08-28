@@ -1,25 +1,10 @@
 import { type Meta, type StoryObj } from '@storybook/react-vite';
+import { expect, within } from 'storybook/test';
 import { Slot } from './Slot';
 
 /**
- * ## Slot Component
- *
  * Slot не создаёт свой DOM-узел, а клонирует единственного дочернего ReactElement
  * с merged className, id, data-testid и ref.
- *
- * ### Особенности:
- * - Прозрачный рендеринг — не добавляет обёрток в DOM
- * - Merged className (родительский + дочерний)
- * - Проброс id, data-testid, ref
- * - Children.only — принимает ровно один ReactElement
- *
- * ### Использование:
- * ```tsx
- * <Slot className="wrapper">
- *   <span>Оригинальный элемент</span>
- * </Slot>
- * // → <span class="wrapper">Оригинальный элемент</span>
- * ```
  */
 const meta: Meta<typeof Slot> = {
   title: 'shared/Slot',
@@ -48,6 +33,12 @@ export const Default: Story = {
       <span>Текст внутри span через Slot</span>
     </Slot>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-default');
+    await expect(el.tagName).toBe('SPAN');
+    await expect(el).toHaveTextContent('Текст внутри span через Slot');
+  },
 };
 
 /**
@@ -69,6 +60,12 @@ export const WithClassName: Story = {
       </Slot>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-class');
+    await expect(el).toHaveClass('parent-class');
+    await expect(el).toHaveClass('child-class');
+  },
 };
 
 /**
@@ -80,6 +77,11 @@ export const WithId: Story = {
       <span>Элемент с id="slot-id-example"</span>
     </Slot>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-id');
+    await expect(el).toHaveAttribute('id', 'slot-id-example');
+  },
 };
 
 /**
@@ -93,6 +95,11 @@ export const WithDataTestId: Story = {
       </span>
     </Slot>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('overridden-testid');
+    await expect(el).toHaveTextContent('Оригинальный data-testid переопределён');
+  },
 };
 
 /**
@@ -114,6 +121,12 @@ export const WithButton: Story = {
       </button>
     </Slot>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-button');
+    await expect(el.tagName).toBe('BUTTON');
+    await expect(el).toHaveClass('slot-button');
+  },
 };
 
 /**
@@ -139,6 +152,12 @@ export const WithDiv: Story = {
       </Slot>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-div');
+    await expect(el.tagName).toBe('DIV');
+    await expect(el).toHaveClass('slot-div');
+  },
 };
 
 /**
@@ -154,4 +173,10 @@ export const WithLabel: Story = {
       </Slot>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const el = canvas.getByTestId('slot-label');
+    await expect(el.tagName).toBe('LABEL');
+    await expect(el).toHaveClass('slot-label');
+  },
 };
