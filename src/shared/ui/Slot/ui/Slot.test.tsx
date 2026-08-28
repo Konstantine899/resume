@@ -114,5 +114,41 @@ describe('Slot', () => {
       expect(refCallback).toHaveBeenCalled();
       expect(refCallback.mock.calls[0]?.[0]).toBeInstanceOf(HTMLSpanElement);
     });
+
+    it('должен пробросить dataAttrs в потомка', () => {
+      render(
+        <Slot dataAttrs={{ 'data-size': 'xl', 'data-theme': 'dark' }} data-testid="slot">
+          <span>Child</span>
+        </Slot>
+      );
+
+      const element = screen.getByTestId('slot');
+      expect(element).toHaveAttribute('data-size', 'xl');
+      expect(element).toHaveAttribute('data-theme', 'dark');
+    });
+
+    it('должен пробросить rest-пропсы (aria-*, role) в потомка', () => {
+      render(
+        <Slot role="navigation" aria-label="slot-region" data-testid="slot">
+          <nav>Child</nav>
+        </Slot>
+      );
+
+      const element = screen.getByTestId('slot');
+      expect(element).toHaveAttribute('role', 'navigation');
+      expect(element).toHaveAttribute('aria-label', 'slot-region');
+    });
+
+    it('rest-пропсы не конфликтуют с dataAttrs', () => {
+      render(
+        <Slot dataAttrs={{ 'data-size': 'xl' }} role="main" data-testid="slot">
+          <div>Child</div>
+        </Slot>
+      );
+
+      const element = screen.getByTestId('slot');
+      expect(element).toHaveAttribute('data-size', 'xl');
+      expect(element).toHaveAttribute('role', 'main');
+    });
   });
 });

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '../Modal/Modal';
 import type { ModalAlertProps } from '../../model/types';
@@ -38,7 +39,7 @@ export const ModalAlert = memo((props: ModalAlertProps) => {
       title=""
       showCloseButton={false}
       size="sm"
-      className={`${styles.alert} ${styles[variant]} ${className}`}
+      className={classNames(styles.alert, styles[variant], className)}
     >
       <div className={styles.body}>
         {icon && <div className={styles.icon}>{icon}</div>}

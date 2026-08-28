@@ -87,6 +87,13 @@
     }
   }
 
+  // Variant `default` — base styling (no modifier). Exposed as a class so the
+
+  // variant is reflected in the DOM and can be asserted in tests.
+  &.default {
+    border-color: var(--border-color);
+  }
+
   // Sizes
   &.sm {
     padding: 0.25rem 0.5rem;

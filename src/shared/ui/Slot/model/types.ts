@@ -1,23 +1,13 @@
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 
-export interface SlotProps {
+export interface SlotProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   /**
    * Единственный дочерний ReactElement
    */
   children: ReactNode;
 
   /**
-   * Дополнительные CSS классы (мержатся с классами children)
-   */
-  className?: string;
-
-  /**
-   * ID элемента
-   */
-  id?: string;
-
-  /**
-   * Data-testid для тестирования
+   * Data-testid для тестирования (переопределяет дочерний)
    */
   'data-testid'?: string;
 

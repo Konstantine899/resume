@@ -14,6 +14,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import { Code } from './Code';
+import i18n from '@/shared/lib/i18n/config/i18n';
 
 // ============================================
 // Sample data
@@ -312,14 +313,15 @@ export const BlockCopy: Story = {
     showLineNumbers: true,
   },
   play: async ({ canvasElement }) => {
+    await i18n.changeLanguage('en');
     const canvas = within(canvasElement);
     const restoreClipboard = mockClipboardSuccess();
     try {
       // Начальное состояние — кнопка "Copy"
       const copyButton = canvas.getByTestId('code-copy-button');
       expect(copyButton).toBeInTheDocument();
-      expect(copyButton).toHaveTextContent('Copy');
-      expect(copyButton).toHaveAttribute('aria-label', 'Copy code');
+      await waitFor(() => expect(copyButton).toHaveTextContent('Copy'));
+      await waitFor(() => expect(copyButton).toHaveAttribute('aria-label', 'Copy code'));
 
       // Клик по кнопке Copy
       await userEvent.click(copyButton);
@@ -359,12 +361,13 @@ export const BlockCopyError: Story = {
     copyable: true,
   },
   play: async ({ canvasElement }) => {
+    await i18n.changeLanguage('en');
     const canvas = within(canvasElement);
     const restoreClipboard = mockClipboardError();
     try {
       // Начальное состояние — кнопка "Copy"
       const copyButton = canvas.getByTestId('code-copy-button');
-      expect(copyButton).toHaveTextContent('Copy');
+      await waitFor(() => expect(copyButton).toHaveTextContent('Copy'));
 
       // Клик по кнопке Copy — clipboard вернёт ошибку
       await userEvent.click(copyButton);
@@ -396,6 +399,7 @@ export const BlockSkillsCode: Story = {
     copyable: true,
   },
   play: async ({ canvasElement }) => {
+    await i18n.changeLanguage('en');
     const canvas = within(canvasElement);
     const restoreClipboard = mockClipboardSuccess();
     try {
