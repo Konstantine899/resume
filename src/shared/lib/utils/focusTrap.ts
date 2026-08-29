@@ -37,21 +37,24 @@ export const focusTrap = (container: HTMLElement | null): (() => void) => {
   const focusableElements = getFocusableElements(container);
   if (focusableElements.length === 0) return () => {};
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key !== 'Tab') return;
 
+    // Re-query on every Tab so dynamically added/removed children are respected.
+    const focusable = getFocusableElements(container);
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
     // Если Shift+Tab на первом элементе → переходим на последний
-    if (event.shiftKey && document.activeElement === firstElement) {
+    if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
-      lastElement?.focus();
+      last?.focus();
     }
     // Если Tab на последнем элементе → переходим на первый
-    else if (!event.shiftKey && document.activeElement === lastElement) {
+    else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      firstElement?.focus();
+      first?.focus();
     }
   };
 

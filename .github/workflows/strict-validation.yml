@@ -128,3 +128,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'false'
+
+  chromatic:
+    name: Chromatic Visual Baseline
+    runs-on: ubuntu-latest
+    if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish to Chromatic
+        run: npx chromatic --exit-zero-on-changes --project-token=$CHROMATIC_PROJECT_TOKEN
+

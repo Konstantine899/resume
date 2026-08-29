@@ -37,6 +37,7 @@ export const ModalAlert = memo((props: ModalAlertProps) => {
       isOpen={isOpen}
       onClose={onClose}
       title=""
+      ariaLabel={title}
       showCloseButton={false}
       size="sm"
       className={classNames(styles.alert, styles[variant], className)}

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useId } from 'react';
 import type { ModalFormProps } from '../../model/types';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '../Modal/Modal';
@@ -20,6 +20,7 @@ export const ModalForm = memo((props: ModalFormProps) => {
   } = props;
 
   const handleCancel = onCancel ?? onClose;
+  const formId = useId();
 
   return (
     <Modal
@@ -38,14 +39,14 @@ export const ModalForm = memo((props: ModalFormProps) => {
             loading={loading}
             disabled={disableSubmit}
             type="submit"
-            form="modal-form"
+            form={formId}
           >
             {submitLabel}
           </Button>
         </>
       }
     >
-      <form id="modal-form" onSubmit={onSubmit}>
+      <form id={formId} onSubmit={onSubmit}>
         {children}
       </form>
     </Modal>

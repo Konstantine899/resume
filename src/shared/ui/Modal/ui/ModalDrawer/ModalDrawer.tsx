@@ -1,10 +1,11 @@
 import { X } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, useId, useMemo } from 'react';
 import { Icon } from '@/shared/ui/Icon';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ModalRoot } from '../ModalRoot/ModalRoot';
 import { ModalHeader } from '../ModalHeader/ModalHeader';
 import { ModalContent } from '../ModalContent/ModalContent';
+import { MODAL_CONSTANTS } from '../../model/constants';
 import type { ModalDrawerProps } from '../../model/types';
 import styles from './ModalDrawer.module.scss';
 
@@ -19,6 +20,9 @@ export const ModalDrawer = memo((props: ModalDrawerProps) => {
     className = '',
   } = props;
 
+  const titleId = useId();
+  const subtitleId = useId();
+
   const rootProps = useMemo(
     () => ({
       isOpen,
@@ -28,8 +32,11 @@ export const ModalDrawer = memo((props: ModalDrawerProps) => {
       scroll: 'body' as const,
       overlay: false,
       blockScroll: false,
+      title,
+      titleId,
+      subtitleId,
     }),
-    [isOpen, onClose, size, className, placement]
+    [isOpen, onClose, size, className, placement, title, titleId, subtitleId]
   );
 
   return (
@@ -37,7 +44,11 @@ export const ModalDrawer = memo((props: ModalDrawerProps) => {
       <ModalHeader
         title={title}
         onClose={onClose}
-        closeIcon={<Icon name={X} size={20} color="inherit" decorative />}
+        titleId={titleId}
+        subtitleId={subtitleId}
+        closeIcon={
+          <Icon name={X} size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative />
+        }
       />
       <ModalContent>
         <div className={styles.content}>{children}</div>

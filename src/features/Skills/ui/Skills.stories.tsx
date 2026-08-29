@@ -138,9 +138,10 @@ export const LightTheme: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Проверяем, что тема установлена в light
-    const rootElement = canvasElement.closest('[data-theme]') || document.documentElement;
-    expect(rootElement).toHaveAttribute('data-theme', 'light');
+    // Проверяем, что тема установлена в light (декоратор оборачивает story)
+    const themeElement = document.querySelector('[data-theme="light"]');
+    expect(themeElement).not.toBeNull();
+    expect(themeElement).toHaveAttribute('data-theme', 'light');
 
     // Проверяем рендер компонента
     expect(canvas.getByTestId('skills')).toBeInTheDocument();

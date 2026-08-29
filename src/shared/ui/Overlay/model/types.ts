@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, MouseEventHandler } from 'react';
 
 /**
  * Props for the Overlay component.
@@ -19,8 +19,8 @@ export interface OverlayProps {
   /** Content rendered above the scrim (e.g. modal panel). */
   children?: React.ReactNode;
 
-  /** Click handler — overlay gets `cursor: pointer` only when set. */
-  onClick?: () => void;
+  /** Click handler — receives the native click event. Overlay gets `cursor: pointer` only when set. */
+  onClick?: MouseEventHandler<HTMLDivElement>;
 
   /** Keyboard handler — forwarded to the overlay div. */
   onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;

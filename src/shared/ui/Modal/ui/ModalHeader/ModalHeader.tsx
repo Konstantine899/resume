@@ -33,14 +33,14 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
     closeIcon,
   } = props;
 
-  const headerClasses = classNames(styles.header ?? '', {
+  const headerClasses = classNames(styles.header, {
     [styles.headerWithoutTitle ?? '']: !title && showCloseButton,
   });
 
   return (
     <header className={headerClasses}>
       {title && (
-        <div className={styles.headerContent ?? ''}>
+        <div className={styles.headerContent}>
           <Heading level={2} size="xl" id={titleId}>
             {title}
           </Heading>
