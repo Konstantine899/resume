@@ -1,68 +1,34 @@
-/* eslint-disable react-refresh/only-export-components */
-
-import { memo, useMemo } from 'react';
-import type { ModalProps, ModalRootProps } from '../../model/types';
+import { memo, forwardRef, useCallback, useId, useMemo } from 'react';
+import type { ModalProps } from '../../model/types';
 import { ModalRoot } from '../ModalRoot/ModalRoot';
 import { ModalHeader } from '../ModalHeader/ModalHeader';
 import { ModalContent } from '../ModalContent/ModalContent';
 import { ModalFooter } from '../ModalFooter/ModalFooter';
-import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
-import { Divider } from '@/shared/ui/Divider';
 
-const ModalComponent = memo((props: ModalProps) => {
-  const {
-    children,
-    component,
-    isOpen,
-    onClose,
-    title,
-    subtitle,
-    footer,
-    size,
-    scroll,
-    overlay,
-    closeOnOverlayClick,
-    closeOnEsc,
-    blockScroll,
-    className,
-    showCloseButton = true,
-    disableAnimation,
-    forceMount,
-    onOpened,
-    onClosed,
-    canClose,
-    autoFocus,
-    restoreFocus,
-    trapFocus,
-    onEscapeKeyDown,
-    onPointerDownOutside,
-    finalFocusRef,
-    initialFocusRef,
-    closeIcon,
-    defaultOpen,
-    modal,
-  } = props;
-
-  const shouldRenderWrapper = title || footer || showCloseButton;
-
-  const rootProps = useMemo(
-    () => ({
+// eslint-disable-next-line react-refresh/only-export-components
+const ModalComponent = memo(
+  forwardRef<HTMLElement, ModalProps>((props, ref) => {
+    const {
       component,
+      children,
       isOpen,
       onClose,
-      size,
-      scroll,
-      overlay,
-      closeOnOverlayClick,
-      closeOnEsc,
-      blockScroll,
-      className,
+      title,
       subtitle,
+      footer,
+      size = 'md',
+      scroll = 'paper',
+      overlay = true,
+      closeOnOverlayClick = true,
+      closeOnEsc = true,
+      blockScroll = true,
+      className,
+      showCloseButton = true,
+      ariaLabel,
       disableAnimation,
-      forceMount,
       onOpened,
       onClosed,
-      canClose,
+      canClose = true,
       autoFocus,
       restoreFocus,
       trapFocus,
@@ -71,66 +37,113 @@ const ModalComponent = memo((props: ModalProps) => {
       finalFocusRef,
       initialFocusRef,
       defaultOpen,
-      modal,
-    }),
-    [
-      component,
-      isOpen,
-      onClose,
-      size,
-      scroll,
-      overlay,
-      closeOnOverlayClick,
-      closeOnEsc,
-      blockScroll,
-      className,
-      subtitle,
-      disableAnimation,
       forceMount,
-      onOpened,
-      onClosed,
-      canClose,
-      autoFocus,
-      restoreFocus,
-      trapFocus,
-      onEscapeKeyDown,
-      onPointerDownOutside,
-      finalFocusRef,
-      initialFocusRef,
-      defaultOpen,
-      modal,
-    ]
-  );
+      modal = true,
+      closeIcon,
+    } = props;
 
-  if (shouldRenderWrapper) {
-    const renderHeader = Boolean(title || showCloseButton);
+    const generatedTitleId = useId();
+    const generatedSubtitleId = useId();
+
+    // R2/R3-1/R4-1: the X button (and any close trigger) must honour canClose.
+    const requestClose = useCallback(() => {
+      const allowed = typeof canClose === 'function' ? canClose() : canClose;
+      if (allowed) onClose();
+    }, [canClose, onClose]);
+
+    const rootProps = useMemo(
+      () => ({
+        component,
+        isOpen,
+        onClose: requestClose,
+        size,
+        scroll,
+        overlay,
+        closeOnOverlayClick,
+        closeOnEsc,
+        blockScroll,
+        className,
+        showCloseButton,
+        disableAnimation,
+        onOpened,
+        onClosed,
+        canClose,
+        autoFocus,
+        restoreFocus,
+        trapFocus,
+        onEscapeKeyDown,
+        onPointerDownOutside,
+        finalFocusRef,
+        initialFocusRef,
+        defaultOpen,
+        forceMount,
+        modal,
+        title,
+        subtitle,
+        ariaLabel,
+        titleId: generatedTitleId,
+        subtitleId: generatedSubtitleId,
+      }),
+      [
+        component,
+        isOpen,
+        requestClose,
+        size,
+        scroll,
+        overlay,
+        closeOnOverlayClick,
+        closeOnEsc,
+        blockScroll,
+        className,
+        showCloseButton,
+        disableAnimation,
+        onOpened,
+        onClosed,
+        canClose,
+        autoFocus,
+        restoreFocus,
+        trapFocus,
+        onEscapeKeyDown,
+        onPointerDownOutside,
+        finalFocusRef,
+        initialFocusRef,
+        defaultOpen,
+        forceMount,
+        modal,
+        title,
+        subtitle,
+        ariaLabel,
+        generatedTitleId,
+        generatedSubtitleId,
+      ]
+    );
+
+    const shouldRenderWrapper = title || footer || showCloseButton;
+
     return (
-      <ModalRoot {...(rootProps as ModalRootProps)}>
-        {renderHeader && (
+      <ModalRoot {...rootProps} ref={ref}>
+        {shouldRenderWrapper && (
           <>
-            <ModalHeader
-              title={title}
-              subtitle={subtitle}
-              showCloseButton={showCloseButton}
-              onClose={onClose}
-              closeIcon={closeIcon}
-            />
-            <Divider />
+            {title && (
+              <ModalHeader
+                title={title}
+                subtitle={subtitle}
+                showCloseButton={showCloseButton}
+                onClose={requestClose}
+                titleId={generatedTitleId}
+                subtitleId={generatedSubtitleId}
+                closeIcon={closeIcon}
+              />
+            )}
+            <ModalContent>{children}</ModalContent>
+            {footer && <ModalFooter>{footer}</ModalFooter>}
           </>
         )}
-        <ModalContent>{children}</ModalContent>
-        {footer && (
-          <>
-            <Divider />
-            <ModalFooter>{footer}</ModalFooter>
-          </>
-        )}
+        {!shouldRenderWrapper && children}
       </ModalRoot>
     );
-  }
-
-  return <ModalRoot {...(rootProps as ModalRootProps)}>{children}</ModalRoot>;
-});
+  })
+);
 
 ModalComponent.displayName = 'Modal';
 
@@ -139,10 +152,4 @@ export const Modal = Object.assign(ModalComponent, {
   Header: ModalHeader,
   Content: ModalContent,
   Footer: ModalFooter,
-  CloseButton: ModalCloseButton,
 });
-
-// The Alert/Drawer/Form compound members are assembled in ./index.ts instead
-// of here to avoid the circular import Modal <-> ModalAlert/ModalForm (those
-// sub-components render <Modal> internally). Reading them eagerly at module-eval
-// time throws a TDZ ReferenceError.

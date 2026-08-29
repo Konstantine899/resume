@@ -3,14 +3,18 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ModalRootProps } from './types';
+import { MODAL_CONSTANTS } from './constants';
 import styles from '../ui/ModalRoot/ModalRoot.module.scss';
 
 // Global ref to track number of open modals for scroll lock
 const openCountRef = { current: 0 };
+// Stack of currently-open modal root elements (topmost = last). Used so only the
+// topmost modal handles ESC in stacked scenarios.
+const modalStack: HTMLElement[] = [];
 
 /**
- * Reset internal modal open counter.
- * @description Used for test cleanup only. Call between tests to reset scroll lock state.
+ * Reset internal modal open counter and stack.
+ * @description Used for test cleanup only. Call between tests to reset scroll lock and stack state.
  * @example
  * ```tsx
  * afterEach(() => {
@@ -21,6 +25,7 @@ const openCountRef = { current: 0 };
  */
 export function resetOpenCount(): void {
   openCountRef.current = 0;
+  modalStack.length = 0;
 }
 
 export function useModalRoot(props: ModalRootProps) {
@@ -49,6 +54,11 @@ export function useModalRoot(props: ModalRootProps) {
     defaultOpen,
     forceMount,
     modal = true,
+    title,
+    subtitle,
+    ariaLabel,
+    titleId: titleIdProp,
+    subtitleId: subtitleIdProp,
   } = props;
 
   const isControlled = isOpen !== undefined;
@@ -58,6 +68,7 @@ export function useModalRoot(props: ModalRootProps) {
   const effectiveOverlay = modal && overlay;
   const effectiveTrapFocus = modal && trapFocus;
   const effectiveBlockScroll = modal && blockScroll;
+  const effectiveModal = modal;
 
   const [isClosing, setIsClosing] = useState(false);
   const closeTimeoutRef = useRef<number | null>(null);
@@ -72,7 +83,7 @@ export function useModalRoot(props: ModalRootProps) {
       closeTimeoutRef.current = window.setTimeout(() => {
         setIsClosing(false);
         closeTimeoutRef.current = null;
-      }, 700);
+      }, MODAL_CONSTANTS.CLOSE_ANIMATION_MS);
     }
     prevIsOpenRef.current = effectiveIsOpen;
 
@@ -98,29 +109,44 @@ export function useModalRoot(props: ModalRootProps) {
   const untrapFocusRef = useRef<(() => void) | null>(null);
   const wasOpenedRef = useRef<boolean>(false);
   const onPointerDownOutsideRef = useRef(onPointerDownOutside);
-  const titleId = useId();
-  const subtitleId = useId();
+  const onOpenedRef = useRef(onOpened);
+  const onClosedRef = useRef(onClosed);
+  // Keep latest callbacks in refs so the focus effect doesn't re-run on every render.
+  useEffect(() => {
+    onOpenedRef.current = onOpened;
+    onClosedRef.current = onClosed;
+  }, [onOpened, onClosed]);
+
+  const generatedTitleId = useId();
+  const generatedSubtitleId = useId();
+  const titleId = titleIdProp ?? generatedTitleId;
+  const subtitleId = subtitleIdProp ?? generatedSubtitleId;
 
   // Update ref in effect, not during render
   useEffect(() => {
     onPointerDownOutsideRef.current = onPointerDownOutside;
   }, [onPointerDownOutside]);
 
+  // R3-3: scroll lock must be perfectly symmetric — lock on open, unlock on close.
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!effectiveBlockScroll) return;
 
+    let didLock = false;
     if (effectiveIsOpen) {
       openCountRef.current++;
+      didLock = true;
       if (openCountRef.current === 1) {
         document.body.style.overflow = 'hidden';
       }
     }
 
     return () => {
-      openCountRef.current--;
-      if (openCountRef.current === 0) {
-        document.body.style.overflow = '';
+      if (didLock) {
+        openCountRef.current--;
+        if (openCountRef.current === 0) {
+          document.body.style.overflow = '';
+        }
       }
     };
   }, [effectiveIsOpen, effectiveBlockScroll]);
@@ -135,11 +161,20 @@ export function useModalRoot(props: ModalRootProps) {
       onEscapeKeyDown?.(e);
       if (e.defaultPrevented) return;
 
+      // R4-13: only the topmost modal reacts to ESC in a stacked scenario.
+      if (
+        effectiveModal &&
+        modalStack.length > 0 &&
+        modalStack[modalStack.length - 1] !== modalRef.current
+      ) {
+        return;
+      }
+
       if (canCloseModal()) {
         handleClose();
       }
     },
-    [canCloseModal, handleClose, onEscapeKeyDown]
+    [canCloseModal, handleClose, onEscapeKeyDown, effectiveModal]
   );
 
   useEffect(() => {
@@ -155,8 +190,9 @@ export function useModalRoot(props: ModalRootProps) {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [effectiveIsOpen, closeOnEsc, handleEscKey]);
 
+  // R4-11: keep the trap active during the forceMount close animation too.
   useEffect(() => {
-    if (!effectiveIsOpen || !effectiveTrapFocus || !modalRef.current) return;
+    if ((!effectiveIsOpen && !isClosing) || !effectiveTrapFocus || !modalRef.current) return;
 
     untrapFocusRef.current = focusTrap(modalRef.current);
 
@@ -164,20 +200,27 @@ export function useModalRoot(props: ModalRootProps) {
       untrapFocusRef.current?.();
       untrapFocusRef.current = null;
     };
-  }, [effectiveIsOpen, effectiveTrapFocus]);
+  }, [effectiveIsOpen, isClosing, effectiveTrapFocus]);
 
+  // R3-4/R3-5/R4-12: focus management, restore, and open-stack bookkeeping.
   useEffect(() => {
     if (focusTimeoutRef.current) {
       clearTimeout(focusTimeoutRef.current);
       focusTimeoutRef.current = null;
     }
 
-    const previousElement = previousActiveElement.current;
+    // Capture node refs once per effect run so the cleanup uses the correct node.
+    const modalEl = modalRef.current;
     const finalFocusElement = finalFocusRef?.current;
 
     if (effectiveIsOpen) {
       wasOpenedRef.current = true;
-      previousActiveElement.current = document.activeElement as HTMLElement;
+      // Capture the trigger BEFORE we move focus (used on close).
+      previousActiveElement.current = (document.activeElement as HTMLElement) ?? null;
+
+      if (effectiveModal && modalRef.current && !modalStack.includes(modalRef.current)) {
+        modalStack.push(modalRef.current);
+      }
 
       // Use queueMicrotask instead of setTimeout(0) for better timing
       queueMicrotask(() => {
@@ -192,11 +235,12 @@ export function useModalRoot(props: ModalRootProps) {
               modalRef.current.focus();
             }
           }
-        } else if (modalRef.current) {
+        } else if (effectiveModal && modalRef.current) {
+          // autoFocus disabled: still move focus into the dialog for modal mode.
           modalRef.current.focus();
         }
 
-        onOpened?.();
+        onOpenedRef.current?.();
       });
     }
 
@@ -207,41 +251,35 @@ export function useModalRoot(props: ModalRootProps) {
       }
 
       if (wasOpenedRef.current) {
-        if (restoreFocus) {
-          if (finalFocusElement) {
-            finalFocusElement.focus();
-          } else if (previousElement) {
-            previousElement.focus();
-          }
+        // R4-12: restore focus only in modal mode.
+        if (effectiveModal && restoreFocus) {
+          const target = finalFocusElement ?? previousActiveElement.current;
+          target?.focus?.();
         }
-        onClosed?.();
+        onClosedRef.current?.();
         wasOpenedRef.current = false;
+
+        if (effectiveModal && modalEl) {
+          const idx = modalStack.indexOf(modalEl);
+          if (idx !== -1) modalStack.splice(idx, 1);
+        }
       }
     };
-  }, [
-    effectiveIsOpen,
-    autoFocus,
-    restoreFocus,
-    onOpened,
-    onClosed,
-    finalFocusRef,
-    initialFocusRef,
-  ]);
+  }, [effectiveIsOpen, effectiveModal, autoFocus, restoreFocus, initialFocusRef, finalFocusRef]);
 
-  const handleOverlayClick = useCallback(() => {
-    // Fallback to MouseEvent for browsers without PointerEvent support (Safari <13)
-    const event =
-      typeof PointerEvent !== 'undefined'
-        ? new PointerEvent('pointerdown', { cancelable: true })
-        : (new MouseEvent('mousedown', { cancelable: true }) as PointerEvent);
-
-    onPointerDownOutsideRef.current?.(event);
-    if (event.defaultPrevented) return;
-
-    if (closeOnOverlayClick && canCloseModal()) {
-      handleClose();
-    }
-  }, [closeOnOverlayClick, canCloseModal, handleClose]);
+  // R2-10: forward the REAL DOM event so consumers can preventDefault() correctly.
+  const handleOverlayClick = useCallback(
+    (event?: MouseEvent | PointerEvent) => {
+      if (event) {
+        onPointerDownOutsideRef.current?.(event as PointerEvent);
+        if (event.defaultPrevented) return;
+      }
+      if (closeOnOverlayClick && canCloseModal()) {
+        handleClose();
+      }
+    },
+    [closeOnOverlayClick, canCloseModal, handleClose]
+  );
 
   const modalClassName = useMemo(
     () =>
@@ -263,6 +301,9 @@ export function useModalRoot(props: ModalRootProps) {
     modalRef,
     titleId,
     subtitleId,
+    title,
+    subtitle,
+    ariaLabel,
     isClosing,
     effectiveIsOpen,
     effectiveOverlay,
@@ -275,6 +316,6 @@ export function useModalRoot(props: ModalRootProps) {
     modalClassName,
     dataState,
     forceMount,
-    effectiveModal: modal,
+    effectiveModal,
   };
 }

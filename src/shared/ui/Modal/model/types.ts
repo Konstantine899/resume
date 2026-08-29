@@ -308,7 +308,7 @@ export interface ModalCloseButtonProps {
 
   /**
    * ARIA label
-   * @default 'Закрыть модальное окно'
+   * @default 'Close modal'
    */
   ariaLabel?: string;
 
@@ -460,10 +460,7 @@ export type PolymorphicProps<C extends ElementType, P = Record<string, never>> =
 } & Omit<ComponentPropsWithoutRef<C>, keyof P> &
   P;
 
-export interface ModalRootOwnProps extends Omit<
-  ModalProps,
-  'title' | 'footer' | 'showCloseButton'
-> {
+export interface ModalRootOwnProps extends Omit<ModalProps, 'footer' | 'showCloseButton'> {
   children: ReactNode;
 
   /**
@@ -474,6 +471,18 @@ export interface ModalRootOwnProps extends Omit<
    * @example <Modal.Root asChild><section>...</section></Modal.Root>
    */
   asChild?: boolean;
+
+  /**
+   * Explicit id for the dialog title (for aria-labelledby wiring)
+   * @description When omitted, useModalRoot generates one via useId().
+   */
+  titleId?: string;
+
+  /**
+   * Explicit id for the dialog subtitle (for aria-describedby wiring)
+   * @description When omitted, useModalRoot generates one via useId().
+   */
+  subtitleId?: string;
 }
 
 export type ModalRootProps<C extends ElementType = React.ElementType> = PolymorphicProps<
