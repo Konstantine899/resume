@@ -43,13 +43,25 @@
 
   .title {
     margin-bottom: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 1.75rem;
     font-weight: 700;
     color: #fff;
+    white-space: nowrap;
   }
 
   .techSection {
     margin-bottom: 1.5rem;
+  }
+
+  .description {
+    display: -webkit-box;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .techIcons {

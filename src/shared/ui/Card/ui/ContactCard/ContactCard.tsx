@@ -4,6 +4,7 @@
 
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { CardTitle } from '../CardTitle';
 import type { ContactCardProps } from '../../model/types';
 import styles from './ContactCard.module.scss';
 
@@ -30,6 +31,7 @@ const ContactCardComponent: React.FC<ContactCardProps> = ({
   title,
   icon,
   children,
+  titleLevel,
   className = '',
   fullWidth,
   style,
@@ -41,7 +43,11 @@ const ContactCardComponent: React.FC<ContactCardProps> = ({
     >
       <div className={styles.centeredContent}>
         {icon && <div className={styles.iconWrapper}>{icon}</div>}
-        {title && <h3 className={styles.title}>{title}</h3>}
+        {title && (
+          <CardTitle as={titleLevel} className={styles.title}>
+            {title}
+          </CardTitle>
+        )}
         {children}
       </div>
     </div>

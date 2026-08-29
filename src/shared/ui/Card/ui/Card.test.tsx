@@ -17,7 +17,16 @@ import cardDescriptionStyles from './CardDescription/CardDescription.module.scss
 import projectCardStyles from './ProjectCard/ProjectCard.module.scss';
 import cardStyles from './Card.module.scss';
 import contactCardStyles from './ContactCard/ContactCard.module.scss';
+import workHistoryCardStyles from './WorkHistoryCard/WorkHistoryCard.module.scss';
+import { CARD_CONSTANTS } from '../model/constants';
 import type { CardVariant } from '../model/types';
+import type {
+  CardTitleProps,
+  CardDescriptionProps,
+  CardActionsProps,
+  CardGridProps,
+  CardMetaProps,
+} from '../index';
 
 describe('Card', () => {
   describe('Rendering', () => {
@@ -394,9 +403,12 @@ describe('Card', () => {
 
     it('project variant does NOT use Container', () => {
       render(<Card.Project title="Test" description="Desc" techIcons={[]} />);
-      // ProjectCard has its own layout, should not be wrapped in Container
+      // ProjectCard has its own layout, should not be wrapped in a Container component.
+      // (The title now renders via CardTitle→Heading, which carries its own
+      // `data-size` theming attribute — so we check for the Container wrapper class,
+      // not any `data-size`.)
       const projectCard = screen.getByText('Test');
-      const containerAncestor = projectCard.closest('[data-size]');
+      const containerAncestor = projectCard.closest('[class*="_container_"]');
       expect(containerAncestor).not.toBeInTheDocument();
     });
   });
@@ -966,6 +978,131 @@ describe('CARD-P1 reliability & behavior', () => {
       );
       const root = screen.getByTestId('good-variant').closest('[data-variant]') as HTMLElement;
       expect(root).toHaveAttribute('data-variant', 'skill');
+    });
+  });
+});
+
+// ============================================
+// CARD-P2 — readability / resilience / polish (strict TDD)
+// ============================================
+
+describe('CARD-P2 polish', () => {
+  describe('CARD-P2-1 context-aware heading level', () => {
+    it('ProjectCard renders default h3 (no outline regression)', () => {
+      render(<ProjectCard title="P">child</ProjectCard>);
+      expect(screen.getByText('P').tagName).toBe('H3');
+    });
+
+    it('ProjectCard renders configured titleLevel h2', () => {
+      render(
+        <ProjectCard title="P" titleLevel="h2">
+          child
+        </ProjectCard>
+      );
+      expect(screen.getByText('P').tagName).toBe('H2');
+    });
+
+    it('ContactCard renders default h3 and configured h4', () => {
+      const { rerender } = render(<ContactCard title="C">child</ContactCard>);
+      expect(screen.getByText('C').tagName).toBe('H3');
+      rerender(
+        <ContactCard title="C" titleLevel="h4">
+          child
+        </ContactCard>
+      );
+      expect(screen.getByText('C').tagName).toBe('H4');
+    });
+
+    it('WorkHistoryCard renders default h3 and configured h5', () => {
+      const { rerender } = render(<WorkHistoryCard title="W" company="Co" />);
+      expect(screen.getByText('W').tagName).toBe('H3');
+      rerender(<WorkHistoryCard title="W" company="Co" titleLevel="h5" />);
+      expect(screen.getByText('W').tagName).toBe('H5');
+    });
+
+    it('ProjectCard title carries the .title class (clipping target)', () => {
+      render(<ProjectCard title="P">child</ProjectCard>);
+      expect(screen.getByText('P')).toHaveClass(projectCardStyles.title ?? '');
+    });
+  });
+
+  describe('CARD-P2-2 VARIANT_CONTAINER_SIZE constant', () => {
+    it('maps skill -> xl and about -> lg', () => {
+      expect(CARD_CONSTANTS.VARIANT_CONTAINER_SIZE.skill).toBe('xl');
+      expect(CARD_CONSTANTS.VARIANT_CONTAINER_SIZE.about).toBe('lg');
+    });
+
+    it('Card uses the constant for the skill/about Container size', () => {
+      const { rerender } = render(
+        <Card variant="skill" data-testid="c">
+          x
+        </Card>
+      );
+      expect(screen.getByTestId('c').closest('[data-size="xl"]')).toBeInTheDocument();
+      rerender(
+        <Card variant="about" data-testid="c">
+          x
+        </Card>
+      );
+      expect(screen.getByTestId('c').closest('[data-size="lg"]')).toBeInTheDocument();
+    });
+  });
+
+  describe('CARD-P2-4 title clipping', () => {
+    it('ProjectCard title uses .title and keeps full text (CSS clips via ellipsis)', () => {
+      const longTitle = 'A very long project title that should be clipped with an ellipsis';
+      render(<ProjectCard title={longTitle} />);
+      const title = screen.getByText(longTitle);
+      expect(title).toHaveClass(projectCardStyles.title ?? '');
+      expect(title.textContent).toBe(longTitle);
+    });
+
+    it('ContactCard and WorkHistoryCard titles use their .title class', () => {
+      const { rerender } = render(<ContactCard title="C">x</ContactCard>);
+      expect(screen.getByText('C')).toHaveClass(contactCardStyles.title ?? '');
+      rerender(<WorkHistoryCard title="W" company="Co" />);
+      expect(screen.getByText('W')).toHaveClass(workHistoryCardStyles.title ?? '');
+    });
+  });
+
+  describe('CARD-P2-5 stable list keys', () => {
+    it('ProjectCard techIcons render in url order with stable keys', () => {
+      const techIcons = [
+        { name: 'React', url: '/react.svg' },
+        { name: 'Vue', url: '/vue.svg' },
+      ];
+      render(<ProjectCard title="P" techIcons={techIcons} />);
+      const imgs = screen.getAllByRole('img');
+      expect(imgs).toHaveLength(2);
+      expect(imgs[0]).toHaveAttribute('src', '/react.svg');
+      expect(imgs[1]).toHaveAttribute('src', '/vue.svg');
+    });
+
+    it('WorkHistoryCard achievements and techStack render by item string keys', () => {
+      render(
+        <WorkHistoryCard
+          title="W"
+          company="Co"
+          achievements={['Led team', 'Shipped feature']}
+          techStack={['React', 'Node']}
+        />
+      );
+      expect(screen.getByText('Led team')).toBeInTheDocument();
+      expect(screen.getByText('Shipped feature')).toBeInTheDocument();
+      expect(screen.getByText('React')).toBeInTheDocument();
+      expect(screen.getByText('Node')).toBeInTheDocument();
+    });
+  });
+
+  describe('CARD-P2-6 public API', () => {
+    it('re-exports the composition prop types from the package entry', () => {
+      // The type-only import above fails `tsc --noEmit` (validate gate) if any of
+      // these are missing from the public index. We reference them so the import
+      // counts as used. Runtime check is intentionally trivial.
+      const types: Array<
+        CardTitleProps | CardDescriptionProps | CardActionsProps | CardGridProps | CardMetaProps
+      > = [];
+      expect(types).toEqual([]);
     });
   });
 });

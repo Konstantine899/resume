@@ -5,6 +5,7 @@
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { CardTitle } from '../CardTitle';
 import type { WorkHistoryCardProps } from '../../model/types';
 import styles from './WorkHistoryCard.module.scss';
 
@@ -39,6 +40,7 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
   location,
   achievements,
   techStack,
+  titleLevel,
   className = '',
   fullWidth,
   style,
@@ -50,7 +52,9 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
     >
       <div className={styles.header}>
         <div className={styles.titleSection}>
-          <h3 className={styles.title}>{title}</h3>
+          <CardTitle as={titleLevel} className={styles.title}>
+            {title}
+          </CardTitle>
           {company && (
             <Paragraph as="span" weight="semibold">
               {company}
@@ -76,15 +80,15 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
       )}
       {achievements && achievements.length > 0 && (
         <ul className={styles.achievements}>
-          {achievements.map((achievement, index) => (
-            <li key={index}>{achievement}</li>
+          {achievements.map((achievement) => (
+            <li key={achievement}>{achievement}</li>
           ))}
         </ul>
       )}
       {techStack && techStack.length > 0 && (
         <div className={styles.techStack}>
-          {techStack.map((tech, index) => (
-            <span key={index} className={styles.techBadge}>
+          {techStack.map((tech) => (
+            <span key={tech} className={styles.techBadge}>
               {tech}
             </span>
           ))}

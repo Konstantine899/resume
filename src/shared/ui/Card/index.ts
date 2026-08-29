@@ -14,6 +14,11 @@ export type {
   CardBodyProps,
   CardFooterProps,
   CardImageProps,
+  CardTitleProps,
+  CardDescriptionProps,
+  CardActionsProps,
+  CardGridProps,
+  CardMetaProps,
 } from './model/types';
 
 // Constants for configuration and validation

@@ -2,12 +2,21 @@
 
 @use '@/shared/styles/variables/shadows' as *;
 
+/// CARD-P2-3: disable transitions for users who prefer reduced motion.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 @mixin card {
   height: 220px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: $shadow-sm;
   transition: box-shadow 0.2s ease;
+
+  @include reduced-motion;
 
   &:hover {
     box-shadow: $shadow-md;

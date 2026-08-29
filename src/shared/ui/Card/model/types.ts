@@ -63,7 +63,7 @@ export interface CardOwnProps {
 }
 
 /**
- * Props для базового компонента Card (default = button)
+ * Props для базового компонента Card (default = div)
  */
 export type BaseCardProps<C extends ElementType = 'div'> = PolymorphicProps<C, CardOwnProps>;
 
@@ -88,6 +88,8 @@ export interface ProjectCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   link?: string | null;
   linkLabel?: string;
   builtUsingLabel?: string;
+  /** CARD-P2-1: context-aware heading level for the title (delegates to CardTitle `as`). Defaults to `h3`. */
+  titleLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
   style?: CSSProperties;
 }
@@ -103,6 +105,8 @@ export interface WorkHistoryCardProps extends Omit<CardOwnProps, 'variant' | 'si
   location?: string;
   achievements?: string[];
   techStack?: string[];
+  /** CARD-P2-1: context-aware heading level for the title (delegates to CardTitle `as`). Defaults to `h3`. */
+  titleLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
   style?: CSSProperties;
 }
@@ -114,6 +118,8 @@ export interface ContactCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   title?: string;
   icon?: ReactNode;
   children?: ReactNode;
+  /** CARD-P2-1: context-aware heading level for the title (delegates to CardTitle `as`). Defaults to `h3`. */
+  titleLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
   style?: CSSProperties;
 }
