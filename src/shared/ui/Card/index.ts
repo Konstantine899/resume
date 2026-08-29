@@ -6,13 +6,7 @@
 export type { BaseCardProps, CardVariant, CardSize, CardRadius, TechIcon } from './model/types';
 
 // Specialized card types
-export type {
-  ProjectCardProps,
-  WorkHistoryCardProps,
-  ContactCardProps,
-  SkillCardProps,
-  AboutCardProps,
-} from './model/types';
+export type { ProjectCardProps, WorkHistoryCardProps, ContactCardProps } from './model/types';
 
 // Composition API types
 export type {
@@ -21,9 +15,6 @@ export type {
   CardFooterProps,
   CardImageProps,
 } from './model/types';
-
-// Event types
-export type { CardClickEvent, CardClickHandler, CardHoverHandler } from './model/types';
 
 // Constants for configuration and validation
 export { CARD_CONSTANTS } from './model/constants';

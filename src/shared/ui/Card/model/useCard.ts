@@ -93,7 +93,12 @@ export function useCard({
   href,
   isLink,
 }: UseCardConfig): UseCardReturn {
-  const safeVariant = variant ?? CARD_CONSTANTS.DEFAULT_VARIANT;
+  // CARD-P1-4: clamp an invalid variant string to DEFAULT_VARIANT so a stray
+  // value never survives into `styles[safeVariant]` (which would resolve undefined).
+  const safeVariant: CardOwnProps['variant'] =
+    variant !== undefined && CARD_CONSTANTS.VALID_VARIANTS.includes(variant)
+      ? variant
+      : CARD_CONSTANTS.DEFAULT_VARIANT;
   const safeSize = size ?? CARD_CONSTANTS.DEFAULT_SIZE;
   const safeRadius = radius ?? CARD_CONSTANTS.DEFAULT_RADIUS;
 
@@ -101,7 +106,13 @@ export function useCard({
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      const warnings = validateCardProps(safeVariant, safeSize, safeRadius, hoverable, onClick);
+      // Pass the ORIGINAL `variant` (not the clamped safeVariant) so the
+      // dev-only invalid-variant warning still fires for stray strings.
+      const warnings = validateCardProps(
+        variant ?? CARD_CONSTANTS.DEFAULT_VARIANT,
+        safeSize,
+        safeRadius
+      );
       warnings.forEach((w: { message: string }) => {
         // eslint-disable-next-line no-console
         console.warn(w.message);
@@ -118,7 +129,7 @@ export function useCard({
         );
       }
     }
-  }, [safeVariant, safeSize, safeRadius, hoverable, onClick, component, href, isLink]);
+  }, [safeVariant, safeSize, safeRadius, hoverable, onClick, component, href, isLink, variant]);
 
   const cardClasses = useMemo(
     () =>
