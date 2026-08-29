@@ -31,7 +31,8 @@
     "storybook:test": "test-storybook",
     "test:storybook": "vitest --project=storybook",
     "lint:storybook": "eslint .storybook/**/* --max-warnings 0",
-    "validate:continue": "continue validate --fsd --style --test --quick"
+    "validate:continue": "continue validate --fsd --style --test --quick",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +40,7 @@
   "type": "module",
   "devDependencies": {
     "@chromatic-com/storybook": "^5.1.2",
+    "chromatic": "^18.7.1",
     "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@playwright/test": "^1.62.1",
