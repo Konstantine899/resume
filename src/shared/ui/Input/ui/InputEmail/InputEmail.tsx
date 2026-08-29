@@ -4,33 +4,11 @@
 
 import React from 'react';
 import { Input } from '../Input';
-import type { InputSize, InputVariant } from '../../model/types';
+import type { InputProps } from '../../model/types';
 import { Mail } from 'lucide-react';
 import { Icon } from '@/shared/ui/Icon';
 
-export interface InputEmailProps {
-  variant?: InputVariant;
-  size?: InputSize;
-  className?: string;
-  label?: string;
-  error?: string;
-  success?: boolean;
-  loading?: boolean;
-  skeleton?: boolean;
-  fullWidth?: boolean;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-  value?: string;
-  defaultValue?: string;
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  onBlur?: React.FocusEventHandler<HTMLInputElement>;
-  autoComplete?: string;
-  /** Form field name — required for form serialization (e.g. EmailJS sendForm). */
-  name?: string;
-}
+export type InputEmailProps = InputProps;
 
 /**
  * InputEmail — специализированный input для email адресов.
@@ -51,7 +29,7 @@ export const InputEmail = React.memo(
         <Input
           ref={ref}
           type="email"
-          icon={<Icon name={Mail} size={18} color="inherit" decorative />}
+          icon={<Icon name={Mail} color="inherit" decorative />}
           placeholder={placeholder}
           autoComplete={autoComplete}
           data-testid="input-email"

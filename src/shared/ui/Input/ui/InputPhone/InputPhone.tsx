@@ -4,31 +4,11 @@
 
 import React from 'react';
 import { Input } from '../Input';
-import type { InputSize, InputVariant } from '../../model/types';
+import type { InputProps } from '../../model/types';
 import { Phone } from 'lucide-react';
 import { Icon } from '@/shared/ui/Icon';
 
-export interface InputPhoneProps {
-  variant?: InputVariant;
-  size?: InputSize;
-  className?: string;
-  label?: string;
-  error?: string;
-  success?: boolean;
-  loading?: boolean;
-  skeleton?: boolean;
-  fullWidth?: boolean;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-  value?: string;
-  defaultValue?: string;
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  onBlur?: React.FocusEventHandler<HTMLInputElement>;
-  autoComplete?: string;
-}
+export type InputPhoneProps = InputProps;
 
 /**
  * InputPhone — специализированный input для телефонных номеров.
@@ -58,10 +38,9 @@ export const InputPhone = React.memo(
         <Input
           ref={ref}
           type="tel"
-          icon={<Icon name={Phone} size={18} color="inherit" decorative />}
+          icon={<Icon name={Phone} color="inherit" decorative />}
           placeholder={defaultPlaceholder}
           autoComplete={autoComplete}
-          role="tel"
           data-testid="input-phone"
           {...props}
         />

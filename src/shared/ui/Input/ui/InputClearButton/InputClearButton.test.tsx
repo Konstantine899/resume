@@ -27,9 +27,9 @@ describe('InputClearButton', () => {
     expect(screen.getByLabelText('Очистить')).toBeInTheDocument();
   });
 
-  it('has tabIndex -1 by default', () => {
+  it('has tabIndex 0 by default', () => {
     render(<InputClearButton onClick={vi.fn()} />);
-    expect(screen.getByRole('button')).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByRole('button')).toHaveAttribute('tabindex', '0');
   });
 
   it('accepts custom tabIndex', () => {

@@ -9,7 +9,6 @@ export interface UsePasswordToggleResult {
   showPassword: boolean;
   inputType: string | undefined;
   handleTogglePassword: () => void;
-  handlePasswordToggleKeyDown: (e: React.KeyboardEvent) => void;
   isPassword: boolean;
 }
 
@@ -24,21 +23,10 @@ export function usePasswordToggle(options: UsePasswordToggleOptions): UsePasswor
     setShowPassword((prev) => !prev);
   }, []);
 
-  const handlePasswordToggleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleTogglePassword();
-      }
-    },
-    [handleTogglePassword]
-  );
-
   return {
     showPassword,
     inputType,
     handleTogglePassword,
-    handlePasswordToggleKeyDown,
     isPassword,
   };
 }

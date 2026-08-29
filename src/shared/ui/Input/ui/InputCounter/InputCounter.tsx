@@ -2,7 +2,7 @@
 // InputCounter Component
 // ============================================
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { INPUT_CONSTANTS } from '../../model/constants';
 import styles from '../Input.module.scss';
 
@@ -11,6 +11,7 @@ export interface InputCounterProps {
   max: number;
   warningThreshold?: number;
   'data-testid'?: string;
+  id?: string;
 }
 
 /**
@@ -22,20 +23,32 @@ export interface InputCounterProps {
  * ```
  */
 export const InputCounter = React.memo(
-  ({
-    current,
-    max,
-    warningThreshold = INPUT_CONSTANTS.COUNTER_WARNING_THRESHOLD,
-    'data-testid': dataTestId,
-  }: InputCounterProps) => {
-    const isWarning = current >= max * warningThreshold;
+  forwardRef<HTMLSpanElement, InputCounterProps>(
+    (
+      {
+        current,
+        max,
+        warningThreshold = INPUT_CONSTANTS.COUNTER_WARNING_THRESHOLD,
+        'data-testid': dataTestId,
+        id,
+      },
+      ref
+    ) => {
+      const isWarning = current >= max * warningThreshold;
 
-    return (
-      <span className={styles.counter} data-testid={dataTestId}>
-        <span className={isWarning ? styles.warning : ''}>{current}</span>/{max}
-      </span>
-    );
-  }
+      return (
+        <span
+          ref={ref}
+          id={id}
+          className={styles.counter}
+          data-testid={dataTestId}
+          aria-live="polite"
+        >
+          <span className={isWarning ? styles.warning : ''}>{current}</span>/{max}
+        </span>
+      );
+    }
+  )
 );
 
 InputCounter.displayName = 'InputCounter';
