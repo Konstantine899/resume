@@ -36,7 +36,7 @@ export const ModalForm = memo((props: ModalFormProps) => {
           <Button
             variant="primary"
             loading={loading}
-            disabled={disableSubmit}
+            disabled={loading || disableSubmit}
             type="submit"
             form="modal-form"
           >
