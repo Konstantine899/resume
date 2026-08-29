@@ -6,6 +6,7 @@ import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Link } from '@/shared/ui/Link';
+import { CardTitle } from '../CardTitle';
 import type { ProjectCardProps } from '../../model/types';
 import { sanitizeBackgroundImage } from '../../lib/utils/sanitizeBackgroundImage';
 import styles from './ProjectCard.module.scss';
@@ -39,6 +40,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   link,
   builtUsingLabel = 'Создано с помощью',
   linkLabel = 'Ссылка',
+  titleLevel,
   className = '',
   fullWidth,
   style,
@@ -58,9 +60,13 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
       <div className={styles.gradientOverlay} />
 
       <div className={styles.content}>
-        {title && <h3 className={styles.title}>{title}</h3>}
+        {title && (
+          <CardTitle as={titleLevel} className={styles.title}>
+            {title}
+          </CardTitle>
+        )}
         {description && (
-          <Paragraph lineClamp={3} theme="muted">
+          <Paragraph className={styles.description} lineClamp={2} theme="muted">
             {description}
           </Paragraph>
         )}
@@ -72,7 +78,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             <div className={styles.techIcons}>
               {techIcons.map((tech, index) => (
                 <img
-                  key={index}
+                  key={tech.url ?? tech.name ?? index}
                   src={tech.url}
                   alt={tech.name || 'Tech icon'}
                   className={styles.techIcon}

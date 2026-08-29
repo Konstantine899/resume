@@ -13,6 +13,7 @@ import type {
   WorkHistoryCardProps,
   ContactCardProps,
 } from '../model/types';
+import { CARD_CONSTANTS } from '../model/constants';
 import { Container } from '@/shared/ui/Container';
 import { Link } from '@/shared/ui/Link';
 import { ProjectCard } from './ProjectCard';
@@ -178,7 +179,8 @@ const CardImpl = forwardRef(function Card<C extends ElementType = 'div'>(
 
   // For 'skill' and 'about' variants, wrap content in Container for max-width and centering
   const shouldUseContainer = safeVariant === 'skill' || safeVariant === 'about';
-  const containerSize = safeVariant === 'skill' ? 'xl' : 'lg';
+  // CARD-P2-2: size is driven by the extracted constant (skill->xl, about->lg).
+  const containerSize = CARD_CONSTANTS.VARIANT_CONTAINER_SIZE[safeVariant as 'skill' | 'about'];
 
   const Tag = (component ?? 'div') as ElementType;
 

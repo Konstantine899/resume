@@ -153,9 +153,7 @@ $card-hover-scale: 1.01;
       color 0.4s,
       box-shadow 0.4s;
 
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
+    @include reduced-motion;
 
     @include lg {
       padding: $contact-padding-lg;
@@ -228,6 +226,8 @@ $card-hover-scale: 1.01;
     border-radius: $radius-xl;
     backdrop-filter: blur(4px);
     transition: background-color 0.5s ease;
+
+    @include reduced-motion;
 
     @include sm {
       padding: $spacing-4;
@@ -386,6 +386,8 @@ $card-hover-scale: 1.01;
       border: 1px solid rgb(244 179 119 / 0.3);
       border-radius: $radius-full;
       transition: all $transition-duration $transition-easing;
+
+      @include reduced-motion;
 
       &:hover {
         background: rgb(244 179 119 / 0.2);

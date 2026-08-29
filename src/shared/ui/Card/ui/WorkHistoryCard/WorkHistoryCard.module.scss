@@ -1,5 +1,6 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
+@use '@/shared/ui/Card/model/card-mixins' as *;
 
 .workHistoryCard {
   position: relative;
@@ -9,6 +10,8 @@
   border-radius: $radius-xl;
   backdrop-filter: blur(4px);
   transition: background-color 0.5s ease;
+
+  @include reduced-motion;
 
   @include sm {
     padding: $spacing-4;
@@ -44,9 +47,12 @@
 
   .title {
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: $font-size-sm;
     font-weight: 600;
     color: #f4b377;
+    white-space: nowrap;
 
     @include sm {
       font-size: $font-size-base;
@@ -146,6 +152,8 @@
     border: 1px solid rgb(244 179 119 / 0.3);
     border-radius: $radius-full;
     transition: all $transition-duration $transition-easing;
+
+    @include reduced-motion;
 
     &:hover {
       background: rgb(244 179 119 / 0.2);

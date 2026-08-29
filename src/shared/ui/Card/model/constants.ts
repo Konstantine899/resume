@@ -23,6 +23,15 @@ export const CARD_CONSTANTS = {
   DEFAULT_SIZE: 'default' as const,
   DEFAULT_VARIANT: 'default' as const,
   /**
+   * CARD-P2-2: container size per variant.
+   * Extracted from the hardcoded `skill->xl` / `about->lg` literals in Card.tsx
+   * so the skill/about Container wrapping is driven by a single source of truth.
+   */
+  VARIANT_CONTAINER_SIZE: {
+    skill: 'xl',
+    about: 'lg',
+  } as const,
+  /**
    * Allow-list of hosts permitted for `ProjectCard` `backgroundImage`.
    * Empty by default (same-origin only) — see sanitizeBackgroundImage.
    */
