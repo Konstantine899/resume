@@ -43,10 +43,6 @@
     @include variant-sidebar;
   }
 
-  &.danger {
-    @include variant-danger;
-  }
-
   // Color schemes
   @include color-schemes;
 
@@ -123,6 +119,12 @@
       width: 50%;
       height: 50%;
     }
+  }
+
+  &.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 
   // ============================================

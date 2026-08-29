@@ -26,6 +26,8 @@ export const BUTTON_CONSTANTS = {
   ] as const satisfies readonly ButtonColorScheme[],
   VALID_LOADING_VARIANTS: ['spinner', 'skeleton'] as const satisfies readonly LoadingVariant[],
   DEFAULT_SPINNER_LABEL: 'Loading',
+  LOADER_SPINNER_SIZE: 'sm',
+  LOADER_SPINNER_COLOR: 'secondary',
 } as const;
 
 /**

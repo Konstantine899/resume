@@ -87,10 +87,12 @@ describe('IconButton', () => {
       expect(screen.getByRole('button')).toBeDisabled();
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('должен иметь aria-busy и aria-disabled при loading=true (не нативно disabled)', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Icon" loading />);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      expect(screen.getByRole('button')).not.toBeDisabled();
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
   });
 

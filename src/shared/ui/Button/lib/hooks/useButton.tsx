@@ -34,7 +34,7 @@ export interface UseButtonOptions {
    * @description When provided, the hook uses these styles instead of the default Button styles.
    * Allows IconButton and ButtonWithIcon to reuse the hook with their own CSS modules.
    */
-  styles?: Record<string, string>;
+  moduleStyles?: Record<string, string>;
 }
 
 /**
@@ -47,6 +47,8 @@ export interface UseButtonReturn {
   contentClassName: string;
   /** Guarded click handler that prevents interaction when disabled or loading */
   handleClick: React.MouseEventHandler;
+  /** Keyboard handler that triggers click on Enter/Space for non-native elements */
+  handleKeyDown: React.KeyboardEventHandler;
   /** Loader element (Spinner/Skeleton) or null when not loading */
   loader: ReactNode | null;
 }
@@ -55,11 +57,12 @@ export interface UseButtonReturn {
  * Shared hook that consolidates Button logic duplicated across Button, ButtonWithIcon, and IconButton.
  *
  * @remarks
- * Handles className computation, guarded click handling, runtime validation, and loader rendering.
- * All three button components use this hook internally.
+ * Handles className computation (including the `danger -> primary + danger color-scheme`
+ * resolution), guarded click/keyboard handling, runtime validation (incl. colorScheme),
+ * and loader rendering. All three button components use this hook internally.
  *
  * @param options - Configuration matching the common button props
- * @returns Computed class names, event handler, and loader element
+ * @returns Computed class names, event handlers, and loader element
  */
 export const useButton = ({
   variant,
@@ -71,38 +74,44 @@ export const useButton = ({
   disabled,
   className,
   onClick,
-  styles: customStyles,
+  moduleStyles: customStyles,
 }: UseButtonOptions): UseButtonReturn => {
   // Use custom styles (for IconButton/ButtonWithIcon) or default to Button styles
   const s = customStyles ?? buttonStyles;
-  // Runtime validation in development mode
+
+  // Runtime validation in development mode (includes colorScheme validation)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      const warnings = validateButtonProps(variant, size, loadingVariant, loading);
+      const warnings = validateButtonProps(variant, size, loadingVariant, loading, colorScheme);
       warnings.forEach((w) => {
         // eslint-disable-next-line no-console
         console.warn(w.message);
       });
     }
-  }, [variant, size, loadingVariant, loading]);
+  }, [variant, size, loadingVariant, loading, colorScheme]);
+
+  // Resolve the `danger` variant to its visual + semantic representation once, here,
+  // so the three components don't each duplicate the mapping.
+  const effectiveVariant: ButtonVariant = variant === 'danger' ? 'primary' : variant;
+  const effectiveScheme = colorScheme ?? (variant === 'danger' ? 'danger' : undefined);
 
   // Memoize className calculation
   const buttonClassName = useMemo(
     () =>
       classNames(
         s.button,
-        s[variant],
+        s[effectiveVariant],
         s[size],
-        colorScheme && s[`color-scheme-${colorScheme}`],
+        effectiveScheme && s[`color-scheme-${effectiveScheme}`],
         loading && s.loading,
         fullWidth && s.fullWidth,
         className
       ),
-    [variant, size, colorScheme, loading, fullWidth, className, s]
+    [effectiveVariant, effectiveScheme, size, loading, fullWidth, className, s]
   );
 
   // Memoize content className
-  const contentClassName = useMemo(() => classNames(s.content, loading && s.hidden), [loading, s]);
+  const contentClassName = useMemo(() => classNames(s.content), [s]);
 
   // Memoize guarded click handler
   const handleClick = useCallback(
@@ -112,6 +121,20 @@ export const useButton = ({
         return;
       }
       onClick?.(event);
+    },
+    [disabled, loading, onClick]
+  );
+
+  // Keyboard activation for non-native interactive elements (div/span with role="button")
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent): void => {
+      if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+        if (disabled || loading) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event as unknown as React.MouseEvent);
+      }
     },
     [disabled, loading, onClick]
   );
@@ -129,6 +152,7 @@ export const useButton = ({
     buttonClassName,
     contentClassName,
     handleClick,
+    handleKeyDown,
     loader,
   };
 };

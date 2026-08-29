@@ -31,70 +31,6 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type LoadingVariant = 'spinner' | 'skeleton';
 
 // ============================================
-// Base props для всех кнопок
-// ============================================
-
-/**
- * Базовые props для всех типов кнопок
- * @description Содержит только props, используемые компонентами Button.
- * Без extends ButtonHTMLAttributes — type и другие button-атрибуты
- * проксируются через PolymorphicProps при component="button".
- * @group Base
- */
-interface BaseButtonProps {
-  /**
-   * Визуальный стиль кнопки
-   * @default 'primary'
-   */
-  variant?: ButtonVariant;
-
-  /**
-   * Размер кнопки
-   * @default 'md'
-   */
-  size?: ButtonSize;
-
-  /**
-   * HTML type атрибут
-   * @default 'button'
-   * @description Проксируется только при component="button"
-   */
-  type?: 'button' | 'submit' | 'reset';
-
-  /**
-   * Отключенное состояние
-   * @default false
-   * @description Блокирует взаимодействие и добавляет aria-disabled
-   */
-  disabled?: boolean;
-
-  /**
-   * Состояние загрузки
-   * @default false
-   * @description Скрывает контент и показывает loader
-   */
-  loading?: boolean;
-
-  /**
-   * Тип индикатора загрузки
-   * @default 'spinner'
-   * @description Выбирает между spinner и skeleton
-   */
-  loadingVariant?: LoadingVariant;
-
-  /**
-   * Растянуть на всю ширину контейнера
-   * @default false
-   */
-  fullWidth?: boolean;
-
-  /**
-   * Дополнительный CSS класс
-   */
-  className?: string;
-}
-
-// ============================================
 // Button — только текст
 // ============================================
 
@@ -111,30 +47,12 @@ interface BaseButtonProps {
  * @example
  * <Button loading>Loading...</Button>
  */
-export interface ButtonProps extends BaseButtonProps {
+export interface ButtonProps extends ButtonOwnProps {
   /**
    * Текстовый контент кнопки
    * @required
    */
   children: ReactNode;
-
-  /**
-   * Не используется для Button
-   * @internal
-   */
-  leftIcon?: undefined;
-
-  /**
-   * Не используется для Button
-   * @internal
-   */
-  rightIcon?: undefined;
-
-  /**
-   * Не используется для Button
-   * @internal
-   */
-  ariaLabel?: undefined;
 }
 
 // ============================================
@@ -162,7 +80,7 @@ export interface ButtonProps extends BaseButtonProps {
  *   size="lg"
  * />
  */
-export interface IconButtonProps extends BaseButtonProps {
+export interface IconButtonProps extends ButtonOwnProps {
   /**
    * React компонент иконки (обычно из lucide-react)
    * @required
@@ -176,24 +94,6 @@ export interface IconButtonProps extends BaseButtonProps {
    * @description Обязательно для accessibility
    */
   ariaLabel: string;
-
-  /**
-   * Не используется для IconButton
-   * @internal
-   */
-  children?: undefined;
-
-  /**
-   * Не используется для IconButton
-   * @internal
-   */
-  leftIcon?: undefined;
-
-  /**
-   * Не используется для IconButton
-   * @internal
-   */
-  rightIcon?: undefined;
 }
 
 // ============================================
@@ -221,7 +121,7 @@ export interface IconButtonProps extends BaseButtonProps {
  *   Навигация
  * </ButtonWithIcon>
  */
-export interface ButtonWithIconProps extends BaseButtonProps {
+export interface ButtonWithIconProps extends ButtonOwnProps {
   /**
    * Текстовый контент кнопки
    * @required
@@ -241,18 +141,6 @@ export interface ButtonWithIconProps extends BaseButtonProps {
    * @example <ArrowRight size={18} />
    */
   rightIcon?: ReactNode;
-
-  /**
-   * Не используется для ButtonWithIcon
-   * @internal
-   */
-  icon?: undefined;
-
-  /**
-   * Не используется для ButtonWithIcon
-   * @internal
-   */
-  ariaLabel?: undefined;
 }
 
 // ============================================
@@ -293,8 +181,13 @@ export interface ButtonOwnProps {
   className?: string;
   onClick?: React.MouseEventHandler;
   /**
+   * HTML type атрибут (только для component="button")
+   * @default 'button'
+   */
+  type?: 'button' | 'submit' | 'reset';
+  /**
    * Render the button as a child element instead of creating its own DOM node.
-   * @description When true, the button clones its single child and merges all
+   * @description When true, the button clones its single child (or `icon`) and merges all
    * button props (styles, events, aria attributes) into it. Useful for composition
    * with `<a>`, `<Link>`, or other custom components.
    *
