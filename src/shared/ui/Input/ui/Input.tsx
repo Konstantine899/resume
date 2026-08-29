@@ -14,11 +14,14 @@ import { INPUT_CONSTANTS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
 import { validateInputProps } from '../lib/utils/validateInputProps';
 import { inferIconSize } from '../lib/utils/inferIconSize';
+import { sanitizeHref } from '../lib/utils/safeHref';
+import { sanitizeAnchorProps } from '../lib/utils/sanitizeAnchorProps';
 import { useInput } from '../model/hooks/useInput';
 import { usePasswordToggle } from '../model/hooks/usePasswordToggle';
-import { ClearIcon } from './InputClearButton/InputClearIcon';
 import styles from './Input.module.scss';
 import { InputLabel } from './InputLabel/InputLabel';
+import { InputCounter } from './InputCounter/InputCounter';
+import { InputClearButton } from './InputClearButton/InputClearButton';
 
 /**
  * Input Component — универсальный компонент поля ввода с поддержкой полиморфизма.
@@ -30,7 +33,7 @@ import { InputLabel } from './InputLabel/InputLabel';
  * <Input label="Search" icon={<Search />} />
  * ```
  */
-function InputImpl<C extends React.ElementType = 'input'>(
+function InputImpl(
   {
     component,
     variant = 'default',
@@ -56,11 +59,13 @@ function InputImpl<C extends React.ElementType = 'input'>(
     asChild = false,
     children,
     ...props
-  }: PolymorphicProps<C, InputOwnProps>,
-  ref: React.ForwardedRef<React.ComponentRef<C>>
+  }: PolymorphicProps<React.ElementType, InputOwnProps>,
+  ref: React.ForwardedRef<React.ComponentRef<React.ElementType>>
 ) {
   const Tag = component || ('input' as React.ElementType);
   const isInputElement = Tag === 'input';
+  const isValueElement = Tag === 'input' || Tag === 'textarea' || Tag === 'select';
+  const resolvedProps = Tag === 'a' ? sanitizeAnchorProps(props as Record<string, unknown>) : props;
 
   // Генерация уникальных ID для accessibility
   const generatedId = useId();
@@ -73,6 +78,21 @@ function InputImpl<C extends React.ElementType = 'input'>(
   const inputRef = React.useRef<HTMLElement>(null);
   const mergedRef = useMergeRefs(ref as React.Ref<HTMLElement>, inputRef);
 
+  // asChild: resolve the single child element (or null) and merge its ref + sanitize anchor href
+  const onlyChild =
+    asChild && Children.count(children) === 1
+      ? (Children.only(children) as React.ReactElement)
+      : null;
+  const childProps = (onlyChild?.props as Record<string, unknown> | undefined) ?? {};
+  const childHref =
+    onlyChild && onlyChild.type === 'a' && typeof childProps.href === 'string'
+      ? sanitizeHref(childProps.href as string)
+      : undefined;
+  const childMergedRef = useMergeRefs(
+    mergedRef,
+    (childProps.ref as React.Ref<HTMLElement> | undefined) ?? null
+  );
+
   // useInput hook for value state, character count, and accessible states
   const rawProps = props as Record<string, unknown>;
   const {
@@ -81,7 +101,6 @@ function InputImpl<C extends React.ElementType = 'input'>(
     setInternalValue,
     charCount,
     showCharCounter,
-    isWarning,
     maxLengthValue,
     states,
     currentValue,
@@ -97,12 +116,13 @@ function InputImpl<C extends React.ElementType = 'input'>(
     skeleton,
   });
 
+  const ariaInvalid = Boolean(error) || (maxLengthValue != null && charCount > maxLengthValue);
+
   // usePasswordToggle hook
-  const { showPassword, inputType, handleTogglePassword, handlePasswordToggleKeyDown, isPassword } =
-    usePasswordToggle({
-      type: props.type as string | undefined,
-      showPasswordToggle,
-    });
+  const { showPassword, inputType, handleTogglePassword, isPassword } = usePasswordToggle({
+    type: props.type as string | undefined,
+    showPasswordToggle,
+  });
 
   // Обработчик очистки (memoized)
   const handleClear = useCallback(() => {
@@ -151,13 +171,21 @@ function InputImpl<C extends React.ElementType = 'input'>(
   });
 
   // Accessibility props
-  const describedBy = error
-    ? errorId
-    : helperText
-      ? helperId
-      : showCharCounter
-        ? counterId
-        : undefined;
+  const describedByIds = [
+    error ? errorId : undefined,
+    helperText && !error ? helperId : undefined,
+    showCharCounter ? counterId : undefined,
+  ].filter(Boolean) as string[];
+  const describedBy = describedByIds.length > 0 ? describedByIds.join(' ') : undefined;
+  const dataStatus = error
+    ? 'error'
+    : success
+      ? 'success'
+      : loading
+        ? 'loading'
+        : skeleton
+          ? 'skeleton'
+          : undefined;
 
   return (
     <div
@@ -166,17 +194,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
       data-state={states.length > 0 ? states.join(' ') : undefined}
       data-size={size}
       data-variant={variant}
-      data-status={
-        error
-          ? 'error'
-          : success
-            ? 'success'
-            : loading
-              ? 'loading'
-              : skeleton
-                ? 'skeleton'
-                : undefined
-      }
+      data-status={dataStatus}
       data-skeleton={skeleton || undefined}
       aria-busy={skeleton || undefined}
     >
@@ -202,56 +220,55 @@ function InputImpl<C extends React.ElementType = 'input'>(
         )}
 
         {skeleton ? (
-          <Skeleton variant="text" width="100%" height={INPUT_CONSTANTS.SKELETON_HEIGHT} />
-        ) : asChild && children ? (
-          /* asChild mode: clone child element with all input props */
-          /* eslint-disable react-hooks/refs */
-          cloneElement(
-            Children.only(children) as React.ReactElement,
-            {
-              ref: mergedRef,
-              id: inputId,
-              className: classNames(
-                inputClasses,
-                (children.props as Record<string, unknown>).className as string | undefined
-              ),
-              disabled: disabled || undefined,
-              readOnly: readOnly || undefined,
-              required: required || undefined,
-              'aria-required': required || undefined,
-              'aria-invalid': Boolean(error),
-              'aria-busy': loading ? true : undefined,
-              'aria-describedby': describedBy,
-              value: value || undefined,
-              onChange: (e: React.ChangeEvent<HTMLElement>) => {
-                if (!isControlled) {
-                  setInternalValue((e.target as HTMLInputElement).value);
-                }
-                (props.onChange as React.ChangeEventHandler<HTMLElement> | undefined)?.(e);
-              },
-              onBlur: (e: React.FocusEvent<HTMLElement>) => {
-                (props.onBlur as React.FocusEventHandler<HTMLElement> | undefined)?.(e);
-              },
-              placeholder: variant === 'floating' ? ' ' : props.placeholder,
-              type: inputType,
-              ...props,
-            } as Record<string, unknown>
-          )
+          <Skeleton
+            variant="text"
+            width={INPUT_CONSTANTS.SKELETON_WIDTH}
+            height={INPUT_CONSTANTS.SKELETON_HEIGHT}
+          />
+        ) : onlyChild ? (
+          /* asChild mode: clone the single child, merging its ref + sanitizing anchor href */
+          cloneElement(onlyChild, {
+            ...props,
+            ...(childHref !== undefined ? { href: childHref } : {}),
+            ref: childMergedRef,
+            id: inputId,
+            className: classNames(inputClasses, (childProps.className as string | undefined) ?? ''),
+            disabled: disabled || undefined,
+            readOnly: readOnly || undefined,
+            required: required || undefined,
+            'aria-required': required || undefined,
+            'aria-invalid': ariaInvalid,
+            'aria-busy': loading ? true : undefined,
+            'aria-disabled': disabled || loading || undefined,
+            'aria-describedby': describedBy,
+            value: value || undefined,
+            onChange: (e: React.ChangeEvent<HTMLElement>) => {
+              if (!isControlled) {
+                setInternalValue((e.target as HTMLInputElement).value);
+              }
+              (props.onChange as React.ChangeEventHandler<HTMLElement> | undefined)?.(e);
+            },
+            onBlur: (e: React.FocusEvent<HTMLElement>) => {
+              (props.onBlur as React.FocusEventHandler<HTMLElement> | undefined)?.(e);
+            },
+            placeholder: variant === 'floating' ? ' ' : props.placeholder,
+            type: inputType,
+          } as Record<string, unknown>)
         ) : (
-          /* eslint-enable react-hooks/refs */
           <Tag
             ref={mergedRef}
-            {...props}
+            {...resolvedProps}
             id={inputId}
             className={inputClasses}
             disabled={isInputElement ? disabled : undefined}
             readOnly={isInputElement ? readOnly : undefined}
             required={isInputElement ? required : undefined}
             aria-required={required || undefined}
-            aria-invalid={Boolean(error)}
+            aria-invalid={ariaInvalid}
+            aria-disabled={disabled || loading || undefined}
             aria-busy={loading ? true : undefined}
             aria-describedby={describedBy}
-            value={isInputElement ? value : undefined}
+            value={isValueElement ? value : undefined}
             onChange={(e: React.ChangeEvent<HTMLElement>) => {
               if (!isControlled) {
                 setInternalValue((e.target as HTMLInputElement).value);
@@ -279,7 +296,6 @@ function InputImpl<C extends React.ElementType = 'input'>(
             type="button"
             className={styles.passwordToggle ?? ''}
             onClick={handleTogglePassword}
-            onKeyDown={handlePasswordToggleKeyDown}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
             tabIndex={0}
@@ -298,17 +314,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
           !disabled &&
           !readOnly &&
           !loading &&
-          !skeleton && (
-            <button
-              type="button"
-              className={styles.clearButton ?? ''}
-              onClick={handleClear}
-              aria-label="Clear input"
-              tabIndex={0}
-            >
-              <ClearIcon />
-            </button>
-          )}
+          !skeleton && <InputClearButton onClick={handleClear} />}
 
         {iconAfter && !loading && !clearable && !skeleton && (
           <span className={styles.iconAfter ?? ''} aria-hidden="true">
@@ -336,15 +342,12 @@ function InputImpl<C extends React.ElementType = 'input'>(
       )}
 
       {showCharCounter && !skeleton && (
-        <span
+        <InputCounter
+          current={charCount}
+          max={maxLengthValue ?? 0}
           id={counterId}
-          className={styles.counter ?? ''}
           data-testid="counter"
-          aria-live="polite"
-        >
-          <span className={isWarning ? (styles.warning ?? '') : ''}>{charCount}</span>/
-          {maxLengthValue}
-        </span>
+        />
       )}
     </div>
   );
@@ -352,9 +355,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
 
 InputImpl.displayName = 'Input';
 
-export const Input = React.memo(
-  InputImpl as React.FC<PolymorphicProps<React.ElementType, InputOwnProps>>
-) as <C extends React.ElementType = 'input'>(
+export const Input = React.forwardRef(InputImpl) as <C extends React.ElementType = 'input'>(
   props: PolymorphicProps<C, InputOwnProps> & {
     ref?: React.ForwardedRef<React.ComponentRef<C>>;
   }

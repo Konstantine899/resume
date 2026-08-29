@@ -32,10 +32,3 @@ export type PolymorphicProps<C extends React.ElementType, P = Record<string, nev
 export type InputProps = InputOwnProps & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 export type InputStatus = 'error' | 'success' | 'loading' | 'skeleton';
-
-export interface InputGroupProps {
-  children: React.ReactNode;
-  className?: string;
-  size?: InputSize;
-  variant?: InputVariant;
-}

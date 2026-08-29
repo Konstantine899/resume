@@ -10,8 +10,8 @@ export const validateInputProps = (
   size: string,
   showCounter?: boolean,
   maxLength?: number,
-  _disabled?: boolean,
-  _loading?: boolean
+  loading?: boolean,
+  disabled?: boolean
 ): InputValidationWarning[] => {
   const warnings: InputValidationWarning[] = [];
 
@@ -36,6 +36,14 @@ export const validateInputProps = (
       prop: 'maxLength',
       message:
         '[Input] showCounter is true but maxLength is not set. Counter will not display correctly.',
+    });
+  }
+
+  if (loading && disabled) {
+    warnings.push({
+      prop: 'loading',
+      message:
+        '[Input] `loading` and `disabled` are both set. Native `disabled` removes the element from the accessibility tree, so `aria-busy` is inert — screen readers announce "disabled", not "loading". Prefer `loading` alone (aria-busy + aria-disabled) or drop `loading` when `disabled` is required.',
     });
   }
 

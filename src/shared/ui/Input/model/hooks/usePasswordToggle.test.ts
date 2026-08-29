@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { usePasswordToggle } from './usePasswordToggle';
-import React from 'react';
 
 describe('usePasswordToggle', () => {
   it('returns inputType as-is when type is not password', () => {
@@ -40,33 +39,15 @@ describe('usePasswordToggle', () => {
     expect(result.current.showPassword).toBe(false);
   });
 
-  it('handlePasswordToggleKeyDown triggers on Enter', () => {
+  it('toggles via the button click handler only (no keydown double-toggle)', () => {
     const { result } = renderHook(() =>
       usePasswordToggle({ type: 'password', showPasswordToggle: true })
     );
-    const event = { key: 'Enter', preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
-    act(() => result.current.handlePasswordToggleKeyDown(event));
-    expect(event.preventDefault).toHaveBeenCalled();
+    // The native <button> handles Enter/Space; the hook must NOT expose a separate keydown handler.
+    expect(
+      (result.current as unknown as Record<string, unknown>).handlePasswordToggleKeyDown
+    ).toBeUndefined();
+    act(() => result.current.handleTogglePassword());
     expect(result.current.showPassword).toBe(true);
-  });
-
-  it('handlePasswordToggleKeyDown triggers on Space', () => {
-    const { result } = renderHook(() =>
-      usePasswordToggle({ type: 'password', showPasswordToggle: true })
-    );
-    const event = { key: ' ', preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
-    act(() => result.current.handlePasswordToggleKeyDown(event));
-    expect(event.preventDefault).toHaveBeenCalled();
-    expect(result.current.showPassword).toBe(true);
-  });
-
-  it('handlePasswordToggleKeyDown ignores other keys', () => {
-    const { result } = renderHook(() =>
-      usePasswordToggle({ type: 'password', showPasswordToggle: true })
-    );
-    const event = { key: 'Tab', preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
-    act(() => result.current.handlePasswordToggleKeyDown(event));
-    expect(event.preventDefault).not.toHaveBeenCalled();
-    expect(result.current.showPassword).toBe(false);
   });
 });

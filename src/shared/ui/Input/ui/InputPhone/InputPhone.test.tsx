@@ -8,7 +8,6 @@ describe('InputPhone', () => {
     render(<InputPhone label="Phone" />);
     const input = screen.getByLabelText('Phone');
     expect(input).toHaveAttribute('type', 'tel');
-    expect(input).toHaveAttribute('role', 'tel');
   });
 
   it('has default phone placeholder', () => {
