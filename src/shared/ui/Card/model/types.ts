@@ -27,13 +27,7 @@ export type PolymorphicProps<C extends ElementType, P = Record<string, never>> =
  * Варианты стилей карточки
  */
 export type CardVariant =
-  | 'default'
-  | 'project'
-  | 'workHistory'
-  | 'skill'
-  | 'about'
-  | 'codeBlock'
-  | 'contact';
+  'default' | 'project' | 'workHistory' | 'skill' | 'about' | 'codeBlock' | 'contact';
 
 /**
  * Размеры карточки
@@ -72,6 +66,12 @@ export interface CardOwnProps {
  * Props для базового компонента Card (default = button)
  */
 export type BaseCardProps<C extends ElementType = 'div'> = PolymorphicProps<C, CardOwnProps>;
+
+/**
+ * Props для базового компонента Card.
+ * @remarks Default polymorphic element is `div` (was incorrectly documented as `button`).
+ */
+export type CardProps<C extends ElementType = 'div'> = BaseCardProps<C>;
 
 // ============================================
 // Specialized Card Props

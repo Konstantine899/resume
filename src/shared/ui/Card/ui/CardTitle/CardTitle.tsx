@@ -1,3 +1,5 @@
+import { forwardRef, memo } from 'react';
+import type { ForwardedRef } from 'react';
 import { Heading } from '@/shared/ui/Heading';
 import type { CardTitleProps } from '../../model/types';
 
@@ -14,20 +16,24 @@ import type { CardTitleProps } from '../../model/types';
  * </Card>
  * ```
  */
-export const CardTitle: React.FC<CardTitleProps> = ({
-  children,
-  className = '',
-  as = 'h3',
-  size = 'm',
-  theme = 'primary',
-  align,
-  ...props
-}) => {
-  return (
-    <Heading as={as} size={size} theme={theme} align={align} className={className} {...props}>
-      {children}
-    </Heading>
-  );
-};
-
+export const CardTitle = memo(
+  forwardRef<HTMLElement, CardTitleProps>(function CardTitle(
+    { children, className = '', as = 'h3', size = 'm', theme = 'primary', align, ...props },
+    ref
+  ) {
+    return (
+      <Heading
+        ref={ref as ForwardedRef<HTMLHeadingElement>}
+        as={as}
+        size={size}
+        theme={theme}
+        align={align}
+        className={className}
+        {...props}
+      >
+        {children}
+      </Heading>
+    );
+  })
+);
 CardTitle.displayName = 'CardTitle';

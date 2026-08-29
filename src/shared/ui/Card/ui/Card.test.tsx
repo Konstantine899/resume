@@ -2,8 +2,9 @@
 // Card Component Tests
 // ============================================
 
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createRef } from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Card } from './Card';
 import { CardHeader } from './CardHeader';
 import { CardBody } from './CardBody';
@@ -648,5 +649,205 @@ describe('CardImage', () => {
     render(<CardImage src="/test.jpg" alt="Test" className="custom" />);
     const img = screen.getByAltText('Test');
     expect(img).toHaveAttribute('src', '/test.jpg');
+  });
+});
+
+// ============================================
+// CARD-P0-1 — type contract (no Record<string, any>)
+// ============================================
+
+describe('CARD-P0-1 type contract', () => {
+  it('rejects arbitrary props at the type level', () => {
+    // @ts-expect-error — `foo` is not a valid Card prop once Record<string, any> is removed
+    const el = <Card foo="bar">content</Card>;
+    expect(el).toBeTruthy();
+  });
+
+  it('still compiles polymorphic component prop', () => {
+    const el = <Card component="section">section</Card>;
+    expect(el).toBeTruthy();
+  });
+});
+
+// ============================================
+// CARD-P0-2 — blocklist dangerous props (style preserved)
+// ============================================
+
+describe('CARD-P0-2 blocklist', () => {
+  it('strips dangerouslySetInnerHTML from rest', () => {
+    const { container } = render(
+      <Card dangerouslySetInnerHTML={{ __html: '<img id="injected" src=x onerror="alert(1)">' }}>
+        safe
+      </Card>
+    );
+    expect(container.querySelector('#injected')).toBeNull();
+    expect(screen.getByText('safe')).toBeInTheDocument();
+  });
+
+  it('preserves style passthrough as CSSProperties (D2)', () => {
+    const { container } = render(<Card style={{ color: 'red' }}>styled</Card>);
+    const root = container.firstChild as HTMLElement;
+    expect(root.style.color).toBe('red');
+  });
+
+  it('strips suppressHydrationWarning + onError while keeping normal props', () => {
+    const { container } = render(
+      <Card suppressHydrationWarning onError={() => {}} data-testid="keep-me">
+        content
+      </Card>
+    );
+    expect(screen.getByTestId('keep-me')).toBeInTheDocument();
+    expect(container.firstChild).not.toHaveAttribute('suppresshydrationwarning');
+  });
+});
+
+// ============================================
+// CARD-P0-3 — forwardRef + polymorphic ref typing
+// ============================================
+
+describe('CARD-P0-3 forwardRef', () => {
+  it('ref resolves to the default div DOM node', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(<Card ref={ref}>content</Card>);
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+  });
+
+  it('ref resolves to the element from component', () => {
+    const ref = createRef<HTMLElement>();
+    render(
+      <Card component="section" ref={ref}>
+        content
+      </Card>
+    );
+    expect(ref.current?.tagName).toBe('SECTION');
+  });
+
+  it('CardTitle forwards ref to its heading element', () => {
+    const ref = createRef<HTMLElement>();
+    render(
+      <Card>
+        <Card.Title ref={ref}>Title</Card.Title>
+      </Card>
+    );
+    expect(ref.current?.tagName).toBe('H3');
+  });
+
+  it('CardActions forwards ref to its div', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(
+      <Card>
+        <Card.Actions ref={ref}>
+          <button type="button">A</button>
+        </Card.Actions>
+      </Card>
+    );
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+  });
+
+  it('CardHeader / CardBody / CardFooter forward refs', () => {
+    const h = createRef<HTMLDivElement>();
+    const b = createRef<HTMLDivElement>();
+    const f = createRef<HTMLDivElement>();
+    render(
+      <Card>
+        <Card.Header ref={h}>H</Card.Header>
+        <Card.Body ref={b}>B</Card.Body>
+        <Card.Footer ref={f}>F</Card.Footer>
+      </Card>
+    );
+    expect(h.current).toBeInstanceOf(HTMLDivElement);
+    expect(b.current).toBeInstanceOf(HTMLDivElement);
+    expect(f.current).toBeInstanceOf(HTMLDivElement);
+  });
+
+  it('CardImage forwards ref to the underlying img', () => {
+    const ref = createRef<HTMLImageElement>();
+    render(<CardImage ref={ref} src="/x.jpg" alt="x" />);
+    expect(ref.current).toBeInstanceOf(HTMLImageElement);
+  });
+
+  it('CardDescription forwards ref to the paragraph', () => {
+    const ref = createRef<HTMLParagraphElement>();
+    render(
+      <Card>
+        <Card.Description ref={ref}>D</Card.Description>
+      </Card>
+    );
+    expect(ref.current).toBeInstanceOf(HTMLParagraphElement);
+  });
+
+  it('CardMeta forwards ref to its div', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(
+      <Card>
+        <Card.Meta ref={ref}>M</Card.Meta>
+      </Card>
+    );
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+  });
+});
+
+// ============================================
+// CARD-P0-4 — interactive-card a11y
+// ============================================
+
+describe('CARD-P0-4 interactive a11y', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('non-interactive card keeps role="group" and no tabIndex', () => {
+    const { container } = render(<Card>content</Card>);
+    expect(screen.getByRole('group')).toBeInTheDocument();
+    expect(container.firstChild).not.toHaveAttribute('tabindex');
+  });
+
+  it('interactive card exposes role=button, tabIndex=0 and fires onClick on Enter/Space (no native double-fire)', () => {
+    const onClick = vi.fn();
+    const { container } = render(<Card onClick={onClick}>clickable</Card>);
+    const root = container.firstChild as HTMLElement;
+    expect(root).toHaveAttribute('role', 'button');
+    expect(root).toHaveAttribute('tabindex', '0');
+
+    fireEvent.keyDown(root, { key: 'Enter' });
+    fireEvent.keyDown(root, { key: ' ' });
+    expect(onClick).toHaveBeenCalledTimes(2);
+  });
+
+  it('component="a" without href dev-warns (missing href)', () => {
+    render(
+      <Card component="a" onClick={() => {}}>
+        link-card
+      </Card>
+    );
+    // eslint-disable-next-line no-console
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('without an `href`'));
+  });
+
+  it('component="a" with href does NOT warn and keeps link semantics', () => {
+    render(
+      <Card component="a" href="/go">
+        link-card
+      </Card>
+    );
+    // eslint-disable-next-line no-console
+    expect(console.warn).not.toHaveBeenCalled();
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/go');
+  });
+
+  it('native <button> is a button but uses native activation (no custom onKeyDown double-fire)', () => {
+    const onClick = vi.fn();
+    const { container } = render(
+      <Card component="button" onClick={onClick}>
+        btn
+      </Card>
+    );
+    const btn = container.firstChild as HTMLElement;
+    expect(btn).toHaveAttribute('role', 'button');
+    expect(btn).not.toHaveAttribute('tabindex');
   });
 });

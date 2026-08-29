@@ -22,4 +22,9 @@ export const CARD_CONSTANTS = {
   DEFAULT_RADIUS: 'rounded' as const,
   DEFAULT_SIZE: 'default' as const,
   DEFAULT_VARIANT: 'default' as const,
+  /**
+   * Allow-list of hosts permitted for `ProjectCard` `backgroundImage`.
+   * Empty by default (same-origin only) — see sanitizeBackgroundImage.
+   */
+  BACKGROUND_IMAGE_ALLOWED_HOSTS: [] as readonly string[],
 } as const;

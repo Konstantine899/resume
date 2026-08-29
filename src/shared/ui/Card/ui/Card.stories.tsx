@@ -385,3 +385,69 @@ export const ContainerIntegrationComparison: Story = {
     expect(aboutCard).toBeInTheDocument();
   },
 };
+
+// ============================================
+// CARD-P0-3 / CARD-P0-4 — interaction tests (Playwright via test:storybook)
+// ============================================
+
+let capturedDivRef: { current: HTMLDivElement | null } = { current: null };
+let capturedSectionRef: { current: HTMLElement | null } = { current: null };
+
+export const ForwardRefDefault: Story = {
+  render: () => {
+    const ref = React.useRef<HTMLDivElement>(null);
+    capturedDivRef = ref;
+    return (
+      <Card ref={ref} data-testid="ref-default">
+        Ref card
+      </Card>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByTestId('ref-default');
+    expect(card.tagName).toBe('DIV');
+    expect(capturedDivRef.current).toBe(card);
+  },
+};
+
+export const ForwardRefSection: Story = {
+  render: () => {
+    const ref = React.useRef<HTMLElement>(null);
+    capturedSectionRef = ref;
+    return (
+      <Card component="section" ref={ref} data-testid="ref-section">
+        Ref section
+      </Card>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const section = canvas.getByTestId('ref-section');
+    expect(section.tagName).toBe('SECTION');
+    expect(capturedSectionRef.current).toBe(section);
+  },
+};
+
+export const InteractiveKeyboard: Story = {
+  render: () => {
+    const [count, setCount] = React.useState(0);
+    return (
+      <Card onClick={() => setCount((c) => c + 1)} data-testid="kbd-card">
+        <p>Clicks: {count}</p>
+      </Card>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByRole('button');
+    expect(card).toHaveAttribute('tabindex', '0');
+
+    card.focus();
+    await userEvent.keyboard('{Enter}');
+    expect(canvas.getByText('Clicks: 1')).toBeInTheDocument();
+
+    await userEvent.keyboard(' ');
+    expect(canvas.getByText('Clicks: 2')).toBeInTheDocument();
+  },
+};
