@@ -103,14 +103,15 @@ describe('ButtonWithIcon', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('должен иметь aria-busy и aria-disabled при loading=true (не нативно disabled)', () => {
       render(
         <ButtonWithIcon leftIcon={<Mail />} loading>
           Loading
         </ButtonWithIcon>
       );
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      expect(screen.getByRole('button')).not.toBeDisabled();
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -156,17 +157,17 @@ describe('ButtonWithIcon', () => {
       expect(screen.getByRole('button')).toHaveClass(buttonWithIconStyles.loading ?? '');
     });
 
-    it('должен скрывать контент при loading=true', () => {
+    it('должен скрывать контент при loading=true (через CSS loading-класс)', () => {
       render(
         <ButtonWithIcon leftIcon={<Mail />} loading>
           Loading
         </ButtonWithIcon>
       );
 
-      const content = screen
-        .getByRole('button')
-        .querySelector(`.${buttonWithIconStyles.content ?? ''}`);
-      expect(content).toHaveClass(buttonWithIconStyles.hidden ?? '');
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonWithIconStyles.loading ?? '');
+      const content = button.querySelector(`.${buttonWithIconStyles.content ?? ''}`);
+      expect(content).toBeInTheDocument();
     });
   });
 

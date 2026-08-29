@@ -6,6 +6,8 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import React, { Children, cloneElement, isValidElement } from 'react';
 import type { ButtonOwnProps, PolymorphicProps } from '../../model/types';
 import { useButton } from '../../lib/hooks/useButton';
+import { mergeRefs } from '../../lib/utils/mergeRefs';
+import { sanitizeAnchorProps } from '../../lib/utils/sanitizeAnchorProps';
 import styles from './Button.module.scss';
 
 /**
@@ -31,7 +33,7 @@ import styles from './Button.module.scss';
  * <Button component="a" href="/about">Link</Button>
  * ```
  */
-function ButtonImpl<C extends React.ElementType = 'button'>(
+function ButtonImpl(
   {
     children,
     variant = 'primary',
@@ -47,13 +49,13 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     component,
     asChild = false,
     ...props
-  }: PolymorphicProps<C, ButtonOwnProps>,
-  ref: React.ForwardedRef<React.ComponentRef<C>>
+  }: PolymorphicProps<React.ElementType, ButtonOwnProps>,
+  ref: React.ForwardedRef<React.ComponentRef<React.ElementType>>
 ) {
-  const { buttonClassName, contentClassName, handleClick, loader } = useButton({
-    variant: variant === 'danger' ? 'primary' : variant,
+  const { buttonClassName, contentClassName, handleClick, handleKeyDown, loader } = useButton({
+    variant,
     size,
-    colorScheme: colorScheme ?? (variant === 'danger' ? 'danger' : undefined),
+    colorScheme,
     loading,
     loadingVariant,
     fullWidth,
@@ -62,50 +64,64 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     onClick,
   });
 
-  // asChild mode: merge props into child element instead of rendering own DOM node
+  const isDisabled = disabled || loading;
+  const Tag = component || ('button' as React.ElementType);
+  const isButtonElement = Tag === 'button';
+  const isNativeInteractive = isButtonElement || Tag === 'a';
+
+  // asChild mode: merge button props into a single child element instead of rendering own DOM node
   if (asChild) {
-    const child = Children.only(children);
-    if (!isValidElement(child)) {
-      return null;
-    }
-
-    const isDisabled = disabled || loading;
-    const childProps = child.props as Record<string, unknown>;
-
     /* eslint-disable react-hooks/refs */
-    return cloneElement(child, {
-      className: classNames(
-        buttonClassName,
-        childProps.className as string,
-        isDisabled && styles.disabled
-      ),
-      onClick: handleClick,
-      'aria-disabled': isDisabled || undefined,
-      'aria-busy': loading || undefined,
-      'data-state': loading ? 'loading' : 'idle',
-      'data-testid': 'button',
-      ref: ref as React.Ref<unknown>,
-      ...props,
-    } as Record<string, unknown>) as React.ReactElement;
+    const childArray = Children.toArray(children);
+    if (childArray.length === 1 && isValidElement(childArray[0])) {
+      const child = childArray[0];
+      const childProps = child.props as Record<string, unknown>;
+      const childOnClick = childProps.onClick as React.MouseEventHandler | undefined;
+      const childRef = childProps.ref as React.Ref<unknown> | undefined;
+
+      const mergedOnClick: React.MouseEventHandler = (event) => {
+        childOnClick?.(event);
+        handleClick(event);
+      };
+      const mergedRef = mergeRefs(ref as React.Ref<unknown>, childRef);
+
+      return cloneElement(child, {
+        className: classNames(
+          buttonClassName,
+          childProps.className as string,
+          isDisabled && styles.disabled
+        ),
+        onClick: mergedOnClick,
+        ref: mergedRef,
+        'aria-disabled': isDisabled || undefined,
+        'aria-busy': loading || undefined,
+        'data-state': loading ? 'loading' : 'idle',
+        'data-testid': 'button',
+        ...props,
+      } as Record<string, unknown>) as React.ReactElement;
+    }
+    // Fall through to normal render when asChild child is invalid
     /* eslint-enable react-hooks/refs */
   }
 
-  const Tag = component || ('button' as React.ElementType);
-  const isButtonElement = Tag === 'button';
-  const isDisabled = disabled || loading;
+  // Harden anchor rendering: sanitize href scheme + rel="noopener noreferrer" for _blank
+  const safeProps = Tag === 'a' ? sanitizeAnchorProps(props as Record<string, unknown>) : props;
 
   return (
     <Tag
-      ref={ref as React.Ref<React.ComponentRef<C>>}
-      role={!isButtonElement ? 'button' : undefined}
-      onClick={handleClick}
+      ref={ref}
       className={classNames(buttonClassName, isDisabled && !isButtonElement && styles.disabled)}
+      onClick={handleClick}
       aria-disabled={isDisabled || undefined}
       aria-busy={loading || undefined}
       data-state={loading ? 'loading' : 'idle'}
       data-testid="button"
-      {...(isButtonElement ? { disabled: isDisabled, type: type || 'button' } : {})}
-      {...props}
+      {...(isNativeInteractive
+        ? isButtonElement
+          ? { disabled: disabled, type: type || 'button' }
+          : {}
+        : { role: 'button', tabIndex: 0, onKeyDown: handleKeyDown })}
+      {...safeProps}
     >
       {loader}
       <span className={contentClassName}>{children}</span>
@@ -119,12 +135,10 @@ ButtonImpl.displayName = 'Button';
  * Button — text-only button with polymorphic `component` prop support.
  *
  * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link,
- * or any other HTML element / React component.
+ * or any other HTML element / React component. Forwards refs correctly (forwardRef + memo).
  */
-export const Button = React.memo(
-  ButtonImpl as React.FC<PolymorphicProps<React.ElementType, ButtonOwnProps>>
-) as <C extends React.ElementType = 'button'>(
-  props: PolymorphicProps<C, ButtonOwnProps> & {
-    ref?: React.ForwardedRef<React.ComponentRef<C>>;
-  }
+export const Button = React.memo(React.forwardRef(ButtonImpl)) as <
+  C extends React.ElementType = 'button',
+>(
+  props: PolymorphicProps<C, ButtonOwnProps> & { ref?: React.ForwardedRef<React.ComponentRef<C>> }
 ) => React.ReactElement;

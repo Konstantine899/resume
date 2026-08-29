@@ -63,10 +63,11 @@ describe('useButton', () => {
       expect(result.current.contentClassName).toContain('content');
     });
 
-    it('должен добавлять hidden класс при loading=true', () => {
+    it('не должен добавлять hidden класс при loading=true (dead class removed)', () => {
       const { result } = renderHook(() => useButton(createDefaultOptions({ loading: true })));
 
-      expect(result.current.contentClassName).toContain('hidden');
+      expect(result.current.contentClassName).toContain('content');
+      expect(result.current.contentClassName).not.toContain('hidden');
     });
 
     it('не должен добавлять hidden класс при loading=false', () => {

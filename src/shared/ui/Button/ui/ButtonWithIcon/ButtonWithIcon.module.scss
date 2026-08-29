@@ -47,10 +47,6 @@
     @include variant-sidebar;
   }
 
-  &.danger {
-    @include variant-danger;
-  }
-
   // Color schemes
   @include color-schemes;
 
@@ -122,6 +118,12 @@
 
   &.loading {
     @include button-loading;
+  }
+
+  &.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 
   // ============================================

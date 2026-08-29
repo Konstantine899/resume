@@ -79,10 +79,11 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('должен иметь aria-busy и aria-disabled при loading=true (не нативно disabled)', () => {
       render(<Button loading>Loading</Button>);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      expect(screen.getByRole('button')).not.toBeDisabled();
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -120,11 +121,13 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toHaveClass(buttonStyles.loading ?? '');
     });
 
-    it('должен скрывать контент при loading=true', () => {
+    it('должен скрывать контент при loading=true (через CSS loading-класс)', () => {
       render(<Button loading>Loading</Button>);
 
-      const content = screen.getByRole('button').querySelector(`.${buttonStyles.content ?? ''}`);
-      expect(content).toHaveClass(buttonStyles.hidden ?? '');
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(buttonStyles.loading ?? '');
+      const content = button.querySelector(`.${buttonStyles.content ?? ''}`);
+      expect(content).toBeInTheDocument();
     });
   });
 
@@ -247,6 +250,31 @@ describe('Button', () => {
       const link = screen.getByTestId('button');
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noopener');
+    });
+
+    it('должен блокировать javascript: href (XSS)', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      render(
+        // eslint-disable-next-line no-script-url -- intent: assert this dangerous URL is blocked
+        <Button component="a" href="javascript:alert(1)">
+          Link
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link).not.toHaveAttribute('href');
+      warn.mockRestore();
+    });
+
+    it('должен добавлять rel="noopener noreferrer" для target="_blank" без rel', () => {
+      render(
+        <Button component="a" href="/about" target="_blank">
+          Link
+        </Button>
+      );
+
+      const link = screen.getByTestId('button');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
     it('не должен иметь disabled атрибута при component="a"', () => {
