@@ -296,6 +296,7 @@ function InputImpl(
             type="button"
             className={styles.passwordToggle ?? ''}
             onClick={handleTogglePassword}
+            disabled={disabled || loading}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
             tabIndex={0}
