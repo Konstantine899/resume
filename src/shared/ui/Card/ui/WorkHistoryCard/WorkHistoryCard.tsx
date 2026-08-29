@@ -40,9 +40,14 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
   achievements,
   techStack,
   className = '',
+  fullWidth,
+  style,
 }) => {
   return (
-    <div className={classNames(styles.workHistoryCard, className)}>
+    <div
+      className={classNames(styles.workHistoryCard, fullWidth && styles.fullWidth, className)}
+      style={style}
+    >
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <h3 className={styles.title}>{title}</h3>

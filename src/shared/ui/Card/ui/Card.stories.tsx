@@ -451,3 +451,55 @@ export const InteractiveKeyboard: Story = {
     expect(canvas.getByText('Clicks: 2')).toBeInTheDocument();
   },
 };
+
+// ============================================
+// CARD-P1-3 — behavior interaction tests (Playwright via test:storybook)
+// ============================================
+
+export const P1ClickFiresOnClick: Story = {
+  render: () => {
+    const [count, setCount] = React.useState(0);
+    return (
+      <Card onClick={() => setCount((c) => c + 1)} data-testid="click-card">
+        <p>Clicks: {count}</p>
+      </Card>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByRole('button');
+    expect(card).toHaveAttribute('tabindex', '0');
+    await userEvent.click(card);
+    expect(canvas.getByText('Clicks: 1')).toBeInTheDocument();
+  },
+};
+
+export const P1ClassNameForwarded: Story = {
+  render: () =>
+    S({
+      variant: 'project',
+      className: 'story-extra',
+      fullWidth: true,
+      title: 'Demo Project',
+      description: 'Forwarded class + fullWidth',
+      techIcons: [],
+    }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const title = canvas.getByText('Demo Project');
+    const root = title.closest('[class*="projectCard"]') as HTMLElement | null;
+    expect(root).toBeInTheDocument();
+    expect(root).toHaveClass('story-extra');
+  },
+};
+
+export const P1InvalidVariantDefault: Story = {
+  render: () =>
+    S({ variant: 'foo', 'data-testid': 'bad-variant', children: 'Invalid variant content' }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByTestId('bad-variant');
+    expect(card).toHaveAttribute('data-variant', 'default');
+    expect(card).toBeInTheDocument();
+  },
+};

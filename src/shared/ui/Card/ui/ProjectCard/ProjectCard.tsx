@@ -40,12 +40,17 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   builtUsingLabel = 'Создано с помощью',
   linkLabel = 'Ссылка',
   className = '',
+  fullWidth,
+  style,
 }) => {
   // CARD-P0-5: sanitize the backgroundImage; skip the layer on rejection (no throw).
   const safeBackground = sanitizeBackgroundImage(backgroundImage);
 
   return (
-    <div className={classNames(styles.projectCard, className)}>
+    <div
+      className={classNames(styles.projectCard, fullWidth && styles.fullWidth, className)}
+      style={style}
+    >
       {safeBackground && (
         <div className={styles.backgroundImage} style={{ backgroundImage: safeBackground }} />
       )}

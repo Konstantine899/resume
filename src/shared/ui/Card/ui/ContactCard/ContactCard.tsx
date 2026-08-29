@@ -31,9 +31,14 @@ const ContactCardComponent: React.FC<ContactCardProps> = ({
   icon,
   children,
   className = '',
+  fullWidth,
+  style,
 }) => {
   return (
-    <div className={classNames(styles.contactCard, className)}>
+    <div
+      className={classNames(styles.contactCard, fullWidth && styles.fullWidth, className)}
+      style={style}
+    >
       <div className={styles.centeredContent}>
         {icon && <div className={styles.iconWrapper}>{icon}</div>}
         {title && <h3 className={styles.title}>{title}</h3>}

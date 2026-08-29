@@ -24,17 +24,8 @@ describe('validateCardProps', () => {
     );
   });
 
-  it('warns when hoverable is set without onClick', () => {
-    expect(
-      validateCardProps('default', 'default', 'rounded', true).some((w) => w.prop === 'onClick')
-    ).toBe(true);
-  });
-
-  it('does not warn when hoverable has onClick', () => {
-    expect(
-      validateCardProps('default', 'default', 'rounded', true, () => {}).some(
-        (w) => w.prop === 'onClick'
-      )
-    ).toBe(false);
+  it('does NOT warn for hoverable without onClick (CARD-P1-2 removed the flood)', () => {
+    const warnings = validateCardProps('default', 'default', 'rounded');
+    expect(warnings.some((w) => w.prop === 'onClick')).toBe(false);
   });
 });

@@ -15,6 +15,9 @@ import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
 import cardDescriptionStyles from './CardDescription/CardDescription.module.scss';
 import projectCardStyles from './ProjectCard/ProjectCard.module.scss';
+import cardStyles from './Card.module.scss';
+import contactCardStyles from './ContactCard/ContactCard.module.scss';
+import type { CardVariant } from '../model/types';
 
 describe('Card', () => {
   describe('Rendering', () => {
@@ -849,5 +852,120 @@ describe('CARD-P0-4 interactive a11y', () => {
     const btn = container.firstChild as HTMLElement;
     expect(btn).toHaveAttribute('role', 'button');
     expect(btn).not.toHaveAttribute('tabindex');
+  });
+});
+
+// ============================================
+// CARD-P1 — reliability / behavior (strict TDD)
+// ============================================
+
+describe('CARD-P1 reliability & behavior', () => {
+  describe('CARD-P1-1 className/style/fullWidth forwarding', () => {
+    it('forwards className + fullWidth into ProjectCard (specialized component)', () => {
+      const { container } = render(
+        <ProjectCard className="extra" fullWidth title="P" description="D" techIcons={[]} />
+      );
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveClass(projectCardStyles.projectCard ?? '');
+      expect(root).toHaveClass('extra');
+      expect(root).toHaveClass(projectCardStyles.fullWidth ?? '');
+    });
+
+    it('forwards style into ContactCard and merges className', () => {
+      const { container } = render(
+        <ContactCard className="extra2" style={{ marginTop: 8 }} title="C">
+          child
+        </ContactCard>
+      );
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveClass(contactCardStyles.contactCard ?? '');
+      expect(root).toHaveClass('extra2');
+      expect(root.style.marginTop).toBe('8px');
+    });
+
+    it('Card forwards className + fullWidth into the ProjectCard delegation branch', () => {
+      const { container } = render(
+        <Card variant="project" className="fwd" fullWidth>
+          child
+        </Card>
+      );
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveClass(projectCardStyles.projectCard ?? '');
+      expect(root).toHaveClass('fwd');
+      expect(root).toHaveClass(projectCardStyles.fullWidth ?? '');
+    });
+  });
+
+  describe('CARD-P1-2 no-warn on hoverable', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('plain <Card hoverable> emits zero console.warn', () => {
+      render(<Card hoverable>content</Card>);
+      // eslint-disable-next-line no-console
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('CARD-P1-3 behavior', () => {
+    it('click fires onClick on an interactive card', () => {
+      const onClick = vi.fn();
+      const { container } = render(<Card onClick={onClick}>clickable</Card>);
+      fireEvent.click(container.firstChild as HTMLElement);
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('Enter/Space fire onClick (no double-fire) on an interactive card', () => {
+      const onClick = vi.fn();
+      const { container } = render(<Card onClick={onClick}>clickable</Card>);
+      const root = container.firstChild as HTMLElement;
+      fireEvent.keyDown(root, { key: 'Enter' });
+      fireEvent.keyDown(root, { key: ' ' });
+      expect(onClick).toHaveBeenCalledTimes(2);
+    });
+
+    it('ref resolves to the rendered DOM node', () => {
+      const ref = createRef<HTMLDivElement>();
+      render(<Card ref={ref}>content</Card>);
+      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    });
+
+    it('specialized variant forwards className (ProjectCard via Card.Project)', () => {
+      const { container } = render(
+        <Card.Project className="fwd" fullWidth title="P" description="D" techIcons={[]} />
+      );
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveClass(projectCardStyles.projectCard ?? '');
+      expect(root).toHaveClass('fwd');
+    });
+  });
+
+  describe('CARD-P1-4 invalid variant → default fallback', () => {
+    it('renders the default class, applies no styles.foo, and does not crash', () => {
+      const { container } = render(
+        <Card variant={'foo' as CardVariant} data-testid="bad-variant">
+          content
+        </Card>
+      );
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveAttribute('data-variant', 'default');
+      expect(root).toHaveClass(cardStyles.default ?? '');
+      expect(root.className).not.toMatch(/\bfoo\b/);
+      expect(root).toBeInTheDocument();
+    });
+
+    it('valid variant (skill) is unaffected', () => {
+      render(
+        <Card variant="skill" data-testid="good-variant">
+          content
+        </Card>
+      );
+      const root = screen.getByTestId('good-variant').closest('[data-variant]') as HTMLElement;
+      expect(root).toHaveAttribute('data-variant', 'skill');
+    });
   });
 });

@@ -5,9 +5,9 @@
 import {
   HTMLAttributes,
   ReactNode,
-  MouseEvent,
   ElementType,
   ComponentPropsWithoutRef,
+  CSSProperties,
 } from 'react';
 
 // ============================================
@@ -88,6 +88,8 @@ export interface ProjectCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   link?: string | null;
   linkLabel?: string;
   builtUsingLabel?: string;
+  /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
+  style?: CSSProperties;
 }
 
 /**
@@ -101,6 +103,8 @@ export interface WorkHistoryCardProps extends Omit<CardOwnProps, 'variant' | 'si
   location?: string;
   achievements?: string[];
   techStack?: string[];
+  /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
+  style?: CSSProperties;
 }
 
 /**
@@ -110,24 +114,8 @@ export interface ContactCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   title?: string;
   icon?: ReactNode;
   children?: ReactNode;
-}
-
-/**
- * Props для карточки навыка (SkillCard)
- */
-export interface SkillCardProps extends CardOwnProps {
-  skillName?: string;
-  level?: number;
-  techIcons?: TechIcon[];
-}
-
-/**
- * Props для карточки About (AboutCard)
- */
-export interface AboutCardProps extends CardOwnProps {
-  title?: string;
-  icon?: ReactNode;
-  children?: ReactNode;
+  /** CARD-P1-1: constrained style passthrough (D2) merged onto the root element. */
+  style?: CSSProperties;
 }
 
 // ============================================
@@ -219,16 +207,3 @@ export interface CardMetaProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
 }
-
-// ============================================
-// Event Types
-// ============================================
-
-export interface CardClickEvent {
-  originalEvent: MouseEvent<HTMLDivElement>;
-  targetType: 'card' | 'header' | 'footer' | 'body';
-}
-
-export type CardClickHandler = (event: CardClickEvent) => void;
-
-export type CardHoverHandler = (isHovered: boolean) => void;

@@ -8,9 +8,7 @@ export interface CardValidationWarning {
 export const validateCardProps = (
   variant: string,
   size: string,
-  radius: string,
-  hoverable?: boolean,
-  onClick?: unknown
+  radius: string
 ): CardValidationWarning[] => {
   const warnings: CardValidationWarning[] = [];
 
@@ -35,14 +33,6 @@ export const validateCardProps = (
     warnings.push({
       prop: 'radius',
       message: `[Card] Invalid radius "${radius}". Valid values: ${validRadii.join(', ')}`,
-    });
-  }
-
-  if (hoverable && !onClick) {
-    warnings.push({
-      prop: 'onClick',
-      message:
-        '[Card] hoverable is true but onClick is not provided. Hover effects will have no interaction.',
     });
   }
 

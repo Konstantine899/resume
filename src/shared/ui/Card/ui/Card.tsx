@@ -123,6 +123,7 @@ const CardImpl = forwardRef(function Card<C extends ElementType = 'div'>(
     hoverable,
     className,
     component,
+    style,
     children,
     ...rest
   }: CardProps<C>,
@@ -145,17 +146,32 @@ const CardImpl = forwardRef(function Card<C extends ElementType = 'div'>(
     isLink,
   });
 
+  // CARD-P1-1: forward className/fullWidth/style into specialized variants, merged
+  // with each variant's own base class inside the specialized component.
   if (safeVariant === 'project') {
-    return createElement(ProjectCard, sanitizeRest(rest) as unknown as ProjectCardProps);
+    return createElement(ProjectCard, {
+      ...(sanitizeRest(rest) as unknown as ProjectCardProps),
+      className,
+      fullWidth,
+      style,
+    });
   }
 
   if (safeVariant === 'workHistory') {
-    return createElement(WorkHistoryCard, sanitizeRest(rest) as unknown as WorkHistoryCardProps);
+    return createElement(WorkHistoryCard, {
+      ...(sanitizeRest(rest) as unknown as WorkHistoryCardProps),
+      className,
+      fullWidth,
+      style,
+    });
   }
 
   if (safeVariant === 'contact') {
     return createElement(ContactCard, {
       ...(sanitizeRest(rest) as unknown as ContactCardProps),
+      className,
+      fullWidth,
+      style,
       children,
     });
   }
@@ -176,6 +192,7 @@ const CardImpl = forwardRef(function Card<C extends ElementType = 'div'>(
       'data-size': safeSize,
       'data-radius': safeRadius,
       ...sanitizeRest(rest),
+      style,
       role: interactivity.role,
       tabIndex: interactivity.tabIndex,
       onKeyDown: interactivity.onKeyDown,
