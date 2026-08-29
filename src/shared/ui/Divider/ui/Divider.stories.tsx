@@ -586,11 +586,13 @@ export const DividerInModal: Story = {
       title="Settings"
       footer={<button type="button">Save</button>}
     >
+      <Divider />
       <p style={{ margin: 0 }}>Modal body content separated by Dividers.</p>
+      <Divider />
     </Modal>
   ),
   play: async () => {
-    // Header/Content and Content/Footer are separated by sibling Dividers.
+    // Divider рендерится явно в теле модального окна (сверху и снизу контента).
     const dividers = screen.getAllByRole('separator');
     expect(dividers.length).toBeGreaterThanOrEqual(2);
   },
