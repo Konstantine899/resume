@@ -35,7 +35,7 @@ export const WithBackgroundImage: Story = {
     title: 'Dragonfly',
     description:
       'A fully vertically integrated cannabis production company with a focus on quality and sustainability.',
-    backgroundImage: 'https://ext.same-assets.com/55871041/1910007590.webp',
+    backgroundImage: '/images/55871041/1910007590.webp',
     techIcons: [
       {
         name: 'React',
@@ -85,7 +85,7 @@ export const ManyTechIcons: Story = {
     title: 'Central Valley Foods',
     description:
       'An ecommerce site for farm products, utilizing online shopping features like a cart, order form, and credit card checkout.',
-    backgroundImage: 'https://ext.same-assets.com/55871041/341412428.webp',
+    backgroundImage: '/images/55871041/341412428.webp',
     techIcons: [
       {
         name: 'React',

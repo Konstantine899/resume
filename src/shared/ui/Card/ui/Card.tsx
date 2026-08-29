@@ -1,13 +1,20 @@
 import { useCard } from '../model/useCard';
-import { memo, createElement } from 'react';
-import type { ElementType } from 'react';
+import { memo, createElement, forwardRef } from 'react';
 import type {
-  CardOwnProps,
+  ElementType,
+  ComponentRef,
+  ForwardedRef,
+  ReactElement,
+  MouseEventHandler,
+} from 'react';
+import type {
+  CardProps,
   ProjectCardProps,
   WorkHistoryCardProps,
   ContactCardProps,
 } from '../model/types';
 import { Container } from '@/shared/ui/Container';
+import { Link } from '@/shared/ui/Link';
 import { ProjectCard } from './ProjectCard';
 import { WorkHistoryCard } from './WorkHistoryCard';
 import { ContactCard } from './ContactCard';
@@ -78,17 +85,54 @@ import { CardMeta } from './CardMeta';
  * </Card>
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface CardProps extends CardOwnProps, Record<string, any> {
-  component?: ElementType;
+
+/** CARD-P0-2: blocklist stripped from `...rest` before spread (D2: `style` preserved). */
+const DANGEROUS_PROPS = ['dangerouslySetInnerHTML', 'suppressHydrationWarning', 'onError'] as const;
+type DangerousProp = (typeof DANGEROUS_PROPS)[number];
+
+function sanitizeRest<R extends Record<string, unknown>>(rest: R): R {
+  const entries = Object.entries(rest).filter(
+    ([key]) => !(DANGEROUS_PROPS as readonly DangerousProp[]).includes(key as DangerousProp)
+  );
+  return Object.fromEntries(entries) as R;
 }
 
-const CardComponent = memo((props: CardProps) => {
-  const { variant, size, radius, fullWidth, hoverable, className, children, component, ...rest } =
-    props;
+type CardComponent = (<C extends ElementType = 'div'>(
+  props: CardProps<C> & { ref?: ForwardedRef<ComponentRef<C>> }
+) => ReactElement) & {
+  Header: typeof CardHeader;
+  Body: typeof CardBody;
+  Footer: typeof CardFooter;
+  Image: typeof CardImage;
+  Title: typeof CardTitle;
+  Description: typeof CardDescription;
+  Actions: typeof CardActions;
+  Grid: typeof CardGrid;
+  Meta: typeof CardMeta;
+  Project: typeof ProjectCard;
+  WorkHistory: typeof WorkHistoryCard;
+  Contact: typeof ContactCard;
+};
 
-  const onClick = (rest as Record<string, unknown>).onClick as React.MouseEventHandler | undefined;
-  const { cardClasses, safeVariant, safeSize, safeRadius } = useCard({
+const CardImpl = forwardRef(function Card<C extends ElementType = 'div'>(
+  {
+    variant,
+    size,
+    radius,
+    fullWidth,
+    hoverable,
+    className,
+    component,
+    children,
+    ...rest
+  }: CardProps<C>,
+  ref: ForwardedRef<HTMLElement>
+): ReactElement {
+  const onClick = rest.onClick as MouseEventHandler | undefined;
+  const href = (rest as Record<string, unknown>).href as string | undefined;
+  const isLink = component === Link;
+
+  const { cardClasses, safeVariant, safeSize, safeRadius, interactivity } = useCard({
     variant,
     size,
     radius,
@@ -96,37 +140,45 @@ const CardComponent = memo((props: CardProps) => {
     hoverable,
     className,
     onClick,
+    component,
+    href,
+    isLink,
   });
 
   if (safeVariant === 'project') {
-    return <ProjectCard {...(rest as unknown as ProjectCardProps)} />;
+    return createElement(ProjectCard, sanitizeRest(rest) as unknown as ProjectCardProps);
   }
 
   if (safeVariant === 'workHistory') {
-    return <WorkHistoryCard {...(rest as unknown as WorkHistoryCardProps)} />;
+    return createElement(WorkHistoryCard, sanitizeRest(rest) as unknown as WorkHistoryCardProps);
   }
 
   if (safeVariant === 'contact') {
-    return <ContactCard {...(rest as unknown as ContactCardProps)}>{children}</ContactCard>;
+    return createElement(ContactCard, {
+      ...(sanitizeRest(rest) as unknown as ContactCardProps),
+      children,
+    });
   }
 
   // For 'skill' and 'about' variants, wrap content in Container for max-width and centering
   const shouldUseContainer = safeVariant === 'skill' || safeVariant === 'about';
   const containerSize = safeVariant === 'skill' ? 'xl' : 'lg';
 
-  const Tag = component ?? 'div';
-  const isNativeDiv = Tag === 'div';
+  const Tag = (component ?? 'div') as ElementType;
 
   const cardElement = createElement(
     Tag,
     {
+      ref,
       className: cardClasses,
-      role: isNativeDiv ? 'group' : undefined,
       'data-state': hoverable !== false ? 'hoverable' : 'static',
       'data-variant': safeVariant,
       'data-size': safeSize,
       'data-radius': safeRadius,
-      ...rest,
+      ...sanitizeRest(rest),
+      role: interactivity.role,
+      tabIndex: interactivity.tabIndex,
+      onKeyDown: interactivity.onKeyDown,
     },
     children
   );
@@ -143,9 +195,14 @@ const CardComponent = memo((props: CardProps) => {
   return cardElement;
 });
 
-CardComponent.displayName = 'Card';
+const CardMemo = memo(
+  CardImpl as unknown as (
+    props: CardProps<'div'> & { ref?: ForwardedRef<ComponentRef<'div'>> }
+  ) => ReactElement
+);
+CardMemo.displayName = 'Card';
 
-const Card = Object.assign(memo(CardComponent), {
+const Card = Object.assign(CardMemo, {
   Header: CardHeader,
   Body: CardBody,
   Footer: CardFooter,
@@ -158,6 +215,6 @@ const Card = Object.assign(memo(CardComponent), {
   Project: ProjectCard,
   WorkHistory: WorkHistoryCard,
   Contact: ContactCard,
-});
+}) as unknown as CardComponent;
 
 export { Card };

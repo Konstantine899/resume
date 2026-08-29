@@ -7,6 +7,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Link } from '@/shared/ui/Link';
 import type { ProjectCardProps } from '../../model/types';
+import { sanitizeBackgroundImage } from '../../lib/utils/sanitizeBackgroundImage';
 import styles from './ProjectCard.module.scss';
 
 /**
@@ -40,13 +41,13 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   linkLabel = 'Ссылка',
   className = '',
 }) => {
+  // CARD-P0-5: sanitize the backgroundImage; skip the layer on rejection (no throw).
+  const safeBackground = sanitizeBackgroundImage(backgroundImage);
+
   return (
     <div className={classNames(styles.projectCard, className)}>
-      {backgroundImage && (
-        <div
-          className={styles.backgroundImage}
-          style={{ backgroundImage: `url('${backgroundImage}')` }}
-        />
+      {safeBackground && (
+        <div className={styles.backgroundImage} style={{ backgroundImage: safeBackground }} />
       )}
 
       <div className={styles.gradientOverlay} />

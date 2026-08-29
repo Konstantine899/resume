@@ -2,7 +2,7 @@
 // CardBody Component
 // ============================================
 
-import React from 'react';
+import { forwardRef, memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import type { CardBodyProps } from '../../model/types';
 import styles from './CardBody.module.scss';
@@ -18,14 +18,18 @@ import styles from './CardBody.module.scss';
  * </Card>
  * ```
  */
-export const CardBody: React.FC<CardBodyProps> = ({ children, className = '', ...props }) => {
-  const bodyClasses = classNames(styles.cardBody, className);
+export const CardBody = memo(
+  forwardRef<HTMLDivElement, CardBodyProps>(function CardBody(
+    { children, className = '', ...props },
+    ref
+  ) {
+    const bodyClasses = classNames(styles.cardBody, className);
 
-  return (
-    <div className={bodyClasses} {...props}>
-      {children}
-    </div>
-  );
-};
-
+    return (
+      <div ref={ref} className={bodyClasses} {...props}>
+        {children}
+      </div>
+    );
+  })
+);
 CardBody.displayName = 'CardBody';
