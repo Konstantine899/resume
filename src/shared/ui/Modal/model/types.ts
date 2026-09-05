@@ -1,8 +1,9 @@
+import type { ReactNode, ElementType } from 'react';
 // ============================================
 // Modal Types
 // ============================================
 
-import type { ReactNode, ComponentPropsWithoutRef, ElementType } from 'react';
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
 
 // ============================================
 // Constants
@@ -461,14 +462,8 @@ export interface ModalFormProps {
 }
 
 // ============================================
-// Polymorphic Types
+// Polymorphic Types (shared)
 // ============================================
-
-export type PolymorphicProps<C extends ElementType, P = Record<string, never>> = {
-  as?: C;
-  asChild?: boolean;
-} & Omit<ComponentPropsWithoutRef<C>, keyof P> &
-  P;
 
 export interface ModalRootOwnProps extends Omit<
   ModalProps,
@@ -481,3 +476,6 @@ export type ModalRootProps<C extends ElementType = React.ElementType> = Polymorp
   C,
   ModalRootOwnProps
 >;
+
+// Re-export shared PolymorphicProps for convenience
+export type { PolymorphicProps };

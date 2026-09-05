@@ -17,7 +17,7 @@ import styles from './Container.module.scss';
  * - Runtime validation runs ONLY in development mode (`process.env.NODE_ENV === 'development'`)
  * - When `fullWidth={true}`, the `size` prop is ignored (max-width: 100%)
  * - Uses CSS custom properties: `--container-max-width` and `--container-padding` (set by useContainer hook)
- * - Default element: `<div>`. Use `component` prop for semantic HTML (`<section>`, `<article>`, `<main>`, etc.)
+ * - Default element: `<div>`. Use `as` prop for semantic HTML (`<section>`, `<article>`, `<main>`, etc.)
  *
  * @example
  * // Basic usage (default: size="lg", centered=true, padding="md")
@@ -34,7 +34,7 @@ import styles from './Container.module.scss';
  * @example
  * // As a semantic section element
  * ```tsx
- * <Container component="section" aria-label="Main content">
+ * <Container as="section" aria-label="Main content">
  *   <h1>Page Title</h1>
  * </Container>
  * ```
@@ -61,7 +61,7 @@ import styles from './Container.module.scss';
  */
 function ContainerImpl<T extends React.ElementType = 'div'>(
   {
-    component,
+    as,
     size = CONTAINER_CONSTANTS.DEFAULT_SIZE,
     centered = CONTAINER_CONSTANTS.DEFAULT_CENTERED,
     className = '',
@@ -99,7 +99,7 @@ function ContainerImpl<T extends React.ElementType = 'div'>(
   );
 
   const mergedStyle = { ...hookStyle, ...userStyle } as React.CSSProperties;
-  const Tag = component || ('div' as React.ElementType);
+  const Tag = as || ('div' as React.ElementType);
 
   return (
     <Tag
@@ -123,7 +123,7 @@ type ContainerComponent = <C extends React.ElementType = 'div'>(
 /**
  * Container — layout component for limiting width and centering content.
  *
- * Defaults to rendering a `<div>` element. Use `component` to render as
+ * Defaults to rendering a `<div>` element. Use `as` to render as
  * `<section>`, `<article>`, `<main>`, or any other HTML element / React component.
  */
 const MemoContainer = React.memo(

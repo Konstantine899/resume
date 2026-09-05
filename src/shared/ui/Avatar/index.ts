@@ -6,6 +6,7 @@ export type {
   AvatarAboutProps,
   AvatarHeroProps,
   AvatarProps,
+  AvatarOwnProps,
   AvatarSize,
   AvatarVariant,
 } from './model/types';

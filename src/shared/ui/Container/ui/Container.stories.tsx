@@ -573,7 +573,7 @@ export const Playground: Story = {
 
 export const AsSection: Story = {
   render: () => (
-    <Container component="section" aria-label="Content section" data-testid="container-section">
+    <Container as="section" aria-label="Content section" data-testid="container-section">
       <ContentBox>This container renders as a section element</ContentBox>
     </Container>
   ),
@@ -587,7 +587,7 @@ export const AsSection: Story = {
 
 export const AsArticle: Story = {
   render: () => (
-    <Container component="article" data-testid="container-article">
+    <Container as="article" data-testid="container-article">
       <ContentBox>This container renders as an article element</ContentBox>
     </Container>
   ),
@@ -601,13 +601,13 @@ export const AsArticle: Story = {
 export const WithContainerLayout: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Container component="header" size="xl" centered data-testid="layout-header">
+      <Container as="header" size="xl" centered data-testid="layout-header">
         <ContentBox>Header Section (xl)</ContentBox>
       </Container>
-      <Container component="main" size="lg" centered data-testid="layout-main">
+      <Container as="main" size="lg" centered data-testid="layout-main">
         <ContentBox>Main Content (lg)</ContentBox>
       </Container>
-      <Container component="footer" size="md" centered data-testid="layout-footer">
+      <Container as="footer" size="md" centered data-testid="layout-footer">
         <ContentBox>Footer Section (md)</ContentBox>
       </Container>
     </div>

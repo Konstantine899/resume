@@ -1,6 +1,7 @@
 // src/shared/ui/Button/model/types.ts
 
 import { ReactNode } from 'react';
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
 
 /**
  * Варианты визуального стиля кнопки
@@ -256,27 +257,8 @@ export interface ButtonWithIconProps extends BaseButtonProps {
 }
 
 // ============================================
-// Polymorphic Types
+// Polymorphic Types (shared)
 // ============================================
-
-/**
- * Generic polymorphic props type for the `as` prop pattern.
- * @description Allows Button components to render as any HTML element or React component
- * while preserving type safety.
- *
- * @template C - The element type to render as (defaults to 'button')
- * @template P - Props owned by the component (take priority over element props)
- *
- * @example
- * ```tsx
- * <Button<'a', ButtonOwnProps> as="a" href="/about">Link</Button>
- * ```
- */
-export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
-  as?: C;
-  asChild?: boolean;
-} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
-  P;
 
 /**
  * Props owned by Button components (not inherited from HTML element).
@@ -336,3 +318,6 @@ export type ButtonColorScheme = 'brand' | 'neutral' | 'success' | 'warning' | 'd
  * @group Types
  */
 export type ButtonComponentProps = ButtonProps | IconButtonProps | ButtonWithIconProps;
+
+// Re-export shared PolymorphicProps for convenience
+export type { PolymorphicProps };

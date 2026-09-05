@@ -1,6 +1,7 @@
 // src/shared/ui/Container/model/types.ts
 
 import type { HTMLAttributes } from 'react';
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
 
 /**
  * Размер контейнера
@@ -51,6 +52,7 @@ export interface ContainerOwnProps {
   className?: string;
   fullWidth?: boolean;
   padding?: ContainerPadding;
+  asChild?: boolean;
 }
 
 /**
@@ -76,15 +78,5 @@ export interface UseContainerReturn {
   style: React.CSSProperties & Record<string, string>;
 }
 
-/**
- * Generic polymorphic props type for the `component` prop pattern.
- * Allows Container to render as any HTML element or React component
- * while preserving type safety.
- *
- * @template C - The element type to render as (defaults to 'div')
- * @template P - Props owned by the component (take priority over element props)
- */
-export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
-  component?: C;
-} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
-  P;
+// Re-export shared PolymorphicProps for convenience
+export type { PolymorphicProps };
