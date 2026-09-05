@@ -6,3 +6,4 @@ export { getExternalLinkProps, isExternalLink } from './externalLink';
 export { getInitials } from './getInitials';
 export { mergeRefs, useMergeRefs } from './mergeRefs';
 export { resolveCssModuleKey } from './resolveCssModuleKey';
+export { createPolymorphicComponent } from './createPolymorphicComponent';
