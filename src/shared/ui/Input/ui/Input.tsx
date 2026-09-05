@@ -2,7 +2,7 @@
 // Input Component
 // ============================================
 
-import React, { Children, useId, useCallback, useEffect, cloneElement } from 'react';
+import React, { Children, useId, useCallback, cloneElement } from 'react';
 import { classNames } from '@/shared/lib/utils';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { Paragraph } from '@/shared/ui/Paragraph';
@@ -12,7 +12,6 @@ import { Icon } from '@/shared/ui/Icon';
 import { Eye, EyeOff } from 'lucide-react';
 import { INPUT_CONSTANTS } from '../model/constants';
 import { Skeleton } from '@/shared/ui/Skeleton';
-import { validateInputProps } from '../lib/utils/validateInputProps';
 import { inferIconSize } from '../lib/utils/inferIconSize';
 import { useInput } from '../model/hooks/useInput';
 import { usePasswordToggle } from '../model/hooks/usePasswordToggle';
@@ -32,7 +31,7 @@ import { InputLabel } from './InputLabel/InputLabel';
  */
 function InputImpl<C extends React.ElementType = 'input'>(
   {
-    component,
+    as,
     variant = 'default',
     size = 'md',
     className = '',
@@ -59,7 +58,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
   }: PolymorphicProps<C, InputOwnProps>,
   ref: React.ForwardedRef<React.ComponentRef<C>>
 ) {
-  const Tag = component || ('input' as React.ElementType);
+  const Tag = as || ('input' as React.ElementType);
   const isInputElement = Tag === 'input';
 
   // Генерация уникальных ID для accessibility
@@ -113,24 +112,6 @@ function InputImpl<C extends React.ElementType = 'input'>(
     onClear?.();
     inputRef.current?.focus();
   }, [isControlled, setInternalValue, onClear]);
-
-  // Dev warnings for invalid props
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      const warnings = validateInputProps(
-        variant,
-        size,
-        showCounter,
-        props.maxLength as number | undefined,
-        disabled,
-        loading
-      );
-      warnings.forEach((w) => {
-        // eslint-disable-next-line no-console
-        console.warn(w.message);
-      });
-    }
-  }, [variant, size, showCounter, props.maxLength, disabled, loading]);
 
   // Build CSS classes (используем classNames)
   const inputClasses = classNames(
@@ -280,7 +261,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
             className={styles.passwordToggle ?? ''}
             onClick={handleTogglePassword}
             onKeyDown={handlePasswordToggleKeyDown}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? 'input.hidePassword' : 'input.showPassword'}
             aria-pressed={showPassword}
             tabIndex={0}
           >
@@ -303,7 +284,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
               type="button"
               className={styles.clearButton ?? ''}
               onClick={handleClear}
-              aria-label="Clear input"
+              aria-label="input.clear"
               tabIndex={0}
             >
               <ClearIcon />

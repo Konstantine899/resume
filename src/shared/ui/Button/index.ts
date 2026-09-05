@@ -22,7 +22,5 @@ export { ButtonLoader } from './ui/ButtonLoader/ButtonLoader';
 export { useButton } from './lib/hooks/useButton';
 export type { UseButtonOptions, UseButtonReturn } from './lib/hooks/useButton';
 
-// Constants for configuration and validation
+// Constants for configuration
 export { BUTTON_CONSTANTS, ICON_SIZE_MAP } from './model/constants';
-export { validateButtonProps } from './lib/utils/validateButtonProps';
-export type { ButtonValidationWarning } from './lib/utils/validateButtonProps';

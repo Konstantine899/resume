@@ -2,11 +2,10 @@
 // useButton Hook
 // ============================================
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ButtonLoader } from '../../ui/ButtonLoader';
-import { validateButtonProps } from '../utils/validateButtonProps';
 import type {
   ButtonColorScheme,
   ButtonVariant,
@@ -55,7 +54,7 @@ export interface UseButtonReturn {
  * Shared hook that consolidates Button logic duplicated across Button, ButtonWithIcon, and IconButton.
  *
  * @remarks
- * Handles className computation, guarded click handling, runtime validation, and loader rendering.
+ * Handles className computation, guarded click handling, and loader rendering.
  * All three button components use this hook internally.
  *
  * @param options - Configuration matching the common button props
@@ -75,16 +74,6 @@ export const useButton = ({
 }: UseButtonOptions): UseButtonReturn => {
   // Use custom styles (for IconButton/ButtonWithIcon) or default to Button styles
   const s = customStyles ?? buttonStyles;
-  // Runtime validation in development mode
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      const warnings = validateButtonProps(variant, size, loadingVariant, loading);
-      warnings.forEach((w) => {
-        // eslint-disable-next-line no-console
-        console.warn(w.message);
-      });
-    }
-  }, [variant, size, loadingVariant, loading]);
 
   // Memoize className calculation
   const buttonClassName = useMemo(

@@ -82,12 +82,13 @@ export interface AvatarHeroProps extends Omit<
 /**
  * Polymorphic props для Avatar
  * @description Позволяет рендерить Avatar как любой HTML элемент или React компонент
- * @example <Avatar component="article">...</Avatar>
- * @example <Avatar component={Link} href="/profile">...</Avatar>
+ * @example <Avatar as="article">...</Avatar>
+ * @example <Avatar as={Link} href="/profile">...</Avatar>
  */
 export type PolymorphicAvatarProps<C extends React.ElementType = 'div'> = {
   /** Полиморфный компонент для кастомизации корневого элемента */
-  component?: C;
+  as?: C;
+  asChild?: boolean;
 } & Omit<React.ComponentPropsWithoutRef<C>, keyof AvatarProps> &
   AvatarProps;
 

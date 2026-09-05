@@ -25,7 +25,8 @@ export type InputOwnProps = {
   ({ clearable?: false } | { clearable: true });
 
 export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
-  component?: C;
+  as?: C;
+  asChild?: boolean;
 } & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
   P;
 

@@ -38,7 +38,7 @@ export type LoadingVariant = 'spinner' | 'skeleton';
  * Базовые props для всех типов кнопок
  * @description Содержит только props, используемые компонентами Button.
  * Без extends ButtonHTMLAttributes — type и другие button-атрибуты
- * проксируются через PolymorphicProps при component="button".
+ * проксируются через PolymorphicProps при as="button".
  * @group Base
  */
 interface BaseButtonProps {
@@ -57,7 +57,7 @@ interface BaseButtonProps {
   /**
    * HTML type атрибут
    * @default 'button'
-   * @description Проксируется только при component="button"
+   * @description Проксируется только при as="button"
    */
   type?: 'button' | 'submit' | 'reset';
 
@@ -230,7 +230,7 @@ export interface ButtonWithIconProps extends BaseButtonProps {
 
   /**
    * Иконка слева от текста
-   * @description Обычно используется для действия (Download, Edit, Delete)
+   * @description Обычно используется для действие (Download, Edit, Delete)
    * @example <Mail size={18} />
    */
   leftIcon?: ReactNode;
@@ -260,20 +260,21 @@ export interface ButtonWithIconProps extends BaseButtonProps {
 // ============================================
 
 /**
- * Generic polymorphic props type for the `component` prop pattern.
+ * Generic polymorphic props type for the `as` prop pattern.
  * @description Allows Button components to render as any HTML element or React component
  * while preserving type safety.
-
+ *
  * @template C - The element type to render as (defaults to 'button')
  * @template P - Props owned by the component (take priority over element props)
  *
  * @example
  * ```tsx
- * <Button<'a', ButtonOwnProps> component="a" href="/about">Link</Button>
+ * <Button<'a', ButtonOwnProps> as="a" href="/about">Link</Button>
  * ```
  */
 export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
-  component?: C;
+  as?: C;
+  asChild?: boolean;
 } & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
   P;
 

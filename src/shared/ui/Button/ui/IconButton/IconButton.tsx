@@ -3,7 +3,7 @@
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import React from 'react';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
 import { useButton } from '../../lib/hooks/useButton';
 import { inferIconSize } from '../../lib/utils/inferIconSize';
@@ -21,13 +21,21 @@ import styles from './IconButton.module.scss';
  * @example
  * // As a link
  * ```tsx
- * <IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" />
+ * <IconButton as="a" href="/about" icon={<Mail />} ariaLabel="Mail" />
  * ```
  *
  * @example
  * // Loading state
  * ```tsx
  * <IconButton icon={<Edit size={20} />} ariaLabel="Edit" loading />
+ * ```
+ *
+ * @example
+ * // asChild pattern
+ * ```tsx
+ * <IconButton asChild>
+ *   <a href="/about"><Mail /></a>
+ * </IconButton>
  * ```
  */
 function IconButtonImpl<C extends React.ElementType = 'button'>(
@@ -44,8 +52,9 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
     fullWidth = false,
     loading = false,
     loadingVariant = 'spinner',
-    component,
-    asChild: _asChild,
+    as,
+    asChild = false,
+    children,
     ...props
   }: PolymorphicProps<C, ButtonOwnProps & { icon: React.ReactNode; ariaLabel: string }>,
   ref: React.ForwardedRef<React.ComponentRef<C>>
@@ -63,7 +72,36 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
     styles,
   });
 
-  const Tag = component || ('button' as React.ElementType);
+  // asChild mode: merge props into child element instead of rendering own DOM node
+  if (asChild) {
+    const child = Children.only(children);
+    if (!isValidElement(child)) {
+      return null;
+    }
+
+    const isDisabled = disabled || loading;
+    const childProps = child.props as Record<string, unknown>;
+
+    /* eslint-disable react-hooks/refs */
+    return cloneElement(child, {
+      className: classNames(
+        buttonClassName,
+        childProps.className as string,
+        isDisabled && styles.disabled
+      ),
+      onClick: handleClick,
+      'aria-label': ariaLabel,
+      'aria-disabled': isDisabled || undefined,
+      'aria-busy': loading || undefined,
+      'data-state': loading ? 'loading' : 'idle',
+      'data-testid': 'icon-button',
+      ref: ref as React.Ref<unknown>,
+      ...props,
+    } as Record<string, unknown>) as React.ReactElement;
+    /* eslint-enable react-hooks/refs */
+  }
+
+  const Tag = as || ('button' as React.ElementType);
   const isButtonElement = Tag === 'button';
   const isDisabled = disabled || loading;
   const sizedIcon = inferIconSize(icon, size as ButtonSize);
@@ -91,9 +129,10 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
 IconButtonImpl.displayName = 'IconButton';
 
 /**
- * IconButton — icon-only button with polymorphic `component` prop and auto icon sizing.
+ * IconButton — icon-only button with polymorphic `as` prop and auto icon sizing.
  *
- * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link.
+ * Defaults to rendering a `<button>` element. Use `as="a"` to render as a link.
+ * Use `asChild` to compose with a single child element (Radix Slot pattern).
  * Icon size is auto-inferred from button size unless the icon has an explicit `size` prop.
  */
 export const IconButton = React.memo(

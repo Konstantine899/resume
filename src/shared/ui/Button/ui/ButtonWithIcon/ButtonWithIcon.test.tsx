@@ -295,9 +295,9 @@ describe('ButtonWithIcon', () => {
   });
 
   describe('Polymorphic (component prop)', () => {
-    it('должен рендериться как <a> при component="a"', () => {
+    it('должен рендериться как <a> при as="a"', () => {
       render(
-        <ButtonWithIcon component="a" href="/about" leftIcon={<Mail />}>
+        <ButtonWithIcon as="a" href="/about" leftIcon={<Mail />}>
           Link
         </ButtonWithIcon>
       );
@@ -307,9 +307,9 @@ describe('ButtonWithIcon', () => {
       expect(link).toHaveAttribute('href', '/about');
     });
 
-    it('должен сохранять стили при component="a"', () => {
+    it('должен сохранять стили при as="a"', () => {
       render(
-        <ButtonWithIcon component="a" href="/test" leftIcon={<Mail />} variant="danger">
+        <ButtonWithIcon as="a" href="/test" leftIcon={<Mail />} variant="danger">
           Link
         </ButtonWithIcon>
       );
@@ -320,9 +320,9 @@ describe('ButtonWithIcon', () => {
       expect(link).toHaveClass(buttonWithIconStyles['color-scheme-danger'] ?? '');
     });
 
-    it('должен иметь aria-disabled при disabled=true и component="a"', () => {
+    it('должен иметь aria-disabled при disabled=true и as="a"', () => {
       render(
-        <ButtonWithIcon component="a" href="/test" leftIcon={<Mail />} disabled>
+        <ButtonWithIcon as="a" href="/test" leftIcon={<Mail />} disabled>
           Link
         </ButtonWithIcon>
       );
@@ -331,9 +331,9 @@ describe('ButtonWithIcon', () => {
       expect(link).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен рендериться как <div> при component="div"', () => {
+    it('должен рендериться как <div> при as="div"', () => {
       render(
-        <ButtonWithIcon component="div" leftIcon={<Mail />}>
+        <ButtonWithIcon as="div" leftIcon={<Mail />}>
           Div Button
         </ButtonWithIcon>
       );
@@ -343,9 +343,9 @@ describe('ButtonWithIcon', () => {
       expect(div).toHaveAttribute('role', 'button');
     });
 
-    it('должен иметь aria-disabled при disabled=true и component="div"', () => {
+    it('должен иметь aria-disabled при disabled=true и as="div"', () => {
       render(
-        <ButtonWithIcon component="div" leftIcon={<Mail />} disabled>
+        <ButtonWithIcon as="div" leftIcon={<Mail />} disabled>
           Div Button
         </ButtonWithIcon>
       );
@@ -354,16 +354,10 @@ describe('ButtonWithIcon', () => {
       expect(div).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('не должен вызывать onClick при loading=true и component="a"', () => {
+    it('не должен вызывать onClick при loading=true и as="a"', () => {
       const handleClick = vi.fn();
       render(
-        <ButtonWithIcon
-          component="a"
-          href="/test"
-          leftIcon={<Mail />}
-          loading
-          onClick={handleClick}
-        >
+        <ButtonWithIcon as="a" href="/test" leftIcon={<Mail />} loading onClick={handleClick}>
           Link
         </ButtonWithIcon>
       );
@@ -375,10 +369,10 @@ describe('ButtonWithIcon', () => {
       expect(link).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен передавать ref на anchor элемент при component="a"', () => {
+    it('должен передавать ref на anchor элемент при as="a"', () => {
       const ref = vi.fn();
       render(
-        <ButtonWithIcon component="a" href="/about" leftIcon={<Mail />} ref={ref}>
+        <ButtonWithIcon as="a" href="/about" leftIcon={<Mail />} ref={ref}>
           Link
         </ButtonWithIcon>
       );

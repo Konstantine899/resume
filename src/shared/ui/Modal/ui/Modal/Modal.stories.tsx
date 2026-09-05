@@ -774,7 +774,7 @@ export const AsSection: Story = {
     return (
       <div>
         <Button onClick={open}>As Section</Button>
-        <Modal isOpen={isOpen} onClose={close} title="Polymorphic Section" component="section">
+        <Modal isOpen={isOpen} onClose={close} title="Polymorphic Section" as="section">
           <p>Modal root is a &lt;section&gt; element</p>
         </Modal>
       </div>
@@ -799,7 +799,7 @@ export const AsArticle: Story = {
     return (
       <div>
         <Button onClick={open}>As Article</Button>
-        <Modal isOpen={isOpen} onClose={close} title="Polymorphic Article" component="article">
+        <Modal isOpen={isOpen} onClose={close} title="Polymorphic Article" as="article">
           <p>Modal root is an &lt;article&gt; element</p>
         </Modal>
       </div>

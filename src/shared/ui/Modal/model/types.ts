@@ -30,9 +30,9 @@ export interface ModalProps {
    * Компонент для рендера корневого элемента модалки
    * @default 'div'
    * @description Позволяет изменить HTML-элемент (section, article) или использовать custom component
-   * @example <Modal component="section" title="About">...</Modal>
+   * @example <Modal as="section" title="About">...</Modal>
    */
-  component?: React.ElementType;
+  as?: React.ElementType;
 
   /**
    * Контент модального окна
@@ -231,6 +231,15 @@ export interface ModalProps {
    * @example <Modal modal={false}> — панель справа/снизу без блокировки
    */
   modal?: boolean;
+
+  /**
+   * Render the child element as the root (Radix Slot pattern)
+   * @default false
+   * @description When true, the single child element receives all root props (role, aria-*, ref, etc.)
+   * instead of wrapping it. Component and style props are merged onto the child.
+   * @example <Modal.Root asChild><section>...</section></Modal.Root>
+   */
+  asChild?: boolean;
 }
 
 // ============================================
@@ -456,7 +465,8 @@ export interface ModalFormProps {
 // ============================================
 
 export type PolymorphicProps<C extends ElementType, P = Record<string, never>> = {
-  component?: C;
+  as?: C;
+  asChild?: boolean;
 } & Omit<ComponentPropsWithoutRef<C>, keyof P> &
   P;
 
@@ -465,15 +475,6 @@ export interface ModalRootOwnProps extends Omit<
   'title' | 'footer' | 'showCloseButton'
 > {
   children: ReactNode;
-
-  /**
-   * Render the child element as the root (Radix Slot pattern)
-   * @default false
-   * @description When true, the single child element receives all root props (role, aria-*, ref, etc.)
-   * instead of wrapping it. Component and style props are merged onto the child.
-   * @example <Modal.Root asChild><section>...</section></Modal.Root>
-   */
-  asChild?: boolean;
 }
 
 export type ModalRootProps<C extends ElementType = React.ElementType> = PolymorphicProps<

@@ -3,8 +3,6 @@
 export { Input } from './ui/Input';
 export type { InputProps, InputStatus, InputVariant, InputSize } from './model/types';
 export { INPUT_CONSTANTS } from './model/constants';
-export { validateInputProps } from './lib/utils/validateInputProps';
-export type { InputValidationWarning } from './lib/utils/validateInputProps';
 
 // Sub-components
 export { InputLabel } from './ui/InputLabel/InputLabel';

@@ -147,58 +147,56 @@ describe('IconButton', () => {
   });
 
   describe('Polymorphic (component prop)', () => {
-    it('должен рендериться как <a> при component="a"', () => {
-      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" />);
+    it('должен рендериться как <a> при as="a"', () => {
+      render(<IconButton as="a" href="/about" icon={<Mail />} ariaLabel="Mail" />);
 
       const link = screen.getByTestId('icon-button');
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('href', '/about');
     });
 
-    it('должен иметь aria-label при component="a"', () => {
-      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Send email" />);
+    it('должен иметь aria-label при as="a"', () => {
+      render(<IconButton as="a" href="/about" icon={<Mail />} ariaLabel="Send email" />);
 
       const link = screen.getByTestId('icon-button');
       expect(link).toHaveAttribute('aria-label', 'Send email');
     });
 
-    it('должен сохранять стили при component="a"', () => {
-      render(
-        <IconButton component="a" href="/test" icon={<Mail />} ariaLabel="Mail" variant="ghost" />
-      );
+    it('должен сохранять стили при as="a"', () => {
+      render(<IconButton as="a" href="/test" icon={<Mail />} ariaLabel="Mail" variant="ghost" />);
 
       const link = screen.getByTestId('icon-button');
       expect(link).toHaveClass(iconButtonStyles.button ?? '');
       expect(link).toHaveClass(iconButtonStyles.ghost ?? '');
     });
 
-    it('должен иметь aria-disabled при disabled=true и component="a"', () => {
-      render(<IconButton component="a" href="/test" icon={<Mail />} ariaLabel="Mail" disabled />);
+    it('должен иметь aria-disabled при disabled=true и as="a"', () => {
+      render(<IconButton as="a" href="/test" icon={<Mail />} ariaLabel="Mail" disabled />);
 
       const link = screen.getByTestId('icon-button');
       expect(link).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен рендериться как <div> при component="div"', () => {
-      render(<IconButton component="div" icon={<Mail />} ariaLabel="Mail" />);
+    it('должен рендериться как <div> при as="div"', () => {
+      render(<IconButton as="div" icon={<Mail />} ariaLabel="Mail" />);
 
       const div = screen.getByRole('button');
       expect(div.tagName).toBe('DIV');
       expect(div).toHaveAttribute('role', 'button');
     });
 
-    it('должен иметь aria-disabled при disabled=true и component="div"', () => {
-      render(<IconButton component="div" icon={<Mail />} ariaLabel="Mail" disabled />);
+    it('должен иметь aria-disabled при disabled=true и as="div"', () => {
+      render(<IconButton as="div" icon={<Mail />} ariaLabel="Mail" disabled />);
 
       const div = screen.getByRole('button');
       expect(div).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('не должен вызывать onClick при loading=true и component="a"', () => {
+    it('не должен вызывать onClick при loading=true и as="a"', () => {
       const handleClick = vi.fn();
       render(
         <IconButton
-          component="a"
+          as="a"
           href="/test"
           icon={<Mail />}
           ariaLabel="Mail"
@@ -214,9 +212,9 @@ describe('IconButton', () => {
       expect(link).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен передавать ref на anchor элемент при component="a"', () => {
+    it('должен передавать ref на anchor элемент при as="a"', () => {
       const ref = vi.fn();
-      render(<IconButton component="a" href="/about" icon={<Mail />} ariaLabel="Mail" ref={ref} />);
+      render(<IconButton as="a" href="/about" icon={<Mail />} ariaLabel="Mail" ref={ref} />);
 
       expect(ref).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
     });

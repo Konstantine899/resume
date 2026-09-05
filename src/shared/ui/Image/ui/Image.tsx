@@ -103,14 +103,18 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
   }, [variant, style, width, height, size]);
 
   // Image style
+  // isLoading for aria-busy
+  const isLoading = loadingStatus === 'loading' || forceLoading || pendingLocal;
+
   const imageStyle = useMemo(() => {
     return {
+      'aria-busy': isLoading || undefined,
       objectFit,
       filter:
         loadingStatus === 'loading' && placeholder === 'blur' ? `blur(${blurAmount}px)` : 'none',
       opacity: loadingStatus === 'error' ? 0 : 1,
     };
-  }, [objectFit, loadingStatus, placeholder, blurAmount]);
+  }, [objectFit, loadingStatus, placeholder, blurAmount, isLoading]);
 
   // Native loadstart listener (React 19 doesn't delegate loadstart for <img> via synthetic events)
   useEffect(() => {
@@ -171,24 +175,24 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       </div>
     );
   };
-
   // Aria attributes
   const ariaProps = useMemo(() => {
     if (decorative) {
       return {
+        'aria-busy': isLoading || undefined,
         role: 'presentation' as const,
         'aria-hidden': true,
         alt: '',
       };
     }
     return {
+      'aria-busy': isLoading || undefined,
       role: 'img' as const,
       'aria-hidden': false,
       alt: alt || '',
       ...(fallbackDescriptionId && { 'aria-describedby': fallbackDescriptionId }),
     };
-  }, [decorative, alt, fallbackDescriptionId]);
-
+  }, [decorative, alt, fallbackDescriptionId, isLoading]);
   // Destructure hook's event callbacks for stable deps
   const { onLoad: hookOnLoad, onError: hookOnError } = hook;
 

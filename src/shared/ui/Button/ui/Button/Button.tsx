@@ -28,7 +28,15 @@ import styles from './Button.module.scss';
  * @example
  * // As a link
  * ```tsx
- * <Button component="a" href="/about">Link</Button>
+ * <Button as="a" href="/about">Link</Button>
+ * ```
+ *
+ * @example
+ * // asChild pattern
+ * ```tsx
+ * <Button asChild>
+ *   <a href="/about">About</a>
+ * </Button>
  * ```
  */
 function ButtonImpl<C extends React.ElementType = 'button'>(
@@ -44,7 +52,7 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     fullWidth = false,
     loading = false,
     loadingVariant = 'spinner',
-    component,
+    as,
     asChild = false,
     ...props
   }: PolymorphicProps<C, ButtonOwnProps>,
@@ -90,7 +98,7 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
     /* eslint-enable react-hooks/refs */
   }
 
-  const Tag = component || ('button' as React.ElementType);
+  const Tag = as || ('button' as React.ElementType);
   const isButtonElement = Tag === 'button';
   const isDisabled = disabled || loading;
 
@@ -116,10 +124,11 @@ function ButtonImpl<C extends React.ElementType = 'button'>(
 ButtonImpl.displayName = 'Button';
 
 /**
- * Button — text-only button with polymorphic `component` prop support.
+ * Button — text-only button with polymorphic `as` prop support.
  *
- * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link,
+ * Defaults to rendering a `<button>` element. Use `as="a"` to render as a link,
  * or any other HTML element / React component.
+ * Use `asChild` to compose with a single child element (Radix Slot pattern).
  */
 export const Button = React.memo(
   ButtonImpl as React.FC<PolymorphicProps<React.ElementType, ButtonOwnProps>>

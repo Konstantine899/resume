@@ -558,31 +558,31 @@ describe('Modal (Compound)', () => {
       expect(dialog.tagName).toBe('DIV');
     });
 
-    it('should render as section when component="section"', () => {
-      render(<Modal {...defaultProps} component="section" />);
+    it('should render as section when as="section"', () => {
+      render(<Modal {...defaultProps} as="section" />);
       const dialog = screen.getByRole('dialog');
       expect(dialog.tagName).toBe('SECTION');
     });
 
-    it('should render as article when component="article"', () => {
-      render(<Modal {...defaultProps} component="article" />);
+    it('should render as article when as="article"', () => {
+      render(<Modal {...defaultProps} as="article" />);
       const dialog = screen.getByRole('dialog');
       expect(dialog.tagName).toBe('ARTICLE');
     });
 
     it('should preserve role="dialog" with custom component', () => {
-      render(<Modal {...defaultProps} component="section" />);
+      render(<Modal {...defaultProps} as="section" />);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
     it('should preserve aria-modal with custom component', () => {
-      render(<Modal {...defaultProps} component="section" />);
+      render(<Modal {...defaultProps} as="section" />);
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
     });
 
     it('should handle component prop via Modal.Root directly', () => {
       render(
-        <Modal.Root isOpen={true} onClose={vi.fn()} component="section">
+        <Modal.Root isOpen={true} onClose={vi.fn()} as="section">
           <div>Root custom element</div>
         </Modal.Root>
       );
