@@ -1,4 +1,5 @@
 import { InputHTMLAttributes } from 'react';
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
 
 export type InputVariant = 'default' | 'outline' | 'filled' | 'floating';
 
@@ -24,11 +25,6 @@ export type InputOwnProps = {
 } & ({ showCounter?: false; maxLength?: number } | { showCounter: true; maxLength: number }) &
   ({ clearable?: false } | { clearable: true });
 
-export type PolymorphicProps<C extends React.ElementType, P = Record<string, never>> = {
-  component?: C;
-} & Omit<React.ComponentPropsWithoutRef<C>, keyof P> &
-  P;
-
 export type InputProps = InputOwnProps & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 export type InputStatus = 'error' | 'success' | 'loading' | 'skeleton';
@@ -39,3 +35,6 @@ export interface InputGroupProps {
   size?: InputSize;
   variant?: InputVariant;
 }
+
+// Re-export shared PolymorphicProps for convenience
+export type { PolymorphicProps };

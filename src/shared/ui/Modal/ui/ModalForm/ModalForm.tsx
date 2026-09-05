@@ -45,7 +45,7 @@ export const ModalForm = memo((props: ModalFormProps) => {
         </>
       }
     >
-      <form id="modal-form" onSubmit={onSubmit}>
+      <form id="modal-form" onSubmit={onSubmit} aria-busy={loading || undefined}>
         {children}
       </form>
     </Modal>

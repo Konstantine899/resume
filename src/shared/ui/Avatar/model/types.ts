@@ -17,7 +17,7 @@ export type AvatarVariant = 'circle' | 'square';
 /**
  * Props для основного компонента Avatar
  */
-export interface AvatarProps {
+export interface AvatarOwnProps {
   /** URL изображения аватара */
   src?: string;
   /** Альтернативный текст для доступности (используется для инициалов) */
@@ -46,7 +46,11 @@ export interface AvatarProps {
   forceLoading?: boolean;
   /** Дочерние элементы */
   children?: React.ReactNode;
+  asChild?: boolean;
 }
+
+/** @deprecated Use AvatarOwnProps instead */
+export type AvatarProps = AvatarOwnProps;
 
 /**
  * Props для компонента AvatarFallback (отображение инициалов)
@@ -70,7 +74,7 @@ export interface AvatarFallbackProps {
  * Props для компонента AvatarHero (геройская версия аватара)
  */
 export interface AvatarHeroProps extends Omit<
-  AvatarProps,
+  AvatarOwnProps,
   'variant' | 'fallback' | 'onError' | 'onLoad'
 > {
   /** Показать эффект свечения */
@@ -80,23 +84,26 @@ export interface AvatarHeroProps extends Omit<
 }
 
 /**
- * Polymorphic props для Avatar
- * @description Позволяет рендерить Avatar как любой HTML элемент или React компонент
- * @example <Avatar component="article">...</Avatar>
- * @example <Avatar component={Link} href="/profile">...</Avatar>
- */
-export type PolymorphicAvatarProps<C extends React.ElementType = 'div'> = {
-  /** Полиморфный компонент для кастомизации корневого элемента */
-  component?: C;
-} & Omit<React.ComponentPropsWithoutRef<C>, keyof AvatarProps> &
-  AvatarProps;
-
-/**
  * Props для компонента AvatarAbout (версия для секции About)
  */
 export interface AvatarAboutProps extends Omit<
-  AvatarProps,
+  AvatarOwnProps,
   'variant' | 'fallback' | 'onError' | 'onLoad' | 'showGlow' | 'showRing'
 > {
   size?: 'sm' | 'md' | 'lg';
 }
+
+// Re-export shared PolymorphicProps for convenience
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
+export type { PolymorphicProps };
+
+/**
+ * Polymorphic props для Avatar (alias for shared type)
+ * @description Позволяет рендерить Avatar как любой HTML элемент или React компонент
+ * @example <Avatar as="article">...</Avatar>
+ * @example <Avatar as={Link} href="/profile">...</Avatar>
+ */
+export type PolymorphicAvatarProps<C extends React.ElementType = 'div'> = PolymorphicProps<
+  C,
+  AvatarOwnProps
+>;

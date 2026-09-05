@@ -153,7 +153,7 @@ describe('icon-adoption: Input size guards', () => {
 
   it('Input password toggle button renders a 16px Eye/EyeOff svg', () => {
     const { container } = render(<Input type="password" showPasswordToggle />);
-    const toggleButton = container.querySelector('button[aria-label="Show password"]');
+    const toggleButton = container.querySelector('button[aria-label="input.showPassword"]');
     expect(toggleButton).not.toBeNull();
     assertIconSize(toggleButton as HTMLElement, 16);
   });

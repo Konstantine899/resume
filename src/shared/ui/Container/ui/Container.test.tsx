@@ -281,20 +281,20 @@ describe('Container', () => {
       expect(testRef.current).toBeInstanceOf(HTMLDivElement);
     });
 
-    it('должен передавать HTMLAnchorElement при component="a"', () => {
+    it('должен передавать HTMLAnchorElement при as="a"', () => {
       const refCallback = vi.fn();
       render(
-        <Container component="a" href="/test" ref={refCallback} data-testid="container">
+        <Container as="a" href="/test" ref={refCallback} data-testid="container">
           Content
         </Container>
       );
       expect(refCallback).toHaveBeenCalledWith(expect.any(HTMLAnchorElement));
     });
 
-    it('должен передавать HTMLElement при component="section"', () => {
+    it('должен передавать HTMLElement при as="section"', () => {
       const refCallback = vi.fn();
       render(
-        <Container component="section" ref={refCallback} data-testid="container">
+        <Container as="section" ref={refCallback} data-testid="container">
           Content
         </Container>
       );
@@ -455,9 +455,9 @@ describe('Container', () => {
   // ============================================
 
   describe('Polymorphic Rendering', () => {
-    it('должен рендериться как <section> при component="section"', () => {
+    it('должен рендериться как <section> при as="section"', () => {
       render(
-        <Container component="section" aria-label="Main content" data-testid="container">
+        <Container as="section" aria-label="Main content" data-testid="container">
           Content
         </Container>
       );
@@ -465,9 +465,9 @@ describe('Container', () => {
       expect(container.tagName).toBe('SECTION');
     });
 
-    it('должен передавать aria-label при component="section"', () => {
+    it('должен передавать aria-label при as="section"', () => {
       render(
-        <Container component="section" aria-label="Content section" data-testid="container">
+        <Container as="section" aria-label="Content section" data-testid="container">
           Content
         </Container>
       );
@@ -475,9 +475,9 @@ describe('Container', () => {
       expect(container).toHaveAttribute('aria-label', 'Content section');
     });
 
-    it('должен рендериться как <main> при component="main"', () => {
+    it('должен рендериться как <main> при as="main"', () => {
       render(
-        <Container component="main" data-testid="container">
+        <Container as="main" data-testid="container">
           Content
         </Container>
       );
@@ -485,9 +485,9 @@ describe('Container', () => {
       expect(container.tagName).toBe('MAIN');
     });
 
-    it('должен рендериться как <article> при component="article"', () => {
+    it('должен рендериться как <article> при as="article"', () => {
       render(
-        <Container component="article" data-testid="container">
+        <Container as="article" data-testid="container">
           Content
         </Container>
       );
@@ -501,9 +501,9 @@ describe('Container', () => {
       expect(container.tagName).toBe('DIV');
     });
 
-    it('должен сохранять CSS классы при component="section"', () => {
+    it('должен сохранять CSS классы при as="section"', () => {
       render(
-        <Container component="section" size="lg" padding="md" data-testid="container">
+        <Container as="section" size="lg" padding="md" data-testid="container">
           Content
         </Container>
       );
@@ -513,9 +513,9 @@ describe('Container', () => {
       expect(container.className).toContain(containerStyles['padding-md'] ?? '');
     });
 
-    it('должен передавать data-size и data-padding при component="article"', () => {
+    it('должен передавать data-size и data-padding при as="article"', () => {
       render(
-        <Container component="article" size="xl" padding="sm" data-testid="container">
+        <Container as="article" size="xl" padding="sm" data-testid="container">
           Content
         </Container>
       );
@@ -524,9 +524,9 @@ describe('Container', () => {
       expect(container).toHaveAttribute('data-padding', 'sm');
     });
 
-    it('должен рендериться как <a> с href при component="a"', () => {
+    it('должен рендериться как <a> с href при as="a"', () => {
       render(
-        <Container component="a" href="/test" data-testid="container">
+        <Container as="a" href="/test" data-testid="container">
           Content
         </Container>
       );
@@ -535,9 +535,9 @@ describe('Container', () => {
       expect(container).toHaveAttribute('href', '/test');
     });
 
-    it('должен передавать href и target при component="a"', () => {
+    it('должен передавать href и target при as="a"', () => {
       render(
-        <Container component="a" href="/test" target="_blank" data-testid="container">
+        <Container as="a" href="/test" target="_blank" data-testid="container">
           Content
         </Container>
       );

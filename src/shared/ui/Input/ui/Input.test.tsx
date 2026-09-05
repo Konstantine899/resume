@@ -272,7 +272,7 @@ describe('Input', () => {
 
     it('hides password toggle when skeleton', () => {
       render(<Input skeleton type="password" showPasswordToggle />);
-      expect(screen.queryByRole('button', { name: /show password/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /input.showPassword/i })).not.toBeInTheDocument();
     });
 
     it('hides character counter when skeleton', () => {
@@ -713,7 +713,7 @@ describe('Input', () => {
   describe('Password Toggle', () => {
     it('shows password toggle button when showPasswordToggle is true', () => {
       render(<Input type="password" showPasswordToggle />);
-      expect(screen.getByRole('button', { name: /show password/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /input.showPassword/i })).toBeInTheDocument();
     });
 
     it('has correct initial type=password', () => {
@@ -724,10 +724,10 @@ describe('Input', () => {
 
     it('changes icon from Eye to EyeOff', async () => {
       render(<Input type="password" showPasswordToggle />);
-      const toggle = screen.getByRole('button', { name: /show password/i });
+      const toggle = screen.getByRole('button', { name: /input.showPassword/i });
       expect(toggle).toBeInTheDocument();
       await userEvent.click(toggle);
-      expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /input.hidePassword/i })).toBeInTheDocument();
     });
 
     it('does not show toggle for non-password types', () => {
@@ -737,19 +737,19 @@ describe('Input', () => {
   });
 
   describe('Polymorphic component prop', () => {
-    it('renders as <a> when component="a" with href', () => {
-      render(<Input component="a" href="/test" label="Link" />);
+    it('renders as <a> when as="a" with href', () => {
+      render(<Input as="a" href="/test" label="Link" />);
       const link = screen.getByRole('link');
       expect(link).toHaveAttribute('href', '/test');
     });
 
-    it('renders as <button> when component="button"', () => {
-      render(<Input component="button" label="Btn" />);
+    it('renders as <button> when as="button"', () => {
+      render(<Input as="button" label="Btn" />);
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
     it('preserves Input styles with polymorphic component', () => {
-      render(<Input component="a" href="/test" variant="outline" size="lg" label="Link" />);
+      render(<Input as="a" href="/test" variant="outline" size="lg" label="Link" />);
       const link = screen.getByRole('link');
       expect(link.className).toContain('input');
       expect(link.className).toContain('outline');
@@ -762,7 +762,7 @@ describe('Input', () => {
 
     it('forwards ref to polymorphic element', () => {
       const ref = { current: null };
-      render(<Input component="a" href="/test" ref={ref} label="Link" />);
+      render(<Input as="a" href="/test" ref={ref} label="Link" />);
       expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
     });
   });
@@ -824,7 +824,7 @@ describe('Input', () => {
 
     it('asChild takes precedence over component prop', () => {
       render(
-        <Input asChild component="a" label="Test">
+        <Input asChild as="a" label="Test">
           <input data-testid="asChild-input" />
         </Input>
       );

@@ -84,6 +84,7 @@ const TooltipContentImpl = memo((props: TooltipContentProps) => {
         style={{ ...calculatedStyle, ...overlayRest, ...colorVar, ...arrowShadowVar }}
         onMouseEnter={activeTrigger === 'hover' ? handlers.handleMouseEnter : undefined}
         onMouseLeave={activeTrigger === 'hover' ? handlers.handleMouseLeave : undefined}
+        aria-busy={skeleton || undefined}
         {...(skeleton ? { 'data-skeleton': 'true' } : {})}
       >
         {skeleton ? <Skeleton variant="text" width="120px" lines={2} /> : children}

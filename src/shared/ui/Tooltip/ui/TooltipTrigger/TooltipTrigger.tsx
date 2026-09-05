@@ -112,6 +112,7 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
     'data-tooltip-trigger': activeTrigger,
     'data-tooltip-disabled': disabled,
     ...(skeleton ? { 'data-skeleton': 'true' } : {}),
+    ...(skeleton ? { 'aria-busy': true } : {}),
   };
 
   if (asChild) {
@@ -141,6 +142,7 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
       'data-tooltip-trigger': activeTrigger,
       'data-tooltip-disabled': disabled,
       ...(skeleton ? { 'data-skeleton': 'true' } : {}),
+      ...(skeleton ? { 'aria-busy': true } : {}),
       // Event-обработчики мержим, а не перезаписываем.
       onMouseEnter: (e: MouseEvent<HTMLElement>) => {
         (childProps.onMouseEnter as ((ev: MouseEvent<HTMLElement>) => void) | undefined)?.(e);

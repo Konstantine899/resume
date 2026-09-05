@@ -2,22 +2,28 @@
 // Card Component - TypeScript Types
 // ============================================
 
-import {
-  HTMLAttributes,
-  ReactNode,
-  MouseEvent,
-  ElementType,
-  ComponentPropsWithoutRef,
-} from 'react';
+import { HTMLAttributes, ReactNode, MouseEvent, ElementType } from 'react';
+import type { PolymorphicProps } from '@/shared/lib/types/polymorphic';
 
 // ============================================
-// Polymorphic Types
+// Polymorphic Types (shared)
 // ============================================
 
-export type PolymorphicProps<C extends ElementType, P = Record<string, never>> = {
-  component?: C;
-} & Omit<ComponentPropsWithoutRef<C>, keyof P> &
-  P;
+export interface CardOwnProps {
+  variant?: CardVariant;
+  size?: CardSize;
+  radius?: CardRadius;
+  fullWidth?: boolean;
+  hoverable?: boolean;
+  className?: string;
+  children?: ReactNode;
+  asChild?: boolean;
+}
+
+/**
+ * Props для базового компонента Card (default = div)
+ */
+export type BaseCardProps<C extends ElementType = 'div'> = PolymorphicProps<C, CardOwnProps>;
 
 // ============================================
 // Base Types
@@ -27,13 +33,7 @@ export type PolymorphicProps<C extends ElementType, P = Record<string, never>> =
  * Варианты стилей карточки
  */
 export type CardVariant =
-  | 'default'
-  | 'project'
-  | 'workHistory'
-  | 'skill'
-  | 'about'
-  | 'codeBlock'
-  | 'contact';
+  'default' | 'project' | 'workHistory' | 'skill' | 'about' | 'codeBlock' | 'contact';
 
 /**
  * Размеры карточки
@@ -53,25 +53,6 @@ export interface TechIcon {
   url: string;
   invertInDark?: boolean;
 }
-
-// ============================================
-// Base Card Own Props (non-polymorphic)
-// ============================================
-
-export interface CardOwnProps {
-  variant?: CardVariant;
-  size?: CardSize;
-  radius?: CardRadius;
-  fullWidth?: boolean;
-  hoverable?: boolean;
-  className?: string;
-  children?: ReactNode;
-}
-
-/**
- * Props для базового компонента Card (default = button)
- */
-export type BaseCardProps<C extends ElementType = 'div'> = PolymorphicProps<C, CardOwnProps>;
 
 // ============================================
 // Specialized Card Props
@@ -232,3 +213,6 @@ export interface CardClickEvent {
 export type CardClickHandler = (event: CardClickEvent) => void;
 
 export type CardHoverHandler = (isHovered: boolean) => void;
+
+// Re-export shared PolymorphicProps for convenience
+export type { PolymorphicProps };

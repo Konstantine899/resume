@@ -77,12 +77,6 @@ function ParagraphImpl<C extends ElementType = 'p'>(
   }
 
   // Если asChild=true но children не является единственным ReactElement, рендерим как обычно
-  if (asChild && process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'Paragraph: asChild requires a single ReactElement child. Falling back to default rendering.'
-    );
-  }
 
   const Tag = Component as ElementType;
 

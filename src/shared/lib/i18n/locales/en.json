@@ -62,5 +62,9 @@
   "copyCode": "Copy code",
   "clickToCopy": "Click to copy code",
   "codeBlock": "Code block",
-  "codeBlockWithTitle": "Code block: {{title}}"
+  "codeBlockWithTitle": "Code block: {{title}}",
+  "input.showPassword": "Show password",
+  "input.hidePassword": "Hide password",
+  "input.clear": "Clear input",
+  "modal.close": "Close modal"
 }

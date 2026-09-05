@@ -3,7 +3,7 @@
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
-import React from 'react';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import type { ButtonOwnProps, ButtonSize, PolymorphicProps } from '../../model/types';
 import { useButton } from '../../lib/hooks/useButton';
 import { inferIconSize } from '../../lib/utils/inferIconSize';
@@ -31,7 +31,15 @@ import styles from './ButtonWithIcon.module.scss';
  * @example
  * // As a link
  * ```tsx
- * <ButtonWithIcon component="a" href="/about" leftIcon={<Mail />}>Link</ButtonWithIcon>
+ * <ButtonWithIcon as="a" href="/about" leftIcon={<Mail />}>Link</ButtonWithIcon>
+ * ```
+ *
+ * @example
+ * // asChild pattern
+ * ```tsx
+ * <ButtonWithIcon asChild>
+ *   <a href="/about">About</a>
+ * </ButtonWithIcon>
  * ```
  */
 function ButtonWithIconImpl<C extends React.ElementType = 'button'>(
@@ -49,8 +57,8 @@ function ButtonWithIconImpl<C extends React.ElementType = 'button'>(
     fullWidth = false,
     loading = false,
     loadingVariant = 'spinner',
-    component,
-    asChild: _asChild,
+    as,
+    asChild = false,
     ...props
   }: PolymorphicProps<
     C,
@@ -71,7 +79,35 @@ function ButtonWithIconImpl<C extends React.ElementType = 'button'>(
     styles,
   });
 
-  const Tag = component || ('button' as React.ElementType);
+  // asChild mode: merge props into child element instead of rendering own DOM node
+  if (asChild) {
+    const child = Children.only(children);
+    if (!isValidElement(child)) {
+      return null;
+    }
+
+    const isDisabled = disabled || loading;
+    const childProps = child.props as Record<string, unknown>;
+
+    /* eslint-disable react-hooks/refs */
+    return cloneElement(child, {
+      className: classNames(
+        buttonClassName,
+        childProps.className as string,
+        isDisabled && styles.disabled
+      ),
+      onClick: handleClick,
+      'aria-disabled': isDisabled || undefined,
+      'aria-busy': loading || undefined,
+      'data-state': loading ? 'loading' : 'idle',
+      'data-testid': 'button-with-icon',
+      ref: ref as React.Ref<unknown>,
+      ...props,
+    } as Record<string, unknown>) as React.ReactElement;
+    /* eslint-enable react-hooks/refs */
+  }
+
+  const Tag = as || ('button' as React.ElementType);
   const isButtonElement = Tag === 'button';
   const isDisabled = disabled || loading;
   const sizedLeftIcon = leftIcon ? inferIconSize(leftIcon, size as ButtonSize) : undefined;
@@ -107,9 +143,10 @@ function ButtonWithIconImpl<C extends React.ElementType = 'button'>(
 ButtonWithIconImpl.displayName = 'ButtonWithIcon';
 
 /**
- * ButtonWithIcon — button with left/right icons, polymorphic `component` prop, and auto icon sizing.
+ * ButtonWithIcon — button with left/right icons, polymorphic `as` prop, and auto icon sizing.
  *
- * Defaults to rendering a `<button>` element. Use `component="a"` to render as a link.
+ * Defaults to rendering a `<button>` element. Use `as="a"` to render as a link.
+ * Use `asChild` to compose with a single child element (Radix Slot pattern).
  * Icon size is auto-inferred from button size unless the icon has an explicit `size` prop.
  */
 export const ButtonWithIcon = React.memo(

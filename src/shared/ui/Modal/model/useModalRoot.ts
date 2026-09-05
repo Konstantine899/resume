@@ -25,7 +25,7 @@ export function resetOpenCount(): void {
 
 export function useModalRoot(props: ModalRootProps) {
   const {
-    component,
+    as,
     isOpen,
     onClose,
     size = 'md',
@@ -91,7 +91,7 @@ export function useModalRoot(props: ModalRootProps) {
     onClose();
   }, [isControlled, onClose]);
 
-  const Tag = component || 'div';
+  const Tag = as || 'div';
   const modalRef = useRef<HTMLElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const focusTimeoutRef = useRef<number | null>(null);

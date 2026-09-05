@@ -13,7 +13,7 @@ describe('Input — Keyboard Navigation', () => {
     await user.click(input);
 
     await user.tab();
-    const clearButton = screen.getByRole('button', { name: /clear input/i });
+    const clearButton = screen.getByRole('button', { name: /input.clear/i });
     expect(clearButton).toHaveFocus();
   });
 
@@ -26,7 +26,7 @@ describe('Input — Keyboard Navigation', () => {
     input.focus();
 
     await user.tab();
-    const toggle = screen.getByRole('button', { name: /show password/i });
+    const toggle = screen.getByRole('button', { name: /input.showPassword/i });
     expect(toggle).toHaveFocus();
   });
 
@@ -43,7 +43,7 @@ describe('Input — Keyboard Navigation', () => {
     await user.click(input);
 
     await user.tab();
-    expect(screen.getByRole('button', { name: /clear input/i })).toHaveFocus();
+    expect(screen.getByRole('button', { name: /input.clear/i })).toHaveFocus();
 
     await user.tab();
     expect(screen.getByRole('button', { name: /next/i })).toHaveFocus();
@@ -57,7 +57,7 @@ describe('Input — Keyboard Navigation', () => {
     await user.click(input);
     await user.tab();
 
-    const clearButton = screen.getByRole('button', { name: /clear input/i });
+    const clearButton = screen.getByRole('button', { name: /input.clear/i });
     expect(clearButton).toHaveFocus();
 
     await user.click(clearButton);
@@ -67,18 +67,18 @@ describe('Input — Keyboard Navigation', () => {
 
   it('password toggle activates via Enter key', () => {
     render(<Input type="password" showPasswordToggle />);
-    const toggle = screen.getByRole('button', { name: /show password/i });
+    const toggle = screen.getByRole('button', { name: /input.showPassword/i });
 
     fireEvent.keyDown(toggle, { key: 'Enter' });
-    expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /input.hidePassword/i })).toBeInTheDocument();
   });
 
   it('password toggle activates via Space key', () => {
     render(<Input type="password" showPasswordToggle />);
-    const toggle = screen.getByRole('button', { name: /show password/i });
+    const toggle = screen.getByRole('button', { name: /input.showPassword/i });
 
     fireEvent.keyDown(toggle, { key: ' ' });
-    expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /input.hidePassword/i })).toBeInTheDocument();
   });
 });
 
@@ -97,7 +97,7 @@ describe('Input — ARIA States', () => {
     const user = setupUserEvent();
     render(<Input type="password" showPasswordToggle />);
 
-    const toggle = screen.getByRole('button', { name: /show password/i });
+    const toggle = screen.getByRole('button', { name: /input.showPassword/i });
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
 
     await user.click(toggle);
@@ -141,7 +141,7 @@ describe('Input — Focus Management', () => {
     await user.click(input);
     await user.tab();
 
-    const clearButton = screen.getByRole('button', { name: /clear input/i });
+    const clearButton = screen.getByRole('button', { name: /input.clear/i });
     expect(clearButton).toHaveFocus();
 
     await user.keyboard('[Space]');

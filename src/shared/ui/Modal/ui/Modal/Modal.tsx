@@ -12,7 +12,7 @@ import { Divider } from '@/shared/ui/Divider';
 const ModalComponent = memo((props: ModalProps) => {
   const {
     children,
-    component,
+    as,
     isOpen,
     onClose,
     title,
@@ -41,13 +41,15 @@ const ModalComponent = memo((props: ModalProps) => {
     closeIcon,
     defaultOpen,
     modal,
+    asChild = false,
   } = props;
 
   const shouldRenderWrapper = title || footer || showCloseButton;
 
   const rootProps = useMemo(
     () => ({
-      component,
+      as,
+      asChild,
       isOpen,
       onClose,
       size,
@@ -74,7 +76,8 @@ const ModalComponent = memo((props: ModalProps) => {
       modal,
     }),
     [
-      component,
+      as,
+      asChild,
       isOpen,
       onClose,
       size,

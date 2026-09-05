@@ -1,5 +1,6 @@
-import React, { createElement } from 'react';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import { Image } from '@/shared/ui/Image';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { useAvatar } from '../../lib/hooks/useAvatar';
 import type { PolymorphicAvatarProps } from '../../model/types';
 import { AvatarFallback } from '../AvatarFallback/AvatarFallback';
@@ -29,13 +30,21 @@ import styles from './Avatar.module.scss';
  * @example
  * // Polymorphic: render as article
  * ```tsx
- * <Avatar component="article" src="/user.jpg" alt="John Doe" />
+ * <Avatar as="article" src="/user.jpg" alt="John Doe" />
  * ```
  *
  * @example
  * // Polymorphic: render as link
  * ```tsx
- * <Avatar component={Link} href="/profile" src="/user.jpg" alt="John Doe" />
+ * <Avatar as={Link} href="/profile" src="/user.jpg" alt="John Doe" />
+ * ```
+ *
+ * @example
+ * // asChild pattern
+ * ```tsx
+ * <Avatar asChild>
+ *   <div className="custom-avatar">Content</div>
+ * </Avatar>
  * ```
  */
 function AvatarImpl<C extends React.ElementType = 'div'>(
@@ -54,10 +63,11 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
     showGlow,
     showRing,
     children,
-    component,
+    as,
+    asChild = false,
     ...rest
   }: PolymorphicAvatarProps<C>,
-  ref: React.Ref<HTMLElement>
+  ref: React.Ref<HTMLDivElement>
 ) {
   // Use custom hook for centralized Avatar logic
   const {
@@ -83,14 +93,22 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
     onLoad,
   });
 
-  const Tag = component ?? 'div';
+  const Tag = as ?? 'div';
 
-  /* eslint-disable react-hooks/refs */
-  return createElement(
-    Tag,
-    {
+  // asChild mode: merge props into child element instead of rendering own DOM node
+  if (asChild) {
+    const child = Children.only(children);
+    if (!isValidElement(child)) {
+      return null;
+    }
+    /* eslint-disable react-hooks/refs */
+
+    return cloneElement(child, {
       ref,
-      className: avatarClassName,
+      className: classNames(
+        avatarClassName,
+        (child.props as React.HTMLAttributes<HTMLElement>).className
+      ),
       role: 'img',
       'aria-label': alt,
       'data-state': imageStatus,
@@ -98,8 +116,22 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
       'data-variant': variant,
       'data-hero-style': heroStyle || undefined,
       ...rest,
-    },
-    <>
+    }) as React.ReactElement;
+    /* eslint-enable react-hooks/refs */
+  }
+
+  return (
+    <Tag
+      ref={ref}
+      className={avatarClassName}
+      role="img"
+      aria-label={alt}
+      data-state={imageStatus}
+      data-size={size}
+      data-variant={variant}
+      data-hero-style={heroStyle || undefined}
+      {...rest}
+    >
       {showGlow && <div className={styles.glow} />}
       {showRing && <div className={styles.ring} />}
 
@@ -125,9 +157,8 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
       )}
 
       {children}
-    </>
+    </Tag>
   );
-  /* eslint-enable react-hooks/refs */
 }
 
 AvatarImpl.displayName = 'Avatar';
@@ -137,11 +168,12 @@ const AvatarForwardRef = React.forwardRef(AvatarImpl);
 /**
  * Avatar — polymorphic avatar component with fallback, skeleton, and effects.
  *
- * Defaults to rendering a `<div>` element. Use `component="a"` to render as a link,
+ * Defaults to rendering a `<div>` element. Use `as="a"` to render as a link,
  * or any other HTML element / React component.
+ * Use `asChild` to compose with a single child element (Radix Slot pattern).
  */
 export const Avatar = AvatarForwardRef as <C extends React.ElementType = 'div'>(
   props: PolymorphicAvatarProps<C> & {
-    ref?: React.Ref<HTMLElement>;
+    ref?: React.Ref<HTMLDivElement>;
   }
 ) => React.ReactElement;

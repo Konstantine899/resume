@@ -62,5 +62,9 @@
   "copyCode": "Копировать код",
   "clickToCopy": "Нажмите, чтобы скопировать код",
   "codeBlock": "Блок кода",
-  "codeBlockWithTitle": "Блок кода: {{title}}"
+  "codeBlockWithTitle": "Блок кода: {{title}}",
+  "input.showPassword": "Показать пароль",
+  "input.hidePassword": "Скрыть пароль",
+  "input.clear": "Очистить ввод",
+  "modal.close": "Закрыть модальное окно"
 }
