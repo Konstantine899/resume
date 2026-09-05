@@ -1,27 +1,10 @@
 import { flushSync } from 'react-dom';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ModalRootProps } from './types';
+import { useScrollLock } from '@/shared/lib/hooks/useScrollLock';
 import styles from '../ui/ModalRoot/ModalRoot.module.scss';
-
-// Global ref to track number of open modals for scroll lock
-const openCountRef = { current: 0 };
-
-/**
- * Reset internal modal open counter.
- * @description Used for test cleanup only. Call between tests to reset scroll lock state.
- * @example
- * ```tsx
- * afterEach(() => {
- *   resetOpenCount();
- *   document.body.style.overflow = '';
- * });
- * ```
- */
-export function resetOpenCount(): void {
-  openCountRef.current = 0;
-}
 
 export function useModalRoot(props: ModalRootProps) {
   const {
@@ -58,6 +41,9 @@ export function useModalRoot(props: ModalRootProps) {
   const effectiveOverlay = modal && overlay;
   const effectiveTrapFocus = modal && trapFocus;
   const effectiveBlockScroll = modal && blockScroll;
+
+  // Use SSR-safe scroll lock hook
+  useScrollLock(effectiveIsOpen && effectiveBlockScroll);
 
   const [isClosing, setIsClosing] = useState(false);
   const closeTimeoutRef = useRef<number | null>(null);
@@ -105,25 +91,6 @@ export function useModalRoot(props: ModalRootProps) {
   useEffect(() => {
     onPointerDownOutsideRef.current = onPointerDownOutside;
   }, [onPointerDownOutside]);
-
-  useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!effectiveBlockScroll) return;
-
-    if (effectiveIsOpen) {
-      openCountRef.current++;
-      if (openCountRef.current === 1) {
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    return () => {
-      openCountRef.current--;
-      if (openCountRef.current === 0) {
-        document.body.style.overflow = '';
-      }
-    };
-  }, [effectiveIsOpen, effectiveBlockScroll]);
 
   const canCloseModal = useCallback((): boolean => {
     if (typeof canClose === 'boolean') return canClose;

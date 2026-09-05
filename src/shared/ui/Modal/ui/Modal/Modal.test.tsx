@@ -6,7 +6,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Modal } from './Modal';
-import { resetOpenCount } from '../ModalRoot/ModalRoot';
 
 describe('Modal (Compound)', () => {
   const defaultProps = {
@@ -18,13 +17,11 @@ describe('Modal (Compound)', () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
-    resetOpenCount();
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
-    resetOpenCount();
   });
 
   // ============================================
