@@ -6,6 +6,9 @@
  */
 
 export { Image } from './ui/Image';
+export { RemoteImage } from './ui/RemoteImage';
+export { LocalImage } from './ui/LocalImage';
+export { ImageRenderer } from './ui/ImageRenderer';
 export type {
   ImageProps,
   ImageBaseProps,

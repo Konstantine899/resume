@@ -333,6 +333,21 @@ export type ImageProps = RemoteImageProps | LocalImageProps;
 export type ImageSource = string | { src: string; srcSet?: string };
 
 /**
+ * ImageRenderer props — resolved source + local flags from wrappers
+ * @internal
+ */
+export interface ImageRendererOwnProps {
+  /** Resolved source (IMG-04): строка нормализуется в объект, srcSet отсутствует у строки */
+  resolvedSrc: { src: string; srcSet?: string };
+  /** Local-режим: loader ещё не отработал — держим skeleton без <img src=""> */
+  pendingLocal?: boolean;
+  /** Булев lazy алиас (RemoteImageProps.lazyLoad) → lazyMode='intersection' */
+  lazyLoad?: boolean;
+}
+
+export type ImageRendererProps = ImageRendererOwnProps & ImageBaseProps;
+
+/**
  * Полезная нагрузка телеметрии ошибки загрузки (ERB-01)
  * @group Diagnostics
  * @description Стабильная форма: `src` — resolved primitive source (строка из
