@@ -4,6 +4,8 @@
 
 import { X } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import '@/shared/lib/i18n/config/i18n';
 import { Icon } from '@/shared/ui/Icon';
 import type { ModalCloseButtonProps } from '../../model/types';
 import { MODAL_CONSTANTS } from '../../model/constants';
@@ -15,11 +17,12 @@ import styles from './ModalCloseButton.module.scss';
  * @example
  * ```tsx
  * <ModalCloseButton onClose={handleClose} />
- * <ModalCloseButton onClose={handleClose} ariaLabel="Close dialog" />
+ * <ModalCloseButton onClose={handleClose} ariaLabel="Custom label" />
  * ```
  */
 export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
-  const { onClose, ariaLabel = 'Close modal', closeIcon } = props;
+  const { t } = useTranslation();
+  const { onClose, ariaLabel, closeIcon } = props;
 
   const handleClick = useCallback(() => {
     onClose();
@@ -30,7 +33,7 @@ export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
       type="button"
       className={styles.closeButton}
       onClick={handleClick}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? t('modal.close')}
     >
       {closeIcon ?? (
         <Icon name={X} size={MODAL_CONSTANTS.CLOSE_ICON_SIZE} color="inherit" decorative />
