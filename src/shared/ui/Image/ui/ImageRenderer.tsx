@@ -1,3 +1,4 @@
+import { ImageFallbackBoundary } from './ImageFallbackBoundary';
 import { forwardRef, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/shared/lib/i18n/config/i18n';
@@ -7,7 +8,6 @@ import { useImageLoading } from '../lib/hooks/useImageLoading';
 import { ImageRendererProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
 import { Spinner } from '@/shared/ui/Spinner';
-import { ErrorBoundary, DEFAULT_BOUNDARY_FALLBACK } from '@/shared/ui/ErrorBoundary';
 import { ImageSkeleton } from './ImageSkeleton/ImageSkeleton';
 import styles from './Image.module.scss';
 
@@ -134,7 +134,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
     );
   }, [placeholder, loadingStatus]);
 
-  // Inline render for fallback (replaces useCallback — simpler, no deps issue)
+  // Inline fallback render (no ErrorBoundary wrapper — simpler, single layer)
   const renderFallback = () => {
     if (typeof fallback === 'string') {
       return (
@@ -160,6 +160,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       </div>
     );
   };
+
   // Aria attributes
   const ariaProps = useMemo(() => {
     if (decorative) {
@@ -178,6 +179,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       ...(fallbackDescriptionId && { 'aria-describedby': fallbackDescriptionId }),
     };
   }, [decorative, alt, fallbackDescriptionId, isLoading]);
+
   // Destructure hook's event callbacks for stable deps
   const { onLoad: hookOnLoad, onError: hookOnError } = hook;
 
@@ -256,7 +258,17 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       />
 
       {loadingStatus === 'error' && (
-        <ErrorBoundary fallback={DEFAULT_BOUNDARY_FALLBACK}>{renderFallback()}</ErrorBoundary>
+        <ImageFallbackBoundary
+          fallback={
+            <div className={styles.fallback} id={`${fallbackDescriptionId}-fallback`}>
+              <div className={styles.minimalFallback}>
+                <span>{t('imageNotAvailable')}</span>
+              </div>
+            </div>
+          }
+        >
+          {renderFallback()}
+        </ImageFallbackBoundary>
       )}
 
       {children && <div className={styles.childrenOverlay}>{children}</div>}
