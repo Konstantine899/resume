@@ -18,6 +18,16 @@ import {
 const meta: Meta<typeof AvatarAbout> = {
   ...createMeta(AvatarAbout, 'Shared/Avatar/About'),
   title: 'Shared/Avatar/About',
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          { id: 'color-contrast', enabled: true },
+          { id: 'aria-required-attr', enabled: true },
+        ],
+      },
+    },
+  },
   argTypes: {
     src: { control: 'text', description: 'Image URL' },
     alt: {

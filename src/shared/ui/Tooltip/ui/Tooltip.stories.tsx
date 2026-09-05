@@ -12,6 +12,14 @@ const meta = {
   title: 'Shared/Tooltip',
   component: Tooltip,
   parameters: {
+    a11y: {
+      config: {
+        rules: [
+          { id: 'color-contrast', enabled: true },
+          { id: 'aria-required-children', enabled: true },
+        ],
+      },
+    },
     layout: 'centered',
     docs: {
       description: {
@@ -664,6 +672,14 @@ export const Disabled: Story = {
     children: <button style={{ padding: '0.5rem 1rem' }}>Disabled</button>,
   },
   parameters: {
+    a11y: {
+      config: {
+        rules: [
+          { id: 'color-contrast', enabled: true },
+          { id: 'aria-required-children', enabled: true },
+        ],
+      },
+    },
     docs: {
       description: {
         story:
