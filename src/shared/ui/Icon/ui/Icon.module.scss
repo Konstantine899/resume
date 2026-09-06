@@ -1,14 +1,51 @@
-// Focus styles
+// src/shared/ui/Icon/ui/Icon.module.scss
+
+@use '@/shared/styles/variables' as *;
+
 $icon-focus-outline: 2px solid var(--primary);
 $icon-focus-radius: 4px;
 $icon-transition: 0.2s ease;
+
+// Size mapping (Foodstore: xs=12, sm=16, md=20, lg=24, xl=28)
+$icon-size-xs: 12px;
+$icon-size-sm: 16px;
+$icon-size-md: 20px;
+$icon-size-lg: 24px;
+$icon-size-xl: 28px;
 
 .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   vertical-align: middle;
+  color: currentcolor;
   transition: opacity $icon-transition;
+
+  // Sizes
+  &.xs {
+    width: $icon-size-xs;
+    height: $icon-size-xs;
+  }
+
+  &.sm {
+    width: $icon-size-sm;
+    height: $icon-size-sm;
+  }
+
+  &.md {
+    width: $icon-size-md;
+    height: $icon-size-md;
+  }
+
+  &.lg {
+    width: $icon-size-lg;
+    height: $icon-size-lg;
+  }
+
+  &.xl {
+    width: $icon-size-xl;
+    height: $icon-size-xl;
+  }
 
   &.clickable {
     cursor: pointer;

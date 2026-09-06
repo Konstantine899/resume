@@ -2,11 +2,15 @@
 @use '@/shared/styles/mixins' as *;
 
 .navigation {
-  display: flex;
+  @include flex-col;
+
   flex: 1;
-  flex-direction: column;
-  gap: $spacing-4;
+  gap: $spacing-10; // 40px (desktop)
   align-items: flex-start;
   width: 100%;
   padding: $spacing-4 0;
+
+  @media (width <= 1200px) {
+    gap: $spacing-8; // 32px
+  }
 }

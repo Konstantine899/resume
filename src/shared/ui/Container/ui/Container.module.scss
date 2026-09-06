@@ -1,69 +1,38 @@
 // src/shared/ui/Container/ui/Container.module.scss
 
-// CSS custom properties provided by useContainer hook eliminate duplicated constants
+@use '@/shared/styles/variables' as *;
+
+// Foodstore: max-width 1300px, padding 16px mobile / 20px desktop
 
 .container {
   width: 100%;
+  max-width: 1300px;
+  padding-right: $spacing-4; // 16px
+  padding-left: $spacing-4;
   margin-right: auto;
   margin-left: auto;
 
-  // Размеры (max-width) — value set via --container-max-width from useContainer hook
-  &.sm {
-    max-width: var(--container-max-width);
+  @media (width >= 1200px) {
+    max-width: 1300px;
+    padding-right: $spacing-5; // 20px
+    padding-left: $spacing-5;
   }
 
-  &.md {
-    max-width: var(--container-max-width);
+  @media (width <= 640px) {
+    padding-right: $spacing-4;
+    padding-left: $spacing-4;
   }
 
-  &.lg {
-    max-width: var(--container-max-width);
-  }
-
-  &.xl {
-    max-width: var(--container-max-width);
-  }
-
-  &.full {
-    max-width: var(--container-max-width);
-  }
-
-  // Центрирование
+  // Centering
   &.centered {
     margin-right: auto;
     margin-left: auto;
   }
 
-  // Полная ширина
+  // Full width
   &.fullWidth {
     max-width: 100%;
     padding-right: 0;
     padding-left: 0;
-  }
-
-  // Padding — value set via --container-padding from useContainer hook
-  &.padding-none {
-    padding-right: 0;
-    padding-left: 0;
-  }
-
-  &.padding-sm {
-    padding-right: var(--container-padding);
-    padding-left: var(--container-padding);
-  }
-
-  &.padding-md {
-    padding-right: var(--container-padding);
-    padding-left: var(--container-padding);
-  }
-
-  &.padding-lg {
-    padding-right: var(--container-padding);
-    padding-left: var(--container-padding);
-  }
-
-  &.padding-xl {
-    padding-right: var(--container-padding);
-    padding-left: var(--container-padding);
   }
 }

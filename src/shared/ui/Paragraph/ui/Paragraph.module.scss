@@ -1,46 +1,61 @@
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/mixins/typography' as *;
-@use '@/shared/styles/mixins/theme' as *;
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 .paragraph {
   margin: 0;
-  font-weight: $font-weight-normal;
-  line-height: $line-height-base;
+  font-family: $font-family-base;
+  font-weight: $font-weight-normal; // 400
+  line-height: $line-height-normal; // 1.4 (Foodstore)
+  color: var(--text-secondary); // #4b5563
 
   @include theme-transition;
 
-  // Sizes
+  // Sizes (Foodstore scale)
   &.xs {
-    @include text-xs;
+    font-size: $font-size-xs; // 12px
+    line-height: $line-height-single; // 1
   }
 
   &.s {
-    @include text-sm;
+    font-size: $font-size-sm; // 14px
+    line-height: $line-height-normal; // 1.4
   }
 
   &.m {
-    @include text-base;
+    font-size: $font-size-base; // 16px
+    line-height: $line-height-base; // 1.5
   }
 
   &.l {
-    @include text-lg;
+    font-size: $font-size-lg; // 18px
+    line-height: $line-height-normal; // 1.4
   }
 
   &.xl {
-    @include text-xl;
+    font-size: $font-size-xl; // 20px
+    line-height: $line-height-normal; // 1.4
   }
 
   &.size-2xl {
-    @include text-2xl;
+    font-size: $font-size-2xl; // 24px
+    line-height: $line-height-tight; // 1.3
   }
 
   // Themes
   &.primary {
-    color: var(--foreground);
+    color: var(--text-primary); // #0f0f0f
+  }
+
+  &.secondary {
+    color: var(--text-secondary); // #4b5563
   }
 
   &.muted {
-    color: var(--foreground-muted);
+    color: var(--text-tertiary); // #9ca3af
+  }
+
+  &.tertiary {
+    color: var(--text-tertiary); // #9ca3af
   }
 
   &.inverted {
@@ -57,10 +72,6 @@
 
   &.warning {
     color: var(--form-warning);
-  }
-
-  &.tertiary {
-    color: var(--text-tertiary);
   }
 
   &.gradient {
@@ -80,7 +91,7 @@
     text-align: right;
   }
 
-  // Line clamp (ограничение строк)
+  // Line clamp
   @for $i from 2 through 5 {
     &.line-clamp-#{$i} {
       display: -webkit-box;
@@ -92,25 +103,25 @@
     }
   }
 
-  // Font weights (via typography mixins)
+  // Font weights
   &.light {
-    @include font-light;
+    font-weight: $font-weight-light; // 300
   }
 
   &.normal {
-    @include font-normal;
+    font-weight: $font-weight-normal; // 400
   }
 
   &.medium {
-    @include font-medium;
+    font-weight: $font-weight-medium; // 500
   }
 
   &.semibold {
-    @include font-semibold;
+    font-weight: $font-weight-semibold; // 600
   }
 
   &.bold {
-    @include font-bold;
+    font-weight: $font-weight-bold; // 700
   }
 
   // Wrap modes

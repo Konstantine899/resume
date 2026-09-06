@@ -316,6 +316,7 @@
     from {
       width: 100%;
     }
+
     to {
       width: 0%;
     }
@@ -325,12 +326,15 @@
   .toast.success & {
     background: var(--success);
   }
+
   .toast.error & {
     background: var(--danger);
   }
+
   .toast.warning & {
     background: var(--warning);
   }
+
   .toast.info & {
     background: var(--primary);
   }

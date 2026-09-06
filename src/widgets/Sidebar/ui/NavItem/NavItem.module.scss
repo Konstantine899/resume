@@ -7,29 +7,31 @@
   gap: $spacing-3;
   align-items: center;
   padding: $spacing-2 $spacing-3;
-  color: var(--foreground-muted);
+  font-size: $font-size-base; // 16px
+  font-weight: $font-weight-medium; // 500
+  color: var(--text-secondary); // #4b5563
   white-space: nowrap;
   text-decoration: none;
   border-radius: $border-radius-md;
   transition: all 0.2s ease;
 
   &:hover {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.05);
+    color: var(--primary); // #007bff
+    background: var(--background-alt); // #f5f5f5
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-light;
-    outline-offset: -2px;
-    background: rgb(244 179 119 / 0.1);
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    background: var(--background-hover);
   }
 
   &.active {
-    color: $primary-light;
-    background: rgb(244 179 119 / 0.1);
+    color: var(--primary);
+    background: var(--background-alt);
 
     &:focus-visible {
-      outline: 2px solid $primary-light;
+      outline: 2px solid var(--primary);
     }
   }
 }
@@ -47,10 +49,10 @@
 
 .mobile {
   width: 100%;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
 
   &:hover {
-    background: rgb(244 179 119 / 0.1);
+    background: var(--background-alt);
   }
 }
 
@@ -61,6 +63,6 @@
 }
 
 .navLabel {
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   opacity: 1;
 }

@@ -2,13 +2,15 @@
 
 @use '@/shared/styles/variables' as *;
 
+// Foodstore: base #f3f4f6 (--skeleton-base), highlight #e5e5e5 (--skeleton-highlight)
+
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--skeleton-base);
+  background: var(--skeleton-base); // #f3f4f6
   border-radius: $border-radius-md;
 
-  // Shimmer эффект с CSS-переменными для duration/delay
+  // Shimmer эффект
   &::after {
     position: absolute;
     inset: 0;
@@ -18,7 +20,7 @@
     animation: shimmer var(--skeleton-duration, 1.5s) var(--skeleton-delay, 0s) infinite;
   }
 
-  // Reduced motion: отключаем анимацию для пользователей с prefers-reduced-motion
+  // Reduced motion
   @media (prefers-reduced-motion: reduce) {
     &::after {
       animation: none;
@@ -33,7 +35,7 @@
     .line {
       display: block;
       height: 1em;
-      margin-bottom: $spacing-sm;
+      margin-bottom: $spacing-2;
       background: var(--skeleton-base);
       border-radius: $border-radius-sm;
 
@@ -45,19 +47,17 @@
   }
 
   &.circular {
-    border-radius: $radius-full;
-
-    // Pulse анимация убрана - используется только shimmer эффект
+    width: $touch-target; // 44px
+    height: $touch-target;
+    border-radius: $radius-full; // 44px for touch target
   }
 
   &.rectangular {
-    border-radius: $border-radius-lg;
+    border-radius: $border-radius-lg; // 8px
   }
 
   &.rounded {
     border-radius: var(--skeleton-radius, $border-radius-md);
-
-    // md-радиус по умолчанию, переопределяется через --skeleton-radius (REQ-2)
   }
 }
 

@@ -1,11 +1,9 @@
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/mixins/typography' as *;
-@use '@/shared/styles/mixins/theme' as *;
-@use '@/shared/styles/mixins/responsive' as *;
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 // ============================================
 
-// Heading Component
+// Heading Component (Foodstore typography)
 
 // ============================================
 
@@ -15,73 +13,86 @@
 
 .heading {
   margin: 0;
-  font-weight: $font-weight-bold;
-  line-height: $line-height-base;
-  color: var(--foreground);
+  font-family: $font-family-base;
+  font-weight: $font-weight-bold; // 700
+  line-height: $line-height-tight; // 1.3 (Foodstore)
+  color: var(--text-primary); // #0f0f0f
 
   @include theme-transition;
 
   // ============================================
 
-  // Sizes (BEM: .heading--size-*)
+  // Sizes (Foodstore scale)
 
   // ============================================
 
   &--xs {
-    @include text-xs;
+    font-size: $font-size-xs; // 12px
+    line-height: $line-height-single; // 1
   }
 
   &--s {
-    @include text-sm;
+    font-size: $font-size-sm; // 14px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--m {
-    @include text-base;
+    font-size: $font-size-base; // 16px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--l {
-    @include text-lg;
+    font-size: $font-size-lg; // 18px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--xl {
-    @include text-xl;
+    font-size: $font-size-xl; // 20px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--xxl {
-    @include text-2xl;
+    font-size: $font-size-2xl; // 24px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--size-3xl {
-    font-size: $font-size-3xl;
-    line-height: $line-height-base;
+    font-size: $font-size-3xl; // 30px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--size-4xl {
-    font-size: $font-size-4xl;
-    line-height: $line-height-base;
+    font-size: $font-size-4xl; // 36px
+    line-height: $line-height-tight; // 1.3
   }
 
   &--size-5xl {
-    font-size: $font-size-5xl;
-    line-height: $line-height-base;
+    font-size: $font-size-5xl; // 48px
+    line-height: $line-height-tight; // 1.3
 
     @include lg {
-      font-size: $font-size-6xl;
+      font-size: $font-size-6xl; // 60px
     }
   }
 
   // ============================================
 
-  // Themes (BEM: .heading--theme-*)
+  // Themes
 
   // ============================================
 
   &--primary {
-    color: var(--foreground);
+    color: var(--text-primary);
+  }
+
+  &--secondary {
+    font-weight: $font-weight-semibold; // 600
+    color: var(--text-secondary);
   }
 
   &--muted {
-    color: var(--foreground-muted);
+    font-weight: $font-weight-medium; // 500
+    color: var(--text-tertiary);
   }
 
   &--inverted {
@@ -98,7 +109,7 @@
 
   // ============================================
 
-  // Align (BEM: .heading--align-*)
+  // Align
 
   // ============================================
 

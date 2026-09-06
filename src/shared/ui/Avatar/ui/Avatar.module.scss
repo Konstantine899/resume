@@ -1,0 +1,82 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// Foodstore Avatar: radius full, border 2px #e5e7eb, fallback bg #f5f5f5
+
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--background-alt); // #f5f5f5
+  border: 2px solid var(--border-color); // #e5e7eb
+  transition: all $transition-duration $transition-easing;
+
+  &.circle {
+    border-radius: $radius-full;
+  }
+
+  &.square {
+    border-radius: $border-radius-lg; // 8px
+  }
+
+  // Sizes (Foodstore aligned)
+  &.sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  &.md {
+    width: 40px;
+    height: 40px;
+  }
+
+  &.lg {
+    width: 48px;
+    height: 48px;
+  }
+
+  &.xl {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+// Image wrapper fills the Avatar container
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Fallback styling inside avatar
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-weight: $font-weight-semibold; // 600
+  color: var(--text-primary); // #0f0f0f
+  background: var(--background-alt); // #f5f5f5
+}
+
+// Badge for avatar (notification count, status)
+.badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 $spacing-1-5; // 6px
+  font-size: $font-size-2xs; // 10px
+  font-weight: $font-weight-bold; // 700
+  color: #fff;
+  background: var(--danger);
+  border: 2px solid var(--background);
+  border-radius: $radius-full;
+}

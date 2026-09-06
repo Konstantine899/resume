@@ -1,16 +1,19 @@
+// src/shared/ui/Spinner/ui/Spinner.module.scss
+
 @use '@/shared/styles/variables' as *;
 
 // ============================================
 
-// Animation defaults (overridable via CSS vars)
+// Animation defaults (Foodstore: color #333, size 24px)
 
 // ============================================
 
-$default-spinner-speed: 0.8s;
-$default-ring-outer-speed: 1s;
-$default-ring-inner-speed: 0.85s;
+$default-spinner-speed: 1s;
 $default-spinner-thickness: 2px;
-$default-ring-thickness: 4px;
+$default-ring-thickness: 3px;
+
+// Foodstore spinner color
+$spinner-color: #333;
 
 // ============================================
 
@@ -23,42 +26,32 @@ $default-ring-thickness: 4px;
   align-items: center;
   justify-content: center;
 
-  // --------------------------------------------------
-
   // Sizes
-
-  // --------------------------------------------------
-
   &.xs {
-    --spinner-size: 12px;
+    --spinner-size: 16px;
   }
 
   &.sm {
-    --spinner-size: 24px;
+    --spinner-size: 20px;
   }
 
   &.md {
-    --spinner-size: 32px;
+    --spinner-size: 24px; // Foodstore default
   }
 
   &.lg {
-    --spinner-size: 48px;
+    --spinner-size: 32px;
   }
 
   &.xl {
-    --spinner-size: 64px;
+    --spinner-size: 48px;
   }
 
   &.xxl {
-    --spinner-size: 96px;
+    --spinner-size: 64px;
   }
 
-  // --------------------------------------------------
-
-  // Colors
-
-  // --------------------------------------------------
-
+  // Colors (Foodstore uses single color #333)
   &.primary {
     --spinner-color: #{$spinner-color};
   }
@@ -69,10 +62,6 @@ $default-ring-thickness: 4px;
 
   &.accent {
     --spinner-color: #{$accent};
-  }
-
-  &.orange {
-    --spinner-color: #{$primary-light};
   }
 }
 
@@ -90,7 +79,7 @@ $default-ring-thickness: 4px;
     width: 100%;
     height: 100%;
     border: var(--spinner-thickness, $default-spinner-thickness) solid var(--spinner-color);
-    border-top-color: var(--spinner-track, transparent);
+    border-top-color: transparent;
     border-radius: 50%;
     animation: spin var(--spinner-speed, $default-spinner-speed) linear infinite;
   }
@@ -118,11 +107,10 @@ $default-ring-thickness: 4px;
     width: 100%;
     height: 100%;
     border: var(--double-ring-thickness, $default-ring-thickness) solid var(--spinner-color);
-    border-top-color: var(--spinner-track, transparent);
-    border-right-color: var(--spinner-track, transparent);
+    border-top-color: transparent;
+    border-right-color: transparent;
     border-radius: 50%;
-    animation: rotate-clockwise var(--double-ring-speed-outer, $default-ring-outer-speed) linear
-      infinite;
+    animation: rotate-clockwise var(--double-ring-speed-outer, 1s) linear infinite;
   }
 
   .innerRing {
@@ -132,12 +120,11 @@ $default-ring-thickness: 4px;
     width: 70%;
     height: 70%;
     border: var(--double-ring-thickness, $default-ring-thickness) solid var(--spinner-color);
-    border-top-color: var(--spinner-track, transparent);
-    border-right-color: var(--spinner-track, transparent);
-    border-bottom-color: var(--spinner-track, transparent);
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
     border-radius: 50%;
-    animation: rotate-counterclockwise var(--double-ring-speed-inner, $default-ring-inner-speed)
-      linear infinite;
+    animation: rotate-counterclockwise var(--double-ring-speed-inner, 0.85s) linear infinite;
   }
 }
 
