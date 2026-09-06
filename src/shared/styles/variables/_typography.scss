@@ -23,15 +23,16 @@ $font-family-base:
   sans-serif !default;
 
 // Base settings
-$font-size-base: 1rem !default;
+$font-size-base: 1rem !default; // 16px
 $line-height-base: 1.5 !default;
 
-// Font sizes (scale)
-$font-size-xs: 0.75rem !default; // 12px
-$font-size-sm: 0.875rem !default; // 14px
-$font-size-lg: 1.125rem !default; // 18px
-$font-size-xl: 1.25rem !default; // 20px
-$font-size-2xl: 1.5rem !default; // 24px
+// Font sizes (scale) - Foodstore aligned
+$font-size-2xs: 0.625rem !default; // 10px - badge counter
+$font-size-xs: 0.75rem !default; // 12px - badge label
+$font-size-sm: 0.875rem !default; // 14px - button text, description, nav
+$font-size-lg: 1.125rem !default; // 18px - price, large button
+$font-size-xl: 1.25rem !default; // 20px - heading small
+$font-size-2xl: 1.5rem !default; // 24px - heading
 $font-size-3xl: 1.875rem !default; // 30px
 $font-size-4xl: 2.25rem !default; // 36px
 $font-size-5xl: 3rem !default; // 48px
@@ -40,9 +41,14 @@ $font-size-7xl: 4.5rem !default; // 72px
 $font-size-8xl: 6rem !default; // 96px
 $font-size-9xl: 7.5rem !default; // 120px
 
-// Font weights
+// Font weights (Foodstore)
 $font-weight-light: 300 !default;
 $font-weight-normal: 400 !default;
-$font-weight-medium: 500 !default;
-$font-weight-semibold: 600 !default;
-$font-weight-bold: 700 !default;
+$font-weight-medium: 500 !default; // Nav, buttons
+$font-weight-semibold: 600 !default; // Card title, badge
+$font-weight-bold: 700 !default; // Price
+
+// Line heights (Foodstore)
+$line-height-tight: 1.3 !default; // Card title
+$line-height-normal: 1.4 !default; // Description
+$line-height-single: 1 !default; // Badge, button text

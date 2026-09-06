@@ -1,0 +1,89 @@
+// ============================================
+
+// Overlay Mixins (Modal, Popover, Toast, Tooltip)
+
+// ============================================
+
+@use '../variables' as *;
+
+@mixin overlay-base {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl; // 12px
+  box-shadow: $shadow-dropdown;
+}
+
+@mixin dropdown-base {
+  @include overlay-base;
+
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+@mixin tooltip-base {
+  padding: $spacing-1 $spacing-2; // 4px 8px
+  font-size: $font-size-xs; // 12px
+  font-weight: $font-weight-medium; // 500
+  line-height: $line-height-single; // 1
+  color: #fff;
+  white-space: nowrap;
+  background: #374151;
+  border-radius: $border-radius-sm; // 4px
+  box-shadow: $shadow-dropdown;
+}
+
+@mixin toast-base {
+  @include overlay-base;
+
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  min-width: 300px;
+  max-width: 450px;
+  padding: $spacing-4;
+}
+
+@mixin toast-variant-success {
+  border-left: 4px solid var(--success);
+}
+
+@mixin toast-variant-warning {
+  border-left: 4px solid var(--warning);
+}
+
+@mixin toast-variant-danger {
+  border-left: 4px solid var(--danger);
+}
+
+@mixin modal-base {
+  @include overlay-base;
+
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+@mixin modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4 $spacing-5;
+  border-bottom: 1px solid var(--border-color);
+}
+
+@mixin modal-body {
+  flex: 1;
+  padding: $spacing-4 $spacing-5;
+  overflow-y: auto;
+}
+
+@mixin modal-footer {
+  display: flex;
+  gap: $spacing-3;
+  justify-content: flex-end;
+  padding: $spacing-4 $spacing-5;
+  border-top: 1px solid var(--border-color);
+}
