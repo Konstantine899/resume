@@ -28,7 +28,6 @@ $default-ring-thickness: 4px;
   // Sizes
 
   // --------------------------------------------------
-
   &.xs {
     --spinner-size: 12px;
   }
@@ -58,7 +57,6 @@ $default-ring-thickness: 4px;
   // Colors
 
   // --------------------------------------------------
-
   &.primary {
     --spinner-color: #{$spinner-color};
   }
@@ -81,7 +79,6 @@ $default-ring-thickness: 4px;
 // Single Spinner
 
 // ============================================
-
 .spinner {
   width: var(--spinner-size);
   height: var(--spinner-size);
@@ -93,6 +90,9 @@ $default-ring-thickness: 4px;
     border-top-color: var(--spinner-track, transparent);
     border-radius: 50%;
     animation: spin var(--spinner-speed, $default-spinner-speed) linear infinite;
+
+    // Delay for delayed appearance (SPR-03): --spinner-delay (ms)
+    animation-delay: var(--spinner-delay, 0ms);
   }
 }
 
@@ -107,7 +107,6 @@ $default-ring-thickness: 4px;
 // Double-ring
 
 // ============================================
-
 .doubleRing {
   position: relative;
   width: var(--spinner-size);
@@ -123,6 +122,7 @@ $default-ring-thickness: 4px;
     border-radius: 50%;
     animation: rotate-clockwise var(--double-ring-speed-outer, $default-ring-outer-speed) linear
       infinite;
+    animation-delay: var(--spinner-delay, 0ms);
   }
 
   .innerRing {
@@ -138,6 +138,7 @@ $default-ring-thickness: 4px;
     border-radius: 50%;
     animation: rotate-counterclockwise var(--double-ring-speed-inner, $default-ring-inner-speed)
       linear infinite;
+    animation-delay: var(--spinner-delay, 0ms);
   }
 }
 
@@ -158,7 +159,6 @@ $default-ring-thickness: 4px;
 // Reduced Motion
 
 // ============================================
-
 @media (prefers-reduced-motion: reduce) {
   .spinnerCircle,
   .outerRing,

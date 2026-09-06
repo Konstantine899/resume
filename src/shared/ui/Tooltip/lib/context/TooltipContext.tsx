@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, memo, useContext } from 'react';
+import { createContext, memo, useContext, useMemo } from 'react';
 import type { TooltipContextValue, TooltipProviderProps } from '../../model/types';
 import { useTooltip } from '../hooks/useTooltip';
 
@@ -60,14 +60,17 @@ export const TooltipProvider = memo((props: TooltipProviderProps) => {
 
   const activeTrigger = trigger ?? 'hover';
 
-  const value: TooltipContextValue = {
-    ...state,
-    activeTrigger,
-    disabled: Boolean(disabled),
-    skeleton: Boolean(skeleton),
-    color,
-    arrowShadowColor,
-  };
+  const value = useMemo<TooltipContextValue>(
+    () => ({
+      ...state,
+      activeTrigger,
+      disabled: Boolean(disabled),
+      skeleton: Boolean(skeleton),
+      color,
+      arrowShadowColor,
+    }),
+    [state, activeTrigger, disabled, skeleton, color, arrowShadowColor]
+  );
 
   return <TooltipContext.Provider value={value}>{children}</TooltipContext.Provider>;
 });
@@ -75,13 +78,13 @@ export const TooltipProvider = memo((props: TooltipProviderProps) => {
 TooltipProvider.displayName = 'TooltipProvider';
 
 /**
- * Noop-значение для частей, отрендеренных вне Provider:
+ * Noop-значение для частей, отрендерированных вне Provider:
  * Trigger рендерится без поведения, Content рендерит null.
  * Это позволяет безопасно использовать части вне Provider (Storybook,
  * изоляция компонентов) без падения.
  *
- * Каждый lookup создаёт свежий объект с собственными refs — общий объект
- * с мутабельными refs ломал бы использование частей вне Provider.
+ * Замемоизирован — один и тот же объект на все вызовы, чтобы избежать
+ * лишних ре-рендеров и сохранять стабильные refs.
  */
 const createNoopContext = (): TooltipContextValue => ({
   isVisible: false,
@@ -108,10 +111,15 @@ const createNoopContext = (): TooltipContextValue => ({
 });
 
 /**
+ * Замемоизированный noop контекст — один и тот же объект на все вызовы.
+ */
+const noopContext = (() => createNoopContext())();
+
+/**
  * Хук доступа к состоянию Tooltip. Должен вызываться внутри TooltipProvider.
  * Вне Provider возвращает noop-значение (компоненты не падают).
  */
 export const useTooltipContext = (): TooltipContextValue => {
   const ctx = useContext(TooltipContext);
-  return ctx ?? createNoopContext();
+  return ctx ?? noopContext;
 };

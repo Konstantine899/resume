@@ -1,5 +1,5 @@
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo, useEffect, useMemo, useState, forwardRef } from 'react';
+import { memo, forwardRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SpinnerProps } from '../model/types';
 import { speedMap, thicknessMap } from '../model/constants';
@@ -27,21 +27,6 @@ export const Spinner = memo(
       style,
       ...restProps
     } = props;
-
-    // ---- Delay (SPR-03): mount-delay, AntD семантика ----
-
-    // delay=undefined/0 → виден сразу (timer-free, byte-identical путь)
-    const [visible, setVisible] = useState<boolean>(delay === undefined || delay === 0);
-
-    // Единственный намеренный эффект: таймер отложенного показа с очисткой при unmount
-    useEffect(() => {
-      if (delay === undefined || delay === 0) return;
-      const timer = window.setTimeout(() => setVisible(true), delay);
-      return () => window.clearTimeout(timer);
-    }, [delay]);
-
-    // Default label with i18n
-    const effectiveLabel = label ?? t('loading');
 
     // ---- CSS custom properties for variants ----
 
@@ -79,17 +64,22 @@ export const Spinner = memo(
         }
       }
 
+      // ---- Delay (SPR-03): CSS-only animation-delay ----
+      // delay=undefined/0 → 0s (immediate)
+      // delay>0 → animation-delay в мс (AntD семантика: задержка появления)
+      if (delay !== undefined && delay > 0) {
+        vars['--spinner-delay'] = `${delay}ms`;
+      }
+
       const hasVars = Object.keys(vars).length > 0;
       if (!hasVars && !style) return undefined;
       return { ...vars, ...style } as React.CSSProperties;
-    }, [variant, size, speed, animationDuration, thickness, borderWidth, trackColor, style]);
+    }, [variant, size, speed, animationDuration, thickness, borderWidth, trackColor, delay, style]);
+
+    // Default label with i18n
+    const effectiveLabel = label ?? t('loading');
 
     // ---- Classes ----
-
-    // До истечения delay не рендерим ничего — без корня, role="status" и aria (SPR-03).
-    // Footgun-фикс (4R R3): если delay → 0/undefined mid-flight (visible ещё false),
-    // рендер-условие показывает спиннер сразу, не оставляя его скрытым навсегда.
-    if (!visible && delay !== undefined && delay !== 0) return null;
 
     // Числовой size не имеет preset-класса — classNames отфильтрует undefined (SPR-06)
     const sizeClass = typeof size === 'number' ? undefined : styles[size];
@@ -115,8 +105,8 @@ export const Spinner = memo(
       >
         {variant === 'double-ring' ? (
           <div className={styles.doubleRing}>
-            <div className={styles.outerRing} />
-            <div className={styles.innerRing} />
+            <div className={styles.outerRing} data-testid="outer-ring" />
+            <div className={styles.innerRing} data-testid="inner-ring" />
           </div>
         ) : (
           <div className={styles.spinner}>
