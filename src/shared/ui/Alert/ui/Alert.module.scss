@@ -1,0 +1,163 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.alert {
+  @include overlay-base;
+
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  padding: $spacing-4;
+  border-left: 4px solid;
+  border-radius: $border-radius-lg;
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 $spacing-1;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: inherit;
+}
+
+.message {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  color: inherit;
+  opacity: 0.9;
+}
+
+.closeButton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-md;
+  opacity: 0.6;
+  transition: all $transition-fast ease-out;
+}
+
+.closeButton:hover {
+  background: rgb(0 0 0 / 0.06);
+  opacity: 1;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+// Variants
+.alert.success {
+  color: #065f46;
+  background: rgb(16 185 129 / 0.1);
+  border-left-color: var(--success);
+}
+
+.alert.success .icon {
+  color: var(--success);
+  background: rgb(16 185 129 / 0.2);
+}
+
+.alert.warning {
+  color: #92400e;
+  background: rgb(245 158 11 / 0.15);
+  border-left-color: var(--warning);
+}
+
+.alert.warning .icon {
+  color: var(--warning);
+  background: rgb(245 158 11 / 0.2);
+}
+
+.alert.danger,
+.alert.error {
+  color: #991b1b;
+  background: rgb(239 68 68 / 0.1);
+  border-left-color: var(--danger);
+}
+
+.alert.danger .icon,
+.alert.error .icon {
+  color: var(--danger);
+  background: rgb(239 68 68 / 0.2);
+}
+
+.alert.info {
+  color: #1e40af;
+  background: rgb(59 130 246 / 0.1);
+  border-left-color: var(--primary);
+}
+
+.alert.info .icon {
+  color: var(--primary);
+  background: rgb(59 130 246 / 0.2);
+}
+
+// Dark mode
+[data-theme='dark'] {
+  .alert.success {
+    color: #a7f3d0;
+    background: rgb(16 185 129 / 0.2);
+  }
+
+  .alert.success .icon {
+    background: rgb(16 185 129 / 0.3);
+  }
+
+  .alert.warning {
+    color: #fde047;
+    background: rgb(245 158 11 / 0.25);
+  }
+
+  .alert.warning .icon {
+    background: rgb(245 158 11 / 0.3);
+  }
+
+  .alert.danger,
+  .alert.error {
+    color: #fca5a5;
+    background: rgb(239 68 68 / 0.2);
+  }
+
+  .alert.danger .icon,
+  .alert.error .icon {
+    background: rgb(239 68 68 / 0.3);
+  }
+
+  .alert.info {
+    color: #bfdbfe;
+    background: rgb(59 130 246 / 0.2);
+  }
+
+  .alert.info .icon {
+    background: rgb(59 130 246 / 0.3);
+  }
+
+  .closeButton:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+}

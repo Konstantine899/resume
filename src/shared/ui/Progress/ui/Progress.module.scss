@@ -1,0 +1,89 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1-5;
+  width: 100%;
+}
+
+.progressWrapper {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  background: var(--border-color);
+  border-radius: $radius-full;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: $radius-full;
+  transform-origin: left;
+  transition: width $transition-duration $transition-easing;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-xs;
+  color: var(--text-tertiary);
+}
+
+// Sizes
+.progress.sm .progressWrapper {
+  height: 4px;
+}
+
+.progress.lg .progressWrapper {
+  height: 8px;
+}
+
+.progress.xl .progressWrapper {
+  height: 12px;
+}
+
+// Variants
+.progress.success .progressBar {
+  background: var(--success);
+}
+
+.progress.warning .progressBar {
+  background: var(--warning);
+}
+
+.progress.danger .progressBar {
+  background: var(--danger);
+}
+
+.progress.info .progressBar {
+  background: var(--primary);
+}
+
+// Indeterminate
+.progress.indeterminate .progressBar {
+  width: 30%;
+  animation: indeterminate 1.5s infinite ease-in-out;
+}
+
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(200%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressBar {
+    transition: none;
+    animation: none;
+  }
+}

@@ -1,0 +1,84 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.accordion {
+  overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: $border-radius-lg;
+}
+
+.accordionItem {
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.accordionTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: $spacing-4;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: background-color $transition-duration $transition-easing;
+}
+
+.accordionTrigger:hover {
+  background: var(--background-alt);
+}
+
+.accordionTrigger:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.accordionIcon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: $spacing-3;
+  color: var(--text-secondary);
+  transition: transform $transition-duration $transition-easing;
+}
+
+.accordionItem.open .accordionIcon {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height $transition-duration $transition-easing, padding $transition-duration $transition-easing;
+}
+
+.accordionItem.open .accordionContent {
+  max-height: 500px;
+  padding: 0 $spacing-4 $spacing-4;
+}
+
+.accordionContentInner {
+  padding: $spacing-4;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordionTrigger,
+  .accordionIcon,
+  .accordionContent {
+    transition: none;
+  }
+}

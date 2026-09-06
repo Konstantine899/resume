@@ -1,0 +1,118 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.selectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1-5;
+}
+
+.selectWrapper.fullWidth {
+  width: 100%;
+}
+
+.label {
+  margin-bottom: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--text-primary);
+
+  @include theme-transition;
+}
+
+.required::after {
+  margin-left: $spacing-1;
+  color: var(--form-error);
+  content: '*';
+}
+
+.selectContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  @include input-base;
+
+  width: 100%;
+  padding-right: $spacing-10;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-3 center;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--focus-ring);
+}
+
+.select:disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  background: var(--background-disabled);
+}
+
+.select.error {
+  border-color: var(--form-error);
+}
+
+.select.error:focus {
+  border-color: var(--form-error);
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+}
+
+.select.success {
+  border-color: var(--form-success);
+}
+
+.select.success:focus {
+  border-color: var(--form-success);
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 0.1);
+}
+
+.select.xs {
+  padding: $spacing-1 $spacing-2;
+  font-size: $font-size-xs;
+}
+
+.select.sm {
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+}
+
+.select.md {
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+}
+
+.select.lg {
+  padding: $spacing-4 $spacing-5;
+  font-size: $font-size-lg;
+}
+
+.select.xl {
+  padding: $spacing-5 $spacing-6;
+  font-size: $font-size-xl;
+}
+
+.chevron {
+  position: absolute;
+  right: $spacing-3;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: transform $transition-duration $transition-easing;
+}
+
+.selectContainer:hover .chevron {
+  color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .select,
+  .chevron {
+    transition: none;
+  }
+}

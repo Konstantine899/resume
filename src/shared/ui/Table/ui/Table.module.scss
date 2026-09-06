@@ -1,0 +1,102 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: $border-radius-lg;
+}
+
+.table {
+  width: 100%;
+  font-size: $font-size-sm;
+  border-collapse: collapse;
+}
+
+.thead {
+  background: var(--background-alt);
+}
+
+.th {
+  padding: $spacing-3 $spacing-4;
+  font-weight: $font-weight-semibold;
+  color: var(--text-secondary);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tbody .tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color $transition-duration $transition-easing;
+}
+
+.tbody .tr:last-child {
+  border-bottom: none;
+}
+
+.tbody .tr:hover {
+  background: var(--background-alt);
+}
+
+.td {
+  padding: $spacing-3 $spacing-4;
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+.tfoot .th,
+.tfoot .td {
+  padding: $spacing-3 $spacing-4;
+  font-weight: $font-weight-semibold;
+  color: var(--text-secondary);
+  background: var(--background-alt);
+  border-top: 1px solid var(--border-color);
+}
+
+.caption {
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+// Sizes
+.table.compact .th,
+.table.compact .td {
+  padding: $spacing-2 $spacing-3;
+}
+
+.table.comfortable .th,
+.table.comfortable .td {
+  padding: $spacing-4 $spacing-5;
+}
+
+// Striped rows
+.striped .tbody .tr:nth-child(even) {
+  background: var(--background-alt);
+}
+
+// Hoverable
+.hoverable .tbody .tr:hover {
+  background: var(--background-alt);
+}
+
+// Borderless
+.borderless .th,
+.borderless .td {
+  border: none;
+}
+
+.borderless .thead {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr {
+    transition: none;
+  }
+}
