@@ -1,14 +1,21 @@
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/mixins/theme' as *;
+// src/shared/ui/Input/ui/Input.module.scss
+
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// Input Component — Uses form-base mixin
+
+// ============================================
 
 .inputWrapper {
   --input-transition-duration: 0.2s;
-  --input-border-radius: 0.375rem;
-  --input-gap: 0.25rem;
+  --input-border-radius: #{$border-radius-lg}; // 8px
 
   display: flex;
   flex-direction: column;
-  gap: var(--input-gap);
+  gap: $spacing-1-5; // 6px
 
   &.fullWidth {
     width: 100%;
@@ -16,16 +23,16 @@
 }
 
 .label {
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
+  margin-bottom: 0;
+  font-size: $font-size-sm; // 14px
+  font-weight: $font-weight-medium; // 500
+  color: var(--text-primary);
 
   @include theme-transition;
 }
 
 .required::after {
-  margin-left: 0.25rem;
+  margin-left: $spacing-1;
   color: var(--form-error);
   content: '*';
 }
@@ -36,97 +43,85 @@
   align-items: center;
 
   // Icon padding using CSS variables
-  --icon-spacing: 0.75rem;
-  --icon-spacing-xs: 0.375rem;
-  --icon-spacing-sm: 0.5rem;
-  --icon-spacing-lg: 1rem;
-  --icon-spacing-xl: 1.25rem;
+  --icon-spacing: #{$spacing-3}; // 12px
 
   &:has(.icon) .input,
   &:has(.iconFloating) .input {
-    padding-left: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-left: calc(var(--icon-spacing) * 2 + $spacing-4);
   }
 
   &:has(.iconAfter) .input {
-    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-right: calc(var(--icon-spacing) * 2 + $spacing-4);
   }
 
   &:has(.clearButton) .input {
-    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-right: calc(var(--icon-spacing) * 2 + $spacing-4);
   }
 
   // Size variations for icon padding
   &:has(.icon) .input.xs,
   &:has(.iconFloating) .input.xs {
-    padding-left: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+    padding-left: calc(var(--icon-spacing-xs, $spacing-1-5) * 2 + $spacing-2-5);
   }
 
   &:has(.iconAfter) .input.xs {
-    padding-right: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+    padding-right: calc(var(--icon-spacing-xs, $spacing-1-5) * 2 + $spacing-2-5);
   }
 
   &:has(.icon) .input.sm,
   &:has(.iconFloating) .input.sm {
-    padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+    padding-left: calc(var(--icon-spacing-sm, $spacing-2) * 2 + $spacing-3);
   }
 
   &:has(.iconAfter) .input.sm {
-    padding-right: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+    padding-right: calc(var(--icon-spacing-sm, $spacing-2) * 2 + $spacing-3);
   }
 
   &:has(.icon) .input.lg,
   &:has(.iconFloating) .input.lg {
-    padding-left: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+    padding-left: calc(var(--icon-spacing-lg, $spacing-4) * 2 + $spacing-5);
   }
 
   &:has(.iconAfter) .input.lg {
-    padding-right: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+    padding-right: calc(var(--icon-spacing-lg, $spacing-4) * 2 + $spacing-5);
   }
 
   &:has(.icon) .input.xl,
   &:has(.iconFloating) .input.xl {
-    padding-left: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+    padding-left: calc(var(--icon-spacing-xl, $spacing-5) * 2 + $spacing-6);
   }
 
   &:has(.iconAfter) .input.xl {
-    padding-right: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+    padding-right: calc(var(--icon-spacing-xl, $spacing-5) * 2 + $spacing-6);
   }
 }
 
 .input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-family: Inter, sans-serif;
-  font-size: 1rem;
-  color: var(--foreground);
-  outline: none;
-  background-color: var(--background);
-  border: 1px solid var(--border-color);
-  border-radius: var(--input-border-radius);
-  transition:
-    border-color var(--input-transition-duration) ease,
-    box-shadow var(--input-transition-duration) ease;
+  @include input-base;
 
-  @include theme-transition;
+  width: 100%;
+  padding: $spacing-3 $spacing-4; // 12px 16px
+  font-size: $font-size-base; // 16px base, overridden by sizes
 
   &::placeholder {
-    color: var(--foreground-muted);
+    color: var(--text-tertiary);
   }
 
   &:focus {
+    outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
+    box-shadow: var(--focus-ring);
   }
 
   &:disabled {
+    color: var(--text-tertiary);
     cursor: not-allowed;
-    background-color: var(--background-alt);
-    opacity: 0.6;
+    background: var(--background-disabled);
   }
 
   &[readonly] {
     cursor: default;
-    background-color: var(--background-alt);
+    background: var(--background-alt);
   }
 
   &.outline {
@@ -134,7 +129,7 @@
 
     &:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgb(244 179 119 / 0.2);
+      box-shadow: var(--focus-ring);
     }
   }
 
@@ -144,34 +139,34 @@
 
     &:focus {
       background-color: var(--background);
-      box-shadow: 0 0 0 2px rgb(244 179 119 / 0.2);
+      box-shadow: 0 0 0 2px rgb(59 130 246 / 0.1);
     }
   }
 
-  // Sizes
+  // Sizes (Foodstore aligned)
   &.xs {
-    padding: 0.125rem 0.375rem;
-    font-size: 0.75rem;
+    padding: $spacing-1 $spacing-2;
+    font-size: $font-size-xs; // 12px
   }
 
   &.sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    padding: $spacing-2 $spacing-3;
+    font-size: $font-size-sm; // 14px
   }
 
   &.md {
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
+    padding: $spacing-3 $spacing-4;
+    font-size: $font-size-base; // 16px
   }
 
   &.lg {
-    padding: 0.75rem 1rem;
-    font-size: 1.125rem;
+    padding: $spacing-4 $spacing-5;
+    font-size: $font-size-lg; // 18px
   }
 
   &.xl {
-    padding: 1rem 1.25rem;
-    font-size: 1.25rem;
+    padding: $spacing-5 $spacing-6;
+    font-size: $font-size-xl; // 20px
   }
 
   // States
@@ -180,7 +175,7 @@
 
     &:focus {
       border-color: var(--form-error);
-      box-shadow: 0 0 0 3px rgb(220 53 69 / 0.2);
+      box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
     }
   }
 
@@ -189,7 +184,7 @@
 
     &:focus {
       border-color: var(--form-success);
-      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
+      box-shadow: 0 0 0 3px rgb(16 185 129 / 0.1);
     }
   }
 
@@ -211,98 +206,98 @@
 
 .icon {
   position: absolute;
-  left: 0.75rem;
+  left: $spacing-3;
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--text-tertiary);
   pointer-events: none;
 
   .input.xs ~ & {
-    left: 0.375rem;
+    left: $spacing-1-5;
   }
 
   .input.sm ~ & {
-    left: 0.5rem;
+    left: $spacing-2;
   }
 
   .input.xl ~ & {
-    left: 1rem;
+    left: $spacing-4;
   }
 }
 
 .iconAfter {
   position: absolute;
-  right: 0.75rem;
+  right: $spacing-3;
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--text-tertiary);
   pointer-events: none;
 
   .input.xs ~ & {
-    right: 0.375rem;
+    right: $spacing-1-5;
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: $spacing-2;
   }
 
   .input.xl ~ & {
-    right: 1rem;
+    right: $spacing-4;
   }
 }
 
 .loadingIndicator {
   position: absolute;
-  right: 0.75rem;
+  right: $spacing-3;
   display: flex;
   align-items: center;
 }
 
 .clearButton {
   position: absolute;
-  right: 0.75rem;
+  right: $spacing-3;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  color: var(--foreground-muted);
+  padding: $spacing-1;
+  color: var(--text-tertiary);
   cursor: pointer;
   background: transparent;
   border: none;
   transition: color var(--input-transition-duration) ease;
 
   &:hover {
-    color: var(--foreground);
+    color: var(--text-primary);
   }
 
   &:focus {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: $border-radius-sm;
   }
 
   .input.xs ~ & {
-    right: 0.375rem;
+    right: $spacing-1-5;
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: $spacing-2;
   }
 
   .input.xl ~ & {
-    right: 1rem;
+    right: $spacing-4;
   }
 }
 
 .counter {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--foreground-muted);
+  margin-top: $spacing-1;
+  font-size: $font-size-xs;
+  color: var(--text-tertiary);
 
   .warning {
-    font-weight: 600;
+    font-weight: $font-weight-semibold;
     color: var(--form-warning);
   }
 
@@ -356,10 +351,10 @@
 
 .floatingLabel {
   position: absolute;
-  top: 0.5rem;
-  left: 0.75rem;
-  font-size: 1rem;
-  color: var(--foreground-muted);
+  top: $spacing-3;
+  left: $spacing-3;
+  font-size: $font-size-base;
+  color: var(--text-tertiary);
   pointer-events: none;
   transform-origin: left top;
   transition:
@@ -367,50 +362,50 @@
     color var(--input-transition-duration) ease;
 
   .input.xs ~ & {
-    top: 0.125rem;
-    font-size: 0.75rem;
+    top: $spacing-1;
+    font-size: $font-size-xs;
   }
 
   .input.sm ~ & {
-    top: 0.25rem;
-    font-size: 0.875rem;
+    top: $spacing-2;
+    font-size: $font-size-sm;
   }
 
   .input.lg ~ & {
-    top: 0.75rem;
-    font-size: 1.125rem;
+    top: $spacing-4;
+    font-size: $font-size-lg;
   }
 
   .input.xl ~ & {
-    top: 1rem;
-    font-size: 1.25rem;
+    top: $spacing-5;
+    font-size: $font-size-xl;
   }
 }
 
 .iconFloating {
   position: absolute;
   top: 50%;
-  left: 0.75rem;
+  left: $spacing-3;
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--text-tertiary);
   pointer-events: none;
   transform: translateY(-50%);
 
   .input.xs ~ & {
-    left: 0.375rem;
+    left: $spacing-1-5;
   }
 
   .input.sm ~ & {
-    left: 0.5rem;
+    left: $spacing-2;
   }
 
   .input.lg ~ & {
-    left: 1rem;
+    left: $spacing-4;
   }
 
   .input.xl ~ & {
-    left: 1.25rem;
+    left: $spacing-5;
   }
 }
 
@@ -461,9 +456,9 @@
 .addonEnd {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--foreground-muted);
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-sm;
+  color: var(--text-tertiary);
   white-space: nowrap;
   background-color: var(--background-alt);
   border: 1px solid var(--border-color);
@@ -483,32 +478,32 @@
 
 .passwordToggle {
   position: absolute;
-  right: 0.75rem;
+  right: $spacing-3;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  color: var(--foreground-muted);
+  padding: $spacing-1;
+  color: var(--text-tertiary);
   cursor: pointer;
   background: transparent;
   border: none;
   transition: color var(--input-transition-duration) ease;
 
   &:hover {
-    color: var(--foreground);
+    color: var(--text-primary);
   }
 
   &:focus {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: $border-radius-sm;
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: $spacing-2;
   }
 
   .input.lg ~ & {
-    right: 1rem;
+    right: $spacing-4;
   }
 }

@@ -52,33 +52,46 @@
 
   // ============================================
 
-  // Sizes
+  // Sizes (Foodstore aligned)
 
   // ============================================
 
   &.xs {
+    min-height: $touch-target;
     padding: $spacing-xs $spacing-sm;
-    font-size: 0.75rem;
+    font-size: $font-size-xs;
   }
 
   &.sm {
+    min-height: $touch-target;
     padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
+    font-size: $font-size-sm;
   }
 
   &.md {
+    min-height: $touch-target;
     padding: $spacing-md $spacing-lg;
-    font-size: 1rem;
+    font-size: $font-size-base;
   }
 
   &.lg {
+    min-height: $touch-target;
     padding: $spacing-lg $spacing-xl;
-    font-size: 1.125rem;
+    font-size: $font-size-lg;
   }
 
   &.xl {
+    min-height: $touch-target;
     padding: $spacing-xl $spacing-10;
-    font-size: 1.25rem;
+    font-size: $font-size-xl;
+  }
+
+  // Icon-only size (44px touch target)
+  &.icon {
+    width: $touch-target;
+    height: $touch-target;
+    padding: 0;
+    border-radius: $border-radius-md;
   }
 
   // ============================================

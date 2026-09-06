@@ -1,22 +1,29 @@
+// src/shared/ui/Modal/ui/ModalRoot/ModalRoot.module.scss
+
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
 // ============================================
 
-// ModalRoot Styles
+// ModalRoot Styles (Foodstore aligned)
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/z-index' as *;
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/mixins/layout' as *;
-@use '@/shared/styles/animations/scale' as *;
-@use '@/shared/styles/animations/fade' as *;
-@use '../../model/modal-constants' as *;
+$modal-width-xs: 320px;
+$modal-width-sm: 400px;
+$modal-width-md: 500px;
+$modal-width-lg: 640px;
+$modal-width-xl: 768px;
+$modal-width-2xl: 896px;
+$modal-width-3xl: 1024px;
+$modal-max-height: 90vh;
+$modal-shadow: $shadow-dropdown;
 
 // Overlay
 .overlay {
-  z-index: $z-overlay;
+  z-index: 1300;
+  background: rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(2px);
 }
 
 // Modal Container (центрирование)
@@ -25,38 +32,51 @@
 
   position: fixed;
   inset: 0;
-  z-index: $z-modal;
-  padding: $spacing-md;
+  z-index: 1400;
+  padding: $spacing-4;
   pointer-events: none;
 }
 
 // Modal Base
 .modal {
+  @include modal-base;
+
   position: relative;
   width: 100%;
   max-width: $modal-width-md;
   max-height: $modal-max-height;
   overflow: hidden;
   pointer-events: auto;
-  background-color: var(--card-bg, #fff);
-  border: $border-width solid var(--card-border, $border-color);
-  border-radius: $radius-2xl;
-  box-shadow: $modal-shadow;
 
   // Анимация
   &:not(.noAnimation) {
-    animation: scaleIn $animation-duration $transition-easing;
+    animation: scaleIn 200ms $transition-easing;
   }
 
   // Close animation (forceMount mode)
   &.closing {
     pointer-events: none;
-    animation: scaleOut $animation-duration $transition-easing forwards;
+    animation: scaleOut 200ms $transition-easing forwards;
   }
 
   &.noAnimation {
     opacity: 1;
     transform: none;
+  }
+
+  // Header
+  .header {
+    @include modal-header;
+  }
+
+  // Body
+  .body {
+    @include modal-body;
+  }
+
+  // Footer
+  .footer {
+    @include modal-footer;
   }
 }
 
@@ -97,8 +117,8 @@
 }
 
 .modal--full {
-  max-width: calc(100vw - #{$spacing-md * 2});
-  max-height: calc(100vh - #{$spacing-md * 2});
+  max-width: calc(100vw - #{$spacing-4 * 2});
+  max-height: calc(100vh - #{$spacing-4 * 2});
 }
 
 // Body scroll mode — модалка растёт с контентом, скролл на body
@@ -117,16 +137,40 @@
 @media (width <= 640px) {
   .modalContainer {
     align-items: flex-end;
-    padding: $spacing-sm;
+    padding: $spacing-3;
   }
 
   .modal {
-    max-height: calc(100vh - #{$spacing-md});
+    max-height: calc(100vh - #{$spacing-4});
     border-radius: $radius-xl $radius-xl 0 0;
   }
 
   .modal--full {
     max-width: 100%;
-    max-height: calc(100vh - #{$spacing-md});
+    max-height: calc(100vh - #{$spacing-4});
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
   }
 }

@@ -1,27 +1,29 @@
+// src/shared/ui/Card/ui/Card.module.scss
+
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/ui/Card/model/card-mixins' as *;
 @use '@/shared/ui/Code/model/code-mixins' as *;
 
-// Card-specific constants (extracted from magic numbers)
+// Card-specific constants (Foodstore aligned)
 $card-min-height: 280px;
-$card-border-radius: 0.75rem;
-$card-padding-base: 1.5rem;
-$card-padding-lg: 2rem;
-$card-title-font-size-base: 1.75rem;
-$card-description-font-size: 1rem;
+$card-border-radius: $radius-xl; // 12px
+$card-padding-base: $spacing-4; // 16px
+$card-padding-lg: $spacing-5; // 20px
+$card-title-font-size-base: $font-size-base; // 16px
+$card-description-font-size: $font-size-sm; // 14px
 $card-tech-icon-size: 24px;
-$card-link-font-size: 0.9rem;
-$contact-padding-base: 1.5rem;
-$contact-padding-lg: 2rem;
+$card-link-font-size: $font-size-sm; // 14px
+$contact-padding-base: $spacing-4;
+$contact-padding-lg: $spacing-5;
 $contact-border-width: 4px;
-$contact-border-radius: 1.5rem;
+$contact-border-radius: $radius-2xl;
 $contact-icon-size-base: 2.5rem;
 $contact-icon-size-lg: 3rem;
-$contact-title-font-size-base: 1.25rem;
-$contact-title-font-size-lg: 1.5rem;
-$contact-p-font-size-base: 0.875rem;
-$contact-p-font-size-lg: 1rem;
+$contact-title-font-size-base: $font-size-xl; // 20px
+$contact-title-font-size-lg: $font-size-2xl; // 24px
+$contact-p-font-size-base: $font-size-sm; // 14px
+$contact-p-font-size-lg: $font-size-base; // 16px
 $contact-p-max-width: 20rem;
 $work-history-border-left-width: 4px;
 $work-history-border-radius: $radius-xl;
@@ -145,7 +147,7 @@ $card-hover-scale: 1.01;
     background-color: rgb(41 39 38 / 0.125);
     border: $contact-border-width solid rgb(217 71 68 / 0.5);
     border-radius: $contact-border-radius;
-    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    box-shadow: $shadow-2xl;
     backdrop-filter: blur(4px);
     transition:
       background-color 0.4s,
@@ -198,7 +200,7 @@ $card-hover-scale: 1.01;
     .title {
       margin-bottom: 0.5rem;
       font-size: $contact-title-font-size-base;
-      font-weight: 700;
+      font-weight: $font-weight-bold;
       color: white;
 
       @include lg {
@@ -222,24 +224,24 @@ $card-hover-scale: 1.01;
   // workHistory variant
   &.workHistory {
     position: relative;
-    padding: $spacing-3;
-    background-color: rgb(41 39 38 / 0.8);
-    border-left: 4px solid #f4b377;
-    border-radius: $radius-xl;
+    padding: $work-history-padding-base;
+    background-color: var(--card-bg);
+    border-left: $work-history-border-left-width solid var(--primary);
+    border-radius: $work-history-border-radius;
     backdrop-filter: blur(4px);
     transition: background-color 0.5s ease;
 
     @include sm {
-      padding: $spacing-4;
+      padding: $work-history-padding-sm;
     }
 
     @include md {
-      padding: $spacing-6;
+      padding: $work-history-padding-md;
     }
 
     // Light theme override
     [data-theme='light'] & {
-      background-color: rgb(255 255 255 / 0.9);
+      background-color: var(--background);
     }
 
     .workHistoryContent {
@@ -263,14 +265,14 @@ $card-hover-scale: 1.01;
     .titleSection {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: $spacing-1;
     }
 
     .title {
       margin: 0;
       font-size: $font-size-sm;
-      font-weight: 600;
-      color: #f4b377;
+      font-weight: $font-weight-semibold;
+      color: var(--text-primary);
 
       @include sm {
         font-size: $font-size-base;
@@ -288,8 +290,8 @@ $card-hover-scale: 1.01;
     .company {
       margin: 0;
       font-size: $font-size-sm;
-      font-weight: 500;
-      color: #f4b377;
+      font-weight: $font-weight-medium;
+      color: var(--text-secondary);
       white-space: nowrap;
 
       @include sm {
@@ -303,7 +305,7 @@ $card-hover-scale: 1.01;
       align-items: center;
       margin-bottom: $spacing-2;
       font-size: $font-size-xs;
-      color: #d1d5db;
+      color: var(--text-tertiary);
 
       @include sm {
         margin-bottom: $spacing-3;
@@ -321,10 +323,10 @@ $card-hover-scale: 1.01;
       justify-content: center;
       padding: $spacing-1 $spacing-2;
       font-size: $font-size-xs;
-      font-weight: 600;
-      color: #f4b377;
-      background: rgb(244 179 119 / 0.2);
-      border: 1px solid #f4b377;
+      font-weight: $font-weight-semibold;
+      color: var(--primary);
+      background: var(--primary-color-subtle, rgb(59 130 246 / 0.1));
+      border: 1px solid var(--primary);
       border-radius: $radius-full;
     }
 
@@ -334,7 +336,7 @@ $card-hover-scale: 1.01;
       align-items: center;
       margin-bottom: $spacing-3;
       font-size: $font-size-xs;
-      color: #d1d5db;
+      color: var(--text-tertiary);
 
       @include sm {
         font-size: $font-size-sm;
@@ -350,7 +352,7 @@ $card-hover-scale: 1.01;
       margin: 0;
       font-size: $font-size-xs;
       line-height: $line-height-base;
-      color: #e5e7eb;
+      color: var(--text-secondary);
 
       @include sm {
         font-size: $font-size-sm;
@@ -371,7 +373,7 @@ $card-hover-scale: 1.01;
       gap: $spacing-2;
       padding-top: $spacing-3;
       margin-top: $spacing-3;
-      border-top: 1px solid rgb(255 255 255 / 0.1);
+      border-top: 1px solid var(--border-color);
     }
 
     .techBadge {
@@ -380,115 +382,16 @@ $card-hover-scale: 1.01;
       justify-content: center;
       padding: $spacing-1 $spacing-3;
       font-size: $font-size-xs;
-      font-weight: 500;
-      color: #f4b377;
-      background: rgb(244 179 119 / 0.1);
-      border: 1px solid rgb(244 179 119 / 0.3);
+      font-weight: $font-weight-medium;
+      color: var(--primary);
+      background: var(--primary-color-subtle, rgb(59 130 246 / 0.1));
+      border: 1px solid var(--primary-color-subtle, rgb(59 130 246 / 0.3));
       border-radius: $radius-full;
       transition: all $transition-duration $transition-easing;
 
       &:hover {
-        background: rgb(244 179 119 / 0.2);
+        background: var(--primary-color-subtle, rgb(59 130 246 / 0.2));
         transform: translateY(-2px);
-      }
-    }
-  }
-
-  // project variant
-  &.project {
-    min-height: $card-min-height;
-    overflow: hidden;
-    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: $card-border-radius;
-
-    .backgroundImage {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 50%;
-      height: 100%;
-      background-position: center;
-      background-size: cover;
-      opacity: 0.3;
-    }
-
-    .gradientOverlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        90deg,
-        rgb(45 45 45 / 0.95) 0%,
-        rgb(45 45 45 / 0.85) 50%,
-        rgb(45 45 45 / 0.6) 100%
-      );
-    }
-
-    .content {
-      position: relative;
-      z-index: 1;
-      padding: $card-padding-base;
-
-      @include lg {
-        padding: $card-padding-lg;
-      }
-    }
-
-    .title {
-      margin-bottom: 1rem;
-      font-size: $card-title-font-size-base;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .description {
-      margin-bottom: 1.5rem;
-      font-size: $card-description-font-size;
-      line-height: 1.6;
-      color: rgb(255 255 255 / 0.7);
-    }
-
-    .techSection {
-      margin-bottom: 1.5rem;
-    }
-
-    .techLabel {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: rgb(255 255 255 / 0.6);
-    }
-
-    .techIcons {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .techIcon {
-      width: $card-tech-icon-size;
-      height: $card-tech-icon-size;
-      object-fit: contain;
-    }
-
-    .linkSection {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .linkLabel {
-      font-size: $card-link-font-size;
-      color: rgb(255 255 255 / 0.6);
-    }
-
-    .link {
-      font-size: $card-link-font-size;
-      color: #e85d5d;
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
       }
     }
   }
@@ -496,7 +399,7 @@ $card-hover-scale: 1.01;
 
 // Card parts
 .cardHeader {
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-4;
 
   &:last-child {
     margin-bottom: 0;
@@ -504,9 +407,9 @@ $card-hover-scale: 1.01;
 }
 
 .cardFooter {
-  padding-top: 1rem;
-  margin-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  padding-top: $spacing-4;
+  margin-top: $spacing-4;
+  border-top: 1px solid var(--border-color);
 
   &:first-child {
     padding-top: 0;
@@ -516,10 +419,9 @@ $card-hover-scale: 1.01;
 }
 
 .cardImage {
-  width: 100%;
-  height: auto;
-  margin-bottom: 1rem;
-  border-radius: 0.375rem;
+  @include card-image;
+
+  margin-bottom: $spacing-4;
 
   &:last-child {
     margin-bottom: 0;
