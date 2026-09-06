@@ -144,8 +144,8 @@ describe('Spinner', () => {
     it('double-ring variant должен рендерить два кольца', () => {
       render(<Spinner variant="double-ring" />);
       // Double ring has outer-ring and inner-ring classes
-      expect(screen.getByTestId('outer-ring')).toBeInTheDocument();
-      expect(screen.getByTestId('inner-ring')).toBeInTheDocument();
+      expect(screen.getByTestId('spinner-outer-ring')).toBeInTheDocument();
+      expect(screen.getByTestId('spinner-inner-ring')).toBeInTheDocument();
       expect(screen.queryByTestId('spinner-circle')).not.toBeInTheDocument();
     });
   });
@@ -209,8 +209,8 @@ describe('Spinner', () => {
     it('double-ring variant: два кольца', () => {
       render(<Spinner variant="double-ring" />);
       // Double ring has outer-ring and inner-ring classes
-      expect(screen.getByTestId('outer-ring')).toBeInTheDocument();
-      expect(screen.getByTestId('inner-ring')).toBeInTheDocument();
+      expect(screen.getByTestId('spinner-outer-ring')).toBeInTheDocument();
+      expect(screen.getByTestId('spinner-inner-ring')).toBeInTheDocument();
       expect(screen.queryByTestId('spinner-circle')).not.toBeInTheDocument();
     });
   });

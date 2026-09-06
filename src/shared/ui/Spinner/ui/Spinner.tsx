@@ -105,8 +105,8 @@ export const Spinner = memo(
       >
         {variant === 'double-ring' ? (
           <div className={styles.doubleRing}>
-            <div className={styles.outerRing} data-testid="outer-ring" />
-            <div className={styles.innerRing} data-testid="inner-ring" />
+            <div className={styles.outerRing} data-testid="spinner-outer-ring" />
+            <div className={styles.innerRing} data-testid="spinner-inner-ring" />
           </div>
         ) : (
           <div className={styles.spinner}>

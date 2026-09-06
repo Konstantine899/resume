@@ -1,15 +1,30 @@
-import { ImageFallbackBoundary } from './ImageFallbackBoundary';
-import { forwardRef, useCallback, useEffect, useMemo } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/shared/lib/i18n/config/i18n';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { useMergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { useImageLoading } from '../lib/hooks/useImageLoading';
-import { ImageRendererProps } from '../model/types';
+import { ImageBaseProps, ImageProps, LocalImageProps, RemoteImageProps } from '../model/types';
 import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../model/constants';
 import { Spinner } from '@/shared/ui/Spinner';
 import { ImageSkeleton } from './ImageSkeleton/ImageSkeleton';
+import { ImageFallbackBoundary } from './ImageFallbackBoundary';
 import styles from './Image.module.scss';
+
+/**
+ * Общие пропсы внутреннего рендера — resolved source + локальные флаги,
+ * которые выставляются обёртками (RemoteImage / LocalImage) из discriminated union.
+ */
+type ImageRendererOwnProps = {
+  /** Resolved source (IMG-04): строка нормализуется в объект, srcSet отсутствует у строки */
+  resolvedSrc: { src: string; srcSet?: string };
+  /** Local-режим: loader ещё не отработал — держим skeleton без <img src=""> */
+  pendingLocal?: boolean;
+  /** Булев lazy алиас (RemoteImageProps.lazyLoad) → lazyMode='intersection' */
+  lazyLoad?: boolean;
+};
+
+type ImageRendererProps = ImageRendererOwnProps & ImageBaseProps;
 
 /**
  * Общий рендер изображения.
@@ -134,7 +149,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
     );
   }, [placeholder, loadingStatus]);
 
-  // Inline fallback render (no ErrorBoundary wrapper — simpler, single layer)
+  // Inline render for fallback (replaces useCallback — simpler, no deps issue)
   const renderFallback = () => {
     if (typeof fallback === 'string') {
       return (
@@ -232,6 +247,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       data-variant={variant}
       data-size={size}
       data-loading={loadingStatus}
+      data-testid="image"
     >
       {showPlaceholder && (
         <div className={placeholderClasses}>
@@ -279,3 +295,66 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
 ImageRenderer.displayName = 'ImageRenderer';
 
 export { ImageRenderer };
+
+/**
+ * Remote-обёртка: извлекает `src`/`lazyLoad`, нормализует в resolvedSrc (IMG-04).
+ */
+const RemoteImage = forwardRef<HTMLImageElement, RemoteImageProps>((props, ref) => {
+  const { src, lazyLoad, ...rest } = props;
+  // IMG-04: single resolved-src source — object form carries the optional srcSet,
+  // string form normalizes to a source object so the srcset attribute stays absent.
+  const resolvedSrc = typeof src === 'object' ? src : { src, srcSet: undefined };
+  return <ImageRenderer ref={ref} {...rest} resolvedSrc={resolvedSrc} lazyLoad={lazyLoad} />;
+});
+
+RemoteImage.displayName = 'RemoteImage';
+
+/**
+ * Local-обёртка: резолвит dynamic import в URL, держит skeleton (pendingLocal)
+ * до первого результата. Ошибка loader'а → пустой src → штатный error-flow.
+ */
+const LocalImage = forwardRef<HTMLImageElement, LocalImageProps>((props, ref) => {
+  const { import: loader, ...rest } = props;
+  const [url, setUrl] = useState<string | null>(null);
+  const [loaderFailed, setLoaderFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    loader()
+      .then((res) => {
+        if (active) setUrl(res.default);
+      })
+      .catch(() => {
+        if (active) setLoaderFailed(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loader]);
+
+  const resolvedSrc = { src: url ?? '', srcSet: undefined };
+  const pendingLocal = url === null && !loaderFailed;
+
+  return (
+    <ImageRenderer ref={ref} {...rest} resolvedSrc={resolvedSrc} pendingLocal={pendingLocal} />
+  );
+});
+
+LocalImage.displayName = 'LocalImage';
+
+/**
+ * Публичная точка входа — дискриминация discriminated union (#4):
+ * `type === 'local'` → local-источник (import), иначе remote (src).
+ */
+const ImageComponent = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
+  return props.type === 'local' ? (
+    <LocalImage {...props} ref={ref} />
+  ) : (
+    <RemoteImage {...props} ref={ref} />
+  );
+});
+
+ImageComponent.displayName = 'Image';
+
+export const Image = memo(ImageComponent);
+Image.displayName = 'Image';

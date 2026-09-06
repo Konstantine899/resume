@@ -26,19 +26,20 @@ import { CardMeta } from './CardMeta';
  *
  * @remarks
  * **Container Integration:**
- * - Variants `skill` и `about` автоматически оборачиваются в `Container` для центрирования и ограничения ширины
+ * - По умолчанию variants `skill` и `about` оборачиваются в `Container` для центрирования и ограничения ширины
  * - `skill` variant: Container size="xl" (1280px max-width)
- * `about` variant: Container size="lg" (1024px max-width)
+ * - `about` variant: Container size="lg" (1024px max-width)
  * - Остальные variants (`default`, `project`, `workHistory`, `contact`, `codeBlock`) не используют Container
+ * - Можно отключить/включить через проп `autoContainer`
  *
  * **Polymorphic:**
  * - Default element: `<div>`
- * - Use `component` prop для рендеринга как `<section>`, `<article>`, `<a>`, `<form>`, etc.
+ * - Use `as` prop для рендеринга как `<section>`, `<article>`, `<a>`, `<form>`, etc.
  *
  * **Variants:**
  * - `default` — базовый стиль
- * - `skill` — для навыков (авто-Container xl)
- * - `about` — для секций "о себе" (авто-Container lg)
+ * - `skill` — для навыков (авто-Container xl, если autoContainer=true)
+ * - `about` — для секций "о себе" (авто-Container lg, если autoContainer=true)
  * - `project` — для проектов (специализированный)
  * - `workHistory` — для опыта работы (специализированный)
  * - `contact` — для контактов (специализированный)
@@ -51,13 +52,13 @@ import { CardMeta } from './CardMeta';
  * ```
  *
  * @example
- * // Skill variant (auto-wrapped in Container size="xl")
+ * // Skill variant (auto-wrapped in Container size="xl" when autoContainer=true)
  * ```tsx
  * <Card variant="skill">Skill content</Card>
  * ```
  *
  * @example
- * // About variant (auto-wrapped in Container size="lg")
+ * // About variant (auto-wrapped in Container size="lg" when autoContainer=true)
  * ```tsx
  * <Card variant="about">About content</Card>
  * ```
@@ -65,7 +66,7 @@ import { CardMeta } from './CardMeta';
  * @example
  * // Polymorphic as section
  * ```tsx
- * <Card component="section">Section card</Card>
+ * <Card as="section">Section card</Card>
  * ```
  *
  * @example
@@ -77,6 +78,18 @@ import { CardMeta } from './CardMeta';
  *   <Card.Footer>Footer</Card.Footer>
  * </Card>
  * ```
+ *
+ * @example
+ * // Disable auto-container for skill variant
+ * ```tsx
+ * <Card variant="skill" autoContainer={false}>Content without container</Card>
+ * ```
+ *
+ * @example
+ * // Enable auto-container for default variant
+ * ```tsx
+ * <Card autoContainer={true}>Content with container</Card>
+ * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface CardProps extends CardOwnProps, Record<string, any> {
@@ -84,8 +97,18 @@ interface CardProps extends CardOwnProps, Record<string, any> {
 }
 
 const CardComponent = memo((props: CardProps) => {
-  const { variant, size, radius, fullWidth, hoverable, className, children, component, ...rest } =
-    props;
+  const {
+    variant,
+    size,
+    radius,
+    fullWidth,
+    hoverable,
+    className,
+    children,
+    component,
+    autoContainer,
+    ...rest
+  } = props;
 
   const onClick = (rest as Record<string, unknown>).onClick as React.MouseEventHandler | undefined;
   const { cardClasses, safeVariant, safeSize, safeRadius } = useCard({
@@ -111,7 +134,9 @@ const CardComponent = memo((props: CardProps) => {
   }
 
   // For 'skill' and 'about' variants, wrap content in Container for max-width and centering
-  const shouldUseContainer = safeVariant === 'skill' || safeVariant === 'about';
+  // Respect autoContainer prop (default: true for skill/about, false for others)
+  const defaultAutoContainer = safeVariant === 'skill' || safeVariant === 'about';
+  const shouldUseContainer = autoContainer ?? defaultAutoContainer;
   const containerSize = safeVariant === 'skill' ? 'xl' : 'lg';
 
   const Tag = component ?? 'div';
@@ -132,7 +157,7 @@ const CardComponent = memo((props: CardProps) => {
     children
   );
 
-  // Wrap in Container for skill/about variants
+  // Wrap in Container for skill/about variants (respecting autoContainer prop)
   if (shouldUseContainer) {
     return (
       <Container size={containerSize} centered>

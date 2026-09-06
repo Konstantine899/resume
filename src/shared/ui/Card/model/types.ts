@@ -18,6 +18,10 @@ export interface CardOwnProps {
   className?: string;
   children?: ReactNode;
   asChild?: boolean;
+  /** Явно управлять оборачиванием в Container для skill/about variants.
+   * @default true для variants 'skill' и 'about', false для остальных
+   */
+  autoContainer?: boolean;
 }
 
 /**

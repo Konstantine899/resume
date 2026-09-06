@@ -130,6 +130,7 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
       data-size={size}
       data-variant={variant}
       data-hero-style={heroStyle || undefined}
+      data-testid="avatar"
       {...rest}
     >
       {showGlow && <div className={styles.glow} />}
