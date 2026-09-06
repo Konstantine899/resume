@@ -176,7 +176,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
           <span
             className={variant === 'floating' ? (styles.iconFloating ?? '') : (styles.icon ?? '')}
             aria-hidden="true"
-            data-testid={variant === 'floating' ? 'icon-floating' : 'icon'}
+            data-testid={variant === 'floating' ? 'input-icon-floating' : 'input-icon'}
           >
             {inferIconSize(icon, size)}
           </span>
@@ -320,7 +320,7 @@ function InputImpl<C extends React.ElementType = 'input'>(
         <span
           id={counterId}
           className={styles.counter ?? ''}
-          data-testid="counter"
+          data-testid="input-counter"
           aria-live="polite"
         >
           <span className={isWarning ? (styles.warning ?? '') : ''}>{charCount}</span>/

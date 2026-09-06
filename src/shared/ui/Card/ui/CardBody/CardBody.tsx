@@ -14,7 +14,7 @@ import styles from './CardBody.module.scss';
  * ```tsx
  * <Card>
  *   <Card.Header>Заголовок</Card.Header>
- *   <Card.Body>Основной контент</Card.Body>
+ * <Card.Body>Основной контент</Card.Body>
  * </Card>
  * ```
  */
@@ -22,7 +22,7 @@ export const CardBody: React.FC<CardBodyProps> = ({ children, className = '', ..
   const bodyClasses = classNames(styles.cardBody, className);
 
   return (
-    <div className={bodyClasses} {...props}>
+    <div className={bodyClasses} data-testid="card-body" {...props}>
       {children}
     </div>
   );

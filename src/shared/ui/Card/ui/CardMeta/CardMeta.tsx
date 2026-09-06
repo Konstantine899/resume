@@ -7,7 +7,7 @@ export const CardMeta: React.FC<CardMetaProps> = ({ children, className = '', ..
   const metaClasses = classNames(styles.cardMeta, className);
 
   return (
-    <div className={metaClasses} {...props}>
+    <div className={metaClasses} data-testid="card-meta" {...props}>
       <Paragraph size="xs" theme="tertiary">
         {children}
       </Paragraph>

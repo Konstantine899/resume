@@ -42,7 +42,7 @@ describe('CodeBlockHeader', () => {
     it('должен рендерить кнопку Copy при copyable=true', () => {
       render(<CodeBlockHeader copyable />);
 
-      const button = screen.getByTestId('code-copy-button');
+      const button = screen.getByTestId('code-block-copy-button');
       expect(button).toBeInTheDocument();
       expect(screen.getByText('Copy')).toBeInTheDocument();
     });
@@ -50,13 +50,13 @@ describe('CodeBlockHeader', () => {
     it('НЕ должен рендерить кнопку при copyable=false', () => {
       render(<CodeBlockHeader copyable={false} />);
 
-      expect(screen.queryByTestId('code-copy-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('code-block-copy-button')).not.toBeInTheDocument();
     });
 
     it('НЕ должен рендерить кнопку при disabled=true', () => {
       render(<CodeBlockHeader copyable disabled />);
 
-      expect(screen.queryByTestId('code-copy-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('code-block-copy-button')).not.toBeInTheDocument();
     });
   });
 
@@ -65,21 +65,21 @@ describe('CodeBlockHeader', () => {
       render(<CodeBlockHeader copyable isCopied={false} />);
 
       expect(screen.getByText('Copy')).toBeInTheDocument();
-      expect(screen.getByTestId('code-copy-button').querySelector('svg')).toBeInTheDocument();
+      expect(screen.getByTestId('code-block-copy-button').querySelector('svg')).toBeInTheDocument();
     });
 
     it('должен показывать иконку Check и текст "Copied!" при isCopied=true', () => {
       render(<CodeBlockHeader copyable isCopied />);
 
       expect(screen.getByText('Copied!')).toBeInTheDocument();
-      expect(screen.getByTestId('code-copy-button').querySelector('svg')).toBeInTheDocument();
+      expect(screen.getByTestId('code-block-copy-button').querySelector('svg')).toBeInTheDocument();
     });
 
     it('должен вызывать onCopy при клике на кнопку', () => {
       const handleCopy = vi.fn();
       render(<CodeBlockHeader copyable onCopy={handleCopy} />);
 
-      fireEvent.click(screen.getByTestId('code-copy-button'));
+      fireEvent.click(screen.getByTestId('code-block-copy-button'));
       expect(handleCopy).toHaveBeenCalledTimes(1);
     });
   });
@@ -88,13 +88,16 @@ describe('CodeBlockHeader', () => {
     it('должен иметь aria-label="Copy code" в idle состоянии', () => {
       render(<CodeBlockHeader copyable isCopied={false} />);
 
-      expect(screen.getByTestId('code-copy-button')).toHaveAttribute('aria-label', 'Copy code');
+      expect(screen.getByTestId('code-block-copy-button')).toHaveAttribute(
+        'aria-label',
+        'Copy code'
+      );
     });
 
     it('должен иметь aria-label="Copied!" при isCopied=true', () => {
       render(<CodeBlockHeader copyable isCopied />);
 
-      expect(screen.getByTestId('code-copy-button')).toHaveAttribute('aria-label', 'Copied!');
+      expect(screen.getByTestId('code-block-copy-button')).toHaveAttribute('aria-label', 'Copied!');
     });
   });
 

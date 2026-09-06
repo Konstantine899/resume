@@ -30,7 +30,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({
   const footerClasses = classNames(styles.cardFooter, withBorder && styles.withBorder, className);
 
   return (
-    <div className={footerClasses} {...props}>
+    <div className={footerClasses} data-testid="card-footer" {...props}>
       {withBorder && <Divider className={styles.divider} />}
       <div className={styles.content}>{children}</div>
     </div>

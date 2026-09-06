@@ -121,7 +121,7 @@ describe('Input', () => {
 
     it('hides icons from screen readers with aria-hidden', () => {
       render(<Input label="Email" icon={<Mail aria-hidden="true" />} />);
-      const icon = screen.getByTestId('icon');
+      const icon = screen.getByTestId('input-icon');
       expect(icon).toHaveAttribute('aria-hidden', 'true');
     });
 
@@ -277,7 +277,7 @@ describe('Input', () => {
 
     it('hides character counter when skeleton', () => {
       render(<Input skeleton showCounter maxLength={100} defaultValue="test" />);
-      expect(screen.queryByTestId('counter')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('input-counter')).not.toBeInTheDocument();
     });
   });
 
@@ -602,7 +602,7 @@ describe('Input', () => {
   describe('Character Counter', () => {
     it('shows character counter when showCounter and maxLength are provided', () => {
       render(<Input showCounter maxLength={100} defaultValue="Hello" />);
-      expect(screen.getByTestId('counter')).toBeInTheDocument();
+      expect(screen.getByTestId('input-counter')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
       expect(screen.getByText('/100')).toBeInTheDocument();
     });
@@ -611,12 +611,12 @@ describe('Input', () => {
       render(<Input showCounter maxLength={10} />);
       const input = screen.getByRole('textbox');
       await userEvent.type(input, 'Hello');
-      expect(screen.getByTestId('counter')).toHaveTextContent('5/10');
+      expect(screen.getByTestId('input-counter')).toHaveTextContent('5/10');
     });
 
     it('shows warning style when approaching max length', () => {
       render(<Input showCounter maxLength={10} defaultValue="123456789" />);
-      const counter = screen.getByTestId('counter');
+      const counter = screen.getByTestId('input-counter');
       const countElement = counter.querySelector('span');
       expect(countElement?.className).toContain('warning');
     });
@@ -682,7 +682,7 @@ describe('Input', () => {
 
     it('renders icon with floating label', () => {
       render(<Input variant="floating" label="Email" icon={<Mail aria-hidden="true" />} />);
-      expect(screen.getByTestId('icon-floating')).toBeInTheDocument();
+      expect(screen.getByTestId('input-icon-floating')).toBeInTheDocument();
     });
 
     it('renders iconAfter with floating label', () => {

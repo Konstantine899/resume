@@ -17,7 +17,7 @@ export const CardGrid: React.FC<CardGridProps> = ({
   );
 
   return (
-    <div className={gridClasses} {...props}>
+    <div className={gridClasses} data-testid="card-grid" {...props}>
       {children}
     </div>
   );

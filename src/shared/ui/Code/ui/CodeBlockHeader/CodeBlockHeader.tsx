@@ -100,7 +100,7 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
           onClick={onCopy}
           onKeyDown={onKeyDown}
           aria-label={isCopied ? t('copied') : t('copyCode')}
-          data-testid="code-copy-button"
+          data-testid="code-block-copy-button"
           className={classNames(styles.copyButton, isCopied && styles.copied)}
         >
           {isCopied ? t('copied') : t('copy')}

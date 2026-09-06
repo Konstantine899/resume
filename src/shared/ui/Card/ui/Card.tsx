@@ -28,7 +28,7 @@ import { CardMeta } from './CardMeta';
  * **Container Integration:**
  * - Variants `skill` и `about` автоматически оборачиваются в `Container` для центрирования и ограничения ширины
  * - `skill` variant: Container size="xl" (1280px max-width)
- * - `about` variant: Container size="lg" (1024px max-width)
+ * `about` variant: Container size="lg" (1024px max-width)
  * - Остальные variants (`default`, `project`, `workHistory`, `contact`, `codeBlock`) не используют Container
  *
  * **Polymorphic:**
@@ -126,6 +126,7 @@ const CardComponent = memo((props: CardProps) => {
       'data-variant': safeVariant,
       'data-size': safeSize,
       'data-radius': safeRadius,
+      'data-testid': 'card',
       ...rest,
     },
     children

@@ -142,13 +142,13 @@ describe('CodeBlockUi', () => {
     it('должен показывать copy button при copyable=true', () => {
       render(<CodeBlockUi copyable>const x = 10;</CodeBlockUi>);
 
-      expect(screen.getByTestId('code-copy-button')).toBeInTheDocument();
+      expect(screen.getByTestId('code-block-copy-button')).toBeInTheDocument();
     });
 
     it('НЕ должен показывать copy button при copyable=false', () => {
       render(<CodeBlockUi copyable={false}>const x = 10;</CodeBlockUi>);
 
-      expect(screen.queryByTestId('code-copy-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('code-block-copy-button')).not.toBeInTheDocument();
     });
 
     it('НЕ должен показывать copy button при disabled=true', () => {
@@ -158,7 +158,7 @@ describe('CodeBlockUi', () => {
         </CodeBlockUi>
       );
 
-      expect(screen.queryByTestId('code-copy-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('code-block-copy-button')).not.toBeInTheDocument();
     });
   });
 });

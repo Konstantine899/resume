@@ -15,6 +15,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({
       theme="muted"
       className={classNames(styles.cardDescription, className)}
       {...props}
+      data-testid="card-description"
     >
       {children}
     </Paragraph>

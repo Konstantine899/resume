@@ -16,7 +16,7 @@ export const CardActions: React.FC<CardActionsProps> = ({
   );
 
   return (
-    <div className={actionsClasses} {...props}>
+    <div className={actionsClasses} data-testid="card-actions" {...props}>
       <Divider className={styles.divider} />
       <div className={styles.actionsInner}>{children}</div>
     </div>

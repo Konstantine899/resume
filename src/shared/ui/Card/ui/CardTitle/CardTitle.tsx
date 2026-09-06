@@ -24,7 +24,15 @@ export const CardTitle: React.FC<CardTitleProps> = ({
   ...props
 }) => {
   return (
-    <Heading as={as} size={size} theme={theme} align={align} className={className} {...props}>
+    <Heading
+      as={as}
+      size={size}
+      theme={theme}
+      align={align}
+      className={className}
+      {...props}
+      data-testid="card-title"
+    >
       {children}
     </Heading>
   );

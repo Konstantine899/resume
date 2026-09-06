@@ -28,7 +28,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   const headerClasses = classNames(styles.cardHeader, withBorder && styles.withBorder, className);
 
   return (
-    <div className={headerClasses} {...props}>
+    <div className={headerClasses} data-testid="card-header" {...props}>
       <div className={styles.content}>{children}</div>
       {withBorder && <Divider className={styles.divider} />}
     </div>

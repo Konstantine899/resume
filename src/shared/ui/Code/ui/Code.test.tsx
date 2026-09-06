@@ -66,7 +66,7 @@ describe('Code (Integration)', () => {
         </Code>
       );
 
-      expect(screen.getByTestId('code-copy-button')).toBeInTheDocument();
+      expect(screen.getByTestId('code-block-copy-button')).toBeInTheDocument();
     });
 
     it('должен иметь tabIndex=0 и role="region" на блоке', () => {
@@ -200,7 +200,7 @@ describe('Code (Integration)', () => {
         </Code>
       );
 
-      fireEvent.click(screen.getByTestId('code-copy-button'));
+      fireEvent.click(screen.getByTestId('code-block-copy-button'));
 
       await vi.waitFor(() => {
         expect(mockWriteText).toHaveBeenCalledWith('line 1\nline 2');

@@ -24,6 +24,7 @@ const CardImageComponent: React.FC<CardImageProps> = ({
       objectFit={objectFit}
       variant="default"
       placeholder="skeleton"
+      data-testid="card-image"
     />
   );
 };

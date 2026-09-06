@@ -111,7 +111,7 @@ describe('Input — ARIA States', () => {
     expect(describedBy).toBeTruthy();
 
     const describer = document.getElementById(describedBy as string);
-    expect(describer).toHaveAttribute('data-testid', 'counter');
+    expect(describer).toHaveAttribute('data-testid', 'input-counter');
   });
 
   it('does not set aria-busy on input when skeleton (wrapper has it)', () => {
