@@ -22,27 +22,29 @@
   border: none;
   border-radius: $border-radius-md;
   transition: all $transition-duration $transition-easing;
+}
 
-  &:hover:not(:disabled) {
-    color: var(--text-primary);
-    background: var(--background-alt);
-  }
+.pageButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--background-alt);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-  }
+.pageButton:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+.pageButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
-  &.active {
-    color: #fff;
-    background: var(--primary);
+.pageButton.active {
+  color: #fff;
+  background: var(--primary);
 
-    &:hover { background: #0056b3; }
+  &:hover {
+    background: var(--primary-hover, #0056b3);
   }
 }
 
@@ -56,5 +58,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pageButton { transition: none; }
+  .pageButton {
+    transition: none;
+  }
 }

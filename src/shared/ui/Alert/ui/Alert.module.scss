@@ -72,7 +72,7 @@
 
 // Variants
 .alert.success {
-  color: #065f46;
+  color: var(--success-text, #065f46);
   background: rgb(16 185 129 / 0.1);
   border-left-color: var(--success);
 }
@@ -83,7 +83,7 @@
 }
 
 .alert.warning {
-  color: #92400e;
+  color: var(--warning-text, #92400e);
   background: rgb(245 158 11 / 0.15);
   border-left-color: var(--warning);
 }
@@ -95,7 +95,7 @@
 
 .alert.danger,
 .alert.error {
-  color: #991b1b;
+  color: var(--danger-text, #991b1b);
   background: rgb(239 68 68 / 0.1);
   border-left-color: var(--danger);
 }
@@ -107,7 +107,7 @@
 }
 
 .alert.info {
-  color: #1e40af;
+  color: var(--info-text, #1e40af);
   background: rgb(59 130 246 / 0.1);
   border-left-color: var(--primary);
 }
@@ -120,42 +120,31 @@
 // Dark mode
 [data-theme='dark'] {
   .alert.success {
-    color: #a7f3d0;
+    color: var(--success-text-dark, #a7f3d0);
     background: rgb(16 185 129 / 0.2);
   }
-
-  .alert.success .icon {
-    background: rgb(16 185 129 / 0.3);
-  }
+  .alert.success .icon { background: rgb(16 185 129 / 0.3); }
 
   .alert.warning {
-    color: #fde047;
+    color: var(--warning-text-dark, #fde047);
     background: rgb(245 158 11 / 0.25);
   }
-
-  .alert.warning .icon {
-    background: rgb(245 158 11 / 0.3);
-  }
+  .alert.warning .icon { background: rgb(245 158 11 / 0.3); }
 
   .alert.danger,
   .alert.error {
-    color: #fca5a5;
+    color: var(--danger-text-dark, #fca5a5);
     background: rgb(239 68 68 / 0.2);
   }
 
   .alert.danger .icon,
-  .alert.error .icon {
-    background: rgb(239 68 68 / 0.3);
-  }
+  .alert.error .icon { background: rgb(239 68 68 / 0.3); }
 
   .alert.info {
-    color: #bfdbfe;
+    color: var(--info-text-dark, #bfdbfe);
     background: rgb(59 130 246 / 0.2);
   }
-
-  .alert.info .icon {
-    background: rgb(59 130 246 / 0.3);
-  }
+  .alert.info .icon { background: rgb(59 130 246 / 0.3); }
 
   .closeButton:hover {
     background: rgb(255 255 255 / 0.1);

@@ -34,6 +34,12 @@
   --warning: #{$warning-color};
   --code-bg: rgb(41 39 38 / 0.95);
 
+  // Alert text colors
+  --success-text: #065f46;
+  --warning-text: #92400e;
+  --danger-text: #991b1b;
+  --info-text: #1e40af;
+
   // Skeleton colors
   --skeleton-base: #{$background-alt};
   --skeleton-highlight: #{$background-hover};
@@ -84,6 +90,12 @@
   --danger: #ef4444;
   --warning: #f59e0b;
 
+  // Alert text colors for dark theme
+  --success-text: #a7f3d0;
+  --warning-text: #fde047;
+  --danger-text: #fca5a5;
+  --info-text: #bfdbfe;
+
   // Skeleton colors for dark theme
   --skeleton-base: #292726;
   --skeleton-highlight: rgb(255 255 255 / 0.15);
@@ -126,10 +138,18 @@
   --card-border: #{$border-color};
   --shadow-color: rgb(0 0 0 / 0.1);
   --border-color: #{$border-color};
+  --primary: #{$primary-color};
+  --primary-hover: #0056b3;
   --secondary: #6c757d;
   --success: #{$success-color};
   --danger: #{$danger-color};
   --warning: #{$warning-color};
+
+  // Alert text colors for light theme
+  --success-text: #065f46;
+  --warning-text: #92400e;
+  --danger-text: #991b1b;
+  --info-text: #1e40af;
 
   // Skeleton colors for light theme
   --skeleton-base: #{$background-alt};
