@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { INPUT_CONSTANTS } from '../constants';
+import { INPUT_CONSTANTS } from '../../model/constants';
 
 export interface UseInputOptions {
   value?: string;
