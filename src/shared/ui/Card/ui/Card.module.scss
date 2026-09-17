@@ -1,6 +1,6 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
-@use '@/shared/ui/Card/model/card-mixins' as *;
+@use '@/shared/styles/mixins/card' as *;
 @use '@/shared/ui/Code/model/code-mixins' as *;
 
 // Card-specific constants (extracted from magic numbers)
