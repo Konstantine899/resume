@@ -51,6 +51,11 @@
   --image-placeholder-bg: rgb(0 0 0 / 0.05);
   --image-fallback-text: rgb(0 0 0 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.05);
+
+  // Tooltip tokens
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #fff;
+  --tooltip-focus: #3b82f6;
 }
 
 [data-theme='dark'] {
@@ -94,6 +99,10 @@
   --image-placeholder-bg: rgb(255 255 255 / 0.05);
   --image-fallback-text: rgb(255 255 255 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.1);
+
+  // Tooltip tokens for dark theme
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #f3f4f6;
 }
 
 [data-theme='light'] {
@@ -135,4 +144,8 @@
   --image-placeholder-bg: rgb(0 0 0 / 0.05);
   --image-fallback-text: rgb(0 0 0 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.05);
+
+  // Tooltip tokens for light theme
+  --tooltip-bg: #374151;
+  --tooltip-text: #f9fafb;
 }
