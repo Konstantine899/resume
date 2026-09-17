@@ -2,8 +2,8 @@ import { flushSync } from 'react-dom';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { focusTrap, getFirstFocusableElement } from '@/shared/lib/utils/focusTrap';
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { ModalRootProps } from './types';
-import styles from '../ui/ModalRoot/ModalRoot.module.scss';
+import type { ModalRootProps } from '../../model/types';
+import styles from '../../ui/ModalRoot/ModalRoot.module.scss';
 
 // Global ref to track number of open modals for scroll lock
 const openCountRef = { current: 0 };

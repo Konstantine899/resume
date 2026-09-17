@@ -1,9 +1,9 @@
 import { Overlay } from '@/shared/ui/Overlay';
 import { Portal } from '@/shared/ui/Portal';
 import { Children, cloneElement, memo } from 'react';
-import { useModalRoot } from '../../model/useModalRoot';
+import { useModalRoot } from '../../lib/hooks/useModalRoot';
 // eslint-disable-next-line react-refresh/only-export-components
-export { resetOpenCount } from '../../model/useModalRoot';
+export { resetOpenCount } from '../../lib/hooks/useModalRoot';
 import type { ModalRootProps } from '../../model/types';
 import styles from './ModalRoot.module.scss';
 
