@@ -9,7 +9,7 @@
 @use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/variables/typography' as *;
 @use '@/shared/styles/variables/transition' as *;
-@use '@/shared/ui/Label/model/label-mixins' as label;
+@use '@/shared/styles/mixins/label' as label;
 
 // Wrapper for label + description
 .wrapper {

@@ -8,8 +8,8 @@
       "description": "Surgical fix agent (DeepSeek) for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
-      "prompt": "You are a judgment-day surgical fix agent. Execute the fix instructions provided in the task prompt exactly. Do NOT delegate further. Fix ONLY the confirmed issues listed вЂ” do NOT refactor beyond what is strictly needed.",
+      "model": "opencode/mimo-v2.5-free",
+      "prompt": "You are a judgment-day surgical fix agent. Execute the fix instructions provided in the task prompt exactly. Do NOT delegate further. Fix ONLY the confirmed issues listed \u2014 do NOT refactor beyond what is strictly needed.",
       "tools": {
         "bash": true,
         "edit": true,
@@ -21,8 +21,8 @@
       "description": "Surgical fix agent (Qwen) for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
-      "prompt": "You are a judgment-day surgical fix agent. Execute the fix instructions provided in the task prompt exactly. Do NOT delegate further. Fix ONLY the confirmed issues listed вЂ” do NOT refactor beyond what is strictly needed.",
+      "model": "opencode/mimo-v2.5-free",
+      "prompt": "You are a judgment-day surgical fix agent. Execute the fix instructions provided in the task prompt exactly. Do NOT delegate further. Fix ONLY the confirmed issues listed \u2014 do NOT refactor beyond what is strictly needed.",
       "tools": {
         "bash": true,
         "edit": true,
@@ -31,10 +31,10 @@
       }
     },
     "jd-judge-a-deepseek": {
-      "description": "Adversarial code reviewer (DeepSeek) вЂ” blind judge A for judgment-day protocol",
+      "description": "Adversarial code reviewer (DeepSeek) \u2014 blind judge A for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code. Judgment Day replaces ordinary 4R, uses at most two scoped fix/re-judgment rounds. Return one read-only judgment result and terminate.",
       "tools": {
         "bash": false,
@@ -45,10 +45,10 @@
       }
     },
     "jd-judge-a-qwen": {
-      "description": "Adversarial code reviewer (Qwen) вЂ” blind judge A for judgment-day protocol",
+      "description": "Adversarial code reviewer (Qwen) \u2014 blind judge A for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code. Judgment Day replaces ordinary 4R, uses at most two scoped fix/re-judgment rounds. Return one read-only judgment result and terminate.",
       "tools": {
         "bash": false,
@@ -59,10 +59,10 @@
       }
     },
     "jd-judge-b-deepseek": {
-      "description": "Adversarial code reviewer (DeepSeek) вЂ” blind judge B for judgment-day protocol",
+      "description": "Adversarial code reviewer (DeepSeek) \u2014 blind judge B for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code. Judgment Day replaces ordinary 4R, uses at most two scoped fix/re-judgment rounds. Return one read-only judgment result and terminate.",
       "tools": {
         "bash": false,
@@ -73,10 +73,10 @@
       }
     },
     "jd-judge-b-qwen": {
-      "description": "Adversarial code reviewer (Qwen) вЂ” blind judge B for judgment-day protocol",
+      "description": "Adversarial code reviewer (Qwen) \u2014 blind judge B for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code. Judgment Day replaces ordinary 4R, uses at most two scoped fix/re-judgment rounds. Return one read-only judgment result and terminate.",
       "tools": {
         "bash": false,
@@ -87,10 +87,10 @@
       }
     },
     "review-readability-deepseek": {
-      "description": "R2 Readability reviewer (DeepSeek) вЂ” naming, complexity, intention, maintainability, review size, and context clarity",
+      "description": "R2 Readability reviewer (DeepSeek) \u2014 naming, complexity, intention, maintainability, review size, and context clarity",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-readability.md}",
       "tools": {
         "bash": false,
@@ -101,10 +101,10 @@
       }
     },
     "review-readability-qwen": {
-      "description": "R2 Readability reviewer (Qwen) вЂ” naming, complexity, intention, maintainability, review size, and context clarity",
+      "description": "R2 Readability reviewer (Qwen) \u2014 naming, complexity, intention, maintainability, review size, and context clarity",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-readability.md}",
       "tools": {
         "bash": false,
@@ -115,10 +115,10 @@
       }
     },
     "review-refuter-deepseek": {
-      "description": "Batched adversarial refuter (DeepSeek) вЂ” evaluates every BLOCKER/CRITICAL candidate through one assigned lens",
+      "description": "Batched adversarial refuter (DeepSeek) \u2014 evaluates every BLOCKER/CRITICAL candidate through one assigned lens",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are the detached read-only refuter for exactly ONE transaction-wide inferential batch. Receive every inferential severe neutral claim and proof reference, return one corroborated | refuted | inconclusive result per finding, add no findings, modify nothing, return one complete result, and terminate. Missing or malformed entries are inconclusive.",
       "tools": {
         "bash": false,
@@ -129,10 +129,10 @@
       }
     },
     "review-refuter-qwen": {
-      "description": "Batched adversarial refuter (Qwen) вЂ” evaluates every BLOCKER/CRITICAL candidate through one assigned lens",
+      "description": "Batched adversarial refuter (Qwen) \u2014 evaluates every BLOCKER/CRITICAL candidate through one assigned lens",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are the detached read-only refuter for exactly ONE transaction-wide inferential batch. Receive every inferential severe neutral claim and proof reference, return one corroborated | refuted | inconclusive result per finding, add no findings, modify nothing, return one complete result, and terminate. Missing or malformed entries are inconclusive.",
       "tools": {
         "bash": false,
@@ -143,10 +143,10 @@
       }
     },
     "review-reliability-deepseek": {
-      "description": "R3 Reliability reviewer (DeepSeek) вЂ” behavior-first tests, coverage value, edge cases, determinism, contracts, and regressions",
+      "description": "R3 Reliability reviewer (DeepSeek) \u2014 behavior-first tests, coverage value, edge cases, determinism, contracts, and regressions",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-reliability.md}",
       "tools": {
         "bash": false,
@@ -157,10 +157,10 @@
       }
     },
     "review-reliability-qwen": {
-      "description": "R3 Reliability reviewer (Qwen) вЂ” behavior-first tests, coverage value, edge cases, determinism, contracts, and regressions",
+      "description": "R3 Reliability reviewer (Qwen) \u2014 behavior-first tests, coverage value, edge cases, determinism, contracts, and regressions",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-reliability.md}",
       "tools": {
         "bash": false,
@@ -171,10 +171,10 @@
       }
     },
     "review-resilience-deepseek": {
-      "description": "R4 Resilience reviewer (DeepSeek) вЂ” fallbacks, retry/backoff, graceful degradation, observability, load, rollback, and SLO risks",
+      "description": "R4 Resilience reviewer (DeepSeek) \u2014 fallbacks, retry/backoff, graceful degradation, observability, load, rollback, and SLO risks",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-resilience.md}",
       "tools": {
         "bash": false,
@@ -185,10 +185,10 @@
       }
     },
     "review-resilience-qwen": {
-      "description": "R4 Resilience reviewer (Qwen) вЂ” fallbacks, retry/backoff, graceful degradation, observability, load, rollback, and SLO risks",
+      "description": "R4 Resilience reviewer (Qwen) \u2014 fallbacks, retry/backoff, graceful degradation, observability, load, rollback, and SLO risks",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-resilience.md}",
       "tools": {
         "bash": false,
@@ -199,10 +199,10 @@
       }
     },
     "review-risk-deepseek": {
-      "description": "R1 Risk reviewer (DeepSeek) вЂ” security, privilege boundaries, data exposure, dependency risks, and merge-blocking vulnerabilities",
+      "description": "R1 Risk reviewer (DeepSeek) \u2014 security, privilege boundaries, data exposure, dependency risks, and merge-blocking vulnerabilities",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-risk.md}",
       "tools": {
         "bash": false,
@@ -213,10 +213,10 @@
       }
     },
     "review-risk-qwen": {
-      "description": "R1 Risk reviewer (Qwen) вЂ” security, privilege boundaries, data exposure, dependency risks, and merge-blocking vulnerabilities",
+      "description": "R1 Risk reviewer (Qwen) \u2014 security, privilege boundaries, data exposure, dependency risks, and merge-blocking vulnerabilities",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/review/review-risk.md}",
       "tools": {
         "bash": false,
@@ -230,7 +230,7 @@
       "description": "Implement code changes from task definitions",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-apply.md}",
       "tools": {
         "bash": true,
@@ -243,7 +243,7 @@
       "description": "Implement code changes from task definitions",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-apply.md}",
       "tools": {
         "bash": true,
@@ -256,7 +256,7 @@
       "description": "Archive completed change artifacts",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-archive.md}",
       "tools": {
         "bash": true,
@@ -269,7 +269,7 @@
       "description": "Archive completed change artifacts",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-archive.md}",
       "tools": {
         "bash": true,
@@ -282,7 +282,7 @@
       "description": "Create technical design from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-design.md}",
       "tools": {
         "bash": true,
@@ -295,7 +295,7 @@
       "description": "Create technical design from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-design.md}",
       "tools": {
         "bash": true,
@@ -308,7 +308,7 @@
       "description": "Investigate codebase and think through ideas",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-explore.md}",
       "tools": {
         "bash": true,
@@ -321,7 +321,7 @@
       "description": "Investigate codebase and think through ideas",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-explore.md}",
       "tools": {
         "bash": true,
@@ -334,7 +334,7 @@
       "description": "Bootstrap SDD context and project configuration",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-init.md}",
       "tools": {
         "bash": true,
@@ -347,7 +347,7 @@
       "description": "Bootstrap SDD context and project configuration",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-init.md}",
       "tools": {
         "bash": true,
@@ -360,7 +360,7 @@
       "description": "Guide user through a complete SDD cycle using their real codebase",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-onboard.md}",
       "tools": {
         "bash": true,
@@ -373,7 +373,7 @@
       "description": "Guide user through a complete SDD cycle using their real codebase",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-onboard.md}",
       "tools": {
         "bash": true,
@@ -385,7 +385,7 @@
     "sdd-orchestrator-deepseek": {
       "description": "SDD Orchestrator (deepseek profile) - coordinates sub-agents, never does work inline",
       "mode": "primary",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "max_tokens": 16000,
       "permission": {
         "question": "allow",
@@ -447,7 +447,7 @@
     "sdd-orchestrator-qwen": {
       "description": "SDD Orchestrator (qwen profile) - coordinates sub-agents, never does work inline",
       "mode": "primary",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "max_tokens": 16000,
       "permission": {
         "question": "allow",
@@ -507,9 +507,9 @@
       }
     },
     "plan-deepseek": {
-      "description": "Plan mode (DeepSeek) вЂ” analysis and planning, no execution",
+      "description": "Plan mode (DeepSeek) \u2014 analysis and planning, no execution",
       "mode": "primary",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "max_tokens": 8000,
       "permission": {
         "bash": "deny",
@@ -528,9 +528,9 @@
       "prompt": "You are in Plan mode using DeepSeek. Focus on analysis, architecture, and planning. Do NOT make any edits or write files. Return plans and analysis only."
     },
     "plan-qwen": {
-      "description": "Plan mode (Qwen) вЂ” analysis and planning, no execution",
+      "description": "Plan mode (Qwen) \u2014 analysis and planning, no execution",
       "mode": "primary",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "max_tokens": 8000,
       "permission": {
         "bash": "deny",
@@ -552,7 +552,7 @@
       "description": "Create change proposals from explorations",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-propose.md}",
       "tools": {
         "bash": true,
@@ -565,7 +565,7 @@
       "description": "Create change proposals from explorations",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-propose.md}",
       "tools": {
         "bash": true,
@@ -578,7 +578,7 @@
       "description": "Write detailed specifications from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-spec.md}",
       "tools": {
         "bash": true,
@@ -591,7 +591,7 @@
       "description": "Write detailed specifications from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-spec.md}",
       "tools": {
         "bash": true,
@@ -604,7 +604,7 @@
       "description": "Break down specs and designs into implementation tasks",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-tasks.md}",
       "tools": {
         "bash": true,
@@ -617,7 +617,7 @@
       "description": "Break down specs and designs into implementation tasks",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-tasks.md}",
       "tools": {
         "bash": true,
@@ -630,7 +630,7 @@
       "description": "Validate implementation against specs",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-verify.md}",
       "tools": {
         "bash": true,
@@ -643,7 +643,7 @@
       "description": "Validate implementation against specs",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "{file:C:/Users/Konstantine/.config/opencode/prompts/sdd/sdd-verify.md}",
       "tools": {
         "bash": true,
@@ -653,10 +653,10 @@
       }
     },
     "test-generation-deepseek": {
-      "description": "Test generation specialist (DeepSeek) вЂ” advanced test patterns and edge case discovery",
+      "description": "Test generation specialist (DeepSeek) \u2014 advanced test patterns and edge case discovery",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a test generation specialist using DeepSeek. Create comprehensive Vitest tests with advanced mocking strategies, thorough edge case discovery, and optimal coverage. Focus on: complex async patterns, timer mocking, module mocking, hook mocking, boundary conditions, and flaky test prevention.",
       "tools": {
         "bash": true,
@@ -666,10 +666,10 @@
       }
     },
     "test-generation-qwen": {
-      "description": "Test generation specialist (Qwen) вЂ” solid test coverage and standard patterns",
+      "description": "Test generation specialist (Qwen) \u2014 solid test coverage and standard patterns",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a test generation specialist using Qwen. Create comprehensive Vitest tests with proper mocking, edge cases, and coverage. Follow AAA pattern. Include: render tests, interaction tests, state tests, async tests, accessibility tests, and edge cases.",
       "tools": {
         "bash": true,
@@ -679,10 +679,10 @@
       }
     },
     "integration-test-deepseek": {
-      "description": "Integration testing specialist (DeepSeek) вЂ” complex FSD layer interactions and API contracts",
+      "description": "Integration testing specialist (DeepSeek) \u2014 complex FSD layer interactions and API contracts",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an integration testing specialist using DeepSeek. Create comprehensive integration tests for FSD layers with advanced MSW mocking, complex scenario testing, error boundary testing, and thorough API contract validation. Focus on: multi-layer interactions, race conditions, caching behavior, and optimistic updates.",
       "tools": {
         "bash": true,
@@ -692,10 +692,10 @@
       }
     },
     "integration-test-qwen": {
-      "description": "Integration testing specialist (Qwen) вЂ” FSD layer testing and MSW patterns",
+      "description": "Integration testing specialist (Qwen) \u2014 FSD layer testing and MSW patterns",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an integration testing specialist using Qwen. Create integration tests for FSD layers using MSW for API mocking. Test layer interactions, API contracts, error handling, and data flow between features/entities.",
       "tools": {
         "bash": true,
@@ -705,10 +705,10 @@
       }
     },
     "performance-test-deepseek": {
-      "description": "Performance testing specialist (DeepSeek) вЂ” advanced profiling and optimization strategies",
+      "description": "Performance testing specialist (DeepSeek) \u2014 advanced profiling and optimization strategies",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a performance testing specialist using DeepSeek. Perform deep performance analysis: identify unnecessary re-renders, memory leaks, bundle size issues, and FSD architecture bottlenecks. Provide optimization strategies: memoization, code splitting, lazy loading, virtual scrolling, and caching patterns.",
       "tools": {
         "bash": true,
@@ -718,10 +718,10 @@
       }
     },
     "performance-test-qwen": {
-      "description": "Performance testing specialist (Qwen) вЂ” component profiling and metrics analysis",
+      "description": "Performance testing specialist (Qwen) \u2014 component profiling and metrics analysis",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a performance testing specialist using Qwen. Analyze React component performance, identify re-render issues, memory leaks, and bundle size problems. Use React DevTools Profiler patterns and Web Vitals metrics.",
       "tools": {
         "bash": true,
@@ -731,10 +731,10 @@
       }
     },
     "storybook-test-deepseek": {
-      "description": "Storybook specialist (DeepSeek) вЂ” advanced interaction tests and a11y coverage",
+      "description": "Storybook specialist (DeepSeek) \u2014 advanced interaction tests and a11y coverage",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a Storybook specialist using DeepSeek. Create comprehensive Storybook stories with advanced interaction tests, thorough accessibility checks (WCAG 2.1), args table documentation, controls, and visual regression testing setup. Include: all component states, responsive variants, dark mode, and internationalization scenarios.",
       "tools": {
         "bash": true,
@@ -744,10 +744,10 @@
       }
     },
     "storybook-test-qwen": {
-      "description": "Storybook specialist (Qwen) вЂ” story creation and basic interaction tests",
+      "description": "Storybook specialist (Qwen) \u2014 story creation and basic interaction tests",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a Storybook specialist using Qwen. Create comprehensive Storybook stories with interaction tests, accessibility checks, and documentation. Include all component states, variants, and edge cases.",
       "tools": {
         "bash": true,
@@ -757,10 +757,10 @@
       }
     },
     "ui-deepseek": {
-      "description": "UI component specialist (DeepSeek) вЂ” advanced patterns and complex state management",
+      "description": "UI component specialist (DeepSeek) \u2014 advanced patterns and complex state management",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a UI component specialist using DeepSeek. Create advanced React 19 components with complex state management, custom hooks, TypeScript generics, CSS Modules with SASS, and full accessibility (WCAG 2.1). Focus on: compound components, render props, headless UI patterns, and performance optimization.",
       "tools": {
         "bash": true,
@@ -770,10 +770,10 @@
       }
     },
     "ui-qwen": {
-      "description": "UI component specialist (Qwen) вЂ” solid component creation and standard patterns",
+      "description": "UI component specialist (Qwen) \u2014 solid component creation and standard patterns",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a UI component specialist using Qwen. Create React 19 components with TypeScript strict types, CSS Modules styling, and proper accessibility. Follow atomic design and container-presentational patterns.",
       "tools": {
         "bash": true,
@@ -783,10 +783,10 @@
       }
     },
     "review-deepseek": {
-      "description": "Code review specialist (DeepSeek) вЂ” deep analysis and architectural insights",
+      "description": "Code review specialist (DeepSeek) \u2014 deep analysis and architectural insights",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a code review specialist using DeepSeek. Perform deep code analysis: identify bugs, security vulnerabilities, architectural issues, performance problems, and maintainability concerns. Provide detailed feedback with refactoring suggestions and code examples.",
       "tools": {
         "bash": false,
@@ -797,10 +797,10 @@
       }
     },
     "review-qwen": {
-      "description": "Code review specialist (Qwen) вЂ” solid code quality analysis",
+      "description": "Code review specialist (Qwen) \u2014 solid code quality analysis",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a code review specialist using Qwen. Analyze code for bugs, code smells, security issues, and maintainability problems. Provide actionable feedback with examples.",
       "tools": {
         "bash": false,
@@ -811,10 +811,10 @@
       }
     },
     "critic-deepseek": {
-      "description": "Adversarial code critic (DeepSeek) вЂ” advanced vulnerability discovery and attack vectors",
+      "description": "Adversarial code critic (DeepSeek) \u2014 advanced vulnerability discovery and attack vectors",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an adversarial code critic using DeepSeek. Perform aggressive security and reliability analysis: find vulnerabilities, injection vectors, XSS/CSRF risks, authentication bypasses, race conditions, memory leaks, and edge cases. Think like an attacker. Provide exploit scenarios and mitigation strategies.",
       "tools": {
         "bash": false,
@@ -825,10 +825,10 @@
       }
     },
     "critic-qwen": {
-      "description": "Adversarial code critic (Qwen) вЂ” solid edge case and vulnerability finding",
+      "description": "Adversarial code critic (Qwen) \u2014 solid edge case and vulnerability finding",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an adversarial code critic using Qwen. Find vulnerabilities, edge cases, and potential failures. Be ruthless but constructive. Focus on: security holes, race conditions, error handling gaps, and unexpected user behavior.",
       "tools": {
         "bash": false,
@@ -839,10 +839,10 @@
       }
     },
     "judge-deepseek": {
-      "description": "LLM judge (DeepSeek) вЂ” comprehensive quality evaluation with detailed scoring",
+      "description": "LLM judge (DeepSeek) \u2014 comprehensive quality evaluation with detailed scoring",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an LLM judge using DeepSeek. Perform comprehensive quality evaluation: code correctness, test coverage, documentation completeness, security, performance, and maintainability. Provide detailed scoring rubric with evidence and benchmarks.",
       "tools": {
         "bash": false,
@@ -853,10 +853,10 @@
       }
     },
     "judge-qwen": {
-      "description": "LLM judge (Qwen) вЂ” solid quality assessment",
+      "description": "LLM judge (Qwen) \u2014 solid quality assessment",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an LLM judge using Qwen. Evaluate the quality of code, tests, or documentation produced by other agents. Score against defined criteria and provide justification.",
       "tools": {
         "bash": false,
@@ -867,10 +867,10 @@
       }
     },
     "guard-deepseek": {
-      "description": "Security guard agent (DeepSeek) вЂ” advanced threat detection and security analysis",
+      "description": "Security guard agent (DeepSeek) \u2014 advanced threat detection and security analysis",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a security guard agent using DeepSeek. Perform advanced security validation: detect prompt injection, jailbreak attempts, data exfiltration, privilege escalation, and policy violations. Analyze MCP calls for security risks, mask PII/sensitive data, and enforce zero-trust access control.",
       "tools": {
         "bash": false,
@@ -881,10 +881,10 @@
       }
     },
     "guard-qwen": {
-      "description": "Security guard agent (Qwen) вЂ” solid security validation",
+      "description": "Security guard agent (Qwen) \u2014 solid security validation",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a security guard agent using Qwen. Validate MCP calls for security risks, detect prompt injection attempts, mask PII data, and enforce access control policies.",
       "tools": {
         "bash": false,
@@ -895,10 +895,10 @@
       }
     },
     "fsd-validator-deepseek": {
-      "description": "FSD architecture validator (DeepSeek) вЂ” deep architectural analysis and complex refactoring",
+      "description": "FSD architecture validator (DeepSeek) \u2014 deep architectural analysis and complex refactoring",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an FSD architecture validator using DeepSeek. Perform deep architectural analysis: layer boundary violations, cross-layer imports, public API compliance, circular dependencies, slice isolation, and module cohesion. Provide complex refactoring strategies for legacy code migration to FSD.",
       "tools": {
         "bash": true,
@@ -908,10 +908,10 @@
       }
     },
     "fsd-validator-qwen": {
-      "description": "FSD architecture validator (Qwen) вЂ” solid FSD compliance checking",
+      "description": "FSD architecture validator (Qwen) \u2014 solid FSD compliance checking",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an FSD architecture validator using Qwen. Check Feature-Sliced Design compliance: layer boundaries, public API exports, circular dependencies, and import rules. Auto-fix violations when possible.",
       "tools": {
         "bash": true,
@@ -921,10 +921,10 @@
       }
     },
     "fsd-import-validator-deepseek": {
-      "description": "FSD import validator (DeepSeek) вЂ” comprehensive import graph analysis",
+      "description": "FSD import validator (DeepSeek) \u2014 comprehensive import graph analysis",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an FSD import validator using DeepSeek. Analyze complete import graphs across FSD layers. Detect subtle violations: transitive dependencies, implicit cross-slice imports, barrel export leaks, and conditional import violations. Provide detailed migration paths.",
       "tools": {
         "bash": false,
@@ -935,10 +935,10 @@
       }
     },
     "fsd-import-validator-qwen": {
-      "description": "FSD import validator (Qwen) вЂ” solid import compliance checking",
+      "description": "FSD import validator (Qwen) \u2014 solid import compliance checking",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are an FSD import validator using Qwen. Check cross-layer imports for compliance: app > pages > widgets > features > entities > shared. Flag violations and suggest fixes.",
       "tools": {
         "bash": false,
@@ -949,10 +949,10 @@
       }
     },
     "style-deepseek": {
-      "description": "Style architecture validator (DeepSeek) вЂ” advanced CSS architecture and design system analysis",
+      "description": "Style architecture validator (DeepSeek) \u2014 advanced CSS architecture and design system analysis",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a style architecture validator using DeepSeek. Perform advanced CSS/SASS analysis: BEM/SCSS architecture, CSS Modules patterns, design token consistency, theming systems, responsive breakpoints, dark mode implementation, and accessibility (color contrast, focus states). Provide refactoring strategies for CSS debt.",
       "tools": {
         "bash": false,
@@ -963,10 +963,10 @@
       }
     },
     "style-qwen": {
-      "description": "Style architecture validator (Qwen) вЂ” solid style consistency checking",
+      "description": "Style architecture validator (Qwen) \u2014 solid style consistency checking",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode/hy3-free",
+      "model": "opencode/mimo-v2.5-free",
       "prompt": "You are a style architecture validator using Qwen. Check SASS/CSS architecture: BEM naming, CSS Modules usage, design token consistency, and responsive design patterns.",
       "tools": {
         "bash": false,
@@ -1009,18 +1009,14 @@
     }
   },
   "build": {
-    "description": "Build agent — анализ и планирование",
+    "description": "Build agent \u2014 \u0430\u043d\u0430\u043b\u0438\u0437 \u0438 \u043f\u043b\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435",
     "mode": "primary",
-    "model": "opencode/hy3-free",
+    "model": "opencode/mimo-v2.5-free",
     "max_tokens": 8000,
     "permission": { "bash": "deny", "edit": "deny", "write": "deny" },
     "tools": { "bash": false, "edit": false, "question": true, "read": true, "task": true, "write": false, "context7*": true },
-    "prompt": "You are in Build mode using Hy3 Free. Focus on analysis, architecture, and planning."
+    "prompt": "You are in Build mode using MiMo V2.5 Free. Focus on analysis, architecture, and planning."
   },
 
   "share": "disabled"
 }
-
-
-
-
