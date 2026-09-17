@@ -1,4 +1,4 @@
-import { useCard } from '../model/useCard';
+import { useCard } from '../lib/hooks/useCard';
 import { memo, createElement } from 'react';
 import type { ElementType } from 'react';
 import type {

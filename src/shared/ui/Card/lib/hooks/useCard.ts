@@ -1,9 +1,9 @@
 import { useMemo, useEffect } from 'react';
-import { CARD_CONSTANTS } from './constants';
+import { CARD_CONSTANTS } from '../../model/constants';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { validateCardProps } from '../lib/utils/validateCardProps';
-import type { CardOwnProps } from './types';
-import styles from '../ui/Card.module.scss';
+import { validateCardProps } from '../utils/validateCardProps';
+import type { CardOwnProps } from '../../model/types';
+import styles from '../../ui/Card.module.scss';
 
 export interface UseCardConfig extends CardOwnProps {
   onClick?: React.MouseEventHandler;
