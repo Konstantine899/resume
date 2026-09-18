@@ -1,7 +1,7 @@
 // Focus styles
 $icon-focus-outline: 2px solid var(--primary);
-$icon-focus-radius: 4px;
-$icon-transition: 0.2s ease;
+$icon-focus-radius: var(--radius-sm);
+$icon-transition: var(--transition-base);
 
 .icon {
   display: inline-flex;

@@ -30,7 +30,14 @@
   }
 
   &:focus-visible {
-    outline: $focus-outline-width solid $primary-color;
-    outline-offset: $focus-outline-offset;
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  &:disabled {
+    color: var(--color-text-tertiary);
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }

@@ -1,5 +1,7 @@
+@use '@/shared/styles/variables' as *;
+
 .cardDescription {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 
   // line-height override: must beat `.paragraph.s` (specificity 0,2,0) from the
 

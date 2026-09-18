@@ -30,7 +30,7 @@
   &.heroStyle {
     padding: $spacing-sm;
     background: var(--gradient-primary);
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     box-shadow: $shadow-xl;
 
     .image,
@@ -38,15 +38,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #3a2e28;
+      background: var(--avatar-bg);
       border-radius: 50%;
     }
   }
 
   // Sizes
   &.sm {
-    width: 100px;
-    height: 100px;
+    width: var(--avatar-size-hero-sm);
+    height: var(--avatar-size-hero-sm);
 
     &.heroStyle {
       padding: 2px;
@@ -60,8 +60,8 @@
   }
 
   &.md {
-    width: 200px;
-    height: 200px;
+    width: var(--avatar-size-hero-md);
+    height: var(--avatar-size-hero-md);
 
     &.heroStyle {
       padding: 4px;
@@ -75,8 +75,8 @@
   }
 
   &.lg {
-    width: 300px;
-    height: 300px;
+    width: var(--avatar-size-hero-lg);
+    height: var(--avatar-size-hero-lg);
 
     &.heroStyle {
       padding: 6px;
@@ -90,8 +90,8 @@
   }
 
   &.xl {
-    width: 300px;
-    height: 300px;
+    width: var(--avatar-size-hero-lg);
+    height: var(--avatar-size-hero-lg);
 
     &.heroStyle {
       padding: 6px;

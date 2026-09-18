@@ -15,7 +15,7 @@
   // --foreground is always defined in both themes — no fallback needed.
 
   // Modal body text should use the shared Paragraph component (see stories).
-  color: var(--foreground);
+  color: var(--color-text-primary);
 }
 
 // When scroll="body" — parent modal container has data-scroll-body attribute

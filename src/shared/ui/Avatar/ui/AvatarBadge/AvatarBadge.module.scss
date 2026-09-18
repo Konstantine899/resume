@@ -3,22 +3,22 @@
   right: 0;
   bottom: 0;
   display: inline-block;
-  border: 2px solid var(--card-bg, #fff);
-  border-radius: 50%;
+  border: 2px solid var(--color-surface-primary);
+  border-radius: var(--radius-full);
 
   &.statusOnline {
-    background-color: var(--success, #22c55e);
+    background-color: var(--color-success);
   }
 
   &.statusOffline {
-    background-color: var(--text-muted, #9ca3af);
+    background-color: var(--color-text-tertiary);
   }
 
   &.statusBusy {
-    background-color: var(--danger, #ef4444);
+    background-color: var(--color-error);
   }
 
   &.statusAway {
-    background-color: var(--warning, #f59e0b);
+    background-color: var(--color-warning);
   }
 }

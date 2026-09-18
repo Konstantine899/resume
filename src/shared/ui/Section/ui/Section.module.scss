@@ -9,27 +9,27 @@
   // Горизонтальный padding и max-width управляются через Container
 
   &.sm {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
   }
 
   &.md {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
   }
 
   &.lg {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
   }
 
   &.xl {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
   }
 
   &.xxl {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
+    padding-top: calc(var(--space-16) * 1.5);
+    padding-bottom: calc(var(--space-16) * 1.5);
   }
 }

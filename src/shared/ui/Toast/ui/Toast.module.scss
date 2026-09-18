@@ -68,11 +68,11 @@
 .toast {
   /* Component-local design tokens (modular system — NOT global, NOT in _theme.scss);
      inherited by closeButton/action/pauseIndicator. */
-  --toast-bg: #fff;
+  --toast-bg: var(--color-surface-primary);
   --toast-close-icon: rgb(0 0 0 / 0.4);
   --toast-close-icon-hover: rgb(0 0 0 / 0.7);
-  --toast-focus-ring: #{$primary-light};
-  --toast-action-secondary: #{$primary-color};
+  --toast-focus-ring: var(--color-brand-primary);
+  --toast-action-secondary: var(--color-brand-primary);
   --toast-pause-text: rgb(0 0 0 / 0.3);
 
   position: relative;
@@ -88,9 +88,7 @@
   // Accent border left (4px)
   border-left: 4px solid;
   border-radius: $border-radius-lg;
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 0.15),
-    0 1px 3px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-lg);
 
   // Theme transitions (transform included: spring-back on swipe release)
 
@@ -144,9 +142,7 @@
 
   // Hover lift effect
   &:hover {
-    box-shadow:
-      0 8px 24px rgb(0 0 0 / 0.18),
-      0 2px 6px rgb(0 0 0 / 0.12);
+    box-shadow: var(--shadow-xl);
     transform: translateY(-2px);
   }
 
@@ -156,28 +152,28 @@
 
   // ============================================
   &.success {
-    border-left-color: $success-color;
+    border-left-color: var(--color-success);
 
     .icon {
-      color: $success-color;
+      color: var(--color-success);
       background: rgb(40 167 69 / 0.15);
     }
   }
 
   &.error {
-    border-left-color: $danger-color;
+    border-left-color: var(--color-error);
 
     .icon {
-      color: $danger-color;
+      color: var(--color-error);
       background: rgb(220 53 69 / 0.15);
     }
   }
 
   &.warning {
-    border-left-color: $warning-color;
+    border-left-color: var(--color-warning);
 
     .icon {
-      color: $warning-color;
+      color: var(--color-warning);
       background: rgb(255 193 7 / 0.2);
     }
   }
@@ -194,8 +190,8 @@
   // Dark mode overrides (theme-aware via [data-theme])
   [data-theme='dark'] & {
     --toast-bg: #1e1e1e;
-    --toast-focus-ring: #{$primary-dark};
-    --toast-action-secondary: #{$primary-dark};
+    --toast-focus-ring: var(--color-brand-primary);
+    --toast-action-secondary: var(--color-brand-primary);
 
     background: var(--toast-bg);
 
@@ -326,11 +322,11 @@
 
   // Primary variant (accent)
   &.primary {
-    color: white;
-    background: $primary-color;
+    color: var(--color-text-inverse);
+    background: var(--color-brand-primary);
 
     &:hover {
-      background: $primary-dark;
+      background: var(--color-brand-primary-hover);
     }
 
     &:focus-visible {
@@ -339,10 +335,10 @@
     }
 
     [data-theme='dark'] & {
-      background: $primary-dark;
+      background: var(--color-brand-primary);
 
       &:hover {
-        background: $primary-color;
+        background: var(--color-brand-primary-hover);
       }
     }
   }
@@ -384,15 +380,15 @@
 
   // Type-specific colors
   .success & {
-    background: $success-color;
+    background: var(--color-success);
   }
 
   .error & {
-    background: $danger-color;
+    background: var(--color-error);
   }
 
   .warning & {
-    background: $warning-color;
+    background: var(--color-warning);
   }
 
   .info & {

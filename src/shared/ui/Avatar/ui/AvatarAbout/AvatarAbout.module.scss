@@ -9,8 +9,8 @@
 
   // Sizes
   &.sm {
-    width: 100px;
-    height: 100px;
+    width: var(--avatar-size-hero-sm);
+    height: var(--avatar-size-hero-sm);
 
     .avatar-circle {
       padding: 2px;
@@ -24,8 +24,8 @@
   }
 
   &.md {
-    width: 200px;
-    height: 200px;
+    width: var(--avatar-size-hero-md);
+    height: var(--avatar-size-hero-md);
 
     .avatar-circle {
       padding: 4px;
@@ -39,8 +39,8 @@
   }
 
   &.lg {
-    width: 300px;
-    height: 300px;
+    width: var(--avatar-size-hero-lg);
+    height: var(--avatar-size-hero-lg);
 
     .avatar-circle {
       padding: 6px;
@@ -57,7 +57,7 @@
   .avatar-circle {
     @include avatar-circle;
 
-    background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
+    background: var(--gradient-primary);
   }
 
   // Inner
@@ -65,7 +65,7 @@
     @include avatar-inner;
 
     overflow: hidden;
-    background: #3a2e28;
+    background: var(--avatar-bg);
     border-radius: 50%;
 
     .initial {

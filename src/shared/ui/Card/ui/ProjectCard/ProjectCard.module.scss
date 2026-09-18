@@ -5,8 +5,12 @@
   position: relative;
   min-height: 280px;
   overflow: hidden;
-  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-  border: 1px solid rgb(255 255 255 / 0.1);
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-dark) 0%,
+    var(--color-surface-dark-elevated) 100%
+  );
+  border: 1px solid var(--color-text-on-dark-tertiary);
   border-radius: 0.75rem;
 
   .backgroundImage {
@@ -45,7 +49,7 @@
     margin-bottom: 1rem;
     font-size: 1.75rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-text-on-dark);
   }
 
   .techSection {
@@ -72,7 +76,7 @@
 
   .link {
     font-size: 0.9rem;
-    color: #e85d5d;
+    color: var(--color-link-brand);
     text-decoration: none;
 
     &:hover {

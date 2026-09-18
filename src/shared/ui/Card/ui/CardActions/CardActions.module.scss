@@ -1,11 +1,13 @@
+@use '@/shared/styles/variables' as *;
+
 .cardActions {
   // Outer block — no flex layout here; alignment is delegated to `.actionsInner`
   display: block;
 
   // Visual separator rendered as a `<Divider>` first child
   .divider {
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
   }
 
   // First-child guard: when CardActions is the first card section, hide the
@@ -25,7 +27,7 @@
 .actionsInner {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
   align-items: center;
 }
 

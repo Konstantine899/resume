@@ -47,7 +47,7 @@
 }
 
 .variantRounded {
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
 }
 
 .variantCircular {
@@ -56,9 +56,9 @@
 }
 
 .variantThumbnail {
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   box-shadow:
-    0 2px 8px rgb(0 0 0 / 0.1),
+    var(--shadow-sm),
     0 0 0 1px var(--image-placeholder-bg);
   transition:
     box-shadow $transition-duration $transition-easing,
@@ -66,8 +66,8 @@
 
   &:hover {
     box-shadow:
-      0 4px 16px rgb(0 0 0 / 0.15),
-      0 0 0 1px rgb(0 0 0 / 0.08);
+      var(--shadow-md),
+      0 0 0 1px var(--color-shadow-light);
     transform: translateY(-2px);
   }
 }
@@ -293,7 +293,7 @@
 // ============================================
 
 .container:focus-within {
-  outline: 2px solid $primary-color;
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
@@ -305,12 +305,12 @@
 
 @media (prefers-color-scheme: dark) {
   .container {
-    background-color: rgb(255 255 255 / 0.05);
+    background-color: var(--image-placeholder-bg);
   }
 
   .fallback {
-    color: rgb(255 255 255 / 0.3);
-    background-color: rgb(255 255 255 / 0.05);
+    color: var(--image-fallback-text);
+    background-color: var(--image-placeholder-bg);
   }
 
   .error {

@@ -71,8 +71,8 @@
     height: 32px;
 
     .content {
-      width: 16px;
-      height: 16px;
+      width: var(--icon-size-sm);
+      height: var(--icon-size-sm);
     }
   }
 
@@ -81,8 +81,8 @@
     height: 40px;
 
     .content {
-      width: 20px;
-      height: 20px;
+      width: var(--icon-size-md);
+      height: var(--icon-size-md);
     }
   }
 
@@ -91,8 +91,8 @@
     height: 48px;
 
     .content {
-      width: 24px;
-      height: 24px;
+      width: var(--icon-size-lg);
+      height: var(--icon-size-lg);
     }
   }
 

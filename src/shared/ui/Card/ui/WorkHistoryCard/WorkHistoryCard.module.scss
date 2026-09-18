@@ -4,8 +4,8 @@
 .workHistoryCard {
   position: relative;
   padding: $spacing-3;
-  background-color: rgb(41 39 38 / 0.8);
-  border-left: 4px solid #f4b377;
+  background-color: var(--color-surface-dark);
+  border-left: 4px solid var(--primary);
   border-radius: $radius-xl;
   backdrop-filter: blur(4px);
   transition: background-color 0.5s ease;
@@ -20,7 +20,7 @@
 
   // Light theme override
   [data-theme='light'] & {
-    background-color: rgb(255 255 255 / 0.9);
+    background-color: var(--color-surface-primary);
   }
 
   .header {
@@ -46,7 +46,7 @@
     margin: 0;
     font-size: $font-size-sm;
     font-weight: 600;
-    color: #f4b377;
+    color: var(--primary);
 
     @include sm {
       font-size: $font-size-base;
@@ -67,7 +67,7 @@
     align-items: center;
     margin-bottom: $spacing-2;
     font-size: $font-size-xs;
-    color: #d1d5db;
+    color: var(--color-text-quaternary);
 
     @include sm {
       margin-bottom: $spacing-3;
@@ -82,9 +82,9 @@
     padding: $spacing-1 $spacing-2;
     font-size: $font-size-xs;
     font-weight: 600;
-    color: #f4b377;
-    background: rgb(244 179 119 / 0.2);
-    border: 1px solid #f4b377;
+    color: var(--primary);
+    background: var(--color-brand-tint-20);
+    border: 1px solid var(--primary);
     border-radius: $radius-full;
   }
 
@@ -94,7 +94,7 @@
     align-items: center;
     margin-bottom: $spacing-3;
     font-size: $font-size-xs;
-    color: #d1d5db;
+    color: var(--color-text-quaternary);
 
     @include sm {
       font-size: $font-size-sm;
@@ -110,7 +110,7 @@
     margin: 0;
     font-size: $font-size-xs;
     line-height: $line-height-base;
-    color: #e5e7eb;
+    color: var(--color-border-primary);
 
     @include sm {
       font-size: $font-size-sm;
@@ -131,7 +131,7 @@
     gap: $spacing-2;
     padding-top: $spacing-3;
     margin-top: $spacing-3;
-    border-top: 1px solid rgb(255 255 255 / 0.1);
+    border-top: 1px solid var(--color-text-on-dark-tertiary);
   }
 
   .techBadge {
@@ -141,14 +141,14 @@
     padding: $spacing-1 $spacing-3;
     font-size: $font-size-xs;
     font-weight: 500;
-    color: #f4b377;
-    background: rgb(244 179 119 / 0.1);
-    border: 1px solid rgb(244 179 119 / 0.3);
+    color: var(--primary);
+    background: var(--color-brand-tint-10);
+    border: 1px solid var(--color-brand-tint-30);
     border-radius: $radius-full;
     transition: all $transition-duration $transition-easing;
 
     &:hover {
-      background: rgb(244 179 119 / 0.2);
+      background: var(--color-brand-tint-20);
       transform: translateY(-2px);
     }
   }

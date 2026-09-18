@@ -12,7 +12,8 @@
 .footer {
   @include flex-center;
 
-  gap: $spacing-sm;
-  padding: $spacing-md $spacing-xl;
-  background-color: var(--background-alt, $background-alt);
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  background-color: var(--color-surface-secondary);
+  border-top: 1px solid var(--color-border-primary);
 }

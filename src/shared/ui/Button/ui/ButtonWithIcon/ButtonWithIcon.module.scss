@@ -75,8 +75,8 @@
     font-size: 0.875rem;
 
     .icon {
-      width: 16px;
-      height: 16px;
+      width: var(--icon-size-sm);
+      height: var(--icon-size-sm);
     }
   }
 
@@ -85,8 +85,8 @@
     font-size: 1rem;
 
     .icon {
-      width: 20px;
-      height: 20px;
+      width: var(--icon-size-md);
+      height: var(--icon-size-md);
     }
   }
 
@@ -95,8 +95,8 @@
     font-size: 1.125rem;
 
     .icon {
-      width: 24px;
-      height: 24px;
+      width: var(--icon-size-lg);
+      height: var(--icon-size-lg);
     }
   }
 

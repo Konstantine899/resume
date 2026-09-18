@@ -78,7 +78,7 @@
   }
 
   &.collapsed:hover {
-    background: var(--card-bg-hover, rgb(244 179 119 / 0.02));
+    background: var(--color-brand-tint-10);
     border-right-color: $primary-light;
   }
 
@@ -135,15 +135,15 @@
   position: absolute;
   top: -100%;
   left: 50%;
-  z-index: 9999;
+  z-index: var(--z-sidebar);
   padding: $spacing-3 $spacing-4;
   font-weight: 600;
-  color: white;
+  color: var(--color-text-inverse);
   text-decoration: none;
-  background: $primary-light;
+  background: var(--primary);
   border-radius: $border-radius-md;
   transform: translateX(-50%);
-  transition: top 0.2s ease;
+  transition: top var(--transition-base);
 
   &:focus {
     top: $spacing-md;

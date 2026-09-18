@@ -44,7 +44,7 @@
   }
 
   &.inverted {
-    color: #fff;
+    color: var(--color-text-inverse);
   }
 
   &.error {

@@ -5,10 +5,10 @@
   display: inline-block;
   overflow: hidden;
   font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  color: #fff;
+  color: var(--color-text-primary);
   white-space: nowrap;
-  background: var(--code-bg, rgb(41 39 38 / 0.95));
-  border: 1px solid rgb(244 179 119 / 0.2);
+  background: var(--code-bg);
+  border: 1px solid var(--color-brand-tint-20);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
   transition: all $transition-duration $transition-easing;
@@ -34,19 +34,19 @@
     cursor: pointer;
 
     &:hover {
-      border-color: rgb(244 179 119 / 0.4);
-      box-shadow: 0 0 0 3px rgb(244 179 119 / 0.1);
+      border-color: var(--color-brand-tint-30);
+      box-shadow: 0 0 0 3px var(--color-brand-tint-10);
     }
 
     &:focus-visible {
-      outline: 2px solid $primary-light;
+      outline: 2px solid var(--primary);
       outline-offset: 2px;
     }
   }
 
   // Copied state
   &.copied {
-    border-color: $form-success-color;
+    border-color: var(--color-success);
     box-shadow: 0 0 0 3px rgb(40 167 69 / 0.2);
   }
 }

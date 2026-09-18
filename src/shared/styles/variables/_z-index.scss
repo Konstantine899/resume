@@ -4,10 +4,11 @@
 
 // ============================================
 
-$z-dropdown: 100 !default;
-$z-sticky: 200 !default;
+$z-dropdown: 1000 !default;
+$z-sticky: 100 !default;
+$z-sidebar: 9999 !default;
 $z-overlay: 1000 !default;
-$z-modal: 1001 !default;
+$z-modal: 10000 !default;
 $z-popover: 1002 !default;
 $z-tooltip: 1003 !default;
-$z-toast: 1004 !default;
+$z-toast: 11000 !default;

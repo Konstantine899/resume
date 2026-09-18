@@ -7,6 +7,167 @@
 @use '../variables/colors' as *;
 
 :root {
+  // ==========================================
+
+  // Semantic Color Tokens (new system)
+
+  // ==========================================
+
+  // Surface / Background
+
+  --color-surface-primary: #fff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-tertiary: #f9fafb;
+  --color-surface-quaternary: #f3f4f6;
+  --color-surface-hover: #e5e5e5;
+  --color-surface-active: #d4d4d4;
+  --color-surface-disabled: #f0f0f0;
+
+  // Border
+  --color-border-primary: #e5e7eb;
+  --color-border-secondary: #e0e0e0;
+  --color-border-focus: #3b82f6;
+  --color-border-divider: #f3f4f6;
+
+  // Text / Foreground
+
+  --color-text-primary: #0f0f0f;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #9ca3af;
+  --color-text-inverse: #fff;
+
+  // Brand / Accent
+  --color-brand-primary: #3b82f6;
+  --color-brand-primary-hover: #2563eb;
+  --color-brand-primary-light: #eff6ff;
+  --color-brand-primary-text: #1d4ed8;
+
+  // Semantic / Status
+  --color-success: #10b981;
+  --color-success-price: #059669;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-error-light: #ff6b6b;
+  --color-error-hover: #ff5252;
+
+  // Overlay / Shadow Colors
+
+  --color-shadow-light: rgb(0 0 0 / 0.1);
+  --color-shadow-medium: rgb(0 0 0 / 0.15);
+  --color-shadow-focus: rgb(59 130 246 / 0.1);
+  --color-skeleton-shimmer: rgb(255 255 255 / 0.4);
+
+  // Spinner
+
+  --color-spinner-track: #ddd;
+  --color-spinner-head: #333;
+
+  // Dark surface (for dark theme cards/modals)
+  --color-surface-dark: rgb(41 39 38 / 0.8);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.125);
+
+  // Text on dark surfaces
+
+  --color-text-on-dark: #fff;
+  --color-text-on-dark-secondary: rgb(255 255 255 / 0.7);
+  --color-text-on-dark-tertiary: rgb(255 255 255 / 0.6);
+  --color-text-on-dark-muted: rgb(255 255 255 / 0.8);
+
+  // Brand tints (orange accent variants)
+  --color-brand-tint-10: rgb(244 179 119 / 0.1);
+  --color-brand-tint-20: rgb(244 179 119 / 0.2);
+  --color-brand-tint-30: rgb(244 179 119 / 0.3);
+  --color-brand-border: rgb(217 71 68 / 0.5);
+
+  // Link brand (accent red for links)
+  --color-link-brand: #e85d5d;
+
+  // Overlay
+  --color-overlay: rgb(0 0 0 / 0.6);
+  --color-overlay-heavy: rgb(0 0 0 / 0.8);
+
+  // Avatar tokens
+  --avatar-bg: #3a2e28;
+  --avatar-initial-color: #f4b377;
+  --avatar-glow-color: rgb(244 179 119 / 0.2);
+  --avatar-size-xs: 32px;
+  --avatar-size-sm: 48px;
+  --avatar-size-md: 64px;
+  --avatar-size-lg: 96px;
+  --avatar-size-hero-sm: 100px;
+  --avatar-size-hero-md: 200px;
+  --avatar-size-hero-lg: 300px;
+
+  // Icon sizes
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+
+  // Radius component tokens
+  --radius-button: 8px;
+  --radius-button-sm: 6px;
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-badge: 4px;
+  --radius-badge-sm: 8px;
+  --radius-dropdown: 8px;
+  --radius-search: 8px;
+  --radius-contact: 1.5rem;
+
+  // Spacing CSS vars (for runtime use alongside SCSS vars)
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  // Radius CSS vars
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  // Shadow tokens
+  --shadow-none: none;
+  --shadow-xs: 0 1px 2px 0 var(--color-shadow-light);
+  --shadow-sm: 0 1px 3px 0 var(--color-shadow-light);
+  --shadow-md: 0 4px 6px -1px var(--color-shadow-light), 0 2px 4px -2px var(--color-shadow-light);
+  --shadow-lg:
+    0 10px 15px -3px var(--color-shadow-medium), 0 4px 6px -4px var(--color-shadow-medium);
+  --shadow-xl:
+    0 20px 25px -5px var(--color-shadow-medium), 0 8px 10px -6px var(--color-shadow-medium);
+  --shadow-sidebar: -4px 0 20px var(--color-shadow-medium);
+  --shadow-focus: 0 0 0 3px var(--color-shadow-focus);
+
+  // Transition tokens
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  // Z-index tokens
+  --z-dropdown: 1000;
+  --z-sticky: 100;
+  --z-sidebar: 9999;
+  --z-modal: 10000;
+  --z-toast: 11000;
+
+  // ==========================================
+
+  // Backward-compatible aliases (old → new)
+
+  // ==========================================
+
   --background: #{$background};
   --background-alt: #{$background-alt};
   --foreground: #{$text-primary};
@@ -17,23 +178,23 @@
   --text-secondary: #{$text-secondary};
   --text-tertiary: #{$text-muted};
   --gradient-text: #{$gradient-text};
-  --card-bg: rgb(255 255 255 / 0.98);
-  --card-border: rgb(0 0 0 / 0.12);
-  --shadow-color: rgb(0 0 0 / 0.1);
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --border-color: #{$border-color};
   --background-secondary: #1e1c1b;
   --primary: #f4b377;
   --primary-dark: #d94744;
   --accent: #50abc5;
   --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
   --code-bg: rgb(41 39 38 / 0.95);
 
   // Skeleton colors
   --skeleton-base: rgb(200 200 200 / 0.3);
-  --skeleton-highlight: rgb(255 255 255 / 0.4);
+  --skeleton-highlight: var(--color-skeleton-shimmer);
 
   // Link colors (default - тёмная тема)
   --link-primary: #f4b377;
@@ -41,7 +202,7 @@
   --link-secondary: #e8e6e3;
   --link-secondary-hover: #fff;
 
-  // Form variables (NEW)
+  // Form variables
   --form-error: #{$form-error-color};
   --form-success: #{$form-success-color};
   --form-warning: #{$form-warning-color};
@@ -55,10 +216,76 @@
   // Tooltip tokens
   --tooltip-bg: #1f2937;
   --tooltip-text: #fff;
-  --tooltip-focus: #3b82f6;
+  --tooltip-focus: var(--color-border-focus);
+
+  // Gradient tokens
+  --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
+  --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
 }
 
 [data-theme='dark'] {
+  // Surface tokens for dark theme
+
+  --color-surface-primary: #292726;
+  --color-surface-secondary: #1e1c1b;
+  --color-surface-tertiary: #343231;
+  --color-surface-quaternary: #3d3b3a;
+  --color-surface-hover: #3d3b3a;
+  --color-surface-active: #4b4948;
+  --color-surface-disabled: #292726;
+
+  // Border tokens for dark theme
+  --color-border-primary: #4b5563;
+  --color-border-secondary: #374151;
+  --color-border-focus: #3b82f6;
+  --color-border-divider: #374151;
+
+  // Text tokens for dark theme
+  --color-text-primary: #e8e6e3;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #4b5563;
+  --color-text-inverse: #0f0f0f;
+
+  // Brand tokens for dark theme
+  --color-brand-primary: #f4b377;
+  --color-brand-primary-hover: #f9c997;
+  --color-brand-primary-light: rgb(244 179 119 / 0.1);
+  --color-brand-primary-text: #f4b377;
+
+  // Status tokens for dark theme
+  --color-success: #22c55e;
+  --color-success-price: #34d399;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-error-light: #ff6b6b;
+  --color-error-hover: #ff5252;
+
+  // Shadow tokens for dark theme
+
+  --color-shadow-light: rgb(0 0 0 / 0.3);
+  --color-shadow-medium: rgb(0 0 0 / 0.5);
+  --color-shadow-focus: rgb(244 179 119 / 0.2);
+  --color-skeleton-shimmer: rgb(255 255 255 / 0.15);
+
+  // Spinner for dark theme
+  --color-spinner-track: #4b5563;
+  --color-spinner-head: #9ca3af;
+
+  // Dark surface for dark theme
+  --color-surface-dark: rgb(41 39 38 / 0.9);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.15);
+
+  // Avatar for dark theme
+  --avatar-bg: #3a2e28;
+  --avatar-initial-color: #f4b377;
+  --avatar-glow-color: rgb(244 179 119 / 0.3);
+
+  // Overlay for dark theme
+  --color-overlay: rgb(0 0 0 / 0.7);
+  --color-overlay-heavy: rgb(0 0 0 / 0.85);
+
+  // Backward-compatible aliases
   --background: #292726;
   --background-alt: #1e1c1b;
   --foreground: #e8e6e3;
@@ -68,21 +295,21 @@
   --text-primary: #e8e6e3;
   --text-secondary: #9ca3af;
   --text-tertiary: #6b7280;
-  --card-bg: rgb(41 39 38 / 0.9);
-  --card-border: rgb(255 255 255 / 0.1);
-  --shadow-color: rgb(0 0 0 / 0.3);
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --border-color: #4b5563;
   --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
   --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
   --gradient-text: #{$gradient-text};
   --secondary: #6c757d;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
 
   // Skeleton colors for dark theme
   --skeleton-base: #292726;
-  --skeleton-highlight: rgb(255 255 255 / 0.15);
+  --skeleton-highlight: var(--color-skeleton-shimmer);
 
   // Link colors for dark theme
   --link-primary: #f4b377;
@@ -106,6 +333,70 @@
 }
 
 [data-theme='light'] {
+  // Surface tokens for light theme
+
+  --color-surface-primary: #fff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-tertiary: #f9fafb;
+  --color-surface-quaternary: #f3f4f6;
+  --color-surface-hover: #e5e5e5;
+  --color-surface-active: #d4d4d4;
+  --color-surface-disabled: #f0f0f0;
+
+  // Border tokens for light theme
+  --color-border-primary: #e5e7eb;
+  --color-border-secondary: #e0e0e0;
+  --color-border-focus: #3b82f6;
+  --color-border-divider: #f3f4f6;
+
+  // Text tokens for light theme
+
+  --color-text-primary: #0f0f0f;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #9ca3af;
+  --color-text-inverse: #fff;
+
+  // Brand tokens for light theme
+  --color-brand-primary: #3b82f6;
+  --color-brand-primary-hover: #2563eb;
+  --color-brand-primary-light: #eff6ff;
+  --color-brand-primary-text: #1d4ed8;
+
+  // Status tokens for light theme
+  --color-success: #10b981;
+  --color-success-price: #059669;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-error-light: #ff6b6b;
+  --color-error-hover: #ff5252;
+
+  // Shadow tokens for light theme
+
+  --color-shadow-light: rgb(0 0 0 / 0.1);
+  --color-shadow-medium: rgb(0 0 0 / 0.15);
+  --color-shadow-focus: rgb(59 130 246 / 0.1);
+  --color-skeleton-shimmer: rgb(255 255 255 / 0.4);
+
+  // Spinner for light theme
+
+  --color-spinner-track: #ddd;
+  --color-spinner-head: #333;
+
+  // Dark surface for light theme (used in dark sections)
+  --color-surface-dark: rgb(41 39 38 / 0.8);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.125);
+
+  // Avatar for light theme
+  --avatar-bg: #3a2e28;
+  --avatar-initial-color: #f4b377;
+  --avatar-glow-color: rgb(244 179 119 / 0.2);
+
+  // Overlay for light theme
+  --color-overlay: rgb(0 0 0 / 0.6);
+  --color-overlay-heavy: rgb(0 0 0 / 0.8);
+
+  // Backward-compatible aliases
   --background: #f5f3f0;
   --background-alt: #e5e7eb;
   --foreground: #1a1716;
@@ -116,18 +407,18 @@
   --text-secondary: #4b5563;
   --text-tertiary: #6b7280;
   --gradient-text: #{$gradient-text};
-  --card-bg: rgb(255 255 255 / 0.98);
-  --card-border: rgb(0 0 0 / 0.12);
-  --shadow-color: rgb(0 0 0 / 0.1);
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --border-color: #d1d5db;
   --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
 
   // Skeleton colors for light theme
   --skeleton-base: rgb(0 0 0 / 0.08);
-  --skeleton-highlight: rgb(255 255 255 / 0.6);
+  --skeleton-highlight: var(--color-skeleton-shimmer);
 
   // Link colors for light theme (тёмные ссылки на светлом фоне)
   --link-primary: #d97b3d;

@@ -12,17 +12,17 @@
 }
 
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar-thumb {
-  background: #d94744;
+  background: var(--primary-dark);
   border-radius: 3px;
 }
 
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar-thumb:hover {
-  background: #d94744;
+  background: var(--primary-dark);
   opacity: 0.7;
 }
 
 :global([class*='CodeBlock_module__blockContent']) {
-  scrollbar-color: #d94744 transparent;
+  scrollbar-color: var(--primary-dark) transparent;
   scrollbar-width: thin;
 }
 
@@ -30,8 +30,8 @@
   width: 80%;
   max-width: 100%;
   overflow: hidden;
-  background: var(--code-bg, rgb(41 39 38 / 0.95));
-  border: 1px solid rgb(244 179 119 / 0.2);
+  background: var(--code-bg);
+  border: 1px solid var(--color-brand-tint-20);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
 
@@ -63,7 +63,7 @@
     font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
     font-size: 0.625rem;
     line-height: 1.6;
-    color: #fff;
+    color: var(--color-text-primary);
     white-space: pre;
 
     @include xs {
@@ -101,11 +101,11 @@
   font-family: 'Fira Code', 'JetBrains Mono', monospace;
   font-size: $font-size-sm;
   line-height: 1.6;
-  color: $text-muted;
+  color: var(--color-text-quaternary);
   text-align: right;
   user-select: none;
-  background: rgb(41 39 38 / 0.3);
-  border-right: 1px solid rgb(244 179 119 / 0.1);
+  background: var(--color-surface-dark-elevated);
+  border-right: 1px solid var(--color-brand-tint-10);
 }
 
 .lineNumber {
@@ -128,7 +128,7 @@
 // --------------------------------------------
 :global {
   .keyword {
-    color: #9ca3af;
+    color: var(--color-text-quaternary);
   }
 
   .string {
@@ -140,10 +140,10 @@
   }
 
   .punctuation {
-    color: #fff;
+    color: var(--color-text-primary);
   }
 
   .property {
-    color: #9ca3af;
+    color: var(--color-text-quaternary);
   }
 }

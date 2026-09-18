@@ -25,7 +25,7 @@
 
   position: fixed;
   inset: 0;
-  z-index: $z-modal;
+  z-index: var(--z-modal);
   padding: $spacing-md;
   pointer-events: none;
 }
@@ -38,10 +38,10 @@
   max-height: $modal-max-height;
   overflow: hidden;
   pointer-events: auto;
-  background-color: var(--card-bg, #fff);
-  border: $border-width solid var(--card-border, $border-color);
+  background-color: var(--color-surface-primary);
+  border: $border-width solid var(--color-border-primary);
   border-radius: $radius-2xl;
-  box-shadow: $modal-shadow;
+  box-shadow: var(--shadow-xl);
 
   // Анимация
   &:not(.noAnimation) {
