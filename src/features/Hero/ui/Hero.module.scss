@@ -48,22 +48,27 @@
 .gradientBackground {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 30%, #d94744 60%, #292726 100%);
+  background: var(--gradient-work-history);
   transition: background $transition-duration $transition-easing;
 
   [data-theme='light'] & {
-    background: linear-gradient(135deg, #d97b3d 0%, #e88a4a 25%, #b83330 50%, #f5f3f0 100%);
+    background: var(--gradient-primary);
   }
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent, transparent, #292726);
+  background: linear-gradient(to bottom, transparent, transparent, var(--color-surface-secondary));
   transition: background $transition-duration $transition-easing;
 
   [data-theme='light'] & {
-    background: linear-gradient(to bottom, transparent 20%, rgb(245 243 240 / 0.3) 60%, #f5f3f0);
+    background: linear-gradient(
+      to bottom,
+      transparent 20%,
+      rgb(245 243 240 / 0.3) 60%,
+      var(--color-surface-secondary)
+    );
   }
 }
 
@@ -111,7 +116,7 @@
 .greeting {
   font-size: $font-size-3xl;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-inverse);
 
   @include xs {
     font-size: $font-size-4xl;
@@ -126,7 +131,7 @@
   margin-bottom: $spacing-lg;
   font-size: $font-size-3xl;
   font-weight: 700;
-  color: #1a1918;
+  color: var(--color-text-primary);
   text-shadow: 2px 2px 4px rgb(255 255 255 / 0.3);
 
   @include xs {
@@ -145,8 +150,8 @@
   height: 400px;
   padding: $spacing-md;
   margin-bottom: $spacing-lg;
-  background: var(--code-bg, rgb(41 39 38 / 0.95));
-  border: 1px solid rgb(244 179 119 / 0.2);
+  background: var(--code-bg);
+  border: 1px solid var(--color-brand-tint-20);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
 
@@ -188,7 +193,7 @@
   padding: $spacing-sm $spacing-md;
   font-size: $font-size-sm;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-inverse);
   text-decoration: none;
   background: var(--gradient-primary);
   border-radius: $border-radius-md;
@@ -215,7 +220,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #fff;
+    outline: 2px solid var(--color-text-inverse);
     outline-offset: 2px;
   }
 }
@@ -289,12 +294,20 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom right, #1a1918, #292726);
+  background: linear-gradient(
+    to bottom right,
+    var(--color-surface-dark),
+    var(--color-surface-secondary)
+  );
   border-radius: 50%;
   transition: background $transition-duration $transition-easing;
 
   [data-theme='light'] & {
-    background: linear-gradient(to bottom right, #f5f3f0, #e8e6e3);
+    background: linear-gradient(
+      to bottom right,
+      var(--color-surface-secondary),
+      var(--color-surface-tertiary)
+    );
   }
 
   .initial {
@@ -318,7 +331,7 @@
   width: 14rem;
   height: 14rem;
   pointer-events: none;
-  border: 2px solid rgb(244 179 119 / 0.2);
+  border: 2px solid var(--color-brand-tint-20);
   border-radius: 50%;
   transform: scale(1.1);
 

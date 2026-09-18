@@ -110,8 +110,8 @@ $tech-icon-size-base: 1rem; // w-4 h-4 (16px)
 $tech-icon-size-sm: 1.25rem; // sm:w-5 sm:h-5 (20px)
 $tech-icon-size-md: 1.5rem; // md:w-6 md:h-6 (24px)
 
-$project-link-color: #d94744;
-$project-link-hover: #f4b377;
+$project-link-color: var(--primary-dark);
+$project-link-hover: var(--primary);
 $bg-image-opacity: 0.1;
 $bg-image-hover-opacity: 0.25;
 
@@ -153,14 +153,19 @@ $bg-image-hover-opacity: 0.25;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to right, rgb(41 39 38), rgb(41 39 38 / 0.9), transparent);
+  background: linear-gradient(
+    to right,
+    var(--color-surface-dark),
+    var(--color-surface-dark-elevated),
+    transparent
+  );
   transition: background $bg-image-transition;
 
   // Light theme override
   [data-theme='light'] & {
     background: linear-gradient(
       to right,
-      rgb(245 243 240) 0%,
+      var(--color-surface-secondary) 0%,
       rgb(245 243 240 / 0.95) 50%,
       rgb(245 243 240 / 0.7) 100%
     );
@@ -210,7 +215,7 @@ $bg-image-hover-opacity: 0.25;
   }
 
   .projectCard:hover & {
-    color: #f4b377;
+    color: var(--primary);
   }
 }
 

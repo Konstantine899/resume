@@ -132,9 +132,17 @@ $button-focus-offset: 2px;
 @mixin variant-primary {
   color: var(--btn-fill-text, white);
   background-color: var(--btn-fill);
+  transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
     background-color: var(--btn-fill-hover);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow: none;
+    transform: translateY(0);
   }
 }
 
@@ -142,10 +150,15 @@ $button-focus-offset: 2px;
   color: var(--foreground-muted);
   background-color: transparent;
   border: 1px solid var(--card-border);
+  transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
     background-color: var(--background-secondary);
     border-color: var(--btn-color);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 }
 
@@ -153,19 +166,29 @@ $button-focus-offset: 2px;
   color: var(--btn-color);
   background-color: transparent;
   border: 2px solid var(--btn-color);
+  transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
     background-color: var(--btn-color-subtle);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 }
 
 @mixin variant-ghost {
   color: var(--foreground-muted);
   background-color: transparent;
+  transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
     color: var(--btn-color);
     background-color: var(--btn-color-subtle);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 }
 
@@ -173,10 +196,15 @@ $button-focus-offset: 2px;
   color: var(--foreground);
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
+  transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
     background-color: var(--background-secondary);
     border-color: var(--foreground-muted);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   &:focus-visible {

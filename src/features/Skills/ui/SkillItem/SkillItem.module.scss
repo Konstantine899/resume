@@ -21,42 +21,33 @@
     background-color 0.3s ease,
     border-color 0.3s ease;
 
-  // CSS custom properties для темизации по категориям
-  --icon-color-frontend: #61dafb;
-  --icon-color-backend: #4caf50;
-  --icon-color-testing: #ff6b6b;
-  --icon-color-devops: #2196f3;
-  --icon-color-methodologies: #9e9e9e;
-  --icon-color-architecture: #a855f7;
-  --icon-color-ai: #f97316;
-
   // Применяем цвет заголовка категории в зависимости от категории
   &[data-category='frontend'] {
-    --category-color: var(--icon-color-frontend);
+    --category-color: var(--skill-color-frontend);
   }
 
   &[data-category='backend'] {
-    --category-color: var(--icon-color-backend);
+    --category-color: var(--skill-color-backend);
   }
 
   &[data-category='testing'] {
-    --category-color: var(--icon-color-testing);
+    --category-color: var(--skill-color-testing);
   }
 
   &[data-category='devops'] {
-    --category-color: var(--icon-color-devops);
+    --category-color: var(--skill-color-devops);
   }
 
   &[data-category='methodologies'] {
-    --category-color: var(--icon-color-methodologies);
+    --category-color: var(--skill-color-methodologies);
   }
 
   &[data-category='architecture'] {
-    --category-color: var(--icon-color-architecture);
+    --category-color: var(--skill-color-architecture);
   }
 
   &[data-category='ai'] {
-    --category-color: var(--icon-color-ai);
+    --category-color: var(--skill-color-ai);
   }
 
   &:hover {

@@ -39,6 +39,23 @@ $card-hover-scale: 1.01;
   position: relative;
   width: 100%;
   color: var(--text-primary);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
 
   // Default text color for all variants
   h1,
