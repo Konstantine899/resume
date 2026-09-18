@@ -165,11 +165,11 @@
   --skeleton-base: rgb(200 200 200 / 0.3);
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors (default - тёмная тема)
-  --link-primary: #f4b377;
-  --link-primary-hover: #f9c997;
-  --link-secondary: #e8e6e3;
-  --link-secondary-hover: #fff;
+  // Link colors → proxy to brand/foreground tokens (Button as source of truth)
+  --link-primary: var(--color-brand-primary);
+  --link-primary-hover: var(--color-brand-primary-hover);
+  --link-secondary: var(--foreground-muted);
+  --link-secondary-hover: var(--foreground);
 
   // Form variables
   --form-error: #{$form-error-color};
@@ -284,11 +284,11 @@
   --skeleton-base: #292726;
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors for dark theme
-  --link-primary: #f4b377;
-  --link-primary-hover: #f9c997;
-  --link-secondary: #e8e6e3;
-  --link-secondary-hover: #fff;
+  // Link colors for dark theme → proxy to brand/foreground tokens
+  --link-primary: var(--color-brand-primary);
+  --link-primary-hover: var(--color-brand-primary-hover);
+  --link-secondary: var(--foreground-muted);
+  --link-secondary-hover: var(--foreground);
 
   // Form variables for dark theme
   --form-error: #ef4444;
@@ -379,11 +379,11 @@
   --skeleton-base: rgb(0 0 0 / 0.08);
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors for light theme (тёмные ссылки на светлом фоне)
-  --link-primary: #d97b3d;
-  --link-primary-hover: #b85f2b;
-  --link-secondary: #4b5563;
-  --link-secondary-hover: #1a1716;
+  // Link colors for light theme → proxy to brand/foreground tokens
+  --link-primary: var(--color-brand-primary);
+  --link-primary-hover: var(--color-brand-primary-hover);
+  --link-secondary: var(--foreground-muted);
+  --link-secondary-hover: var(--foreground);
 
   // Form variables for light theme
   --form-error: #dc3545;

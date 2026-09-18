@@ -23,7 +23,7 @@ export type LinkVariant = 'primary' | 'secondary' | 'ghost' | 'gradient';
  * @example 'md' — средний (по умолчанию)
  * @example 'lg' — крупный (для выделенных ссылок)
  */
-export type LinkSize = 'sm' | 'md' | 'lg';
+export type LinkSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * Режимы подчёркивания

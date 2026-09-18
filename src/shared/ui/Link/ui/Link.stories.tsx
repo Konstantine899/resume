@@ -24,7 +24,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['sm', 'md', 'lg'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     underline: {
       control: 'select',
@@ -124,7 +124,7 @@ export const AllVariants: Story = {
   },
 };
 
-/** Разные размеры */
+/** Разные размеры (5 sizes — xs, sm, md, lg, xl) */
 export const Sizes: Story = {
   args: {
     href: '#',
@@ -133,22 +133,30 @@ export const Sizes: Story = {
   },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Link {...args} size="xs" data-testid="size-xs">
+        XS Link (12px)
+      </Link>
       <Link {...args} size="sm" data-testid="size-sm">
-        Small Link
+        SM Link (14px)
       </Link>
       <Link {...args} size="md" data-testid="size-md">
-        Medium Link
+        MD Link (16px)
       </Link>
       <Link {...args} size="lg" data-testid="size-lg">
-        Large Link
+        LG Link (18px)
+      </Link>
+      <Link {...args} size="xl" data-testid="size-xl">
+        XL Link (20px)
       </Link>
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('size-xs')).toHaveClass(styles.xs ?? '');
     await expect(canvas.getByTestId('size-sm')).toHaveClass(styles.sm ?? '');
     await expect(canvas.getByTestId('size-md')).toHaveClass(styles.md ?? '');
     await expect(canvas.getByTestId('size-lg')).toHaveClass(styles.lg ?? '');
+    await expect(canvas.getByTestId('size-xl')).toHaveClass(styles.xl ?? '');
   },
 };
 
@@ -286,11 +294,14 @@ export const InternalLink: Story = {
   },
 };
 
-/** Dark theme - все варианты */
+/** Dark theme - все варианты и размеры */
 export const DarkTheme: Story = {
   args: {
     href: '#',
     children: 'Link',
+  },
+  parameters: {
+    globals: { theme: 'dark' },
   },
   render: () => (
     <div style={{ background: '#292726', padding: '32px', borderRadius: '8px' }}>
@@ -308,14 +319,20 @@ export const DarkTheme: Story = {
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <Link href="#" variant="primary" size="xs">
+            XS
+          </Link>
           <Link href="#" variant="primary" size="sm">
-            Small
+            SM
           </Link>
           <Link href="#" variant="primary" size="md">
-            Medium
+            MD
           </Link>
           <Link href="#" variant="primary" size="lg">
-            Large
+            LG
+          </Link>
+          <Link href="#" variant="primary" size="xl">
+            XL
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -334,11 +351,14 @@ export const DarkTheme: Story = {
   ),
 };
 
-/** Light theme - все варианты */
+/** Light theme - все варианты и размеры */
 export const LightTheme: Story = {
   args: {
     href: '#',
     children: 'Link',
+  },
+  parameters: {
+    globals: { theme: 'light' },
   },
   render: () => (
     <div style={{ background: '#f5f3f0', padding: '32px', borderRadius: '8px' }}>
@@ -356,14 +376,20 @@ export const LightTheme: Story = {
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <Link href="#" variant="primary" size="xs">
+            XS
+          </Link>
           <Link href="#" variant="primary" size="sm">
-            Small
+            SM
           </Link>
           <Link href="#" variant="primary" size="md">
-            Medium
+            MD
           </Link>
           <Link href="#" variant="primary" size="lg">
-            Large
+            LG
+          </Link>
+          <Link href="#" variant="primary" size="xl">
+            XL
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -664,4 +690,81 @@ export const FooterLinkGroup: Story = {
       await expect(rel).toContain('noreferrer');
     }
   },
+};
+
+/** Focus-visible: Tab через Link ( unified with Button — uses var(--shadow-focus)) */
+export const FocusVisible: Story = {
+  args: { href: '#' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <p style={{ color: '#6b7280', fontSize: '14px' }}>
+        Press Tab to navigate between links — focus outline should match Button
+        (var(--shadow-focus))
+      </p>
+      <Link href="#first" variant="primary" size="md">
+        First Link (Tab here)
+      </Link>
+      <Link href="#second" variant="secondary" size="md">
+        Second Link
+      </Link>
+      <Link href="#third" variant="ghost" size="md">
+        Third Link
+      </Link>
+    </div>
+  ),
+};
+
+/** Disabled state — aria-disabled with unified styling */
+export const Disabled: Story = {
+  args: { href: '#' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Link href="#" variant="primary" size="md" aria-disabled="true">
+        Disabled Primary
+      </Link>
+      <Link href="#" variant="secondary" size="md" aria-disabled="true">
+        Disabled Secondary
+      </Link>
+      <Link href="#" variant="ghost" size="md" aria-disabled="true">
+        Disabled Ghost
+      </Link>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Disabled links use color: var(--color-text-quaternary) + cursor: not-allowed — unified with Button disabled.',
+      },
+    },
+  },
+};
+
+/** Hover states comparison — primary (color + underline) and secondary (color + background) */
+export const HoverStates: Story = {
+  args: { href: '#' },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div>
+        <h4 style={{ marginBottom: '8px', color: '#374151' }}>Primary Hover → color + underline</h4>
+        <Link href="#" variant="primary" size="lg" data-testid="hover-primary">
+          Hover over me
+        </Link>
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '8px', color: '#374151' }}>
+          Secondary Hover → color + background
+        </h4>
+        <Link href="#" variant="secondary" size="lg" data-testid="hover-secondary">
+          Hover over me
+        </Link>
+      </div>
+      <div>
+        <h4 style={{ marginBottom: '8px', color: '#374151' }}>Ghost Hover → underline</h4>
+        <Link href="#" variant="ghost" size="lg" data-testid="hover-ghost">
+          Hover over me
+        </Link>
+      </div>
+    </div>
+  ),
 };

@@ -5,7 +5,7 @@ import type { LinkSize, LinkUnderline, LinkVariant } from './types';
 
 export const LINK_CONSTANTS = {
   VALID_VARIANTS: ['primary', 'secondary', 'ghost', 'gradient'] as const,
-  VALID_SIZES: ['sm', 'md', 'lg'] as const,
+  VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const,
   VALID_UNDERLINE: ['always', 'hover', 'never'] as const,
 } as const;
 
@@ -45,7 +45,9 @@ export const LINK_DEFAULTS: LinkDefaults = {
  * ```
  */
 export const ICON_SIZE_MAP: Record<LinkSize, IconSize> = {
+  xs: 'xs',
   sm: 'xs',
   md: 'sm',
   lg: 'md',
+  xl: 'lg',
 } as const;
