@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
 import { ContactCard } from '@/shared/ui/Card';
@@ -65,7 +66,7 @@ export function Contact() {
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 disabled={status === 'submitting'}
-                className={styles.textarea}
+                className={classNames(styles.input, styles.textarea)}
                 required
                 aria-required="true"
               />

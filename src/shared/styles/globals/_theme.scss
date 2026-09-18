@@ -239,6 +239,14 @@
   --color-shadow-focus: rgb(244 179 119 / 0.2);
   --color-skeleton-shimmer: rgb(255 255 255 / 0.15);
 
+  // Enhanced shadows for dark theme (visible on dark backgrounds)
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5),
+    0 0 12px rgb(244 179 119 / 0.08);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6),
+    0 0 20px rgb(244 179 119 / 0.1);
+
   // Dark surface for dark theme
   --color-surface-dark: rgb(41 39 38 / 0.9);
   --color-surface-dark-elevated: rgb(41 39 38 / 0.15);

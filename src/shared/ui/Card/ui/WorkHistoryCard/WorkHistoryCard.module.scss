@@ -67,7 +67,7 @@
     align-items: center;
     margin-bottom: $spacing-2;
     font-size: $font-size-xs;
-    color: var(--color-text-quaternary);
+    color: var(--color-text-tertiary);
 
     @include sm {
       margin-bottom: $spacing-3;
@@ -94,7 +94,7 @@
     align-items: center;
     margin-bottom: $spacing-3;
     font-size: $font-size-xs;
-    color: var(--color-text-quaternary);
+    color: var(--color-text-tertiary);
 
     @include sm {
       font-size: $font-size-sm;
@@ -110,7 +110,7 @@
     margin: 0;
     font-size: $font-size-xs;
     line-height: $line-height-base;
-    color: var(--color-border-primary);
+    color: var(--color-text-secondary);
 
     @include sm {
       font-size: $font-size-sm;
