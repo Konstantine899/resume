@@ -274,6 +274,15 @@ lerna-debug.log*
 *.gcov
 
 # ============================================
+# SCREENSHOTS / VISUAL ARTIFACTS
+# ============================================
+# Storybook verification screenshots — never commit
+.screenshots/
+*.png
+*.jpeg
+*.webp
+
+# ============================================
 # MISCELLANEOUS
 # ============================================
 # Other common files to ignore
