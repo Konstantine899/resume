@@ -251,7 +251,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
 
       <img
         ref={imageRefCallback}
-        src={resolvedSrc.src}
+        src={resolvedSrc.src || undefined}
         srcSet={resolvedSrc.srcSet}
         loading={priority || effectiveLazyMode === 'eager' ? 'eager' : 'lazy'}
         decoding="async"

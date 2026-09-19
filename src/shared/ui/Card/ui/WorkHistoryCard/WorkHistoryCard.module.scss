@@ -83,7 +83,7 @@
     font-size: $font-size-xs;
     font-weight: 600;
     color: var(--primary);
-    background: var(--color-brand-tint-20);
+    background: var(--color-accent-tint-20);
     border: 1px solid var(--primary);
     border-radius: $radius-full;
   }
@@ -142,13 +142,13 @@
     font-size: $font-size-xs;
     font-weight: 500;
     color: var(--primary);
-    background: var(--color-brand-tint-10);
-    border: 1px solid var(--color-brand-tint-30);
+    background: var(--color-accent-tint-10);
+    border: 1px solid var(--color-accent-tint-30);
     border-radius: $radius-full;
     transition: all $transition-duration $transition-easing;
 
     &:hover {
-      background: var(--color-brand-tint-20);
+      background: var(--color-accent-tint-20);
       transform: translateY(-2px);
     }
   }

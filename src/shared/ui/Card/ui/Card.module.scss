@@ -160,7 +160,7 @@ $card-hover-scale: 1.01;
     padding: $contact-padding-base;
     overflow: hidden;
     background-color: var(--color-surface-dark-elevated);
-    border: $contact-border-width solid var(--color-brand-border);
+    border: $contact-border-width solid var(--color-accent-border);
     border-radius: $contact-border-radius;
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(4px);
@@ -344,7 +344,7 @@ $card-hover-scale: 1.01;
       font-size: $font-size-xs;
       font-weight: 600;
       color: var(--primary);
-      background: var(--color-brand-tint-20);
+      background: var(--color-accent-tint-20);
       border: 1px solid var(--primary);
       border-radius: $radius-full;
     }
@@ -403,13 +403,13 @@ $card-hover-scale: 1.01;
       font-size: $font-size-xs;
       font-weight: 500;
       color: var(--primary);
-      background: var(--color-brand-tint-10);
-      border: 1px solid var(--color-brand-tint-30);
+      background: var(--color-accent-tint-10);
+      border: 1px solid var(--color-accent-tint-30);
       border-radius: $radius-full;
       transition: all $transition-duration $transition-easing;
 
       &:hover {
-        background: var(--color-brand-tint-20);
+        background: var(--color-accent-tint-20);
         transform: translateY(-2px);
       }
     }
@@ -509,7 +509,7 @@ $card-hover-scale: 1.01;
 
     .link {
       font-size: $card-link-font-size;
-      color: var(--color-link-brand);
+      color: var(--color-link-accent);
       text-decoration: none;
 
       &:hover {

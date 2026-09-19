@@ -2,6 +2,16 @@
 
 // Moved from shared/styles/variables/_sidebar.scss
 
+// DEPRECATED — использовать CSS custom properties:
+
+// $sidebar-z-index → var(--z-index-sidebar)
+
+// $sidebar-transition → var(--transition-slow)
+
+// $sidebar-mobile-width → var(--mobile-menu-width)
+
+// $sidebar-mobile-max-width → var(--mobile-menu-width)
+
 @use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/variables/transition' as *;
 

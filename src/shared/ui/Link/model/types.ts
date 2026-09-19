@@ -12,8 +12,10 @@ import type { IconSize } from '@/shared/ui/Icon';
  * @example 'secondary' — приглушённый цвет
  * @example 'ghost' — наследует цвет текста
  * @example 'gradient' — градиентный текст
+ * @example 'outline' — контурный (border) стиль
+ * @example 'danger' — опасное действие (красный)
  */
-export type LinkVariant = 'primary' | 'secondary' | 'ghost' | 'gradient';
+export type LinkVariant = 'primary' | 'secondary' | 'ghost' | 'gradient' | 'outline' | 'danger';
 
 /**
  * Размеры ссылки
@@ -34,6 +36,18 @@ export type LinkSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
  * @example 'never' — никогда
  */
 export type LinkUnderline = 'always' | 'hover' | 'never';
+
+/**
+ * Цветовые схемы ссылки
+ * @description Определяет палитру цветов (аналогично Button)
+ * @group Constants
+ * @example 'brand' — брендовый цвет (по умолчанию)
+ * @example 'neutral' — нейтральный (серый)
+ * @example 'success' — успешное действие (зелёный)
+ * @example 'warning' — предупреждение (жёлтый)
+ * @example 'danger' — опасное действие (красный)
+ */
+export type LinkColorScheme = 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
 
 /**
  * Props, которыми владеет Link (не наследуются от HTML-элемента).
@@ -70,6 +84,8 @@ export interface LinkOwnProps {
   variant?: LinkVariant;
   /** Размер */
   size?: LinkSize;
+  /** Цветовая схема */
+  colorScheme?: LinkColorScheme;
   /** Внешняя ссылка (откроется в новой вкладке) */
   external?: boolean;
   /** Иконка слева (ReactNode) */
@@ -122,6 +138,8 @@ export interface LinkHookProps {
   variant?: LinkVariant;
   /** Размер */
   size?: LinkSize;
+  /** Цветовая схема */
+  colorScheme?: LinkColorScheme;
   /** Внешняя ссылка (откроется в новой вкладке) */
   external?: boolean;
   /** Отключить стилизацию */

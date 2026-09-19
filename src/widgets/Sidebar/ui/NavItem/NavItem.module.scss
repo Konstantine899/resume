@@ -7,29 +7,31 @@
   gap: $spacing-3;
   align-items: center;
   padding: $spacing-2 $spacing-3;
-  color: var(--foreground-muted);
+  color: var(--nav-item-color);
   white-space: nowrap;
   text-decoration: none;
   border-radius: $border-radius-md;
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 
   &:hover {
-    color: var(--primary);
-    background: var(--color-brand-tint-10);
+    color: var(--nav-item-color-hover);
+    text-decoration: none;
+    background-color: var(--nav-item-bg-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary);
+    outline: var(--shadow-focus);
     outline-offset: -2px;
-    background: var(--color-brand-tint-10);
+    background-color: var(--nav-item-bg-hover);
   }
 
-  &.active {
-    color: var(--primary);
-    background: var(--color-brand-tint-10);
+  // Active state — specificity (0, 3, 0) to override Link.ghost (0, 2, 0)
+  &.desktop.active {
+    color: var(--nav-item-color-hover);
+    background-color: var(--nav-item-bg-active);
 
     &:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: var(--shadow-focus);
     }
   }
 }
@@ -50,7 +52,7 @@
   font-weight: 500;
 
   &:hover {
-    background: var(--color-brand-tint-10);
+    background: var(--nav-item-bg-hover);
   }
 }
 

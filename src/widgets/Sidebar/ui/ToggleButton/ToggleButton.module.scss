@@ -8,31 +8,31 @@
   width: 100%;
   padding: $spacing-2;
   margin-bottom: $spacing-4;
-  color: var(--foreground-muted);
+  color: var(--toggle-btn-color);
   cursor: pointer;
   background: transparent;
   border: none;
   border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
 
   &:hover {
-    background: rgb(244 179 119 / 0.15);
+    background: var(--toggle-btn-bg-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-light;
+    outline: var(--shadow-focus);
     outline-offset: 2px;
   }
 
   .sidebar-collapsed:hover & {
-    background: rgb(244 179 119 / 0.15);
+    background: var(--toggle-btn-bg-hover);
   }
 }
 
 .expandIcon {
   width: 16px;
   height: 16px;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-slow);
 
   &.rotated {
     transform: rotate(180deg);

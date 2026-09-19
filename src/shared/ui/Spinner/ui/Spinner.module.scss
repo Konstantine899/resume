@@ -60,7 +60,7 @@ $default-ring-thickness: 4px;
   // --------------------------------------------------
 
   &.primary {
-    --spinner-color: var(--color-brand-primary);
+    --spinner-color: var(--color-accent);
   }
 
   &.secondary {
@@ -72,7 +72,7 @@ $default-ring-thickness: 4px;
   }
 
   &.orange {
-    --spinner-color: var(--color-brand-primary);
+    --spinner-color: var(--color-accent);
   }
 }
 

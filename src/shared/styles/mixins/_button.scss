@@ -30,20 +30,20 @@ $button-focus-offset: 2px;
 
 @mixin color-scheme-variables {
   // Default: brand
-  --btn-fill: var(--color-brand-primary);
-  --btn-fill-hover: var(--color-brand-primary-hover);
+  --btn-fill: var(--color-accent);
+  --btn-fill-hover: var(--color-accent-hover);
   --btn-fill-text: var(--color-text-inverse);
-  --btn-color: var(--color-brand-primary);
-  --btn-color-subtle: var(--color-brand-primary-light);
+  --btn-color: var(--color-accent);
+  --btn-color-subtle: var(--color-accent-light);
   --btn-focus-outline: var(--shadow-focus);
 }
 
 @mixin color-scheme-brand {
-  --btn-fill: var(--color-brand-primary);
-  --btn-fill-hover: var(--color-brand-primary-hover);
+  --btn-fill: var(--color-accent);
+  --btn-fill-hover: var(--color-accent-hover);
   --btn-fill-text: var(--color-text-inverse);
-  --btn-color: var(--color-brand-primary);
-  --btn-color-subtle: var(--color-brand-primary-light);
+  --btn-color: var(--color-accent);
+  --btn-color-subtle: var(--color-accent-light);
   --btn-focus-outline: var(--shadow-focus);
 }
 

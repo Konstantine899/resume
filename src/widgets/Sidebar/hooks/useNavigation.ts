@@ -11,26 +11,65 @@ export const useNavigation = ({ onNavigation }: UseNavigationProps = {}) => {
 
   // Scroll detection для активной секции
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['#home', '#work', '#experience', '#about', '#contact', '#skills'];
-      const scrollPosition = window.scrollY + 100;
+    const sections = ['#home', '#work', '#experience', '#about', '#contact', '#skills'];
 
-      for (const section of sections) {
-        const element = document.querySelector(section) as HTMLElement | null;
+    const detectActiveSection = () => {
+      const scrollPosition = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const triggerPoint = scrollPosition + viewportHeight * 0.3;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const selector = sections[i];
+        if (!selector) continue;
+        const element = document.querySelector(selector) as HTMLElement | null;
         if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + scrollPosition;
+          const elementBottom = elementTop + rect.height;
+
+          if (triggerPoint >= elementTop && triggerPoint < elementBottom) {
+            setActiveSection(selector);
+            return;
           }
         }
       }
+
+      // Fallback: последняя секция выше viewport
+      for (let i = 0; i < sections.length; i++) {
+        const selector = sections[i];
+        if (!selector) continue;
+        const element = document.querySelector(selector) as HTMLElement | null;
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + scrollPosition;
+
+          if (scrollPosition < elementTop) {
+            const fallback = i > 0 ? sections[i - 1] : sections[0];
+            if (fallback) setActiveSection(fallback);
+            return;
+          }
+        }
+      }
+
+      const last = sections[sections.length - 1];
+      if (last) setActiveSection(last);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash && sections.includes(hash)) {
+        setActiveSection(hash);
+      }
+    };
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', detectActiveSection, { passive: true });
+    window.addEventListener('hashchange', handleHashChange);
+    detectActiveSection();
+
+    return () => {
+      window.removeEventListener('scroll', detectActiveSection);
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   // Focus trap для мобильного меню

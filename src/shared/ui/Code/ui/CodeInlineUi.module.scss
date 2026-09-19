@@ -8,7 +8,7 @@
   color: var(--color-text-primary);
   white-space: nowrap;
   background: var(--code-bg);
-  border: 1px solid var(--color-brand-tint-20);
+  border: 1px solid var(--color-accent-tint-20);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
   transition: all $transition-duration $transition-easing;
@@ -34,8 +34,8 @@
     cursor: pointer;
 
     &:hover {
-      border-color: var(--color-brand-tint-30);
-      box-shadow: 0 0 0 3px var(--color-brand-tint-10);
+      border-color: var(--color-accent-tint-30);
+      box-shadow: 0 0 0 3px var(--color-accent-tint-10);
     }
 
     &:focus-visible {

@@ -71,8 +71,8 @@
   --toast-bg: var(--color-surface-primary);
   --toast-close-icon: rgb(0 0 0 / 0.4);
   --toast-close-icon-hover: rgb(0 0 0 / 0.7);
-  --toast-focus-ring: var(--color-brand-primary);
-  --toast-action-secondary: var(--color-brand-primary);
+  --toast-focus-ring: var(--color-accent);
+  --toast-action-secondary: var(--color-accent);
   --toast-pause-text: rgb(0 0 0 / 0.3);
 
   position: relative;
@@ -190,8 +190,8 @@
   // Dark mode overrides (theme-aware via [data-theme])
   [data-theme='dark'] & {
     --toast-bg: #1e1e1e;
-    --toast-focus-ring: var(--color-brand-primary);
-    --toast-action-secondary: var(--color-brand-primary);
+    --toast-focus-ring: var(--color-accent);
+    --toast-action-secondary: var(--color-accent);
 
     background: var(--toast-bg);
 
@@ -323,10 +323,10 @@
   // Primary variant (accent)
   &.primary {
     color: var(--color-text-inverse);
-    background: var(--color-brand-primary);
+    background: var(--color-accent);
 
     &:hover {
-      background: var(--color-brand-primary-hover);
+      background: var(--color-accent-hover);
     }
 
     &:focus-visible {
@@ -335,10 +335,10 @@
     }
 
     [data-theme='dark'] & {
-      background: var(--color-brand-primary);
+      background: var(--color-accent);
 
       &:hover {
-        background: var(--color-brand-primary-hover);
+        background: var(--color-accent-hover);
       }
     }
   }

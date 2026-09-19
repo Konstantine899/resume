@@ -8,7 +8,7 @@
   justify-content: space-between;
   padding: $spacing-md $spacing-lg;
   background: var(--color-surface-dark);
-  border-bottom: 1px solid var(--color-brand-tint-10);
+  border-bottom: 1px solid var(--color-accent-tint-10);
 }
 
 .blockHeaderLeft {
@@ -32,7 +32,7 @@
   color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: var(--color-brand-tint-10);
+  background: var(--color-accent-tint-10);
   border-radius: $border-radius-sm;
 }
 
@@ -92,7 +92,7 @@
 }
 
 .languageSkeleton {
-  background: var(--color-brand-tint-10);
+  background: var(--color-accent-tint-10);
   border-radius: $border-radius-sm;
 }
 

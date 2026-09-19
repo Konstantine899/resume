@@ -35,9 +35,9 @@
   --color-text-inverse: #fff;
 
   // Brand / Accent
-  --color-brand-primary: #3b82f6;
-  --color-brand-primary-hover: #2563eb;
-  --color-brand-primary-light: #eff6ff;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-light: #eff6ff;
 
   // Semantic / Status
   --color-success: #10b981;
@@ -62,14 +62,14 @@
   --color-text-on-dark-tertiary: rgb(255 255 255 / 0.6);
   --color-text-on-dark-muted: rgb(255 255 255 / 0.8);
 
-  // Brand tints (orange accent variants)
-  --color-brand-tint-10: rgb(244 179 119 / 0.1);
-  --color-brand-tint-20: rgb(244 179 119 / 0.2);
-  --color-brand-tint-30: rgb(244 179 119 / 0.3);
-  --color-brand-border: rgb(217 71 68 / 0.5);
+  // Accent tints
+  --color-accent-tint-10: rgb(244 179 119 / 0.1);
+  --color-accent-tint-20: rgb(244 179 119 / 0.2);
+  --color-accent-tint-30: rgb(244 179 119 / 0.3);
+  --color-accent-border: rgb(217 71 68 / 0.5);
 
-  // Link brand (accent red for links)
-  --color-link-brand: #e85d5d;
+  // Link accent (red for links)
+  --color-link-accent: #e85d5d;
 
   // Overlay
   --color-overlay: rgb(0 0 0 / 0.6);
@@ -123,14 +123,57 @@
   --shadow-xl:
     0 20px 25px -5px var(--color-shadow-medium), 0 8px 10px -6px var(--color-shadow-medium);
   --shadow-focus: 0 0 0 3px var(--color-shadow-focus);
+  --shadow-sidebar: -4px 0 20px var(--color-shadow-medium);
 
   // Transition tokens
   --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
 
   // Z-index tokens
   --z-sidebar: 9999;
+  --z-index-sidebar: 9999;
   --z-modal: 10000;
+
+  // ==========================================
+
+  // Sidebar Component Tokens
+
+  // ==========================================
+
+  // Sidebar Layout
+  --sidebar-width: 375px;
+  --sidebar-width-tablet: 320px;
+  --sidebar-width-mobile: 280px;
+  --sidebar-header-height: 4rem;
+
+  // Sidebar
+  --sidebar-bg: var(--color-surface-primary);
+  --sidebar-border: var(--color-border-primary);
+  --sidebar-shadow: var(--shadow-sidebar);
+
+  // Navigation
+  --nav-item-color: var(--color-text-secondary);
+  --nav-item-color-hover: #3f84f6;
+  --nav-item-bg-hover: #eff6ff;
+  --nav-item-bg-active: #eff6ff;
+
+  // Toggle Button
+  --toggle-btn-color: var(--color-text-secondary);
+  --toggle-btn-color-hover: var(--color-text-primary);
+  --toggle-btn-bg-hover: var(--color-surface-tertiary);
+
+  // Mobile Menu
+  --mobile-menu-bg: var(--color-surface-primary);
+  --mobile-menu-border: var(--color-border-primary);
+  --mobile-menu-shadow: var(--shadow-sidebar);
+  --mobile-menu-width: var(--sidebar-width-mobile);
+  --mobile-menu-backdrop: var(--color-overlay);
+
+  // Sidebar Header
+  --sidebar-header-bg: var(--color-surface-primary);
+  --sidebar-header-border: var(--color-border-primary);
+  --sidebar-header-hover: var(--color-surface-tertiary);
 
   // ==========================================
 
@@ -165,9 +208,9 @@
   --skeleton-base: rgb(200 200 200 / 0.3);
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors → proxy to brand/foreground tokens (Button as source of truth)
-  --link-primary: var(--color-brand-primary);
-  --link-primary-hover: var(--color-brand-primary-hover);
+  // Link colors → proxy to accent/foreground tokens (Button as source of truth)
+  --link-primary: var(--color-accent);
+  --link-primary-hover: var(--color-accent-hover);
   --link-secondary: var(--foreground-muted);
   --link-secondary-hover: var(--foreground);
 
@@ -223,9 +266,9 @@
   --color-text-inverse: #0f0f0f;
 
   // Brand tokens for dark theme
-  --color-brand-primary: #f4b377;
-  --color-brand-primary-hover: #f9c997;
-  --color-brand-primary-light: rgb(244 179 119 / 0.1);
+  --color-accent: #f4b377;
+  --color-accent-hover: #f9c997;
+  --color-accent-light: rgb(244 179 119 / 0.1);
 
   // Status tokens for dark theme
   --color-success: #22c55e;
@@ -259,6 +302,13 @@
   --color-overlay: rgb(0 0 0 / 0.7);
   --color-overlay-heavy: rgb(0 0 0 / 0.85);
 
+  // Sidebar tokens for dark theme
+  --nav-item-color-hover: var(--color-text-primary);
+  --nav-item-bg-hover: var(--color-accent-tint-20);
+  --nav-item-bg-active: var(--color-accent-tint-20);
+  --toggle-btn-bg-hover: var(--color-accent-tint-20);
+  --sidebar-header-hover: var(--color-accent-tint-10);
+
   // Backward-compatible aliases
   --background: #292726;
   --background-alt: #1e1c1b;
@@ -284,9 +334,9 @@
   --skeleton-base: #292726;
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors for dark theme → proxy to brand/foreground tokens
-  --link-primary: var(--color-brand-primary);
-  --link-primary-hover: var(--color-brand-primary-hover);
+  // Link colors for dark theme → neutral text, not blue accent
+  --link-primary: var(--color-text-primary);
+  --link-primary-hover: var(--color-text-primary);
   --link-secondary: var(--foreground-muted);
   --link-secondary-hover: var(--foreground);
 
@@ -328,9 +378,9 @@
   --color-text-inverse: #fff;
 
   // Brand tokens for light theme
-  --color-brand-primary: #3b82f6;
-  --color-brand-primary-hover: #2563eb;
-  --color-brand-primary-light: #eff6ff;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-light: #eff6ff;
 
   // Status tokens for light theme
   --color-success: #10b981;
@@ -365,7 +415,7 @@
   // Aliases for text colors
   --text-primary: #1a1716;
   --text-tertiary: #6b7280;
-  --gradient-text: #{$gradient-text};
+  --gradient-text: linear-gradient(135deg, #93c5fd 0%, #3b82f6 40%, #1d4ed8 100%);
   --card-bg: var(--color-surface-primary);
   --card-border: var(--color-border-primary);
   --shadow-color: var(--color-shadow-light);
@@ -379,9 +429,9 @@
   --skeleton-base: rgb(0 0 0 / 0.08);
   --skeleton-highlight: var(--color-skeleton-shimmer);
 
-  // Link colors for light theme → proxy to brand/foreground tokens
-  --link-primary: var(--color-brand-primary);
-  --link-primary-hover: var(--color-brand-primary-hover);
+  // Link colors for light theme → proxy to accent/foreground tokens
+  --link-primary: var(--color-accent);
+  --link-primary-hover: var(--color-accent-hover);
   --link-secondary: var(--foreground-muted);
   --link-secondary-hover: var(--foreground);
 

@@ -38,6 +38,7 @@ export const useLink = ({
   href,
   variant = LINK_DEFAULTS.variant,
   size = LINK_DEFAULTS.size,
+  colorScheme,
   external = LINK_DEFAULTS.external,
   unstyled = LINK_DEFAULTS.unstyled,
   underline = LINK_DEFAULTS.underline,
@@ -82,6 +83,7 @@ export const useLink = ({
         styles.link,
         styles[variant],
         styles[size],
+        colorScheme && styles[`color-scheme-${colorScheme}`],
         unstyled && styles.unstyled,
         underline === 'always' && styles.underlineAlways,
         underline === 'hover' && styles.underlineHover,
@@ -90,7 +92,7 @@ export const useLink = ({
         skeleton && styles.skeleton,
         className
       ),
-    [variant, size, unstyled, underline, withLift, skeleton, className]
+    [variant, size, colorScheme, unstyled, underline, withLift, skeleton, className]
   );
 
   // Data-атрибуты для стилизации и тестирования.

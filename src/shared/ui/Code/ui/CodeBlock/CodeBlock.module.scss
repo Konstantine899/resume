@@ -31,7 +31,7 @@
   max-width: 100%;
   overflow: hidden;
   background: var(--code-bg);
-  border: 1px solid var(--color-brand-tint-20);
+  border: 1px solid var(--color-accent-tint-20);
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
 
@@ -105,7 +105,7 @@
   text-align: right;
   user-select: none;
   background: var(--color-surface-dark-elevated);
-  border-right: 1px solid var(--color-brand-tint-10);
+  border-right: 1px solid var(--color-accent-tint-10);
 }
 
 .lineNumber {

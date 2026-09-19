@@ -17,7 +17,7 @@
   position: fixed;
   top: $spacing-md;
   left: $spacing-md;
-  z-index: $sidebar-z-index + 1;
+  z-index: calc(var(--z-index-sidebar) + 1);
 
   // Button уже имеет все стили для variant="sidebar"
 
@@ -50,18 +50,18 @@
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: $sidebar-z-index;
+  z-index: var(--z-index-sidebar);
   display: none;
   flex-direction: column;
   align-items: center;
   padding: $spacing-12 0;
   contain: layout;
   cursor: pointer;
-  background: var(--card-bg);
-  border-right: 1px solid var(--card-border);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   backdrop-filter: blur(4px);
   transform-origin: left;
-  transition: width $sidebar-transition;
+  transition: width var(--transition-slow);
 
   @include md {
     display: flex;
@@ -78,8 +78,8 @@
   }
 
   &.collapsed:hover {
-    background: var(--color-brand-tint-10);
-    border-right-color: $primary-light;
+    background: var(--nav-item-bg-hover);
+    border-right-color: var(--color-accent);
   }
 
   &.hoverExpanded {
@@ -88,7 +88,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-light;
+    outline: var(--shadow-focus);
     outline-offset: -2px;
   }
 }
@@ -101,7 +101,7 @@
 .desktopSpacer {
   display: none;
   flex-shrink: 0;
-  transition: width $sidebar-transition;
+  transition: width var(--transition-slow);
 
   @include md {
     display: block;
@@ -135,12 +135,12 @@
   position: absolute;
   top: -100%;
   left: 50%;
-  z-index: var(--z-sidebar);
+  z-index: var(--z-index-sidebar);
   padding: $spacing-3 $spacing-4;
   font-weight: 600;
   color: var(--color-text-inverse);
   text-decoration: none;
-  background: var(--primary);
+  background: var(--color-accent);
   border-radius: $border-radius-md;
   transform: translateX(-50%);
   transition: top var(--transition-base);
