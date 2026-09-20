@@ -57,18 +57,18 @@
   // ============================================
 
   &.xs {
-    width: 24px;
-    height: 24px;
+    width: var(--space-6);
+    height: var(--space-6);
 
     .content {
-      width: 12px;
-      height: 12px;
+      width: var(--space-3);
+      height: var(--space-3);
     }
   }
 
   &.sm {
-    width: 32px;
-    height: 32px;
+    width: var(--space-8);
+    height: var(--space-8);
 
     .content {
       width: var(--icon-size-sm);
@@ -77,8 +77,8 @@
   }
 
   &.md {
-    width: 40px;
-    height: 40px;
+    width: var(--space-10);
+    height: var(--space-10);
 
     .content {
       width: var(--icon-size-md);
@@ -87,8 +87,8 @@
   }
 
   &.lg {
-    width: 48px;
-    height: 48px;
+    width: var(--space-12);
+    height: var(--space-12);
 
     .content {
       width: var(--icon-size-lg);
@@ -97,12 +97,12 @@
   }
 
   &.xl {
-    width: 56px;
-    height: 56px;
+    width: var(--space-14);
+    height: var(--space-14);
 
     .content {
-      width: 28px;
-      height: 28px;
+      width: var(--space-7);
+      height: var(--space-7);
     }
   }
 

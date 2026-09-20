@@ -30,27 +30,27 @@ $default-ring-thickness: 4px;
   // --------------------------------------------------
 
   &.xs {
-    --spinner-size: 12px;
+    --spinner-size: var(--space-3);
   }
 
   &.sm {
-    --spinner-size: 24px;
+    --spinner-size: var(--space-6);
   }
 
   &.md {
-    --spinner-size: 32px;
+    --spinner-size: var(--space-8);
   }
 
   &.lg {
-    --spinner-size: 48px;
+    --spinner-size: var(--space-12);
   }
 
   &.xl {
-    --spinner-size: 64px;
+    --spinner-size: var(--space-16);
   }
 
   &.xxl {
-    --spinner-size: 96px;
+    --spinner-size: var(--space-24);
   }
 
   // --------------------------------------------------
@@ -64,11 +64,11 @@ $default-ring-thickness: 4px;
   }
 
   &.secondary {
-    --spinner-color: var(--secondary);
+    --spinner-color: var(--color-text-secondary);
   }
 
   &.accent {
-    --spinner-color: var(--accent);
+    --spinner-color: var(--color-accent);
   }
 
   &.orange {
