@@ -145,7 +145,24 @@ $link-active-scale: 0.98;
 }
 
 @mixin variant-link-danger {
-  @include variant-link-primary;
+  color: var(--link-fill-text, #fff);
+  background-color: var(--link-fill);
+  border: 2px solid transparent;
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.15);
+  transition: all var(--duration-normal) var(--ease-default);
+
+  &:hover:not(:disabled) {
+    background-color: var(--link-fill-hover);
+    box-shadow:
+      inset 0 2px 0 rgb(0 0 0 / 0.15),
+      0 0 0 2px var(--link-fill);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow: inset 0 3px 4px rgb(0 0 0 / 0.25);
+    transform: scale(0.97);
+  }
 }
 
 // ============================================
