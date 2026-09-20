@@ -16,6 +16,12 @@
     .photo-circle {
       padding: 2px;
     }
+
+    .initial {
+      font-size: 2.5rem;
+
+      @include avatar-initial;
+    }
   }
 
   &.md {
@@ -24,6 +30,12 @@
 
     .photo-circle {
       padding: 4px;
+    }
+
+    .initial {
+      font-size: 4rem;
+
+      @include avatar-initial;
     }
   }
 
@@ -34,6 +46,12 @@
     .photo-circle {
       padding: 6px;
     }
+
+    .initial {
+      font-size: 6rem;
+
+      @include avatar-initial;
+    }
   }
 
   &.xl {
@@ -42,6 +60,12 @@
 
     .photo-circle {
       padding: 6px;
+    }
+
+    .initial {
+      font-size: 6rem;
+
+      @include avatar-initial;
     }
   }
 
@@ -80,28 +104,6 @@
 
       [data-theme='light'] & {
         background: var(--avatar-light-bg);
-      }
-
-      .initial {
-        @include avatar-initial;
-
-        font-size: 4rem;
-
-        .sm & {
-          font-size: 2.5rem;
-        }
-
-        .md & {
-          font-size: 4rem;
-        }
-
-        .lg & {
-          font-size: 6rem;
-        }
-
-        .xl & {
-          font-size: 6rem;
-        }
       }
     }
   }
