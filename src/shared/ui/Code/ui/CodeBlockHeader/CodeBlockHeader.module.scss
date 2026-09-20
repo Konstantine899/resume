@@ -9,6 +9,10 @@
   padding: $spacing-md $spacing-lg;
   background: var(--color-surface-dark);
   border-bottom: 1px solid var(--color-accent-tint-10);
+
+  [data-theme='light'] & {
+    background: #939393;
+  }
 }
 
 .blockHeaderLeft {
@@ -24,6 +28,10 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   color: $primary-light;
+
+  [data-theme='light'] & {
+    color: #fafafa;
+  }
 }
 
 .language {
@@ -34,6 +42,10 @@
   letter-spacing: 0.5px;
   background: var(--color-accent-tint-10);
   border-radius: $border-radius-sm;
+
+  [data-theme='light'] & {
+    color: #fafafa;
+  }
 }
 
 .terminalDots {

@@ -87,6 +87,10 @@
     border-radius: 50%;
     box-shadow: $shadow-xl;
 
+    [data-theme='light'] & {
+      background: #3f84f6;
+    }
+
     // Внутренний контейнер для контента
     .photo-inner {
       display: flex;
@@ -97,6 +101,10 @@
       overflow: hidden;
       background: var(--avatar-bg);
       border-radius: 50%;
+
+      [data-theme='light'] & {
+        background: var(--avatar-light-bg);
+      }
 
       .initial {
         @include avatar-initial;

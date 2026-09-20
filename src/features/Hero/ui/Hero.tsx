@@ -3,16 +3,16 @@
 // ============================================
 import { DEVELOPER_DATA } from '@/entities/Developer';
 
+import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-const avatarImage = '/images/avatar/avatar003.jpg';
 import { Code } from '@/shared/ui/Code';
 import { Link } from '@/shared/ui/Link';
-import { useToast } from '@/shared/lib/contexts/ToastContext';
 import React, { useEffect, useState } from 'react';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
 import { HeroAvatar } from './HeroAvatar';
 import SkillsCode from './SkillsCode/SkillsCode';
+const avatarImage = '/images/avatar/avatar003.jpg';
 
 type AvatarState = 'loading' | 'loaded' | 'error';
 
@@ -78,7 +78,7 @@ export const Hero: React.FC<HeroProps> = ({
           <Link
             href="#"
             unstyled
-            variant="ghost"
+            variant="primary"
             underline="never"
             className={styles.resumeButton}
             onClick={(e) => {

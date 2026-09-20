@@ -231,7 +231,7 @@
   --tooltip-focus: var(--color-border-focus);
 
   // Gradient tokens
-  --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
+  --gradient-primary: linear-gradient(135deg, #d9d9d9 0%, #a6a6a6 50%, #666 100%);
   --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
 
   // Skill category colors
@@ -399,8 +399,8 @@
   --color-surface-dark-elevated: rgb(41 39 38 / 0.125);
 
   // Avatar for light theme
+  --avatar-light-bg: #dfdfdf;
   --avatar-bg: #3a2e28;
-  --avatar-initial-color: #f4b377;
 
   // Overlay for light theme
   --color-overlay: rgb(0 0 0 / 0.6);

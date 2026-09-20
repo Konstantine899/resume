@@ -35,6 +35,10 @@
   border-radius: $border-radius-lg;
   backdrop-filter: blur(8px);
 
+  [data-theme='light'] & {
+    background: #fafafa;
+  }
+
   @include sm {
     width: 100%;
   }
@@ -133,6 +137,10 @@
 
   .string {
     color: var(--primary);
+
+    [data-theme='light'] & {
+      color: #3f84f6;
+    }
   }
 
   .number {

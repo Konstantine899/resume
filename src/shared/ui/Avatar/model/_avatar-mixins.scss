@@ -12,6 +12,10 @@
   font-weight: 700;
   line-height: 1;
   color: #f4b377;
+
+  [data-theme='light'] & {
+    color: #3f84f6;
+  }
 }
 
 @mixin avatar-inner {
@@ -43,6 +47,10 @@
   border: 2px solid rgb(244 179 119 / 0.2);
   border-radius: 50%;
   transform: scale(1.1);
+
+  [data-theme='light'] & {
+    border: 2px solid rgb(63 132 246 / 0.2);
+  }
 }
 
 @mixin avatar-circle($padding: null) {
