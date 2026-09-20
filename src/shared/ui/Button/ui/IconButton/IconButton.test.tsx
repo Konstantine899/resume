@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Mail } from 'lucide-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolveCssModuleKey } from '@/shared/lib/utils';
 import { IconButton } from './IconButton';
 import iconButtonStyles from './IconButton.module.scss';
 
@@ -44,7 +45,7 @@ describe('IconButton', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(iconButtonStyles.primary ?? '');
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(iconButtonStyles, 'color-scheme-danger'));
     });
   });
 
@@ -273,14 +274,14 @@ describe('IconButton', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Delete" colorScheme="danger" />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(iconButtonStyles, 'color-scheme-danger'));
     });
 
     it('variant="danger" должен давать colorSchemeDanger класс', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Delete" variant="danger" />);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(iconButtonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(iconButtonStyles, 'color-scheme-danger'));
     });
   });
 });

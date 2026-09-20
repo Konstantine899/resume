@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
 import { ButtonLoader } from '../../ui/ButtonLoader';
 import { validateButtonProps } from '../utils/validateButtonProps';
 import type {
@@ -93,7 +94,7 @@ export const useButton = ({
         s.button,
         s[variant],
         s[size],
-        colorScheme && s[`color-scheme-${colorScheme}`],
+        colorScheme && resolveCssModuleKey(s, `color-scheme-${colorScheme}`),
         loading && s.loading,
         fullWidth && s.fullWidth,
         className

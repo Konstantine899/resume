@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolveCssModuleKey } from '@/shared/lib/utils';
 import { Button } from './Button';
 import buttonStyles from './Button.module.scss';
 
@@ -55,7 +56,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(buttonStyles.primary ?? '');
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonStyles, 'color-scheme-danger'));
     });
   });
 
@@ -425,7 +426,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button');
       expect(button).toBeInTheDocument();
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonStyles, 'color-scheme-danger'));
     });
 
     it('должен иметь variant="primary" классы при colorScheme="success"', () => {
@@ -439,7 +440,7 @@ describe('Button', () => {
       render(<Button variant="danger">Delete</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonStyles, 'color-scheme-danger'));
     });
   });
 });

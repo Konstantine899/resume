@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
 import { getExternalLinkProps, isExternalLink } from '@/shared/lib/utils/externalLink';
 import { ICON_SIZE_MAP, LINK_DEFAULTS } from '../../model/constants';
 import type { LinkHookProps, UseLinkReturn } from '../../model/types';
@@ -87,7 +88,7 @@ export const useLink = ({
         styles.link,
         styles[resolvedVariant],
         styles[size],
-        resolvedColorScheme && styles[`color-scheme-${resolvedColorScheme}`],
+        resolvedColorScheme && resolveCssModuleKey(styles, `color-scheme-${resolvedColorScheme}`),
         unstyled && styles.unstyled,
         underline === 'always' && styles.underlineAlways,
         underline === 'hover' && styles.underlineHover,

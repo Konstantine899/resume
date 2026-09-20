@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ArrowRight, Mail } from 'lucide-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolveCssModuleKey } from '@/shared/lib/utils';
 import { ButtonWithIcon } from './ButtonWithIcon';
 import buttonWithIconStyles from './ButtonWithIcon.module.scss';
 
@@ -71,7 +72,7 @@ describe('ButtonWithIcon', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(buttonWithIconStyles.primary ?? '');
-      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonWithIconStyles, 'color-scheme-danger'));
     });
   });
 
@@ -317,7 +318,7 @@ describe('ButtonWithIcon', () => {
       const link = screen.getByTestId('button-with-icon');
       expect(link).toHaveClass(buttonWithIconStyles.button ?? '');
       expect(link).toHaveClass(buttonWithIconStyles.primary ?? '');
-      expect(link).toHaveClass(buttonWithIconStyles['color-scheme-danger'] ?? '');
+      expect(link).toHaveClass(resolveCssModuleKey(buttonWithIconStyles, 'color-scheme-danger'));
     });
 
     it('должен иметь aria-disabled при disabled=true и component="a"', () => {
@@ -396,7 +397,7 @@ describe('ButtonWithIcon', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-success'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonWithIconStyles, 'color-scheme-success'));
     });
 
     it('variant="danger" должен давать colorSchemeDanger класс', () => {
@@ -407,7 +408,7 @@ describe('ButtonWithIcon', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass(buttonWithIconStyles['color-scheme-danger'] ?? '');
+      expect(button).toHaveClass(resolveCssModuleKey(buttonWithIconStyles, 'color-scheme-danger'));
     });
   });
 });
