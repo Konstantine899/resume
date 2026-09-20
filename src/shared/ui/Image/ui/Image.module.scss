@@ -28,8 +28,8 @@
   height: var(--image-height);
   object-fit: var(--image-object-fit);
   transition:
-    opacity $transition-duration $transition-easing,
-    filter $transition-duration $transition-easing;
+    opacity var(--duration-normal) var(--ease-default),
+    filter var(--duration-normal) var(--ease-default);
 
   &[loading='lazy'] {
     will-change: opacity;
@@ -61,8 +61,8 @@
     var(--shadow-sm),
     0 0 0 1px var(--image-placeholder-bg);
   transition:
-    box-shadow $transition-duration $transition-easing,
-    transform $transition-duration $transition-easing;
+    box-shadow var(--duration-normal) var(--ease-default),
+    transform var(--duration-normal) var(--ease-default);
 
   &:hover {
     box-shadow:
@@ -79,18 +79,18 @@
 // ============================================
 
 .sizeSm {
-  width: 64px;
-  height: 64px;
+  width: var(--space-16);
+  height: var(--space-16);
 }
 
 .sizeMd {
-  width: 128px;
-  height: 128px;
+  width: var(--space-32);
+  height: var(--space-32);
 }
 
 .sizeLg {
-  width: 256px;
-  height: 256px;
+  width: var(--space-64);
+  height: var(--space-64);
 }
 
 .sizeFull {
@@ -138,7 +138,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--image-placeholder-bg);
-  transition: opacity $transition-duration $transition-easing;
+  transition: opacity var(--duration-normal) var(--ease-default);
 }
 
 .placeholderBlur {
@@ -201,7 +201,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--image-fallback-text);
   background-color: var(--image-placeholder-bg);
 }
@@ -252,22 +252,22 @@
 
 // ============================================
 
-@media (max-width: $breakpoint-sm) {
+@media (width <= 640px) {
   .sizeLg {
-    width: 192px;
-    height: 192px;
+    width: var(--space-48);
+    height: var(--space-48);
   }
 }
 
-@media (max-width: $breakpoint-xs) {
+@media (width <= 480px) {
   .sizeMd {
-    width: 96px;
-    height: 96px;
+    width: var(--space-24);
+    height: var(--space-24);
   }
 
   .sizeLg {
-    width: 128px;
-    height: 128px;
+    width: var(--space-32);
+    height: var(--space-32);
   }
 }
 

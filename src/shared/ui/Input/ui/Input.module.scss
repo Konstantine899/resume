@@ -15,17 +15,17 @@
 }
 
 .label {
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
+  margin-bottom: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 
   @include theme-transition;
 }
 
 .required::after {
-  margin-left: 0.25rem;
-  color: var(--form-error);
+  margin-left: var(--space-1);
+  color: var(--color-error);
   content: '*';
 }
 
@@ -35,173 +35,173 @@
   align-items: center;
 
   // Icon padding using CSS variables
-  --icon-spacing: 0.75rem;
-  --icon-spacing-xs: 0.375rem;
-  --icon-spacing-sm: 0.5rem;
-  --icon-spacing-lg: 1rem;
-  --icon-spacing-xl: 1.25rem;
+  --icon-spacing: var(--space-3);
+  --icon-spacing-xs: var(--space-1-5);
+  --icon-spacing-sm: var(--space-2);
+  --icon-spacing-lg: var(--space-4);
+  --icon-spacing-xl: var(--space-5);
 
   &:has(.icon) .input,
   &:has(.iconFloating) .input {
-    padding-left: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-left: calc(var(--icon-spacing) * 2 + var(--space-4));
   }
 
   &:has(.iconAfter) .input {
-    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-right: calc(var(--icon-spacing) * 2 + var(--space-4));
   }
 
   &:has(.clearButton) .input {
-    padding-right: calc(var(--icon-spacing) * 2 + 1rem);
+    padding-right: calc(var(--icon-spacing) * 2 + var(--space-4));
   }
 
   // Size variations for icon padding
   &:has(.icon) .input.xs,
   &:has(.iconFloating) .input.xs {
-    padding-left: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+    padding-left: calc(var(--icon-spacing-xs) * 2 + var(--space-2));
   }
 
   &:has(.iconAfter) .input.xs {
-    padding-right: calc(var(--icon-spacing-xs) * 2 + 0.625rem);
+    padding-right: calc(var(--icon-spacing-xs) * 2 + var(--space-2));
   }
 
   &:has(.icon) .input.sm,
   &:has(.iconFloating) .input.sm {
-    padding-left: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+    padding-left: calc(var(--icon-spacing-sm) * 2 + var(--space-3));
   }
 
   &:has(.iconAfter) .input.sm {
-    padding-right: calc(var(--icon-spacing-sm) * 2 + 0.75rem);
+    padding-right: calc(var(--icon-spacing-sm) * 2 + var(--space-3));
   }
 
   &:has(.icon) .input.lg,
   &:has(.iconFloating) .input.lg {
-    padding-left: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+    padding-left: calc(var(--icon-spacing-lg) * 2 + var(--space-5));
   }
 
   &:has(.iconAfter) .input.lg {
-    padding-right: calc(var(--icon-spacing-lg) * 2 + 1.25rem);
+    padding-right: calc(var(--icon-spacing-lg) * 2 + var(--space-5));
   }
 
   &:has(.icon) .input.xl,
   &:has(.iconFloating) .input.xl {
-    padding-left: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+    padding-left: calc(var(--icon-spacing-xl) * 2 + var(--space-6));
   }
 
   &:has(.iconAfter) .input.xl {
-    padding-right: calc(var(--icon-spacing-xl) * 2 + 1.5rem);
+    padding-right: calc(var(--icon-spacing-xl) * 2 + var(--space-6));
   }
 }
 
 .input {
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-family-base, system-ui, sans-serif);
-  font-size: 1rem;
-  color: var(--foreground);
+  font-size: var(--text-lg);
+  color: var(--color-text);
   outline: none;
-  background-color: var(--background);
-  border: 1px solid var(--border-color);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--input-border-radius);
   transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    border-color var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default);
 
   @include theme-transition;
 
   &::placeholder {
-    color: var(--color-text-quaternary);
+    color: var(--color-text-muted);
   }
 
   &:hover:not(:disabled) {
-    border-color: var(--foreground-muted);
+    border-color: var(--color-text-muted);
   }
 
   &:focus {
-    border-color: var(--primary);
+    border-color: var(--color-accent);
     box-shadow: var(--shadow-focus);
   }
 
   &:disabled {
-    color: var(--color-text-quaternary);
+    color: var(--color-text-muted);
     cursor: not-allowed;
     background-color: var(--color-surface-disabled);
   }
 
   &[readonly] {
     cursor: default;
-    background-color: var(--background-alt);
+    background-color: var(--color-surface-hover);
   }
 
   &.outline {
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--color-border);
 
     &:focus {
-      border-color: var(--primary);
+      border-color: var(--color-accent);
       box-shadow: var(--shadow-focus);
     }
   }
 
   &.filled {
-    background-color: var(--background-alt);
+    background-color: var(--color-surface-hover);
     border: none;
 
     &:focus {
-      background-color: var(--background);
+      background-color: var(--color-surface);
       box-shadow: var(--shadow-focus);
     }
   }
 
   // Sizes
   &.xs {
-    padding: 0.125rem 0.375rem;
-    font-size: 0.75rem;
+    padding: var(--space-0-5) var(--space-1-5);
+    font-size: var(--text-sm);
   }
 
   &.sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
   }
 
   &.md {
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-lg);
   }
 
   &.lg {
-    padding: 0.75rem 1rem;
-    font-size: 1.125rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-xl);
   }
 
   &.xl {
-    padding: 1rem 1.25rem;
-    font-size: 1.25rem;
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--text-2xl);
   }
 
   // States
   &.error {
-    border-color: var(--form-error);
+    border-color: var(--color-error);
 
     &:focus {
-      border-color: var(--form-error);
-      box-shadow: 0 0 0 3px rgb(220 53 69 / 0.2);
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 3px var(--color-error-muted);
     }
   }
 
   &.success {
-    border-color: var(--form-success);
+    border-color: var(--color-success);
 
     &:focus {
-      border-color: var(--form-success);
-      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
+      border-color: var(--color-success);
+      box-shadow: 0 0 0 3px var(--color-success-muted);
     }
   }
 
   &.loading {
     background-image: linear-gradient(
       90deg,
-      var(--background-alt) 25%,
-      var(--background) 50%,
-      var(--background-alt) 75%
+      var(--color-surface-hover) 25%,
+      var(--color-surface) 50%,
+      var(--color-surface-hover) 75%
     );
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
@@ -214,99 +214,99 @@
 
 .icon {
   position: absolute;
-  left: 0.75rem;
+  left: var(--space-3);
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--color-text-muted);
   pointer-events: none;
 
   .input.xs ~ & {
-    left: 0.375rem;
+    left: var(--space-1-5);
   }
 
   .input.sm ~ & {
-    left: 0.5rem;
+    left: var(--space-2);
   }
 
   .input.xl ~ & {
-    left: 1rem;
+    left: var(--space-4);
   }
 }
 
 .iconAfter {
   position: absolute;
-  right: 0.75rem;
+  right: var(--space-3);
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--color-text-muted);
   pointer-events: none;
 
   .input.xs ~ & {
-    right: 0.375rem;
+    right: var(--space-1-5);
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: var(--space-2);
   }
 
   .input.xl ~ & {
-    right: 1rem;
+    right: var(--space-4);
   }
 }
 
 .loadingIndicator {
   position: absolute;
-  right: 0.75rem;
+  right: var(--space-3);
   display: flex;
   align-items: center;
 }
 
 .clearButton {
   position: absolute;
-  right: 0.75rem;
+  right: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  color: var(--foreground-muted);
+  padding: var(--space-1);
+  color: var(--color-text-muted);
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: color var(--transition-fast);
+  transition: color var(--duration-normal) var(--ease-default);
 
   &:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   &:focus {
     outline: var(--shadow-focus);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .input.xs ~ & {
-    right: 0.375rem;
+    right: var(--space-1-5);
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: var(--space-2);
   }
 
   .input.xl ~ & {
-    right: 1rem;
+    right: var(--space-4);
   }
 }
 
 .counter {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--foreground-muted);
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 
   .warning {
-    font-weight: 600;
-    color: var(--form-warning);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-warning);
   }
 
   @include theme-transition;
@@ -322,12 +322,12 @@
     }
 
     &:not(:placeholder-shown) ~ .floatingLabel {
-      color: var(--primary);
+      color: var(--color-accent);
       transform: translateY(-1.75rem) scale(0.85);
     }
 
     &:focus ~ .floatingLabel {
-      color: var(--primary);
+      color: var(--color-accent);
     }
 
     &:focus::placeholder {
@@ -359,61 +359,61 @@
 
 .floatingLabel {
   position: absolute;
-  top: 0.5rem;
-  left: 0.75rem;
-  font-size: 1rem;
-  color: var(--foreground-muted);
+  top: var(--space-2);
+  left: var(--space-3);
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
   pointer-events: none;
   transform-origin: left top;
   transition:
-    transform var(--transition-fast),
-    color var(--transition-fast);
+    transform var(--duration-normal) var(--ease-default),
+    color var(--duration-normal) var(--ease-default);
 
   .input.xs ~ & {
-    top: 0.125rem;
-    font-size: 0.75rem;
+    top: var(--space-0-5);
+    font-size: var(--text-sm);
   }
 
   .input.sm ~ & {
-    top: 0.25rem;
-    font-size: 0.875rem;
+    top: var(--space-1);
+    font-size: var(--text-sm);
   }
 
   .input.lg ~ & {
-    top: 0.75rem;
-    font-size: 1.125rem;
+    top: var(--space-3);
+    font-size: var(--text-xl);
   }
 
   .input.xl ~ & {
-    top: 1rem;
-    font-size: 1.25rem;
+    top: var(--space-4);
+    font-size: var(--text-2xl);
   }
 }
 
 .iconFloating {
   position: absolute;
   top: 50%;
-  left: 0.75rem;
+  left: var(--space-3);
   display: flex;
   align-items: center;
-  color: var(--foreground-muted);
+  color: var(--color-text-muted);
   pointer-events: none;
   transform: translateY(-50%);
 
   .input.xs ~ & {
-    left: 0.375rem;
+    left: var(--space-1-5);
   }
 
   .input.sm ~ & {
-    left: 0.5rem;
+    left: var(--space-2);
   }
 
   .input.lg ~ & {
-    left: 1rem;
+    left: var(--space-4);
   }
 
   .input.xl ~ & {
-    left: 1.25rem;
+    left: var(--space-5);
   }
 }
 
@@ -464,12 +464,12 @@
 .addonEnd {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--foreground-muted);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
   white-space: nowrap;
-  background-color: var(--background-alt);
-  border: 1px solid var(--border-color);
+  background-color: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
 
   @include theme-transition;
 }
@@ -486,32 +486,32 @@
 
 .passwordToggle {
   position: absolute;
-  right: 0.75rem;
+  right: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
-  color: var(--foreground-muted);
+  padding: var(--space-1);
+  color: var(--color-text-muted);
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: color var(--transition-fast);
+  transition: color var(--duration-normal) var(--ease-default);
 
   &:hover {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   &:focus {
     outline: var(--shadow-focus);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .input.sm ~ & {
-    right: 0.5rem;
+    right: var(--space-2);
   }
 
   .input.lg ~ & {
-    right: 1rem;
+    right: var(--space-4);
   }
 }

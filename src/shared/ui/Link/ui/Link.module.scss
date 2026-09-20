@@ -23,8 +23,6 @@
 
 $link-focus-offset: 2px;
 $link-active-scale: 0.98;
-$button-transition-duration: 150ms;
-$button-transition-timing: ease;
 
 // ============================================
 
@@ -54,37 +52,37 @@ $button-transition-timing: ease;
 }
 
 @mixin link-color-scheme-neutral {
-  --link-fill: var(--secondary);
+  --link-fill: var(--color-text-secondary);
   --link-fill-hover: var(--color-surface-active);
   --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--secondary);
+  --link-color: var(--color-text-secondary);
   --link-color-subtle: rgb(108 117 125 / 0.15);
   --link-focus-outline: var(--shadow-focus);
 }
 
 @mixin link-color-scheme-success {
-  --link-fill: var(--success);
-  --link-fill-hover: var(--color-success);
+  --link-fill: var(--color-success);
+  --link-fill-hover: var(--color-success-hover);
   --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--success);
+  --link-color: var(--color-success);
   --link-color-subtle: rgb(40 167 69 / 0.15);
   --link-focus-outline: var(--shadow-focus);
 }
 
 @mixin link-color-scheme-warning {
-  --link-fill: var(--warning);
-  --link-fill-hover: var(--color-warning);
-  --link-fill-text: var(--color-text-primary);
-  --link-color: var(--warning);
+  --link-fill: var(--color-warning);
+  --link-fill-hover: var(--color-warning-hover);
+  --link-fill-text: var(--color-text);
+  --link-color: var(--color-warning);
   --link-color-subtle: rgb(255 193 7 / 0.2);
   --link-focus-outline: var(--shadow-focus);
 }
 
 @mixin link-color-scheme-danger {
-  --link-fill: var(--danger);
-  --link-fill-hover: var(--color-error);
+  --link-fill: var(--color-error);
+  --link-fill-hover: var(--color-error-hover);
   --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--danger);
+  --link-color: var(--color-error);
   --link-color-subtle: rgb(220 53 69 / 0.15);
   --link-focus-outline: var(--shadow-focus);
 }
@@ -98,7 +96,7 @@ $button-transition-timing: ease;
 @mixin variant-link-primary {
   color: var(--link-fill-text, #fff);
   background-color: var(--link-fill);
-  transition: all $button-transition-duration $button-transition-timing;
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--link-fill-hover);
@@ -113,13 +111,13 @@ $button-transition-timing: ease;
 }
 
 @mixin variant-link-secondary {
-  color: var(--foreground-muted);
+  color: var(--color-text-muted);
   background-color: transparent;
-  border: 1px solid var(--card-border);
-  transition: all $button-transition-duration $button-transition-timing;
+  border: 1px solid var(--color-border);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
-    background-color: var(--background-secondary);
+    background-color: var(--color-surface-alt);
     border-color: var(--link-color);
   }
 
@@ -132,7 +130,7 @@ $button-transition-timing: ease;
   color: var(--link-color);
   background-color: transparent;
   border: 2px solid var(--link-color);
-  transition: all $button-transition-duration $button-transition-timing;
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--link-color-subtle);
@@ -144,9 +142,9 @@ $button-transition-timing: ease;
 }
 
 @mixin variant-link-ghost {
-  color: var(--foreground-muted);
+  color: var(--color-text-muted);
   background-color: transparent;
-  transition: all $button-transition-duration $button-transition-timing;
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     color: var(--nav-item-color-hover, var(--link-color));
@@ -174,11 +172,11 @@ $button-transition-timing: ease;
 @mixin variant-link-text {
   @include font-medium;
 
-  color: var(--link-primary, $primary-light);
+  color: var(--link-primary, var(--color-accent));
   background-color: transparent;
 
   &:not(.unstyled):hover {
-    color: var(--link-primary-hover, color.adjust($primary-light, $lightness: 10%));
+    color: var(--link-primary-hover, color.adjust(var(--color-accent), $lightness: 10%));
     text-decoration: underline;
   }
 }
@@ -186,12 +184,12 @@ $button-transition-timing: ease;
 @mixin variant-link-text-secondary {
   @include font-medium;
 
-  color: var(--link-secondary, $text-muted);
+  color: var(--link-secondary, var(--color-text-muted));
   background-color: transparent;
 
   &:not(.unstyled):hover {
-    color: var(--link-secondary-hover, $text-primary);
-    background-color: var(--color-surface-secondary);
+    color: var(--link-secondary-hover, var(--color-text));
+    background-color: var(--color-surface-alt);
   }
 }
 
@@ -209,7 +207,7 @@ $button-transition-timing: ease;
 @mixin variant-link-gradient {
   @include font-medium;
 
-  background: var(--gradient-text, $gradient-text);
+  background: var(--gradient-text, linear-gradient(135deg, #667eea, #764ba2));
   -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
@@ -259,16 +257,16 @@ $button-transition-timing: ease;
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
-  gap: $spacing-1;
+  gap: var(--space-1);
   align-items: center;
-  font-family: $font-family-base;
-  font-weight: 500;
+  font-family: var(--font-family-base, system-ui, sans-serif);
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
   cursor: pointer;
   outline: none;
   border: none;
-  border-radius: $radius-button;
-  transition: all $button-transition-duration $button-transition-timing;
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-normal) var(--ease-default);
 
   // Reduced motion support
   @media (prefers-reduced-motion: reduce) {
@@ -292,18 +290,18 @@ $button-transition-timing: ease;
   &.xs {
     @include text-xs;
 
-    padding: $spacing-xs $spacing-sm;
+    padding: var(--space-0-5) var(--space-2);
 
     .icon {
-      width: 12px;
-      height: 12px;
+      width: var(--space-3);
+      height: var(--space-3);
     }
   }
 
   &.sm {
     @include text-sm;
 
-    padding: $spacing-sm $spacing-md;
+    padding: var(--space-2) var(--space-4);
 
     .icon {
       width: var(--icon-size-sm);
@@ -314,7 +312,7 @@ $button-transition-timing: ease;
   &.md {
     @include text-base;
 
-    padding: $spacing-md $spacing-lg;
+    padding: var(--space-4) var(--space-6);
 
     .icon {
       width: var(--icon-size-md);
@@ -325,7 +323,7 @@ $button-transition-timing: ease;
   &.lg {
     @include text-lg;
 
-    padding: $spacing-lg $spacing-xl;
+    padding: var(--space-6) var(--space-8);
 
     .icon {
       width: var(--icon-size-lg);
@@ -336,11 +334,11 @@ $button-transition-timing: ease;
   &.xl {
     @include text-xl;
 
-    padding: $spacing-xl $spacing-10;
+    padding: var(--space-8) var(--space-10);
 
     .icon {
-      width: 28px;
-      height: 28px;
+      width: var(--space-7);
+      height: var(--space-7);
     }
   }
 
@@ -447,11 +445,11 @@ $button-transition-timing: ease;
   }
 
   .externalIcon {
-    margin-left: $spacing-1;
+    margin-left: var(--space-1);
     opacity: 0.7;
     transition:
-      opacity $button-transition-duration $button-transition-timing,
-      transform $button-transition-duration $button-transition-timing;
+      opacity var(--duration-normal) var(--ease-default),
+      transform var(--duration-normal) var(--ease-default);
 
     &:hover {
       opacity: 1;
@@ -489,13 +487,13 @@ $button-transition-timing: ease;
   &:focus-visible {
     outline: var(--link-focus-outline);
     outline-offset: $link-focus-offset;
-    border-radius: $border-radius-sm;
+    border-radius: var(--radius-sm);
   }
 
   // Disabled
   &[aria-disabled='true'],
   &.disabled {
-    color: var(--color-text-quaternary);
+    color: var(--color-text-muted);
     pointer-events: none;
     cursor: not-allowed;
     background-color: var(--color-surface-disabled);
@@ -523,7 +521,7 @@ $button-transition-timing: ease;
       min-width: 80px;
       height: 1em;
       vertical-align: middle;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
     }
   }
 }

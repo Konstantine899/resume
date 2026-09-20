@@ -3,46 +3,16 @@
 @use '@/shared/ui/Card/model/card-mixins' as *;
 @use '@/shared/styles/mixins/code' as *;
 
-// Card-specific constants (extracted from magic numbers)
-$card-min-height: 280px;
-$card-border-radius: 0.75rem;
-$card-padding-base: 1.5rem;
-$card-padding-lg: 2rem;
-$card-title-font-size-base: 1.75rem;
-$card-description-font-size: 1rem;
-$card-tech-icon-size: 24px;
-$card-link-font-size: 0.9rem;
-$contact-padding-base: 1.5rem;
-$contact-padding-lg: 2rem;
-$contact-border-width: 4px;
-$contact-border-radius: 1.5rem;
-$contact-icon-size-base: 2.5rem;
-$contact-icon-size-lg: 3rem;
-$contact-title-font-size-base: 1.25rem;
-$contact-title-font-size-lg: 1.5rem;
-$contact-p-font-size-base: 0.875rem;
-$contact-p-font-size-lg: 1rem;
-$contact-p-max-width: 20rem;
-$work-history-border-left-width: 4px;
-$work-history-border-radius: $radius-xl;
-$work-history-padding-base: $spacing-3;
-$work-history-padding-sm: $spacing-4;
-$work-history-padding-md: $spacing-6;
-$card-hover-lift: 2px;
-$card-transition: $transition-duration;
-$card-accent-border: var(--primary);
-$card-hover-scale: 1.01;
-
 .card {
   @include card-gradient;
 
   position: relative;
   width: 100%;
-  color: var(--text-primary);
+  color: var(--color-text);
   transition:
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast),
-    border-color var(--transition-fast);
+    transform var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default);
 
   &:hover {
     box-shadow: var(--shadow-lg);
@@ -90,45 +60,45 @@ $card-hover-scale: 1.01;
     }
 
     .iconWrapper {
-      margin-bottom: $spacing-md;
+      margin-bottom: var(--space-4);
     }
 
     .title {
-      margin-bottom: $spacing-md;
+      margin-bottom: var(--space-4);
     }
   }
 
   // Size модификаторы
   &.compact {
-    padding: $spacing-sm;
+    padding: var(--space-2);
   }
 
   &.default {
-    padding: $spacing-md;
+    padding: var(--space-4);
   }
 
   &.large {
-    padding: $spacing-xl;
+    padding: var(--space-8);
 
     @include sm {
-      padding: $spacing-1;
+      padding: var(--space-4);
     }
   }
 
   // Radius модификаторы
   &.rounded {
-    border-radius: $border-radius-md;
+    border-radius: var(--radius-md);
   }
 
   &.roundedXl {
-    border-radius: $radius-xl;
+    border-radius: var(--radius-xl);
   }
 
   &.rounded2xl {
-    border-radius: $border-radius-lg;
+    border-radius: var(--radius-lg);
 
     @include sm {
-      border-radius: $radius-xl;
+      border-radius: var(--radius-xl);
     }
   }
 
@@ -141,7 +111,7 @@ $card-hover-scale: 1.01;
   // noHover модификатор
   &.noHover {
     &:hover {
-      border-color: var(--card-border);
+      border-color: var(--color-border);
       box-shadow: none;
       transform: none;
     }
@@ -151,31 +121,31 @@ $card-hover-scale: 1.01;
   &.codeBlock {
     @include code-block;
 
-    padding: $spacing-lg;
+    padding: var(--space-6);
     font-family: 'Fira Code', monospace;
   }
 
   // contact variant
   &.contact {
-    padding: $contact-padding-base;
+    padding: var(--space-6);
     overflow: hidden;
-    background-color: var(--color-surface-dark-elevated);
-    border: $contact-border-width solid var(--color-accent-border);
-    border-radius: $contact-border-radius;
+    background-color: var(--color-surface-alt);
+    border: var(--space-1) solid var(--color-accent);
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(4px);
     transition:
-      background-color 0.4s,
-      border-color 0.4s,
-      color 0.4s,
-      box-shadow 0.4s;
+      background-color var(--duration-slow) var(--ease-default),
+      border-color var(--duration-slow) var(--ease-default),
+      color var(--duration-slow) var(--ease-default),
+      box-shadow var(--duration-slow) var(--ease-default);
 
     @media (prefers-reduced-motion: reduce) {
       transition: none;
     }
 
     @include lg {
-      padding: $contact-padding-lg;
+      padding: var(--space-8);
     }
 
     .centeredContent {
@@ -193,8 +163,8 @@ $card-hover-scale: 1.01;
       margin: 0 auto 1rem;
       background: linear-gradient(
         135deg,
-        var(--color-text-on-dark-muted) 0%,
-        var(--color-text-on-dark-tertiary) 100%
+        var(--color-text-muted) 0%,
+        var(--color-text-tertiary) 100%
       );
       border-radius: 50%;
 
@@ -205,37 +175,37 @@ $card-hover-scale: 1.01;
 
       svg,
       .icon {
-        width: $contact-icon-size-base;
-        height: $contact-icon-size-base;
-        color: var(--color-text-on-dark);
+        width: var(--space-10);
+        height: var(--space-10);
+        color: var(--color-text);
 
         @include lg {
-          width: $contact-icon-size-lg;
-          height: $contact-icon-size-lg;
+          width: var(--space-12);
+          height: var(--space-12);
         }
       }
     }
 
     .title {
-      margin-bottom: 0.5rem;
-      font-size: $contact-title-font-size-base;
-      font-weight: 700;
-      color: var(--color-text-on-dark);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
 
       @include lg {
-        font-size: $contact-title-font-size-lg;
+        font-size: var(--text-2xl);
       }
     }
 
     p {
-      max-width: $contact-p-max-width;
-      font-size: $contact-p-font-size-base;
-      line-height: 1.5;
-      color: var(--color-text-on-dark-muted);
+      max-width: 20rem;
+      font-size: var(--text-sm);
+      line-height: var(--leading-normal);
+      color: var(--color-text-secondary);
       text-align: center;
 
       @include lg {
-        font-size: $contact-p-font-size-lg;
+        font-size: var(--text-lg);
       }
     }
   }
@@ -243,24 +213,24 @@ $card-hover-scale: 1.01;
   // workHistory variant
   &.workHistory {
     position: relative;
-    padding: $spacing-3;
-    background-color: var(--color-surface-dark);
-    border-left: 4px solid var(--primary);
-    border-radius: $radius-xl;
+    padding: var(--space-3);
+    background-color: var(--color-surface);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-xl);
     backdrop-filter: blur(4px);
-    transition: background-color 0.5s ease;
+    transition: background-color var(--duration-slow) var(--ease-default);
 
     @include sm {
-      padding: $spacing-4;
+      padding: var(--space-4);
     }
 
     @include md {
-      padding: $spacing-6;
+      padding: var(--space-6);
     }
 
     // Light theme override
     [data-theme='light'] & {
-      background-color: var(--color-surface-primary);
+      background-color: var(--color-surface);
     }
 
     .workHistoryContent {
@@ -271,10 +241,10 @@ $card-hover-scale: 1.01;
     .header {
       display: flex;
       flex-wrap: wrap;
-      gap: $spacing-4;
+      gap: var(--space-4);
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: $spacing-3;
+      margin-bottom: var(--space-3);
 
       @include sm {
         align-items: center;
@@ -284,51 +254,51 @@ $card-hover-scale: 1.01;
     .titleSection {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: var(--space-1);
     }
 
     .title {
       margin: 0;
-      font-size: $font-size-sm;
-      font-weight: 600;
-      color: var(--primary);
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-accent);
 
       @include sm {
-        font-size: $font-size-base;
+        font-size: var(--text-lg);
       }
 
       @include md {
-        font-size: $font-size-lg;
+        font-size: var(--text-xl);
       }
 
       @include lg {
-        font-size: $font-size-xl;
+        font-size: var(--text-2xl);
       }
     }
 
     .company {
       margin: 0;
-      font-size: $font-size-sm;
-      font-weight: 500;
-      color: var(--primary);
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-accent);
       white-space: nowrap;
 
       @include sm {
-        font-size: $font-size-base;
+        font-size: var(--text-lg);
       }
     }
 
     .periodSection {
       display: flex;
-      gap: $spacing-2;
+      gap: var(--space-2);
       align-items: center;
-      margin-bottom: $spacing-2;
-      font-size: $font-size-xs;
-      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
 
       @include sm {
-        margin-bottom: $spacing-3;
-        font-size: $font-size-sm;
+        margin-bottom: var(--space-3);
+        font-size: var(--text-sm);
       }
     }
 
@@ -340,25 +310,25 @@ $card-hover-scale: 1.01;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: $spacing-1 $spacing-2;
-      font-size: $font-size-xs;
-      font-weight: 600;
-      color: var(--primary);
-      background: var(--color-accent-tint-20);
-      border: 1px solid var(--primary);
-      border-radius: $radius-full;
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-accent);
+      background: var(--color-accent-muted);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-full);
     }
 
     .location {
       display: flex;
-      gap: $spacing-2;
+      gap: var(--space-2);
       align-items: center;
-      margin-bottom: $spacing-3;
-      font-size: $font-size-xs;
-      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-3);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
 
       @include sm {
-        font-size: $font-size-sm;
+        font-size: var(--text-sm);
       }
 
       .locationIcon {
@@ -367,49 +337,49 @@ $card-hover-scale: 1.01;
     }
 
     .achievements {
-      padding-left: $spacing-4;
+      padding-left: var(--space-4);
       margin: 0;
-      font-size: $font-size-xs;
-      line-height: $line-height-base;
+      font-size: var(--text-xs);
+      line-height: var(--leading-normal);
       color: var(--color-text-secondary);
 
       @include sm {
-        font-size: $font-size-sm;
+        font-size: var(--text-sm);
       }
 
       @include md {
-        font-size: $font-size-base;
+        font-size: var(--text-lg);
       }
 
       li {
-        margin-bottom: $spacing-2;
+        margin-bottom: var(--space-2);
       }
     }
 
     .techStack {
       display: flex;
       flex-wrap: wrap;
-      gap: $spacing-2;
-      padding-top: $spacing-3;
-      margin-top: $spacing-3;
-      border-top: 1px solid var(--color-text-on-dark-tertiary);
+      gap: var(--space-2);
+      padding-top: var(--space-3);
+      margin-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
     }
 
     .techBadge {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: $spacing-1 $spacing-3;
-      font-size: $font-size-xs;
-      font-weight: 500;
-      color: var(--primary);
-      background: var(--color-accent-tint-10);
-      border: 1px solid var(--color-accent-tint-30);
-      border-radius: $radius-full;
-      transition: all $transition-duration $transition-easing;
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-accent);
+      background: var(--color-accent-muted);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-full);
+      transition: all var(--duration-normal) var(--ease-default);
 
       &:hover {
-        background: var(--color-accent-tint-20);
+        background: var(--color-accent-muted);
         transform: translateY(-2px);
       }
     }
@@ -417,15 +387,11 @@ $card-hover-scale: 1.01;
 
   // project variant
   &.project {
-    min-height: $card-min-height;
+    min-height: 280px;
     overflow: hidden;
-    background: linear-gradient(
-      135deg,
-      var(--color-surface-dark) 0%,
-      var(--color-surface-dark-elevated) 100%
-    );
-    border: 1px solid var(--color-text-on-dark-tertiary);
-    border-radius: $card-border-radius;
+    background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
 
     .backgroundImage {
       position: absolute;
@@ -443,73 +409,73 @@ $card-hover-scale: 1.01;
       inset: 0;
       background: linear-gradient(
         90deg,
-        rgb(45 45 45 / 0.95) 0%,
-        rgb(45 45 45 / 0.85) 50%,
-        rgb(45 45 45 / 0.6) 100%
+        var(--color-surface-elevated) 0%,
+        var(--color-surface-alt) 50%,
+        transparent 100%
       );
     }
 
     .content {
       position: relative;
       z-index: 1;
-      padding: $card-padding-base;
+      padding: var(--space-6);
 
       @include lg {
-        padding: $card-padding-lg;
+        padding: var(--space-8);
       }
     }
 
     .title {
-      margin-bottom: 1rem;
-      font-size: $card-title-font-size-base;
-      font-weight: 700;
-      color: var(--color-text-on-dark);
+      margin-bottom: var(--space-4);
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text);
     }
 
     .description {
-      margin-bottom: 1.5rem;
-      font-size: $card-description-font-size;
-      line-height: 1.6;
-      color: var(--color-text-on-dark-secondary);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-lg);
+      line-height: var(--leading-relaxed);
+      color: var(--color-text-secondary);
     }
 
     .techSection {
-      margin-bottom: 1.5rem;
+      margin-bottom: var(--space-6);
     }
 
     .techLabel {
       display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: var(--color-text-on-dark-tertiary);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
     }
 
     .techIcons {
       display: flex;
-      gap: 0.5rem;
+      gap: var(--space-2);
       align-items: center;
     }
 
     .techIcon {
-      width: $card-tech-icon-size;
-      height: $card-tech-icon-size;
+      width: var(--space-6);
+      height: var(--space-6);
       object-fit: contain;
     }
 
     .linkSection {
       display: flex;
-      gap: 0.5rem;
+      gap: var(--space-2);
       align-items: center;
     }
 
     .linkLabel {
-      font-size: $card-link-font-size;
-      color: var(--color-text-on-dark-tertiary);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
     }
 
     .link {
-      font-size: $card-link-font-size;
-      color: var(--color-link-accent);
+      font-size: var(--text-sm);
+      color: var(--color-accent);
       text-decoration: none;
 
       &:hover {
@@ -521,7 +487,7 @@ $card-hover-scale: 1.01;
 
 // Card parts
 .cardHeader {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 
   &:last-child {
     margin-bottom: 0;
@@ -529,9 +495,9 @@ $card-hover-scale: 1.01;
 }
 
 .cardFooter {
-  padding-top: 1rem;
-  margin-top: 1rem;
-  border-top: 1px solid var(--color-border-primary);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
 
   &:first-child {
     padding-top: 0;
@@ -543,8 +509,8 @@ $card-hover-scale: 1.01;
 .cardImage {
   width: 100%;
   height: auto;
-  margin-bottom: 1rem;
-  border-radius: 0.375rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
 
   &:last-child {
     margin-bottom: 0;

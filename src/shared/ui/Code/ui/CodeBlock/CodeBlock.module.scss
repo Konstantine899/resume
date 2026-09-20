@@ -3,8 +3,8 @@
 
 // stylelint-disable selector-pseudo-class-no-unknown
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: var(--space-1-5);
+  height: var(--space-1-5);
 }
 
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar-track {
@@ -12,17 +12,17 @@
 }
 
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar-thumb {
-  background: var(--primary-dark);
-  border-radius: 3px;
+  background: var(--color-accent-hover);
+  border-radius: var(--radius-full);
 }
 
 :global([class*='CodeBlock_module__blockContent'])::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
+  background: var(--color-accent-hover);
   opacity: 0.7;
 }
 
 :global([class*='CodeBlock_module__blockContent']) {
-  scrollbar-color: var(--primary-dark) transparent;
+  scrollbar-color: var(--color-accent-hover) transparent;
   scrollbar-width: thin;
 }
 
@@ -30,14 +30,10 @@
   width: 80%;
   max-width: 100%;
   overflow: hidden;
-  background: var(--code-bg);
-  border: 1px solid var(--color-accent-tint-20);
-  border-radius: $border-radius-lg;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
   backdrop-filter: blur(8px);
-
-  [data-theme='light'] & {
-    background: #fafafa;
-  }
 
   @include sm {
     width: 100%;
@@ -62,24 +58,24 @@
   pre {
     width: fit-content;
     min-width: 100%;
-    padding: $spacing-lg;
+    padding: var(--space-6);
     margin: 0;
     font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.625rem;
-    line-height: 1.6;
-    color: var(--color-text-primary);
+    font-size: var(--text-xs);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text);
     white-space: pre;
 
     @include xs {
-      font-size: 0.75rem;
+      font-size: var(--text-sm);
     }
 
     @include sm {
-      font-size: 0.875rem;
+      font-size: var(--text-base);
     }
 
     @include md {
-      font-size: 1rem;
+      font-size: var(--text-lg);
     }
 
     // Код внутри pre
@@ -101,20 +97,20 @@
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
-  padding: $spacing-4 $spacing-4 $spacing-4 0;
+  padding: var(--space-4) var(--space-4) var(--space-4) 0;
   font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  font-size: $font-size-sm;
-  line-height: 1.6;
-  color: var(--color-text-quaternary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
   text-align: right;
   user-select: none;
-  background: var(--color-surface-dark-elevated);
-  border-right: 1px solid var(--color-accent-tint-10);
+  background: var(--color-surface-alt);
+  border-right: 1px solid var(--color-border-subtle);
 }
 
 .lineNumber {
-  min-width: 40px;
-  padding: 0 $spacing-2;
+  min-width: var(--space-10);
+  padding: 0 var(--space-2);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -132,26 +128,22 @@
 // --------------------------------------------
 :global {
   .keyword {
-    color: var(--color-text-quaternary);
+    color: var(--color-text-muted);
   }
 
   .string {
-    color: var(--primary);
-
-    [data-theme='light'] & {
-      color: #3f84f6;
-    }
+    color: var(--color-accent);
   }
 
   .number {
-    color: var(--accent);
+    color: var(--color-accent-muted);
   }
 
   .punctuation {
-    color: var(--color-text-primary);
+    color: var(--color-text);
   }
 
   .property {
-    color: var(--color-text-quaternary);
+    color: var(--color-text-muted);
   }
 }
