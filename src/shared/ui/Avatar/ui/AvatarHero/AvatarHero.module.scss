@@ -1,224 +1,116 @@
 @use '@/shared/styles/variables' as *;
-@use '@/shared/styles/mixins' as *;
-@use '../../model/avatar-mixins' as *;
-@use '@/shared/styles/mixins/theme' as *;
-
-// ============================================
-
-// Variables (component-specific only)
-
-// ============================================
-
-$avatar-hero-zoom-scale: 1.12;
-
-// ============================================
-
-// Styles
-
-// ============================================
+@use '@/shared/styles/mixins/responsive' as *;
+@use '@/shared/ui/Avatar/model/avatar-mixins' as *;
 
 .avatarHero {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  @include theme-transition;
-
   // Sizes
   &.sm {
-    --hero-size: var(--avatar-size-hero-sm);
+    width: var(--avatar-size-hero-sm);
+    height: var(--avatar-size-hero-sm);
 
-    width: var(--hero-size);
-    height: var(--hero-size);
-    padding: var(--space-2);
-
-    .photoInner,
-    .initialInner {
-      width: 100%;
-      height: 100%;
+    .photo-circle {
+      padding: 2px;
     }
 
     .initial {
-      font-size: var(--text-4xl);
+      font-size: 2.5rem;
 
       @include avatar-initial;
     }
   }
 
   &.md {
-    --hero-size: var(--avatar-size-hero-md);
+    width: var(--avatar-size-hero-md);
+    height: var(--avatar-size-hero-md);
 
-    width: var(--hero-size);
-    height: var(--hero-size);
-    padding: var(--space-2);
-
-    .photoInner,
-    .initialInner {
-      width: 100%;
-      height: 100%;
+    .photo-circle {
+      padding: 4px;
     }
 
     .initial {
-      font-size: var(--text-5xl);
+      font-size: 4rem;
 
       @include avatar-initial;
     }
   }
 
   &.lg {
-    --hero-size: var(--avatar-size-hero-lg);
+    width: var(--avatar-size-hero-lg);
+    height: var(--avatar-size-hero-lg);
 
-    width: var(--hero-size);
-    height: var(--hero-size);
-    padding: var(--space-3);
-
-    .photoInner,
-    .initialInner {
-      width: 100%;
-      height: 100%;
+    .photo-circle {
+      padding: 6px;
     }
 
     .initial {
-      font-size: var(--text-6xl);
+      font-size: 6rem;
 
       @include avatar-initial;
     }
   }
 
   &.xl {
-    --hero-size: 22rem;
+    width: var(--avatar-size-hero-lg);
+    height: var(--avatar-size-hero-lg);
 
-    width: var(--hero-size);
-    height: var(--hero-size);
-    padding: var(--space-4);
-
-    .photoInner,
-    .initialInner {
-      width: 100%;
-      height: 100%;
+    .photo-circle {
+      padding: 6px;
     }
 
     .initial {
-      font-size: 100px;
+      font-size: 6rem;
 
       @include avatar-initial;
     }
   }
 
-  &.xxl {
-    --hero-size: 28rem;
+  // Effects
+  .photo-glow {
+    @include avatar-glow;
+  }
 
-    width: var(--hero-size);
-    height: var(--hero-size);
-    padding: var(--space-5);
+  .photo-ring {
+    @include avatar-ring;
+  }
 
-    .photoInner,
-    .initialInner {
+  .photo-circle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-2);
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    box-shadow: var(--shadow-xl);
+
+    [data-theme='light'] & {
+      background: #3f84f6;
+    }
+
+    // Внутренний контейнер для контента
+    .photo-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      background: var(--avatar-bg);
+      border-radius: 50%;
+
+      [data-theme='light'] & {
+        background: var(--avatar-light-bg);
+      }
+
+      .initial {
+        @include avatar-initial;
+      }
     }
-
-    .initial {
-      font-size: 100px;
-
-      @include avatar-initial;
-    }
-  }
-}
-
-// Glow effect
-.photoGlow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: var(--gradient-primary);
-  border-radius: 50%;
-  opacity: 0.3;
-  filter: blur(40px);
-}
-
-// Ring effect
-.photoRing {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border: 2px solid rgb(244 179 119 / 0.2);
-  border-radius: 50%;
-  transform: scale(1.1);
-
-  [data-theme='light'] & {
-    border-color: rgb(63 132 246 / 0.2);
-  }
-}
-
-// Photo circle wrapper
-.photoCircle {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: var(--shadow-xl);
-}
-
-// Photo inner container
-.photoInner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--avatar-bg);
-  border-radius: inherit;
-  box-shadow: var(--shadow-xl);
-  transition: background var(--transition-duration) var(--transition-easing);
-
-  .photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    transform: scale($avatar-hero-zoom-scale);
   }
 
-  &:hover .photo {
-    transform: scale(calc(#{$avatar-hero-zoom-scale} * 1.05));
-  }
+  @include avatar-reduced-motion;
 }
-
-// Fallback / initials
-.initialInner {
-  @include avatar-inner;
-
-  overflow: hidden;
-  background: var(--avatar-bg);
-
-  .initial {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-  }
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.initial {
-  color: var(--color-text-inverse);
-
-  @include avatar-initial;
-}
-
-// ============================================
-
-// Accessibility: Reduced Motion
-
-// ============================================
-
-@include avatar-reduced-motion;
