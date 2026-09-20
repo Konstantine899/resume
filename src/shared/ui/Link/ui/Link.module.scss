@@ -13,25 +13,26 @@ $link-active-scale: 0.98;
 
 // ============================================
 
-// Color Scheme CSS Variables — Neutral (light theme)
+// Color Scheme CSS Variables — adaptive per theme
 
 // ============================================
 
 @mixin link-color-scheme-variables {
-  --link-fill: var(--color-text-primary);
-  --link-fill-hover: var(--color-text-secondary);
+  // Dark theme: warm accent tones (default)
+  --link-fill: var(--color-accent);
+  --link-fill-hover: var(--color-accent-hover);
   --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--color-text-primary);
-  --link-color-subtle: var(--color-surface-alt);
+  --link-color: var(--color-accent);
+  --link-color-subtle: var(--color-accent-light);
   --link-focus-outline: var(--shadow-focus);
 }
 
 @mixin link-color-scheme-brand {
-  --link-fill: var(--color-text-primary);
-  --link-fill-hover: var(--color-text-secondary);
+  --link-fill: var(--color-accent);
+  --link-fill-hover: var(--color-accent-hover);
   --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--color-text-primary);
-  --link-color-subtle: var(--color-surface-alt);
+  --link-color: var(--color-accent);
+  --link-color-subtle: var(--color-accent-light);
   --link-focus-outline: var(--shadow-focus);
 }
 
@@ -156,11 +157,11 @@ $link-active-scale: 0.98;
 @mixin variant-link-text {
   @include font-medium;
 
-  color: var(--color-text-primary);
+  color: var(--link-color, var(--color-text-primary));
   background-color: transparent;
 
   &:not(.unstyled):hover {
-    color: var(--color-text-secondary);
+    color: var(--link-fill-hover, var(--color-accent-hover));
     text-decoration: underline;
   }
 }
@@ -168,11 +169,11 @@ $link-active-scale: 0.98;
 @mixin variant-link-text-secondary {
   @include font-medium;
 
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   background-color: transparent;
 
   &:not(.unstyled):hover {
-    color: var(--color-text-primary);
+    color: var(--link-color, var(--color-text-primary));
     background-color: var(--color-surface-alt);
   }
 }
@@ -504,11 +505,18 @@ $link-active-scale: 0.98;
 
 // ============================================
 
-// Theme overrides
+// Theme overrides — neutral for light theme only
 
 // ============================================
 
 [data-theme='light'] .link {
+  // Neutral color scheme for light theme
+  --link-fill: var(--color-text-primary);
+  --link-fill-hover: var(--color-text-secondary);
+  --link-fill-text: var(--color-text-inverse);
+  --link-color: var(--color-text-primary);
+  --link-color-subtle: var(--color-surface-alt);
+
   &:focus-visible {
     outline-color: var(--shadow-focus);
   }
