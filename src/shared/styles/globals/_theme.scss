@@ -280,7 +280,6 @@
   --success: var(--color-success);
   --danger: var(--color-error);
   --warning: var(--color-warning);
-  --code-bg: rgb(41 39 38 / 0.95);
 
   // Skeleton colors
   --skeleton-base: rgb(200 200 200 / 0.3);
@@ -326,6 +325,7 @@
   --divider-line-thickness: 1px;
 
   // Code tokens
+  --code-bg: var(--color-surface-primary);
   --code-max-height: 310px;
 
   // Icon tokens
@@ -482,6 +482,9 @@
   // Tooltip tokens for dark theme
   --tooltip-bg: #1f2937;
   --tooltip-text: #f3f4f6;
+
+  // Code tokens for dark theme
+  --code-bg: rgb(41 39 38 / 0.95);
 }
 
 [data-theme='light'] {
