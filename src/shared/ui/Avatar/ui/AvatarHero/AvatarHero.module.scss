@@ -17,7 +17,7 @@ $avatar-hero-zoom-scale: 1.12;
 
 // ============================================
 
-.hero {
+.avatarHero {
   position: relative;
   display: flex;
   align-items: center;
@@ -125,30 +125,55 @@ $avatar-hero-zoom-scale: 1.12;
       @include avatar-initial;
     }
   }
+}
 
-  // Circle — фон и тень для дефолтного состояния
-  &.circle {
-    background: var(--gradient-primary);
+// Glow effect
+.photoGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(40px);
+}
 
-    &.noPhoto {
-      background: var(--gradient-primary);
-      box-shadow: none;
-    }
+// Ring effect
+.photoRing {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px solid rgb(244 179 119 / 0.2);
+  border-radius: 50%;
+  transform: scale(1.1);
+
+  [data-theme='light'] & {
+    border-color: rgb(63 132 246 / 0.2);
   }
+}
 
-  // Фото и обводка
-  .photoInner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--avatar-bg);
-    border-radius: inherit;
-    box-shadow: var(--shadow-xl);
-    transition: background var(--transition-duration) var(--transition-easing);
-  }
+// Photo circle wrapper
+.photoCircle {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: var(--shadow-xl);
+}
+
+// Photo inner container
+.photoInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--avatar-bg);
+  border-radius: inherit;
+  box-shadow: var(--shadow-xl);
+  transition: background var(--transition-duration) var(--transition-easing);
 
   .photo {
     display: block;
@@ -159,59 +184,41 @@ $avatar-hero-zoom-scale: 1.12;
     transform: scale($avatar-hero-zoom-scale);
   }
 
-  &.noPhoto {
-    background: var(--avatar-bg);
-    box-shadow: none;
-  }
-
-  // Квадратные варианты
-  &.square {
-    border-radius: var(--radius-lg);
-  }
-
-  // ============================================
-
-  // Hover/Touch: zoom
-
-  // ============================================
-
-  &:hover {
-    .photo {
-      transform: scale(calc(#{$avatar-hero-zoom-scale} * 1.05));
-    }
-
-    .initialInner {
-      transform: scale(1.05);
-    }
-  }
-
-  // ============================================
-
-  // Accessibility: Reduced Motion
-
-  // ============================================
-
-  @include avatar-reduced-motion;
-
-  // Initials
-  .initial {
-    color: var(--color-text-inverse);
-
-    @include avatar-initial;
-  }
-
-  .initialInner {
-    @include avatar-inner;
-
-    overflow: hidden;
-    background: var(--avatar-bg);
-
-    .initial {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-    }
+  &:hover .photo {
+    transform: scale(calc(#{$avatar-hero-zoom-scale} * 1.05));
   }
 }
+
+// Fallback / initials
+.initialInner {
+  @include avatar-inner;
+
+  overflow: hidden;
+  background: var(--avatar-bg);
+
+  .initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.initial {
+  color: var(--color-text-inverse);
+
+  @include avatar-initial;
+}
+
+// ============================================
+
+// Accessibility: Reduced Motion
+
+// ============================================
+
+@include avatar-reduced-motion;
