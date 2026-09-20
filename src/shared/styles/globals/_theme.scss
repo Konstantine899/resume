@@ -20,11 +20,18 @@
   --color-surface-tertiary: #f9fafb;
   --color-surface-active: #d4d4d4;
   --color-surface-disabled: #f0f0f0;
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-primary);
 
   // Border
+
   --color-border-primary: #e5e7eb;
   --color-border-focus: #3b82f6;
   --color-border-divider: #f3f4f6;
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
 
   // Text / Foreground
 
@@ -33,16 +40,29 @@
   --color-text-tertiary: #6b7280;
   --color-text-quaternary: #9ca3af;
   --color-text-inverse: #fff;
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
 
   // Brand / Accent
+
   --color-accent: #3b82f6;
   --color-accent-hover: #2563eb;
   --color-accent-light: #eff6ff;
+  --color-accent-muted: rgb(59 130 246 / 0.5);
 
   // Semantic / Status
+
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-success-muted: rgb(16 185 129 / 0.5);
+  --color-error-muted: rgb(239 68 68 / 0.5);
+  --color-success-hover: #059669;
+  --color-error-hover: #dc2626;
+  --color-warning-hover: #d97706;
+  --color-focus-ring: var(--color-accent);
+  --color-skeleton: var(--color-surface-secondary);
 
   // Overlay / Shadow Colors
 
@@ -98,15 +118,25 @@
 
   // Spacing CSS vars (for runtime use alongside SCSS vars)
   --space-0: 0;
+  --space-0-5: 2px;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 28px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
+  --space-14: 56px;
   --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-48: 192px;
+  --space-64: 256px;
 
   // Typography scale (font-size tokens)
   --text-xs: 0.75rem; // 12px
@@ -124,10 +154,13 @@
   --text-9xl: 7.5rem; // 120px
 
   // Radius CSS vars
+  --radius: 4px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
   --radius-full: 9999px;
 
   // Shadow tokens
@@ -145,10 +178,40 @@
   --transition-base: 200ms ease;
   --transition-slow: 300ms ease;
 
+  // Duration / easing (used by components)
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --ease-default: ease;
+  --ease-out: ease-out;
+
+  // Font weight tokens
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // Font family
+  --font-family-base: 'Inter', -apple-system, blinkmacsystemfont, sans-serif;
+
+  // Line height tokens
+  --leading-normal: 1.5;
+  --leading-snug: 1.375;
+  --leading-relaxed: 1.625;
+  --line-height-normal: 1.5;
+  --line-height-snug: 1.375;
+
+  // Letter spacing
+  --tracking-wide: 0.05em;
+
   // Z-index tokens
   --z-sidebar: 9999;
   --z-index-sidebar: 9999;
   --z-modal: 10000;
+  --z-overlay: 1000;
+  --z-tooltip: 11000;
+  --z-toast: 12000;
+  --z-popover: 10500;
 
   // ==========================================
 
@@ -249,6 +312,38 @@
   --gradient-primary: linear-gradient(135deg, #d9d9d9 0%, #a6a6a6 50%, #666 100%);
   --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
 
+  // Spinner tokens
+  --spinner-track: var(--color-border-divider);
+  --spinner-thickness: 3px;
+  --spinner-speed: 0.8s;
+
+  // Scrollbar tokens
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--color-accent-hover);
+  --scrollbar-thumb-hover: var(--color-accent);
+
+  // Divider tokens
+  --divider-line-thickness: 1px;
+
+  // Code tokens
+  --code-max-height: 310px;
+
+  // Icon tokens
+  --icon-size-xs: 12px;
+  --icon-size-xl: 32px;
+  --icon-size-2xl: 40px;
+  --icon-size-3xl: 48px;
+  --icon-padding-xs: 2px;
+  --icon-padding-sm: 4px;
+  --icon-padding-md: 6px;
+  --icon-padding-lg: 8px;
+  --icon-padding-xl: 12px;
+
+  // Avatar ring tokens
+  --double-ring-thickness: 3px;
+  --double-ring-speed-inner: 8s;
+  --double-ring-speed-outer: 12s;
+
   // Skill category colors
   --skill-color-frontend: #61dafb;
   --skill-color-backend: #4caf50;
@@ -316,6 +411,25 @@
   // Overlay for dark theme
   --color-overlay: rgb(0 0 0 / 0.7);
   --color-overlay-heavy: rgb(0 0 0 / 0.85);
+
+  // Surface aliases for dark theme
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-tertiary);
+  --color-skeleton: var(--color-surface-secondary);
+
+  // Border aliases for dark theme
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
+
+  // Text aliases for dark theme
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  // Accent variants for dark theme
+  --color-accent-muted: rgb(244 179 119 / 0.5);
+  --color-focus-ring: var(--color-accent);
 
   // Sidebar tokens for dark theme
   --nav-item-color-hover: var(--color-text-primary);
@@ -420,6 +534,25 @@
   // Overlay for light theme
   --color-overlay: rgb(0 0 0 / 0.6);
   --color-overlay-heavy: rgb(0 0 0 / 0.8);
+
+  // Surface aliases for light theme
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-primary);
+  --color-skeleton: var(--color-surface-secondary);
+
+  // Border aliases for light theme
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
+
+  // Text aliases for light theme
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  // Accent variants for light theme
+  --color-accent-muted: rgb(59 130 246 / 0.5);
+  --color-focus-ring: var(--color-accent);
 
   // Backward-compatible aliases
   --background: #f5f3f0;
