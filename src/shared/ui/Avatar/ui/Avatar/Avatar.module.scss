@@ -4,8 +4,8 @@
 
 // Mixin для hero-style initial text
 @mixin hero-initial {
-  font-weight: 700;
-  color: var(--avatar-initial-color, #f4b377);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
 }
 
 .avatar {
@@ -14,45 +14,45 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  transition: all $transition-duration $transition-easing;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &.circle {
-    border-radius: $radius-full;
+    border-radius: var(--radius-full);
   }
 
   &.square {
-    border-radius: $border-radius-lg;
+    border-radius: var(--radius-lg);
   }
 
   // Hero-like styles (base)
   &.heroStyle {
-    padding: $spacing-sm;
+    padding: var(--space-2);
     background: var(--gradient-primary);
     border-radius: var(--radius-full);
-    box-shadow: $shadow-xl;
+    box-shadow: var(--shadow-xl);
 
     .image,
     .fallback {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--avatar-bg);
+      background: var(--color-surface);
       border-radius: 50%;
     }
   }
 
   // Sizes
   &.sm {
-    width: var(--avatar-size-hero-sm);
-    height: var(--avatar-size-hero-sm);
+    width: var(--space-10);
+    height: var(--space-10);
 
     &.heroStyle {
       padding: 2px;
 
       .initial {
-        font-size: 2.5rem;
+        font-size: var(--text-4xl);
 
         @include hero-initial;
       }
@@ -60,14 +60,14 @@
   }
 
   &.md {
-    width: var(--avatar-size-hero-md);
-    height: var(--avatar-size-hero-md);
+    width: var(--space-12);
+    height: var(--space-12);
 
     &.heroStyle {
-      padding: 4px;
+      padding: var(--space-1);
 
       .initial {
-        font-size: 4rem;
+        font-size: var(--text-5xl);
 
         @include hero-initial;
       }
@@ -75,14 +75,14 @@
   }
 
   &.lg {
-    width: var(--avatar-size-hero-lg);
-    height: var(--avatar-size-hero-lg);
+    width: var(--space-16);
+    height: var(--space-16);
 
     &.heroStyle {
-      padding: 6px;
+      padding: var(--space-1-5);
 
       .initial {
-        font-size: 6rem;
+        font-size: var(--text-6xl);
 
         @include hero-initial;
       }
@@ -90,14 +90,14 @@
   }
 
   &.xl {
-    width: var(--avatar-size-hero-lg);
-    height: var(--avatar-size-hero-lg);
+    width: var(--space-16);
+    height: var(--space-16);
 
     &.heroStyle {
-      padding: 6px;
+      padding: var(--space-1-5);
 
       .initial {
-        font-size: 6rem;
+        font-size: var(--text-6xl);
 
         @include hero-initial;
       }
@@ -126,13 +126,13 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    var(--primary) 0%,
-    var(--primary-dark) 50%,
-    var(--accent) 100%
+    var(--color-accent) 0%,
+    var(--color-accent-hover) 50%,
+    var(--color-accent-muted) 100%
   );
   border-radius: 50%;
   opacity: 0.3;
-  filter: blur(40px);
+  filter: blur(var(--space-10));
 
   @include pulse-glow;
 }
@@ -141,7 +141,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 2px solid var(--primary-light);
+  border: 2px solid var(--color-accent-muted);
   border-radius: 50%;
   opacity: 0.2;
   transform: scale(1.1);

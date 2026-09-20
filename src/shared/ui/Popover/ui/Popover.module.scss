@@ -1,23 +1,19 @@
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/variables/shadows' as *;
 @use '@/shared/styles/variables/z-index' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/spacing' as *;
 
 .popover {
   position: fixed;
   z-index: $z-popover;
   overflow: hidden;
   pointer-events: none;
-  background: var(--popover-bg, var(--card-bg));
-  border: 1px solid var(--popover-border, var(--card-border));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   opacity: 0;
   transform: scale(0.95);
   transition:
-    opacity var(--transition-fast),
-    transform var(--transition-fast);
+    opacity var(--duration-normal) var(--ease-default),
+    transform var(--duration-normal) var(--ease-default);
 
   &.visible {
     pointer-events: auto;
@@ -53,15 +49,15 @@
   }
 
   .title {
-    padding: $spacing-sm $spacing-md;
-    border-bottom: 1px solid var(--popover-border, var(--card-border));
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .content {
-    padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: var(--foreground);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text);
   }
 }
 
@@ -70,7 +66,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--tooltip-focus);
+    outline: 2px solid var(--color-focus-ring);
     outline-offset: 2px;
   }
 }
