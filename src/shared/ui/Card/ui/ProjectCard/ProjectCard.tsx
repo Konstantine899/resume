@@ -2,10 +2,10 @@
 // ProjectCard Component
 // ============================================
 
-import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Paragraph } from '@/shared/ui/Paragraph';
 import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import { memo } from 'react';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
 
@@ -80,7 +80,14 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             <Paragraph as="span" size="xs" theme="muted">
               {linkLabel}
             </Paragraph>
-            <Link href={link} external showExternalIcon={false} unstyled className={styles.link}>
+            <Link
+              href={link}
+              variant="primary"
+              external
+              showExternalIcon={false}
+              unstyled
+              className={styles.link}
+            >
               {link.replace(/^https?:\/\//, '')}
             </Link>
           </div>
