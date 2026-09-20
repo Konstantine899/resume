@@ -83,9 +83,9 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             <Link
               href={link}
               variant="primary"
+              size="sm"
               external
               showExternalIcon={false}
-              unstyled
               className={styles.link}
             >
               {link.replace(/^https?:\/\//, '')}
