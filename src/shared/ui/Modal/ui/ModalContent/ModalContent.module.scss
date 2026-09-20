@@ -4,18 +4,17 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/spacing' as *;
 @use '../../model/modal-constants' as *;
 
 .content {
   flex: 1;
-  padding: $spacing-xl;
+  padding: var(--space-8);
   overflow-y: auto;
 
   // --foreground is always defined in both themes — no fallback needed.
 
   // Modal body text should use the shared Paragraph component (see stories).
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 // When scroll="body" — parent modal container has data-scroll-body attribute

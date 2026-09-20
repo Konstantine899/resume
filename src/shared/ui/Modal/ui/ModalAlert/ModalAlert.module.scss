@@ -16,17 +16,17 @@
 
 .title {
   margin: 0 0 var(--space-2);
-  font-size: var(--font-size-lg, 18px);
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
   line-height: 1.4;
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 .message {
   margin: 0;
-  font-size: var(--font-size-sm, 14px);
+  font-size: var(--text-sm);
   line-height: 1.5;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .actions {
@@ -38,12 +38,12 @@
 
 .confirm {
   .icon {
-    color: var(--primary-color);
+    color: var(--color-accent);
   }
 }
 
 .destructive {
   .icon {
-    color: var(--error-color);
+    color: var(--color-error);
   }
 }

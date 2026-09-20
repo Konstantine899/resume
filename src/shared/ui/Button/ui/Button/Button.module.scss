@@ -57,28 +57,28 @@
   // ============================================
 
   &.xs {
-    padding: $spacing-xs $spacing-sm;
-    font-size: 0.75rem;
+    padding: var(--space-0-5) var(--space-2);
+    font-size: var(--text-sm);
   }
 
   &.sm {
-    padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
   }
 
   &.md {
-    padding: $spacing-md $spacing-lg;
-    font-size: 1rem;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-lg);
   }
 
   &.lg {
-    padding: $spacing-lg $spacing-xl;
-    font-size: 1.125rem;
+    padding: var(--space-6) var(--space-8);
+    font-size: var(--text-xl);
   }
 
   &.xl {
-    padding: $spacing-xl $spacing-10;
-    font-size: 1.25rem;
+    padding: var(--space-8) var(--space-10);
+    font-size: var(--text-2xl);
   }
 
   // ============================================

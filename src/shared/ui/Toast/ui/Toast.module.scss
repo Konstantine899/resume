@@ -4,12 +4,6 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/variables/z-index' as *;
 @use '@/shared/styles/mixins' as *;
 
 // ============================================
@@ -22,7 +16,7 @@
   top: var(--space-6);
   right: var(--space-6);
   bottom: auto;
-  z-index: $z-toast;
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

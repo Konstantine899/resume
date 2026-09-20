@@ -1,11 +1,10 @@
-@use '@/shared/styles/variables/typography' as *;
 @use '@/shared/styles/mixins/typography' as *;
 @use '@/shared/styles/mixins/theme' as *;
 
 .paragraph {
   margin: 0;
-  font-weight: $font-weight-normal;
-  line-height: $line-height-base;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--leading-normal);
 
   @include theme-transition;
 
@@ -36,11 +35,11 @@
 
   // Themes
   &.primary {
-    color: var(--foreground);
+    color: var(--color-text);
   }
 
   &.muted {
-    color: var(--foreground-muted);
+    color: var(--color-text-muted);
   }
 
   &.inverted {
@@ -48,19 +47,19 @@
   }
 
   &.error {
-    color: var(--form-error);
+    color: var(--color-error);
   }
 
   &.success {
-    color: var(--form-success);
+    color: var(--color-success);
   }
 
   &.warning {
-    color: var(--form-warning);
+    color: var(--color-warning);
   }
 
   &.tertiary {
-    color: var(--text-tertiary);
+    color: var(--color-text-secondary);
   }
 
   &.gradient {

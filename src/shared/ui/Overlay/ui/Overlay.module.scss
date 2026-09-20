@@ -1,18 +1,10 @@
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/variables/shadows' as *;
-@use '@/shared/styles/variables/z-index' as *;
-
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: $z-overlay;
+  z-index: var(--z-overlay);
   background-color: var(--color-overlay);
   opacity: 0;
-  transition: opacity var(--overlay-duration, 0.2s) ease;
-
-  &:not([data-visible='true']) {
-    pointer-events: none;
-  }
+  transition: opacity var(--duration-normal) var(--ease-default);
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -20,6 +12,10 @@
 
   &[data-visible='true'] {
     opacity: 1;
+  }
+
+  &:not([data-visible='true']) {
+    pointer-events: none;
   }
 
   &.blur {
@@ -38,8 +34,8 @@
   &[data-animation='scale'] {
     transform: scale(0.95);
     transition:
-      opacity var(--overlay-duration, 0.2s) ease,
-      transform var(--overlay-duration, 0.2s) ease;
+      opacity var(--duration-normal) var(--ease-default),
+      transform var(--duration-normal) var(--ease-default);
 
     @media (prefers-reduced-motion: reduce) {
       transition: none;
@@ -53,8 +49,8 @@
   &[data-animation='slide'] {
     transform: translateY(-10px);
     transition:
-      opacity var(--overlay-duration, 0.2s) ease,
-      transform var(--overlay-duration, 0.2s) ease;
+      opacity var(--duration-normal) var(--ease-default),
+      transform var(--duration-normal) var(--ease-default);
 
     @media (prefers-reduced-motion: reduce) {
       transition: none;

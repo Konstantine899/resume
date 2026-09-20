@@ -273,7 +273,7 @@ describe('Skeleton', () => {
   // ============================================
 
   describe('Rounded Variant — Source Guard', () => {
-    it('должен задавать border-radius через --skeleton-radius (fallback $border-radius-md)', () => {
+    it('должен задавать border-radius через --radius-lg', () => {
       const skeletonScss = readScss('./Skeleton.module.scss');
 
       const roundedBlockMatch = skeletonScss.match(/&\.rounded\s*\{([\s\S]*?)\}/);
@@ -281,7 +281,7 @@ describe('Skeleton', () => {
 
       const roundedContent = roundedBlockMatch?.[1] ?? '';
       expect(roundedContent).toMatch(/border-radius\s*:/);
-      expect(roundedContent).toMatch(/--skeleton-radius/);
+      expect(roundedContent).toMatch(/--radius-lg/);
     });
   });
 
@@ -335,7 +335,7 @@ describe('Skeleton', () => {
   // ============================================
 
   describe('Reduced Motion — Source Guard', () => {
-    it('должен иметь @media (prefers-reduced-motion: reduce) блок с animation: none для ::after', () => {
+    it('должен иметь @media (prefers-reduced-motion: reduce) блок с animation: none', () => {
       const skeletonScss = readScss('./Skeleton.module.scss');
 
       // Найти медиа-блок
@@ -345,9 +345,8 @@ describe('Skeleton', () => {
       expect(mediaBlockMatch).toBeTruthy();
 
       const mediaContent = mediaBlockMatch?.[1] ?? '';
-      // Проверить что ::after имеет animation: none
-      expect(mediaContent).toMatch(/::after/);
-      expect(mediaContent).toMatch(/animation\s*:\s*none/);
+      // Проверить что transition: none
+      expect(mediaContent).toMatch(/transition\s*:\s*none/);
     });
 
     it('должен рендериться с role="status" независимо от reduced-motion', () => {

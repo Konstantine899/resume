@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: $font-weight-semibold;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-inverse);
   user-select: none;
 
@@ -16,32 +16,32 @@
   }
 
   &.square {
-    border-radius: $border-radius-lg;
+    border-radius: var(--radius-lg);
   }
 
   // Sizes
   &.sm {
     width: var(--avatar-size-xs);
     height: var(--avatar-size-xs);
-    font-size: 12px;
+    font-size: var(--text-sm);
   }
 
   &.md {
     width: var(--avatar-size-sm);
     height: var(--avatar-size-sm);
-    font-size: 16px;
+    font-size: var(--text-lg);
   }
 
   &.lg {
     width: var(--avatar-size-md);
     height: var(--avatar-size-md);
-    font-size: 20px;
+    font-size: var(--text-xl);
   }
 
   &.xl {
     width: var(--avatar-size-lg);
     height: var(--avatar-size-lg);
-    font-size: 24px;
+    font-size: var(--text-2xl);
   }
 
   // Fill container mode — растягивается на весь родитель
@@ -53,20 +53,20 @@
     background: none;
 
     &.sm {
-      font-size: 2.5rem;
+      font-size: var(--text-4xl);
 
       @include avatar-initial;
     }
 
     &.md {
-      font-size: 4rem;
+      font-size: var(--text-5xl);
 
       @include avatar-initial;
     }
 
     &.lg,
     &.xl {
-      font-size: 6rem;
+      font-size: var(--text-6xl);
 
       @include avatar-initial;
     }

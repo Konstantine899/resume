@@ -1,10 +1,10 @@
 @use '@/shared/styles/variables' as *;
 
 .cardHeader {
-  margin-bottom: $spacing-md;
+  margin-bottom: var(--space-4);
 
   .divider {
-    margin-top: $spacing-md;
+    margin-top: var(--space-4);
   }
 
   &.withBorder {

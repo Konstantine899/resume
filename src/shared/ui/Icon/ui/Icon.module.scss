@@ -1,35 +1,214 @@
-// Focus styles
-$icon-focus-outline: 2px solid var(--primary);
-$icon-focus-radius: var(--radius-sm);
-$icon-transition: var(--transition-base);
+@use 'sass:color';
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins/theme' as *;
+
+// ============================================
+
+// Icon — Типографика: text-lg/sm + font-semibold/normal
+
+// ============================================
 
 .icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include theme-transition;
+
   vertical-align: middle;
-  transition: opacity $icon-transition;
+  color: var(--color-text);
 
-  &.clickable {
-    cursor: pointer;
+  // Цветовые варианты
+  &.primary {
+    color: var(--color-accent);
+  }
 
-    &:hover {
-      opacity: 0.8;
-    }
+  &.success {
+    color: var(--color-success);
+  }
 
-    &:active {
-      opacity: 0.6;
-    }
+  &.warning {
+    color: var(--color-warning);
+  }
 
-    &:focus-visible {
-      outline: $icon-focus-outline;
-      outline-offset: 2px;
-      border-radius: $icon-focus-radius;
+  &.danger,
+  &.error {
+    color: var(--color-error);
+  }
+
+  &.info {
+    color: var(--color-accent);
+  }
+
+  // ============================================
+
+  // Размеры и отступы
+
+  // ============================================
+
+  &.xs {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+    padding: var(--icon-padding-xs);
+
+    &.withBackground {
+      width: var(--space-8);
+      height: var(--space-8);
+      padding: var(--space-1);
+      border-radius: var(--radius-md);
     }
   }
 
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  &.sm {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    padding: var(--icon-padding-sm);
+
+    &.withBackground {
+      width: var(--space-10);
+      height: var(--space-10);
+      padding: var(--space-2);
+      border-radius: var(--radius-lg);
+    }
+  }
+
+  &.md {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+    padding: var(--icon-padding-md);
+
+    &.withBackground {
+      width: var(--space-12);
+      height: var(--space-12);
+      padding: var(--space-3);
+      border-radius: var(--radius-xl);
+    }
+  }
+
+  &.lg {
+    width: var(--icon-size-lg);
+    height: var(--icon-size-lg);
+    padding: var(--icon-padding-lg);
+
+    &.withBackground {
+      width: var(--space-16);
+      height: var(--space-16);
+      padding: var(--space-4);
+      border-radius: var(--radius-2xl);
+    }
+  }
+
+  &.xl {
+    width: var(--icon-size-xl);
+    height: var(--icon-size-xl);
+    padding: var(--icon-padding-xl);
+
+    &.withBackground {
+      width: var(--space-20);
+      height: var(--space-20);
+      padding: var(--space-5);
+      border-radius: var(--radius-2xl);
+    }
+  }
+
+  &.icon2xl {
+    width: var(--icon-size-2xl);
+    height: var(--icon-size-2xl);
+
+    &.withBackground {
+      width: var(--space-24);
+      height: var(--space-24);
+      padding: var(--space-6);
+      border-radius: var(--radius-3xl);
+    }
+  }
+
+  &.icon3xl {
+    width: var(--icon-size-3xl);
+    height: var(--icon-size-3xl);
+
+    &.withBackground {
+      width: 12rem;
+      height: 12rem;
+      padding: var(--space-8);
+      border-radius: var(--radius-3xl);
+    }
+  }
+
+  // ============================================
+
+  // Визуальные стили
+
+  // ============================================
+
+  &.withBackground {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  &.muted {
+    color: var(--color-text-muted);
+  }
+
+  &.light {
+    color: var(--color-text-secondary);
+  }
+
+  &.inverted {
+    color: var(--color-text-inverse);
+  }
+
+  // ============================================
+
+  // Фоновые цвета для withBackground
+
+  // ============================================
+
+  &.filled {
+    &.primary {
+      color: var(--color-text-inverse);
+      background-color: var(--color-accent);
+    }
+
+    &.success {
+      color: var(--color-text-inverse);
+      background-color: var(--color-success);
+    }
+
+    &.warning {
+      color: var(--color-text-inverse);
+      background-color: var(--color-warning);
+    }
+
+    &.danger,
+    &.error {
+      color: var(--color-text-inverse);
+      background-color: var(--color-error);
+    }
+
+    &.info {
+      color: var(--color-text-inverse);
+      background-color: var(--color-accent);
+    }
+  }
+
+  // ============================================
+
+  // Типографика для иконок с текстом
+
+  // ============================================
+
+  &.textSm {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &.textBase {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &.textLg {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
   }
 }

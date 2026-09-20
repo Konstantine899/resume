@@ -4,9 +4,6 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
 @use '@/shared/styles/mixins/layout' as *;
 @use '../../model/modal-constants' as *;
 
@@ -14,15 +11,15 @@
   @include flex-between;
 
   // padding-bottom adjusted in ModalContent/spacing comments
-  padding: $spacing-lg $spacing-xl $spacing-md;
-  border-bottom: 1px solid var(--color-border-primary);
+  padding: var(--space-6) var(--space-8) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .headerContent {
   @include flex-col;
 
   flex: 1;
-  gap: $spacing-xs;
+  gap: var(--space-1);
 }
 
 // When there's no title, push close button to the right

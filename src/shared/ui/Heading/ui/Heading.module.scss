@@ -1,116 +1,107 @@
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/mixins/typography' as *;
 @use '@/shared/styles/mixins/theme' as *;
-@use '@/shared/styles/mixins/responsive' as *;
-
-// ============================================
-
-// Heading Component
-
-// ============================================
-
-// BEM: .heading, .heading--size-*, .heading--theme-*, .heading--align-*
-
-// ============================================
+@use '@/shared/styles/mixins/typography' as *;
 
 .heading {
+  display: block;
   margin: 0;
-  font-weight: $font-weight-bold;
-  line-height: $line-height-base;
-  color: var(--foreground);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-normal);
 
   @include theme-transition;
 
-  // ============================================
-
-  // Sizes (BEM: .heading--size-*)
-
-  // ============================================
-
-  &--xs {
-    @include text-xs;
+  &.h1 {
+    @include text-6xl;
   }
 
-  &--s {
-    @include text-sm;
+  &.h2 {
+    @include text-5xl;
   }
 
-  &--m {
-    @include text-base;
+  &.h3 {
+    @include text-4xl;
   }
 
-  &--l {
-    @include text-lg;
+  &.h4 {
+    @include text-3xl;
   }
 
-  &--xl {
-    @include text-xl;
-  }
-
-  &--xxl {
+  &.h5 {
     @include text-2xl;
   }
 
-  &--size-3xl {
-    font-size: $font-size-3xl;
-    line-height: $line-height-base;
+  &.h6 {
+    @include text-xl;
   }
 
-  &--size-4xl {
-    font-size: $font-size-4xl;
-    line-height: $line-height-base;
+  &.weight-100 {
+    @include font-thin;
   }
 
-  &--size-5xl {
-    font-size: $font-size-5xl;
-    line-height: $line-height-base;
-
-    @include lg {
-      font-size: $font-size-6xl;
-    }
+  &.weight-200 {
+    @include font-extralight;
   }
 
-  // ============================================
-
-  // Themes (BEM: .heading--theme-*)
-
-  // ============================================
-
-  &--primary {
-    color: var(--foreground);
+  &.weight-300 {
+    @include font-light;
   }
 
-  &--muted {
-    color: var(--foreground-muted);
+  &.weight-400 {
+    @include font-normal;
   }
 
-  &--inverted {
+  &.weight-500 {
+    @include font-medium;
+  }
+
+  &.weight-600 {
+    @include font-semibold;
+  }
+
+  &.weight-700 {
+    @include font-bold;
+  }
+
+  &.weight-800 {
+    @include font-extrabold;
+  }
+
+  &.weight-900 {
+    @include font-black;
+  }
+
+  &.primary {
+    color: var(--color-text);
+  }
+
+  &.muted {
+    color: var(--color-text-muted);
+  }
+
+  &.inverted {
     color: var(--color-text-inverse);
   }
 
-  &--error {
-    color: var(--form-error);
+  &.error {
+    color: var(--color-error);
   }
 
-  &--gradient {
+  &.success {
+    color: var(--color-success);
+  }
+
+  &.warning {
+    color: var(--color-warning);
+  }
+
+  &.gradient {
     @include gradient-text;
   }
 
-  // ============================================
-
-  // Align (BEM: .heading--align-*)
-
-  // ============================================
-
-  &--left {
-    text-align: left;
+  &.balance {
+    text-wrap: balance;
   }
 
-  &--center {
-    text-align: center;
-  }
-
-  &--right {
-    text-align: right;
+  &.pretty {
+    text-wrap: pretty;
   }
 }

@@ -204,10 +204,10 @@ describe('Paragraph', () => {
       expect(overflowWrapCount).toBe(1);
     });
 
-    it('должен определять .tertiary класс с var(--text-tertiary) в Paragraph.module.scss (PAR-05)', () => {
+    it('должен определять .tertiary класс с var(--color-text-secondary) в Paragraph.module.scss (PAR-05)', () => {
       const tertiaryBlock = paragraphScss.match(/&\.tertiary\s*\{([^}]*)\}/)?.[1] ?? '';
 
-      expect(tertiaryBlock).toMatch(/color:\s*var\(--text-tertiary\)/);
+      expect(tertiaryBlock).toMatch(/color:\s*var\(--color-text-secondary\)/);
     });
 
     it('должен проставлять data-theme="tertiary" при рендере (PAR-05)', () => {

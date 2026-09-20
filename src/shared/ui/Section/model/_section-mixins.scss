@@ -2,28 +2,25 @@
 
 // Moved from shared/styles/mixins/_section.scss
 
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/variables/breakpoints' as *;
 @use '@/shared/styles/mixins/responsive' as *;
 
 @mixin section-base {
   width: 100%;
-  max-width: $container-2xl;
-  padding: $spacing-20 0;
-  padding-right: $spacing-md;
-  padding-left: $spacing-md;
+  max-width: var(--container-2xl);
+  padding: var(--space-20) 0;
+  padding-right: var(--space-4);
+  padding-left: var(--space-4);
   margin-right: auto;
   margin-left: auto;
 
   @include sm {
-    padding: $spacing-24 0;
+    padding: var(--space-24) 0;
   }
 }
 
 @mixin section-title {
-  margin-bottom: $spacing-12;
-  font-size: $font-size-3xl;
+  margin-bottom: var(--space-12);
+  font-size: var(--text-3xl);
   font-weight: 700;
   text-align: center;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);

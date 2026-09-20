@@ -4,11 +4,6 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/z-index' as *;
-@use '@/shared/styles/variables/transition' as *;
 @use '@/shared/styles/mixins/layout' as *;
 @use '@/shared/styles/animations/scale' as *;
 @use '@/shared/styles/animations/fade' as *;
@@ -16,7 +11,7 @@
 
 // Overlay
 .overlay {
-  z-index: $z-overlay;
+  z-index: var(--z-overlay);
 }
 
 // Modal Container (центрирование)
@@ -26,7 +21,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
-  padding: $spacing-md;
+  padding: var(--space-4);
   pointer-events: none;
 }
 
@@ -38,20 +33,20 @@
   max-height: $modal-max-height;
   overflow: hidden;
   pointer-events: auto;
-  background-color: var(--color-surface-primary);
-  border: $border-width solid var(--color-border-primary);
-  border-radius: $radius-2xl;
+  background-color: var(--color-surface);
+  border: var(--space-0-5) solid var(--color-border);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl);
 
   // Анимация
   &:not(.noAnimation) {
-    animation: scaleIn $animation-duration $transition-easing;
+    animation: scaleIn var(--duration-normal) var(--ease-default);
   }
 
   // Close animation (forceMount mode)
   &.closing {
     pointer-events: none;
-    animation: scaleOut $animation-duration $transition-easing forwards;
+    animation: scaleOut var(--duration-normal) var(--ease-default) forwards;
   }
 
   &.noAnimation {
@@ -97,8 +92,8 @@
 }
 
 .modal--full {
-  max-width: calc(100vw - #{$spacing-md * 2});
-  max-height: calc(100vh - #{$spacing-md * 2});
+  max-width: calc(100vw - var(--space-4) * 2);
+  max-height: calc(100vh - var(--space-4) * 2);
 }
 
 // Body scroll mode — модалка растёт с контентом, скролл на body
@@ -117,16 +112,16 @@
 @media (width <= 640px) {
   .modalContainer {
     align-items: flex-end;
-    padding: $spacing-sm;
+    padding: var(--space-2);
   }
 
   .modal {
-    max-height: calc(100vh - #{$spacing-md});
-    border-radius: $radius-xl $radius-xl 0 0;
+    max-height: calc(100vh - var(--space-4));
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 
   .modal--full {
     max-width: 100%;
-    max-height: calc(100vh - #{$spacing-md});
+    max-height: calc(100vh - var(--space-4));
   }
 }

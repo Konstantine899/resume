@@ -1,8 +1,6 @@
-@use '@/shared/styles/variables/z-index' as *;
-
 .popover {
   position: fixed;
-  z-index: $z-popover;
+  z-index: var(--z-popover);
   overflow: hidden;
   pointer-events: none;
   background: var(--color-surface);

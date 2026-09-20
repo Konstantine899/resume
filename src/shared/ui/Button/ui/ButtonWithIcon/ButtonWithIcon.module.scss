@@ -19,7 +19,7 @@
 .button {
   @include button-base;
 
-  gap: $spacing-sm;
+  gap: var(--space-2);
 
   // ============================================
 
@@ -61,18 +61,18 @@
   // ============================================
 
   &.xs {
-    padding: $spacing-xs $spacing-sm;
-    font-size: 0.75rem;
+    padding: var(--space-0-5) var(--space-2);
+    font-size: var(--text-sm);
 
     .icon {
-      width: 12px;
-      height: 12px;
+      width: var(--space-3);
+      height: var(--space-3);
     }
   }
 
   &.sm {
-    padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
 
     .icon {
       width: var(--icon-size-sm);
@@ -81,8 +81,8 @@
   }
 
   &.md {
-    padding: $spacing-md $spacing-lg;
-    font-size: 1rem;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-lg);
 
     .icon {
       width: var(--icon-size-md);
@@ -91,8 +91,8 @@
   }
 
   &.lg {
-    padding: $spacing-lg $spacing-xl;
-    font-size: 1.125rem;
+    padding: var(--space-6) var(--space-8);
+    font-size: var(--text-xl);
 
     .icon {
       width: var(--icon-size-lg);
@@ -101,12 +101,12 @@
   }
 
   &.xl {
-    padding: $spacing-xl $spacing-10;
-    font-size: 1.25rem;
+    padding: var(--space-8) var(--space-10);
+    font-size: var(--text-2xl);
 
     .icon {
-      width: 28px;
-      height: 28px;
+      width: var(--space-7);
+      height: var(--space-7);
     }
   }
 
@@ -132,7 +132,7 @@
 
   .content {
     display: flex;
-    gap: $spacing-sm;
+    gap: var(--space-2);
     align-items: center;
   }
 

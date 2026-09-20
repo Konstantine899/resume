@@ -1,116 +1,223 @@
 @use '@/shared/styles/variables' as *;
-@use '@/shared/styles/mixins/responsive' as *;
-@use '@/shared/ui/Avatar/model/avatar-mixins' as *;
+@use '@/shared/styles/mixins' as *;
+@use '../../model/avatar-mixins' as *;
+@use '@/shared/styles/mixins/theme' as *;
 
-.avatarHero {
+// ============================================
+
+// Variables (component-specific only)
+
+// ============================================
+
+$avatar-hero-zoom-scale: 1.12;
+
+// ============================================
+
+// Styles
+
+// ============================================
+
+.hero {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
 
+  @include theme-transition;
+
   // Sizes
   &.sm {
-    width: var(--avatar-size-hero-sm);
-    height: var(--avatar-size-hero-sm);
+    --hero-size: var(--avatar-size-hero-sm);
 
-    .photo-circle {
-      padding: 2px;
+    width: var(--hero-size);
+    height: var(--hero-size);
+    padding: var(--space-2);
+
+    .photoInner,
+    .initialInner {
+      width: 100%;
+      height: 100%;
     }
 
     .initial {
-      font-size: 2.5rem;
+      font-size: var(--text-4xl);
 
       @include avatar-initial;
     }
   }
 
   &.md {
-    width: var(--avatar-size-hero-md);
-    height: var(--avatar-size-hero-md);
+    --hero-size: var(--avatar-size-hero-md);
 
-    .photo-circle {
-      padding: 4px;
+    width: var(--hero-size);
+    height: var(--hero-size);
+    padding: var(--space-2);
+
+    .photoInner,
+    .initialInner {
+      width: 100%;
+      height: 100%;
     }
 
     .initial {
-      font-size: 4rem;
+      font-size: var(--text-5xl);
 
       @include avatar-initial;
     }
   }
 
   &.lg {
-    width: var(--avatar-size-hero-lg);
-    height: var(--avatar-size-hero-lg);
+    --hero-size: var(--avatar-size-hero-lg);
 
-    .photo-circle {
-      padding: 6px;
+    width: var(--hero-size);
+    height: var(--hero-size);
+    padding: var(--space-3);
+
+    .photoInner,
+    .initialInner {
+      width: 100%;
+      height: 100%;
     }
 
     .initial {
-      font-size: 6rem;
+      font-size: var(--text-6xl);
 
       @include avatar-initial;
     }
   }
 
   &.xl {
-    width: var(--avatar-size-hero-lg);
-    height: var(--avatar-size-hero-lg);
+    --hero-size: 22rem;
 
-    .photo-circle {
-      padding: 6px;
+    width: var(--hero-size);
+    height: var(--hero-size);
+    padding: var(--space-4);
+
+    .photoInner,
+    .initialInner {
+      width: 100%;
+      height: 100%;
     }
 
     .initial {
-      font-size: 6rem;
+      font-size: 100px;
 
       @include avatar-initial;
     }
   }
 
-  // Effects
-  .photo-glow {
-    @include avatar-glow;
-  }
+  &.xxl {
+    --hero-size: 28rem;
 
-  .photo-ring {
-    @include avatar-ring;
-  }
+    width: var(--hero-size);
+    height: var(--hero-size);
+    padding: var(--space-5);
 
-  .photo-circle {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    padding: $spacing-sm;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    box-shadow: $shadow-xl;
-
-    [data-theme='light'] & {
-      background: #3f84f6;
+    .photoInner,
+    .initialInner {
+      width: 100%;
+      height: 100%;
     }
 
-    // Внутренний контейнер для контента
-    .photo-inner {
+    .initial {
+      font-size: 100px;
+
+      @include avatar-initial;
+    }
+  }
+
+  // Circle — фон и тень для дефолтного состояния
+
+  // Градиентная рамка применяется в default
+
+  // Если нетphoto — убираем тень и рамку для квадратной формы
+  &.circle {
+    background: var(--gradient-primary);
+
+    &.noPhoto {
+      background: var(--gradient-primary);
+      box-shadow: none;
+    }
+  }
+
+  // Фото и обводка
+  .photoInner {
+    @include avatar-photo-inner;
+
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transform: scale($avatar-hero-zoom-scale);
+  }
+
+  &.noPhoto {
+    background: var(--avatar-bg);
+    box-shadow: none;
+  }
+
+  // Квадратные варианты
+  &.square {
+    border-radius: var(--radius-lg);
+  }
+
+  // ============================================
+
+  // Hover/Touch: zoom
+
+  // ============================================
+
+  @include hover {
+    .photo {
+      transform: scale(calc(#{$avatar-hero-zoom-scale} * 1.05));
+    }
+
+    .initialInner {
+      transform: scale(1.05);
+    }
+  }
+
+  @include touch {
+    .photo {
+      transform: scale($avatar-hero-zoom-scale);
+    }
+  }
+
+  // ============================================
+
+  // Accessibility: Reduced Motion
+
+  // ============================================
+
+  @include avatar-reduced-motion;
+
+  // Initials
+  .initial {
+    color: var(--color-text-inverse);
+
+    @include avatar-initial;
+  }
+
+  .initialInner {
+    @include avatar-inner;
+
+    overflow: hidden;
+    background: var(--avatar-bg);
+
+    .initial {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
       height: 100%;
-      overflow: hidden;
-      background: var(--avatar-bg);
-      border-radius: 50%;
-
-      [data-theme='light'] & {
-        background: var(--avatar-light-bg);
-      }
-
-      .initial {
-        @include avatar-initial;
-      }
     }
   }
 
-  @include avatar-reduced-motion;
+  // See also: src/shared/ui/Avatar/model/avatar-mixins.scss — .square block overrides
 }

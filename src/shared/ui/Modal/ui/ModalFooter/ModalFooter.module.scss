@@ -4,8 +4,6 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
 @use '@/shared/styles/mixins/layout' as *;
 @use '../../model/modal-constants' as *;
 
@@ -14,6 +12,6 @@
 
   gap: var(--space-2);
   padding: var(--space-4) var(--space-6);
-  background-color: var(--color-surface-secondary);
-  border-top: 1px solid var(--color-border-primary);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
 }
