@@ -510,12 +510,13 @@ $link-active-scale: 0.98;
 // ============================================
 
 [data-theme='light'] .link {
-  // Neutral color scheme for light theme
-  --link-fill: var(--color-text-primary);
-  --link-fill-hover: var(--color-text-secondary);
-  --link-fill-text: var(--color-text-inverse);
-  --link-color: var(--color-text-primary);
-  --link-color-subtle: var(--color-surface-alt);
+  // Button-like variants: blue accent for light theme
+  --link-fill: #3f84f6;
+  --link-fill-hover: #2563eb;
+  --link-fill-text: #fff;
+  --link-color: #3f84f6;
+  --link-color-subtle: rgb(63 132 246 / 0.1);
+  --link-focus-outline: var(--shadow-focus);
 
   &:focus-visible {
     outline-color: var(--shadow-focus);
