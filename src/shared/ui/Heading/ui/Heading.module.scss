@@ -10,23 +10,23 @@
   @include theme-transition;
 
   &.h1 {
-    @include text-6xl;
+    font-size: var(--text-6xl);
   }
 
   &.h2 {
-    @include text-5xl;
+    font-size: var(--text-5xl);
   }
 
   &.h3 {
-    @include text-4xl;
+    font-size: var(--text-4xl);
   }
 
   &.h4 {
-    @include text-3xl;
+    font-size: var(--text-3xl);
   }
 
   &.h5 {
-    @include text-2xl;
+    font-size: var(--text-2xl);
   }
 
   &.h6 {
@@ -34,11 +34,11 @@
   }
 
   &.weight-100 {
-    @include font-thin;
+    font-weight: 100;
   }
 
   &.weight-200 {
-    @include font-extralight;
+    font-weight: 200;
   }
 
   &.weight-300 {
@@ -62,11 +62,11 @@
   }
 
   &.weight-800 {
-    @include font-extrabold;
+    font-weight: 800;
   }
 
   &.weight-900 {
-    @include font-black;
+    font-weight: 900;
   }
 
   &.primary {
@@ -94,7 +94,9 @@
   }
 
   &.gradient {
-    @include gradient-text;
+    background: var(--gradient-text, linear-gradient(135deg, #667eea, #764ba2));
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   &.balance {

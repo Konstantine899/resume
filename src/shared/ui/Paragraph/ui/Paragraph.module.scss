@@ -63,7 +63,9 @@
   }
 
   &.gradient {
-    @include gradient-text;
+    background: var(--gradient-text, linear-gradient(135deg, #667eea, #764ba2));
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   // Align

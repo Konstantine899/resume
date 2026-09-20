@@ -1,15 +1,8 @@
-@use 'sass:color';
 @use '@/shared/styles/mixins' as *;
 
 // ============================================
 
 // Link Component — ButtonWithIcon architecture
-
-// Base, variants, states: shared token system
-
-// Sizes: component-specific (font + padding)
-
-// Internal: .icon, .externalIcon elements
 
 // ============================================
 
@@ -22,12 +15,9 @@ $link-active-scale: 0.98;
 
 // Color Scheme CSS Variables
 
-// Set on .link, overridable via .colorScheme-*
-
 // ============================================
 
 @mixin link-color-scheme-variables {
-  // Default: brand
   --link-fill: var(--color-accent);
   --link-fill-hover: var(--color-accent-hover);
   --link-fill-text: var(--color-text-inverse);
@@ -145,7 +135,6 @@ $link-active-scale: 0.98;
     background-color: var(--nav-item-bg-hover, var(--link-color-subtle));
   }
 
-  // Active identical to hover — nav-item UX contract
   &:active:not(:disabled) {
     color: var(--nav-item-color-hover, var(--link-color));
     background-color: var(--nav-item-bg-hover, var(--link-color-subtle));
@@ -159,7 +148,7 @@ $link-active-scale: 0.98;
 
 // ============================================
 
-// Link-specific text variant (no background, just color + underline)
+// Link-specific text variant
 
 // ============================================
 
@@ -170,7 +159,7 @@ $link-active-scale: 0.98;
   background-color: transparent;
 
   &:not(.unstyled):hover {
-    color: var(--link-primary-hover, color.adjust(var(--color-accent), $lightness: 10%));
+    color: var(--link-primary-hover, var(--color-accent-hover));
     text-decoration: underline;
   }
 }
@@ -262,7 +251,6 @@ $link-active-scale: 0.98;
   border-radius: var(--radius-lg);
   transition: all var(--duration-normal) var(--ease-default);
 
-  // Reduced motion support
   @media (prefers-reduced-motion: reduce) {
     transition: none;
 
@@ -277,7 +265,7 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Sizes (ButtonWithIcon architecture: font + padding)
+  // Sizes
 
   // ============================================
 
@@ -338,7 +326,7 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Button-like Variants (primary, secondary, outline, ghost, danger)
+  // Button-like Variants
 
   // ============================================
 
@@ -364,7 +352,7 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Text-only Variants (link-specific: no background, just color)
+  // Text-only Variants
 
   // ============================================
 
@@ -420,7 +408,6 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Full width
   &.fullWidth {
     width: 100%;
   }
@@ -457,7 +444,6 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Unstyled — reset only Link's own styles, preserve consumer styling
   &.unstyled {
     font: inherit;
     color: inherit;
@@ -467,7 +453,6 @@ $link-active-scale: 0.98;
     transform: none;
   }
 
-  // Hover lift
   &.withLift {
     @include hover-lift;
   }
@@ -484,7 +469,6 @@ $link-active-scale: 0.98;
     border-radius: var(--radius-sm);
   }
 
-  // Disabled
   &[aria-disabled='true'],
   &.disabled {
     color: var(--color-text-muted);
@@ -499,12 +483,10 @@ $link-active-scale: 0.98;
 
   // ============================================
 
-  // Active
   &:active:not(:disabled) {
     transform: scale($link-active-scale);
   }
 
-  // Skeleton loading mode
   &.skeleton {
     pointer-events: none;
     cursor: default;
@@ -526,9 +508,6 @@ $link-active-scale: 0.98;
 
 // ============================================
 
-// Light theme overrides — tokens already proxied in _theme.scss
-
-// Focus uses same --shadow-focus as Button (unified)
 [data-theme='light'] .link {
   &:focus-visible {
     outline-color: var(--shadow-focus);
