@@ -238,6 +238,15 @@ $link-active-scale: 0.98;
 .link {
   @include link-color-scheme-variables;
 
+  // Light theme: blue accent (overridden by color-scheme-* classes)
+  [data-theme='light'] & {
+    --link-fill: #3f84f6;
+    --link-fill-hover: #2563eb;
+    --link-fill-text: #fff;
+    --link-color: #3f84f6;
+    --link-color-subtle: rgb(63 132 246 / 0.1);
+  }
+
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
@@ -505,20 +514,8 @@ $link-active-scale: 0.98;
 
 // ============================================
 
-// Theme overrides — neutral for light theme only
+// No theme-specific overrides needed at bottom — light theme
+
+// overrides are inside .link block via [data-theme='light'] &
 
 // ============================================
-
-[data-theme='light'] .link {
-  // Button-like variants: blue accent for light theme
-  --link-fill: #3f84f6;
-  --link-fill-hover: #2563eb;
-  --link-fill-text: #fff;
-  --link-color: #3f84f6;
-  --link-color-subtle: rgb(63 132 246 / 0.1);
-  --link-focus-outline: var(--shadow-focus);
-
-  &:focus-visible {
-    outline-color: var(--shadow-focus);
-  }
-}

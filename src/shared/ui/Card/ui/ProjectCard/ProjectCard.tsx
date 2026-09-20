@@ -82,7 +82,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             </Paragraph>
             <Link
               href={link}
-              variant="primary"
+              variant="danger"
               size="sm"
               external
               showExternalIcon={false}
