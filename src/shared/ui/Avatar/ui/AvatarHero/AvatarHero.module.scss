@@ -175,19 +175,13 @@ $avatar-hero-zoom-scale: 1.12;
 
   // ============================================
 
-  @include hover {
+  &:hover {
     .photo {
       transform: scale(calc(#{$avatar-hero-zoom-scale} * 1.05));
     }
 
     .initialInner {
       transform: scale(1.05);
-    }
-  }
-
-  @include touch {
-    .photo {
-      transform: scale($avatar-hero-zoom-scale);
     }
   }
 
