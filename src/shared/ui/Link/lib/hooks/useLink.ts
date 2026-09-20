@@ -73,6 +73,10 @@ export const useLink = ({
     return { relValue: rel, targetValue: target };
   }, [isExternal, rel, target]);
 
+  // Resolve variant="danger" → primary variant + danger color scheme (Button parity)
+  const resolvedVariant = variant === 'danger' ? 'primary' : variant;
+  const resolvedColorScheme = colorScheme ?? (variant === 'danger' ? 'danger' : undefined);
+
   // Memoized: Консистентный размер иконки (ICON_SIZE_MAP в model/constants)
   const iconSize = useMemo(() => ICON_SIZE_MAP[size], [size]);
 
@@ -81,9 +85,9 @@ export const useLink = ({
     () =>
       classNames(
         styles.link,
-        styles[variant],
+        styles[resolvedVariant],
         styles[size],
-        colorScheme && styles[`color-scheme-${colorScheme}`],
+        resolvedColorScheme && styles[`color-scheme-${resolvedColorScheme}`],
         unstyled && styles.unstyled,
         underline === 'always' && styles.underlineAlways,
         underline === 'hover' && styles.underlineHover,
@@ -92,13 +96,13 @@ export const useLink = ({
         skeleton && styles.skeleton,
         className
       ),
-    [variant, size, colorScheme, unstyled, underline, withLift, skeleton, className]
+    [resolvedVariant, size, resolvedColorScheme, unstyled, underline, withLift, skeleton, className]
   );
 
   // Data-атрибуты для стилизации и тестирования.
   // data-as присутствует только для строковых элементов (компоненты его не имеют).
   const dataAttrs: Record<string, string> = {
-    'data-variant': variant,
+    'data-variant': resolvedVariant,
     'data-size': size,
     ...(typeof component === 'string' ? { 'data-as': component } : {}),
     ...(isExternal ? { 'data-external': 'true' } : {}),
