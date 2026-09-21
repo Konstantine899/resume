@@ -63,11 +63,13 @@
   max-width: 56rem; // max-w-4xl
   padding: $spacing-4;
   margin: 0 auto;
-  background: var(
-    --gradient-work-history,
-    linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%)
-  );
+  background: var(--gradient-work-history);
   border-radius: $radius-xl;
+  transition: background $transition-duration $transition-easing;
+
+  [data-theme='light'] & {
+    background: var(--gradient-primary);
+  }
 
   @include sm {
     padding: $spacing-6;
