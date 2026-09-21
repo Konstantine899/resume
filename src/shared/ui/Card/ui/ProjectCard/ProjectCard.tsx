@@ -39,9 +39,25 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   builtUsingLabel = 'Создано с помощью',
   linkLabel = 'Ссылка',
   className = '',
+  onClick,
 }) => {
   return (
-    <div className={classNames(styles.projectCard, className)}>
+    <div
+      className={classNames(styles.projectCard, className)}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+    >
       {backgroundImage && (
         <div
           className={styles.backgroundImage}

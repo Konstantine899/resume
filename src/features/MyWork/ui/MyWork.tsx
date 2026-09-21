@@ -39,17 +39,16 @@ export const MyWork: React.FC<MyWorkProps> = ({
         <CardGrid columns={1} gap="md">
           {PROJECTS.map((project, index) => (
             <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
-              <div onClick={() => handleProjectClick(project.id)}>
-                <ProjectCard
-                  title={project.title}
-                  description={language === 'en' ? project.description.en : project.description.ru}
-                  backgroundImage={project.image}
-                  techIcons={project.techIcons}
-                  link={project.link}
-                  builtUsingLabel={t('builtUsing')}
-                  linkLabel={t('link')}
-                />
-              </div>
+              <ProjectCard
+                title={project.title}
+                description={language === 'en' ? project.description.en : project.description.ru}
+                backgroundImage={project.image}
+                techIcons={project.techIcons}
+                link={project.link}
+                builtUsingLabel={t('builtUsing')}
+                linkLabel={t('link')}
+                onClick={() => handleProjectClick(project.id)}
+              />
             </AnimatedSection>
           ))}
         </CardGrid>
