@@ -6,7 +6,12 @@
   max-width: 100%;
   padding: 48px 16px; // py-12 px-4
   overflow: hidden;
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+  background: var(--gradient-work-history);
+  transition: background $transition-duration $transition-easing;
+
+  [data-theme='light'] & {
+    background: var(--gradient-primary);
+  }
 
   @media (width >= 640px) {
     padding: 64px 24px; // sm:py-16 sm:px-6
