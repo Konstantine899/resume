@@ -4,10 +4,13 @@
 
 import { memo } from 'react';
 import { classNames as cn } from '@/shared/lib/utils/classNames';
+import { Badge } from '@/shared/ui/Badge';
 import { Card } from '@/shared/ui/Card';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Divider } from '@/shared/ui/Divider';
+import { MapPin } from 'lucide-react';
 import type { WorkHistoryCardProps } from '../../model/types';
 import styles from './WorkHistoryCard.module.scss';
 import cardStyles from '../Card.module.scss';
@@ -66,7 +69,11 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
                   {period}
                 </Paragraph>
               )}
-              {periodBadge && <span className={styles.periodBadge}>{periodBadge}</span>}
+              {periodBadge && (
+                <Badge variant="accent" size="sm" className={styles.periodBadge}>
+                  {periodBadge}
+                </Badge>
+              )}
             </div>
           )}
         </div>
@@ -75,9 +82,7 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
       <Card.Body className={styles.body}>
         {location && (
           <div className={styles.location}>
-            <span className={styles.locationIcon} aria-hidden="true">
-              📍
-            </span>
+            <Icon name={MapPin} size={14} color="muted" decorative />
             <Paragraph as="span" size="xs">
               {location}
             </Paragraph>
@@ -101,9 +106,9 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
             <Divider className={styles.techDivider} />
             <div className={styles.techBadges}>
               {techStack.map((tech, index) => (
-                <span key={index} className={styles.techBadge}>
+                <Badge key={index} variant="accent" size="sm" className={styles.techBadge}>
                   {tech}
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
