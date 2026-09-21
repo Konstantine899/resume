@@ -29,7 +29,6 @@ import { CardMeta } from './CardMeta';
  * - Variants `skill` и `about` автоматически оборачиваются в `Container` для центрирования и ограничения ширины
  * - `skill` variant: Container size="xl" (1280px max-width)
  * - `about` variant: Container size="lg" (1024px max-width)
- * - Остальные variants (`default`, `project`, `workHistory`, `contact`, `codeBlock`) не используют Container
  *
  * **Polymorphic:**
  * - Default element: `<div>`
@@ -133,11 +132,7 @@ const CardComponent = memo((props: CardProps) => {
 
   // Wrap in Container for skill/about variants
   if (shouldUseContainer) {
-    return (
-      <Container size={containerSize} centered>
-        {cardElement}
-      </Container>
-    );
+    return <Container size={containerSize}>{cardElement}</Container>;
   }
 
   return cardElement;
