@@ -4,6 +4,7 @@ import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { WorkHistoryCard } from '@/shared/ui/Card';
+import { Heading } from '@/shared/ui/Heading';
 import React from 'react';
 import type { WorkHistoryProps } from '../model/types';
 import styles from './WorkHistory.module.scss';
@@ -38,7 +39,9 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
     >
       <div className={styles.gradientContainer}>
         <AnimatedSection animation="fadeUp">
-          <h2 className={styles.sectionTitle}>{t(`workHistory`)}</h2>
+          <Heading level={2} size="xl" theme="inverted" align="center">
+            {t(`workHistory`)}
+          </Heading>
         </AnimatedSection>
 
         <div className={styles.timeline}>
