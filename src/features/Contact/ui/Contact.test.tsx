@@ -17,6 +17,9 @@ vi.mock('@/shared/ui/Card', () => ({
   ContactCard: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="contact-card">{children}</div>
   ),
+  CardGrid: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-grid">{children}</div>
+  ),
 }));
 
 describe('Contact: social links integration', () => {

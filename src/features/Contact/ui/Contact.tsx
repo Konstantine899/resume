@@ -1,12 +1,13 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
-import { ContactCard } from '@/shared/ui/Card';
+import { ContactCard, CardGrid } from '@/shared/ui/Card';
+import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input, InputEmail } from '@/shared/ui/Input';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
@@ -23,10 +24,12 @@ export function Contact() {
   return (
     <section id="contact" className={styles.container}>
       <AnimatedSection animation="fadeUp">
-        <h2 className={styles.title}>{t('contact')}</h2>
+        <Heading level={2} className={styles.title}>
+          {t('contact')}
+        </Heading>
       </AnimatedSection>
 
-      <div className={styles.grid}>
+      <CardGrid columns={2} gap="lg">
         <AnimatedSection delay={200}>
           <div className={styles.formContainer}>
             <form
@@ -59,16 +62,18 @@ export function Contact() {
               />
 
               {/* Сообщение */}
-              <textarea
+              <Textarea
                 name="message"
                 placeholder={t('messagePlaceholder')}
                 rows={4}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 disabled={status === 'submitting'}
-                className={classNames(styles.input, styles.textarea)}
                 required
                 aria-required="true"
+                variant="outline"
+                size="md"
+                resize="none"
               />
 
               {/* Кнопка отправки */}
@@ -116,7 +121,7 @@ export function Contact() {
             <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
           </ContactCard>
         </AnimatedSection>
-      </div>
+      </CardGrid>
     </section>
   );
 }
