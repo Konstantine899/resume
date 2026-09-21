@@ -7,8 +7,10 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { ProjectCard } from '@/shared/ui/Card';
+import { FolderOpen } from 'lucide-react';
 import React from 'react';
 import type { MyWorkProps } from '../model/types';
 import styles from './MyWork.module.scss';
@@ -53,7 +55,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
       {/* Empty State */}
       {PROJECTS.length === 0 && (
         <div className={styles.emptyState}>
-          <div className={styles.icon}>📁</div>
+          <Icon name={FolderOpen} size={48} color="muted" decorative />
           <Paragraph theme="muted" align="center">
             No projects yet
           </Paragraph>
