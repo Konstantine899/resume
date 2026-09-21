@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
 import type { SkillCategoryData } from '../../model/types';
 import styles from './SkillItem.module.scss';
 
@@ -43,7 +44,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
             <img
               src={tech.iconSvg}
               alt={tech.name}
-              className={`${styles.techIcon}${tech.invertInDark ? ` ${styles.invertInDark}` : ''}`}
+              className={classNames(styles.techIcon, tech.invertInDark && styles.invertInDark)}
               loading="lazy"
               style={{ filter: tech.iconFilter }}
             />

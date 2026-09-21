@@ -1,5 +1,6 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { AvatarAbout } from '@/shared/ui/Avatar';
 import { Link } from '@/shared/ui/Link';
@@ -14,7 +15,7 @@ export const About: React.FC<AboutFeatureProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section id="about" className={`${styles.container} ${className}`} data-testid={testId}>
+    <section id="about" className={classNames(styles.container, className)} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.sectionTitle}>{t('aboutTitle')}</h2>
       </AnimatedSection>

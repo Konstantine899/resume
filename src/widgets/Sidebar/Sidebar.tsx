@@ -81,7 +81,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Desktop Sidebar */}
       <aside
-        className={`${styles.desktopSidebar} ${isOpen ? styles.expanded : styles.collapsed} ${isHoverExpanded ? styles.hoverExpanded : ''} ${className}`}
+        className={classNames(
+          styles.desktopSidebar,
+          isOpen ? styles.expanded : styles.collapsed,
+          isHoverExpanded && styles.hoverExpanded,
+          className
+        )}
         data-testid={testId}
         aria-expanded={isExpanded}
         role="navigation"
@@ -135,7 +140,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </aside>
 
       {/* Desktop Spacer */}
-      <div className={`${styles.desktopSpacer} ${isExpanded ? styles.expanded : ''}`} />
+      <div className={classNames(styles.desktopSpacer, isExpanded && styles.expanded)} />
     </>
   );
 };

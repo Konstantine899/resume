@@ -57,7 +57,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
       size="md"
       fullWidth
       title={!showText ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
-      className={`${controlButtonClasses} ${className}`}
+      className={classNames(controlButtonClasses, className)}
       data-testid={testId}
     >
       {showText && (

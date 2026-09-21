@@ -50,7 +50,7 @@ export const LanguageSwitch: React.FC<LanguageSwitchComponentProps> = ({
       size="md"
       fullWidth
       title={!showText ? t('language') : undefined}
-      className={`${controlButtonClasses} ${className}`}
+      className={classNames(controlButtonClasses, className)}
       data-testid={testId}
     >
       {showText && (

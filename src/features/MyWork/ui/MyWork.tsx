@@ -4,6 +4,7 @@
 
 import { PROJECTS } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { ProjectCard } from '@/shared/ui/Card';
@@ -23,7 +24,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
   };
 
   return (
-    <section id="work" className={`${styles.section} ${className}`} data-testid={testId}>
+    <section id="work" className={classNames(styles.section, className)} data-testid={testId}>
       <AnimatedSection animation="fadeUp">
         <h2 className={styles.title}>{t(`myWork`)}</h2>
       </AnimatedSection>

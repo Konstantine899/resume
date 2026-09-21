@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { SKILLS_DATA } from '../model/constants';
@@ -22,7 +23,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
     return (
       <section
         id="skills"
-        className={`${styles.skillsSection} ${className}`}
+        className={classNames(styles.skillsSection, className)}
         aria-label="Навыки разработчика"
         data-testid={testId}
       >
@@ -41,7 +42,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   return (
     <section
       id="skills"
-      className={`${styles.skillsSection} ${className}`}
+      className={classNames(styles.skillsSection, className)}
       aria-label="Навыки разработчика"
       data-testid={testId}
     >

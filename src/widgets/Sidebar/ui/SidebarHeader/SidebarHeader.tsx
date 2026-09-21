@@ -1,4 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './SidebarHeader.module.scss';
@@ -29,7 +30,9 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   };
 
   return (
-    <div className={`${styles.header} ${variant === 'desktop' ? styles.desktop : styles.mobile}`}>
+    <div
+      className={classNames(styles.header, variant === 'desktop' ? styles.desktop : styles.mobile)}
+    >
       <Link
         href="#home"
         variant="ghost"
