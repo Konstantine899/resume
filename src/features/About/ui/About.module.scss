@@ -131,6 +131,23 @@
   margin-bottom: 12px; // mb-3
   font-size: 20px; // text-xl
   font-weight: 600;
+  color: var(--color-accent);
+
+  @media (width >= 640px) {
+    margin-bottom: 16px; // sm:mb-4
+    font-size: 24px; // sm:text-2xl
+  }
+
+  @media (width >= 768px) {
+    margin-bottom: 24px; // md:mb-6
+    font-size: 30px; // md:text-3xl
+  }
+}
+
+.gradientTitle {
+  margin-bottom: 12px; // mb-3
+  font-size: 20px; // text-xl
+  font-weight: 600;
   background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
   background-clip: text;
   filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
