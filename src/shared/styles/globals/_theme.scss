@@ -40,6 +40,7 @@
   --color-text-tertiary: #6b7280;
   --color-text-quaternary: #9ca3af;
   --color-text-inverse: #fff;
+  --color-text-disabled: #9ca3af;
   --color-text: var(--color-text-primary);
   --color-text-muted: var(--color-text-tertiary);
 
@@ -57,7 +58,9 @@
   --color-error: #ef4444;
   --color-info: #3b82f6;
   --color-success-muted: rgb(16 185 129 / 0.5);
+  --color-warning-muted: rgb(245 158 11 / 0.5);
   --color-error-muted: rgb(239 68 68 / 0.5);
+  --color-info-muted: rgb(59 130 246 / 0.5);
   --color-success-hover: #059669;
   --color-error-hover: #dc2626;
   --color-warning-hover: #d97706;
@@ -376,6 +379,7 @@
   --color-text-tertiary: #6b7280;
   --color-text-quaternary: #4b5563;
   --color-text-inverse: #0f0f0f;
+  --color-text-disabled: #4b5563;
 
   // Brand tokens for dark theme
   --color-accent: #f4b377;
@@ -386,6 +390,10 @@
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
+  --color-success-muted: rgb(34 197 94 / 0.5);
+  --color-warning-muted: rgb(245 158 11 / 0.5);
+  --color-error-muted: rgb(239 68 68 / 0.5);
+  --color-info-muted: rgb(96 165 250 / 0.5);
 
   // Shadow tokens for dark theme
 

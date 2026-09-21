@@ -103,7 +103,7 @@ $button-focus-offset: 2px;
   outline: none;
   border: none;
   border-radius: var(--radius-button);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   // Reduced motion support
   @media (prefers-reduced-motion: reduce) {
@@ -130,9 +130,9 @@ $button-focus-offset: 2px;
 // ============================================
 
 @mixin variant-primary {
-  color: var(--btn-fill-text, white);
+  color: var(--btn-fill-text, var(--color-text-inverse));
   background-color: var(--btn-fill);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--btn-fill-hover);
@@ -150,7 +150,7 @@ $button-focus-offset: 2px;
   color: var(--foreground-muted);
   background-color: transparent;
   border: 1px solid var(--card-border);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--background-secondary);
@@ -166,7 +166,7 @@ $button-focus-offset: 2px;
   color: var(--btn-color);
   background-color: transparent;
   border: 2px solid var(--btn-color);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--btn-color-subtle);
@@ -180,7 +180,7 @@ $button-focus-offset: 2px;
 @mixin variant-ghost {
   color: var(--foreground-muted);
   background-color: transparent;
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     color: var(--btn-color);
@@ -196,7 +196,7 @@ $button-focus-offset: 2px;
   color: var(--foreground);
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  transition: all var(--transition-fast);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover:not(:disabled) {
     background-color: var(--background-secondary);
