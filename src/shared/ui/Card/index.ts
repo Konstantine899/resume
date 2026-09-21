@@ -41,3 +41,4 @@ export { CardHeader } from './ui/CardHeader';
 export { CardBody } from './ui/CardBody';
 export { CardFooter } from './ui/CardFooter';
 export { CardImage } from './ui/CardImage';
+export { CardGrid } from './ui/CardGrid';

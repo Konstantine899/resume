@@ -5,11 +5,11 @@
 import { PROJECTS } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { CardGrid, ProjectCard } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import { ProjectCard } from '@/shared/ui/Card';
 import { Section } from '@/shared/ui/Section';
 import { FolderOpen } from 'lucide-react';
 import React from 'react';
@@ -36,7 +36,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
           </Heading>
         </AnimatedSection>
 
-        <div className={styles.projectsGrid}>
+        <CardGrid columns={1} gap="md">
           {PROJECTS.map((project, index) => (
             <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
               <div onClick={() => handleProjectClick(project.id)}>
@@ -52,7 +52,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
               </div>
             </AnimatedSection>
           ))}
-        </div>
+        </CardGrid>
 
         {/* Empty State */}
         {PROJECTS.length === 0 && (
