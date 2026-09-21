@@ -75,19 +75,19 @@ export const Hero: React.FC<HeroProps> = ({
           </Code>
 
           {/* Resume Button */}
-          <Link
-            href="#"
-            unstyled
-            variant="primary"
-            underline="never"
-            className={styles.resumeButton}
-            onClick={(e) => {
-              e.preventDefault();
-              onGetResume?.();
-            }}
-          >
-            {t(`getResume`)}
-          </Link>
+          <div className={styles.resumeButtonWrapper}>
+            <Link
+              href="#"
+              variant="primary"
+              size="md"
+              onClick={(e) => {
+                e.preventDefault();
+                onGetResume?.();
+              }}
+            >
+              {t(`getResume`)}
+            </Link>
+          </div>
         </div>
 
         {/* Right side - Photo */}

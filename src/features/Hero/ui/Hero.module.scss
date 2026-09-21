@@ -185,44 +185,11 @@
 
 // --------------------------------------------
 
-// Resume Button
+// Resume Button Wrapper (layout only)
 
 // --------------------------------------------
-.resumeButton {
+.resumeButtonWrapper {
   display: inline-block;
-  padding: $spacing-sm $spacing-md;
-  font-size: $font-size-sm;
-  font-weight: 600;
-  color: var(--color-text-inverse);
-  text-decoration: none;
-  background: var(--gradient-primary);
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-lg;
-  transition: all $transition-duration $transition-easing;
-
-  @include sm {
-    padding: $spacing-md $spacing-lg;
-    font-size: $font-size-base;
-  }
-
-  @include md {
-    padding: $spacing-md $spacing-xl;
-  }
-
-  &:hover {
-    box-shadow: $shadow-xl;
-    opacity: 0.9;
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-text-inverse);
-    outline-offset: 2px;
-  }
 }
 
 // --------------------------------------------
@@ -363,7 +330,7 @@
       max-width: 100%;
     }
 
-    .resumeButton {
+    .resumeButtonWrapper {
       width: 100%;
       max-width: 20rem;
     }
@@ -379,10 +346,6 @@
 @media (prefers-reduced-motion: reduce) {
   .photoGlow {
     animation: none;
-  }
-
-  .resumeButton {
-    transition: none;
   }
 
   .gradientBackground,
