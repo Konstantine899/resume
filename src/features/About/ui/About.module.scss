@@ -2,28 +2,33 @@
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/styles/animations' as *;
 
-.container {
-  width: 100%;
-  max-width: 100%;
-  padding: 48px 16px; // py-12 px-4
+// Section wrapper — vertical padding handled by Section size="xl"
+.aboutSection {
+  // Horizontal padding (Section doesn't provide this)
+  padding-right: 16px;
+  padding-left: 16px;
   overflow: hidden;
   background-color: var(--background-secondary);
   transition: background-color 0.4s ease;
 
   @media (width >= 640px) {
-    padding: 64px 24px; // sm:py-16 sm:px-6
+    padding-right: 24px;
+    padding-left: 24px;
   }
 
   @media (width >= 768px) {
-    padding: 80px 48px; // md:py-20 md:px-12
+    padding-right: 48px;
+    padding-left: 48px;
   }
 
   @media (width >= 1024px) {
-    padding: 80px; // lg:px-20
+    padding-right: 80px;
+    padding-left: 80px;
   }
 
   @media (width >= 1280px) {
-    padding: 80px 96px; // xl:px-24
+    padding-right: 96px;
+    padding-left: 96px;
   }
 }
 
