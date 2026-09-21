@@ -21,6 +21,8 @@
 
 // ============================================
 .gradientContainer {
+  padding-top: 30px;
+  padding-bottom: 30px;
   background: var(--gradient-work-history);
   border-radius: $radius-xl;
   transition: background $transition-duration $transition-easing;
