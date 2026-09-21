@@ -29,9 +29,9 @@ export function useHeading({
   return useMemo(() => {
     // resolveCssModuleKey: сборка экспортирует camelCase-ключи (camelCaseOnly),
     // поэтому kebab-ключи вида `heading--size-2xl` резолвятся в `headingSize2Xl`.
-    const sizeClass = resolveCssModuleKey(styles, `heading--${mapSizeToClass(size)}`);
-    const themeClass = resolveCssModuleKey(styles, `heading--theme-${theme}`);
-    const alignClass = resolveCssModuleKey(styles, `heading--align-${align}`);
+    const sizeClass = resolveCssModuleKey(styles, mapSizeToClass(size));
+    const themeClass = resolveCssModuleKey(styles, theme);
+    const alignClass = resolveCssModuleKey(styles, `align-${align}`);
 
     const headingClassName = classNames(
       styles.heading,

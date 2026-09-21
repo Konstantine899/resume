@@ -1,7 +1,7 @@
-import { memo, forwardRef } from 'react';
-import type { ElementType, ComponentPropsWithRef, ForwardedRef, ComponentRef } from 'react';
+import type { ComponentPropsWithRef, ComponentRef, ElementType, ForwardedRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { useHeading } from '../lib/hooks/useHeading';
-import type { HeadingOwnProps, HeadingAsElement } from '../model/types';
+import type { HeadingAsElement, HeadingOwnProps } from '../model/types';
 
 /**
  * Heading — компонент для семантических заголовков с гибкой типографикой.
