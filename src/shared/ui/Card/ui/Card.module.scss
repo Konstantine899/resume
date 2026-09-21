@@ -213,6 +213,9 @@
   // workHistory variant
   &.workHistory {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     padding: var(--space-3);
     background-color: var(--color-surface);
     border-left: 4px solid var(--color-accent);
