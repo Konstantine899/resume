@@ -29,7 +29,7 @@ export const About: React.FC<AboutFeatureProps> = ({
             <AvatarAbout alt={DEVELOPER_DATA.fullName} size="sm" />
           </div>
 
-          <Heading level={3} className={styles.title}>
+          <Heading level={3} className={styles.title} align="center">
             {t('about')}
           </Heading>
           <Paragraph className={styles.description}>{t('aboutDescription')}</Paragraph>

@@ -44,28 +44,6 @@
 
 // ============================================
 
-// CARD WRAPPER — Card component handles bg/border/shadow, keep padding override
-
-// ============================================
-.card {
-  // Card component provides base styles, we add custom padding
-  padding: 16px; // p-4
-
-  @media (width >= 640px) {
-    padding: 24px; // sm:p-6
-  }
-
-  @media (width >= 768px) {
-    padding: 32px; // md:p-8
-  }
-
-  @media (width >= 1024px) {
-    padding: 48px; // lg:p-12
-  }
-}
-
-// ============================================
-
 // SECTION TITLE
 
 // ============================================

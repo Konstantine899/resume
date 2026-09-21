@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Card } from '@/shared/ui/Card';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
 import type { SkillCategoryData } from '../../model/types';
@@ -31,8 +30,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
   const { category, categoryName, technologies } = categoryData;
 
   return (
-    <Card
-      hoverable={false}
+    <div
       className={classNames(styles.skillItem)}
       data-category={category}
       role="listitem"
@@ -58,7 +56,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
           </div>
         ))}
       </CardGrid>
-    </Card>
+    </div>
   );
 };
 

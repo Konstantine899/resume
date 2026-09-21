@@ -1,16 +1,30 @@
 // ============================================
 
-// SKILL ITEM CARD — Card component handles bg/border/shadow, we add layout + category colors
+// SKILL ITEM CARD — raw div with card-like styles + category colors
 
 // ============================================
 .skillItem {
   display: flex;
   flex-direction: column;
   gap: 16px;
-
-  // ФИКСИРОВАННАЯ ВЫСОТА КАРТОЧКИ (overrides Card's default height)
   height: 280px;
   padding: 20px;
+
+  // Card-like styles (previously from Card component)
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+
+  // Hover effect
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px var(--shadow-color-hover, rgb(0 0 0 / 0.15));
+    transform: translateY(-4px);
+  }
 
   // Применяем цвет заголовка категории в зависимости от категории
   &[data-category='frontend'] {
@@ -39,12 +53,6 @@
 
   &[data-category='ai'] {
     --category-color: var(--skill-color-ai);
-  }
-
-  // Custom hover effect (overrides Card's default hover)
-  &:hover {
-    box-shadow: 0 8px 24px var(--shadow-color-hover, rgb(0 0 0 / 0.15));
-    transform: translateY(-4px);
   }
 
   .categoryName {

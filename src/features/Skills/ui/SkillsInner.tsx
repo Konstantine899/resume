@@ -3,7 +3,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Section } from '@/shared/ui/Section';
-import { Card } from '@/shared/ui/Card';
+import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
 import { SKILLS_DATA } from '../model/constants';
@@ -33,14 +33,14 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
         data-testid={testId}
       >
         <AnimatedSection animation="fadeUp">
-          <Card hoverable={false} className={styles.card}>
+          <Container size="lg" padding="lg">
             <Heading level={3} className={styles.title}>
               {t('mySkills')}
             </Heading>
             <Paragraph theme="muted" align="center" className={styles.emptyState}>
               {t('skillsEmpty')}
             </Paragraph>
-          </Card>
+          </Container>
         </AnimatedSection>
       </Section>
     );
@@ -55,7 +55,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
-        <Card hoverable={false} className={styles.card}>
+        <Container size="lg" padding="lg">
           <Heading level={3} className={styles.title}>
             {t('mySkills')}
           </Heading>
@@ -66,7 +66,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
               </AnimatedSection>
             ))}
           </CardGrid>
-        </Card>
+        </Container>
       </AnimatedSection>
     </Section>
   );
