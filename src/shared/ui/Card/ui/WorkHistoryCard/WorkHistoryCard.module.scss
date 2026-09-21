@@ -1,162 +1,168 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 
-.workHistoryCard {
-  position: relative;
-  padding: var(--space-3);
-  background-color: var(--color-surface);
-  border-left: 4px solid var(--color-accent);
-  border-radius: var(--radius-xl);
-  backdrop-filter: blur(4px);
-  transition: background-color var(--duration-slower) var(--ease-default);
+// Layout-specific styles for WorkHistoryCard
+
+// Base card styles are imported from Card.module.scss
+
+.header {
+  // Card.Header wrapper - no additional styles needed
+}
+
+.headerContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+  justify-content: space-between;
 
   @include sm {
-    padding: var(--space-4);
+    align-items: center;
+  }
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  span {
+    color: var(--color-text-white);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+
+  @include sm {
+    font-size: var(--text-lg);
   }
 
   @include md {
-    padding: var(--space-6);
+    font-size: var(--text-xl);
   }
 
-  .header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: var(--space-3);
-
-    @include sm {
-      align-items: center;
-    }
+  @include lg {
+    font-size: var(--text-2xl);
   }
+}
 
-  .titleSection {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+.company {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  white-space: nowrap;
 
-    span {
-      color: var(--color-text-white);
-    }
+  @include sm {
+    font-size: var(--text-lg);
   }
+}
 
-  .title {
-    margin: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-accent);
+.periodGroup {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
 
-    @include sm {
-      font-size: var(--text-base);
-    }
-
-    @include md {
-      font-size: var(--text-lg);
-    }
-
-    @include lg {
-      font-size: var(--text-xl);
-    }
-  }
-
-  .periodSection {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    margin-bottom: var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-
-    span {
-      color: var(--color-text-white);
-    }
-
-    @include sm {
-      margin-bottom: var(--space-3);
-      font-size: var(--text-sm);
-    }
-  }
-
-  .periodBadge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-accent);
-    background: var(--color-accent-muted);
-    border: 1px solid var(--color-accent);
-    border-radius: var(--radius-full);
-  }
-
-  .location {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    margin-bottom: var(--space-3);
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-
-    > span:last-child {
-      color: var(--color-text-white);
-    }
-
-    @include sm {
-      font-size: var(--text-sm);
-    }
-
-    .locationIcon {
-      font-size: inherit;
-    }
-  }
-
-  .achievements {
-    padding-left: var(--space-4);
-    margin: 0;
-    font-size: var(--text-xs);
-    line-height: var(--line-height-normal);
-    color: var(--color-text-secondary);
-
-    @include sm {
-      font-size: var(--text-sm);
-    }
-
-    @include md {
-      font-size: var(--text-base);
-    }
-
-    li {
-      margin-bottom: var(--space-2);
-    }
-  }
-
-  .techStack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    padding-top: var(--space-3);
-    margin-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .techBadge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-1) var(--space-3);
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-medium);
+  span {
     color: var(--color-text-white);
-    background: var(--color-accent-muted);
-    border: 1px solid var(--color-accent);
-    border-radius: var(--radius-full);
-    transition: all var(--duration-normal) var(--ease-default);
+  }
+}
 
-    &:hover {
-      background: var(--color-accent-muted);
-      transform: translateY(-2px);
+.period {
+  color: inherit;
+}
+
+.periodBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  background: var(--color-accent-muted);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+.body {
+  // Card.Body wrapper - no additional styles needed
+}
+
+.location {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+
+  > span:last-child {
+    color: var(--color-text-white);
+  }
+
+  @include sm {
+    font-size: var(--text-sm);
+  }
+}
+
+.locationIcon {
+  font-size: inherit;
+  color: var(--color-text-white);
+}
+
+.achievements {
+  padding-left: var(--space-4);
+  margin: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-white);
+
+    &::before {
+      position: absolute;
+      left: calc(var(--space-4) * -1);
+      color: var(--color-accent);
+      content: '•';
     }
+  }
+}
+
+.techStack {
+  // Container for Divider + badges
+}
+
+.techDivider {
+  margin-bottom: var(--space-3);
+}
+
+.techBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.techBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-white);
+  background: var(--color-accent-muted);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  transition: all var(--duration-normal) var(--ease-default);
+
+  &:hover {
+    background: var(--color-accent-muted);
+    transform: translateY(-2px);
   }
 }
