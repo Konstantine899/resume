@@ -27,7 +27,7 @@
   gap: var(--space-1);
 
   span {
-    color: var(--color-text-white);
+    color: var(--color-text);
   }
 }
 
@@ -68,7 +68,7 @@
   align-items: center;
 
   span {
-    color: var(--color-text-white);
+    color: var(--color-text-muted);
   }
 }
 
@@ -84,8 +84,8 @@
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--color-accent);
-  background: var(--color-accent-muted);
-  border: 1px solid var(--color-accent);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-muted);
   border-radius: var(--radius-full);
 }
 
@@ -102,7 +102,7 @@
   color: var(--color-text-muted);
 
   > span:last-child {
-    color: var(--color-text-white);
+    color: var(--color-text-secondary);
   }
 
   @include sm {
@@ -112,7 +112,7 @@
 
 .locationIcon {
   font-size: inherit;
-  color: var(--color-text-white);
+  color: var(--color-text-muted);
 }
 
 .achievements {
@@ -123,7 +123,7 @@
   li {
     position: relative;
     margin-bottom: var(--space-2);
-    color: var(--color-text-white);
+    color: var(--color-text);
 
     &::before {
       position: absolute;
@@ -155,9 +155,9 @@
   padding: var(--space-1) var(--space-3);
   font-size: var(--text-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-white);
-  background: var(--color-accent-muted);
-  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-muted);
   border-radius: var(--radius-full);
   transition: all var(--duration-normal) var(--ease-default);
 

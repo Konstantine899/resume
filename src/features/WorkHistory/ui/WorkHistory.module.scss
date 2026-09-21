@@ -1,6 +1,5 @@
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
-@use '@/shared/ui/Section/model/section-mixins' as *;
 
 // ============================================
 
@@ -8,49 +7,12 @@
 
 // ============================================
 .workHistory {
-  @include section-base;
-
   width: 100%;
   max-width: 100%;
-  padding: $spacing-12 0;
   overflow: hidden;
   background-color: var(--background);
 
   @include theme-transition;
-
-  @include sm {
-    padding: $spacing-16 0;
-  }
-
-  @include md {
-    padding: $spacing-20 0;
-  }
-}
-
-// Padding container (px-4 sm:px-6 md:px-12 lg:px-20 xl:px-24)
-.sectionPadding {
-  padding-right: $spacing-4;
-  padding-left: $spacing-4;
-
-  @include sm {
-    padding-right: $spacing-6;
-    padding-left: $spacing-6;
-  }
-
-  @include md {
-    padding-right: $spacing-12;
-    padding-left: $spacing-12;
-  }
-
-  @include lg {
-    padding-right: $spacing-20;
-    padding-left: $spacing-20;
-  }
-
-  @include xl {
-    padding-right: $spacing-24;
-    padding-left: $spacing-24;
-  }
 }
 
 // ============================================
@@ -59,29 +21,12 @@
 
 // ============================================
 .gradientContainer {
-  width: 100%;
-  max-width: 56rem; // max-w-4xl
-  padding: $spacing-4;
-  margin: 0 auto;
   background: var(--gradient-work-history);
   border-radius: $radius-xl;
   transition: background $transition-duration $transition-easing;
 
   [data-theme='light'] & {
     background: var(--gradient-primary);
-  }
-
-  @include sm {
-    padding: $spacing-6;
-    border-radius: $radius-xl;
-  }
-
-  @include md {
-    padding: $spacing-8;
-  }
-
-  @include lg {
-    padding: $spacing-12;
   }
 }
 
@@ -94,6 +39,12 @@
   @include flex-col;
 
   gap: $spacing-3;
+  align-items: center;
+
+  > * {
+    width: 100%;
+    max-width: 48rem;
+  }
 
   @include sm {
     gap: $spacing-4;

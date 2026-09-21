@@ -2,9 +2,12 @@
 
 import { Job, JOBS, sortJobsByDate } from '@/entities/Job';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { WorkHistoryCard } from '@/shared/ui/Card';
+import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
+import { Section } from '@/shared/ui/Section';
 import React from 'react';
 import type { WorkHistoryProps } from '../model/types';
 import styles from './WorkHistory.module.scss';
@@ -32,12 +35,13 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
   };
 
   return (
-    <section
+    <Section
+      size="lg"
       id="experience"
-      className={`${styles.workHistory} ${styles.sectionPadding} ${className}`}
+      className={classNames(styles.workHistory, className)}
       data-testid={testId}
     >
-      <div className={styles.gradientContainer}>
+      <Container size="lg" padding="lg" className={styles.gradientContainer}>
         <AnimatedSection animation="fadeUp">
           <Heading level={2} size="xl" theme="inverted" align="center">
             {t(`workHistory`)}
@@ -59,8 +63,8 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
             </AnimatedSection>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 
