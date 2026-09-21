@@ -1,14 +1,15 @@
 // ============================================
 
-// Z-Index Scale
+// Z-Index Scale (единая шкала)
 
 // ============================================
 
+$z-base: 0 !default;
 $z-dropdown: 1000 !default;
-$z-sticky: 100 !default;
-$z-sidebar: 9999 !default;
-$z-overlay: 1000 !default;
-$z-modal: 10000 !default;
-$z-popover: 1002 !default;
-$z-tooltip: 1003 !default;
-$z-toast: 11000 !default;
+$z-sticky: 2000 !default;
+$z-overlay: 3000 !default;
+$z-sidebar: 4000 !default;
+$z-modal: 5000 !default;
+$z-popover: 6000 !default;
+$z-toast: 7000 !default;
+$z-tooltip: 8000 !default;

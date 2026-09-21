@@ -138,7 +138,7 @@ html {
     position: absolute;
     top: $spacing-md;
     left: $spacing-md;
-    z-index: 9999;
+    z-index: var(--z-tooltip);
     width: auto;
     height: auto;
     padding: $spacing-md $spacing-lg;

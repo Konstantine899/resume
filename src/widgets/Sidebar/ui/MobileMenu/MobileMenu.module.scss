@@ -5,7 +5,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-sidebar);
+  z-index: var(--z-sidebar);
   visibility: hidden;
   opacity: 0;
   transition: all var(--transition-slow);

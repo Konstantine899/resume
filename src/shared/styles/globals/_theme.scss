@@ -204,14 +204,16 @@
   // Letter spacing
   --tracking-wide: 0.05em;
 
-  // Z-index tokens
-  --z-sidebar: 9999;
-  --z-index-sidebar: 9999;
-  --z-modal: 10000;
-  --z-overlay: 1000;
-  --z-tooltip: 11000;
-  --z-toast: 12000;
-  --z-popover: 10500;
+  // Z-index tokens (единая шкала)
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 2000;
+  --z-overlay: 3000;
+  --z-sidebar: 4000;
+  --z-modal: 5000;
+  --z-popover: 6000;
+  --z-toast: 7000;
+  --z-tooltip: 8000;
 
   // ==========================================
 
