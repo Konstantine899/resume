@@ -109,6 +109,7 @@
 
     .locationIcon {
       font-size: inherit;
+      color: var(--color-text-white);
     }
   }
 
@@ -117,7 +118,7 @@
     margin: 0;
     font-size: var(--text-xs);
     line-height: var(--line-height-normal);
-    color: var(--color-text-secondary);
+    color: var(--color-text-white);
 
     @include sm {
       font-size: var(--text-sm);
@@ -129,6 +130,7 @@
 
     li {
       margin-bottom: var(--space-2);
+      color: var(--color-text-white);
     }
   }
 
