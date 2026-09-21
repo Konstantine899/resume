@@ -1,5 +1,8 @@
 import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Card } from '@/shared/ui/Card';
+import { Heading } from '@/shared/ui/Heading';
+import { CardGrid } from '@/shared/ui/Card';
 import type { SkillCategoryData } from '../../model/types';
 import styles from './SkillItem.module.scss';
 
@@ -28,17 +31,20 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
   const { category, categoryName, technologies } = categoryData;
 
   return (
-    <div
-      className={styles.skillItem}
+    <Card
+      hoverable={false}
+      className={classNames(styles.skillItem)}
       data-category={category}
       role="listitem"
       aria-label={`${categoryName}: ${technologies.length} технологий`}
       data-testid={testId}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <h3 className={styles.categoryName}>{categoryName}</h3>
+      <Heading level={4} className={styles.categoryName}>
+        {categoryName}
+      </Heading>
 
-      <div className={styles.skillsGrid} role="list">
+      <CardGrid columns={4} gap="sm" role="list" className={styles.skillsGrid}>
         {technologies.map((tech) => (
           <div key={tech.name} className={styles.techItem} role="listitem" aria-label={tech.name}>
             <img
@@ -51,8 +57,8 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
             <span className={styles.techName}>{tech.name}</span>
           </div>
         ))}
-      </div>
-    </div>
+      </CardGrid>
+    </Card>
   );
 };
 

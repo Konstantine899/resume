@@ -1,6 +1,6 @@
 // ============================================
 
-// SKILL ITEM CARD
+// SKILL ITEM CARD — Card component handles bg/border/shadow, we add layout + category colors
 
 // ============================================
 .skillItem {
@@ -8,18 +8,9 @@
   flex-direction: column;
   gap: 16px;
 
-  // ФИКСИРОВАННАЯ ВЫСОТА КАРТОЧКИ
+  // ФИКСИРОВАННАЯ ВЫСОТА КАРТОЧКИ (overrides Card's default height)
   height: 280px;
   padding: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px var(--shadow-color);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease,
-    border-color 0.3s ease;
 
   // Применяем цвет заголовка категории в зависимости от категории
   &[data-category='frontend'] {
@@ -50,6 +41,7 @@
     --category-color: var(--skill-color-ai);
   }
 
+  // Custom hover effect (overrides Card's default hover)
   &:hover {
     box-shadow: 0 8px 24px var(--shadow-color-hover, rgb(0 0 0 / 0.15));
     transform: translateY(-4px);
@@ -58,9 +50,6 @@
   .categoryName {
     flex-shrink: 0;
     padding-bottom: 8px;
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
     color: var(--category-color);
     border-bottom: 2px solid var(--category-color);
     transition: color 0.3s ease;
@@ -70,25 +59,13 @@
     }
   }
 
-  // GRID С ТЕХНОЛОГИЯМИ (4 колонки, 2 строки, скролл при переполнении)
+  // GRID С ТЕХНОЛОГИЯМИ — CardGrid handles columns, we add scroll + height constraints
   .skillsGrid {
-    display: grid;
-    grid-template-rows: repeat(2, 1fr);
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
     max-height: calc(100% - 60px); // Вычитаем высоту заголовка
     padding: 8px 0;
 
     // ВЕРТИКАЛЬНЫЙ СКРОЛЛ ПРИ ПЕРЕПОЛНЕНИИ
     overflow-y: auto;
-
-    @media (width >= 640px) {
-      gap: 16px;
-    }
-
-    @media (width >= 1024px) {
-      gap: 20px;
-    }
 
     // Кастомизация скроллбара
     &::-webkit-scrollbar {

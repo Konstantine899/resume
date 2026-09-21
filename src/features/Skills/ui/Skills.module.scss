@@ -3,13 +3,16 @@
 
 // ============================================
 
-// ROOT CONTAINER
+// ROOT CONTAINER — Section provides vertical padding, this adds horizontal + background
 
 // ============================================
 .skillsSection {
   width: 100%;
   max-width: 100%;
-  padding: 48px 16px; // py-12 px-4
+
+  // Horizontal padding only — Section size="xl" handles vertical
+  padding-right: 16px; // px-4
+  padding-left: 16px; // px-4
   overflow: hidden;
   background-color: var(--background-secondary);
   transition: background-color 0.4s ease;
@@ -19,41 +22,37 @@
   }
 
   @media (width >= 640px) {
-    padding: 56px 24px; // sm:py-14 sm:px-6
+    padding-right: 24px; // sm:px-6
+    padding-left: 24px; // sm:px-6
   }
 
   @media (width >= 768px) {
-    padding: 64px 48px; // md:py-16 md:px-12
+    padding-right: 48px; // md:px-12
+    padding-left: 48px; // md:px-12
   }
 
   @media (width >= 1024px) {
-    padding: 64px 80px; // lg:px-20
+    padding-right: 80px; // lg:px-20
+    padding-left: 80px; // lg:px-20
   }
 
   @media (width >= 1280px) {
-    padding: 64px 96px; // xl:px-24
+    padding-right: 96px; // xl:px-24
+    padding-left: 96px; // xl:px-24
   }
 }
 
 // ============================================
 
-// CARD CONTAINER
+// CARD WRAPPER — Card component handles bg/border/shadow, keep padding override
 
 // ============================================
 .card {
-  width: 100%;
-  max-width: 1024px; // max-w-5xl
+  // Card component provides base styles, we add custom padding
   padding: 16px; // p-4
-  margin: 0 auto;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px; // rounded-xl
-  box-shadow: 0 4px 20px var(--shadow-color);
-  transition: all 0.4s ease;
 
   @media (width >= 640px) {
     padding: 24px; // sm:p-6
-    border-radius: 16px; // sm:rounded-2xl
   }
 
   @media (width >= 768px) {
@@ -97,12 +96,11 @@
 
 // ============================================
 
-// CATEGORIES LIST
+// CATEGORIES LIST — CardGrid handles grid layout, keep gap override
 
 // ============================================
 .categoriesList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  // CardGrid handles grid columns, we add custom gap
   gap: 16px;
 
   @media (width >= 640px) {
@@ -110,12 +108,7 @@
   }
 
   @media (width >= 768px) {
-    grid-template-columns: repeat(2, 1fr);
     gap: 32px;
-  }
-
-  @media (width >= 1024px) {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
