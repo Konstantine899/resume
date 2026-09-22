@@ -59,7 +59,7 @@ $button-focus-offset: 2px;
 @mixin color-scheme-success {
   --btn-fill: var(--success);
   --btn-fill-hover: var(--color-success);
-  --btn-fill-text: var(--color-text-inverse);
+  --btn-fill-text: var(--color-text-on-success);
   --btn-color: var(--success);
   --btn-color-subtle: rgb(40 167 69 / 0.15);
   --btn-focus-outline: var(--shadow-focus);
@@ -68,7 +68,7 @@ $button-focus-offset: 2px;
 @mixin color-scheme-warning {
   --btn-fill: var(--warning);
   --btn-fill-hover: var(--color-warning);
-  --btn-fill-text: var(--color-text-primary);
+  --btn-fill-text: var(--color-text-on-warning);
   --btn-color: var(--warning);
   --btn-color-subtle: rgb(255 193 7 / 0.2);
   --btn-focus-outline: var(--shadow-focus);

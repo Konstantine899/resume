@@ -28,7 +28,7 @@
   // Border
 
   --color-border-primary: #e5e7eb;
-  --color-border-focus: #3b82f6;
+  --color-border-focus: #2563eb;
   --color-border-divider: #f3f4f6;
   --color-border: var(--color-border-primary);
   --color-border-subtle: var(--color-border-divider);
@@ -45,29 +45,33 @@
   --color-text: var(--color-text-primary);
   --color-text-muted: var(--color-text-tertiary);
 
+  // Text on status fills (buttons) — dark ink on light status colors for AA
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
+
   // Brand / Accent
 
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
   --color-accent-light: #eff6ff;
-  --color-accent-muted: rgb(59 130 246 / 0.5);
+  --color-accent-muted: rgb(37 99 235 / 0.5);
 
   // Semantic / Status
 
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
   --color-success-muted: rgb(16 185 129 / 0.5);
   --color-warning-muted: rgb(245 158 11 / 0.5);
-  --color-error-muted: rgb(239 68 68 / 0.5);
-  --color-info-muted: rgb(59 130 246 / 0.5);
+  --color-error-muted: rgb(220 38 38 / 0.5);
+  --color-info-muted: rgb(37 99 235 / 0.5);
   --color-success-subtle: rgb(16 185 129 / 0.15);
   --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(239 68 68 / 0.15);
-  --color-accent-subtle: rgb(59 130 246 / 0.15);
+  --color-error-subtle: rgb(220 38 38 / 0.15);
+  --color-accent-subtle: rgb(37 99 235 / 0.15);
   --color-success-hover: #059669;
-  --color-error-hover: #dc2626;
+  --color-error-hover: #b91c1c;
   --color-warning-hover: #d97706;
   --color-focus-ring: var(--color-accent);
   --color-skeleton: var(--color-surface-secondary);
@@ -76,7 +80,7 @@
 
   --color-shadow-light: rgb(0 0 0 / 0.1);
   --color-shadow-medium: rgb(0 0 0 / 0.15);
-  --color-shadow-focus: rgb(59 130 246 / 0.1);
+  --color-shadow-focus: rgb(37 99 235 / 0.1);
   --color-skeleton-shimmer: rgb(255 255 255 / 0.4);
 
   // Dark surface (for dark theme cards/modals)
@@ -379,7 +383,7 @@
 
   // Border tokens for dark theme
   --color-border-primary: #4b5563;
-  --color-border-focus: #3b82f6;
+  --color-border-focus: #f4b377;
   --color-border-divider: #374151;
 
   // Text tokens for dark theme
@@ -399,14 +403,14 @@
   // Status tokens for dark theme
   --color-success: #22c55e;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-error: #f87171;
   --color-success-muted: rgb(34 197 94 / 0.5);
   --color-warning-muted: rgb(245 158 11 / 0.5);
-  --color-error-muted: rgb(239 68 68 / 0.5);
+  --color-error-muted: rgb(248 113 113 / 0.5);
   --color-info-muted: rgb(96 165 250 / 0.5);
   --color-success-subtle: rgb(34 197 94 / 0.15);
   --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(239 68 68 / 0.15);
+  --color-error-subtle: rgb(248 113 113 / 0.15);
   --color-accent-subtle: rgb(244 179 119 / 0.15);
 
   // Shadow tokens for dark theme
@@ -455,6 +459,10 @@
   --color-accent-muted: rgb(244 179 119 / 0.5);
   --color-focus-ring: var(--color-accent);
 
+  // Text on status fills (dark theme) — dark ink keeps AA on light status colors
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
+
   // Sidebar tokens for dark theme
   --nav-item-color-hover: var(--color-text-primary);
   --nav-item-bg-hover: var(--color-accent-tint-20);
@@ -494,7 +502,7 @@
   --link-secondary-hover: var(--foreground);
 
   // Form variables for dark theme
-  --form-error: #ef4444;
+  --form-error: #f87171;
   --form-success: #22c55e;
   --form-warning: #f59e0b;
 
@@ -522,7 +530,7 @@
 
   // Border tokens for light theme
   --color-border-primary: #e5e7eb;
-  --color-border-focus: #3b82f6;
+  --color-border-focus: #2563eb;
   --color-border-divider: #f3f4f6;
 
   // Text tokens for light theme
@@ -534,24 +542,24 @@
   --color-text-inverse: #fff;
 
   // Brand tokens for light theme
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
   --color-accent-light: #eff6ff;
 
   // Status tokens for light theme
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-error: #dc2626;
   --color-success-subtle: rgb(16 185 129 / 0.15);
   --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(239 68 68 / 0.15);
-  --color-accent-subtle: rgb(59 130 246 / 0.15);
+  --color-error-subtle: rgb(220 38 38 / 0.15);
+  --color-accent-subtle: rgb(37 99 235 / 0.15);
 
   // Shadow tokens for light theme
 
   --color-shadow-light: rgb(0 0 0 / 0.1);
   --color-shadow-medium: rgb(0 0 0 / 0.15);
-  --color-shadow-focus: rgb(59 130 246 / 0.1);
+  --color-shadow-focus: rgb(37 99 235 / 0.1);
   --color-skeleton-shimmer: rgb(255 255 255 / 0.4);
 
   // Dark surface for light theme (used in dark sections)
@@ -582,8 +590,12 @@
   --color-text-muted: var(--color-text-tertiary);
 
   // Accent variants for light theme
-  --color-accent-muted: rgb(59 130 246 / 0.5);
+  --color-accent-muted: rgb(37 99 235 / 0.5);
   --color-focus-ring: var(--color-accent);
+
+  // Text on status fills (light theme) — dark ink keeps AA on light status colors
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
 
   // Backward-compatible aliases
   --background: #f5f3f0;
@@ -594,7 +606,7 @@
   // Aliases for text colors
   --text-primary: #1a1716;
   --text-tertiary: #6b7280;
-  --gradient-text: linear-gradient(135deg, #93c5fd 0%, #3b82f6 40%, #1d4ed8 100%);
+  --gradient-text: linear-gradient(135deg, #93c5fd 0%, #2563eb 40%, #1d4ed8 100%);
   --card-bg: var(--color-surface-primary);
   --card-border: var(--color-border-primary);
   --shadow-color: var(--color-shadow-light);
