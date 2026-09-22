@@ -142,18 +142,18 @@
       }
 
       .techName {
-        font-size: 11px;
+        font-size: var(--text-xs);
         font-weight: 500;
         color: var(--foreground-muted);
         text-align: center;
         transition: color 0.3s ease;
 
         @media (width >= 640px) {
-          font-size: 12px;
+          font-size: var(--text-xs);
         }
 
         @media (width >= 768px) {
-          font-size: 13px;
+          font-size: var(--text-sm);
         }
 
         &:hover {

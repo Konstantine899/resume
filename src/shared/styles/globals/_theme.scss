@@ -180,6 +180,8 @@
   --shadow-xl:
     0 20px 25px -5px var(--color-shadow-medium), 0 8px 10px -6px var(--color-shadow-medium);
   --shadow-focus: 0 0 0 3px var(--color-shadow-focus);
+  --shadow-focus-error: 0 0 0 3px var(--color-error-muted);
+  --shadow-focus-success: 0 0 0 3px var(--color-success-muted);
   --shadow-sidebar: -4px 0 20px var(--color-shadow-medium);
 
   // Transition tokens
@@ -244,7 +246,7 @@
 
   // Navigation
   --nav-item-color: var(--color-text-secondary);
-  --nav-item-color-hover: #3f84f6;
+  --nav-item-color-hover: var(--color-accent);
   --nav-item-bg-hover: #eff6ff;
   --nav-item-bg-active: #eff6ff;
 
