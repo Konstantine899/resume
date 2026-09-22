@@ -5,13 +5,20 @@ export interface InputValidationWarning {
   message: string;
 }
 
+export interface InputAccessibilityInfo {
+  label?: string;
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+}
+
 export const validateInputProps = (
   variant: string,
   size: string,
   showCounter?: boolean,
   maxLength?: number,
   _disabled?: boolean,
-  _loading?: boolean
+  _loading?: boolean,
+  accessibility?: InputAccessibilityInfo
 ): InputValidationWarning[] => {
   const warnings: InputValidationWarning[] = [];
 
@@ -36,6 +43,19 @@ export const validateInputProps = (
       prop: 'maxLength',
       message:
         '[Input] showCounter is true but maxLength is not set. Counter will not display correctly.',
+    });
+  }
+
+  if (
+    accessibility &&
+    !accessibility.label &&
+    !accessibility.ariaLabel &&
+    !accessibility.ariaLabelledby
+  ) {
+    warnings.push({
+      prop: 'label',
+      message:
+        '[Input] Missing accessible name: pass "label", "aria-label", or "aria-labelledby" so screen readers can identify the field.',
     });
   }
 

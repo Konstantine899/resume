@@ -12,6 +12,10 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  args: {
+    label: 'Label',
+    placeholder: 'Type here...',
+  },
   argTypes: {
     variant: {
       control: 'select',
@@ -48,11 +52,11 @@ export const Variants: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <Input size="xs" placeholder="XSmall (0.75rem)" />
-      <Input size="sm" placeholder="Small (0.875rem)" />
-      <Input size="md" placeholder="Medium (1rem)" />
-      <Input size="lg" placeholder="Large (1.125rem)" />
-      <Input size="xl" placeholder="XLarge (1.25rem)" />
+      <Input size="xs" aria-label="Size: XSmall" placeholder="XSmall (0.75rem)" />
+      <Input size="sm" aria-label="Size: Small" placeholder="Small (0.875rem)" />
+      <Input size="md" aria-label="Size: Medium" placeholder="Medium (1rem)" />
+      <Input size="lg" aria-label="Size: Large" placeholder="Large (1.125rem)" />
+      <Input size="xl" aria-label="Size: XLarge" placeholder="XLarge (1.25rem)" />
     </div>
   ),
   play: async ({ canvasElement }) => {
