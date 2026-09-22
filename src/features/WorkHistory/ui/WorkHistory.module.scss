@@ -21,14 +21,19 @@
 
 // ============================================
 .gradientContainer {
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: var(--space-8); // 30px → ближайший кратный 4 (32px)
+  padding-bottom: var(--space-8);
   background: var(--gradient-work-history);
   border-radius: $radius-xl;
   transition: background $transition-duration $transition-easing;
 
   [data-theme='light'] & {
     background: var(--gradient-primary);
+
+    // Light band is the light gray gradient — section heading uses dark token for WCAG AA.
+    h2 {
+      color: var(--color-text-primary);
+    }
   }
 }
 
@@ -45,7 +50,7 @@
 
   > * {
     width: 100%;
-    max-width: 48rem;
+    max-width: $container-md; // 768px — контейнерная сетка
   }
 
   @include sm {

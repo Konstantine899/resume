@@ -149,6 +149,12 @@ html {
     background: var(--primary);
     border-radius: $border-radius-md;
   }
+
+  // Light theme: primary color is a mid-orange — white text fails WCAG AA, so use the dark text token.
+
+  [data-theme='light'] &:focus {
+    color: var(--color-text-primary);
+  }
 }
 
 // ============================================

@@ -9,13 +9,9 @@
  * Миксин для initial текста (инициалы)
  */
 @mixin avatar-initial {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   line-height: 1;
-  color: #f4b377;
-
-  [data-theme='light'] & {
-    color: #3f84f6;
-  }
+  color: var(--avatar-initial-color);
 }
 
 @mixin avatar-inner {
@@ -24,7 +20,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: #3a2e28;
+  background: var(--avatar-bg);
   border-radius: 50%;
   transition: background $transition-duration $transition-easing;
 }
@@ -35,7 +31,7 @@
   background: var(--gradient-primary);
   border-radius: 50%;
   opacity: 0.3;
-  filter: blur(40px);
+  filter: blur(var(--space-10));
 
   @include pulse-glow;
 }
@@ -44,7 +40,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 2px solid rgb(244 179 119 / 0.2);
+  border: 2px solid var(--color-accent-tint-20);
   border-radius: 50%;
   transform: scale(1.1);
 

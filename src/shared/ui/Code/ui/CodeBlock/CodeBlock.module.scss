@@ -60,7 +60,7 @@
     min-width: 100%;
     padding: var(--space-6);
     margin: 0;
-    font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+    font-family: var(--font-family-code);
     font-size: var(--text-xs);
     line-height: var(--leading-relaxed);
     color: var(--color-text);
@@ -98,7 +98,7 @@
   flex-shrink: 0;
   flex-direction: column;
   padding: var(--space-4) var(--space-4) var(--space-4) 0;
-  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-family: var(--font-family-code);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   color: var(--color-text-muted);

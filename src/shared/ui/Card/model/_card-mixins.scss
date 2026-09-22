@@ -1,11 +1,11 @@
 // Card Mixins
 
 @mixin card {
-  height: 220px;
+  height: var(--space-55);
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--duration-normal) var(--ease-default);
 
   &:hover {
     box-shadow: var(--shadow-md);

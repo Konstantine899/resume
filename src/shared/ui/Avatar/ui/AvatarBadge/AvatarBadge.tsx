@@ -22,13 +22,6 @@ const BADGE_SIZES: Record<AvatarSize, string> = {
   xl: '20px',
 };
 
-const STATUS_COLORS: Record<AvatarBadgeStatus, string> = {
-  online: 'var(--success, #22c55e)',
-  offline: 'var(--text-muted, #9ca3af)',
-  busy: 'var(--danger, #ef4444)',
-  away: 'var(--warning, #f59e0b)',
-};
-
 /**
  * AvatarBadge — индикатор присутствия для аватара
  *
@@ -44,7 +37,6 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
   'aria-label': ariaLabel = `Status: ${status}`,
 }) => {
   const badgeSize = BADGE_SIZES[size];
-  const badgeColor = STATUS_COLORS[status];
 
   const badgeClasses = classNames(
     styles.badge,
@@ -58,7 +50,6 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
       style={{
         width: badgeSize,
         height: badgeSize,
-        backgroundColor: badgeColor,
       }}
       role="status"
       aria-label={ariaLabel}

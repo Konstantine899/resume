@@ -14,11 +14,11 @@
     height: var(--avatar-size-hero-sm);
 
     .photo-circle {
-      padding: 2px;
+      padding: var(--space-0-5);
     }
 
     .initial {
-      font-size: 2.5rem;
+      font-size: 2.5rem; // вне текстовой шкалы — геройский размер, не токенизируем
 
       @include avatar-initial;
     }
@@ -29,11 +29,11 @@
     height: var(--avatar-size-hero-md);
 
     .photo-circle {
-      padding: 4px;
+      padding: var(--space-1);
     }
 
     .initial {
-      font-size: 4rem;
+      font-size: 4rem; // вне текстовой шкалы — геройский размер, не токенизируем
 
       @include avatar-initial;
     }
@@ -44,11 +44,11 @@
     height: var(--avatar-size-hero-lg);
 
     .photo-circle {
-      padding: 6px;
+      padding: var(--space-1-5);
     }
 
     .initial {
-      font-size: 6rem;
+      font-size: 6rem; // вне текстовой шкалы — геройский размер, не токенизируем
 
       @include avatar-initial;
     }
@@ -59,11 +59,11 @@
     height: var(--avatar-size-hero-lg);
 
     .photo-circle {
-      padding: 6px;
+      padding: var(--space-1-5);
     }
 
     .initial {
-      font-size: 6rem;
+      font-size: 6rem; // вне текстовой шкалы — геройский размер, не токенизируем
 
       @include avatar-initial;
     }
@@ -88,7 +88,7 @@
     box-shadow: var(--shadow-xl);
 
     [data-theme='light'] & {
-      background: #3f84f6;
+      background: var(--avatar-initial-color);
     }
 
     // Внутренний контейнер для контента

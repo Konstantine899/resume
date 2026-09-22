@@ -359,3 +359,11 @@
 .photoInner {
   transition: background $transition-duration $transition-easing;
 }
+
+// Light theme: band is the light gray gradient, so band text uses dark tokens for WCAG AA (dark theme keeps WorkHistory pattern).
+
+[data-theme='light'] {
+  .greeting {
+    color: var(--color-text-primary);
+  }
+}

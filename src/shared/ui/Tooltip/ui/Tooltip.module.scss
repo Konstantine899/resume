@@ -46,8 +46,8 @@
   // Arrow positioning
   &::after {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: var(--space-2);
+    height: var(--space-2);
     content: '';
     background-color: var(--color-surface-elevated);
     transform: rotate(45deg);
@@ -63,7 +63,7 @@
     &::after,
     > .arrow {
       left: 50%;
-      margin-left: -4px;
+      margin-left: calc(var(--space-1) * -1);
     }
   }
 
@@ -72,7 +72,7 @@
   &.top-end {
     &::after,
     > .arrow {
-      bottom: -4px;
+      bottom: calc(var(--space-1) * -1);
     }
   }
 
@@ -81,7 +81,7 @@
   &.bottom-end {
     &::after,
     > .arrow {
-      top: -4px;
+      top: calc(var(--space-1) * -1);
     }
   }
 
@@ -90,7 +90,7 @@
   &.bottom-start {
     &::after,
     > .arrow {
-      left: 16px;
+      left: var(--space-4);
       margin-left: 0;
     }
   }
@@ -99,7 +99,7 @@
   &.bottom-end {
     &::after,
     > .arrow {
-      right: 16px;
+      right: var(--space-4);
       margin-left: 0;
     }
   }
@@ -113,7 +113,7 @@
     &::after,
     > .arrow {
       top: 50%;
-      margin-top: -4px;
+      margin-top: calc(var(--space-1) * -1);
     }
   }
 
@@ -122,7 +122,7 @@
   &.left-end {
     &::after,
     > .arrow {
-      right: -4px;
+      right: calc(var(--space-1) * -1);
     }
   }
 
@@ -131,7 +131,7 @@
   &.right-end {
     &::after,
     > .arrow {
-      left: -4px;
+      left: calc(var(--space-1) * -1);
     }
   }
 
@@ -140,7 +140,7 @@
   &.right-start {
     &::after,
     > .arrow {
-      top: 16px;
+      top: var(--space-4);
       margin-top: 0;
     }
   }
@@ -149,7 +149,7 @@
   &.right-end {
     &::after,
     > .arrow {
-      bottom: 16px;
+      bottom: var(--space-4);
       margin-top: 0;
     }
   }
@@ -167,8 +167,8 @@
 // Стрелка как отдельный элемент (compound API).
 .arrow {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: var(--space-2);
+  height: var(--space-2);
   content: '';
   background-color: var(--color-surface-elevated);
   transform: rotate(45deg);
@@ -180,7 +180,7 @@
 
   // Accessibility focus
   &:focus-visible {
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline: var(--space-0-5) solid var(--color-focus-ring);
+    outline-offset: var(--space-0-5);
   }
 }

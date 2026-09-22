@@ -5,13 +5,12 @@
 // ============================================
 
 @use '@/shared/styles/mixins/layout' as *;
-@use '../../model/modal-constants' as *;
 
 .closeButton {
   @include flex-center;
 
-  width: $icon-button-size;
-  height: $icon-button-size;
+  width: var(--space-8);
+  height: var(--space-8);
   padding: 0;
   color: var(--color-text-muted);
   cursor: pointer;

@@ -3,7 +3,7 @@
 
 .projectCard {
   position: relative;
-  min-height: 280px;
+  min-height: var(--space-70);
   overflow: hidden;
   background: linear-gradient(
     135deg,
@@ -11,7 +11,7 @@
     var(--color-surface-dark-elevated) 100%
   );
   border: 1px solid var(--color-text-on-dark-tertiary);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-xl);
 
   .backgroundImage {
     position: absolute;
@@ -38,27 +38,27 @@
   .content {
     position: relative;
     z-index: 1;
-    padding: 1.5rem;
+    padding: var(--space-6);
 
     @include lg {
-      padding: 2rem;
+      padding: var(--space-8);
     }
   }
 
   .title {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
     font-size: 1.75rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--foreground);
   }
 
   .techSection {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
   }
 
   .techIcons {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: center;
   }
 
@@ -70,7 +70,7 @@
 
   .linkSection {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: center;
   }
 }

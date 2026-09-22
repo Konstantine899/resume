@@ -182,7 +182,7 @@
 
     &:focus {
       border-color: var(--color-error);
-      box-shadow: 0 0 0 3px var(--color-error-muted);
+      box-shadow: var(--shadow-focus-error);
     }
   }
 
@@ -191,7 +191,7 @@
 
     &:focus {
       border-color: var(--color-success);
-      box-shadow: 0 0 0 3px var(--color-success-muted);
+      box-shadow: var(--shadow-focus-success);
     }
   }
 
@@ -322,7 +322,7 @@
 
     &:not(:placeholder-shown) ~ .floatingLabel {
       color: var(--color-accent);
-      transform: translateY(-1.75rem) scale(0.85);
+      transform: translateY(calc(var(--space-1) * -7)) scale(0.85);
     }
 
     &:focus ~ .floatingLabel {
@@ -339,19 +339,19 @@
     }
 
     &.xs:not(:placeholder-shown) ~ .floatingLabel {
-      transform: translateY(-1.25rem) scale(0.65);
+      transform: translateY(calc(var(--space-1) * -5)) scale(0.65);
     }
 
     &.sm:not(:placeholder-shown) ~ .floatingLabel {
-      transform: translateY(-1.5rem) scale(0.75);
+      transform: translateY(calc(var(--space-1) * -6)) scale(0.75);
     }
 
     &.lg:not(:placeholder-shown) ~ .floatingLabel {
-      transform: translateY(-2rem) scale(0.9);
+      transform: translateY(calc(var(--space-1) * -8)) scale(0.9);
     }
 
     &.xl:not(:placeholder-shown) ~ .floatingLabel {
-      transform: translateY(-2.25rem) scale(0.95);
+      transform: translateY(calc(var(--space-1) * -9)) scale(0.95);
     }
   }
 }

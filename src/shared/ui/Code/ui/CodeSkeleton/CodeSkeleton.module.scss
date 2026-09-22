@@ -1,3 +1,5 @@
+@use '@/shared/styles/mixins' as *;
+
 .blockSkeleton {
   display: flex;
   flex-direction: column;
@@ -24,15 +26,15 @@
 
 // Terminal traffic-light colors (decorative, not semantic)
 .red {
-  background-color: #ff5f56;
+  @include terminal-dot-red;
 }
 
 .yellow {
-  background-color: #ffbd2e;
+  @include terminal-dot-yellow;
 }
 
 .green {
-  background-color: #27c93f;
+  @include terminal-dot-green;
 }
 
 .title {

@@ -73,6 +73,10 @@ function InputImpl<C extends React.ElementType = 'input'>(
   const inputRef = React.useRef<HTMLElement>(null);
   const mergedRef = useMergeRefs(ref as React.Ref<HTMLElement>, inputRef);
 
+  // Accessibility props (destructured for the dev-warning effect below)
+  const ariaLabel = props['aria-label'] as string | undefined;
+  const ariaLabelledby = props['aria-labelledby'] as string | undefined;
+
   // useInput hook for value state, character count, and accessible states
   const rawProps = props as Record<string, unknown>;
   const {
@@ -123,14 +127,29 @@ function InputImpl<C extends React.ElementType = 'input'>(
         showCounter,
         props.maxLength as number | undefined,
         disabled,
-        loading
+        loading,
+        {
+          label,
+          ariaLabel,
+          ariaLabelledby,
+        }
       );
       warnings.forEach((w) => {
         // eslint-disable-next-line no-console
         console.warn(w.message);
       });
     }
-  }, [variant, size, showCounter, props.maxLength, disabled, loading]);
+  }, [
+    variant,
+    size,
+    showCounter,
+    props.maxLength,
+    disabled,
+    loading,
+    label,
+    ariaLabel,
+    ariaLabelledby,
+  ]);
 
   // Build CSS classes (используем classNames)
   const inputClasses = classNames(
