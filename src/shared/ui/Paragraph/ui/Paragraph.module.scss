@@ -63,7 +63,7 @@
   }
 
   &.gradient {
-    background: var(--gradient-text, linear-gradient(135deg, #667eea, #764ba2));
+    background: var(--gradient-text);
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
