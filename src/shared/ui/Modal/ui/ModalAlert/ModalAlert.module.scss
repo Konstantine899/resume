@@ -11,6 +11,8 @@
   justify-content: center;
   margin-bottom: var(--space-4);
   font-size: var(--space-8);
+
+  // line-height: 1 — вне leading-шкалы, иконка центрируется как квадрат, задокументированное исключение
   line-height: 1;
 }
 
@@ -18,6 +20,8 @@
   margin: 0 0 var(--space-2);
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);
+
+  // line-height: 1.4 — вне leading-шкалы (1.375/1.5/1.625), задокументированное исключение
   line-height: 1.4;
   color: var(--color-text);
 }
@@ -25,7 +29,7 @@
 .message {
   margin: 0;
   font-size: var(--text-sm);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
   color: var(--color-text-muted);
 }
 
