@@ -34,11 +34,11 @@
   }
 
   &.weight-100 {
-    font-weight: 100;
+    font-weight: var(--font-weight-thin);
   }
 
   &.weight-200 {
-    font-weight: 200;
+    font-weight: var(--font-weight-extralight);
   }
 
   &.weight-300 {
@@ -62,11 +62,11 @@
   }
 
   &.weight-800 {
-    font-weight: 800;
+    font-weight: var(--font-weight-extrabold);
   }
 
   &.weight-900 {
-    font-weight: 900;
+    font-weight: var(--font-weight-black);
   }
 
   &.primary {
@@ -94,7 +94,7 @@
   }
 
   &.gradient {
-    background: var(--gradient-text, linear-gradient(135deg, #667eea, #764ba2));
+    background: var(--gradient-text);
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
@@ -112,7 +112,7 @@
   }
 
   &.align-center {
-    padding-bottom: 20px;
+    padding-bottom: var(--space-5);
     text-align: center;
   }
 
