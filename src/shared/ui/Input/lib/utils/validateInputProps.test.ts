@@ -33,6 +33,15 @@ describe('validateInputProps', () => {
     ).toBe(true);
   });
 
+  it('warns when accessible name is whitespace-only', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, false, false, {
+      label: '   ',
+    });
+    expect(
+      warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
+    ).toBe(true);
+  });
+
   it('does not warn when label is provided', () => {
     const warnings = validateInputProps('default', 'md', false, undefined, false, false, {
       label: 'Email',

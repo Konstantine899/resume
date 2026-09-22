@@ -48,9 +48,9 @@ export const validateInputProps = (
 
   if (
     accessibility &&
-    !accessibility.label &&
-    !accessibility.ariaLabel &&
-    !accessibility.ariaLabelledby
+    !accessibility.label?.trim() &&
+    !accessibility.ariaLabel?.trim() &&
+    !accessibility.ariaLabelledby?.trim()
   ) {
     warnings.push({
       prop: 'label',
