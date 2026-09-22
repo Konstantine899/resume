@@ -113,3 +113,19 @@
     white-space: nowrap;
   }
 }
+
+// Light theme: band is the light gray gradient, so band text uses dark tokens for WCAG AA (dark theme keeps WorkHistory pattern).
+
+[data-theme='light'] {
+  .title {
+    color: var(--color-text-primary);
+  }
+
+  .socialLink {
+    color: var(--color-text-primary);
+
+    &:hover {
+      color: var(--color-text-secondary);
+    }
+  }
+}
