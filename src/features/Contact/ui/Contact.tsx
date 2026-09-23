@@ -27,7 +27,7 @@ export function Contact() {
     <Section id="contact" size="xl" className={styles.container}>
       <Container size="lg" padding="lg">
         <AnimatedSection animation="fadeUp">
-          <Heading level={2} className={styles.title}>
+          <Heading level={2} theme="inverted" className={styles.title}>
             {t('contact')}
           </Heading>
         </AnimatedSection>
@@ -49,7 +49,7 @@ export function Contact() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={status === 'submitting'}
-                  className={styles.input}
+                  fullWidth
                   required
                 />
 
@@ -60,7 +60,7 @@ export function Contact() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={status === 'submitting'}
-                  className={styles.input}
+                  fullWidth
                   required
                 />
 
@@ -80,11 +80,7 @@ export function Contact() {
                 />
 
                 {/* Кнопка отправки */}
-                <Button
-                  type="submit"
-                  loading={status === 'submitting'}
-                  className={styles.submitButton}
-                >
+                <Button type="submit" loading={status === 'submitting'} fullWidth>
                   {status === 'submitting' ? t('sending') : t('sendMessage')}
                 </Button>
 

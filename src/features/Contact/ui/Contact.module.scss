@@ -17,8 +17,6 @@
 .title {
   margin-bottom: var(--space-6);
   font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-inverse);
 
   @media (width >= 640px) {
     margin-bottom: var(--space-8);
@@ -53,45 +51,6 @@
 
   @media (width >= 640px) {
     gap: var(--space-4);
-  }
-}
-
-.input {
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition:
-    border-color var(--duration-normal) var(--ease-default),
-    box-shadow var(--duration-normal) var(--ease-default);
-
-  @media (width >= 640px) {
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-base);
-  }
-
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-
-  &:hover:not(:focus, :disabled) {
-    border-color: var(--color-text-muted);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: var(--shadow-focus);
-  }
-
-  &:disabled {
-    color: var(--color-text-muted);
-    cursor: not-allowed;
-    background: var(--color-surface-disabled);
   }
 }
 
@@ -151,45 +110,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-}
-
-.submitButton {
-  width: 100%;
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--text-base);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-snug);
-  color: var(--color-link-accent);
-  cursor: pointer;
-  background-color: transparent;
-  border: 2px solid var(--color-link-accent);
-  border-radius: var(--radius-button);
-  transition:
-    background var(--duration-normal) var(--ease-default),
-    color var(--duration-normal) var(--ease-default),
-    box-shadow var(--duration-normal) var(--ease-default);
-
-  &:hover:not(:disabled) {
-    color: var(--color-text-white);
-    background: var(--color-link-accent);
-    box-shadow: var(--shadow-lg);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--shadow-focus);
-  }
-
-  &:disabled {
-    color: var(--color-text-quaternary);
-    pointer-events: none;
-    cursor: not-allowed;
-    background: var(--color-surface-disabled);
-  }
-
-  @media (width >= 640px) {
-    padding: var(--space-3) var(--space-6);
-    font-size: var(--text-base);
   }
 }
