@@ -27,7 +27,7 @@ export function Contact() {
     <Section id="contact" size="xl" className={styles.container}>
       <Container size="lg" padding="lg">
         <AnimatedSection animation="fadeUp">
-          <Heading level={2} className={styles.title}>
+          <Heading level={2} theme="inverted" className={styles.title}>
             {t('contact')}
           </Heading>
         </AnimatedSection>
@@ -49,7 +49,7 @@ export function Contact() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={status === 'submitting'}
-                  className={styles.input}
+                  fullWidth
                   required
                 />
 
@@ -60,7 +60,7 @@ export function Contact() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={status === 'submitting'}
-                  className={styles.input}
+                  fullWidth
                   required
                 />
 
@@ -77,14 +77,11 @@ export function Contact() {
                   variant="outline"
                   size="md"
                   resize="none"
+                  fullWidth
                 />
 
                 {/* Кнопка отправки */}
-                <Button
-                  type="submit"
-                  loading={status === 'submitting'}
-                  className={styles.submitButton}
-                >
+                <Button type="submit" loading={status === 'submitting'} fullWidth>
                   {status === 'submitting' ? t('sending') : t('sendMessage')}
                 </Button>
 
@@ -101,7 +98,7 @@ export function Contact() {
                       key={index}
                       href={link.href}
                       external
-                      variant="ghost"
+                      variant="text-ghost"
                       underline="never"
                       showExternalIcon={false}
                       className={styles.socialLink}
@@ -119,9 +116,11 @@ export function Contact() {
           <AnimatedSection delay={400}>
             <ContactCard
               title={t('contact')}
-              icon={<Icon name={Mail} size={40} color="inherit" decorative />}
+              icon={<Icon name={Mail} size={40} color="var(--color-accent)" decorative />}
             >
-              <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
+              <Paragraph theme="muted" align="center">
+                {t('contactDescription')}
+              </Paragraph>
             </ContactCard>
           </AnimatedSection>
         </CardGrid>

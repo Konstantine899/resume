@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Mail, ArrowRight } from 'lucide-react';
 import { GitHubIcon } from '@/shared/ui/Icon';
+import { resolveCssModuleKey } from '@/shared/lib/utils';
 import { Link } from './Link';
 import linkStyles from './Link.module.scss';
 
@@ -53,7 +54,15 @@ describe('Link', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'ghost', 'gradient'] as const;
+    const variants = [
+      'primary',
+      'secondary',
+      'ghost',
+      'gradient',
+      'text-primary',
+      'text-secondary',
+      'text-ghost',
+    ] as const;
 
     variants.forEach((variant) => {
       it(`должен рендериться с variant="${variant}"`, () => {
@@ -63,7 +72,7 @@ describe('Link', () => {
           </Link>
         );
 
-        expect(screen.getByRole('link')).toHaveClass(linkStyles[variant] ?? '');
+        expect(screen.getByRole('link')).toHaveClass(resolveCssModuleKey(linkStyles, variant));
       });
     });
   });

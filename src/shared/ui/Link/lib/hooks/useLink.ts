@@ -86,7 +86,7 @@ export const useLink = ({
     () =>
       classNames(
         styles.link,
-        styles[resolvedVariant],
+        resolveCssModuleKey(styles, resolvedVariant),
         styles[size],
         resolvedColorScheme && resolveCssModuleKey(styles, `color-scheme-${resolvedColorScheme}`),
         unstyled && styles.unstyled,

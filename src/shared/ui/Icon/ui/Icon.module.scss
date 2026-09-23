@@ -11,7 +11,10 @@
   @include theme-transition;
 
   vertical-align: middle;
-  color: var(--color-text);
+
+  // Inherit context color by default so stroke="currentColor" follows the parent (button/link)
+
+  color: inherit;
 
   // Цветовые варианты
   &.primary {
