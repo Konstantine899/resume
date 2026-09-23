@@ -116,9 +116,11 @@ export function Contact() {
           <AnimatedSection delay={400}>
             <ContactCard
               title={t('contact')}
-              icon={<Icon name={Mail} size={40} color="inherit" decorative />}
+              icon={<Icon name={Mail} size={40} color="var(--color-accent)" decorative />}
             >
-              <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
+              <Paragraph theme="muted" align="center">
+                {t('contactDescription')}
+              </Paragraph>
             </ContactCard>
           </AnimatedSection>
         </CardGrid>
