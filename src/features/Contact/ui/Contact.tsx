@@ -77,6 +77,7 @@ export function Contact() {
                   variant="outline"
                   size="md"
                   resize="none"
+                  fullWidth
                 />
 
                 {/* Кнопка отправки */}
