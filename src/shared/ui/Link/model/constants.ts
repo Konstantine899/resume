@@ -4,7 +4,17 @@ import type { IconSize } from '@/shared/ui/Icon';
 import type { LinkSize, LinkUnderline, LinkVariant } from './types';
 
 export const LINK_CONSTANTS = {
-  VALID_VARIANTS: ['primary', 'secondary', 'ghost', 'gradient', 'outline', 'danger'] as const,
+  VALID_VARIANTS: [
+    'primary',
+    'secondary',
+    'ghost',
+    'gradient',
+    'outline',
+    'danger',
+    'text-primary',
+    'text-secondary',
+    'text-ghost',
+  ] as const,
   VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const,
   VALID_UNDERLINE: ['always', 'hover', 'never'] as const,
   VALID_COLOR_SCHEMES: ['brand', 'neutral', 'success', 'warning', 'danger'] as const,

@@ -15,7 +15,16 @@ import type { IconSize } from '@/shared/ui/Icon';
  * @example 'outline' — контурный (border) стиль
  * @example 'danger' — опасное действие (красный)
  */
-export type LinkVariant = 'primary' | 'secondary' | 'ghost' | 'gradient' | 'outline' | 'danger';
+export type LinkVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'gradient'
+  | 'outline'
+  | 'danger'
+  | 'text-primary'
+  | 'text-secondary'
+  | 'text-ghost';
 
 /**
  * Размеры ссылки

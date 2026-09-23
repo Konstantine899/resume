@@ -98,7 +98,7 @@ export function Contact() {
                       key={index}
                       href={link.href}
                       external
-                      variant="ghost"
+                      variant="text-ghost"
                       underline="never"
                       showExternalIcon={false}
                       className={styles.socialLink}
