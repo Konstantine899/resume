@@ -2,11 +2,14 @@
 
 // Moved from shared/styles/mixins/_section.scss
 
+@use '@/shared/styles/variables/breakpoints' as *;
 @use '@/shared/styles/mixins/responsive' as *;
 
 @mixin section-base {
   width: 100%;
-  max-width: var(--container-2xl);
+
+  // SCSS var, not CSS var(): --container-2xl has no CSS definition → max-width: none.
+  max-width: $container-2xl;
   padding: var(--space-20) 0;
   padding-right: var(--space-4);
   padding-left: var(--space-4);
