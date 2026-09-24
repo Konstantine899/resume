@@ -18,7 +18,8 @@ export const validateInputProps = (
   maxLength?: number,
   _disabled?: boolean,
   _loading?: boolean,
-  accessibility?: InputAccessibilityInfo
+  accessibility?: InputAccessibilityInfo,
+  childAccessibility?: InputAccessibilityInfo
 ): InputValidationWarning[] => {
   const warnings: InputValidationWarning[] = [];
 
@@ -46,11 +47,15 @@ export const validateInputProps = (
     });
   }
 
+  // In asChild mode the rendered element is the child, so its accessible
+  // name (aria-label / aria-labelledby) also satisfies the requirement.
+  const hasAccessibleName = (info?: InputAccessibilityInfo) =>
+    Boolean(info && (info.label?.trim() || info.ariaLabel?.trim() || info.ariaLabelledby?.trim()));
+
   if (
     accessibility &&
-    !accessibility.label?.trim() &&
-    !accessibility.ariaLabel?.trim() &&
-    !accessibility.ariaLabelledby?.trim()
+    !hasAccessibleName(accessibility) &&
+    !hasAccessibleName(childAccessibility)
   ) {
     warnings.push({
       prop: 'label',
