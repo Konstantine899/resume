@@ -43,7 +43,7 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
     >
       <Container size="lg" padding="lg" className={styles.gradientContainer}>
         <AnimatedSection animation="fadeUp">
-          <Heading level={2} size="xl" theme="inverted" align="center">
+          <Heading level={2} size="4xl" theme="inverted" align="center">
             {t(`workHistory`)}
           </Heading>
         </AnimatedSection>
