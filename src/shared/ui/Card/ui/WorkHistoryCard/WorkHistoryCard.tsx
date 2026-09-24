@@ -5,7 +5,10 @@
 import { memo } from 'react';
 import { classNames as cn } from '@/shared/lib/utils/classNames';
 import { Badge } from '@/shared/ui/Badge';
-import { Card } from '@/shared/ui/Card';
+// Direct imports (not the Card barrel) to avoid a circular dependency:
+// Card.tsx itself imports this file, and the barrel goes through Card.tsx.
+import { CardBody } from '../CardBody';
+import { CardHeader } from '../CardHeader';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Paragraph } from '@/shared/ui/Paragraph';
@@ -50,7 +53,7 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
 }) => {
   return (
     <div className={cn(cardStyles.card, cardStyles.workHistory, className)}>
-      <Card.Header className={styles.header}>
+      <CardHeader className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.titleGroup}>
             {/* no size prop — .title owns the typography scale (sm→2xl) */}
@@ -71,16 +74,16 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
                 </Paragraph>
               )}
               {periodBadge && (
-                <Badge variant="accent" size="sm" className={styles.periodBadge}>
+                <Badge variant="accent" size="sm">
                   {periodBadge}
                 </Badge>
               )}
             </div>
           )}
         </div>
-      </Card.Header>
+      </CardHeader>
 
-      <Card.Body className={styles.body}>
+      <CardBody className={styles.body}>
         {location && (
           <div className={styles.location}>
             <Icon name={MapPin} size={14} color="foreground-muted" decorative />
@@ -107,14 +110,14 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
             <Divider className={styles.techDivider} />
             <div className={styles.techBadges}>
               {techStack.map((tech, index) => (
-                <Badge key={index} variant="accent" size="sm" className={styles.techBadge}>
+                <Badge key={index} variant="accent" size="sm">
                   {tech}
                 </Badge>
               ))}
             </div>
           </div>
         )}
-      </Card.Body>
+      </CardBody>
     </div>
   );
 };

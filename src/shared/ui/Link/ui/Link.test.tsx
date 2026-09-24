@@ -62,6 +62,7 @@ describe('Link', () => {
       'text-primary',
       'text-secondary',
       'text-ghost',
+      'text-on-dark',
     ] as const;
 
     variants.forEach((variant) => {

@@ -3,6 +3,7 @@ import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
 import { ContactCard, CardGrid } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
+import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input, InputEmail } from '@/shared/ui/Input';
@@ -35,12 +36,8 @@ export function Contact() {
         <CardGrid columns={2} gap="lg">
           <AnimatedSection delay={200}>
             <div className={styles.formContainer}>
-              <form
-                ref={formRef}
-                onSubmit={handleSubmit}
-                className={styles.form}
-                noValidate // ✅ Браузерная валидация отключена (своя в хуке)
-              >
+              {/* Браузерная валидация отключена (своя в хуке) */}
+              <Form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
                 {/* Имя */}
                 <Input
                   type="text"
@@ -90,7 +87,7 @@ export function Contact() {
 
                 {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
                 {/* Теперь уведомления показываются через Toast */}
-              </form>
+              </Form>
 
               {/* Социальные ссылки */}
               <div className={styles.socialLinks}>
@@ -99,13 +96,11 @@ export function Contact() {
                     key={index}
                     href={link.href}
                     external
-                    variant="text-ghost"
-                    underline="never"
+                    variant="text-on-dark"
                     showExternalIcon={false}
                     icon={<Icon name={link.icon} size="sm" color="inherit" decorative />}
-                    className={styles.socialLink}
                   >
-                    <span>{link.name}</span>
+                    {link.name}
                   </Link>
                 ))}
               </div>

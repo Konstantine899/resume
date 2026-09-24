@@ -76,10 +76,6 @@
   color: inherit;
 }
 
-.periodBadge {
-  // Badge component handles styling
-}
-
 .body {
   // Card.Body wrapper - no additional styles needed
 }
@@ -132,8 +128,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.techBadge {
-  // Badge component handles all styling including hover
 }

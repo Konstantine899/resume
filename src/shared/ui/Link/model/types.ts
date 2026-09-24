@@ -24,7 +24,8 @@ export type LinkVariant =
   | 'danger'
   | 'text-primary'
   | 'text-secondary'
-  | 'text-ghost';
+  | 'text-ghost'
+  | 'text-on-dark';
 
 /**
  * Размеры ссылки
