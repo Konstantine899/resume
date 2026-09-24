@@ -9,6 +9,7 @@ import { IMAGE_DEFAULTS, IMAGE_SIZE_VALUES, IMAGE_VARIANT_RADIUS } from '../mode
 import { Spinner } from '@/shared/ui/Spinner';
 import { ErrorBoundary, DEFAULT_BOUNDARY_FALLBACK } from '@/shared/ui/ErrorBoundary';
 import { ImageSkeleton } from './ImageSkeleton/ImageSkeleton';
+import { sanitizeImageSrc, sanitizeImageSrcSet } from '../lib/utils/sanitizeImageSrc';
 import styles from './Image.module.scss';
 
 /**
@@ -150,7 +151,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
     if (typeof fallback === 'string') {
       return (
         <img
-          src={fallback}
+          src={sanitizeImageSrc(fallback) || undefined}
           alt=""
           className={styles.fallback}
           onError={handleLoadError}
@@ -251,8 +252,8 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
 
       <img
         ref={imageRefCallback}
-        src={resolvedSrc.src || undefined}
-        srcSet={resolvedSrc.srcSet}
+        src={sanitizeImageSrc(resolvedSrc.src) || undefined}
+        srcSet={sanitizeImageSrcSet(resolvedSrc.srcSet)}
         loading={priority || effectiveLazyMode === 'eager' ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
