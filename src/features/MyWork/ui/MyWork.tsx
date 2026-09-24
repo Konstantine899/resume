@@ -56,7 +56,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         {/* Empty State */}
         {PROJECTS.length === 0 && (
           <div className={styles.emptyState}>
-            <Icon name={FolderOpen} size={48} color="muted" decorative />
+            <Icon name={FolderOpen} size={48} color="foreground-muted" decorative />
             <Paragraph theme="muted" align="center">
               No projects yet
             </Paragraph>

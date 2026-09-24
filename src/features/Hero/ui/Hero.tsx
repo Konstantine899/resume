@@ -8,11 +8,11 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Code } from '@/shared/ui/Code';
 import { Link } from '@/shared/ui/Link';
 import React, { useEffect, useState } from 'react';
+import avatarImage from '@/shared/assets/avatar003.jpg';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
 import { HeroAvatar } from './HeroAvatar';
 import SkillsCode from './SkillsCode/SkillsCode';
-const avatarImage = '/images/avatar/avatar003.jpg';
 
 type AvatarState = 'loading' | 'loaded' | 'error';
 

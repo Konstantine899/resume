@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Meta } from '@storybook/react-vite';
 import type { ComponentType } from 'react';
-// Self-contained loadable placeholder used by avatar stories. The previous path
-// (/images/avatar/avatar003.jpg) pointed at a static asset that does not exist
-// in the repo, so the avatar never reached the `loaded` state in tests.
+// Self-contained loadable placeholder used by avatar stories. The repo's real
+// avatar (src/shared/assets/avatar003.jpg) is used by the Hero feature and by
+// the AvatarHero/AvatarAbout stories; stories that render inline use a tiny
+// data-URI so the story is fully self-contained without an image dependency.
 const avatar1 =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%23a3a3a3'/%3E%3C/svg%3E";
 

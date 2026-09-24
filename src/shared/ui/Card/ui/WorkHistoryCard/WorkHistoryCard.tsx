@@ -83,7 +83,7 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
       <Card.Body className={styles.body}>
         {location && (
           <div className={styles.location}>
-            <Icon name={MapPin} size={14} color="muted" decorative />
+            <Icon name={MapPin} size={14} color="foreground-muted" decorative />
             <Paragraph as="span" size="xs">
               {location}
             </Paragraph>
