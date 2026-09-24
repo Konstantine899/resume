@@ -33,6 +33,43 @@
     @include text-xl;
   }
 
+  // Size overrides: after .h1–.h6 so equal-specificity wins by order; digit sizes arrive as size-3xl via mapSizeToClass.
+  &.xs {
+    font-size: var(--text-xs);
+  }
+
+  &.s {
+    font-size: var(--text-sm);
+  }
+
+  &.m {
+    font-size: var(--text-base);
+  }
+
+  &.l {
+    font-size: var(--text-lg);
+  }
+
+  &.xl {
+    font-size: var(--text-xl);
+  }
+
+  &.xxl {
+    font-size: var(--text-2xl);
+  }
+
+  &.size-3xl {
+    font-size: var(--text-3xl);
+  }
+
+  &.size-4xl {
+    font-size: var(--text-4xl);
+  }
+
+  &.size-5xl {
+    font-size: var(--text-5xl);
+  }
+
   &.weight-100 {
     font-weight: var(--font-weight-thin);
   }

@@ -20,21 +20,28 @@ import styles from '../../ui/Heading.module.scss';
  */
 export function useHeading({
   level = 2,
-  size = 'm',
+  size,
   theme = 'primary',
   align = 'left',
   className = '',
   isGradient = false,
 }: HeadingHookProps): UseHeadingReturn {
   return useMemo(() => {
+    // Typography control: `level` → .hN base scale, `size` → token size
+    // override. Both are emitted ONLY when no custom className is provided —
+    // a custom className means the consumer owns typography (feature-level
+    // scales like Contact .title / WorkHistoryCard .title), and we must not
+    // fight it with .heading.hN (0,2,0) > .title (0,1,0) in source order.
+    const levelClass = className ? '' : resolveCssModuleKey(styles, `h${level}`);
+    const sizeClass = size && !className ? resolveCssModuleKey(styles, mapSizeToClass(size)) : '';
     // resolveCssModuleKey: сборка экспортирует camelCase-ключи (camelCaseOnly),
     // поэтому kebab-ключи вида `heading--size-2xl` резолвятся в `headingSize2Xl`.
-    const sizeClass = resolveCssModuleKey(styles, mapSizeToClass(size));
     const themeClass = resolveCssModuleKey(styles, theme);
     const alignClass = resolveCssModuleKey(styles, `align-${align}`);
 
     const headingClassName = classNames(
       styles.heading,
+      levelClass,
       sizeClass,
       themeClass,
       alignClass,
@@ -43,10 +50,13 @@ export function useHeading({
 
     const attrs: Record<string, string> = {
       'data-level': String(level),
-      'data-size': size,
       'data-theme': theme,
       'data-align': align,
     };
+
+    if (size !== undefined) {
+      attrs['data-size'] = size;
+    }
 
     if (isGradient) {
       attrs['data-gradient'] = 'true';

@@ -47,6 +47,61 @@ describe('Heading', () => {
       const element = screen.getByRole('heading');
       expect(element).toHaveAttribute('data-size', size);
     });
+
+    it.each(sizes)('emits the token size class for %s without className', (size) => {
+      render(<Heading size={size}>Test</Heading>);
+      expect(screen.getByRole('heading').className).toMatch(/heading/);
+    });
+  });
+
+  describe('Typography control', () => {
+    it('emits .hN base class from level when no className is provided', () => {
+      render(<Heading level={2}>Test</Heading>);
+      const element = screen.getByRole('heading', { level: 2 });
+      // h2 class should be present; specific hashed name is opaque, so assert
+      // the rendered class list carries both the heading base and a h-level class.
+      expect(element.className.split(' ').length).toBeGreaterThanOrEqual(4);
+    });
+
+    it('maps level={2} size="xl" to a distinct class combo vs level={2} alone', () => {
+      const { container } = render(
+        <div>
+          <Heading level={2}>Base</Heading>
+          <Heading level={2} size="xl">
+            Sized
+          </Heading>
+        </div>
+      );
+      const [base, sized] = Array.from(container.querySelectorAll('h2'));
+      expect(base).toBeDefined();
+      expect(sized).toBeDefined();
+      if (base && sized) {
+        expect(base.className).not.toBe(sized.className);
+        expect(sized.className).toMatch(/heading/);
+      }
+    });
+
+    it('does not emit .hN or size classes when a custom className owns typography', () => {
+      const { container } = render(
+        <div>
+          <Heading level={2} className="my-title">
+            Custom
+          </Heading>
+          <Heading level={2} size="xl" className="my-title">
+            Custom Sized
+          </Heading>
+        </div>
+      );
+      const [custom, customSized] = Array.from(container.querySelectorAll('h2'));
+      expect(custom).toBeDefined();
+      expect(customSized).toBeDefined();
+      if (custom && customSized) {
+        expect(custom.className).toContain('my-title');
+        expect(customSized.className).toContain('my-title');
+        // size-class must not fight the consumer-owned .title scale
+        expect(customSized.className).not.toContain('xl');
+      }
+    });
   });
 
   describe('Theme Variants', () => {

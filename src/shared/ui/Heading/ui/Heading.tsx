@@ -26,7 +26,7 @@ const headingRef = forwardRef(function HeadingImpl<C extends HeadingAsElement = 
   {
     as,
     level = 2,
-    size = 'm',
+    size,
     theme = 'primary',
     align = 'left',
     className = '',

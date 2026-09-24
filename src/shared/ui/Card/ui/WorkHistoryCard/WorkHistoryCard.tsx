@@ -53,7 +53,8 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
       <Card.Header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.titleGroup}>
-            <Heading level={3} size="s" theme="primary" className={styles.title}>
+            {/* no size prop — .title owns the typography scale (sm→2xl) */}
+            <Heading level={3} theme="primary" className={styles.title}>
               {title}
             </Heading>
             {company && (
