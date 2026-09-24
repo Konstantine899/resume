@@ -121,6 +121,12 @@ function InputImpl<C extends React.ElementType = 'input'>(
   // Dev warnings for invalid props
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
+      // In asChild mode the rendered element is the child, so its accessible
+      // name (aria-label / aria-labelledby) also satisfies the requirement.
+      const childProps =
+        asChild && children && typeof children === 'object' && 'props' in children
+          ? (children.props as Record<string, unknown>)
+          : undefined;
       const warnings = validateInputProps(
         variant,
         size,
@@ -132,6 +138,10 @@ function InputImpl<C extends React.ElementType = 'input'>(
           label,
           ariaLabel,
           ariaLabelledby,
+        },
+        {
+          ariaLabel: childProps?.['aria-label'] as string | undefined,
+          ariaLabelledby: childProps?.['aria-labelledby'] as string | undefined,
         }
       );
       warnings.forEach((w) => {
@@ -149,6 +159,8 @@ function InputImpl<C extends React.ElementType = 'input'>(
     label,
     ariaLabel,
     ariaLabelledby,
+    asChild,
+    children,
   ]);
 
   // Build CSS classes (используем classNames)

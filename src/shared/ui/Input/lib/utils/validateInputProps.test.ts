@@ -68,4 +68,67 @@ describe('validateInputProps', () => {
       warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
     ).toBe(false);
   });
+
+  it('does not warn in asChild mode when the child carries an accessible name', () => {
+    const warnings = validateInputProps(
+      'default',
+      'md',
+      false,
+      undefined,
+      false,
+      false,
+      {},
+      {
+        ariaLabel: 'Search',
+      }
+    );
+    expect(
+      warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
+    ).toBe(false);
+  });
+
+  it('does not warn in asChild mode when the child carries aria-labelledby', () => {
+    const warnings = validateInputProps(
+      'default',
+      'md',
+      false,
+      undefined,
+      false,
+      false,
+      {},
+      {
+        ariaLabelledby: 'search-label',
+      }
+    );
+    expect(
+      warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
+    ).toBe(false);
+  });
+
+  it('warns in asChild mode when neither the Input nor the child has a name', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, false, false, {}, {});
+    expect(
+      warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
+    ).toBe(true);
+  });
+
+  it('prioritizes the Input name when both Input and child provide one', () => {
+    const warnings = validateInputProps(
+      'default',
+      'md',
+      false,
+      undefined,
+      false,
+      false,
+      {
+        label: 'Email',
+      },
+      {
+        ariaLabel: 'Search',
+      }
+    );
+    expect(
+      warnings.some((w) => w.prop === 'label' && w.message.includes('Missing accessible name'))
+    ).toBe(false);
+  });
 });
