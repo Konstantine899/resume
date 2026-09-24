@@ -114,17 +114,6 @@
     }
   }
 
-  .icon {
-    flex-shrink: 0;
-    width: var(--icon-size-sm);
-    height: var(--icon-size-sm);
-
-    @include sm {
-      width: var(--icon-size-md);
-      height: var(--icon-size-md);
-    }
-  }
-
   span {
     overflow: hidden;
     text-overflow: ellipsis;

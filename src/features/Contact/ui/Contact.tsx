@@ -45,6 +45,7 @@ export function Contact() {
                 <Input
                   type="text"
                   name="user_name"
+                  label={t('nameField')}
                   placeholder={t('namePlaceholder')}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -56,6 +57,7 @@ export function Contact() {
                 {/* Email */}
                 <InputEmail
                   name="user_email"
+                  label={t('email')}
                   placeholder={t('emailPlaceholder')}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -67,6 +69,7 @@ export function Contact() {
                 {/* Сообщение */}
                 <Textarea
                   name="message"
+                  label={t('message')}
                   placeholder={t('messagePlaceholder')}
                   rows={4}
                   value={formData.message}
@@ -91,23 +94,20 @@ export function Contact() {
 
               {/* Социальные ссылки */}
               <div className={styles.socialLinks}>
-                {SOCIAL_LINKS.map((link, index: number) => {
-                  const Icon = link.icon as React.ComponentType<{ className?: string }>;
-                  return (
-                    <Link
-                      key={index}
-                      href={link.href}
-                      external
-                      variant="text-ghost"
-                      underline="never"
-                      showExternalIcon={false}
-                      className={styles.socialLink}
-                    >
-                      <Icon className={styles.icon} />
-                      <span>{link.name}</span>
-                    </Link>
-                  );
-                })}
+                {SOCIAL_LINKS.map((link, index: number) => (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    external
+                    variant="text-ghost"
+                    underline="never"
+                    showExternalIcon={false}
+                    icon={<Icon name={link.icon} size="sm" color="inherit" decorative />}
+                    className={styles.socialLink}
+                  >
+                    <span>{link.name}</span>
+                  </Link>
+                ))}
               </div>
             </div>
           </AnimatedSection>
