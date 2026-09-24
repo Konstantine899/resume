@@ -182,6 +182,8 @@ export interface UseLinkReturn {
   dataAttrs: Record<string, string>;
   /** Является ли ссылка внешней (external prop или http(s):// href) */
   isExternal: boolean;
+  /** href после sanitize (undefined для опасных схем — javascript:/data:) */
+  safeHref: string | undefined;
   /** Итоговый rel (с noopener noreferrer для внешних ссылок) */
   relValue: string | undefined;
   /** Итоговый target (_blank для внешних ссылок) */

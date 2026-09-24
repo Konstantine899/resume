@@ -3,7 +3,11 @@
 import { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
-import { getExternalLinkProps, isExternalLink } from '@/shared/lib/utils/externalLink';
+import {
+  getExternalLinkProps,
+  isExternalLink,
+  sanitizeHref,
+} from '@/shared/lib/utils/externalLink';
 import { ICON_SIZE_MAP, LINK_DEFAULTS } from '../../model/constants';
 import type { LinkHookProps, UseLinkReturn } from '../../model/types';
 import { validateLinkProps } from '../utils/validateLinkProps';
@@ -56,6 +60,10 @@ export const useLink = ({
 
   // Memoized: Авто-определение внешних ссылок (delegates to shared utils)
   const isExternal = useMemo(() => external || isExternalLink(href), [external, href]);
+
+  // Memoized: href после sanitize. Опасные схемы (javascript:/data:) блокируются —
+  // anchor без href инертен и не может выполнить скрипт (R1 C2, issue #58).
+  const safeHref = useMemo(() => sanitizeHref(href), [href]);
 
   // Memoized: Безопасные rel/target. R1 hardening: noopener noreferrer применяется
   // для ЛЮБОГО `target="_blank"` (не только external), чтобы не-внешние ссылки
@@ -113,6 +121,7 @@ export const useLink = ({
     linkClassName,
     dataAttrs,
     isExternal,
+    safeHref,
     relValue,
     targetValue,
     iconSize,
