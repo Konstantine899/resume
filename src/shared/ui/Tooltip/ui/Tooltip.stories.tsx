@@ -1,4 +1,5 @@
 import { Avatar } from '@/shared/ui/Avatar';
+import avatar from '@/shared/assets/avatar003.jpg';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Icon } from '@/shared/ui/Icon';
@@ -581,7 +582,7 @@ export const WithAvatar: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem' }}>
       <Tooltip content="Константин" position="top">
-        <Avatar size="sm" alt="Константин" src="/images/avatar.png" showSkeleton={false} />
+        <Avatar size="sm" alt="Константин" src={avatar} showSkeleton={false} />
       </Tooltip>
       <Tooltip content="Анна" position="top">
         <Avatar size="sm" alt="Анна" />
