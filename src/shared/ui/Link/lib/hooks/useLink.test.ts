@@ -1,5 +1,9 @@
 // src/shared/ui/Link/lib/hooks/useLink.test.ts
 
+// Disable no-script-url: dangerous javascript: values are intentional test
+// fixtures for the href sanitization — asserting they are REJECTED.
+/* eslint-disable no-script-url */
+
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import type { LinkHookProps, LinkVariant } from '../../model/types';
@@ -175,6 +179,38 @@ describe('useLink', () => {
       expect(targetValue).toBe('_blank');
       expect(relValue).toContain('noopener');
       expect(relValue).toContain('noreferrer');
+    });
+  });
+
+  describe('safeHref sanitization (R1 C2, issue #58)', () => {
+    it('should return safe hrefs untouched', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: 'https://github.com' }))
+      );
+
+      expect(result.current.safeHref).toBe('https://github.com');
+    });
+
+    it('should return relative hrefs untouched', () => {
+      const { result } = renderHook(() => useLink(createDefaultProps({ href: '/about' })));
+
+      expect(result.current.safeHref).toBe('/about');
+    });
+
+    it('should block javascript: URIs', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: 'javascript:alert(1)' }))
+      );
+
+      expect(result.current.safeHref).toBeUndefined();
+    });
+
+    it('should block data: URIs', () => {
+      const { result } = renderHook(() =>
+        useLink(createDefaultProps({ href: 'data:text/html,<script>alert(1)</script>' }))
+      );
+
+      expect(result.current.safeHref).toBeUndefined();
     });
   });
 

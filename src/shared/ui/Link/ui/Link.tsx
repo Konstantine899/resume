@@ -82,22 +82,23 @@ function LinkImpl<C extends ElementType = 'a'>(
   }: LinkProps<C>,
   ref: ForwardedRef<ComponentRef<C>>
 ): ReactElement {
-  const { linkClassName, dataAttrs, isExternal, relValue, targetValue, iconSize } = useLink({
-    href,
-    variant,
-    size,
-    colorScheme,
-    external,
-    unstyled,
-    underline,
-    withLift,
-    skeleton,
-    requireHref,
-    className,
-    rel,
-    target,
-    component,
-  });
+  const { linkClassName, dataAttrs, isExternal, safeHref, relValue, targetValue, iconSize } =
+    useLink({
+      href,
+      variant,
+      size,
+      colorScheme,
+      external,
+      unstyled,
+      underline,
+      withLift,
+      skeleton,
+      requireHref,
+      className,
+      rel,
+      target,
+      component,
+    });
 
   // Skeleton mode: delegate to LinkSkeleton (no anchor in the DOM)
   if (skeleton) {
@@ -109,7 +110,7 @@ function LinkImpl<C extends ElementType = 'a'>(
   return (
     <Component
       ref={ref}
-      href={href}
+      href={safeHref}
       className={linkClassName}
       rel={relValue}
       target={targetValue}
