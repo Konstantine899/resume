@@ -205,6 +205,52 @@ $link-active-scale: 0.98;
   }
 }
 
+// Text link for inverted bands (Contact social links): adaptive ink
+
+// (text-on-dark in dark theme, dark ink on light bands), zero tile padding,
+
+// responsive font-size. Replaces the old `.socialLinks a.socialLink` override.
+@mixin variant-link-text-on-dark {
+  @include font-normal;
+
+  gap: var(--space-2);
+  padding: 0;
+
+  // Responsive font-size only — line-height stays inherited from the band
+
+  // (matches the removed `.socialLinks a.socialLink` override).
+  font-size: var(--text-xs);
+  color: var(--color-text-on-dark);
+  text-decoration: none;
+  background-color: transparent;
+
+  @include sm {
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  @include md {
+    font-size: var(--text-base);
+  }
+
+  // Light theme uses a light-gray gradient (--gradient-primary), so white
+
+  // text would fail contrast (1.4-2.4:1). Use near-black ink on light gray.
+  [data-theme='light'] & {
+    color: var(--color-text-primary);
+  }
+
+  &:not(.unstyled):hover {
+    color: var(--color-text-on-dark);
+
+    [data-theme='light'] & {
+      color: var(--color-text-primary);
+    }
+
+    text-decoration: underline;
+  }
+}
+
 @mixin variant-link-gradient {
   @include font-medium;
 
@@ -383,6 +429,10 @@ $link-active-scale: 0.98;
 
   &.text-ghost {
     @include variant-link-ghost-text;
+  }
+
+  &.text-on-dark {
+    @include variant-link-text-on-dark;
   }
 
   &.gradient {

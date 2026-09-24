@@ -14,6 +14,7 @@ export const LINK_CONSTANTS = {
     'text-primary',
     'text-secondary',
     'text-ghost',
+    'text-on-dark',
   ] as const,
   VALID_SIZES: ['xs', 'sm', 'md', 'lg', 'xl'] as const,
   VALID_UNDERLINE: ['always', 'hover', 'never'] as const,
