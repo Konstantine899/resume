@@ -1,3 +1,7 @@
+// Disable no-script-url: dangerous javascript: values are intentional
+// test fixtures for sanitizeHref — asserting they are REJECTED.
+/* eslint-disable no-script-url */
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ArrowRight, Mail } from 'lucide-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -104,15 +108,18 @@ describe('ButtonWithIcon', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('не должен ставить native disabled при loading=true', () => {
       render(
         <ButtonWithIcon leftIcon={<Mail />} loading>
           Loading
         </ButtonWithIcon>
       );
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      // Loading must NOT set the native disabled attribute: the button stays focusable so
+      // aria-busy/aria-disabled are announced; activation is blocked by handleClick instead.
+      expect(screen.getByRole('button')).not.toBeDisabled();
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
     });
 
     it('должен иметь aria-busy при loading=true', () => {
@@ -416,6 +423,90 @@ describe('ButtonWithIcon', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(resolveCssModuleKey(buttonWithIconStyles, 'color-scheme-danger'));
+    });
+  });
+
+  describe('asChild', () => {
+    it('должен рендерить дочерний элемент вместо кнопки', () => {
+      render(
+        <ButtonWithIcon asChild>
+          <a href="/download">Download</a>
+        </ButtonWithIcon>
+      );
+
+      const link = screen.getByTestId('button-with-icon');
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', '/download');
+      expect(link).toHaveTextContent('Download');
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('должен сохранять стили кнопки на дочернем элементе', () => {
+      render(
+        <ButtonWithIcon asChild variant="ghost" size="lg">
+          <a href="/download">Download</a>
+        </ButtonWithIcon>
+      );
+
+      const link = screen.getByRole('link');
+      expect(link).toHaveClass(buttonWithIconStyles.button ?? '');
+      expect(link).toHaveClass(buttonWithIconStyles.ghost ?? '');
+      expect(link).toHaveClass(buttonWithIconStyles.lg ?? '');
+    });
+
+    it('должен блокировать onClick при disabled=true и asChild', () => {
+      const handleClick = vi.fn();
+      render(
+        <ButtonWithIcon asChild disabled onClick={handleClick}>
+          <a href="/download">Download</a>
+        </ButtonWithIcon>
+      );
+
+      fireEvent.click(screen.getByTestId('button-with-icon'));
+
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('должен иметь aria-busy при loading=true и asChild', () => {
+      render(
+        <ButtonWithIcon asChild loading>
+          <a href="/download">Download</a>
+        </ButtonWithIcon>
+      );
+
+      const link = screen.getByTestId('button-with-icon');
+      expect(link).toHaveAttribute('aria-busy', 'true');
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+      expect(link).toHaveAttribute('data-state', 'loading');
+    });
+
+    it('должен активировать неинтерактивный дочерний элемент по Space', () => {
+      const handleClick = vi.fn();
+      render(
+        <ButtonWithIcon asChild onClick={handleClick}>
+          <span>Custom</span>
+        </ButtonWithIcon>
+      );
+
+      const custom = screen.getByTestId('button-with-icon');
+      expect(custom).toHaveAttribute('role', 'button');
+      expect(custom).toHaveAttribute('tabindex', '0');
+
+      fireEvent.keyDown(custom, { key: ' ' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен санитизировать опасный href при asChild', () => {
+      // `href` is a polymorphic prop: the type system only accepts it on the Button
+      // itself with `component="a"`. asChild still renders the cloned child.
+      render(
+        <ButtonWithIcon asChild component="a" href="javascript:alert(1)">
+          <a href="/safe">Download</a>
+        </ButtonWithIcon>
+      );
+
+      expect(screen.getByTestId('button-with-icon')).not.toHaveAttribute('href');
     });
   });
 });
