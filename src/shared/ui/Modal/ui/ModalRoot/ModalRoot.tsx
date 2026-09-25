@@ -1,7 +1,9 @@
 import { Overlay } from '@/shared/ui/Overlay';
 import { OVERLAY_CONSTANTS } from '@/shared/ui/Overlay/model/constants';
 import { Portal } from '@/shared/ui/Portal';
-import { Children, cloneElement, memo } from 'react';
+import { cloneElement, memo, isValidElement } from 'react';
+import { classNames } from '@/shared/lib/utils/classNames';
+import { mergeRefs } from '@/shared/lib/utils/mergeRefs';
 import { useModalRoot } from '../../lib/hooks/useModalRoot';
 import { ModalContext } from '../../lib/modalContext';
 // eslint-disable-next-line react-refresh/only-export-components
@@ -48,6 +50,37 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     ...(modalZIndex !== undefined ? { style: { zIndex: modalZIndex } } : {}),
   } as Record<string, unknown>;
 
+  // M5: asChild must MERGE with the child, not clobber it. The old
+  // `cloneElement(child, rootProps)` silently discarded the child's own
+  // className/style/ref/events — invalidating any custom styling, refs and
+  // pointer handlers on the wrapped element.
+  const childIsElement = asChild && children != null && isValidElement(children);
+  const childHandlers = childIsElement
+    ? ((children as React.ReactElement).props as Record<string, unknown>)
+    : null;
+
+  const mergedAsChildProps = childIsElement
+    ? {
+        ...rootProps,
+        ref: mergeRefs(
+          ...([
+            (children as React.ReactElement<{ ref?: React.Ref<HTMLDivElement> }>).props.ref,
+            rootProps.ref as React.Ref<HTMLDivElement>,
+          ].filter(Boolean) as React.Ref<HTMLDivElement>[])
+        ),
+        className: classNames(
+          rootProps.className as string,
+          ...(typeof childHandlers?.className === 'string' ? [childHandlers.className] : [])
+        ),
+        style: { ...(rootProps.style as object), ...(childHandlers?.style as object) },
+        // Compose event handlers instead of replacing the child's own.
+        onPointerDown: (event: React.PointerEvent) => {
+          (childHandlers?.onPointerDown as ((e: React.PointerEvent) => void) | undefined)?.(event);
+          (rootProps.onPointerDown as ((e: React.PointerEvent) => void) | undefined)?.(event);
+        },
+      }
+    : null;
+
   return (
     <Portal>
       {/* M1: titleId/subtitleId reach ModalHeader so aria-labelledby resolves;
@@ -65,8 +98,8 @@ export const ModalRoot = memo((props: ModalRootProps) => {
         )}
 
         <div className={styles.modalContainer} role="presentation">
-          {asChild && children ? (
-            cloneElement(Children.only(children) as React.ReactElement, rootProps)
+          {mergedAsChildProps ? (
+            cloneElement(children as React.ReactElement, mergedAsChildProps)
           ) : (
             <Tag {...rootProps}>{children}</Tag>
           )}

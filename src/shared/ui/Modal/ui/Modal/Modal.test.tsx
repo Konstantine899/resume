@@ -617,6 +617,41 @@ describe('Modal (Compound)', () => {
     });
   });
 
+  describe('asChild slot merge (M5)', () => {
+    it('merges the child className instead of clobbering it', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <section className="my-custom-section">Slot content</section>
+        </Modal.Root>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('SECTION');
+      // Modal's own className AND the child's className must both survive.
+      expect(dialog.className).toContain('my-custom-section');
+      expect(dialog).toHaveTextContent('Slot content');
+    });
+
+    it('preserves role="dialog" on the slotted child', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <article>Slot article</article>
+        </Modal.Root>
+      );
+      expect(screen.getByRole('dialog')).toHaveTextContent('Slot article');
+    });
+
+    it('calls both the child and the root pointer handlers', () => {
+      const childPointerDown = vi.fn();
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <div onPointerDown={childPointerDown}>Slot pointer</div>
+        </Modal.Root>
+      );
+      fireEvent.pointerDown(screen.getByRole('dialog'));
+      expect(childPointerDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
   // ============================================
   // initialFocusRef Tests
   // ============================================
