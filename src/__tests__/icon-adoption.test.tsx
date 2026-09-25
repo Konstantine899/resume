@@ -136,14 +136,16 @@ describe('icon-adoption: Modal/Toast size guards', () => {
 // Input group
 // ============================================================
 describe('icon-adoption: Input size guards', () => {
-  it('InputEmail renders an 18px svg (explicit size, beats conduit)', () => {
+  // issue #53 finding: magic size={18} in Email/Phone bypassed
+  // inferIconSize — dropped, so all three input types infer 20 at md.
+  it('InputEmail renders a 20px svg via inferIconSize, no explicit size', () => {
     const { container } = render(<InputEmail />);
-    assertIconSize(container, 18);
+    assertIconSize(container, 20);
   });
 
-  it('InputPhone renders an 18px svg (explicit size)', () => {
+  it('InputPhone renders a 20px svg via inferIconSize, no explicit size', () => {
     const { container } = render(<InputPhone />);
-    assertIconSize(container, 18);
+    assertIconSize(container, 20);
   });
 
   it('InputSearch (md) renders a 20px svg via inferIconSize, no explicit size', () => {
