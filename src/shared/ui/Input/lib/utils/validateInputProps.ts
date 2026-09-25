@@ -16,10 +16,11 @@ export const validateInputProps = (
   size: string,
   showCounter?: boolean,
   maxLength?: number,
-  _disabled?: boolean,
-  _loading?: boolean,
+  disabled?: boolean,
+  loading?: boolean,
   accessibility?: InputAccessibilityInfo,
-  childAccessibility?: InputAccessibilityInfo
+  childAccessibility?: InputAccessibilityInfo,
+  asChildChildrenCount?: number
 ): InputValidationWarning[] => {
   const warnings: InputValidationWarning[] = [];
 
@@ -44,6 +45,24 @@ export const validateInputProps = (
       prop: 'maxLength',
       message:
         '[Input] showCounter is true but maxLength is not set. Counter will not display correctly.',
+    });
+  }
+
+  if (disabled && loading) {
+    warnings.push({
+      prop: 'loading',
+      message:
+        '[Input] loading and disabled are set at the same time: the spinner implies an active ' +
+        'field, but the native disabled attribute blocks interaction. Prefer one of them.',
+    });
+  }
+
+  if (asChildChildrenCount !== undefined && asChildChildrenCount > 1) {
+    warnings.push({
+      prop: 'children',
+      message:
+        '[Input] asChild expects exactly one child element; ' +
+        `${asChildChildrenCount} were provided — the extra children are ignored.`,
     });
   }
 

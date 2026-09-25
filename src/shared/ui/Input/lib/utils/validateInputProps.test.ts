@@ -20,6 +20,62 @@ describe('validateInputProps', () => {
     );
   });
 
+  it('warns when loading and disabled are combined', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, true, true);
+    expect(
+      warnings.some((w) => w.prop === 'loading' && w.message.includes('loading and disabled'))
+    ).toBe(true);
+  });
+
+  it('does not warn when only loading is set', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, false, true);
+    expect(warnings.some((w) => w.prop === 'loading')).toBe(false);
+  });
+
+  it('does not warn when only disabled is set', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, true, false);
+    expect(warnings.some((w) => w.prop === 'loading')).toBe(false);
+  });
+
+  it('warns when asChild receives multiple children', () => {
+    const warnings = validateInputProps(
+      'default',
+      'md',
+      false,
+      undefined,
+      false,
+      false,
+      {},
+      undefined,
+      3
+    );
+    expect(
+      warnings.some((w) => w.prop === 'children' && w.message.includes('exactly one child'))
+    ).toBe(true);
+  });
+
+  it('does not warn when asChild receives exactly one child', () => {
+    const warnings = validateInputProps(
+      'default',
+      'md',
+      false,
+      undefined,
+      false,
+      false,
+      {},
+      undefined,
+      1
+    );
+    expect(warnings.some((w) => w.prop === 'children')).toBe(false);
+  });
+
+  it('does not warn about children when asChild is off', () => {
+    const warnings = validateInputProps('default', 'md', false, undefined, false, false, {
+      label: 'Email',
+    });
+    expect(warnings.some((w) => w.prop === 'children')).toBe(false);
+  });
+
   it('does not warn when showCounter has maxLength', () => {
     expect(validateInputProps('default', 'md', true, 10).some((w) => w.prop === 'maxLength')).toBe(
       false

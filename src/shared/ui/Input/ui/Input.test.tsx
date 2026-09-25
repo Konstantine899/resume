@@ -1,3 +1,7 @@
+// Disable no-script-url: dangerous javascript: values are intentional
+// test fixtures for sanitizeHref — asserting they are REJECTED.
+/* eslint-disable no-script-url */
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -868,6 +872,201 @@ describe('Input', () => {
       render(<Input value="controlled" onChange={handleChange} />);
       fireEvent.change(screen.getByRole('textbox'), { target: { value: 'new' } });
       expect(handleChange).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('href sanitization (sanitization.ts)', () => {
+    it('drops a dangerous href when component="a"', () => {
+      const { container } = render(<Input component="a" href="javascript:alert(1)" />);
+      const anchor = container.querySelector('a');
+      expect(anchor).toBeInTheDocument();
+      expect(anchor).not.toHaveAttribute('href');
+    });
+
+    it('keeps a safe component="a" href', () => {
+      render(<Input component="a" href="/safe" label="Link" />);
+      expect(screen.getByRole('link')).toHaveAttribute('href', '/safe');
+    });
+
+    it('sanitizes the asChild child href', () => {
+      const { container } = render(
+        <Input asChild>
+          <a href="javascript:alert(1)">XSS</a>
+        </Input>
+      );
+      const anchor = container.querySelector('a');
+      expect(anchor).toBeInTheDocument();
+      expect(anchor).not.toHaveAttribute('href');
+    });
+
+    it('keeps a safe asChild child href', () => {
+      render(
+        <Input asChild>
+          <a href="/safe">Link</a>
+        </Input>
+      );
+      expect(screen.getByRole('link')).toHaveAttribute('href', '/safe');
+    });
+  });
+
+  describe('asChild prop', () => {
+    it('merged onChange wins over the raw caller props spread (counter stays in sync)', async () => {
+      const handleChange = vi.fn();
+      render(
+        <Input asChild showCounter maxLength={10} onChange={handleChange}>
+          <input data-testid="child" />
+        </Input>
+      );
+      const input = screen.getByTestId('child');
+      await userEvent.type(input, 'abc');
+      expect(handleChange).toHaveBeenCalledTimes(3);
+      // Internal Input state tracks the value (before the fix the raw
+      // onChange clobbered the wrapper and the counter stayed at 0/10).
+      expect(screen.getByTestId('counter')).toHaveTextContent('3/10');
+    });
+
+    it('merged id and error state win over the child props', () => {
+      render(
+        <Input asChild id="merged-id" error="Bad">
+          <input data-testid="child" id="child-id" />
+        </Input>
+      );
+      const input = screen.getByTestId('child');
+      expect(input).toHaveAttribute('id', 'merged-id');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('falls back to the plain Tag instead of crashing with multiple children', () => {
+      const { container } = render(
+        <Input asChild label="Test">
+          <input data-testid="first" />
+          <input data-testid="second" />
+        </Input>
+      );
+      // Children.only would throw; the fallback renders the Tag without children.
+      expect(container.querySelector('input')).toBeInTheDocument();
+      expect(screen.queryByTestId('first')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Loading contract', () => {
+    it('sets aria-busy without native disabled when loading', () => {
+      render(<Input label="Email" loading />);
+      const input = screen.getByLabelText('Email');
+      expect(input).toHaveAttribute('aria-busy', 'true');
+      expect(input).not.toHaveAttribute('disabled');
+    });
+
+    it('keeps the asChild child enabled while loading', () => {
+      render(
+        <Input asChild loading>
+          <input data-testid="child" />
+        </Input>
+      );
+      const input = screen.getByTestId('child');
+      expect(input).toHaveAttribute('aria-busy', 'true');
+      expect(input).not.toHaveAttribute('disabled');
+    });
+
+    it('still applies native disabled for an explicit disabled prop', () => {
+      render(<Input label="Email" disabled />);
+      expect(screen.getByLabelText('Email')).toBeDisabled();
+    });
+  });
+
+  describe('Counter accessibility', () => {
+    it('announces the counter via aria-live and role="status"', () => {
+      render(<Input showCounter maxLength={100} />);
+      const counter = screen.getByTestId('counter');
+      expect(counter).toHaveAttribute('aria-live', 'polite');
+      expect(counter).toHaveAttribute('role', 'status');
+    });
+
+    it('sets aria-invalid when the controlled value overflows maxLength', () => {
+      render(<Input label="Test" showCounter maxLength={5} value="123456" onChange={vi.fn()} />);
+      expect(screen.getByLabelText('Test')).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('keeps aria-invalid false when within maxLength', () => {
+      render(<Input label="Test" showCounter maxLength={10} value="12345" onChange={vi.fn()} />);
+      expect(screen.getByLabelText('Test')).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it('joins error and counter ids in aria-describedby', () => {
+      render(<Input label="Test" id="email" error="Bad" showCounter maxLength={10} />);
+      expect(screen.getByLabelText('Test')).toHaveAttribute(
+        'aria-describedby',
+        'email-error email-counter'
+      );
+    });
+
+    it('joins helper and counter ids in aria-describedby', () => {
+      render(<Input label="Test" id="email" helperText="Help" showCounter maxLength={10} />);
+      expect(screen.getByLabelText('Test')).toHaveAttribute(
+        'aria-describedby',
+        'email-helper email-counter'
+      );
+    });
+  });
+
+  describe('Controlled polymorphic component', () => {
+    it('supports a controlled textarea via component="textarea"', () => {
+      const handleChange = vi.fn();
+      const { rerender } = render(
+        <Input
+          component="textarea"
+          label="Bio"
+          value="hello"
+          placeholder="Notes"
+          onChange={handleChange}
+        />
+      );
+      const textarea = screen.getByLabelText('Bio');
+      expect(textarea.tagName).toBe('TEXTAREA');
+      expect(textarea).toHaveValue('hello');
+      expect(textarea).toHaveAttribute('placeholder', 'Notes');
+
+      fireEvent.change(textarea, { target: { value: 'changed' } });
+      expect(handleChange).toHaveBeenCalledTimes(1);
+
+      rerender(<Input component="textarea" label="Bio" value="updated" onChange={handleChange} />);
+      expect(screen.getByLabelText('Bio')).toHaveValue('updated');
+    });
+  });
+
+  describe('Password toggle guards', () => {
+    it('hides the toggle when disabled', () => {
+      render(<Input type="password" showPasswordToggle disabled />);
+      expect(screen.queryByRole('button', { name: /password/i })).not.toBeInTheDocument();
+    });
+
+    it('hides the toggle when loading', () => {
+      render(<Input type="password" showPasswordToggle loading />);
+      expect(screen.queryByRole('button', { name: /password/i })).not.toBeInTheDocument();
+    });
+
+    it('hides the toggle when readOnly', () => {
+      render(<Input type="password" showPasswordToggle readOnly />);
+      expect(screen.queryByRole('button', { name: /password/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('External ref integration', () => {
+    it('delivers the input instance to a ref callback', () => {
+      const ref = vi.fn();
+      render(<Input ref={ref} />);
+      expect(ref).toHaveBeenCalledWith(expect.any(HTMLInputElement));
+    });
+
+    it('returns focus to the input after clearing when an external ref is provided', async () => {
+      const ref = { current: null };
+      render(<Input ref={ref} clearable defaultValue="test" />);
+      expect(ref.current).toBeInstanceOf(HTMLInputElement);
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: /clear/i }));
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('');
     });
   });
 });
