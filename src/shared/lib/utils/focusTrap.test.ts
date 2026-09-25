@@ -1,8 +1,27 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { focusTrap } from './focusTrap';
+import userEvent from '@testing-library/user-event';
+import { cleanup } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { FOCUS_TRAP_SENTINEL_ATTR, focusTrap, getTabbableElements } from './focusTrap';
 
 describe('focusTrap', () => {
   let container: HTMLDivElement;
+  let untrap: (() => void) | null = null;
+
+  const addButton = (options: { hidden?: boolean; disabled?: boolean } = {}): HTMLButtonElement => {
+    const button = document.createElement('button');
+    if (options.hidden) button.style.display = 'none';
+    if (options.disabled) button.disabled = true;
+    container.appendChild(button);
+    return button;
+  };
+
+  const sentinel = (position: 'start' | 'end'): HTMLElement | null =>
+    container.querySelector<HTMLElement>(`[${FOCUS_TRAP_SENTINEL_ATTR}="${position}"]`);
+
+  const trap = (): (() => void) => {
+    untrap = focusTrap(container);
+    return untrap;
+  };
 
   beforeEach(() => {
     container = document.createElement('div');
@@ -10,112 +29,271 @@ describe('focusTrap', () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(container);
+    untrap?.();
+    untrap = null;
+    cleanup();
+    container.remove();
   });
 
-  it('returns a noop function when container is null', () => {
-    const untrap = focusTrap(null);
-    expect(untrap).toBeInstanceOf(Function);
-    expect(() => untrap()).not.toThrow();
+  it('returns a noop cleanup when container is null or undefined', () => {
+    const fromNull = focusTrap(null);
+    const fromUndefined = focusTrap(undefined as unknown as HTMLElement);
+
+    expect(fromNull).toBeInstanceOf(Function);
+    expect(fromUndefined).toBeInstanceOf(Function);
+    expect(() => {
+      fromNull();
+      fromUndefined();
+    }).not.toThrow();
   });
 
-  it('returns a noop function when container is undefined', () => {
-    const untrap = focusTrap(undefined as unknown as HTMLElement);
-    expect(untrap).toBeInstanceOf(Function);
-    expect(() => untrap()).not.toThrow();
+  it('wraps focus from last to first candidate on Tab', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    addButton();
+    const last = addButton();
+    trap();
+
+    last.focus();
+    await user.tab();
+
+    expect(document.activeElement).toBe(first);
   });
 
-  it('returns cleanup function for a container with no focusable elements', () => {
-    const untrap = focusTrap(container);
-    expect(untrap).toBeInstanceOf(Function);
-    // Should not throw when calling cleanup
-    expect(() => untrap()).not.toThrow();
+  it('wraps focus from first to last candidate on Shift+Tab', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    addButton();
+    const last = addButton();
+    trap();
+
+    first.focus();
+    await user.tab({ shift: true });
+
+    expect(document.activeElement).toBe(last);
   });
 
-  it('wraps focus from last to first element on Tab', () => {
-    const button1 = document.createElement('button');
-    const button2 = document.createElement('button');
-    container.appendChild(button1);
-    container.appendChild(button2);
+  it('moves to the next candidate on Tab when not at the boundary', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    const second = addButton();
+    trap();
 
-    const untrap = focusTrap(container);
-    button2.focus();
+    first.focus();
+    await user.tab();
 
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-    });
-
-    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-    button2.dispatchEvent(event);
-
-    expect(preventDefaultSpy).toHaveBeenCalled();
-    untrap();
+    expect(document.activeElement).toBe(second);
   });
 
-  it('wraps focus from first to last element on Shift+Tab', () => {
-    const button1 = document.createElement('button');
-    const button2 = document.createElement('button');
-    container.appendChild(button1);
-    container.appendChild(button2);
+  it('reaches content added after the trap was installed', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    const second = addButton();
+    trap();
 
-    const untrap = focusTrap(container);
-    button1.focus();
+    // Добавлен ПОСЛЕ установки trap: старый «последний» элемент больше не граница.
+    const third = addButton();
 
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      shiftKey: true,
-      bubbles: true,
-    });
+    second.focus();
+    await user.tab();
+    expect(document.activeElement).toBe(third);
 
-    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-    button1.dispatchEvent(event);
+    // Новый последний элемент участвует в цикле вперёд…
+    third.focus();
+    await user.tab();
+    expect(document.activeElement).toBe(first);
 
-    expect(preventDefaultSpy).toHaveBeenCalled();
-    untrap();
+    // …и в цикле назад.
+    first.focus();
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(third);
   });
 
-  it('removes event listener on cleanup', () => {
-    const button = document.createElement('button');
-    container.appendChild(button);
+  it('recomputes candidates when content is removed after setup', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    const second = addButton();
+    const third = addButton();
+    trap();
 
-    const untrap = focusTrap(container);
-    const addEventListenerSpy = vi.spyOn(container, 'removeEventListener');
+    third.remove();
 
-    untrap();
+    second.focus();
+    await user.tab();
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+    expect(document.activeElement).toBe(first);
   });
 
-  it('does not throw on keyboard events with empty container', () => {
-    const untrap = focusTrap(container);
+  it('skips hidden, disabled, inert, aria-hidden and sentinel elements', async () => {
+    const user = userEvent.setup();
+    addButton({ hidden: true });
+    const first = addButton();
+    addButton({ disabled: true });
+    const second = addButton();
 
-    const event = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-    });
+    const inertWrap = document.createElement('div');
+    inertWrap.setAttribute('inert', '');
+    const inertButton = document.createElement('button');
+    inertWrap.appendChild(inertButton);
+    container.appendChild(inertWrap);
 
-    expect(() => container.dispatchEvent(event)).not.toThrow();
-    untrap();
+    const ariaHiddenWrap = document.createElement('div');
+    ariaHiddenWrap.setAttribute('aria-hidden', 'true');
+    const ariaHiddenButton = document.createElement('button');
+    ariaHiddenWrap.appendChild(ariaHiddenButton);
+    container.appendChild(ariaHiddenWrap);
+
+    trap();
+
+    expect(getTabbableElements(container)).toEqual([first, second]);
+
+    // hidden стоит перед первым кандидатом: без фильтра Shift+Tab увёл бы фокус наружу.
+    first.focus();
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(second);
+
+    // disabled/inert/aria-hidden/sentinel стоят после второго кандидата:
+    // без фильтра Tab не замкнулся бы на первом.
+    second.focus();
+    await user.tab();
+    expect(document.activeElement).toBe(first);
   });
 
-  it('does not trap non-Tab keys', () => {
-    const button1 = document.createElement('button');
-    const button2 = document.createElement('button');
-    container.appendChild(button1);
-    container.appendChild(button2);
+  it('keeps focus inside an empty container with a focusable root', async () => {
+    const user = userEvent.setup();
+    addButton({ hidden: true }); // единственный ребёнок отфильтрован → «пустая зона»
+    container.tabIndex = 0;
+    trap();
 
-    const untrap = focusTrap(container);
+    container.focus();
+    expect(document.activeElement).toBe(container);
 
-    const event = new KeyboardEvent('keydown', {
-      key: 'Enter',
-      bubbles: true,
-    });
+    await user.tab();
+    expect(document.activeElement).toBe(container);
 
-    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-    button2.dispatchEvent(event);
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(container);
+    expect(container.contains(document.activeElement)).toBe(true);
+  });
 
-    expect(preventDefaultSpy).not.toHaveBeenCalled();
-    untrap();
+  it('cycles sentinels when the root cannot hold focus', async () => {
+    const user = userEvent.setup();
+    trap();
+
+    const start = sentinel('start');
+    const end = sentinel('end');
+    expect(start).not.toBeNull();
+    expect(end).not.toBeNull();
+
+    start?.focus();
+    expect(document.activeElement).toBe(start);
+
+    await user.tab();
+    expect(document.activeElement).toBe(end);
+    expect(container.contains(document.activeElement)).toBe(true);
+
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(start);
+    expect(container.contains(document.activeElement)).toBe(true);
+  });
+
+  it('re-routes focusin that lands on the root from outside to the first candidate', () => {
+    const first = addButton();
+    addButton();
+    container.tabIndex = 0;
+    trap();
+
+    const outsideBefore = document.createElement('button');
+    document.body.insertBefore(outsideBefore, container);
+
+    outsideBefore.focus();
+    container.focus();
+
+    expect(document.activeElement).toBe(first);
+    outsideBefore.remove();
+  });
+
+  it('re-routes focusin from after the container to the last candidate', () => {
+    addButton();
+    const last = addButton();
+    container.tabIndex = 0;
+    trap();
+
+    const outsideAfter = document.createElement('button');
+    document.body.appendChild(outsideAfter);
+
+    outsideAfter.focus();
+    container.focus();
+
+    expect(document.activeElement).toBe(last);
+    outsideAfter.remove();
+  });
+
+  it('does not disturb focus moving between the container children', () => {
+    const first = addButton();
+    const second = addButton();
+    container.tabIndex = 0;
+    trap();
+
+    first.focus();
+    second.focus();
+    expect(document.activeElement).toBe(second);
+
+    // Фокус из ребёнка на корень пришёл не снаружи → корень не трогаем.
+    container.focus();
+    expect(document.activeElement).toBe(container);
+  });
+
+  it('routes Tab pressed on the container root to the edge candidates', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    const last = addButton();
+    container.tabIndex = 0;
+    trap();
+
+    first.focus();
+    container.focus();
+    expect(document.activeElement).toBe(container);
+
+    await user.tab();
+    expect(document.activeElement).toBe(first);
+
+    container.focus();
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(last);
+  });
+
+  it('ignores non-Tab keys', async () => {
+    const user = userEvent.setup();
+    addButton();
+    const second = addButton();
+    trap();
+
+    second.focus();
+    await user.keyboard('{Enter}');
+
+    expect(document.activeElement).toBe(second);
+  });
+
+  it('stops trapping and removes sentinels after cleanup', async () => {
+    const user = userEvent.setup();
+    const first = addButton();
+    const last = addButton();
+    const teardown = trap();
+
+    last.focus();
+    await user.tab();
+    expect(document.activeElement).toBe(first); // trap активен
+
+    teardown();
+    untrap = null;
+    expect(sentinel('start')).toBeNull();
+    expect(sentinel('end')).toBeNull();
+
+    // Без trap Tab от последнего элемента уходит наружу (не замыкается).
+    last.focus();
+    await user.tab();
+    expect(document.activeElement).toBe(document.body);
+    expect(document.activeElement).not.toBe(first);
   });
 });
