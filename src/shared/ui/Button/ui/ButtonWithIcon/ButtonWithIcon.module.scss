@@ -47,10 +47,6 @@
     @include variant-sidebar;
   }
 
-  &.danger {
-    @include variant-danger;
-  }
-
   // Color schemes
   @include color-schemes;
 

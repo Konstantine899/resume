@@ -77,7 +77,11 @@ describe('ModalForm', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     const submitButton = screen.getByRole('button', { name: /submit/i });
     expect(submitButton).toBeInTheDocument();
-    expect(submitButton).toBeDisabled();
+    // Loading keeps the submit button focusable and announces the busy state instead of
+    // setting native disabled; activation is blocked by the guarded click handler.
+    expect(submitButton).not.toBeDisabled();
+    expect(submitButton).toHaveAttribute('aria-busy', 'true');
+    expect(submitButton).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('renders custom button labels', async () => {

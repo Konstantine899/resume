@@ -157,17 +157,24 @@ describe('ButtonWithIcon', () => {
       expect(screen.getByRole('button')).toHaveClass(buttonWithIconStyles.loading ?? '');
     });
 
-    it('должен скрывать контент при loading=true', () => {
+    it('должен скрывать контент при loading через CSS-mixin (без класса hidden)', () => {
       render(
         <ButtonWithIcon leftIcon={<Mail />} loading>
           Loading
         </ButtonWithIcon>
       );
 
-      const content = screen
-        .getByRole('button')
-        .querySelector(`.${buttonWithIconStyles.content ?? ''}`);
-      expect(content).toHaveClass(buttonWithIconStyles.hidden ?? '');
+      const root = screen.getByRole('button');
+      const content = root.querySelector(`.${buttonWithIconStyles.content ?? ''}`);
+
+      // Content is hidden by the `button-loading` mixin on the root element — no `.hidden`
+      // class exists in any Button SCSS module, so it must never be applied to the content
+      // (in vitest a CSS-module proxy returns a hashed value for ANY key, so the guard is
+      // on the rendered class list, not on the styles object).
+      expect(root).toHaveClass(buttonWithIconStyles.loading ?? '');
+      expect(root).toHaveAttribute('data-state', 'loading');
+      expect(content).toBeInTheDocument();
+      expect(content?.className).not.toContain('hidden');
     });
   });
 

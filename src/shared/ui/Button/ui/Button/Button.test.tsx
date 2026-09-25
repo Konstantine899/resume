@@ -1,4 +1,9 @@
+// Disable no-script-url: dangerous javascript: values are intentional
+// test fixtures for sanitizeHref — asserting they are REJECTED.
+/* eslint-disable no-script-url */
+
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resolveCssModuleKey } from '@/shared/lib/utils';
 import { Button } from './Button';
@@ -80,11 +85,15 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('не должен ставить native disabled при loading=true', () => {
       render(<Button loading>Loading</Button>);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      // Loading must NOT set the native disabled attribute: the button stays focusable so
+      // aria-busy/aria-disabled are announced; activation is blocked by handleClick instead.
+      expect(screen.getByRole('button')).not.toBeDisabled();
       expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByRole('button')).toHaveAttribute('data-state', 'loading');
     });
 
     it('должен иметь aria-busy при loading=true', () => {
@@ -121,11 +130,20 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toHaveClass(buttonStyles.loading ?? '');
     });
 
-    it('должен скрывать контент при loading=true', () => {
+    it('должен скрывать контент при loading через CSS-mixin (без класса hidden)', () => {
       render(<Button loading>Loading</Button>);
 
-      const content = screen.getByRole('button').querySelector(`.${buttonStyles.content ?? ''}`);
-      expect(content).toHaveClass(buttonStyles.hidden ?? '');
+      const root = screen.getByRole('button');
+      const content = root.querySelector(`.${buttonStyles.content ?? ''}`);
+
+      // Content is hidden by the `button-loading` mixin on the root element — no `.hidden`
+      // class exists in any Button SCSS module, so it must never be applied to the content
+      // (in vitest a CSS-module proxy returns a hashed value for ANY key, so the guard is
+      // on the rendered class list, not on the styles object).
+      expect(root).toHaveClass(buttonStyles.loading ?? '');
+      expect(root).toHaveAttribute('data-state', 'loading');
+      expect(content).toBeInTheDocument();
+      expect(content?.className).not.toContain('hidden');
     });
   });
 
@@ -441,6 +459,172 @@ describe('Button', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(resolveCssModuleKey(buttonStyles, 'color-scheme-danger'));
+    });
+  });
+
+  describe('Keyboard activation', () => {
+    it('должен активировать component="div" по Enter', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button component="div" onClick={handleClick}>
+          Div
+        </Button>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('button'), { key: 'Enter' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен активировать component="div" по Space', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button component="div" onClick={handleClick}>
+          Div
+        </Button>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('button'), { key: ' ' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен активировать component="a" по Enter', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button component="a" href="/test" onClick={handleClick}>
+          Link
+        </Button>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('button'), { key: 'Enter' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('не должен активировать по другой клавише', () => {
+      const handleClick = vi.fn();
+      render(
+        <Button component="div" onClick={handleClick}>
+          Div
+        </Button>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('button'), { key: 'ArrowDown' });
+
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('должен вызывать пользовательский onKeyDown и отменять активацию при preventDefault', () => {
+      const handleClick = vi.fn();
+      const onKeyDown = vi.fn((event: ReactKeyboardEvent<HTMLElement>) => event.preventDefault());
+      render(
+        <Button component="div" onClick={handleClick} onKeyDown={onKeyDown}>
+          Div
+        </Button>
+      );
+
+      fireEvent.keyDown(screen.getByTestId('button'), { key: 'Enter' });
+
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('не должен вешать обработчик активации на нативную кнопку', () => {
+      const handleClick = vi.fn();
+      render(<Button onClick={handleClick}>Native</Button>);
+
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
+
+      // jsdom не эмулирует нативную активацию по Enter: если бы компонент вешал свой
+      // handleKeyDown, click() вызвался бы здесь — в браузере это был бы двойной вызов.
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Focusability', () => {
+    it('должен иметь tabIndex=0 при component="div"', () => {
+      render(<Button component="div">Div</Button>);
+
+      expect(screen.getByTestId('button')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('должен иметь tabIndex=0 при component="a"', () => {
+      render(
+        <Button component="a" href="/test">
+          Link
+        </Button>
+      );
+
+      expect(screen.getByTestId('button')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('не должен добавлять tabIndex на нативную кнопку', () => {
+      render(<Button>Native</Button>);
+
+      expect(screen.getByRole('button')).not.toHaveAttribute('tabindex');
+    });
+  });
+
+  describe('Role semantics', () => {
+    it('должен сохранять роль ссылки при component="a"', () => {
+      render(
+        <Button component="a" href="/about">
+          Link
+        </Button>
+      );
+
+      expect(screen.getByRole('link')).toBeInTheDocument();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('должен иметь role="button" при component="div"', () => {
+      render(<Button component="div">Div</Button>);
+
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    it('не должен переопределять роль <a> при asChild', () => {
+      render(
+        <Button asChild>
+          <a href="/about">Link</a>
+        </Button>
+      );
+
+      expect(screen.getByRole('link')).toBeInTheDocument();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('href sanitization', () => {
+    it('не должен рендерить опасный href при component="a"', () => {
+      render(
+        <Button component="a" href="javascript:alert(1)">
+          XSS
+        </Button>
+      );
+
+      expect(screen.getByTestId('button')).not.toHaveAttribute('href');
+    });
+
+    it('должен санитизировать href при asChild (href кнопки перекрывает href ребёнка)', () => {
+      render(
+        <Button component="a" asChild href="javascript:alert(1)">
+          <a href="/safe">Link</a>
+        </Button>
+      );
+
+      expect(screen.getByTestId('button')).not.toHaveAttribute('href');
+    });
+
+    it('должен сохранять безопасный href ребёнка при asChild', () => {
+      render(
+        <Button asChild>
+          <a href="/child">Link</a>
+        </Button>
+      );
+
+      expect(screen.getByTestId('button')).toHaveAttribute('href', '/child');
     });
   });
 });
