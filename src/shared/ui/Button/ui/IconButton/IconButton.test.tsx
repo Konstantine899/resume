@@ -1,3 +1,7 @@
+// Disable no-script-url: dangerous javascript: values are intentional
+// test fixtures for sanitizeHref — asserting they are REJECTED.
+/* eslint-disable no-script-url */
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Mail } from 'lucide-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -88,10 +92,14 @@ describe('IconButton', () => {
       expect(screen.getByRole('button')).toBeDisabled();
     });
 
-    it('должен быть disabled при loading=true', () => {
+    it('не должен ставить native disabled при loading=true', () => {
       render(<IconButton icon={<Mail />} ariaLabel="Icon" loading />);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      // Loading must NOT set the native disabled attribute: the button stays focusable so
+      // aria-busy/aria-disabled are announced; activation is blocked by handleClick instead.
+      expect(screen.getByRole('button')).not.toBeDisabled();
+      expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true');
     });
   });
 
@@ -282,6 +290,94 @@ describe('IconButton', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass(resolveCssModuleKey(iconButtonStyles, 'color-scheme-danger'));
+    });
+  });
+
+  describe('asChild', () => {
+    it('должен рендерить дочерний элемент вместо кнопки', () => {
+      render(
+        <IconButton asChild icon={<Mail />} ariaLabel="Mail">
+          <a href="/mail">Mail</a>
+        </IconButton>
+      );
+
+      const link = screen.getByTestId('icon-button');
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', '/mail');
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('должен сохранять стили и aria-label на дочернем элементе', () => {
+      render(
+        <IconButton asChild icon={<Mail />} ariaLabel="Открыть почту" variant="ghost">
+          <a href="/mail">Mail</a>
+        </IconButton>
+      );
+
+      const link = screen.getByRole('link', { name: 'Открыть почту' });
+      expect(link).toHaveClass(iconButtonStyles.button ?? '');
+      expect(link).toHaveClass(iconButtonStyles.ghost ?? '');
+    });
+
+    it('должен блокировать onClick при disabled=true и asChild', () => {
+      const handleClick = vi.fn();
+      render(
+        <IconButton asChild icon={<Mail />} ariaLabel="Mail" disabled onClick={handleClick}>
+          <a href="/mail">Mail</a>
+        </IconButton>
+      );
+
+      fireEvent.click(screen.getByTestId('icon-button'));
+
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('должен иметь aria-busy при loading=true и asChild', () => {
+      render(
+        <IconButton asChild icon={<Mail />} ariaLabel="Mail" loading>
+          <a href="/mail">Mail</a>
+        </IconButton>
+      );
+
+      const link = screen.getByTestId('icon-button');
+      expect(link).toHaveAttribute('aria-busy', 'true');
+      expect(link).toHaveAttribute('aria-disabled', 'true');
+      expect(link).toHaveAttribute('data-state', 'loading');
+    });
+
+    it('должен активировать неинтерактивный дочерний элемент по Enter', () => {
+      const handleClick = vi.fn();
+      render(
+        <IconButton asChild icon={<Mail />} ariaLabel="Mail" onClick={handleClick}>
+          <span>Custom</span>
+        </IconButton>
+      );
+
+      const custom = screen.getByTestId('icon-button');
+      expect(custom).toHaveAttribute('role', 'button');
+      expect(custom).toHaveAttribute('tabindex', '0');
+
+      fireEvent.keyDown(custom, { key: 'Enter' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен санитизировать опасный href при asChild', () => {
+      // `href` is a polymorphic prop: the type system only accepts it on the Button
+      // itself with `component="a"`. asChild still renders the cloned child.
+      render(
+        <IconButton
+          asChild
+          component="a"
+          icon={<Mail />}
+          ariaLabel="Mail"
+          href="javascript:alert(1)"
+        >
+          <a href="/safe">Mail</a>
+        </IconButton>
+      );
+
+      expect(screen.getByTestId('icon-button')).not.toHaveAttribute('href');
     });
   });
 });
