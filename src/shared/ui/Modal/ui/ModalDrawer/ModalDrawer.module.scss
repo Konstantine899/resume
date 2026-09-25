@@ -17,6 +17,19 @@
   animation: slideInLeft var(--duration-slow) var(--ease-out);
 }
 
+.right {
+  right: 0;
+}
+
+// Reduced Motion — keyframes end at translateX(0) and no transform is set outside the animation, so `animation: none` keeps the panel anchored.
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .left {
+    animation: none;
+  }
+}
+
 .header {
   display: flex;
   align-items: center;
