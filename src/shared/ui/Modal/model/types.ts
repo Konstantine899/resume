@@ -110,7 +110,7 @@ export interface ModalProps {
    * @description Вызывается ДО onClose. Вызови event.preventDefault() чтобы заблокировать закрытие
    * @example onPointerDownOutside={(e) => { analytics.track('click_outside'); }}
    */
-  onPointerDownOutside?: (event: PointerEvent) => void;
+  onPointerDownOutside?: (event: React.PointerEvent<HTMLDivElement>) => void;
 
   /**
    * Закрытие по нажатию ESC
