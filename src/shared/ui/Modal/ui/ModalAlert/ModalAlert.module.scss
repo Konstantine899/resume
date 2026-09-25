@@ -1,5 +1,10 @@
 .alert {
   text-align: center;
+
+  // N2: alert (info/warning) carries its own icon tone — visually distinct from confirm.
+  .icon {
+    color: var(--color-warning);
+  }
 }
 
 .body {
