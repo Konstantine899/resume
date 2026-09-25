@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, PointerEvent } from 'react';
 
 /**
  * Props for the Overlay component.
@@ -21,6 +21,14 @@ export interface OverlayProps {
 
   /** Click handler — overlay gets `cursor: pointer` only when set. */
   onClick?: () => void;
+
+  /**
+   * Pointer-down handler — receives the ORIGINAL pointerdown event. Prefer
+   * this over `onClick` when the consumer needs `event.target`/`defaultPrevented`
+   * fidelity (e.g. click-outside contracts).
+   * @param event The native pointerdown event
+   */
+  onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void;
 
   /** Keyboard handler — forwarded to the overlay div. */
   onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;

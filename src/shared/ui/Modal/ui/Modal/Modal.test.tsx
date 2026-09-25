@@ -7,6 +7,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Modal } from './Modal';
 import { resetOpenCount } from '../ModalRoot/ModalRoot';
+import { resetLayerManager } from '../../lib/layerManager';
 
 describe('Modal (Compound)', () => {
   const defaultProps = {
@@ -19,12 +20,14 @@ describe('Modal (Compound)', () => {
     cleanup();
     vi.clearAllMocks();
     resetOpenCount();
+    resetLayerManager();
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
     resetOpenCount();
+    resetLayerManager();
   });
 
   // ============================================
@@ -374,7 +377,7 @@ describe('Modal (Compound)', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
       const overlay = document.querySelector('[data-dark]');
       if (overlay) {
-        fireEvent.click(overlay);
+        fireEvent.pointerDown(overlay);
         expect(defaultProps.onClose).toHaveBeenCalled();
       }
     });
@@ -384,7 +387,7 @@ describe('Modal (Compound)', () => {
   // onPointerDownOutside Tests
   // ============================================
   describe('onPointerDownOutside', () => {
-    it('should call onPointerDownOutside on overlay click', () => {
+    it('should call onPointerDownOutside on overlay pointer down', () => {
       const onPointerDownOutside = vi.fn();
       render(
         <Modal
@@ -395,14 +398,14 @@ describe('Modal (Compound)', () => {
       );
       const overlay = document.querySelector('[data-dark]');
       if (overlay) {
-        fireEvent.click(overlay);
+        fireEvent.pointerDown(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
       }
     });
 
     it('should NOT close when onPointerDownOutside calls preventDefault', () => {
       const onClose = vi.fn();
-      const onPointerDownOutside = vi.fn((e: PointerEvent) => e.preventDefault());
+      const onPointerDownOutside = vi.fn((e: { preventDefault: () => void }) => e.preventDefault());
       render(
         <Modal
           isOpen={true}
@@ -415,7 +418,7 @@ describe('Modal (Compound)', () => {
       );
       const overlay = document.querySelector('[data-dark]');
       if (overlay) {
-        fireEvent.click(overlay);
+        fireEvent.pointerDown(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
         expect(onClose).not.toHaveBeenCalled();
       }
@@ -436,7 +439,7 @@ describe('Modal (Compound)', () => {
       );
       const overlay = document.querySelector('[data-dark]');
       if (overlay) {
-        fireEvent.click(overlay);
+        fireEvent.pointerDown(overlay);
         expect(onPointerDownOutside).toHaveBeenCalled();
         expect(onClose).toHaveBeenCalled();
       }
@@ -668,6 +671,88 @@ describe('Modal (Compound)', () => {
       );
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ============================================
+  // M7 — Stacked layers
+  // ============================================
+  describe('stacked layers (M7)', () => {
+    it('Escape closes only the TOPMOST dialog, then the lower one', () => {
+      const onCloseFirst = vi.fn();
+      const onCloseSecond = vi.fn();
+      render(
+        <Modal isOpen={true} onClose={onCloseFirst}>
+          First
+        </Modal>
+      );
+      const { unmount: unmountSecond } = render(
+        <Modal isOpen={true} onClose={onCloseSecond}>
+          Second
+        </Modal>
+      );
+
+      // Lower layer is inert while top is open
+      expect(document.querySelectorAll('[role="dialog"]').length).toBe(2);
+
+      // Top layer owns Escape: only second closes
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onCloseSecond).toHaveBeenCalledTimes(1);
+      expect(onCloseFirst).not.toHaveBeenCalled();
+
+      // Lower layer becomes top again: Escape now closes it
+      unmountSecond();
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onCloseFirst).toHaveBeenCalledTimes(1);
+    });
+
+    it('lower layer is inert + aria-hidden while a higher layer is open', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          First
+        </Modal>
+      );
+      const { unmount: unmountSecond } = render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Second
+        </Modal>
+      );
+
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      expect(dialogs.length).toBe(2);
+      const [firstDialog, secondDialog] = dialogs;
+      expect(secondDialog).not.toHaveAttribute('aria-hidden');
+      expect(firstDialog).toHaveAttribute('aria-hidden', 'true');
+      expect(firstDialog).toHaveAttribute('inert');
+
+      // Cleanup: unmount second so the lower layer is interactive again
+      unmountSecond();
+    });
+
+    it('stacked layers get increasing inline z-index', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          First
+        </Modal>
+      );
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Second
+        </Modal>
+      );
+
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      expect(dialogs.length).toBe(2);
+      const [firstDialog, secondDialog] = dialogs;
+      // Layer 0 uses CSS tokens → no inline z-index; layer 1 dialog gets +3
+      expect(firstDialog).not.toHaveStyle({ zIndex: '5003' });
+      expect(secondDialog).toHaveStyle({ zIndex: '5003' });
+
+      const overlays = document.querySelectorAll('[class*="overlay"]');
+      expect(overlays.length).toBeGreaterThanOrEqual(2);
+      // Layer 1 overlay (5002) sits above layer 0 dialog (no inline) but below
+      // layer 1 dialog (5003)
+      expect(overlays[1]).toHaveStyle({ zIndex: '5002' });
     });
   });
 });

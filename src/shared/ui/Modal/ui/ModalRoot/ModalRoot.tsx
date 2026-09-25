@@ -1,4 +1,5 @@
 import { Overlay } from '@/shared/ui/Overlay';
+import { OVERLAY_CONSTANTS } from '@/shared/ui/Overlay/model/constants';
 import { Portal } from '@/shared/ui/Portal';
 import { Children, cloneElement, memo } from 'react';
 import { useModalRoot } from '../../lib/hooks/useModalRoot';
@@ -20,9 +21,12 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     effectiveModal,
     dataState,
     modalClassName,
-    handleOverlayClick,
+    handleOverlayPointerDown,
     isClosing,
     forceMount,
+    isTop,
+    overlayZIndex,
+    modalZIndex,
   } = useModalRoot(props);
 
   if (!effectiveIsOpen && !(isClosing && forceMount)) return null;
@@ -36,18 +40,22 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     'aria-describedby': subtitle ? subtitleId : undefined,
     tabIndex: 0,
     'data-state': dataState,
+    // Non-topmost layers are hidden from a11y tree + focus (M7).
+    ...(isTop ? {} : { 'aria-hidden': 'true' as const, inert: true }),
     ...(scroll === 'body' ? { 'data-scroll-body': '' } : {}),
+    ...(modalZIndex !== undefined ? { style: { zIndex: modalZIndex } } : {}),
   } as Record<string, unknown>;
 
   return (
     <Portal>
       {effectiveOverlay && (
         <Overlay
-          onClick={handleOverlayClick}
+          onPointerDown={handleOverlayPointerDown}
           blur={false}
           dark={true}
           className={styles.overlay}
           aria-hidden="true"
+          zIndex={overlayZIndex ?? OVERLAY_CONSTANTS.DEFAULT_Z_INDEX}
         />
       )}
 
