@@ -384,10 +384,10 @@ describe('Modal (Compound)', () => {
     it('should close on overlay click', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(defaultProps.onClose).toHaveBeenCalled();
-      }
+      // M14: assert existence instead of silently passing when null.
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
 
@@ -405,10 +405,9 @@ describe('Modal (Compound)', () => {
         />
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
     });
 
     it('should NOT close when onPointerDownOutside calls preventDefault', () => {
@@ -425,11 +424,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).not.toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
     });
 
     it('should close when onPointerDownOutside does NOT preventDefault', () => {
@@ -446,11 +444,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
     });
   });
 
