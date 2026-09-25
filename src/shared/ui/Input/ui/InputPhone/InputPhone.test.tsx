@@ -8,7 +8,8 @@ describe('InputPhone', () => {
     render(<InputPhone label="Phone" />);
     const input = screen.getByLabelText('Phone');
     expect(input).toHaveAttribute('type', 'tel');
-    expect(input).toHaveAttribute('role', 'tel');
+    // role="tel" is not a valid ARIA role — input[type=tel] has native semantics.
+    expect(input).not.toHaveAttribute('role');
   });
 
   it('has default phone placeholder', () => {
