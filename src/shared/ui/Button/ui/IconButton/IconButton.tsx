@@ -60,7 +60,7 @@ function IconButtonImpl<C extends React.ElementType = 'button'>(
     disabled,
     className,
     onClick,
-    styles,
+    cssModule: styles,
   });
 
   const Tag = component || ('button' as React.ElementType);

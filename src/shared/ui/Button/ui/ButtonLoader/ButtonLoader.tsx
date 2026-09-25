@@ -2,6 +2,7 @@
 // ButtonLoader Component
 // ============================================
 
+import { memo } from 'react';
 import { Spinner } from '@/shared/ui/Spinner';
 import { Skeleton } from '@/shared/ui/Skeleton';
 import { BUTTON_CONSTANTS } from '../../model/constants';
@@ -23,7 +24,8 @@ export interface ButtonLoaderProps {
  * ButtonLoader Component — renders Spinner or Skeleton based on loading state.
  *
  * @description Isolates loader rendering logic extracted from Button components.
- * Returns null when loading is false.
+ * Returns null when loading is false. Memoized: it re-renders only when its
+ * props change, not on every Button re-render.
  *
  * @example
  * ```tsx
@@ -31,22 +33,28 @@ export interface ButtonLoaderProps {
  * // Renders: <span><Spinner label="Loading" /></span>
  * ```
  */
-export const ButtonLoader = ({
+export const ButtonLoader = memo(function ButtonLoader({
   loading,
   loadingVariant = 'spinner',
   className = '',
-}: ButtonLoaderProps) => {
+}: ButtonLoaderProps) {
   if (!loading) {
     return null;
   }
 
   return loadingVariant === 'spinner' ? (
     <span className={className}>
-      <Spinner size="sm" color="secondary" label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL} />
+      <Spinner
+        size={BUTTON_CONSTANTS.LOADER_SPINNER_SIZE}
+        color={BUTTON_CONSTANTS.LOADER_SPINNER_COLOR}
+        label={BUTTON_CONSTANTS.DEFAULT_SPINNER_LABEL}
+      />
     </span>
   ) : (
     <span className={className}>
       <Skeleton width="100%" height="100%" />
     </span>
   );
-};
+});
+
+ButtonLoader.displayName = 'ButtonLoader';
