@@ -1,8 +1,9 @@
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '../Modal/Modal';
 import type { ModalAlertProps } from '../../model/types';
+import { ModalContext } from '../../lib/modalContext';
 import styles from './ModalAlert.module.scss';
 
 export const ModalAlert = memo((props: ModalAlertProps) => {
@@ -20,14 +21,19 @@ export const ModalAlert = memo((props: ModalAlertProps) => {
     className = '',
   } = props;
 
+  // Dismiss via the gated requestClose when a modal context is available (M2);
+  // fall back to the onClose prop otherwise (standalone usage).
+  const ctx = useContext(ModalContext);
+  const requestClose = ctx?.requestClose ?? onClose;
+
   const handleConfirm = () => {
     onConfirm?.();
-    onClose();
+    requestClose();
   };
 
   const handleCancel = () => {
     onCancel?.();
-    onClose();
+    requestClose();
   };
 
   const hasCancel = Boolean(cancelLabel);

@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import type { ModalFormProps } from '../../model/types';
 import { Button } from '@/shared/ui/Button';
 import { Modal } from '../Modal/Modal';
+import { ModalContext } from '../../lib/modalContext';
 
 export const ModalForm = memo((props: ModalFormProps) => {
   const {
@@ -19,7 +20,16 @@ export const ModalForm = memo((props: ModalFormProps) => {
     className,
   } = props;
 
-  const handleCancel = onCancel ?? onClose;
+  // Close through the gated requestClose when a modal context is available
+  // (M2). Replaces the old `handleCancel = onCancel ?? onClose` alias, which
+  // skipped onClose entirely when onCancel was set — the form never closed.
+  const ctx = useContext(ModalContext);
+  const requestClose = ctx?.requestClose ?? onClose;
+
+  const handleCancel = () => {
+    onCancel?.();
+    requestClose();
+  };
 
   return (
     <Modal

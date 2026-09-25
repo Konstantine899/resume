@@ -279,6 +279,17 @@ export function useModalRoot(props: ModalRootProps) {
     return canClose();
   }, [canClose]);
 
+  /**
+   * Gated close for compound members (M2): same canClose check as Escape and
+   * overlay click, exposed through ModalContext so the close button and
+   * alert/form actions cannot bypass the gate.
+   */
+  const requestClose = useCallback(() => {
+    if (canCloseModal()) {
+      handleClose();
+    }
+  }, [canCloseModal, handleClose]);
+
   const handleEscKey = useCallback(
     (e: KeyboardEvent) => {
       onEscapeKeyDown?.(e);
@@ -417,6 +428,7 @@ export function useModalRoot(props: ModalRootProps) {
     modalRef,
     titleId,
     subtitleId,
+    requestClose,
     isClosing,
     effectiveIsOpen,
     effectiveOverlay,

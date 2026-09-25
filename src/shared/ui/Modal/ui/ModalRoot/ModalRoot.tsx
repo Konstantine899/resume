@@ -3,6 +3,7 @@ import { OVERLAY_CONSTANTS } from '@/shared/ui/Overlay/model/constants';
 import { Portal } from '@/shared/ui/Portal';
 import { Children, cloneElement, memo } from 'react';
 import { useModalRoot } from '../../lib/hooks/useModalRoot';
+import { ModalContext } from '../../lib/modalContext';
 // eslint-disable-next-line react-refresh/only-export-components
 export { resetOpenCount } from '../../lib/hooks/useModalRoot';
 import type { ModalRootProps } from '../../model/types';
@@ -27,6 +28,7 @@ export const ModalRoot = memo((props: ModalRootProps) => {
     isTop,
     overlayZIndex,
     modalZIndex,
+    requestClose,
   } = useModalRoot(props);
 
   if (!effectiveIsOpen && !(isClosing && forceMount)) return null;
@@ -48,24 +50,28 @@ export const ModalRoot = memo((props: ModalRootProps) => {
 
   return (
     <Portal>
-      {effectiveOverlay && (
-        <Overlay
-          onPointerDown={handleOverlayPointerDown}
-          blur={false}
-          dark={true}
-          className={styles.overlay}
-          aria-hidden="true"
-          zIndex={overlayZIndex ?? OVERLAY_CONSTANTS.DEFAULT_Z_INDEX}
-        />
-      )}
-
-      <div className={styles.modalContainer} role="presentation">
-        {asChild && children ? (
-          cloneElement(Children.only(children) as React.ReactElement, rootProps)
-        ) : (
-          <Tag {...rootProps}>{children}</Tag>
+      {/* M1: titleId/subtitleId reach ModalHeader so aria-labelledby resolves;
+          M2: requestClose reaches every dismissal control inside the dialog. */}
+      <ModalContext.Provider value={{ titleId, subtitleId, requestClose }}>
+        {effectiveOverlay && (
+          <Overlay
+            onPointerDown={handleOverlayPointerDown}
+            blur={false}
+            dark={true}
+            className={styles.overlay}
+            aria-hidden="true"
+            zIndex={overlayZIndex ?? OVERLAY_CONSTANTS.DEFAULT_Z_INDEX}
+          />
         )}
-      </div>
+
+        <div className={styles.modalContainer} role="presentation">
+          {asChild && children ? (
+            cloneElement(Children.only(children) as React.ReactElement, rootProps)
+          ) : (
+            <Tag {...rootProps}>{children}</Tag>
+          )}
+        </div>
+      </ModalContext.Provider>
     </Portal>
   );
 });

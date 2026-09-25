@@ -251,13 +251,21 @@ describe('Modal (Compound)', () => {
     it('should have aria-labelledby with title', () => {
       render(<Modal {...defaultProps} title="Test Title" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-labelledby');
+      const labelledBy = dialog.getAttribute('aria-labelledby');
+      expect(labelledBy).toBeTruthy();
+      // M1: the referenced id must resolve to an element IN THE DOCUMENT
+      // (ModalHeader renders the heading with the SAME id from context) —
+      // otherwise screen readers get an unnamed dialog.
+      expect(document.getElementById(labelledBy as string)).not.toBeNull();
+      expect(document.getElementById(labelledBy as string)?.textContent).toBe('Test Title');
     });
 
     it('should have aria-describedby with subtitle', () => {
       render(<Modal {...defaultProps} title="Title" subtitle="Subtitle" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-describedby');
+      const describedBy = dialog.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy as string)).not.toBeNull();
     });
 
     it('should not have aria-describedby without subtitle', () => {
@@ -460,6 +468,20 @@ describe('Modal (Compound)', () => {
       render(<Modal {...defaultProps} canClose={false} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should not close via close button when canClose=false (M2)', () => {
+      render(<Modal {...defaultProps} canClose={false} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should close via close button when canClose=true (M2)', () => {
+      render(<Modal {...defaultProps} canClose={true} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
 
     it('should call canClose function', () => {
