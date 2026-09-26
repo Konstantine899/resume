@@ -1,32 +1,32 @@
 {
-  "version": "1.0.0",
-  "description": "Performance budgets for bundle size enforcement",
+  "version": "1.1.0",
+  "description": "Performance budgets for bundle size enforcement. Caps are set from the 2026-09-26 measured build (post PurgeCSS rewrite, locale chunk split, assetsInlineLimit: 0) plus ~7-10% headroom.",
   "budgets": {
     "chunks": {
       "default": {
-        "maxSize": 120000,
+        "maxSize": 100000,
         "maxSizeGzip": 30720,
-        "description": "Default chunk size limit (117kb raw, 30kb gzip)"
+        "description": "Default chunk size limit (97kb raw, 30kb gzip). Measured: i18n 54652 raw / 18278 gzip."
       },
       "vendor": {
-        "maxSize": 204800,
-        "maxSizeGzip": 61440,
-        "description": "Vendor chunk limit (200kb raw, 60kb gzip)"
+        "maxSize": 200000,
+        "maxSizeGzip": 70000,
+        "description": "Vendor chunk limit (195kb raw, 68kb gzip). Measured: vendor 195288 raw / 63621 gzip."
       },
       "main": {
-        "maxSize": 186000,
-        "maxSizeGzip": 49152,
-        "description": "Main chunk limit (182kb raw, 48kb gzip)"
+        "maxSize": 160000,
+        "maxSizeGzip": 60000,
+        "description": "Main chunk limit (156kb raw, 58kb gzip). Measured: index 142147 raw / 51497 gzip. Tightened below the pre-inline-removal level so re-inlining assets is caught."
       }
     },
     "total": {
-      "maxSize": 512000,
-      "maxSizeGzip": 153600,
-      "description": "Total bundle size limit (500kb raw, 150kb gzip)"
+      "maxSize": 420000,
+      "maxSizeGzip": 160000,
+      "description": "Total JS bundle size limit (410kb raw, 156kb gzip). Measured: 392676 raw / 133765 gzip."
     },
     "assets": {
       "maxSize": 140000,
-      "description": "Individual asset limit (137kb)"
+      "description": "Individual non-JS asset limit (137kb). Measured: index CSS 133282."
     }
   },
   "patterns": {
