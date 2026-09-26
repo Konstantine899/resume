@@ -6,6 +6,30 @@ import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { ModalForm } from './ModalForm';
 
+function PromiseFormWrapper({
+  onSubmit,
+  onSubmitError,
+}: {
+  onSubmit?: (e: React.FormEvent) => void | Promise<void>;
+  onSubmitError?: (error: unknown) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div>
+      <Button onClick={() => setIsOpen(true)}>Open Form</Button>
+      <ModalForm
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Promise Form"
+        onSubmit={onSubmit ?? (() => undefined)}
+        onSubmitError={onSubmitError}
+      >
+        <Input label="Name" name="name" />
+      </ModalForm>
+    </div>
+  );
+}
+
 function FormWrapper({ onSubmit }: { onSubmit?: (e: React.FormEvent) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const handleSubmit = onSubmit ?? vi.fn();
@@ -99,5 +123,39 @@ describe('ModalForm', () => {
     );
     expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /discard/i })).toBeInTheDocument();
+  });
+
+  test('uses a unique form id per instance (M3)', async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <PromiseFormWrapper />
+        <PromiseFormWrapper />
+      </>
+    );
+    await user.click(screen.getAllByRole('button', { name: /open form/i })[0] as HTMLElement);
+    await screen.findByRole('dialog');
+    const form = document.querySelector('form');
+    expect(form).not.toBeNull();
+    expect(form?.id).toBeTruthy();
+    // Two mounted forms must NOT share the static "modal-form" id — the
+    // submit button's `form` attribute must target its own form.
+    const forms = document.querySelectorAll('form');
+    expect(forms.length).toBeLessThanOrEqual(2);
+    const ids = Array.from(forms).map((f) => f.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test('forwards async onSubmit rejection to onSubmitError (N7)', async () => {
+    const user = userEvent.setup();
+    const onSubmitError = vi.fn();
+    const onSubmit = vi.fn(() => Promise.reject(new Error('boom')));
+    render(<PromiseFormWrapper onSubmit={onSubmit} onSubmitError={onSubmitError} />);
+    await user.click(screen.getByRole('button', { name: /open form/i }));
+    await screen.findByRole('dialog');
+    await user.click(await screen.findByRole('button', { name: /submit/i }));
+    // The rejection must be caught and forwarded, not become unhandled.
+    expect(onSubmitError).toHaveBeenCalledTimes(1);
+    expect(onSubmitError).toHaveBeenCalledWith(expect.any(Error));
   });
 });

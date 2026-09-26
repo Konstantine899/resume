@@ -251,13 +251,21 @@ describe('Modal (Compound)', () => {
     it('should have aria-labelledby with title', () => {
       render(<Modal {...defaultProps} title="Test Title" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-labelledby');
+      const labelledBy = dialog.getAttribute('aria-labelledby');
+      expect(labelledBy).toBeTruthy();
+      // M1: the referenced id must resolve to an element IN THE DOCUMENT
+      // (ModalHeader renders the heading with the SAME id from context) —
+      // otherwise screen readers get an unnamed dialog.
+      expect(document.getElementById(labelledBy as string)).not.toBeNull();
+      expect(document.getElementById(labelledBy as string)?.textContent).toBe('Test Title');
     });
 
     it('should have aria-describedby with subtitle', () => {
       render(<Modal {...defaultProps} title="Title" subtitle="Subtitle" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-describedby');
+      const describedBy = dialog.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy as string)).not.toBeNull();
     });
 
     it('should not have aria-describedby without subtitle', () => {
@@ -376,10 +384,10 @@ describe('Modal (Compound)', () => {
     it('should close on overlay click', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(defaultProps.onClose).toHaveBeenCalled();
-      }
+      // M14: assert existence instead of silently passing when null.
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
 
@@ -397,10 +405,9 @@ describe('Modal (Compound)', () => {
         />
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
     });
 
     it('should NOT close when onPointerDownOutside calls preventDefault', () => {
@@ -417,11 +424,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).not.toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
     });
 
     it('should close when onPointerDownOutside does NOT preventDefault', () => {
@@ -438,11 +444,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.pointerDown(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
     });
   });
 
@@ -460,6 +465,20 @@ describe('Modal (Compound)', () => {
       render(<Modal {...defaultProps} canClose={false} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should not close via close button when canClose=false (M2)', () => {
+      render(<Modal {...defaultProps} canClose={false} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should close via close button when canClose=true (M2)', () => {
+      render(<Modal {...defaultProps} canClose={true} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
 
     it('should call canClose function', () => {
@@ -592,6 +611,41 @@ describe('Modal (Compound)', () => {
       const dialog = screen.getByRole('dialog');
       expect(dialog.tagName).toBe('SECTION');
       expect(dialog).toHaveTextContent('Root custom element');
+    });
+  });
+
+  describe('asChild slot merge (M5)', () => {
+    it('merges the child className instead of clobbering it', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <section className="my-custom-section">Slot content</section>
+        </Modal.Root>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('SECTION');
+      // Modal's own className AND the child's className must both survive.
+      expect(dialog.className).toContain('my-custom-section');
+      expect(dialog).toHaveTextContent('Slot content');
+    });
+
+    it('preserves role="dialog" on the slotted child', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <article>Slot article</article>
+        </Modal.Root>
+      );
+      expect(screen.getByRole('dialog')).toHaveTextContent('Slot article');
+    });
+
+    it('calls both the child and the root pointer handlers', () => {
+      const childPointerDown = vi.fn();
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <div onPointerDown={childPointerDown}>Slot pointer</div>
+        </Modal.Root>
+      );
+      fireEvent.pointerDown(screen.getByRole('dialog'));
+      expect(childPointerDown).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -2,12 +2,13 @@
 // Modal Header Component
 // ============================================
 
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import { classNames } from '@/shared/lib/utils';
 import type { ModalHeaderProps } from '../../model/types';
 import { Heading } from '@/shared/ui/Heading';
 import { ModalCloseButton } from '../ModalCloseButton/ModalCloseButton';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { ModalContext } from '../../lib/modalContext';
 import styles from './ModalHeader.module.scss';
 
 /**
@@ -33,6 +34,13 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
     closeIcon,
   } = props;
 
+  // Non-throwing context read: the header also works standalone (Storybook,
+  // tests). Inside <Modal.Root> the ids fall back to the root's useId values,
+  // so the dialog's aria-labelledby/aria-describedby actually resolve (M1).
+  const ctx = useContext(ModalContext);
+  const resolvedTitleId = titleId ?? ctx?.titleId;
+  const resolvedSubtitleId = subtitleId ?? ctx?.subtitleId;
+
   const headerClasses = classNames(styles.header ?? '', {
     [styles.headerWithoutTitle ?? '']: !title && showCloseButton,
   });
@@ -41,11 +49,11 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
     <header className={headerClasses}>
       {title && (
         <div className={styles.headerContent ?? ''}>
-          <Heading level={2} size="xl" id={titleId}>
+          <Heading level={2} size="xl" id={resolvedTitleId}>
             {title}
           </Heading>
           {subtitle && (
-            <Paragraph size="s" theme="muted" id={subtitleId}>
+            <Paragraph size="s" theme="muted" id={resolvedSubtitleId}>
               {subtitle}
             </Paragraph>
           )}

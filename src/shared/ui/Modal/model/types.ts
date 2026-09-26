@@ -446,6 +446,13 @@ export interface ModalFormProps {
   cancelLabel?: string;
   loading?: boolean;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
+  /**
+   * Called when an async `onSubmit` promise REJECTS. Without this the
+   * rejection becomes an unhandled promise rejection and the consumer has
+   * no hook to surface the error (toast, inline message, loading reset).
+   * @param error The rejected value
+   */
+  onSubmitError?: (error: unknown) => void;
   onCancel?: () => void;
   disableSubmit?: boolean;
   className?: string;
