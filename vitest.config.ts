@@ -23,25 +23,17 @@ export default defineConfig({
           environment: 'jsdom',
           globals: true,
           setupFiles: ['./src/tests/setup.ts'],
-          include: ['src/**/*.{test,spec}.{ts,tsx}', '.opencode/plugins/**/*.{test,spec}.{js,ts}'],
+          include: [
+            'src/**/*.{test,spec}.{ts,tsx}',
+            'config/**/*.{test,spec}.{ts,tsx}',
+            '.opencode/plugins/**/*.{test,spec}.{js,ts}',
+          ],
           // Playwright-спеки (src/__tests__/*.spec.ts) гоняются через `npx playwright test`,
           // НЕ через vitest — исключаем, чтобы vitest не падал на браузерных тестах.
           exclude: ['src/__tests__/**/*.spec.ts'],
           // Запрет .only в тестах (MINOR: не даёт случайно закоммитить
           // частичный прогон как полный). default: !process.env.CI.
           allowOnly: false,
-          coverage: {
-            provider: 'v8',
-            reporter: ['text', 'json', 'html', 'lcov'],
-            thresholds: {
-              global: {
-                branches: 85,
-                functions: 87,
-                lines: 92,
-                statements: 90,
-              },
-            },
-          },
         },
       },
       {
@@ -63,5 +55,27 @@ export default defineConfig({
         },
       },
     ],
+    // `test.coverage` — корневая опция: внутри `projects[]` она МОЛЧА игнорируется
+    // (проверено: при per-project-блоке Vitest не применял ни `reporter`,
+    // ни `exclude`, ни `thresholds` — в coverage/ писался дефолтный clover.xml).
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      // Тесты конфигурации сборки живут в config/ и не должны входить в
+      // coverage-бюджет приложения (src/**) — иначе пороги падают из-за
+      // неописанного конфиг-кода, а не из-за тестов самого приложения.
+      // Паттерн `**/`-prefixed: Vitest сопоставляет exclude с абсолютным путём.
+      exclude: ['**/config/vite/**', '**/coverage/**', '**/dist/**', '**/public/**'],
+      // Vitest 4 трактует любой НЕ-метрический ключ внутри `thresholds`
+      // как glob по файлам, поэтому вложенный блок `global: {...}`
+      // молча матчил ни одного файла и не проверял ничего.
+      // Глобальный порог задаётся верхнеуровневыми ключами метрик.
+      thresholds: {
+        branches: 85,
+        functions: 87,
+        lines: 92,
+        statements: 90,
+      },
+    },
   },
 });
