@@ -24,7 +24,6 @@ vi.mock('@/features/Hero', () => ({ Hero: () => null }));
 vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
-vi.mock('@/widgets/Sidebar', () => ({ Sidebar: () => null }));
 
 const EXPECTED_ANCHORS = ['#home', '#work', '#experience', '#about', '#skills', '#contact'];
 

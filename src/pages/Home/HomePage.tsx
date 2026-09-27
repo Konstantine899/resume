@@ -8,7 +8,6 @@ import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
 import { WorkHistory } from '@/features/WorkHistory';
 import { Nav } from '@/widgets/Nav';
-import { Sidebar } from '@/widgets/Sidebar';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './HomePage.module.scss';
@@ -32,16 +31,13 @@ export const HomePage: React.FC = () => {
         Skip to main content
       </Link>
 
-      {/* Sticky top navigation (issue #138, T1). Rendered outside .homePage:
-          that container is a row flex (Sidebar spacer + main), so an in-flow
-          Nav there would become a horizontal flex item instead of a
-          full-width top bar. */}
+      {/* Sticky top navigation (issue #138). Rendered outside .homePage so it
+          stays a full-width top bar and keeps its own stacking context. It is
+          in normal flow (position: sticky), so main content starts below it —
+          no spacer offset is needed (the old Sidebar desktopSpacer is gone). */}
       <Nav />
 
       <div className={styles.homePage}>
-        {/* Sidebar (includes desktopSpacer internally) */}
-        <Sidebar />
-
         {/* Main Content */}
         <main id="main-content" className={styles.mainContent}>
           <Hero />
