@@ -1,0 +1,87 @@
+// ============================================
+
+// Nav Widget - Sticky Top Bar Styles
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+
+// ============================================
+
+// STICKY HEADER SHELL
+
+// ============================================
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  width: 100%;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+// ============================================
+
+// INNER BAR (links left, controls right)
+
+// ============================================
+.nav {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-2 $spacing-4;
+}
+
+// ============================================
+
+// SECTION LINKS
+
+// ============================================
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  transition:
+    color var(--transition-base),
+    background-color var(--transition-base);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--nav-item-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--shadow-focus);
+    outline-offset: -2px;
+  }
+}
+
+// ============================================
+
+// RIGHT-SIDE CONTROLS PLACEHOLDER
+
+// ThemeSwitch, LanguageSwitch, CTA and AdminLink land in T4/T5.
+
+// ============================================
+.controls {
+  display: flex;
+  flex-shrink: 0;
+  gap: $spacing-2;
+  align-items: center;
+}
