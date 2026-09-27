@@ -33,3 +33,22 @@ export interface NavProps {
   onNavigation?: (href: string) => void;
   'data-testid'?: string;
 }
+
+/**
+ * Props for the `NavControls` wrapper (🌍 LanguageSwitch + 🎨 ThemeSwitch).
+ *
+ * Decision R12: typed HERE against the REAL switch component contracts —
+ * the stale Sidebar `ThemeSwitchProps` (missing isCollapsed/variant) is
+ * never imported. `ui/NavControls/NavControls.test.tsx` holds the
+ * compile-time guard against that regression.
+ */
+export interface NavControlsProps {
+  /**
+   * Rendering context — shares the `NavItemVariant` desktop/mobile values:
+   * `desktop` renders icon-only switches with built-in title tooltips (R5),
+   * `mobile` renders full text rows (old MobileMenu composition, reused in T6).
+   */
+  variant?: NavItemVariant;
+  className?: string;
+  'data-testid'?: string;
+}

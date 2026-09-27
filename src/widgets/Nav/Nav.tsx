@@ -8,6 +8,7 @@ import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
+import { NavControls } from './ui/NavControls';
 import { NavItem } from './ui/NavItem';
 
 /**
@@ -48,8 +49,10 @@ export const Nav: React.FC<NavProps> = ({
           ))}
         </ul>
 
-        {/* Right-side controls: ThemeSwitch, LanguageSwitch, CTA, AdminLink (T4/T5). */}
-        <div className={styles.controls} data-testid="nav-controls" />
+        {/* Right-side controls: switches (T4); CTA + AdminLink land in T5. */}
+        <div className={styles.controls} data-testid="nav-controls">
+          <NavControls />
+        </div>
       </nav>
     </header>
   );

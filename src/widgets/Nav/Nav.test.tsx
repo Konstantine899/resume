@@ -11,6 +11,12 @@ import styles from './Nav.module.scss';
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
+// useThemeSwitch → deterministic 'dark' theme (icon-adoption.test.tsx pattern,
+// no ThemeProvider needed). The switch COMPONENTS stay un-mocked so the
+// Nav → NavControls wiring (T4) is observable through their real testids.
+vi.mock('@/features/ThemeSwitch/hooks/useThemeSwitch', () => ({
+  useThemeSwitch: () => ({ theme: 'dark', toggleTheme: vi.fn(), isTransitioning: false }),
+}));
 // Heavy composed sections are out of scope — we exercise the Nav integration only.
 vi.mock('@/features/About', () => ({ About: () => null }));
 vi.mock('@/features/Contact', () => ({ Contact: () => null }));
@@ -70,6 +76,14 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(NAV_ITEMS).toHaveLength(6);
     expect(ADMIN_HREF).toBe('#/admin');
     expect(CTA_HREF).toBe('#contact');
+  });
+
+  it('renders NavControls with both switches inside the right-side container (T4)', () => {
+    render(<Nav />);
+
+    const controls = screen.getByTestId('nav-controls');
+    expect(within(controls).getByTestId('language-switch')).toBeInTheDocument();
+    expect(within(controls).getByTestId('theme-switch')).toBeInTheDocument();
   });
 
   it('invokes onNavigation with the section href when a link is activated', () => {
