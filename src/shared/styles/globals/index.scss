@@ -10,3 +10,6 @@
 @forward 'utilities';
 @forward 'scrollbar';
 @forward 'gradient';
+
+// Single source of @keyframes (C4 dedup) — emitted once, globally
+@forward '../animations/keyframes';

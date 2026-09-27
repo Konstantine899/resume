@@ -197,6 +197,156 @@ export function buildDynamicSafelist(
   return safelist;
 }
 
+/** Extensions tried when an import specifier carries none (in candidate order). */
+const EXTENSIONLESS_CANDIDATES = ['.ts', '.tsx', '.js', '.jsx', '.scss', '.css'];
+
+/**
+ * Resolve an import specifier to every filesystem path it could refer to.
+ * Returns `null` for bare specifiers in TS/JS (`lodash`, `@scope/pkg`) —
+ * those live in node_modules and must never enter the importer graph.
+ * Sass is different: `@use 'mixins'` is resolved relative to the importing
+ * stylesheet, so unqualified specs coming from a `.scss` file stay relative.
+ */
+export function resolveImportCandidates(fromPath: string, spec: string): string[] | null {
+  const clean = spec.split('?')[0] ?? spec;
+  const isAlias = clean.startsWith('@/');
+  const isRelative = clean.startsWith('.');
+  if (!isAlias && !isRelative && !fromPath.endsWith('.scss')) return null;
+
+  const base = isAlias
+    ? posix.join(toPosix(process.cwd()), 'src', clean.slice(2))
+    : posix.join(posix.dirname(toPosix(fromPath)), clean);
+
+  if (/\.[A-Za-z0-9]+$/.test(clean)) return [base];
+
+  const directory = posix.dirname(base);
+  const name = posix.basename(base);
+  return [
+    ...EXTENSIONLESS_CANDIDATES.map((ext) => `${base}${ext}`),
+    ...EXTENSIONLESS_CANDIDATES.map((ext) => `${base}/index${ext}`),
+    `${directory}/_${name}.scss`,
+  ];
+}
+
+/** Import specifiers a source file references. */
+function extractImportSpecifiers(file: { path: string; source: string }): string[] {
+  const specs: string[] = [];
+
+  if (file.path.endsWith('.scss')) {
+    for (const match of file.source.matchAll(/@(?:use|import|forward)\s+['"]([^'"]+)['"]/g)) {
+      specs.push(match[1]);
+    }
+    return specs;
+  }
+
+  if (!/\.(ts|tsx|js|jsx)$/.test(file.path)) return specs;
+
+  // `import x from '…'`, `import type { T } from '…'`, `export * from '…'`.
+  // `[^'";]` keeps a statement from bleeding into the next one.
+  for (const match of file.source.matchAll(
+    /\b(?:import|export)\s+(?:type\s+)?[^'";]*?\bfrom\s*['"]([^'"]+)['"]/g
+  )) {
+    specs.push(match[1]);
+  }
+  // Side-effect imports and dynamic `import('…')`.
+  for (const match of file.source.matchAll(/\bimport\s*\(?\s*['"]([^'"]+)['"]/g)) {
+    specs.push(match[1]);
+  }
+
+  return specs;
+}
+
+/**
+ * Reverse import graph: target path → every file that imports it directly or
+ * transitively. Targets resolve against the scanned file set; a specifier that
+ * ends in `.scss` always forms a target node even though SCSS files are never
+ * part of that set (production collection reads only TS/JS/HTML).
+ */
+export function buildImporterGraph(
+  files: ReadonlyArray<{ path: string; source: string }>
+): Map<string, Set<string>> {
+  const knownPaths = new Set(files.map((file) => file.path));
+  /** Direct edges only: target → files with a literal import of it. */
+  const direct = new Map<string, Set<string>>();
+
+  for (const file of files) {
+    for (const rawSpec of extractImportSpecifiers(file)) {
+      const spec = rawSpec.split('?')[0] ?? rawSpec;
+      const candidates = resolveImportCandidates(file.path, spec);
+      if (!candidates) continue;
+
+      const target =
+        candidates.find((candidate) => knownPaths.has(candidate)) ??
+        (spec.endsWith('.scss') ? candidates[0] : undefined);
+      if (!target || target === file.path) continue;
+
+      const importers = direct.get(target) ?? new Set<string>();
+      importers.add(file.path);
+      direct.set(target, importers);
+    }
+  }
+
+  // Transitive closure per target: breadth-first over reverse edges. The BFS
+  // visited-set terminates on cycles; the target itself is removed afterwards
+  // so a cycle never makes a file its own importer.
+  const graph = new Map<string, Set<string>>();
+  for (const [target] of direct) {
+    const importers = new Set<string>();
+    const queue = [...(direct.get(target) ?? [])];
+    while (queue.length > 0) {
+      const node = queue.pop();
+      if (node === undefined || importers.has(node)) continue;
+      importers.add(node);
+      queue.push(...(direct.get(node) ?? []));
+    }
+    importers.delete(target);
+    if (importers.size > 0) graph.set(target, importers);
+  }
+
+  return graph;
+}
+
+/**
+ * Per-module PurgeCSS content: `<module.scss path>` → only the sources that
+ * can reference its classes (its transitive importers) plus `index.html`
+ * (global body/`dark` selectors live there).
+ *
+ * Fallback contract (transform reads `scoped.get(file) ?? content`):
+ *   - empty graph → empty map → every module keeps the whole blob;
+ *   - dynamically-indexed modules are omitted → they keep the whole blob
+ *     (their keys are computed at runtime, no importer scoping is safe);
+ *   - `SCOPED_PURGE_EXCLUDE=<anything>` → empty map → global opt-out.
+ */
+export function buildScopedContent(
+  files: ReadonlyArray<{ path: string; source: string }>,
+  graph: ReadonlyMap<string, ReadonlySet<string>>
+): Map<string, string> {
+  if (process.env.SCORPED_PURGE_EXCLUDE) return new Map();
+
+  const sourceByPath = new Map(files.map((file) => [file.path, file.source]));
+  const dynamicModules = new Set(findDynamicStyleModulePaths(files));
+  // index.html (and any other HTML entry) is global context for every scope.
+  const htmlContent = files
+    .filter((file) => file.path.endsWith('.html'))
+    .map((file) => file.source)
+    .join('\n');
+
+  const scoped = new Map<string, string>();
+  for (const [target, importers] of graph) {
+    if (!target.endsWith('.module.scss')) continue;
+    if (dynamicModules.has(target)) continue;
+
+    const importerSources = [...importers]
+      .map((importer) => sourceByPath.get(importer) ?? '')
+      .filter(Boolean);
+    if (importerSources.length === 0) continue;
+
+    scoped.set(target, [htmlContent, ...importerSources].filter(Boolean).join('\n'));
+  }
+
+  return scoped;
+}
+
 /**
  * Run PurgeCSS over one stylesheet. Returns the original source verbatim when
  * PurgeCSS cannot parse it — a build that ships unpurged CSS is recoverable,
@@ -263,6 +413,7 @@ function collectContentFiles(
 
 export function buildPurgeCssPlugin(): Plugin {
   let content = '';
+  let scopedContent = new Map<string, string>();
   let dynamicSafelist = new Map<string, string[]>();
 
   return {
@@ -284,6 +435,14 @@ export function buildPurgeCssPlugin(): Plugin {
       dynamicSafelist = buildDynamicSafelist(files, (modulePath) =>
         readFileSync(modulePath, 'utf8')
       );
+
+      // Scoped purging is an optimisation: any failure must degrade to the
+      // whole blob, never to an empty one (which would purge everything).
+      try {
+        scopedContent = buildScopedContent(files, buildImporterGraph(files));
+      } catch {
+        scopedContent = new Map();
+      }
     },
 
     async transform(code, id) {
@@ -293,7 +452,9 @@ export function buildPurgeCssPlugin(): Plugin {
       const safelist = dynamicSafelist.get(file);
       const purged = await purgeStylesheet(code, {
         from: id,
-        content,
+        // Modules not in the scoped map (dynamic, unreachable, opt-out)
+        // fall back to the whole-repo blob.
+        content: scopedContent.get(file) ?? content,
         safelist,
       });
 

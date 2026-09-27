@@ -40,13 +40,13 @@
 
   // Анимация
   &:not(.noAnimation) {
-    animation: scaleIn var(--duration-normal) var(--ease-default);
+    animation: global(scaleIn) var(--duration-normal) var(--ease-default);
   }
 
   // Close animation (forceMount mode)
   &.closing {
     pointer-events: none;
-    animation: scaleOut var(--duration-normal) var(--ease-default) forwards;
+    animation: global(scaleOut) var(--duration-normal) var(--ease-default) forwards;
   }
 
   &.noAnimation {

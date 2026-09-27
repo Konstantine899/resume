@@ -2,39 +2,13 @@
 
 // Fade Animations
 
+// @keyframes blocks moved to _keyframes.scss (single source of truth,
+
+// forwarded by globals/index.scss). References below must use the
+
+// colon-less global() form so CSS-modules scoping does not rename them.
+
 // ============================================
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(2rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
 
 // Mixins
 @mixin animate-fade-up($delay: 0s) {
@@ -42,7 +16,7 @@
   transform: translateY(2rem);
 
   &.visible {
-    animation-name: fadeUp;
+    animation-name: global(fadeUp);
     animation-duration: 0.7s;
     animation-timing-function: ease-out;
     animation-delay: $delay;
@@ -54,7 +28,7 @@
   opacity: 0;
 
   &.visible {
-    animation-name: fadeIn;
+    animation-name: global(fadeIn);
     animation-duration: 0.7s;
     animation-timing-function: ease-out;
     animation-delay: $delay;
