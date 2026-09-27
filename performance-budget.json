@@ -25,8 +25,8 @@
       "description": "Total JS bundle size limit (410kb raw, 156kb gzip). Measured: 392676 raw / 133765 gzip."
     },
     "assets": {
-      "maxSize": 140000,
-      "description": "Individual non-JS asset limit (137kb). Measured: index CSS 133282."
+      "maxSize": 122880,
+      "description": "Individual non-JS asset limit (120kb). Measured: index CSS 120694 (sdd-134-css, post C1-C5)."
     }
   },
   "patterns": {
