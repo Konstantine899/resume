@@ -7,6 +7,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './Nav.module.scss';
+import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
 
@@ -18,6 +19,9 @@ import type { NavProps } from './model/types';
  *
  * Decision R6: the page keeps exactly ONE skip link (in HomePage); this
  * widget never renders its own.
+ *
+ * Active-section highlighting and click handling come from `useNavigation`
+ * (single state owner, plan §5; NAV_ITEMS-derived tracking, decision R8).
  */
 export const Nav: React.FC<NavProps> = ({
   className = '',
@@ -25,6 +29,7 @@ export const Nav: React.FC<NavProps> = ({
   'data-testid': testId = 'nav',
 }) => {
   const { t } = useLanguage();
+  const { activeSection, onNavClick } = useNavigation({ onNavigation });
 
   return (
     <header className={classNames(styles.header, className)} data-testid={testId}>
@@ -38,7 +43,8 @@ export const Nav: React.FC<NavProps> = ({
                 underline="never"
                 href={item.href}
                 className={styles.link}
-                onClick={() => onNavigation?.(item.href)}
+                aria-current={activeSection === sectionIdFromHref(item.href) ? 'page' : undefined}
+                onClick={() => onNavClick(item.href)}
               >
                 <Icon name={item.icon} size={16} color="inherit" decorative />
                 <span>{t(item.labelKey)}</span>

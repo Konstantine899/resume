@@ -82,6 +82,32 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(onNavigation).toHaveBeenCalledWith('#home');
   });
 
+  it('marks the active section link with aria-current="page" (Sidebar convention)', () => {
+    render(<Nav />);
+
+    const links = within(screen.getByRole('navigation')).getAllByRole('link');
+
+    // Initial active section is the first NAV_ITEMS anchor.
+    expect(links[0]).toHaveAttribute('aria-current', 'page');
+    expect(links[1]).not.toHaveAttribute('aria-current');
+    expect(links[5]).not.toHaveAttribute('aria-current');
+  });
+
+  it('moves aria-current immediately when a section link is clicked (T2 hook)', () => {
+    const onNavigation = vi.fn();
+    render(<Nav onNavigation={onNavigation} />);
+
+    const links = within(screen.getByRole('navigation')).getAllByRole('link');
+    const aboutLink = links.find((link) => link.getAttribute('href') === '#about');
+    expect(aboutLink).toBeDefined();
+
+    fireEvent.click(aboutLink as HTMLElement);
+
+    expect(aboutLink).toHaveAttribute('aria-current', 'page');
+    expect(links[0]).not.toHaveAttribute('aria-current');
+    expect(onNavigation).toHaveBeenCalledWith('#about');
+  });
+
   it('does NOT render its own skip link (decision R6)', () => {
     render(<Nav />);
 
