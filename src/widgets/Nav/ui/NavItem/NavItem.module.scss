@@ -1,0 +1,83 @@
+// ============================================
+
+// Nav Widget - NavItem (section link row)
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+
+// ============================================
+
+// BASE ROW (icon + label — shared by both variants)
+
+// ============================================
+.navItem {
+  box-sizing: border-box;
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: $spacing-2 $spacing-3;
+  color: var(--nav-item-color);
+  white-space: nowrap;
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  transition:
+    color var(--transition-base),
+    background-color var(--transition-base);
+
+  &:hover {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    background-color: var(--nav-item-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--shadow-focus);
+    outline-offset: -2px;
+    background-color: var(--nav-item-bg-hover);
+  }
+
+  // Active state — specificity (0, 3, 0) to override Link.ghost (0, 2, 0), the scoped-class trick the old Sidebar NavItem relied on.
+  &.desktop.active {
+    color: var(--color-text-primary);
+    background-color: var(--nav-item-bg-active);
+
+    &:focus-visible {
+      outline: var(--shadow-focus);
+    }
+  }
+
+  &.mobile.active {
+    color: var(--color-text-primary);
+    background-color: var(--nav-item-bg-active);
+  }
+}
+
+// ============================================
+
+// DESKTOP — horizontal top-bar link
+
+// ============================================
+.desktop {
+  justify-content: center;
+}
+
+// ============================================
+
+// MOBILE — full-width row of the T6 menu panel (R10: plain link)
+
+// ============================================
+.mobile {
+  justify-content: flex-start;
+  width: 100%;
+  font-weight: 500;
+
+  .navLabel {
+    font-weight: 500;
+  }
+}
+
+// Label typography lives on the span (not the anchor): Link `unstyled` resets the anchor font with `font: inherit`, which would beat any font declaration on the anchor itself.
+.navLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}

@@ -17,6 +17,16 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
+/**
+ * Rendering context of a `NavItem` row (decision R10).
+ *
+ * - `desktop` — horizontal link inside the sticky top bar.
+ * - `mobile`  — full-width row of the T6 mobile menu panel. MUST keep regular
+ *   link semantics (`role="link"`): the old Sidebar mobile variant emitted an
+ *   orphaned `menuitem` with no `menubar` parent, which this variant forbids.
+ */
+export type NavItemVariant = 'desktop' | 'mobile';
+
 export interface NavProps {
   className?: string;
   /** Optional callback fired when a section anchor is activated. */

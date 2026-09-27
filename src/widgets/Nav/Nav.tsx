@@ -3,13 +3,12 @@
 // ============================================
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
-import { Icon } from '@/shared/ui/Icon';
-import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
+import { NavItem } from './ui/NavItem';
 
 /**
  * Sticky top navigation bar (issue #138).
@@ -22,6 +21,8 @@ import type { NavProps } from './model/types';
  *
  * Active-section highlighting and click handling come from `useNavigation`
  * (single state owner, plan §5; NAV_ITEMS-derived tracking, decision R8).
+ * Section rows are rendered by `NavItem` (T3); the mobile menu panel that
+ * will reuse the same component with `variant="mobile"` lands in T6.
  */
 export const Nav: React.FC<NavProps> = ({
   className = '',
@@ -37,18 +38,12 @@ export const Nav: React.FC<NavProps> = ({
         <ul className={styles.links}>
           {NAV_ITEMS.map((item) => (
             <li key={item.id}>
-              <Link
-                unstyled
-                variant="ghost"
-                underline="never"
-                href={item.href}
-                className={styles.link}
-                aria-current={activeSection === sectionIdFromHref(item.href) ? 'page' : undefined}
-                onClick={() => onNavClick(item.href)}
-              >
-                <Icon name={item.icon} size={16} color="inherit" decorative />
-                <span>{t(item.labelKey)}</span>
-              </Link>
+              <NavItem
+                item={item}
+                variant="desktop"
+                active={activeSection === sectionIdFromHref(item.href)}
+                onNavigate={() => onNavClick(item.href)}
+              />
             </li>
           ))}
         </ul>

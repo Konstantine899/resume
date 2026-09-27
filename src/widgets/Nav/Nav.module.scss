@@ -47,30 +47,7 @@
   list-style: none;
 }
 
-.link {
-  display: inline-flex;
-  gap: $spacing-2;
-  align-items: center;
-  padding: $spacing-2 $spacing-3;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border-radius: $border-radius-md;
-  transition:
-    color var(--transition-base),
-    background-color var(--transition-base);
-
-  &:hover {
-    color: var(--color-text-primary);
-    background: var(--nav-item-bg-hover);
-  }
-
-  &:focus-visible {
-    outline: var(--shadow-focus);
-    outline-offset: -2px;
-  }
-}
+// Section-link visuals moved to ui/NavItem/NavItem.module.scss (T3) — the row itself is now the NavItem component.
 
 // ============================================
 
