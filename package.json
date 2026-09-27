@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
-    "analyze:scss": "tsx scripts/analyze-scss.ts",
+    "analyze:scss": "node scripts/analyze-scss.mjs",
     "analyze:dead-code": "knip --include files,dependencies,exports",
     "check:bundle": "node scripts/check-bundle.mjs public",
     "check:axe": "node scripts/purge-axe-check.mjs",
