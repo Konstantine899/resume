@@ -52,3 +52,29 @@ export interface NavControlsProps {
   className?: string;
   'data-testid'?: string;
 }
+
+/**
+ * Props for the `CtaButton` resume CTA (issue #138, T5).
+ *
+ * Decision R4: the SAME component serves both surfaces —
+ * `desktop` renders the always-visible text CTA (Link-primary, Hero
+ * precedent), `mobile` renders a compact icon-only anchor with an
+ * i18n `aria-label` (reused by the T6 mobile menu panel).
+ */
+export interface CtaButtonProps {
+  /** Rendering context (decision R4) — required, no default. */
+  variant: NavItemVariant;
+  className?: string;
+  'data-testid'?: string;
+}
+
+/**
+ * Props for the `AdminLink` 🔐 placeholder (issue #138, T5, decision R3).
+ *
+ * Read-only icon-only link to `ADMIN_HREF` (`#/admin`) — visible in BOTH
+ * surfaces (the mobile menu panel of T6 reuses it unchanged).
+ */
+export interface AdminLinkProps {
+  className?: string;
+  'data-testid'?: string;
+}

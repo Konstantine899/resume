@@ -61,7 +61,10 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     render(<Nav />);
 
     const nav = screen.getByRole('navigation');
-    const links = within(nav).getAllByRole('link');
+    // Section anchors live in the <ul> — the right-side controls (T5 CTA +
+    // AdminLink) render additional links outside the list (decision R5).
+    const sectionList = within(nav).getByRole('list');
+    const links = within(sectionList).getAllByRole('link');
 
     expect(links).toHaveLength(6);
     expect(links.map((link) => link.getAttribute('href'))).toEqual(EXPECTED_ANCHORS);
@@ -84,6 +87,22 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     const controls = screen.getByTestId('nav-controls');
     expect(within(controls).getByTestId('language-switch')).toBeInTheDocument();
     expect(within(controls).getByTestId('theme-switch')).toBeInTheDocument();
+  });
+
+  it('renders CTA then AdminLink after the switches inside nav-controls (T5, R5)', () => {
+    render(<Nav />);
+
+    const controls = screen.getByTestId('nav-controls');
+    const links = within(controls).getAllByRole('link');
+
+    // Right-side order (decision R5): [🌍🎨 switches][📄 CTA][🔐 AdminLink].
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([CTA_HREF, ADMIN_HREF]);
+
+    // Switches precede the CTA in document order.
+    const switches = within(controls).getByTestId('nav-controls-switches');
+    expect(
+      switches.compareDocumentPosition(links[0] as Node) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it('invokes onNavigation with the section href when a link is activated', () => {
@@ -146,8 +165,10 @@ describe('Nav: renders within HomePage', () => {
     // R6/T6: exactly one skip link, kept in HomePage — Nav adds no duplicate.
     expect(screen.getAllByRole('link', { name: /skip to main content/i })).toHaveLength(1);
 
-    // The 6 section anchors are rendered inside the Nav bar.
-    const navLinks = within(header).getAllByRole('link');
+    // The 6 section anchors are rendered inside the Nav bar's <ul>
+    // (the right-side CTA/AdminLink links from T5 sit outside the list).
+    const sectionList = within(header).getByRole('list');
+    const navLinks = within(sectionList).getAllByRole('link');
     expect(navLinks).toHaveLength(6);
     expect(navLinks.map((link) => link.getAttribute('href'))).toEqual(EXPECTED_ANCHORS);
 

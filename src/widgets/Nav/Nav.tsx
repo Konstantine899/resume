@@ -8,6 +8,8 @@ import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
+import { AdminLink } from './ui/AdminLink';
+import { CtaButton } from './ui/CtaButton';
 import { NavControls } from './ui/NavControls';
 import { NavItem } from './ui/NavItem';
 
@@ -22,8 +24,10 @@ import { NavItem } from './ui/NavItem';
  *
  * Active-section highlighting and click handling come from `useNavigation`
  * (single state owner, plan §5; NAV_ITEMS-derived tracking, decision R8).
- * Section rows are rendered by `NavItem` (T3); the mobile menu panel that
- * will reuse the same component with `variant="mobile"` lands in T6.
+ * Section rows are rendered by `NavItem` (T3); the right side pairs
+ * `NavControls` (T4) with the `CtaButton` + `AdminLink` of T5 in the order
+ * of decision R5. The mobile menu panel that will reuse the same components
+ * with `variant="mobile"` lands in T6.
  */
 export const Nav: React.FC<NavProps> = ({
   className = '',
@@ -49,9 +53,11 @@ export const Nav: React.FC<NavProps> = ({
           ))}
         </ul>
 
-        {/* Right-side controls: switches (T4); CTA + AdminLink land in T5. */}
+        {/* Right-side controls (decision R5): 🌍🎨 switches (T4) → 📄 CTA → 🔐 AdminLink (T5). */}
         <div className={styles.controls} data-testid="nav-controls">
           <NavControls />
+          <CtaButton variant="desktop" />
+          <AdminLink />
         </div>
       </nav>
     </header>
