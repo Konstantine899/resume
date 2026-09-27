@@ -31,7 +31,10 @@ export const NavControls: React.FC<NavControlsProps> = ({
   const isIconOnly = variant === 'desktop';
 
   return (
-    <div className={classNames(styles.controls, className)} data-testid={testId}>
+    <div
+      className={classNames(styles.controls, variant === 'mobile' && styles.mobile, className)}
+      data-testid={testId}
+    >
       <LanguageSwitch variant={variant} isCollapsed={isIconOnly} />
       <ThemeSwitch variant={variant} isCollapsed={isIconOnly} />
     </div>

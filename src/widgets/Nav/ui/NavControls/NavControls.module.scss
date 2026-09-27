@@ -18,3 +18,14 @@
   gap: $spacing-1;
   align-items: center;
 }
+
+// ============================================
+
+// MOBILE — stacked full-width rows inside the T6 panel (0,2,0 beats 0,1,0)
+
+// ============================================
+.mobile {
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+}

@@ -28,3 +28,10 @@ export const ADMIN_HREF = '#/admin';
  * file exists, so the button is never a dead end.
  */
 export const CTA_HREF = '#contact';
+
+/**
+ * DOM id of the mobile menu dialog (T6, decision R9) — shared between the
+ * panel (`id`) and the burger (`aria-controls`) so the toggle always points
+ * at the real element.
+ */
+export const MOBILE_MENU_ID = 'nav-mobile-menu';

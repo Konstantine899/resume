@@ -148,6 +148,80 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
   });
 });
 
+describe('Nav: burger + MobileMenu wiring (T6, R9/R11)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the burger toggle with i18n labels + aria-expanded, and the compact CTA beside it (R4/R9)', () => {
+    render(<Nav />);
+
+    // Action-based accessible name: closed → "open the menu" (t identity mock).
+    const burger = screen.getByRole('button', { name: 'navMenuOpen' });
+    expect(burger).toHaveAttribute('aria-expanded', 'false');
+    expect(burger).toHaveAttribute('data-testid', 'nav-burger');
+    expect(burger).toHaveAttribute('aria-controls', 'nav-mobile-menu');
+
+    // Compact mobile CTA sits in the header NEXT TO the burger (R4) — outside any panel.
+    const compactCta = screen.getByTestId('nav-cta-mobile');
+    expect(compactCta).toHaveAttribute('href', CTA_HREF);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens the panel from the burger with exactly ONE navigation landmark (R9)', () => {
+    render(<Nav />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'navMenuOpen' }));
+
+    // Dialog carries the i18n aria-label (t identity mock → the key itself).
+    const dialog = screen.getByRole('dialog', { name: 'navMenuLabel' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+
+    // R9: Nav's own <nav> stays the ONLY navigation landmark, panel included.
+    expect(screen.getAllByRole('navigation')).toHaveLength(1);
+
+    // Panel content (R4): sections + 🌍🎨 + 🔐 — CTA excluded.
+    expect(within(dialog).getByRole('list')).toBeInTheDocument();
+    expect(within(dialog).getByTestId('language-switch')).toBeInTheDocument();
+    expect(within(dialog).getByTestId('theme-switch')).toBeInTheDocument();
+    expect(within(dialog).getByTestId('nav-admin-link')).toBeInTheDocument();
+    expect(within(dialog).queryByTestId('nav-cta')).toBeNull();
+    expect(within(dialog).queryByTestId('nav-cta-mobile')).toBeNull();
+
+    // Burger flips to its close state while the panel is open.
+    const closeBurger = screen.getByRole('button', { name: 'navMenuClose' });
+    expect(closeBurger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('closes on Escape and RETURNS FOCUS to the burger (R11)', () => {
+    render(<Nav />);
+
+    const burger = screen.getByRole('button', { name: 'navMenuOpen' });
+    fireEvent.click(burger);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    // Open moves focus into the panel (first item).
+    expect(screen.getByRole('dialog').contains(document.activeElement)).toBe(true);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(burger).toHaveFocus();
+  });
+
+  it('keeps burger + panel mobile-only and raises the header while open (source guard)', () => {
+    const scss = readFileSync(resolve(__dirname, './Nav.module.scss'), 'utf8');
+
+    // Burger/CTA row disappears at the 768px desktop breakpoint…
+    expect(scss).toMatch(/\.mobileActions\s*{[^}]*@include md\s*{[^}]*display:\s*none/);
+    // …while the desktop links + controls disappear below it.
+    expect(scss).toMatch(/\.links\s*{[^}]*@include max-md\s*{[^}]*display:\s*none/);
+    expect(scss).toMatch(/\.controls\s*{[^}]*@include max-md\s*{[^}]*display:\s*none/);
+    // z-index plan: sticky base --z-nav, raised to --z-sidebar while the menu is open.
+    expect(scss).toContain('var(--z-nav)');
+    expect(scss).toMatch(/menuOpen\s*{[^}]*var\(--z-sidebar\)/);
+  });
+});
+
 describe('Nav: renders within HomePage', () => {
   afterEach(() => {
     vi.restoreAllMocks();
