@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Hero } from './Hero';
 
@@ -13,7 +13,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', () => ({
 }));
 
 // Visual leaf components that are not the integration target — keep the test
-// focused on the Link CTA wiring.
+// focused on Hero content rendering.
 vi.mock('@/shared/ui/Code', () => ({
   Code: () => <div data-testid="mock-code" />,
 }));
@@ -24,26 +24,21 @@ vi.mock('./HeroAvatar', () => ({
   HeroAvatar: () => <div data-testid="mock-avatar" />,
 }));
 
-describe('Hero: Link CTA integration', () => {
+describe('Hero: renders without the dead resume CTA', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders the resume CTA as a Link with href="#"', () => {
+  it('renders the hero content', () => {
     render(<Hero />);
 
-    const cta = screen.getByRole('link', { name: /getResume/ });
-    expect(cta).toBeInTheDocument();
-    expect(cta).toHaveAttribute('href', '#');
+    expect(screen.getByTestId('hero')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-code')).toBeInTheDocument();
   });
 
-  it('fires preventDefault and calls onGetResume on click', () => {
-    const onGetResume = vi.fn();
-    render(<Hero onGetResume={onGetResume} />);
+  it('no longer renders the resume CTA link (href="#")', () => {
+    render(<Hero />);
 
-    const cta = screen.getByRole('link', { name: /getResume/ });
-    fireEvent.click(cta);
-
-    expect(onGetResume).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });

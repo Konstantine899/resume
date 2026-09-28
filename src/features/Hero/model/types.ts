@@ -7,7 +7,6 @@
  */
 export interface HeroProps {
   className?: string;
-  onGetResume?: () => void;
   'data-testid'?: string;
 }
 
@@ -23,7 +22,6 @@ export interface HeroTranslations {
   skillsLabel: string;
   yearsOfExperience: string;
   age: string;
-  getResume: string;
 }
 
 /**
