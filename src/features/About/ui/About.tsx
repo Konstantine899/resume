@@ -1,9 +1,10 @@
 import { DEVELOPER_DATA } from '@/entities/Developer';
+import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.png';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import { AvatarAbout } from '@/shared/ui/Avatar';
 import { Heading } from '@/shared/ui/Heading';
+import { Image } from '@/shared/ui/Image';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
@@ -24,25 +25,33 @@ export const About: React.FC<AboutFeatureProps> = ({
       data-testid={testId}
     >
       <AnimatedSection delay={200}>
-        <div className={styles.content}>
-          <div className={styles.avatarContainer}>
-            <AvatarAbout alt={DEVELOPER_DATA.fullName} size="sm" />
+        <div className={styles.stack}>
+          <div className={styles.panel} data-testid="about-panel">
+            <span className={styles.accent} data-testid="about-accent" aria-hidden="true" />
+            <Heading level={3} className={styles.title}>
+              {DEVELOPER_DATA.fullName}
+            </Heading>
+            <Paragraph className={styles.description}>{t('aboutDescription')}</Paragraph>
+            <Link
+              href="#contact"
+              unstyled
+              variant="primary"
+              underline="never"
+              className={styles.ctaButton}
+            >
+              {t('getInTouch')}
+            </Link>
           </div>
-
-          <Heading level={3} className={styles.title} align="center">
-            {t('about')}
-          </Heading>
-          <Paragraph className={styles.description}>{t('aboutDescription')}</Paragraph>
-
-          <Link
-            href="#contact"
-            unstyled
-            variant="primary"
-            underline="never"
-            className={styles.ctaButton}
-          >
-            {t('getInTouch')}
-          </Link>
+          <Image
+            data-testid="about-portrait"
+            src={aboutPortrait}
+            alt=""
+            decorative
+            variant="transparent"
+            objectFit="contain"
+            size="full"
+            className={styles.portrait}
+          />
         </div>
       </AnimatedSection>
     </Section>

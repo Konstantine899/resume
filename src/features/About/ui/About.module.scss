@@ -32,108 +32,104 @@
   }
 }
 
-.sectionTitle {
-  margin-bottom: 24px; // mb-6
+// Layout stage (reference: common-stack) — relative box; flex column with portrait first below 640px, absolute bottom panel + vertically centered portrait from 640px up; $container-xl caps ultrawide portrait size
+.stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: $container-xl;
+  margin: 0 auto;
 
   @media (width >= 640px) {
-    margin-bottom: 32px; // sm:mb-8
+    min-height: 380px;
   }
 
   @media (width >= 768px) {
-    margin-bottom: 48px; // md:mb-12
+    min-height: 440px;
+  }
+
+  @media (width >= 1024px) {
+    min-height: 540px;
+  }
+
+  @media (width >= 1280px) {
+    min-height: 600px;
+  }
+
+  // Portrait: static centered block first in visual order below 640px; absolute over the panel (z-index: 1) from 640px; `.stack .portrait` (0,2,0) beats Image's `.sizeFull` (0,1,0) for width
+  .portrait {
+    display: block;
+    order: -1;
+    width: 60%;
+
+    // 600×800 source: aspect-ratio gives the figure a deterministic height before the lazy PNG loads — without it the figure is 0px tall (sizeFull height: auto) and translateY(-50%) degenerates to identity
+    aspect-ratio: 3 / 4;
+    margin: 0 auto;
+
+    // Image sizes its <img> via these vars (defaults auto) — pin them so the img fills the figure box even at naturalWidth 0
+    --image-width: 100%;
+    --image-height: 100%;
+
+    @media (width >= 640px) {
+      position: absolute;
+      top: 50%;
+      right: 6%;
+      z-index: 1;
+      width: 34%;
+      margin: 0;
+      transform: translateY(-50%);
+    }
   }
 }
 
-.content {
+// Content panel (reference: absolute bg-white_A700 bottom-[0] common-column) — static card below 640px, absolute bottom-pinned full-width card from 640px up
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
   width: 100%;
-  max-width: 896px; // max-w-4xl
-  padding: 16px; // p-4
-  margin: 0 auto;
-  text-align: center;
+  padding: 16px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 12px; // rounded-xl
   box-shadow: 0 4px 20px var(--shadow-color);
   transition: all 0.4s ease;
 
   @media (width >= 640px) {
-    padding: 24px; // sm:p-6
-    border-radius: 16px; // sm:rounded-2xl
-  }
-
-  @media (width >= 768px) {
-    padding: 32px; // md:p-8
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 
   @media (width >= 1024px) {
-    padding: 48px; // lg:p-12
+    padding: 18px;
+  }
+
+  @media (width >= 1280px) {
+    padding: 21px;
   }
 }
 
-.avatarContainer {
-  position: relative;
-  margin-bottom: 16px; // mb-4
-
-  @media (width >= 640px) {
-    margin-bottom: 24px; // sm:mb-6
-  }
-}
-
-.avatarWrapper {
-  width: 80px; // w-20
-  height: 80px; // h-20
-  padding: 1px;
-  margin: 0 auto;
-  background: var(--gradient-work-history);
-  border-radius: 9999px; // rounded-full
-
-  @media (width >= 640px) {
-    width: 96px; // sm:w-24
-    height: 96px; // sm:h-24
-  }
-
-  @media (width >= 768px) {
-    width: 128px; // md:w-32
-    height: 128px; // md:h-32
-  }
-}
-
-.avatarInner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 24px; // text-2xl
-  font-weight: 700;
-  color: var(--primary);
-  border-radius: 9999px; // rounded-full
-  transition: background-color 0.5s ease;
-
-  @media (width >= 640px) {
-    font-size: 28px; // sm:text-3xl
-  }
-
-  @media (width >= 768px) {
-    font-size: 36px; // md:text-4xl
-  }
-
-  &.dark {
-    background-color: var(--color-surface-dark);
-  }
-
-  &.light {
-    background-color: var(--color-surface-secondary);
-  }
+// Decorative accent line, flush with the panel's top edge in both layout modes (anchored by the panel's position: relative | absolute)
+.accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  background: var(--color-accent);
 }
 
 .title {
   margin-bottom: 12px; // mb-3
   font-size: 20px; // text-xl
-  font-weight: 600;
-  color: var(--color-accent);
+  font-weight: 700; // ref bold (scale: title 37-57px bold)
+  color: var(--color-accent); // app colors unchanged
 
   @media (width >= 640px) {
+    max-width: 60%; // text column stops where the overlapping portrait begins (right 6% + width 34% = 40% covered)
     margin-bottom: 16px; // sm:mb-4
     font-size: 24px; // sm:text-2xl
   }
@@ -142,35 +138,24 @@
     margin-bottom: 24px; // md:mb-6
     font-size: 30px; // md:text-3xl
   }
-}
 
-.gradientTitle {
-  margin-bottom: 12px; // mb-3
-  font-size: 20px; // text-xl
-  font-weight: 600;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 40%, #ff4500 100%);
-  background-clip: text;
-  filter: drop-shadow(2px 2px 4px rgb(0 0 0 / 0.5));
-  -webkit-text-fill-color: transparent;
-
-  @media (width >= 640px) {
-    margin-bottom: 16px; // sm:mb-4
-    font-size: 24px; // sm:text-2xl
+  @media (width >= 1024px) {
+    font-size: 32px; // text step between 30 and 36
   }
 
-  @media (width >= 768px) {
-    margin-bottom: 24px; // md:mb-6
-    font-size: 30px; // md:text-3xl
+  @media (width >= 1280px) {
+    font-size: 36px; // --text-4xl (Heading h3), reference 37px @1200
+    line-height: 1.25; // reference 123.6%
   }
 }
 
+// Left-aligned in the panel (reference layout): auto margins removed so the text column stays clear of the portrait overlapping the panel's right side
 .description {
   max-width: 672px;
-  margin-right: auto;
   margin-bottom: 16px;
-  margin-left: auto;
 
   @media (width >= 640px) {
+    max-width: 60%; // clear the portrait overlapping the panel's right side (reference text column)
     margin-bottom: 24px; // sm:mb-6
     font-size: 16px; // sm:text-base
   }
