@@ -5,13 +5,22 @@ export interface InputValidationWarning {
   message: string;
 }
 
+export interface InputAccessibilityInfo {
+  label?: string;
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+}
+
 export const validateInputProps = (
   variant: string,
   size: string,
   showCounter?: boolean,
   maxLength?: number,
-  _disabled?: boolean,
-  _loading?: boolean
+  disabled?: boolean,
+  loading?: boolean,
+  accessibility?: InputAccessibilityInfo,
+  childAccessibility?: InputAccessibilityInfo,
+  asChildChildrenCount?: number
 ): InputValidationWarning[] => {
   const warnings: InputValidationWarning[] = [];
 
@@ -36,6 +45,41 @@ export const validateInputProps = (
       prop: 'maxLength',
       message:
         '[Input] showCounter is true but maxLength is not set. Counter will not display correctly.',
+    });
+  }
+
+  if (disabled && loading) {
+    warnings.push({
+      prop: 'loading',
+      message:
+        '[Input] loading and disabled are set at the same time: the spinner implies an active ' +
+        'field, but the native disabled attribute blocks interaction. Prefer one of them.',
+    });
+  }
+
+  if (asChildChildrenCount !== undefined && asChildChildrenCount > 1) {
+    warnings.push({
+      prop: 'children',
+      message:
+        '[Input] asChild expects exactly one child element; ' +
+        `${asChildChildrenCount} were provided — the extra children are ignored.`,
+    });
+  }
+
+  // In asChild mode the rendered element is the child, so its accessible
+  // name (aria-label / aria-labelledby) also satisfies the requirement.
+  const hasAccessibleName = (info?: InputAccessibilityInfo) =>
+    Boolean(info && (info.label?.trim() || info.ariaLabel?.trim() || info.ariaLabelledby?.trim()));
+
+  if (
+    accessibility &&
+    !hasAccessibleName(accessibility) &&
+    !hasAccessibleName(childAccessibility)
+  ) {
+    warnings.push({
+      prop: 'label',
+      message:
+        '[Input] Missing accessible name: pass "label", "aria-label", or "aria-labelledby" so screen readers can identify the field.',
     });
   }
 

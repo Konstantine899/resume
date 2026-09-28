@@ -27,13 +27,7 @@ export type PolymorphicProps<C extends ElementType, P = Record<string, never>> =
  * Варианты стилей карточки
  */
 export type CardVariant =
-  | 'default'
-  | 'project'
-  | 'workHistory'
-  | 'skill'
-  | 'about'
-  | 'codeBlock'
-  | 'contact';
+  'default' | 'project' | 'workHistory' | 'skill' | 'about' | 'codeBlock' | 'contact';
 
 /**
  * Размеры карточки
@@ -88,6 +82,7 @@ export interface ProjectCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   link?: string | null;
   linkLabel?: string;
   builtUsingLabel?: string;
+  onClick?: () => void;
 }
 
 /**

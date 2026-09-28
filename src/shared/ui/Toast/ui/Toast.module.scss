@@ -4,12 +4,6 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/transition' as *;
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/variables/z-index' as *;
 @use '@/shared/styles/mixins' as *;
 
 // ============================================
@@ -19,13 +13,13 @@
 // ============================================
 .toastContainer {
   position: fixed;
-  top: $spacing-6;
-  right: $spacing-6;
+  top: var(--space-6);
+  right: var(--space-6);
   bottom: auto;
-  z-index: $z-toast;
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: var(--space-3);
   width: fit-content;
   max-width: 420px;
   pointer-events: none;
@@ -34,7 +28,7 @@
     pointer-events: auto;
 
     // Stack cascade effect
-    transition: transform $transition-fast ease-out;
+    transition: transform var(--duration-normal) var(--ease-default);
 
     &:nth-child(1) {
       z-index: 3;
@@ -55,7 +49,7 @@
   }
 
   @media (width <= 640px) {
-    inset: auto $spacing-4 $spacing-4;
+    inset: auto var(--space-4) var(--space-4);
     max-width: none;
   }
 }
@@ -68,40 +62,38 @@
 .toast {
   /* Component-local design tokens (modular system — NOT global, NOT in _theme.scss);
      inherited by closeButton/action/pauseIndicator. */
-  --toast-bg: #fff;
+  --toast-bg: var(--color-surface);
   --toast-close-icon: rgb(0 0 0 / 0.4);
   --toast-close-icon-hover: rgb(0 0 0 / 0.7);
-  --toast-focus-ring: #{$primary-light};
-  --toast-action-secondary: #{$primary-color};
+  --toast-focus-ring: var(--color-accent);
+  --toast-action-secondary: var(--color-accent);
   --toast-pause-text: rgb(0 0 0 / 0.3);
 
   position: relative;
   display: flex;
-  gap: $spacing-3;
+  gap: var(--space-3);
   align-items: center;
   width: 100%;
   max-width: 100%;
-  padding: $spacing-3 $spacing-4;
+  padding: var(--space-3) var(--space-4);
   overflow: hidden;
   background: var(--toast-bg);
 
   // Accent border left (4px)
   border-left: 4px solid;
-  border-radius: $border-radius-lg;
-  box-shadow:
-    0 4px 12px rgb(0 0 0 / 0.15),
-    0 1px 3px rgb(0 0 0 / 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 
   // Theme transitions (transform included: spring-back on swipe release)
 
   @include theme-transition;
 
   transition:
-    transform $transition-fast ease-out,
-    background-color $transition-duration $transition-easing,
-    color $transition-duration $transition-easing,
-    border-color $transition-duration $transition-easing,
-    box-shadow $transition-duration $transition-easing;
+    transform var(--duration-normal) var(--ease-default),
+    background-color var(--duration-slow) var(--ease-default),
+    color var(--duration-slow) var(--ease-default),
+    border-color var(--duration-slow) var(--ease-default),
+    box-shadow var(--duration-slow) var(--ease-default);
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
   // Active swipe gesture (Swipe-to-dismiss): no transition lag while dragging
@@ -144,9 +136,7 @@
 
   // Hover lift effect
   &:hover {
-    box-shadow:
-      0 8px 24px rgb(0 0 0 / 0.18),
-      0 2px 6px rgb(0 0 0 / 0.12);
+    box-shadow: var(--shadow-xl);
     transform: translateY(-2px);
   }
 
@@ -156,46 +146,46 @@
 
   // ============================================
   &.success {
-    border-left-color: $success-color;
+    border-left-color: var(--color-success);
 
     .icon {
-      color: $success-color;
+      color: var(--color-success);
       background: rgb(40 167 69 / 0.15);
     }
   }
 
   &.error {
-    border-left-color: $danger-color;
+    border-left-color: var(--color-error);
 
     .icon {
-      color: $danger-color;
+      color: var(--color-error);
       background: rgb(220 53 69 / 0.15);
     }
   }
 
   &.warning {
-    border-left-color: $warning-color;
+    border-left-color: var(--color-warning);
 
     .icon {
-      color: $warning-color;
+      color: var(--color-warning);
       background: rgb(255 193 7 / 0.2);
     }
   }
 
   &.info {
-    border-left-color: $info-color;
+    border-left-color: var(--color-info);
 
     .icon {
-      color: $info-color;
+      color: var(--color-info);
       background: rgb(23 162 184 / 0.15);
     }
   }
 
   // Dark mode overrides (theme-aware via [data-theme])
   [data-theme='dark'] & {
-    --toast-bg: #1e1e1e;
-    --toast-focus-ring: #{$primary-dark};
-    --toast-action-secondary: #{$primary-dark};
+    --toast-bg: var(--color-surface-elevated);
+    --toast-focus-ring: var(--color-accent);
+    --toast-action-secondary: var(--color-accent);
 
     background: var(--toast-bg);
 
@@ -229,8 +219,8 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: var(--space-6);
+  height: var(--space-6);
   border-radius: 50%;
 }
 
@@ -246,16 +236,16 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--space-7);
+  height: var(--space-7);
   padding: 0;
   color: var(--toast-close-icon);
   cursor: pointer;
   background: transparent;
   border: none;
-  border-radius: $border-radius-md;
+  border-radius: var(--radius-md);
   opacity: 0.6;
-  transition: all $transition-fast ease-out;
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover {
     color: var(--toast-close-icon-hover);
@@ -286,15 +276,15 @@
 // ============================================
 .action {
   flex-shrink: 0;
-  padding: 6px 12px;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  padding: var(--space-1-5) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
   line-height: 1;
   cursor: pointer;
   background: transparent;
   border: none;
-  border-radius: $border-radius-md;
-  transition: all $transition-fast ease-out;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-normal) var(--ease-default);
 
   // Secondary variant (default)
   &.secondary {
@@ -326,11 +316,11 @@
 
   // Primary variant (accent)
   &.primary {
-    color: white;
-    background: $primary-color;
+    color: var(--color-text-inverse);
+    background: var(--color-accent);
 
     &:hover {
-      background: $primary-dark;
+      background: var(--color-accent-hover);
     }
 
     &:focus-visible {
@@ -339,10 +329,10 @@
     }
 
     [data-theme='dark'] & {
-      background: $primary-dark;
+      background: var(--color-accent);
 
       &:hover {
-        background: $primary-color;
+        background: var(--color-accent-hover);
       }
     }
   }
@@ -384,19 +374,19 @@
 
   // Type-specific colors
   .success & {
-    background: $success-color;
+    background: var(--color-success);
   }
 
   .error & {
-    background: $danger-color;
+    background: var(--color-error);
   }
 
   .warning & {
-    background: $warning-color;
+    background: var(--color-warning);
   }
 
   .info & {
-    background: $info-color;
+    background: var(--color-info);
   }
 }
 
@@ -407,14 +397,14 @@
 // ============================================
 .pauseIndicator {
   position: absolute;
-  top: $spacing-2;
-  right: $spacing-2;
+  top: var(--space-2);
+  right: var(--space-2);
   z-index: 3;
-  font-size: 10px;
-  font-weight: $font-weight-semibold;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--toast-pause-text);
   opacity: 0;
-  transition: opacity $transition-fast;
+  transition: opacity var(--duration-normal) var(--ease-default);
 
   .toast:hover & {
     opacity: 1;

@@ -1,13 +1,13 @@
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { memo } from 'react';
 import { ButtonWithIcon } from '@/shared/ui/Button';
 import type { ButtonSize } from '@/shared/ui/Button/model/types';
-import { Check, Copy } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { Icon } from '@/shared/ui/Icon';
+import type { LucideIcon } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
+import { memo } from 'react';
 import type { CodeLanguage } from '../../model/types';
 import styles from './CodeBlockHeader.module.scss';
-import { useLanguage } from '@/shared/lib/i18n/hooks';
 
 export interface CodeBlockHeaderProps {
   /** Язык программирования */
@@ -88,7 +88,7 @@ const CodeBlockHeaderInner: React.FC<CodeBlockHeaderProps> = ({
       {/* Copy button */}
       {copyable && !disabled && (
         <ButtonWithIcon
-          variant="ghost"
+          variant="primary"
           size={copyButtonSize}
           leftIcon={
             isCopied ? (

@@ -4,29 +4,29 @@
 .code {
   display: inline-block;
   overflow: hidden;
-  font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  color: #fff;
+  font-family: var(--font-family-code);
+  color: var(--color-text-primary);
   white-space: nowrap;
-  background: var(--code-bg, rgb(41 39 38 / 0.95));
-  border: 1px solid rgb(244 179 119 / 0.2);
-  border-radius: $border-radius-lg;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
   backdrop-filter: blur(8px);
-  transition: all $transition-duration $transition-easing;
+  transition: all var(--duration-normal) var(--ease-default);
 
   // Sizes
   &.sm {
-    padding: $spacing-sm $spacing-md;
-    font-size: $font-size-xs;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
   }
 
   &.md {
-    padding: $spacing-md $spacing-lg;
-    font-size: $font-size-sm;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-sm);
   }
 
   &.lg {
-    padding: $spacing-lg $spacing-xl;
-    font-size: $font-size-base;
+    padding: var(--space-6) var(--space-8);
+    font-size: var(--text-base);
   }
 
   // Copyable interaction
@@ -34,19 +34,19 @@
     cursor: pointer;
 
     &:hover {
-      border-color: rgb(244 179 119 / 0.4);
-      box-shadow: 0 0 0 3px rgb(244 179 119 / 0.1);
+      border-color: var(--color-border-subtle);
+      box-shadow: 0 0 0 3px var(--color-accent-muted);
     }
 
     &:focus-visible {
-      outline: 2px solid $primary-light;
-      outline-offset: 2px;
+      outline: var(--space-0-5) solid var(--color-accent);
+      outline-offset: var(--space-0-5);
     }
   }
 
   // Copied state
   &.copied {
-    border-color: $form-success-color;
+    border-color: var(--color-success);
     box-shadow: 0 0 0 3px rgb(40 167 69 / 0.2);
   }
 }

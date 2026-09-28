@@ -53,7 +53,9 @@ export const Default: Story = {
     expect(canvas.getByText(/microservice architecture/i)).toBeInTheDocument();
     expect(canvas.getByText('React')).toBeInTheDocument();
     expect(canvas.getByText('PostgreSQL')).toBeInTheDocument();
-    const badges = canvasElement.querySelectorAll('[class*="techBadge"]');
+    // CSS-modules drops empty SCSS rules (e.g. .techBadge had no declarations),
+    // so badges carry no dedicated class — select by container zone + data-variant.
+    const badges = canvasElement.querySelectorAll('[class*="techBadges"] [data-variant="accent"]');
     expect(badges).toHaveLength(5);
   },
 };

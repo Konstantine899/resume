@@ -2,7 +2,12 @@
 
 import { useMemo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { getExternalLinkProps, isExternalLink } from '@/shared/lib/utils/externalLink';
+import { resolveCssModuleKey } from '@/shared/lib/utils/resolveCssModuleKey';
+import {
+  getExternalLinkProps,
+  isExternalLink,
+  sanitizeHref,
+} from '@/shared/lib/utils/externalLink';
 import { ICON_SIZE_MAP, LINK_DEFAULTS } from '../../model/constants';
 import type { LinkHookProps, UseLinkReturn } from '../../model/types';
 import { validateLinkProps } from '../utils/validateLinkProps';
@@ -38,6 +43,7 @@ export const useLink = ({
   href,
   variant = LINK_DEFAULTS.variant,
   size = LINK_DEFAULTS.size,
+  colorScheme,
   external = LINK_DEFAULTS.external,
   unstyled = LINK_DEFAULTS.unstyled,
   underline = LINK_DEFAULTS.underline,
@@ -54,6 +60,10 @@ export const useLink = ({
 
   // Memoized: Авто-определение внешних ссылок (delegates to shared utils)
   const isExternal = useMemo(() => external || isExternalLink(href), [external, href]);
+
+  // Memoized: href после sanitize. Опасные схемы (javascript:/data:) блокируются —
+  // anchor без href инертен и не может выполнить скрипт (R1 C2, issue #58).
+  const safeHref = useMemo(() => sanitizeHref(href), [href]);
 
   // Memoized: Безопасные rel/target. R1 hardening: noopener noreferrer применяется
   // для ЛЮБОГО `target="_blank"` (не только external), чтобы не-внешние ссылки
@@ -72,6 +82,10 @@ export const useLink = ({
     return { relValue: rel, targetValue: target };
   }, [isExternal, rel, target]);
 
+  // Resolve variant="danger" → primary variant + danger color scheme (Button parity)
+  const resolvedVariant = variant === 'danger' ? 'primary' : variant;
+  const resolvedColorScheme = colorScheme ?? (variant === 'danger' ? 'danger' : undefined);
+
   // Memoized: Консистентный размер иконки (ICON_SIZE_MAP в model/constants)
   const iconSize = useMemo(() => ICON_SIZE_MAP[size], [size]);
 
@@ -80,8 +94,9 @@ export const useLink = ({
     () =>
       classNames(
         styles.link,
-        styles[variant],
+        resolveCssModuleKey(styles, resolvedVariant),
         styles[size],
+        resolvedColorScheme && resolveCssModuleKey(styles, `color-scheme-${resolvedColorScheme}`),
         unstyled && styles.unstyled,
         underline === 'always' && styles.underlineAlways,
         underline === 'hover' && styles.underlineHover,
@@ -90,13 +105,13 @@ export const useLink = ({
         skeleton && styles.skeleton,
         className
       ),
-    [variant, size, unstyled, underline, withLift, skeleton, className]
+    [resolvedVariant, size, resolvedColorScheme, unstyled, underline, withLift, skeleton, className]
   );
 
   // Data-атрибуты для стилизации и тестирования.
   // data-as присутствует только для строковых элементов (компоненты его не имеют).
   const dataAttrs: Record<string, string> = {
-    'data-variant': variant,
+    'data-variant': resolvedVariant,
     'data-size': size,
     ...(typeof component === 'string' ? { 'data-as': component } : {}),
     ...(isExternal ? { 'data-external': 'true' } : {}),
@@ -106,6 +121,7 @@ export const useLink = ({
     linkClassName,
     dataAttrs,
     isExternal,
+    safeHref,
     relValue,
     targetValue,
     iconSize,

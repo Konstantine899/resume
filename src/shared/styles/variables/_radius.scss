@@ -11,6 +11,17 @@ $radius-xl: 0.75rem !default; // 12px
 $radius-2xl: 1rem !default; // 16px
 $radius-full: 9999px !default;
 
+// Component radius tokens
+$radius-button: 8px !default;
+$radius-button-sm: 6px !default;
+$radius-input: 8px !default;
+$radius-card: 12px !default;
+$radius-badge: 4px !default;
+$radius-badge-sm: 8px !default;
+$radius-dropdown: 8px !default;
+$radius-search: 8px !default;
+$radius-contact: 1.5rem !default;
+
 // Radius map for programmatic access
 $radius-scale: (
   sm: $border-radius-sm,

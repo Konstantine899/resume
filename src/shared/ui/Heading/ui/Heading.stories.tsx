@@ -47,7 +47,8 @@ export const Default: Story = {
     const heading = canvas.getByRole('heading', { level: 2 });
     expect(heading).toBeInTheDocument();
     expect(heading).toHaveAttribute('data-level', '2');
-    expect(heading).toHaveAttribute('data-size', 'm');
+    // No explicit size → data-size is not emitted; scale comes from level (.h2)
+    expect(heading).not.toHaveAttribute('data-size');
     expect(heading).toHaveAttribute('data-theme', 'primary');
     expect(heading).toHaveAttribute('data-align', 'left');
     expect(heading.className).toContain('heading');

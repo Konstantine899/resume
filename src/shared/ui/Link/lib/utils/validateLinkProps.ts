@@ -4,6 +4,7 @@
 
 import type { LinkOwnProps } from '../../model/types';
 import { LINK_CONSTANTS } from '../../model/constants';
+import { hasSafeUrlScheme } from '@/shared/lib/utils/externalLink';
 
 /**
  * Dev-валидация props для Link.
@@ -52,6 +53,12 @@ export function validateLinkProps(props: LinkOwnProps): void {
   ) {
     console.warn(
       `[Link] href "${href}" may be invalid — expected absolute path, URL, or hash fragment`
+    );
+  }
+
+  if (href && !hasSafeUrlScheme(href)) {
+    console.warn(
+      `[Link] href "${href}" uses a blocked URL scheme — the href attribute will be omitted (javascript:/data:/vbscript: are not allowed)`
     );
   }
 

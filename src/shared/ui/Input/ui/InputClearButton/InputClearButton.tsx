@@ -10,6 +10,7 @@ export interface InputClearButtonProps {
   onClick: () => void;
   'aria-label'?: string;
   tabIndex?: number;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
@@ -21,9 +22,15 @@ export interface InputClearButtonProps {
  * ```
  */
 export const InputClearButton = React.memo(
-  ({ onClick, 'aria-label': ariaLabel = 'Clear input', tabIndex = -1 }: InputClearButtonProps) => {
+  ({
+    onClick,
+    'aria-label': ariaLabel = 'Clear input',
+    tabIndex = 0,
+    ref,
+  }: InputClearButtonProps) => {
     return (
       <button
+        ref={ref}
         type="button"
         className={styles.clearButton}
         onClick={onClick}

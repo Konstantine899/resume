@@ -7,6 +7,249 @@
 @use '../variables/colors' as *;
 
 :root {
+  // ==========================================
+
+  // Semantic Color Tokens (new system)
+
+  // ==========================================
+
+  // Surface / Background
+
+  --color-surface-primary: #fff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-tertiary: #f9fafb;
+  --color-surface-active: #d4d4d4;
+  --color-surface-disabled: #f0f0f0;
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-primary);
+
+  // Border
+
+  --color-border-primary: #e5e7eb;
+  --color-border-divider: #f3f4f6;
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
+
+  // Text / Foreground
+
+  --color-text-primary: #0f0f0f;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #9ca3af;
+  --color-text-inverse: #fff;
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  // Text on status fills (buttons) — dark ink on light status colors for AA
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
+
+  // Brand / Accent
+
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-light: #eff6ff;
+  --color-accent-muted: rgb(37 99 235 / 0.5);
+
+  // Semantic / Status
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  --color-success-muted: rgb(16 185 129 / 0.5);
+  --color-error-muted: rgb(220 38 38 / 0.5);
+  --color-success-subtle: rgb(16 185 129 / 0.15);
+  --color-warning-subtle: rgb(245 158 11 / 0.15);
+  --color-error-subtle: rgb(220 38 38 / 0.15);
+  --color-accent-subtle: rgb(37 99 235 / 0.15);
+  --color-neutral-subtle: rgb(108 117 125 / 0.15);
+  --color-success-hover: #059669;
+  --color-error-hover: #b91c1c;
+  --color-warning-hover: #d97706;
+  --color-focus-ring: var(--color-accent);
+  --color-skeleton: var(--color-surface-secondary);
+
+  // Overlay / Shadow Colors
+
+  --color-shadow-light: rgb(0 0 0 / 0.1);
+  --color-shadow-medium: rgb(0 0 0 / 0.15);
+  --color-shadow-strong: rgb(0 0 0 / 0.25);
+  --color-shadow-focus: rgb(37 99 235 / 0.1);
+
+  // Dark surface (for dark theme cards/modals)
+  --color-surface-dark: rgb(41 39 38 / 0.8);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.125);
+
+  // Text on dark surfaces
+
+  --color-text-on-dark: #fff;
+  --color-text-on-dark-secondary: rgb(255 255 255 / 0.7);
+  --color-text-on-dark-tertiary: rgb(255 255 255 / 0.6);
+
+  // Accent tints
+  --color-accent-tint-10: rgb(244 179 119 / 0.1);
+  --color-accent-tint-20: rgb(244 179 119 / 0.2);
+  --color-accent-tint-30: rgb(244 179 119 / 0.3);
+
+  // Overlay
+  --color-overlay: rgb(0 0 0 / 0.6);
+  --color-overlay-heavy: rgb(0 0 0 / 0.8);
+
+  // Avatar tokens
+  --avatar-bg: #3a2e28;
+  --avatar-initial-color: #f4b377;
+  --avatar-size-xs: 32px;
+  --avatar-size-sm: 48px;
+  --avatar-size-md: 64px;
+  --avatar-size-lg: 96px;
+  --avatar-size-hero-sm: 100px;
+  --avatar-size-hero-md: 200px;
+  --avatar-size-hero-lg: 300px;
+
+  // Icon sizes
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+
+  // Radius component tokens
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --radius-contact: 1.5rem;
+  --badge-radius: var(--radius-full);
+
+  // Spacing CSS vars (for runtime use alongside SCSS vars)
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-48: 192px;
+  --space-55: 220px;
+  --space-64: 256px;
+  --space-70: 280px;
+  --space-80: 320px;
+
+  // Typography scale (font-size tokens)
+  --text-xs: 0.75rem; // 12px
+  --text-sm: 0.875rem; // 14px
+  --text-base: 1rem; // 16px
+  --text-lg: 1.125rem; // 18px
+  --text-xl: 1.25rem; // 20px
+  --text-2xl: 1.5rem; // 24px
+  --text-3xl: 1.875rem; // 30px
+  --text-4xl: 2.25rem; // 36px
+  --text-5xl: 3rem; // 48px
+  --text-6xl: 3.75rem; // 60px
+
+  // Radius CSS vars
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  // Shadow tokens
+  --shadow-sm: 0 1px 3px 0 var(--color-shadow-light);
+  --shadow-md: 0 4px 6px -1px var(--color-shadow-light), 0 2px 4px -2px var(--color-shadow-light);
+  --shadow-lg:
+    0 10px 15px -3px var(--color-shadow-medium), 0 4px 6px -4px var(--color-shadow-medium);
+  --shadow-xl:
+    0 20px 25px -5px var(--color-shadow-medium), 0 8px 10px -6px var(--color-shadow-medium);
+  --shadow-focus: 0 0 0 3px var(--color-shadow-focus);
+  --shadow-focus-error: 0 0 0 3px var(--color-error-muted);
+  --shadow-focus-success: 0 0 0 3px var(--color-success-muted);
+
+  // Transition tokens
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  // Duration / easing (used by components)
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --ease-default: ease;
+  --ease-out: ease-out;
+
+  // Font weight tokens
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  // Font family
+  --font-family-base: 'Inter', -apple-system, blinkmacsystemfont, sans-serif;
+  --font-family-code: 'Fira Code', 'JetBrains Mono', monospace;
+
+  // Line height tokens
+  --leading-normal: 1.5;
+  --leading-snug: 1.375;
+  --leading-relaxed: 1.625;
+  --line-height-normal: 1.5;
+  --line-height-snug: 1.375;
+
+  // Letter spacing
+  --tracking-wide: 0.05em;
+
+  // Z-index tokens (единая шкала)
+  --z-nav: 2000;
+  --z-overlay: 3000;
+  --z-sidebar: 4000;
+  --z-modal: 5000;
+  --z-popover: 6000;
+  --z-toast: 7000;
+  --z-tooltip: 8000;
+
+  // ==========================================
+
+  // Sidebar Component Tokens
+
+  // ==========================================
+
+  // Sidebar Layout
+  --sidebar-width-mobile: 280px;
+
+  // Sidebar
+  --sidebar-bg: var(--color-surface-primary);
+  --sidebar-border: var(--color-border-primary);
+
+  // Navigation
+  --nav-item-color: var(--color-text-secondary);
+  --nav-item-bg-hover: #eff6ff;
+  --nav-item-bg-active: #eff6ff;
+
+  // Mobile Menu
+  --mobile-menu-bg: var(--color-surface-primary);
+  --mobile-menu-border: var(--color-border-primary);
+  --mobile-menu-width: var(--sidebar-width-mobile);
+
+  // ==========================================
+
+  // Backward-compatible aliases (old → new)
+
+  // ==========================================
+
   --background: #{$background};
   --background-alt: #{$background-alt};
   --foreground: #{$text-primary};
@@ -14,34 +257,23 @@
 
   // Aliases for text colors (used by Card and other components)
   --text-primary: #{$text-primary};
-  --text-secondary: #{$text-secondary};
-  --text-tertiary: #{$text-muted};
   --gradient-text: #{$gradient-text};
-  --card-bg: rgb(255 255 255 / 0.98);
-  --card-border: rgb(0 0 0 / 0.12);
-  --shadow-color: rgb(0 0 0 / 0.1);
-  --border-color: #{$border-color};
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --background-secondary: #1e1c1b;
   --primary: #f4b377;
   --primary-dark: #d94744;
   --accent: #50abc5;
   --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --code-bg: rgb(41 39 38 / 0.95);
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
 
-  // Skeleton colors
-  --skeleton-base: rgb(200 200 200 / 0.3);
-  --skeleton-highlight: rgb(255 255 255 / 0.4);
+  // Link colors → proxy to accent/foreground tokens (Button as source of truth)
+  --link-primary: var(--color-accent);
 
-  // Link colors (default - тёмная тема)
-  --link-primary: #f4b377;
-  --link-primary-hover: #f9c997;
-  --link-secondary: #e8e6e3;
-  --link-secondary-hover: #fff;
-
-  // Form variables (NEW)
+  // Form variables
   --form-error: #{$form-error-color};
   --form-success: #{$form-success-color};
   --form-warning: #{$form-warning-color};
@@ -51,9 +283,149 @@
   --image-placeholder-bg: rgb(0 0 0 / 0.05);
   --image-fallback-text: rgb(0 0 0 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.05);
+
+  // Tooltip tokens
+  --tooltip-bg: #1f2937;
+
+  // Gradient tokens
+  --gradient-primary: linear-gradient(135deg, #d9d9d9 0%, #a6a6a6 50%, #666 100%);
+  --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+
+  // Spinner tokens
+  --spinner-track: var(--color-border-divider);
+  --spinner-thickness: 3px;
+  --spinner-speed: 0.8s;
+
+  // Scrollbar tokens
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--color-accent-hover);
+  --scrollbar-thumb-hover: var(--color-accent);
+
+  // Divider tokens
+  --divider-line-thickness: 1px;
+
+  // Code tokens
+  --code-bg: var(--color-surface-primary);
+  --code-max-height: 310px;
+
+  // Icon tokens
+  --icon-size-xs: 12px;
+  --icon-size-xl: 32px;
+  --icon-size-2xl: 40px;
+  --icon-size-3xl: 48px;
+  --icon-padding-xs: 2px;
+  --icon-padding-sm: 4px;
+  --icon-padding-md: 6px;
+  --icon-padding-lg: 8px;
+  --icon-padding-xl: 12px;
+
+  // Avatar ring tokens
+  --double-ring-thickness: 3px;
+  --double-ring-speed-inner: 8s;
+  --double-ring-speed-outer: 12s;
+
+  // Skill category colors
+  --skill-color-frontend: #61dafb;
+  --skill-color-backend: #4caf50;
+  --skill-color-testing: #ff6b6b;
+  --skill-color-devops: #2196f3;
+  --skill-color-methodologies: #9e9e9e;
+  --skill-color-architecture: #a855f7;
+  --skill-color-ai: #f97316;
 }
 
 [data-theme='dark'] {
+  // Surface tokens for dark theme
+
+  --color-surface-primary: #292726;
+  --color-surface-secondary: #1e1c1b;
+  --color-surface-tertiary: #343231;
+  --color-surface-active: #4b4948;
+  --color-surface-disabled: #292726;
+
+  // Border tokens for dark theme
+  --color-border-primary: #4b5563;
+  --color-border-divider: #374151;
+
+  // Text tokens for dark theme
+  --color-text-primary: #e8e6e3;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #4b5563;
+  --color-text-inverse: #0f0f0f;
+
+  // Brand tokens for dark theme
+  --color-accent: #f4b377;
+  --color-accent-hover: #f9c997;
+  --color-accent-light: rgb(244 179 119 / 0.1);
+
+  // Status tokens for dark theme
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #f87171;
+  --color-success-muted: rgb(34 197 94 / 0.5);
+  --color-error-muted: rgb(248 113 113 / 0.5);
+  --color-success-subtle: rgb(34 197 94 / 0.15);
+  --color-warning-subtle: rgb(245 158 11 / 0.15);
+  --color-error-subtle: rgb(248 113 113 / 0.15);
+  --color-accent-subtle: rgb(244 179 119 / 0.15);
+  --color-neutral-subtle: rgb(108 117 125 / 0.15);
+
+  // Shadow tokens for dark theme
+
+  --color-shadow-light: rgb(0 0 0 / 0.3);
+  --color-shadow-medium: rgb(0 0 0 / 0.5);
+  --color-shadow-strong: rgb(0 0 0 / 0.6);
+  --color-shadow-focus: rgb(244 179 119 / 0.2);
+
+  // Enhanced shadows for dark theme (visible on dark backgrounds)
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5),
+    0 0 12px rgb(244 179 119 / 0.08);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6),
+    0 0 20px rgb(244 179 119 / 0.1);
+
+  // Dark surface for dark theme
+  --color-surface-dark: rgb(41 39 38 / 0.9);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.15);
+
+  // Avatar for dark theme
+  --avatar-bg: #3a2e28;
+  --avatar-initial-color: #f4b377;
+
+  // Overlay for dark theme
+  --color-overlay: rgb(0 0 0 / 0.7);
+  --color-overlay-heavy: rgb(0 0 0 / 0.85);
+
+  // Surface aliases for dark theme
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-tertiary);
+  --color-skeleton: var(--color-surface-secondary);
+
+  // Border aliases for dark theme
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
+
+  // Text aliases for dark theme
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  // Accent variants for dark theme
+  --color-accent-muted: rgb(244 179 119 / 0.5);
+  --color-focus-ring: var(--color-accent);
+
+  // Text on status fills (dark theme) — dark ink keeps AA on light status colors
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
+
+  // Nav item tokens for dark theme
+  --nav-item-bg-hover: var(--color-accent-tint-20);
+  --nav-item-bg-active: var(--color-accent-tint-20);
+
+  // Backward-compatible aliases
   --background: #292726;
   --background-alt: #1e1c1b;
   --foreground: #e8e6e3;
@@ -61,32 +433,22 @@
 
   // Aliases for text colors
   --text-primary: #e8e6e3;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
-  --card-bg: rgb(41 39 38 / 0.9);
-  --card-border: rgb(255 255 255 / 0.1);
-  --shadow-color: rgb(0 0 0 / 0.3);
-  --border-color: #4b5563;
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --gradient-primary: linear-gradient(135deg, #d97b3d 0%, #e88a4a 50%, #b83330 100%);
   --gradient-work-history: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
   --gradient-text: #{$gradient-text};
   --secondary: #6c757d;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
 
-  // Skeleton colors for dark theme
-  --skeleton-base: #292726;
-  --skeleton-highlight: rgb(255 255 255 / 0.15);
-
-  // Link colors for dark theme
-  --link-primary: #f4b377;
-  --link-primary-hover: #f9c997;
-  --link-secondary: #e8e6e3;
-  --link-secondary-hover: #fff;
+  // Link colors for dark theme → neutral text, not blue accent
+  --link-primary: var(--color-text-primary);
 
   // Form variables for dark theme
-  --form-error: #ef4444;
+  --form-error: #f87171;
   --form-success: #22c55e;
   --form-warning: #f59e0b;
 
@@ -94,9 +456,94 @@
   --image-placeholder-bg: rgb(255 255 255 / 0.05);
   --image-fallback-text: rgb(255 255 255 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.1);
+
+  // Tooltip tokens for dark theme
+  --tooltip-bg: #1f2937;
+
+  // Code tokens for dark theme
+  --code-bg: rgb(41 39 38 / 0.95);
 }
 
 [data-theme='light'] {
+  // Surface tokens for light theme
+
+  --color-surface-primary: #fff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-tertiary: #f9fafb;
+  --color-surface-active: #d4d4d4;
+  --color-surface-disabled: #f0f0f0;
+
+  // Border tokens for light theme
+  --color-border-primary: #e5e7eb;
+  --color-border-divider: #f3f4f6;
+
+  // Text tokens for light theme
+
+  --color-text-primary: #0f0f0f;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-quaternary: #9ca3af;
+  --color-text-inverse: #fff;
+
+  // Brand tokens for light theme
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-light: #eff6ff;
+
+  // Status tokens for light theme
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-success-subtle: rgb(16 185 129 / 0.15);
+  --color-warning-subtle: rgb(245 158 11 / 0.15);
+  --color-error-subtle: rgb(220 38 38 / 0.15);
+  --color-accent-subtle: rgb(37 99 235 / 0.15);
+  --color-neutral-subtle: rgb(108 117 125 / 0.15);
+
+  // Shadow tokens for light theme
+
+  --color-shadow-light: rgb(0 0 0 / 0.1);
+  --color-shadow-medium: rgb(0 0 0 / 0.15);
+  --color-shadow-strong: rgb(0 0 0 / 0.25);
+  --color-shadow-focus: rgb(37 99 235 / 0.1);
+
+  // Dark surface for light theme (used in dark sections)
+  --color-surface-dark: rgb(41 39 38 / 0.8);
+  --color-surface-dark-elevated: rgb(41 39 38 / 0.125);
+
+  // Avatar for light theme
+  --avatar-bg: #3a2e28;
+  --avatar-light-bg: #dfdfdf;
+  --avatar-initial-color: #3f84f6;
+
+  // Overlay for light theme
+  --color-overlay: rgb(0 0 0 / 0.6);
+  --color-overlay-heavy: rgb(0 0 0 / 0.8);
+
+  // Surface aliases for light theme
+  --color-surface: var(--color-surface-primary);
+  --color-surface-alt: var(--color-surface-secondary);
+  --color-surface-hover: var(--color-surface-active);
+  --color-surface-elevated: var(--color-surface-primary);
+  --color-skeleton: var(--color-surface-secondary);
+
+  // Border aliases for light theme
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-divider);
+
+  // Text aliases for light theme
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  // Accent variants for light theme
+  --color-accent-muted: rgb(37 99 235 / 0.5);
+  --color-focus-ring: var(--color-accent);
+
+  // Text on status fills (light theme) — dark ink keeps AA on light status colors
+  --color-text-on-success: #0f0f0f;
+  --color-text-on-warning: #0f0f0f;
+
+  // Backward-compatible aliases
   --background: #f5f3f0;
   --background-alt: #e5e7eb;
   --foreground: #1a1716;
@@ -104,27 +551,17 @@
 
   // Aliases for text colors
   --text-primary: #1a1716;
-  --text-secondary: #4b5563;
-  --text-tertiary: #6b7280;
-  --gradient-text: #{$gradient-text};
-  --card-bg: rgb(255 255 255 / 0.98);
-  --card-border: rgb(0 0 0 / 0.12);
-  --shadow-color: rgb(0 0 0 / 0.1);
-  --border-color: #d1d5db;
+  --gradient-text: linear-gradient(135deg, #93c5fd 0%, #2563eb 40%, #1d4ed8 100%);
+  --card-bg: var(--color-surface-primary);
+  --card-border: var(--color-border-primary);
+  --shadow-color: var(--color-shadow-light);
   --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --warning: var(--color-warning);
 
-  // Skeleton colors for light theme
-  --skeleton-base: rgb(0 0 0 / 0.08);
-  --skeleton-highlight: rgb(255 255 255 / 0.6);
-
-  // Link colors for light theme (тёмные ссылки на светлом фоне)
-  --link-primary: #d97b3d;
-  --link-primary-hover: #b85f2b;
-  --link-secondary: #4b5563;
-  --link-secondary-hover: #1a1716;
+  // Link colors for light theme → proxy to accent/foreground tokens
+  --link-primary: var(--color-accent);
 
   // Form variables for light theme
   --form-error: #dc3545;
@@ -135,4 +572,13 @@
   --image-placeholder-bg: rgb(0 0 0 / 0.05);
   --image-fallback-text: rgb(0 0 0 / 0.3);
   --image-error-bg: rgb(255 0 0 / 0.05);
+
+  // Tooltip tokens for light theme
+  --tooltip-bg: #374151;
+
+  // Backward-compatible aliases for light theme
+  --background-secondary: #e8e6e3;
+  --primary: #d97b3d;
+  --primary-dark: #c0392b;
+  --accent: #3498db;
 }

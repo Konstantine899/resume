@@ -1,11 +1,11 @@
 @use '@/shared/styles/variables' as *;
 
 .cardFooter {
-  padding-top: $spacing-md;
-  margin-top: $spacing-md;
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
 
   .divider {
-    margin-bottom: $spacing-md;
+    margin-bottom: var(--space-4);
   }
 
   &:first-child {

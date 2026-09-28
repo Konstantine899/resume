@@ -11,7 +11,7 @@
   background: transparent;
   border: none;
   border-radius: $border-radius-md;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base);
 
   &--expanded {
     justify-content: flex-start;
@@ -22,7 +22,7 @@
   }
 
   &:hover {
-    background: rgba($primary-light, 0.1);
+    background: var(--color-accent-tint-10);
   }
 }
 
@@ -33,7 +33,7 @@
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   &.spinning {
-    animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: global(theme-spin) 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
@@ -50,19 +50,5 @@
 }
 
 .spinning {
-  animation: theme-spin 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-@keyframes theme-spin {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-
-  50% {
-    transform: rotate(180deg) scale(1.2);
-  }
-
-  100% {
-    transform: rotate(360deg) scale(1);
-  }
+  animation: global(theme-spin) 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

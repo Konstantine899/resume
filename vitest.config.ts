@@ -23,25 +23,17 @@ export default defineConfig({
           environment: 'jsdom',
           globals: true,
           setupFiles: ['./src/tests/setup.ts'],
-          include: ['src/**/*.{test,spec}.{ts,tsx}', '.opencode/plugins/**/*.{test,spec}.{js,ts}'],
+          include: [
+            'src/**/*.{test,spec}.{ts,tsx}',
+            'config/**/*.{test,spec}.{ts,tsx}',
+            '.opencode/plugins/**/*.{test,spec}.{js,ts}',
+          ],
           // Playwright-спеки (src/__tests__/*.spec.ts) гоняются через `npx playwright test`,
           // НЕ через vitest — исключаем, чтобы vitest не падал на браузерных тестах.
           exclude: ['src/__tests__/**/*.spec.ts'],
           // Запрет .only в тестах (MINOR: не даёт случайно закоммитить
           // частичный прогон как полный). default: !process.env.CI.
           allowOnly: false,
-          coverage: {
-            provider: 'v8',
-            reporter: ['text', 'json', 'html', 'lcov'],
-            thresholds: {
-              global: {
-                branches: 85,
-                functions: 87,
-                lines: 92,
-                statements: 90,
-              },
-            },
-          },
         },
       },
       {
@@ -59,9 +51,44 @@ export default defineConfig({
             provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
+            // Vitest's defaultBrowserPort 63315 sits inside this machine's
+            // Hyper-V excluded range (63298-63397) -> EACCES on bind. 48315 is
+            // below the Windows dynamic range (49152+) and outside every
+            // excluded range, so it stays bindable across reboots.
+            api: { port: 48315 },
           },
         },
       },
     ],
+    // `test.coverage` — корневая опция: внутри `projects[]` она МОЛЧА игнорируется
+    // (проверено: при per-project-блоке Vitest не применял ни `reporter`,
+    // ни `exclude`, ни `thresholds` — в coverage/ писался дефолтный clover.xml).
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      // Тесты конфигурации сборки живут в config/ и не должны входить в
+      // coverage-бюджет приложения (src/**) — иначе пороги падают из-за
+      // неописанного конфиг-кода, а не из-за тестов самого приложения.
+      // Паттерн `**/`-prefixed: Vitest сопоставляет exclude с абсолютным путём.
+      exclude: [
+        '**/config/vite/**',
+        '**/coverage/**',
+        '**/dist/**',
+        '**/public/**',
+        // scripts/ — утилиты сборки/аналитики, не код приложения: их импорт
+        // из конфиг-тестов не должен двигать глобальные coverage-пороги.
+        '**/scripts/**',
+      ],
+      // Vitest 4 трактует любой НЕ-метрический ключ внутри `thresholds`
+      // как glob по файлам, поэтому вложенный блок `global: {...}`
+      // молча матчил ни одного файла и не проверял ничего.
+      // Глобальный порог задаётся верхнеуровневыми ключами метрик.
+      thresholds: {
+        branches: 85,
+        functions: 87,
+        lines: 92,
+        statements: 90,
+      },
+    },
   },
 });

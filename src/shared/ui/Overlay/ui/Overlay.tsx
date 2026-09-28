@@ -27,6 +27,7 @@ export const Overlay = memo(
     const {
       children,
       onClick,
+      onPointerDown,
       onKeyDown,
       className = '',
       blur = false,
@@ -120,6 +121,7 @@ export const Overlay = memo(
         data-dark={dark || undefined}
         data-animation={animation}
         onClick={onClick}
+        onPointerDown={onPointerDown}
         onKeyDown={handleKeyDown}
         style={style}
         role="presentation"

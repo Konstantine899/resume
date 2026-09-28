@@ -1,16 +1,14 @@
 // Card Mixins
 
-@use '@/shared/styles/variables/shadows' as *;
-
 @mixin card {
-  height: 220px;
+  height: var(--space-55);
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  box-shadow: $shadow-sm;
-  transition: box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-normal) var(--ease-default);
 
   &:hover {
-    box-shadow: $shadow-md;
+    box-shadow: var(--shadow-md);
   }
 }
 

@@ -32,6 +32,24 @@ describe('InputCounter', () => {
     expect(screen.getByTestId('counter')).toBeInTheDocument();
   });
 
+  it('announces politely via aria-live and role="status"', () => {
+    render(<InputCounter current={5} max={100} data-testid="counter" />);
+    const counter = screen.getByTestId('counter');
+    expect(counter).toHaveAttribute('aria-live', 'polite');
+    expect(counter).toHaveAttribute('role', 'status');
+  });
+
+  it('applies the provided id', () => {
+    render(<InputCounter current={5} max={100} id="char-counter" />);
+    expect(screen.getByText('5').closest('#char-counter')).toBeInTheDocument();
+  });
+
+  it('forwards ref to the counter span', () => {
+    const ref = { current: null };
+    render(<InputCounter ref={ref} current={5} max={100} />);
+    expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+  });
+
   it('renders at 100% capacity', () => {
     render(<InputCounter current={100} max={100} />);
     expect(screen.getByText('100')).toBeInTheDocument();

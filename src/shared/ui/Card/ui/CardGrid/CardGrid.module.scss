@@ -1,3 +1,5 @@
+@use '@/shared/styles/variables' as *;
+
 .cardGrid {
   display: grid;
   width: 100%;
@@ -20,15 +22,15 @@
 }
 
 .gapSm {
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .gapMd {
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .gapLg {
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 @media (width <= 768px) {

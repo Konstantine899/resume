@@ -1,116 +1,163 @@
-@use '@/shared/styles/variables/typography' as *;
-@use '@/shared/styles/mixins/typography' as *;
 @use '@/shared/styles/mixins/theme' as *;
-@use '@/shared/styles/mixins/responsive' as *;
-
-// ============================================
-
-// Heading Component
-
-// ============================================
-
-// BEM: .heading, .heading--size-*, .heading--theme-*, .heading--align-*
-
-// ============================================
+@use '@/shared/styles/mixins/typography' as *;
 
 .heading {
+  display: block;
   margin: 0;
-  font-weight: $font-weight-bold;
-  line-height: $line-height-base;
-  color: var(--foreground);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-normal);
 
   @include theme-transition;
 
-  // ============================================
-
-  // Sizes (BEM: .heading--size-*)
-
-  // ============================================
-
-  &--xs {
-    @include text-xs;
+  &.h1 {
+    font-size: var(--text-6xl);
   }
 
-  &--s {
-    @include text-sm;
+  &.h2 {
+    font-size: var(--text-5xl);
   }
 
-  &--m {
-    @include text-base;
+  &.h3 {
+    font-size: var(--text-4xl);
   }
 
-  &--l {
-    @include text-lg;
+  &.h4 {
+    font-size: var(--text-3xl);
   }
 
-  &--xl {
+  &.h5 {
+    font-size: var(--text-2xl);
+  }
+
+  &.h6 {
     @include text-xl;
   }
 
-  &--xxl {
-    @include text-2xl;
+  // Size overrides: after .h1–.h6 so equal-specificity wins by order; digit sizes arrive as size-3xl via mapSizeToClass.
+  &.xs {
+    font-size: var(--text-xs);
   }
 
-  &--size-3xl {
-    font-size: $font-size-3xl;
-    line-height: $line-height-base;
+  &.s {
+    font-size: var(--text-sm);
   }
 
-  &--size-4xl {
-    font-size: $font-size-4xl;
-    line-height: $line-height-base;
+  &.m {
+    font-size: var(--text-base);
   }
 
-  &--size-5xl {
-    font-size: $font-size-5xl;
-    line-height: $line-height-base;
-
-    @include lg {
-      font-size: $font-size-6xl;
-    }
+  &.l {
+    font-size: var(--text-lg);
   }
 
-  // ============================================
-
-  // Themes (BEM: .heading--theme-*)
-
-  // ============================================
-
-  &--primary {
-    color: var(--foreground);
+  &.xl {
+    font-size: var(--text-xl);
   }
 
-  &--muted {
-    color: var(--foreground-muted);
+  &.xxl {
+    font-size: var(--text-2xl);
   }
 
-  &--inverted {
-    color: var(--text-inverted, #fff);
+  &.size-3xl {
+    font-size: var(--text-3xl);
   }
 
-  &--error {
-    color: var(--form-error);
+  &.size-4xl {
+    font-size: var(--text-4xl);
   }
 
-  &--gradient {
-    @include gradient-text;
+  &.size-5xl {
+    font-size: var(--text-5xl);
   }
 
-  // ============================================
+  &.weight-100 {
+    font-weight: var(--font-weight-thin);
+  }
 
-  // Align (BEM: .heading--align-*)
+  &.weight-200 {
+    font-weight: var(--font-weight-extralight);
+  }
 
-  // ============================================
+  &.weight-300 {
+    @include font-light;
+  }
 
-  &--left {
+  &.weight-400 {
+    @include font-normal;
+  }
+
+  &.weight-500 {
+    @include font-medium;
+  }
+
+  &.weight-600 {
+    @include font-semibold;
+  }
+
+  &.weight-700 {
+    @include font-bold;
+  }
+
+  &.weight-800 {
+    font-weight: var(--font-weight-extrabold);
+  }
+
+  &.weight-900 {
+    font-weight: var(--font-weight-black);
+  }
+
+  &.primary {
+    color: var(--color-accent);
+  }
+
+  &.muted {
+    color: var(--color-text-muted);
+  }
+
+  &.inverted {
+    color: var(--color-text-inverse);
+  }
+
+  &.error {
+    color: var(--color-error);
+  }
+
+  &.success {
+    color: var(--color-success);
+  }
+
+  &.warning {
+    color: var(--color-warning);
+  }
+
+  &.gradient {
+    background: var(--gradient-text);
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &.balance {
+    text-wrap: balance;
+  }
+
+  &.pretty {
+    text-wrap: pretty;
+  }
+
+  &.align-left {
     text-align: left;
   }
 
-  &--center {
+  &.align-center {
+    padding-bottom: var(--space-5);
     text-align: center;
   }
 
-  &--right {
+  &.align-right {
     text-align: right;
+  }
+
+  &.align-justify {
+    text-align: justify;
   }
 }

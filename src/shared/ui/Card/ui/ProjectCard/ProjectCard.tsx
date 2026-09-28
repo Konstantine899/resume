@@ -2,10 +2,10 @@
 // ProjectCard Component
 // ============================================
 
-import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Paragraph } from '@/shared/ui/Paragraph';
 import { Link } from '@/shared/ui/Link';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import { memo } from 'react';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
 
@@ -39,9 +39,25 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   builtUsingLabel = 'Создано с помощью',
   linkLabel = 'Ссылка',
   className = '',
+  onClick,
 }) => {
   return (
-    <div className={classNames(styles.projectCard, className)}>
+    <div
+      className={classNames(styles.projectCard, className)}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+    >
       {backgroundImage && (
         <div
           className={styles.backgroundImage}
@@ -80,7 +96,14 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
             <Paragraph as="span" size="xs" theme="muted">
               {linkLabel}
             </Paragraph>
-            <Link href={link} external showExternalIcon={false} unstyled className={styles.link}>
+            <Link
+              href={link}
+              variant="ghost"
+              size="sm"
+              external
+              showExternalIcon={false}
+              className={styles.link}
+            >
               {link.replace(/^https?:\/\//, '')}
             </Link>
           </div>

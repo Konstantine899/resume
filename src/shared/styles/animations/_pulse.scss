@@ -2,22 +2,15 @@
 
 // Pulse Animations
 
+// @keyframes block moved to _keyframes.scss (single source of truth,
+
+// forwarded by globals/index.scss). The reference below must use the
+
+// colon-less global() form so CSS-modules scoping does not rename it.
+
 // ============================================
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.5;
-    transform: scale(1.05);
-  }
-}
 
 // Mixins
 @mixin pulse-glow {
-  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: global(pulse-glow) 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

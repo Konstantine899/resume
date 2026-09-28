@@ -1,5 +1,5 @@
 import { describe, it, expect, assert } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Mail } from 'lucide-react';
 import { Input } from './Input';
 import { setupUserEvent } from '@/shared/tests';
@@ -65,20 +65,28 @@ describe('Input — Keyboard Navigation', () => {
     expect(input).toHaveValue('');
   });
 
-  it('password toggle activates via Enter key', () => {
+  it('password toggle activates via Enter key exactly once', async () => {
+    const user = setupUserEvent();
     render(<Input type="password" showPasswordToggle />);
     const toggle = screen.getByRole('button', { name: /show password/i });
+    toggle.focus();
 
-    fireEvent.keyDown(toggle, { key: 'Enter' });
+    // Native <button> activation flips visibility exactly once — a custom
+    // keydown handler on top of onClick would double-toggle back to hidden.
+    await user.keyboard('{Enter}');
     expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
   });
 
-  it('password toggle activates via Space key', () => {
+  it('password toggle activates via Space key exactly once', async () => {
+    const user = setupUserEvent();
     render(<Input type="password" showPasswordToggle />);
     const toggle = screen.getByRole('button', { name: /show password/i });
+    toggle.focus();
 
-    fireEvent.keyDown(toggle, { key: ' ' });
+    await user.keyboard('[Space]');
     expect(screen.getByRole('button', { name: /hide password/i })).toBeInTheDocument();
+    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
   });
 });
 

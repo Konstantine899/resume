@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useButton } from './useButton';
 import type { UseButtonOptions } from './useButton';
@@ -63,10 +64,13 @@ describe('useButton', () => {
       expect(result.current.contentClassName).toContain('content');
     });
 
-    it('должен добавлять hidden класс при loading=true', () => {
+    it('не должен добавлять класс hidden при loading=true', () => {
       const { result } = renderHook(() => useButton(createDefaultOptions({ loading: true })));
 
-      expect(result.current.contentClassName).toContain('hidden');
+      // Content hiding while loading is handled by the `button-loading` CSS mixin on the
+      // root element — no `.hidden` class exists in any Button SCSS module.
+      expect(result.current.contentClassName).toContain('content');
+      expect(result.current.contentClassName).not.toContain('hidden');
     });
 
     it('не должен добавлять hidden класс при loading=false', () => {
@@ -143,6 +147,81 @@ describe('useButton', () => {
       const event = { preventDefault: vi.fn() } as unknown as React.MouseEvent;
 
       expect(() => result.current.handleClick(event)).not.toThrow();
+    });
+  });
+
+  describe('guarded keyboard activation', () => {
+    interface KeyEvent {
+      key: string;
+      defaultPrevented: boolean;
+      preventDefault: ReturnType<typeof vi.fn>;
+      currentTarget: { click: ReturnType<typeof vi.fn> };
+    }
+
+    const createKeyEvent = (key: string): KeyEvent => {
+      const event: KeyEvent = {
+        key,
+        defaultPrevented: false,
+        preventDefault: vi.fn(() => {
+          event.defaultPrevented = true;
+        }),
+        currentTarget: { click: vi.fn() },
+      };
+      return event;
+    };
+
+    const press = (
+      result: { current: ReturnType<typeof useButton> },
+      event: KeyEvent
+    ): KeyEvent => {
+      result.current.handleKeyDown(event as unknown as ReactKeyboardEvent<HTMLElement>);
+      return event;
+    };
+
+    it('должен активировать click по Enter', () => {
+      const { result } = renderHook(() => useButton(createDefaultOptions()));
+
+      const event = press(result, createKeyEvent('Enter'));
+
+      expect(event.currentTarget.click).toHaveBeenCalledTimes(1);
+      expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен активировать click по Space', () => {
+      const { result } = renderHook(() => useButton(createDefaultOptions()));
+
+      const event = press(result, createKeyEvent(' '));
+
+      expect(event.currentTarget.click).toHaveBeenCalledTimes(1);
+    });
+
+    it('не должен активировать по другой клавише', () => {
+      const { result } = renderHook(() => useButton(createDefaultOptions()));
+
+      const event = press(result, createKeyEvent('ArrowDown'));
+
+      expect(event.currentTarget.click).not.toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it('должен вызывать пользовательский onKeyDown до активации', () => {
+      const onKeyDown = vi.fn();
+      const { result } = renderHook(() => useButton(createDefaultOptions({ onKeyDown })));
+
+      const event = press(result, createKeyEvent('Enter'));
+
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+      expect(event.currentTarget.click).toHaveBeenCalledTimes(1);
+    });
+
+    it('не должен активировать после preventDefault в пользовательском onKeyDown', () => {
+      const onKeyDown = vi.fn((event: ReactKeyboardEvent<HTMLElement>) => event.preventDefault());
+      const { result } = renderHook(() => useButton(createDefaultOptions({ onKeyDown })));
+
+      const event = press(result, createKeyEvent('Enter'));
+
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+      expect(event.currentTarget.click).not.toHaveBeenCalled();
     });
   });
 

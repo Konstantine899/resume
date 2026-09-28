@@ -202,7 +202,10 @@ export const LoadingWithSpinner: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    expect(button).toBeDisabled();
+    // Loading must NOT set native disabled: the button stays focusable so aria-busy is
+    // announced; activation is blocked by the guarded click/keydown handlers instead.
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('aria-busy', 'true');
   },
 };
@@ -217,7 +220,10 @@ export const LoadingWithSkeleton: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
-    expect(button).toBeDisabled();
+    // Loading must NOT set native disabled: the button stays focusable so aria-busy is
+    // announced; activation is blocked by the guarded click/keydown handlers instead.
+    expect(button).not.toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('aria-busy', 'true');
   },
 };

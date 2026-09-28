@@ -3,10 +3,11 @@
 // ============================================
 
 import { X } from 'lucide-react';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { Icon } from '@/shared/ui/Icon';
 import type { ModalCloseButtonProps } from '../../model/types';
 import { MODAL_CONSTANTS } from '../../model/constants';
+import { ModalContext } from '../../lib/modalContext';
 import styles from './ModalCloseButton.module.scss';
 
 /**
@@ -21,9 +22,15 @@ import styles from './ModalCloseButton.module.scss';
 export const ModalCloseButton = memo((props: ModalCloseButtonProps) => {
   const { onClose, ariaLabel = 'Close modal', closeIcon } = props;
 
+  // Inside <Modal.Root> close through the gated requestClose (M2: the X button
+  // respects canClose like Escape/overlay). Outside a modal fall back to the
+  // onClose prop so the standalone API keeps working.
+  const ctx = useContext(ModalContext);
+  const close = ctx?.requestClose ?? onClose;
+
   const handleClick = useCallback(() => {
-    onClose();
-  }, [onClose]);
+    close?.();
+  }, [close]);
 
   return (
     <button

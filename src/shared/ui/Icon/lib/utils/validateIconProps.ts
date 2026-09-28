@@ -87,7 +87,7 @@ export function validateIconProps(props: IconValidationProps): void {
     }
   }
 
-  if (name !== undefined && typeof name !== 'function') {
+  if (name !== undefined && typeof name !== 'function' && typeof name !== 'object') {
     console.warn('[Icon] "name" must be a lucide icon component (LucideIcon)');
   }
 

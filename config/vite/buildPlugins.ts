@@ -44,6 +44,12 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
   ];
 
   // Плагины только для продакшена
+  if (isProd) {
+    // PurgeCSS вырезает неиспользуемые CSS-правила на КАЖДОЙ продакшен-сборке,
+    // а не только при ANALYZE=true — иначе `npm run build` отдаёт полный CSS.
+    plugins.push(buildPurgeCssPlugin());
+  }
+
   if (isProd && analyze) {
     plugins.push(
       visualizer({
@@ -53,7 +59,6 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
         brotliSize: true,
       })
     );
-    plugins.push(buildPurgeCssPlugin(isDev));
   }
 
   return plugins.filter(Boolean) as PluginOption[];

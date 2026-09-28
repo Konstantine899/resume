@@ -2,28 +2,33 @@
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/styles/animations' as *;
 
-.container {
-  width: 100%;
-  max-width: 100%;
-  padding: 48px 16px; // py-12 px-4
+// Section wrapper — vertical padding handled by Section size="xl"
+.aboutSection {
+  // Horizontal padding (Section doesn't provide this)
+  padding-right: 16px;
+  padding-left: 16px;
   overflow: hidden;
   background-color: var(--background-secondary);
   transition: background-color 0.4s ease;
 
   @media (width >= 640px) {
-    padding: 64px 24px; // sm:py-16 sm:px-6
+    padding-right: 24px;
+    padding-left: 24px;
   }
 
   @media (width >= 768px) {
-    padding: 80px 48px; // md:py-20 md:px-12
+    padding-right: 48px;
+    padding-left: 48px;
   }
 
   @media (width >= 1024px) {
-    padding: 80px; // lg:px-20
+    padding-right: 80px;
+    padding-left: 80px;
   }
 
   @media (width >= 1280px) {
-    padding: 80px 96px; // xl:px-24
+    padding-right: 96px;
+    padding-left: 96px;
   }
 }
 
@@ -79,7 +84,7 @@
   height: 80px; // h-20
   padding: 1px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #f4b377 0%, #d94744 100%);
+  background: var(--gradient-work-history);
   border-radius: 9999px; // rounded-full
 
   @media (width >= 640px) {
@@ -101,7 +106,7 @@
   height: 100%;
   font-size: 24px; // text-2xl
   font-weight: 700;
-  color: #f4b377;
+  color: var(--primary);
   border-radius: 9999px; // rounded-full
   transition: background-color 0.5s ease;
 
@@ -114,15 +119,32 @@
   }
 
   &.dark {
-    background-color: #292726;
+    background-color: var(--color-surface-dark);
   }
 
   &.light {
-    background-color: #f5f3f0;
+    background-color: var(--color-surface-secondary);
   }
 }
 
 .title {
+  margin-bottom: 12px; // mb-3
+  font-size: 20px; // text-xl
+  font-weight: 600;
+  color: var(--color-accent);
+
+  @media (width >= 640px) {
+    margin-bottom: 16px; // sm:mb-4
+    font-size: 24px; // sm:text-2xl
+  }
+
+  @media (width >= 768px) {
+    margin-bottom: 24px; // md:mb-6
+    font-size: 30px; // md:text-3xl
+  }
+}
+
+.gradientTitle {
   margin-bottom: 12px; // mb-3
   font-size: 20px; // text-xl
   font-weight: 600;
@@ -164,10 +186,10 @@
   padding: 8px 20px; // py-2 px-5
   font-size: 14px; // text-sm
   font-weight: 600;
-  color: #d94744;
+  color: var(--color-text-inverse);
   text-decoration: none;
   cursor: pointer;
-  border: 2px solid #d94744;
+  border: 2px solid var(--primary-dark);
   border-radius: 6px; // rounded-md
   transition: all 0.3s ease;
 
@@ -181,7 +203,7 @@
   }
 
   &:hover {
-    color: #fff;
-    background-color: #d94744;
+    color: var(--color-text-inverse);
+    background-color: var(--primary-dark);
   }
 }

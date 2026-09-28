@@ -28,6 +28,10 @@ export const ModalDrawer = memo((props: ModalDrawerProps) => {
       scroll: 'body' as const,
       overlay: false,
       blockScroll: false,
+      // M11: a drawer is a non-modal side panel — forcing modal: false keeps
+      // aria-modal="false" and skips the focus trap; not configurable on purpose
+      // (a toggle would contradict drawer semantics).
+      modal: false as const,
     }),
     [isOpen, onClose, size, className, placement]
   );

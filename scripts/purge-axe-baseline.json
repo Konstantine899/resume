@@ -1,0 +1,36 @@
+{
+  "generatedBy": "scripts/purge-axe-check.mjs",
+  "minClassRules": 500,
+  "violations": [
+    {
+      "theme": "light",
+      "fingerprint": "color-contrast|serious",
+      "nodes": 1,
+      "help": "Elements must meet minimum color contrast ratio thresholds"
+    },
+    {
+      "theme": "light",
+      "fingerprint": "nested-interactive|serious",
+      "nodes": 6,
+      "help": "Interactive controls must not be nested"
+    },
+    {
+      "theme": "light",
+      "fingerprint": "scrollable-region-focusable|serious",
+      "nodes": 5,
+      "help": "Scrollable region must have keyboard access"
+    },
+    {
+      "theme": "dark",
+      "fingerprint": "nested-interactive|serious",
+      "nodes": 6,
+      "help": "Interactive controls must not be nested"
+    },
+    {
+      "theme": "dark",
+      "fingerprint": "scrollable-region-focusable|serious",
+      "nodes": 5,
+      "help": "Scrollable region must have keyboard access"
+    }
+  ]
+}

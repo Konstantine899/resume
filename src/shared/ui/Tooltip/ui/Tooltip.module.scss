@@ -1,66 +1,36 @@
-@use '@/shared/styles/variables/colors' as *;
 @use '@/shared/styles/animations/fade' as *;
-
-// ============================================
-
-// CSS Custom Properties (Variables)
-
-// ============================================
-
-$tooltip-transition-duration: 200ms;
-$tooltip-transition-timing: ease;
-$tooltip-focus-outline: 2px solid var(--tooltip-focus, #3b82f6);
-$tooltip-focus-offset: 2px;
-$tooltip-scale-hidden: 0.95;
-$tooltip-scale-visible: 1;
-
-// Геометрия стрелки — единые токены вместо магических чисел
-
-// (8px × 8px квадрат, повёрнутый на 45°; -4px = половина стороны).
-
-$tooltip-arrow-size: 8px;
-$tooltip-arrow-half: -4px;
-$tooltip-arrow-offset: 16px;
-
-// ============================================
-
-// Tooltip Component Styles
-
-// ============================================
 
 .tooltip {
   position: fixed;
-  z-index: var(--tooltip-z-index, 1000);
+  z-index: var(--z-tooltip);
 
   // Layout
   display: inline-block;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
 
   // Typography
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--tooltip-text, #fff);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--leading-snug);
+  color: var(--color-text-on-dark);
   pointer-events: none;
 
   // Appearance
-  background-color: var(--tooltip-bg, #1f2937);
-  border-radius: 0.375rem;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -1px rgb(0 0 0 / 0.06);
+  background-color: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 
   // Animation
   opacity: 0;
-  transform: scale($tooltip-scale-hidden);
+  transform: scale(0.95);
   transition:
-    opacity $tooltip-transition-duration $tooltip-transition-timing,
-    transform $tooltip-transition-duration $tooltip-transition-timing;
+    opacity var(--duration-normal) var(--ease-default),
+    transform var(--duration-normal) var(--ease-default);
 
   // Reduced motion support
   @media (prefers-reduced-motion: reduce) {
     opacity: 1;
-    transform: scale($tooltip-scale-visible);
+    transform: scale(1);
     transition: none;
   }
 
@@ -68,7 +38,7 @@ $tooltip-arrow-offset: 16px;
   &.visible {
     pointer-events: auto;
     opacity: 1;
-    transform: scale($tooltip-scale-visible);
+    transform: scale(1);
 
     @include animate-fade-in;
   }
@@ -76,11 +46,10 @@ $tooltip-arrow-offset: 16px;
   // Arrow positioning
   &::after {
     position: absolute;
-    width: $tooltip-arrow-size;
-    height: $tooltip-arrow-size;
+    width: var(--space-2);
+    height: var(--space-2);
     content: '';
-    background-color: var(--tooltip-bg, #1f2937);
-    box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));
+    background-color: var(--color-surface-elevated);
     transform: rotate(45deg);
   }
 
@@ -94,7 +63,7 @@ $tooltip-arrow-offset: 16px;
     &::after,
     > .arrow {
       left: 50%;
-      margin-left: $tooltip-arrow-half;
+      margin-left: calc(var(--space-1) * -1);
     }
   }
 
@@ -103,7 +72,7 @@ $tooltip-arrow-offset: 16px;
   &.top-end {
     &::after,
     > .arrow {
-      bottom: $tooltip-arrow-half;
+      bottom: calc(var(--space-1) * -1);
     }
   }
 
@@ -112,7 +81,7 @@ $tooltip-arrow-offset: 16px;
   &.bottom-end {
     &::after,
     > .arrow {
-      top: $tooltip-arrow-half;
+      top: calc(var(--space-1) * -1);
     }
   }
 
@@ -121,7 +90,7 @@ $tooltip-arrow-offset: 16px;
   &.bottom-start {
     &::after,
     > .arrow {
-      left: $tooltip-arrow-offset;
+      left: var(--space-4);
       margin-left: 0;
     }
   }
@@ -130,7 +99,7 @@ $tooltip-arrow-offset: 16px;
   &.bottom-end {
     &::after,
     > .arrow {
-      right: $tooltip-arrow-offset;
+      right: var(--space-4);
       margin-left: 0;
     }
   }
@@ -144,7 +113,7 @@ $tooltip-arrow-offset: 16px;
     &::after,
     > .arrow {
       top: 50%;
-      margin-top: $tooltip-arrow-half;
+      margin-top: calc(var(--space-1) * -1);
     }
   }
 
@@ -153,7 +122,7 @@ $tooltip-arrow-offset: 16px;
   &.left-end {
     &::after,
     > .arrow {
-      right: $tooltip-arrow-half;
+      right: calc(var(--space-1) * -1);
     }
   }
 
@@ -162,7 +131,7 @@ $tooltip-arrow-offset: 16px;
   &.right-end {
     &::after,
     > .arrow {
-      left: $tooltip-arrow-half;
+      left: calc(var(--space-1) * -1);
     }
   }
 
@@ -171,7 +140,7 @@ $tooltip-arrow-offset: 16px;
   &.right-start {
     &::after,
     > .arrow {
-      top: $tooltip-arrow-offset;
+      top: var(--space-4);
       margin-top: 0;
     }
   }
@@ -180,7 +149,7 @@ $tooltip-arrow-offset: 16px;
   &.right-end {
     &::after,
     > .arrow {
-      bottom: $tooltip-arrow-offset;
+      bottom: var(--space-4);
       margin-top: 0;
     }
   }
@@ -198,11 +167,10 @@ $tooltip-arrow-offset: 16px;
 // Стрелка как отдельный элемент (compound API).
 .arrow {
   position: absolute;
-  width: $tooltip-arrow-size;
-  height: $tooltip-arrow-size;
+  width: var(--space-2);
+  height: var(--space-2);
   content: '';
-  background-color: var(--tooltip-bg, #1f2937);
-  box-shadow: var(--tooltip-arrow-shadow, 0 0 0 1px rgb(0 0 0 / 0.04));
+  background-color: var(--color-surface-elevated);
   transform: rotate(45deg);
 }
 
@@ -212,7 +180,7 @@ $tooltip-arrow-offset: 16px;
 
   // Accessibility focus
   &:focus-visible {
-    outline: $tooltip-focus-outline;
-    outline-offset: $tooltip-focus-offset;
+    outline: var(--space-0-5) solid var(--color-focus-ring);
+    outline-offset: var(--space-0-5);
   }
 }

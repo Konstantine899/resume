@@ -1,6 +1,4 @@
 {
-  "collapseSidebar": "Collapse sidebar",
-  "expandSidebar": "Expand sidebar",
   "greeting": "Hi, I'm",
   "name": "Konstantin",
   "fullName": "Atroschenko Konstantin",
@@ -25,6 +23,11 @@
   "builtUsing": "Built using",
   "link": "Link",
   "workHistory": "Work History",
+  "navAriaLabel": "Section navigation",
+  "navAdmin": "Admin panel",
+  "navMenuOpen": "Open menu",
+  "navMenuClose": "Close menu",
+  "navMenuLabel": "Mobile navigation menu",
   "present": "Present",
   "aboutDescription": "Passionate full stack developer with 6+ years of experience creating modern web applications.",
   "getInTouch": "Get in Touch",

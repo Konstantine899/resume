@@ -14,7 +14,12 @@
 
 // Gradient background (primary)
 .gradient-bg {
-  background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 50%,
+    var(--primary-dark) 100%
+  );
 }
 
 // Gradient border
@@ -23,7 +28,7 @@
   background: var(--card-bg);
   background-clip: padding-box;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 
   &::before {
     position: absolute;
@@ -31,7 +36,12 @@
     z-index: -1;
     margin: -1px;
     content: '';
-    background: linear-gradient(135deg, #f4b377 0%, #e88a4a 50%, #d94744 100%);
+    background: linear-gradient(
+      135deg,
+      var(--primary) 0%,
+      var(--primary-dark) 50%,
+      var(--primary-dark) 100%
+    );
     border-radius: inherit;
   }
 }

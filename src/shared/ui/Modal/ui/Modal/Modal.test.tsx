@@ -7,6 +7,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Modal } from './Modal';
 import { resetOpenCount } from '../ModalRoot/ModalRoot';
+import { resetLayerManager } from '../../lib/layerManager';
 
 describe('Modal (Compound)', () => {
   const defaultProps = {
@@ -19,12 +20,14 @@ describe('Modal (Compound)', () => {
     cleanup();
     vi.clearAllMocks();
     resetOpenCount();
+    resetLayerManager();
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
     resetOpenCount();
+    resetLayerManager();
   });
 
   // ============================================
@@ -248,13 +251,21 @@ describe('Modal (Compound)', () => {
     it('should have aria-labelledby with title', () => {
       render(<Modal {...defaultProps} title="Test Title" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-labelledby');
+      const labelledBy = dialog.getAttribute('aria-labelledby');
+      expect(labelledBy).toBeTruthy();
+      // M1: the referenced id must resolve to an element IN THE DOCUMENT
+      // (ModalHeader renders the heading with the SAME id from context) —
+      // otherwise screen readers get an unnamed dialog.
+      expect(document.getElementById(labelledBy as string)).not.toBeNull();
+      expect(document.getElementById(labelledBy as string)?.textContent).toBe('Test Title');
     });
 
     it('should have aria-describedby with subtitle', () => {
       render(<Modal {...defaultProps} title="Title" subtitle="Subtitle" />);
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAttribute('aria-describedby');
+      const describedBy = dialog.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(describedBy as string)).not.toBeNull();
     });
 
     it('should not have aria-describedby without subtitle', () => {
@@ -373,10 +384,10 @@ describe('Modal (Compound)', () => {
     it('should close on overlay click', () => {
       render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.click(overlay);
-        expect(defaultProps.onClose).toHaveBeenCalled();
-      }
+      // M14: assert existence instead of silently passing when null.
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
 
@@ -384,7 +395,7 @@ describe('Modal (Compound)', () => {
   // onPointerDownOutside Tests
   // ============================================
   describe('onPointerDownOutside', () => {
-    it('should call onPointerDownOutside on overlay click', () => {
+    it('should call onPointerDownOutside on overlay pointer down', () => {
       const onPointerDownOutside = vi.fn();
       render(
         <Modal
@@ -394,15 +405,14 @@ describe('Modal (Compound)', () => {
         />
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.click(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
     });
 
     it('should NOT close when onPointerDownOutside calls preventDefault', () => {
       const onClose = vi.fn();
-      const onPointerDownOutside = vi.fn((e: PointerEvent) => e.preventDefault());
+      const onPointerDownOutside = vi.fn((e: { preventDefault: () => void }) => e.preventDefault());
       render(
         <Modal
           isOpen={true}
@@ -414,11 +424,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.click(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).not.toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
     });
 
     it('should close when onPointerDownOutside does NOT preventDefault', () => {
@@ -435,11 +444,10 @@ describe('Modal (Compound)', () => {
         </Modal>
       );
       const overlay = document.querySelector('[data-dark]');
-      if (overlay) {
-        fireEvent.click(overlay);
-        expect(onPointerDownOutside).toHaveBeenCalled();
-        expect(onClose).toHaveBeenCalled();
-      }
+      expect(overlay).not.toBeNull();
+      fireEvent.pointerDown(overlay as HTMLElement);
+      expect(onPointerDownOutside).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
     });
   });
 
@@ -457,6 +465,20 @@ describe('Modal (Compound)', () => {
       render(<Modal {...defaultProps} canClose={false} />);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should not close via close button when canClose=false (M2)', () => {
+      render(<Modal {...defaultProps} canClose={false} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+
+    it('should close via close button when canClose=true (M2)', () => {
+      render(<Modal {...defaultProps} canClose={true} showCloseButton={true} />);
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      fireEvent.click(closeButton);
+      expect(defaultProps.onClose).toHaveBeenCalled();
     });
 
     it('should call canClose function', () => {
@@ -592,6 +614,41 @@ describe('Modal (Compound)', () => {
     });
   });
 
+  describe('asChild slot merge (M5)', () => {
+    it('merges the child className instead of clobbering it', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <section className="my-custom-section">Slot content</section>
+        </Modal.Root>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.tagName).toBe('SECTION');
+      // Modal's own className AND the child's className must both survive.
+      expect(dialog.className).toContain('my-custom-section');
+      expect(dialog).toHaveTextContent('Slot content');
+    });
+
+    it('preserves role="dialog" on the slotted child', () => {
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <article>Slot article</article>
+        </Modal.Root>
+      );
+      expect(screen.getByRole('dialog')).toHaveTextContent('Slot article');
+    });
+
+    it('calls both the child and the root pointer handlers', () => {
+      const childPointerDown = vi.fn();
+      render(
+        <Modal.Root isOpen={true} onClose={vi.fn()} asChild>
+          <div onPointerDown={childPointerDown}>Slot pointer</div>
+        </Modal.Root>
+      );
+      fireEvent.pointerDown(screen.getByRole('dialog'));
+      expect(childPointerDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
   // ============================================
   // initialFocusRef Tests
   // ============================================
@@ -668,6 +725,88 @@ describe('Modal (Compound)', () => {
       );
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ============================================
+  // M7 — Stacked layers
+  // ============================================
+  describe('stacked layers (M7)', () => {
+    it('Escape closes only the TOPMOST dialog, then the lower one', () => {
+      const onCloseFirst = vi.fn();
+      const onCloseSecond = vi.fn();
+      render(
+        <Modal isOpen={true} onClose={onCloseFirst}>
+          First
+        </Modal>
+      );
+      const { unmount: unmountSecond } = render(
+        <Modal isOpen={true} onClose={onCloseSecond}>
+          Second
+        </Modal>
+      );
+
+      // Lower layer is inert while top is open
+      expect(document.querySelectorAll('[role="dialog"]').length).toBe(2);
+
+      // Top layer owns Escape: only second closes
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onCloseSecond).toHaveBeenCalledTimes(1);
+      expect(onCloseFirst).not.toHaveBeenCalled();
+
+      // Lower layer becomes top again: Escape now closes it
+      unmountSecond();
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onCloseFirst).toHaveBeenCalledTimes(1);
+    });
+
+    it('lower layer is inert + aria-hidden while a higher layer is open', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          First
+        </Modal>
+      );
+      const { unmount: unmountSecond } = render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Second
+        </Modal>
+      );
+
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      expect(dialogs.length).toBe(2);
+      const [firstDialog, secondDialog] = dialogs;
+      expect(secondDialog).not.toHaveAttribute('aria-hidden');
+      expect(firstDialog).toHaveAttribute('aria-hidden', 'true');
+      expect(firstDialog).toHaveAttribute('inert');
+
+      // Cleanup: unmount second so the lower layer is interactive again
+      unmountSecond();
+    });
+
+    it('stacked layers get increasing inline z-index', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          First
+        </Modal>
+      );
+      render(
+        <Modal isOpen={true} onClose={vi.fn()}>
+          Second
+        </Modal>
+      );
+
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      expect(dialogs.length).toBe(2);
+      const [firstDialog, secondDialog] = dialogs;
+      // Layer 0 uses CSS tokens → no inline z-index; layer 1 dialog gets +3
+      expect(firstDialog).not.toHaveStyle({ zIndex: '5003' });
+      expect(secondDialog).toHaveStyle({ zIndex: '5003' });
+
+      const overlays = document.querySelectorAll('[class*="overlay"]');
+      expect(overlays.length).toBeGreaterThanOrEqual(2);
+      // Layer 1 overlay (5002) sits above layer 0 dialog (no inline) but below
+      // layer 1 dialog (5003)
+      expect(overlays[1]).toHaveStyle({ zIndex: '5002' });
     });
   });
 });

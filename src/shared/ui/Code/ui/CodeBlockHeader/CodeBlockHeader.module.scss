@@ -3,42 +3,42 @@
 
 .blockHeader {
   display: flex;
-  gap: $spacing-3;
+  gap: var(--space-3);
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-md $spacing-lg;
-  background: rgb(41 39 38 / 0.5);
-  border-bottom: 1px solid rgb(244 179 119 / 0.1);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .blockHeaderLeft {
   display: flex;
-  gap: $spacing-3;
+  gap: var(--space-3);
   align-items: center;
 }
 
 .blockTitle {
   display: flex;
-  gap: $spacing-2;
+  gap: var(--space-2);
   align-items: center;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $primary-light;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
 .language {
-  padding: $spacing-1 $spacing-2;
-  font-size: $font-size-xs;
-  color: $primary-light;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-inverse);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgb(244 179 119 / 0.1);
-  border-radius: $border-radius-sm;
+  letter-spacing: var(--tracking-wide);
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
 }
 
 .terminalDots {
   display: flex;
-  gap: $spacing-sm;
+  gap: var(--space-2);
 
   .dot {
     @include terminal-dot;
@@ -81,19 +81,19 @@
 
 // Copied state
 .copied {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 // Skeleton styles
 .blockTitleSkeleton {
   display: flex;
-  gap: $spacing-2;
+  gap: var(--space-2);
   align-items: center;
 }
 
 .languageSkeleton {
-  background: rgb(244 179 119 / 0.1);
-  border-radius: $border-radius-sm;
+  background: var(--color-accent-muted);
+  border-radius: var(--radius-sm);
 }
 
 .copyButtonSkeleton {

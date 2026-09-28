@@ -1,11 +1,16 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
-import { ContactCard } from '@/shared/ui/Card';
+import { ContactCard, CardGrid } from '@/shared/ui/Card';
+import { Container } from '@/shared/ui/Container';
+import { Form } from '@/shared/ui/Form';
+import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input, InputEmail } from '@/shared/ui/Input';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Section } from '@/shared/ui/Section';
+import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
@@ -20,102 +25,101 @@ export function Contact() {
   const { formData, status, setFormData, handleSubmit } = useContactForm();
 
   return (
-    <section id="contact" className={styles.container}>
-      <AnimatedSection animation="fadeUp">
-        <h2 className={styles.title}>{t('contact')}</h2>
-      </AnimatedSection>
+    <Section id="contact" size="xl" className={styles.container}>
+      <Container size="lg" padding="lg">
+        <AnimatedSection animation="fadeUp">
+          <Heading level={2} theme="inverted" className={styles.title}>
+            {t('contact')}
+          </Heading>
+        </AnimatedSection>
 
-      <div className={styles.grid}>
-        <AnimatedSection delay={200}>
-          <div className={styles.formContainer}>
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              className={styles.form}
-              noValidate // ✅ Браузерная валидация отключена (своя в хуке)
-            >
-              {/* Имя */}
-              <Input
-                type="text"
-                name="user_name"
-                placeholder={t('namePlaceholder')}
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                disabled={status === 'submitting'}
-                className={styles.input}
-                required
-              />
+        <CardGrid columns={2} gap="lg">
+          <AnimatedSection delay={200}>
+            <div className={styles.formContainer}>
+              {/* Браузерная валидация отключена (своя в хуке) */}
+              <Form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
+                {/* Имя */}
+                <Input
+                  type="text"
+                  name="user_name"
+                  label={t('nameField')}
+                  placeholder={t('namePlaceholder')}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  disabled={status === 'submitting'}
+                  fullWidth
+                  required
+                />
 
-              {/* Email */}
-              <InputEmail
-                name="user_email"
-                placeholder={t('emailPlaceholder')}
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                disabled={status === 'submitting'}
-                className={styles.input}
-                required
-              />
+                {/* Email */}
+                <InputEmail
+                  name="user_email"
+                  label={t('email')}
+                  placeholder={t('emailPlaceholder')}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  disabled={status === 'submitting'}
+                  fullWidth
+                  required
+                />
 
-              {/* Сообщение */}
-              <textarea
-                name="message"
-                placeholder={t('messagePlaceholder')}
-                rows={4}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                disabled={status === 'submitting'}
-                className={styles.textarea}
-                required
-                aria-required="true"
-              />
+                {/* Сообщение */}
+                <Textarea
+                  name="message"
+                  label={t('message')}
+                  placeholder={t('messagePlaceholder')}
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  disabled={status === 'submitting'}
+                  required
+                  aria-required="true"
+                  variant="outline"
+                  size="md"
+                  resize="none"
+                  fullWidth
+                />
 
-              {/* Кнопка отправки */}
-              <Button
-                type="submit"
-                loading={status === 'submitting'}
-                className={styles.submitButton}
-              >
-                {status === 'submitting' ? t('sending') : t('sendMessage')}
-              </Button>
+                {/* Кнопка отправки */}
+                <Button type="submit" loading={status === 'submitting'} fullWidth>
+                  {status === 'submitting' ? t('sending') : t('sendMessage')}
+                </Button>
 
-              {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
-              {/* Теперь уведомления показываются через Toast */}
-            </form>
+                {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
+                {/* Теперь уведомления показываются через Toast */}
+              </Form>
 
-            {/* Социальные ссылки */}
-            <div className={styles.socialLinks}>
-              {SOCIAL_LINKS.map((link, index: number) => {
-                const Icon = link.icon as React.ComponentType<{ className?: string }>;
-                return (
+              {/* Социальные ссылки */}
+              <div className={styles.socialLinks}>
+                {SOCIAL_LINKS.map((link, index: number) => (
                   <Link
                     key={index}
                     href={link.href}
                     external
-                    variant="ghost"
-                    underline="never"
+                    variant="text-on-dark"
                     showExternalIcon={false}
-                    className={styles.socialLink}
+                    icon={<Icon name={link.icon} size="sm" color="inherit" decorative />}
                   >
-                    <Icon className={styles.icon} />
-                    <span>{link.name}</span>
+                    {link.name}
                   </Link>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        </AnimatedSection>
+          </AnimatedSection>
 
-        {/* Декоративная секция */}
-        <AnimatedSection delay={400}>
-          <ContactCard
-            title={t('contact')}
-            icon={<Icon name={Mail} size={40} color="inherit" decorative />}
-          >
-            <Paragraph theme="muted">{t('contactDescription')}</Paragraph>
-          </ContactCard>
-        </AnimatedSection>
-      </div>
-    </section>
+          {/* Декоративная секция */}
+          <AnimatedSection delay={400}>
+            <ContactCard
+              title={t('contact')}
+              icon={<Icon name={Mail} size={40} color="var(--color-accent)" decorative />}
+            >
+              <Paragraph theme="muted" align="center">
+                {t('contactDescription')}
+              </Paragraph>
+            </ContactCard>
+          </AnimatedSection>
+        </CardGrid>
+      </Container>
+    </Section>
   );
 }

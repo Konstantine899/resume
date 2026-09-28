@@ -4,33 +4,35 @@
 
 // ============================================
 
-@use '@/shared/styles/variables/colors' as *;
-@use '@/shared/styles/variables/spacing' as *;
-@use '@/shared/styles/variables/radius' as *;
-@use '@/shared/styles/variables/transition' as *;
 @use '@/shared/styles/mixins/layout' as *;
-@use '../../model/modal-constants' as *;
 
 .closeButton {
   @include flex-center;
 
-  width: $icon-button-size;
-  height: $icon-button-size;
+  width: var(--space-8);
+  height: var(--space-8);
   padding: 0;
-  color: var(--foreground-muted, $text-muted);
+  color: var(--color-text-muted);
   cursor: pointer;
   background: transparent;
   border: none;
-  border-radius: $border-radius-md;
-  transition: all $transition-fast ease;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-normal) var(--ease-default);
 
   &:hover {
-    color: var(--foreground, $text-primary);
-    background-color: var(--background-alt, $background-alt);
+    color: var(--color-text);
+    background-color: var(--color-surface-hover);
   }
 
   &:focus-visible {
-    outline: $focus-outline-width solid $primary-color;
-    outline-offset: $focus-outline-offset;
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  &:disabled {
+    color: var(--color-text-secondary);
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }

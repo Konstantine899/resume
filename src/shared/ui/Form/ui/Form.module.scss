@@ -1,0 +1,24 @@
+@use '@/shared/styles/mixins' as *;
+
+.form {
+  @include flex-col;
+
+  gap: var(--form-gap, var(--space-4));
+}
+
+// gap prop maps to --form-gap; leaving the custom property as the
+
+// single override point lets consumers keep their own rhythm without
+
+// fighting specificity on the .form class itself.
+.gap-sm {
+  --form-gap: var(--space-3);
+}
+
+.gap-md {
+  --form-gap: var(--space-4);
+}
+
+.gap-lg {
+  --form-gap: var(--space-6);
+}

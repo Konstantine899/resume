@@ -29,19 +29,11 @@
 // ============================================
 .mainContent {
   position: relative;
-  z-index: 1; // Below sidebar (z-index: 50)
+  z-index: 1; // Stacking layer above the page background
   flex: 1;
   width: 100%;
   min-width: 0; // Prevent flex overflow
-
-  // Mobile: no margin (sidebar is overlay)
-  margin-left: 0;
   overflow-x: hidden;
-
-  // Desktop: spacer handles the offset
-  @include md {
-    margin-left: 0;
-  }
 }
 
 // ============================================
@@ -138,7 +130,7 @@ html {
     position: absolute;
     top: $spacing-md;
     left: $spacing-md;
-    z-index: 9999;
+    z-index: var(--z-tooltip);
     width: auto;
     height: auto;
     padding: $spacing-md $spacing-lg;
@@ -148,6 +140,12 @@ html {
     text-decoration: none;
     background: var(--primary);
     border-radius: $border-radius-md;
+  }
+
+  // Light theme: primary color is a mid-orange — white text fails WCAG AA, so use the dark text token.
+
+  [data-theme='light'] &:focus {
+    color: var(--color-text-primary);
   }
 }
 

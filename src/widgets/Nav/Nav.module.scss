@@ -1,0 +1,110 @@
+// ============================================
+
+// Nav Widget - Sticky Top Bar Styles
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+// ============================================
+
+// STICKY HEADER SHELL
+
+// ============================================
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  width: 100%;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--sidebar-border);
+
+  // z-index plan: while the T6 panel is open the header stacking context
+
+  // rises to --z-sidebar so panel + elevated burger sit above content but
+
+  // still below Modal (5000) / Toast (7000).
+  &.menuOpen {
+    z-index: var(--z-sidebar);
+  }
+}
+
+// ============================================
+
+// INNER BAR (links left, controls right)
+
+// ============================================
+.nav {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-2 $spacing-4;
+}
+
+// ============================================
+
+// SECTION LINKS
+
+// ============================================
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  // Desktop-only: below 768px the burger row replaces the section links.
+  @include max-md {
+    display: none;
+  }
+}
+
+// Section-link visuals moved to ui/NavItem/NavItem.module.scss (T3) — the row itself is now the NavItem component.
+
+// ============================================
+
+// RIGHT-SIDE CONTROLS (language/theme switches render inside
+
+// ui/NavControls — T4; CTA and AdminLink land in T5)
+
+// ============================================
+.controls {
+  display: flex;
+  flex-shrink: 0;
+  gap: $spacing-2;
+  align-items: center;
+
+  // Desktop-only: on mobile the switches/🔐 live inside the panel (R4),
+
+  // the compact CTA moves next to the burger.
+  @include max-md {
+    display: none;
+  }
+}
+
+// ============================================
+
+// MOBILE ACTIONS (burger ☰/✕ + compact CTA) — R4
+
+// ============================================
+.mobileActions {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+
+  // Desktop-only: the burger row disappears at the 768px breakpoint.
+  @include md {
+    display: none;
+  }
+}
+
+// Paints ABOVE the open panel: one step over --z-sidebar inside the
+
+// header's stacking context (the panel itself declares --z-sidebar).
+.burger {
+  position: relative;
+  z-index: calc(var(--z-sidebar) + 1);
+}

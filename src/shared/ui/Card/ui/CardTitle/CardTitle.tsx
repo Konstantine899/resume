@@ -18,7 +18,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({
   children,
   className = '',
   as = 'h3',
-  size = 'm',
+  size,
   theme = 'primary',
   align,
   ...props

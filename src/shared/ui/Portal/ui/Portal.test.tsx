@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { Portal } from './Portal';
 
 describe('Portal', () => {
@@ -75,5 +76,29 @@ describe('Portal', () => {
   it('renders with empty children (ReactNode)', () => {
     const { container } = render(<Portal>{null}</Portal>);
     expect(container.textContent).toBe('');
+  });
+
+  it('falls back to document.body when the provided element is detached', () => {
+    const detached = document.createElement('div');
+
+    render(<Portal element={detached}>Detached Fallback</Portal>);
+
+    expect(detached.textContent).toBe('');
+    expect(screen.getByText('Detached Fallback')).toBeInTheDocument();
+  });
+
+  it('SSR: renderToStaticMarkup renders fallback children without throwing', () => {
+    const html = renderToStaticMarkup(<Portal>SSR Content</Portal>);
+    expect(html).toBe('SSR Content');
+  });
+
+  it('SSR: never dereferences document during render', () => {
+    vi.stubGlobal('document', undefined);
+    try {
+      const html = renderToStaticMarkup(<Portal>SSR Content</Portal>);
+      expect(html).toBe('SSR Content');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
