@@ -75,9 +75,10 @@
 .sections {
   @include flex-col;
 
+  // Top clearance: the ✕ button sits in the sticky header above the drawer; the first row must start below it.
   flex: 1;
   gap: $spacing-2;
-  padding: $spacing-xl;
+  padding: $spacing-16 $spacing-xl $spacing-xl;
   margin: 0;
   list-style: none;
 }
