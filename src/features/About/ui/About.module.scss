@@ -83,13 +83,13 @@
   }
 }
 
-// Content panel (reference: absolute bg-white_A700 bottom-[0] common-column) — static card below 640px, absolute bottom-pinned full-width card from 640px up
+// Content panel (adapted from reference: absolute bg-white_A700 bottom-[0] common-column) — static card below 640px, absolute top-pinned full-width card from 640px up; content column starts at the top of the About block
 .panel {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
   width: 100%;
   padding: 16px;
   background: var(--card-bg);
@@ -99,9 +99,9 @@
 
   @media (width >= 640px) {
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
-    height: 100%; // full-stack card (reference: panel 492px vs stack 468px, content justified to bottom)
+    height: 100%; // full-stack card (reference: panel 492px vs stack 468px), content at the top
   }
 
   @media (width >= 1024px) {
