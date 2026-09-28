@@ -1,0 +1,31 @@
+// ============================================
+
+// Nav Widget - NavControls (language + theme switch pair)
+
+// ============================================
+@use '@/shared/styles/variables' as *;
+
+// ============================================
+
+// SWITCH ROW — 🌍 language first, then 🎨 theme (R5)
+
+// Horizontal counterpart of the old Sidebar's vertical switch stack.
+
+// ============================================
+.controls {
+  display: flex;
+  flex-shrink: 0;
+  gap: $spacing-1;
+  align-items: center;
+}
+
+// ============================================
+
+// MOBILE — stacked full-width rows inside the T6 panel (0,2,0 beats 0,1,0)
+
+// ============================================
+.mobile {
+  flex-direction: column;
+  gap: $spacing-2;
+  width: 100%;
+}

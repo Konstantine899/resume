@@ -51,6 +51,11 @@ export default defineConfig({
             provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
+            // Vitest's defaultBrowserPort 63315 sits inside this machine's
+            // Hyper-V excluded range (63298-63397) -> EACCES on bind. 48315 is
+            // below the Windows dynamic range (49152+) and outside every
+            // excluded range, so it stays bindable across reboots.
+            api: { port: 48315 },
           },
         },
       },

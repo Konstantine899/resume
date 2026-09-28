@@ -7,7 +7,7 @@ import { Hero } from '@/features/Hero';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
 import { WorkHistory } from '@/features/WorkHistory';
-import { Sidebar } from '@/widgets/Sidebar';
+import { Nav } from '@/widgets/Nav';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
 import styles from './HomePage.module.scss';
@@ -18,8 +18,9 @@ import styles from './HomePage.module.scss';
  */
 export const HomePage: React.FC = () => {
   return (
-    <div className={styles.homePage}>
-      {/* Skip link for accessibility */}
+    <>
+      {/* Skip link for accessibility — R6: the single skip link lives here,
+          as the first focusable element. Nav must not add a second one. */}
       <Link
         href="#main-content"
         unstyled
@@ -30,19 +31,24 @@ export const HomePage: React.FC = () => {
         Skip to main content
       </Link>
 
-      {/* Sidebar (includes desktopSpacer internally) */}
-      <Sidebar />
+      {/* Sticky top navigation (issue #138). Rendered outside .homePage so it
+          stays a full-width top bar and keeps its own stacking context. It is
+          in normal flow (position: sticky), so main content starts below it —
+          no spacer offset is needed (the old Sidebar desktopSpacer is gone). */}
+      <Nav />
 
-      {/* Main Content */}
-      <main id="main-content" className={styles.mainContent}>
-        <Hero />
-        <MyWork />
-        <WorkHistory />
-        <About />
-        <Skills />
-        <Contact />
-      </main>
-    </div>
+      <div className={styles.homePage}>
+        {/* Main Content */}
+        <main id="main-content" className={styles.mainContent}>
+          <Hero />
+          <MyWork />
+          <WorkHistory />
+          <About />
+          <Skills />
+          <Contact />
+        </main>
+      </div>
+    </>
   );
 };
 

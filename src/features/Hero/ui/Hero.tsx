@@ -6,7 +6,6 @@ import { DEVELOPER_DATA } from '@/entities/Developer';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Code } from '@/shared/ui/Code';
-import { Link } from '@/shared/ui/Link';
 import React, { useEffect, useState } from 'react';
 import avatarImage from '@/shared/assets/avatar003.jpg';
 import { HeroProps } from '../model/types';
@@ -20,11 +19,7 @@ type AvatarState = 'loading' | 'loaded' | 'error';
  * Hero Feature Component
  * Main hero section with introduction and call-to-action.
  */
-export const Hero: React.FC<HeroProps> = ({
-  className = '',
-  onGetResume,
-  'data-testid': testId = 'hero',
-}) => {
+export const Hero: React.FC<HeroProps> = ({ className = '', 'data-testid': testId = 'hero' }) => {
   const { t } = useLanguage();
   const { addToast } = useToast();
   const [avatarState, setAvatarState] = useState<AvatarState>('loading');
@@ -73,21 +68,6 @@ export const Hero: React.FC<HeroProps> = ({
           >
             <SkillsCode />
           </Code>
-
-          {/* Resume Button */}
-          <div className={styles.resumeButtonWrapper}>
-            <Link
-              href="#"
-              variant="primary"
-              size="md"
-              onClick={(e) => {
-                e.preventDefault();
-                onGetResume?.();
-              }}
-            >
-              {t(`getResume`)}
-            </Link>
-          </div>
         </div>
 
         {/* Right side - Photo */}

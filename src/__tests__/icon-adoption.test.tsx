@@ -19,7 +19,7 @@
 // ============================================================
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Mail } from 'lucide-react';
 
 // ---- Icon containers / migrated sites ----
@@ -27,21 +27,20 @@ import { ModalCloseButton } from '@/shared/ui/Modal';
 import { Toast } from '@/shared/ui/Toast';
 import { TOAST_ICONS, TOAST_TYPES } from '@/shared/ui/Toast';
 import { Input, InputEmail, InputPhone, InputSearch } from '@/shared/ui/Input';
-import { Sidebar, MobileMenu, ToggleButton, NavItem } from '@/widgets/Sidebar';
-import { getNavItems } from '@/widgets/Sidebar';
+import { Nav, NAV_ITEMS } from '@/widgets/Nav';
 import { ContactCard } from '@/shared/ui/Card';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { Icon } from '@/shared/ui/Icon';
 
 // ============================================================
-// Mocks (existing repo pattern — Sidebar.test, Contact.test,
+// Mocks (existing repo pattern — Nav.test, Contact.test,
 // Hero.test). These keep provider-dependent slices deterministic
 // WITHOUT touching the migrated <Icon> DOM the suite asserts on.
 // ============================================================
 
 // useLanguage → passthrough `t` (i18n smoke); keeps ThemeSwitch/
-// LanguageSwitch/MobileMenu/Sidebar renderable in jsdom.
+// LanguageSwitch/Nav/MobileMenu renderable in jsdom.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({ language: 'en', t: (key: string) => key }),
 }));
@@ -51,32 +50,14 @@ vi.mock('@/features/ThemeSwitch/hooks/useThemeSwitch', () => ({
   useThemeSwitch: () => ({ theme: 'dark', toggleTheme: () => {}, isTransitioning: false }),
 }));
 
-// Sidebar hooks -> stable collapse/no-mobile state (same as Sidebar.test).
-vi.mock('@/widgets/Sidebar/hooks/useSidebar', () => ({
-  useSidebar: () => ({
-    isOpen: true,
-    isHoverExpanded: false,
-    toggleSidebar: () => {},
-    handleMouseEnter: () => {},
-    handleMouseLeave: () => {},
-  }),
-}));
-vi.mock('@/widgets/Sidebar/hooks/useNavigation', () => ({
-  useNavigation: () => ({
-    activeSection: '#home',
-    mobileMenuOpen: false,
-    setMobileMenuOpen: () => {},
-    handleNavClick: () => {},
-    handleDesktopKeyDown: () => {},
-  }),
-}));
+// Nav uses the REAL useNavigation (same wiring as Nav.test.tsx): it is
+// jsdom-safe (IntersectionObserver is feature-guarded; burger auto-close
+// only fires on resize events, so the panel opens stably). The old
+// Sidebar useSidebar/useNavigation hook mocks are gone with the widget (R13).
 
 // ============================================================
 // Helpers
 // ============================================================
-
-/** Passthrough i18n t of the correct TFunction shape (getNavItems). */
-const passthroughT = ((key: string) => key) as Parameters<typeof getNavItems>[0];
 
 /** Resolve the inner <svg> of a migrated <Icon> within `root`. */
 function iconSvg(root: ParentNode): SVGSVGElement {
@@ -162,46 +143,65 @@ describe('icon-adoption: Input size guards', () => {
 });
 
 // ============================================================
-// Sidebar / widgets group
+// Nav widget group (migrated from the old Sidebar group, T7)
 // ============================================================
-describe('icon-adoption: Sidebar/widgets size guards', () => {
-  it('Sidebar mobile menu button renders a 20px svg, NOT 24 (lg conduit anti-regression)', () => {
-    const { container } = render(<Sidebar />);
-    const menuButton = container.querySelector('button[aria-label="Open menu"]');
+describe('icon-adoption: Nav widget size guards', () => {
+  it('Nav burger menu button renders a 20px svg, NOT 24 (lg conduit anti-regression)', () => {
+    render(<Nav />);
+    const menuButton = screen.getByTestId('nav-burger');
     expect(menuButton).not.toBeNull();
-    assertIconSize(menuButton as HTMLElement, 20);
-    expect(iconSvg(menuButton as HTMLElement).style.width).not.toBe('24px');
+    assertIconSize(menuButton, 20);
+    expect(iconSvg(menuButton).style.width).not.toBe('24px');
   });
 
-  it('MobileMenu close button renders a 20px svg', () => {
-    const { container } = render(
-      <MobileMenu
-        isOpen
-        onClose={vi.fn()}
-        items={getNavItems(passthroughT)}
-        activeSection="#home"
-        onNavClick={vi.fn()}
-      />
-    );
-    const closeButton = container.querySelector('button[aria-label="Close menu"]');
-    expect(closeButton).not.toBeNull();
-    assertIconSize(closeButton as HTMLElement, 20);
+  it('Nav burger close state (X) renders a 20px svg while the menu panel is open', () => {
+    // Nav's MobileMenu panel has NO close button (R4 — no header/footer in
+    // the panel); the close affordance moved to the burger, so the old
+    // MobileMenu close-button guard maps to the open-state ✕ icon.
+    render(<Nav />);
+    fireEvent.click(screen.getByRole('button', { name: 'navMenuOpen' }));
+
+    expect(screen.getByRole('dialog', { name: 'navMenuLabel' })).toBeInTheDocument();
+    const closeBurger = screen.getByRole('button', { name: 'navMenuClose' });
+    assertIconSize(closeBurger, 20);
   });
 
-  it('ToggleButton chevron renders a 20px svg (explicit size)', () => {
-    const { container } = render(<ToggleButton isCollapsed={false} onToggle={vi.fn()} />);
-    const button = container.querySelector('button[aria-label="expandSidebar"]');
-    expect(button).not.toBeNull();
-    assertIconSize(button as HTMLElement, 20);
+  it('burger toggle (ToggleButton port) keeps an explicit 20px svg in both states', () => {
+    // R13 removed the Sidebar collapsed state and its ToggleButton chevron —
+    // the toggle role now belongs to the burger, so guard both Menu/✕ states
+    // plus the aria-expanded flip instead of the dead `expandSidebar` label.
+    render(<Nav />);
+
+    const closed = screen.getByRole('button', { name: 'navMenuOpen' });
+    expect(closed).toHaveAttribute('aria-expanded', 'false');
+    assertIconSize(closed, 20);
+
+    fireEvent.click(closed);
+    const opened = screen.getByRole('button', { name: 'navMenuClose' });
+    expect(opened).toHaveAttribute('aria-expanded', 'true');
+    assertIconSize(opened, 20);
+
+    fireEvent.click(opened);
+    const reclosed = screen.getByRole('button', { name: 'navMenuOpen' });
+    expect(reclosed).toHaveAttribute('aria-expanded', 'false');
+    assertIconSize(reclosed, 20);
   });
 
-  it('NavItem navIcon renders a 20px svg', () => {
-    const { container } = render(
-      <NavItem icon={Mail} label="Contact" href="#contact" variant="mobile" />
-    );
-    const item = container.querySelector('[role="menuitem"]');
-    expect(item).not.toBeNull();
-    assertIconSize(item as HTMLElement, 20);
+  it('panel NavItem navIcon renders a 16px svg with link semantics (R10)', () => {
+    // Size contract moved with the widget: Sidebar NavItem was 20px,
+    // Nav's NavItem renders 16px (NavItem.tsx). R10: the mobile row is a
+    // regular link — never the orphaned `menuitem` role the old test pinned.
+    render(<Nav />);
+    fireEvent.click(screen.getByRole('button', { name: 'navMenuOpen' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'navMenuLabel' });
+    const links = within(dialog).getAllByRole('link');
+    expect(links).toHaveLength(NAV_ITEMS.length + 1); // 6 sections + 🔐 AdminLink
+
+    const item = links[0] as HTMLElement;
+    expect(item).toHaveAttribute('role', 'link');
+    expect(item).not.toHaveAttribute('role', 'menuitem');
+    assertIconSize(item, 16);
   });
 });
 
@@ -256,7 +256,7 @@ describe('icon-adoption: decorative wrapper contract', () => {
 });
 
 // ============================================================
-// data-map guards (TOAST_ICONS + getNavItems)
+// data-map guards (TOAST_ICONS + NAV_ITEMS)
 // ============================================================
 describe('icon-adoption: data maps are not mutated across renders', () => {
   it('TOAST_ICONS exposes a stable function per type across a render', () => {
@@ -272,13 +272,15 @@ describe('icon-adoption: data maps are not mutated across renders', () => {
     });
   });
 
-  it('getNavItems returns stable icon references across two calls', () => {
-    const first = getNavItems(passthroughT);
-    const second = getNavItems(passthroughT);
+  it('NAV_ITEMS exposes stable icon references across a Nav render', () => {
+    const before = NAV_ITEMS.map((item) => item.icon);
 
-    expect(first).toHaveLength(6);
-    first.forEach((item) => expect(item.icon).toBeDefined());
-    expect(first.map((item) => item.icon)).toEqual(second.map((item) => item.icon));
+    expect(NAV_ITEMS).toHaveLength(6);
+    NAV_ITEMS.forEach((item) => expect(item.icon).toBeDefined());
+
+    // Rendering Nav must not mutate the shared data map (single source).
+    render(<Nav />);
+    expect(NAV_ITEMS.map((item) => item.icon)).toEqual(before);
   });
 
   it('rendering a migrated site does not mutate the TOAST_ICONS map values', () => {

@@ -177,7 +177,6 @@
   --shadow-focus-success: 0 0 0 3px var(--color-success-muted);
 
   // Transition tokens
-  --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
   --transition-slow: 300ms ease;
 
@@ -214,6 +213,7 @@
   --tracking-wide: 0.05em;
 
   // Z-index tokens (единая шкала)
+  --z-nav: 2000;
   --z-overlay: 3000;
   --z-sidebar: 4000;
   --z-modal: 5000;
@@ -229,7 +229,6 @@
 
   // Sidebar Layout
   --sidebar-width-mobile: 280px;
-  --sidebar-header-height: 4rem;
 
   // Sidebar
   --sidebar-bg: var(--color-surface-primary);
@@ -237,23 +236,13 @@
 
   // Navigation
   --nav-item-color: var(--color-text-secondary);
-  --nav-item-color-hover: var(--color-accent);
   --nav-item-bg-hover: #eff6ff;
   --nav-item-bg-active: #eff6ff;
-
-  // Toggle Button
-  --toggle-btn-color: var(--color-text-secondary);
-  --toggle-btn-bg-hover: var(--color-surface-tertiary);
 
   // Mobile Menu
   --mobile-menu-bg: var(--color-surface-primary);
   --mobile-menu-border: var(--color-border-primary);
   --mobile-menu-width: var(--sidebar-width-mobile);
-  --mobile-menu-backdrop: var(--color-overlay);
-
-  // Sidebar Header
-  --sidebar-header-border: var(--color-border-primary);
-  --sidebar-header-hover: var(--color-surface-tertiary);
 
   // ==========================================
 
@@ -432,12 +421,9 @@
   --color-text-on-success: #0f0f0f;
   --color-text-on-warning: #0f0f0f;
 
-  // Sidebar tokens for dark theme
-  --nav-item-color-hover: var(--color-text-primary);
+  // Nav item tokens for dark theme
   --nav-item-bg-hover: var(--color-accent-tint-20);
   --nav-item-bg-active: var(--color-accent-tint-20);
-  --toggle-btn-bg-hover: var(--color-accent-tint-20);
-  --sidebar-header-hover: var(--color-accent-tint-10);
 
   // Backward-compatible aliases
   --background: #292726;
