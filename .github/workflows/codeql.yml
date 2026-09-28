@@ -3,9 +3,9 @@ name: CodeQL
 # Ф5: SAST-аудит первого кода. Дополняет npm audit (зависимости) и gitleaks (секреты).
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   schedule:
     # Еженедельно в понедельник в 04:23 UTC — ловит новые паттерны между PR.
     - cron: '23 4 * * 1'
