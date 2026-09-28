@@ -17,9 +17,9 @@ import type { CtaButtonProps } from '../../model/types';
  *   downloadable resume file exists, so the button is never a dead end.
  *   The constant is imported; the literal never appears here (source guard).
  * - Decision R4: `variant="desktop"` renders the always-visible text CTA
- *   (Link-primary with the Download icon, `Hero` precedent); `variant="mobile"`
- *   renders a compact icon-only anchor carrying an i18n `aria-label` — the
- *   T6 mobile menu reuses the same component.
+ *   (Link-text-primary with the Download icon — a text link, not a filled
+ *   button); `variant="mobile"` renders a compact icon-only anchor carrying an
+ *   i18n `aria-label` — the T6 mobile menu reuses the same component.
  * - i18n-first: both labels come from `getResume` via `t()` — never a literal.
  */
 export const CtaButton: React.FC<CtaButtonProps> = ({
@@ -47,7 +47,7 @@ export const CtaButton: React.FC<CtaButtonProps> = ({
   return (
     <Link
       href={CTA_HREF}
-      variant="primary"
+      variant="text-primary"
       size="md"
       className={className}
       data-testid={testId}
