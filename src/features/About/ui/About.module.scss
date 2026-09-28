@@ -101,6 +101,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
+    height: 100%; // full-stack card (reference: panel 492px vs stack 468px, content justified to bottom)
   }
 
   @media (width >= 1024px) {
