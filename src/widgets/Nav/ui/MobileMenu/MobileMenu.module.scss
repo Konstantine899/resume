@@ -19,11 +19,22 @@
   z-index: var(--z-sidebar);
   visibility: hidden;
   opacity: 0;
-  transition: all var(--transition-slow);
+
+  // Opacity fades over --transition-slow; visibility flips only after the fade
+
+  // on close (duration 0s, delay --transition-slow) and with no delay on open,
+
+  // so the dialog is exposed to the a11y tree in the frame it opens.
+  transition:
+    opacity var(--transition-slow),
+    visibility 0s linear var(--transition-slow);
 
   &.open {
     visibility: visible;
     opacity: 1;
+    transition:
+      opacity var(--transition-slow),
+      visibility 0s;
   }
 
   // Mobile-only — the hook also auto-closes at/above 768px (old parity).
@@ -69,6 +80,19 @@
   padding: $spacing-xl;
   margin: 0;
   list-style: none;
+}
+
+// Rows inherit the overlay's visibility flip, but Link declares
+
+// `transition: all`, which RE-ANIMATES it: for the first frames after open a
+
+// row still computes `visibility: hidden`, so the R11 initial-focus pass finds
+
+// nothing focusable and focus stays on the burger. Pin the animated properties
+
+// to what the ghost variant animates — visibility then flips with the overlay.
+.overlay .sections a {
+  transition-property: color, background-color;
 }
 
 // ============================================
