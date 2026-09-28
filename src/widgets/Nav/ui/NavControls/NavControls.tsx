@@ -35,8 +35,8 @@ export const NavControls: React.FC<NavControlsProps> = ({
       className={classNames(styles.controls, variant === 'mobile' && styles.mobile, className)}
       data-testid={testId}
     >
-      <LanguageSwitch variant={variant} isCollapsed={isIconOnly} />
-      <ThemeSwitch variant={variant} isCollapsed={isIconOnly} />
+      <LanguageSwitch variant={variant} isCollapsed={isIconOnly} fullWidth={!isIconOnly} />
+      <ThemeSwitch variant={variant} isCollapsed={isIconOnly} fullWidth={!isIconOnly} />
     </div>
   );
 };

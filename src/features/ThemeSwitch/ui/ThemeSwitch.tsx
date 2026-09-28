@@ -12,6 +12,16 @@ export interface ThemeSwitchComponentProps {
   isCollapsed?: boolean;
   isHoverExpanded?: boolean;
   variant?: 'desktop' | 'mobile';
+  /**
+   * Whether the button fills its container width.
+   *
+   * Defaults to `true` for backward compatibility with the legacy vertical
+   * Sidebar layout. The desktop Nav top bar passes `fullWidth={false}` so the
+   * icon-only switch keeps its natural width inside a horizontal flex row
+   * (issue #138 — the old hardcoded `width: 100%` made the theme switch
+   * overflow under the CTA button).
+   */
+  fullWidth?: boolean;
 }
 
 export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps> = ({
@@ -20,6 +30,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
   isCollapsed = false,
   isHoverExpanded = false,
   variant = 'desktop',
+  fullWidth = true,
 }) => {
   const { theme, toggleTheme, isTransitioning } = useThemeSwitch();
   const { t } = useLanguage();
@@ -55,7 +66,7 @@ export const ThemeSwitch: React.FC<ThemeSwitchProps & ThemeSwitchComponentProps>
       onClick={handleThemeToggle}
       variant="ghost"
       size="md"
-      fullWidth
+      fullWidth={fullWidth}
       title={!showText ? (theme === 'dark' ? t('lightMode') : t('darkMode')) : undefined}
       className={classNames(controlButtonClasses, className)}
       data-testid={testId}
