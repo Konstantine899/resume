@@ -180,6 +180,7 @@ pnpm-lock.yaml
 # Documentation SHOULD be committed
 
 *.md
+!AGENTS.md
 !CHANGELOG.md
 !docs/**/*.md
 !README.md
