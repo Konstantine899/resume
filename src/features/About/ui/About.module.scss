@@ -57,10 +57,9 @@
     min-height: 600px;
   }
 
-  // Portrait: static centered block first in visual order below 640px; absolute over the panel (z-index: 1) from 640px; `.stack .portrait` (0,2,0) beats Image's `.sizeFull` (0,1,0) for width
+  // Portrait: static centered block below 640px (panel comes first — info at the very top); absolute over the panel (z-index: 1) from 640px; `.stack .portrait` (0,2,0) beats Image's `.sizeFull` (0,1,0) for width
   .portrait {
     display: block;
-    order: -1;
     width: 60%;
 
     // 600×800 source: aspect-ratio gives the figure a deterministic height before the lazy PNG loads — without it the figure is 0px tall (sizeFull height: auto) and translateY(-50%) degenerates to identity
