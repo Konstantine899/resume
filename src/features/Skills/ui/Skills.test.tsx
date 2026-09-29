@@ -1,4 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PROFILE_STACK } from '@/entities/Developer';
 import { Skills } from './Skills';
@@ -238,5 +240,45 @@ describe('Skills', () => {
         expect(screen.getByText(category.categoryName)).toBeInTheDocument();
       });
     });
+  });
+});
+
+/**
+ * Source-level guard: the snippet must stay hidden on mobile.
+ *
+ * The block is hidden with a mobile-first CSS rule rather than a conditional
+ * render, so there is nothing for jsdom to assert: it does not evaluate media
+ * queries and reports every element as displayed. A runtime test would stay
+ * green with the rule deleted, so reading the source is the only faithful
+ * guard — the same technique the hook-free `SkillsCode` guard uses.
+ *
+ * Asserting the *pair* matters: a bare `display: none` would hide the block on
+ * every viewport, and a bare media query without the default would show it on
+ * every viewport. Either half alone is the opposite bug.
+ */
+describe('Skills: code block hidden on mobile (source guard)', () => {
+  const SCSS = readFileSync(join(__dirname, 'Skills.module.scss'), 'utf-8');
+
+  /** The `.codeBlockWrapper` rule body, comments stripped. */
+  function wrapperRule(): string {
+    const withoutComments = SCSS.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    const start = withoutComments.indexOf('.codeBlockWrapper');
+    expect(start, '`.codeBlockWrapper` rule must exist in Skills.module.scss').toBeGreaterThan(-1);
+    return withoutComments.slice(start);
+  }
+
+  it('defaults to display: none so the block is hidden on mobile', () => {
+    const rule = wrapperRule();
+    const [base, ...rest] = rule.split('@media');
+
+    expect(base, 'the default (mobile) branch must hide the block').toMatch(/display:\s*none/);
+    // Guard against a "mobile" branch that only ever widens.
+    for (const mq of rest) expect(mq).toMatch(/display:\s*block/);
+  });
+
+  it('re-enables the block from the md breakpoint (768px) up', () => {
+    const mq = wrapperRule().split('@media')[1] ?? '';
+    expect(mq, 'must re-enable inside a media query').toMatch(/width\s*>=\s*768px/);
+    expect(mq).toMatch(/display:\s*block/);
   });
 });
