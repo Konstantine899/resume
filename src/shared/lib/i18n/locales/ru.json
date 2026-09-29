@@ -1,8 +1,5 @@
 {
-  "greeting": "Привет, я",
-  "name": "Константин",
   "fullName": "Атрощенко Константин",
-  "profession": "Full Stack Developer",
   "specialties": "React, Node.js, TypeScript",
   "skillsLabel": "Современные Веб-Технологии",
   "mySkills": "Мои Навыки",
@@ -10,8 +7,7 @@
   "skillsCodeFocus": "Доступные, тестируемые и поддерживаемые веб-приложения",
   "getResume": "Скачать Резюме",
   "downloadResume": "Скачать резюме",
-  "heroRole": "Старший Full-Stack разработчик",
-  "heroExperience": "6+ лет",
+  "developerRole": "Старший Full-Stack разработчик",
   "githubLabel": "Профиль GitHub",
   "linkedInLabel": "Профиль LinkedIn",
   "telegramLabel": "Телеграм",

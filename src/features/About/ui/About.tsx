@@ -1,4 +1,4 @@
-import { DEVELOPER_DATA, PROFILE_STACK } from '@/entities/Developer';
+import { PROFILE_STACK } from '@/entities/Developer';
 import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.png';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -38,9 +38,12 @@ export const About: React.FC<AboutFeatureProps> = ({
         <div className={styles.stack}>
           <div className={styles.panel} data-testid="about-panel">
             <span className={styles.accent} data-testid="about-accent" aria-hidden="true" />
-            <Heading level={3} className={styles.title}>
-              {DEVELOPER_DATA.fullName}
+            <Heading level={1} className={styles.title}>
+              {t('fullName')}
             </Heading>
+            <Paragraph theme="muted" className={styles.role}>
+              {t('developerRole')}
+            </Paragraph>
             {/* Recruiter-audit P1: expanded multi-paragraph pitch (i18n both locales). */}
             <div className={styles.description}>
               <Paragraph theme="muted">{t('aboutDescription')}</Paragraph>

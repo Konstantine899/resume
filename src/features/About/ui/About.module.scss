@@ -161,6 +161,19 @@
 
 // Left-aligned in the panel (reference layout): auto margins removed so the text column stays clear of the portrait overlapping the panel's right side
 
+// Role line under the h1 (document owner after the Hero removal): muted, semibold, sits between the name and the pitch without competing with it for weight
+.role {
+  margin-bottom: 12px; // mb-3
+  font-size: 16px; // text-base
+  font-weight: 600; // semibold
+  color: var(--color-text-muted);
+
+  @media (width >= 768px) {
+    margin-bottom: 16px; // md:mb-4
+    font-size: 18px; // md:text-lg
+  }
+}
+
 // Wrapper of the 3-paragraph pitch (recruiter audit P1): layout only — gap
 
 // gives the inter-paragraph rhythm (Paragraph has margin: 0 by default).

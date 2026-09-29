@@ -69,13 +69,24 @@ describe('About: Link CTA integration', () => {
     expect(panel.compareDocumentPosition(portrait) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('uses the developer full name as the heading instead of the "About" label', () => {
+  it('owns the document h1 with the localized full name', () => {
     render(<About />);
 
-    expect(
-      screen.getByRole('heading', { level: 3, name: DEVELOPER_DATA.fullName })
-    ).toBeInTheDocument();
+    // Recruiter audit: About is the first section after the Hero removal, so it
+    // carries the page h1. The name comes from i18n, not a hardcoded constant —
+    // the previous version rendered DEVELOPER_DATA.fullName, which stayed
+    // Russian in English mode.
+    expect(screen.getByRole('heading', { level: 1, name: 'fullName' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'about' })).not.toBeInTheDocument();
+  });
+
+  it('renders the role under the h1 and keeps the pitch at heading-free levels', () => {
+    render(<About />);
+
+    expect(screen.getByText('developerRole')).toBeInTheDocument();
+    // Only the h1 may claim a heading role in this section — no stray h2/h3
+    // above the name, so the document outline starts at level 1.
+    expect(screen.getAllByRole('heading')).toHaveLength(1);
   });
 
   it('renders the translated description and CTA via i18n keys', () => {
