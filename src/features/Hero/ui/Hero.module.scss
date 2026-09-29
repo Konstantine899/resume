@@ -195,26 +195,9 @@
 
 // --------------------------------------------
 
-// Code Block
+// Terminal Dots
 
 // --------------------------------------------
-.codeBlock {
-  width: 100%;
-  max-width: 100%;
-  height: 400px;
-  padding: $spacing-md;
-  margin-bottom: $spacing-lg;
-  background: var(--code-bg);
-  border: 1px solid var(--color-accent-tint-20);
-  border-radius: $border-radius-lg;
-  backdrop-filter: blur(8px);
-
-  // padding: $spacing-lg;
-  @include sm {
-    margin-bottom: $spacing-xl;
-  }
-}
-
 .terminalDots {
   display: flex;
   gap: $spacing-sm;
@@ -368,10 +351,6 @@
     flex-direction: column;
 
     .leftContent {
-      max-width: 100%;
-    }
-
-    .codeBlock {
       max-width: 100%;
     }
   }

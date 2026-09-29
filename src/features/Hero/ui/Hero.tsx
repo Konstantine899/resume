@@ -3,11 +3,9 @@
 // ============================================
 import { DEVELOPER_DATA, PROFILE_STACK, SOCIAL_LINKS } from '@/entities/Developer';
 
-import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Badge } from '@/shared/ui/Badge';
 import { ButtonWithIcon } from '@/shared/ui/Button';
-import { Code } from '@/shared/ui/Code';
 import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +14,6 @@ import avatarImage from '@/shared/assets/avatar003.jpg';
 import { HeroProps } from '../model/types';
 import styles from './Hero.module.scss';
 import { HeroAvatar } from './HeroAvatar';
-import SkillsCode from './SkillsCode/SkillsCode';
 
 type AvatarState = 'loading' | 'loaded' | 'error';
 
@@ -31,7 +28,6 @@ type AvatarState = 'loading' | 'loaded' | 'error';
  */
 export const Hero: React.FC<HeroProps> = ({ className = '', 'data-testid': testId = 'hero' }) => {
   const { t } = useLanguage();
-  const { addToast } = useToast();
   const [avatarState, setAvatarState] = useState<AvatarState>('loading');
 
   // Имитация загрузки аватара (для демонстрации состояний)
@@ -79,25 +75,6 @@ export const Hero: React.FC<HeroProps> = ({ className = '', 'data-testid': testI
               </li>
             ))}
           </ul>
-
-          {/* Code Block с навыками */}
-          <Code
-            variant="block"
-            title="developer.ts"
-            language="TypeScript"
-            copyable
-            showLineNumbers
-            className={styles.codeBlock}
-            onCopyResult={(success) =>
-              addToast({
-                message: success ? t(`codeCopied`) : t(`codeCopyFailed`),
-                type: success ? 'success' : 'error',
-                duration: success ? 2000 : 3000,
-              })
-            }
-          >
-            <SkillsCode role={t('heroRole')} focus={t('heroFocus')} />
-          </Code>
 
           {/* CTA pair — both point at Contact until the resume PDF exists */}
           <div className={styles.actions} data-testid="hero-actions">

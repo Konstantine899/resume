@@ -1,5 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PROFILE_STACK } from '@/entities/Developer';
 import { Skills } from './Skills';
 import * as constants from '../model/constants';
 
@@ -22,6 +25,11 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string) => ({ mySkills: 'My Skills' })[key] ?? key,
   }),
+}));
+
+// SkillsInner wires the code-copy toast — no-op provider, same pattern as Hero
+vi.mock('@/shared/lib/contexts/ToastContext', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
 }));
 
 describe('Skills', () => {
@@ -61,24 +69,33 @@ describe('Skills', () => {
     });
 
     it('должен рендерить технологии для каждой категории', () => {
-      render(<Skills />);
+      const { container } = render(<Skills />);
+
+      // Scoped to the categories grid: after the P9 move the `developer.ts`
+      // snippet between the heading and the grid also renders stack names
+      // (PROFILE_STACK), and the line-numbered code block renders its own
+      // `role="list"`. Neither `getByText` nor `getByRole('list')` is
+      // unambiguous here, so the grid is addressed by the class its own module
+      // gives it.
+      const grid = container.querySelector('[class*="categoriesList"]');
+      if (!(grid instanceof HTMLElement)) throw new Error('categories grid not rendered');
 
       // Проверяем технологии из разных категорий
-      expect(screen.getByText('React')).toBeInTheDocument();
-      expect(screen.getByText('TypeScript')).toBeInTheDocument();
-      expect(screen.getByText('Redux Toolkit')).toBeInTheDocument();
-      expect(screen.getByText('Material-UI')).toBeInTheDocument();
-      expect(screen.getByText('Node.js')).toBeInTheDocument();
-      expect(screen.getByText('Nest.js')).toBeInTheDocument();
-      expect(screen.getByText('REST API')).toBeInTheDocument();
-      expect(screen.getByText('WebSocket')).toBeInTheDocument();
-      expect(screen.getByText('Jest')).toBeInTheDocument();
-      expect(screen.getByText('Cypress')).toBeInTheDocument();
-      expect(screen.getByText('Docker')).toBeInTheDocument();
-      expect(screen.getByText('GitHub Actions')).toBeInTheDocument();
-      expect(screen.getByText('Feature-Sliced Design (FSD)')).toBeInTheDocument();
-      expect(screen.getByText('Cursor')).toBeInTheDocument();
-      expect(screen.getByText('GitHub Copilot')).toBeInTheDocument();
+      expect(within(grid).getByText('React')).toBeInTheDocument();
+      expect(within(grid).getByText('TypeScript')).toBeInTheDocument();
+      expect(within(grid).getByText('Redux Toolkit')).toBeInTheDocument();
+      expect(within(grid).getByText('Material-UI')).toBeInTheDocument();
+      expect(within(grid).getByText('Node.js')).toBeInTheDocument();
+      expect(within(grid).getByText('Nest.js')).toBeInTheDocument();
+      expect(within(grid).getByText('REST API')).toBeInTheDocument();
+      expect(within(grid).getByText('WebSocket')).toBeInTheDocument();
+      expect(within(grid).getByText('Jest')).toBeInTheDocument();
+      expect(within(grid).getByText('Cypress')).toBeInTheDocument();
+      expect(within(grid).getByText('Docker')).toBeInTheDocument();
+      expect(within(grid).getByText('GitHub Actions')).toBeInTheDocument();
+      expect(within(grid).getByText('Feature-Sliced Design (FSD)')).toBeInTheDocument();
+      expect(within(grid).getByText('Cursor')).toBeInTheDocument();
+      expect(within(grid).getByText('GitHub Copilot')).toBeInTheDocument();
     });
 
     it('должен иметь data-testid по умолчанию', () => {
@@ -155,6 +172,48 @@ describe('Skills', () => {
     });
   });
 
+  describe('Code block placement (P9)', () => {
+    it('должен рендерить блок developer.ts в секции', () => {
+      render(<Skills />);
+
+      expect(screen.getByTestId('code-block')).toBeInTheDocument();
+      expect(screen.getByText('developer.ts')).toBeInTheDocument();
+    });
+
+    it('должен ставить блок ПОД заголовком секции', () => {
+      render(<Skills />);
+
+      const block = screen.getByTestId('code-block');
+      const heading = screen.getByText('My Skills');
+      // DOM order, not visual order — position is the point of this move.
+      expect(heading.compareDocumentPosition(block)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+
+    it('должен рендерить сниппет через компонент SkillsCode, а не инлайновую разметку', () => {
+      const { container } = render(<Skills />);
+
+      // The snippet itself IS the markup (SkillsCode owns the highlighting) —
+      // what must not exist is a second, hand-rolled copy of the stack.
+      const block = screen.getByTestId('code-block');
+      expect(block.textContent).toContain('const');
+      expect(block.textContent).toContain('developer');
+      // The stack is rendered from the shared PROFILE_STACK by SkillsCode only.
+      const quoted = (container.textContent ?? '').match(/'[^']+'/g) ?? [];
+      for (const tech of PROFILE_STACK) {
+        expect(quoted.filter((entry) => entry === `'${tech}'`)).toHaveLength(1);
+      }
+    });
+
+    it('не должен рендерить блок в empty-state', () => {
+      vi.spyOn(constants, 'SKILLS_DATA', 'get').mockReturnValue([]);
+
+      render(<Skills />);
+
+      // D5: the snippet is about the profile, not about the section data.
+      expect(screen.queryByTestId('code-block')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Memo Performance', () => {
     it('не должен ререндериться при одинаковых пропах', () => {
       const { rerender } = render(<Skills />);
@@ -181,5 +240,45 @@ describe('Skills', () => {
         expect(screen.getByText(category.categoryName)).toBeInTheDocument();
       });
     });
+  });
+});
+
+/**
+ * Source-level guard: the snippet must stay hidden on mobile.
+ *
+ * The block is hidden with a mobile-first CSS rule rather than a conditional
+ * render, so there is nothing for jsdom to assert: it does not evaluate media
+ * queries and reports every element as displayed. A runtime test would stay
+ * green with the rule deleted, so reading the source is the only faithful
+ * guard — the same technique the hook-free `SkillsCode` guard uses.
+ *
+ * Asserting the *pair* matters: a bare `display: none` would hide the block on
+ * every viewport, and a bare media query without the default would show it on
+ * every viewport. Either half alone is the opposite bug.
+ */
+describe('Skills: code block hidden on mobile (source guard)', () => {
+  const SCSS = readFileSync(join(__dirname, 'Skills.module.scss'), 'utf-8');
+
+  /** The `.codeBlockWrapper` rule body, comments stripped. */
+  function wrapperRule(): string {
+    const withoutComments = SCSS.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    const start = withoutComments.indexOf('.codeBlockWrapper');
+    expect(start, '`.codeBlockWrapper` rule must exist in Skills.module.scss').toBeGreaterThan(-1);
+    return withoutComments.slice(start);
+  }
+
+  it('defaults to display: none so the block is hidden on mobile', () => {
+    const rule = wrapperRule();
+    const [base, ...rest] = rule.split('@media');
+
+    expect(base, 'the default (mobile) branch must hide the block').toMatch(/display:\s*none/);
+    // Guard against a "mobile" branch that only ever widens.
+    for (const mq of rest) expect(mq).toMatch(/display:\s*block/);
+  });
+
+  it('re-enables the block from the md breakpoint (768px) up', () => {
+    const mq = wrapperRule().split('@media')[1] ?? '';
+    expect(mq, 'must re-enable inside a media query').toMatch(/width\s*>=\s*768px/);
+    expect(mq).toMatch(/display:\s*block/);
   });
 });

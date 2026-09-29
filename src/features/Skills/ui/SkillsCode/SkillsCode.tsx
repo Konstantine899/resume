@@ -9,7 +9,7 @@ export interface SkillsCodeProps {
 }
 
 /**
- * Syntax-highlighted `developer.ts` snippet inside the Hero code block.
+ * Syntax-highlighted `developer.ts` snippet at the top of the Skills section.
  *
  * Selling-oriented object: `role` + `stack` + `focus` only — no age and no
  * other personal data (recruiter audit P0). Property names stay code-English;
@@ -21,8 +21,8 @@ export interface SkillsCodeProps {
  * inside a `useMemo` in `useCopyCode`. A hook here is therefore called from
  * inside another hook's callback: React throws "Do not call Hooks inside
  * useMemo", the partially-registered hook corrupts the hook list, and the
- * whole tree unmounts. Localized strings are passed in as props by the Hero
- * instead of being read via `useLanguage` here.
+ * whole tree unmounts. Localized strings are passed in as props by
+ * `SkillsCodeWrapper` instead of being read via `useLanguage` here.
  */
 const SkillsCode: React.FC<SkillsCodeProps> = ({ role, focus }) => (
   <>
