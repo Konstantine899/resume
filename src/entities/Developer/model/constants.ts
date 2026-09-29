@@ -58,7 +58,9 @@ export const PROFILE_STACK = ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'D
 export const SOCIAL_LINKS: readonly SocialLink[] = [
   {
     name: 'GitHub',
-    href: 'https://github.com/konstantin-atroshchenko',
+    // Verified 2026-09-29: the previous `konstantin-atroshchenko` returned
+    // HTTP 404 (account does not exist). `Konstantine899` returns 200.
+    href: 'https://github.com/Konstantine899',
     icon: GitHubIcon,
     labelKey: 'githubLabel',
   },

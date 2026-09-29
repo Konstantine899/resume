@@ -116,7 +116,10 @@ export const PROJECTS: Project[] = [
       TECH_ICONS.redux,
       TECH_ICONS.css,
     ],
-    link: 'https://centralvalleyfoods.net',
+    // Recruiter audit 2026-09-29: the domain no longer resolves in DNS and
+    // archive.org holds no snapshot, so the link was dropped rather than left
+    // pointing at a dead site. `link: null` hides the link row on the card.
+    link: null,
     image: 'https://ext.same-assets.com/55871041/341412428.webp',
     category: 'ecommerce',
     status: 'completed',
@@ -135,7 +138,8 @@ export const PROJECTS: Project[] = [
       ru: 'Стильный сайт для The Schwab Bakery, небольшой пекарни в Смитфилде, Юта.',
     },
     techIcons: [TECH_ICONS.react, TECH_ICONS.javascript, TECH_ICONS.nodejs, TECH_ICONS.css],
-    link: 'https://www.schwabbakery.com',
+    // Dead domain, no archive snapshot — see the Central Valley Foods note.
+    link: null,
     image: 'https://ext.same-assets.com/55871041/1748978189.webp',
     category: 'portfolio',
     status: 'completed',
@@ -149,7 +153,8 @@ export const PROJECTS: Project[] = [
       ru: 'Я помог с дизайном и реализовал некоторые платёжные функции на этом сайте Squarespace.',
     },
     techIcons: [TECH_ICONS.html, TECH_ICONS.css, TECH_ICONS.javascript, TECH_ICONS.nodejs],
-    link: 'https://www.veteranlawncareandsprinklers.com',
+    // Dead domain, no archive snapshot — see the Central Valley Foods note.
+    link: null,
     image: 'https://ext.same-assets.com/55871041/328492081.webp',
     category: 'other',
     status: 'completed',
@@ -177,7 +182,9 @@ export const PROJECTS: Project[] = [
       ru: 'Веб-приложение для отслеживания количества подтверждённых случаев, смертей и выздоровлений от COVID-19. Данные из Johns Hopkins.',
     },
     techIcons: [TECH_ICONS.react, TECH_ICONS.javascript, TECH_ICONS.nodejs, TECH_ICONS.css],
-    link: '/covid19-tracker',
+    // This app has no router (react-router is not a dependency), so the relative
+    // path resolved to nothing. Dropped until the project gets a real URL.
+    link: null,
     image: 'https://ext.same-assets.com/55871041/2693025968.webp',
     category: 'dashboard',
     status: 'completed',
