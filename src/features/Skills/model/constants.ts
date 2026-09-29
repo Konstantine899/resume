@@ -40,11 +40,6 @@ import dockerIcon from '@/shared/assets/icons/skills/docker.svg';
 import gitIcon from '@/shared/assets/icons/skills/git.svg';
 import githubActionsIcon from '@/shared/assets/icons/skills/github-actions.svg';
 
-// Methodologies иконки
-import agileIcon from '@/shared/assets/icons/skills/agile.svg';
-import solidIcon from '@/shared/assets/icons/skills/solid.svg';
-import principlesIcon from '@/shared/assets/icons/skills/principles.svg';
-
 // Architecture иконки
 import fsdIcon from '@/shared/assets/icons/skills/fsd.svg';
 import dddIcon from '@/shared/assets/icons/skills/ddd.svg';
@@ -118,17 +113,6 @@ export const SKILLS_DATA: SkillCategoryData[] = [
       { name: 'Docker', iconSvg: dockerIcon },
       { name: 'Git', iconSvg: gitIcon },
       { name: 'GitHub Actions', iconSvg: githubActionsIcon },
-    ],
-  },
-  {
-    category: 'methodologies',
-    categoryName: 'Methodologies',
-    technologies: [
-      { name: 'Agile', iconSvg: agileIcon },
-      { name: 'SOLID', iconSvg: solidIcon },
-      { name: 'DRY', iconSvg: principlesIcon },
-      { name: 'KISS', iconSvg: principlesIcon },
-      { name: 'YAGNI', iconSvg: principlesIcon },
     ],
   },
   {

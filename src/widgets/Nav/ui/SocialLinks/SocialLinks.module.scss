@@ -1,0 +1,20 @@
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+
+.links {
+  display: flex;
+  flex-shrink: 0;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+// Drawer footer: the row hugs the left edge instead of stretching.
+.mobile {
+  align-self: flex-start;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-1;
+}

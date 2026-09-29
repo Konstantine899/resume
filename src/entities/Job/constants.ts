@@ -4,7 +4,10 @@ export const JOBS: Job[] = [
   {
     id: '1',
     company: 'Tech Corp International',
-    position: 'Senior Full-Stack Developer',
+    position: {
+      en: 'Senior Full-Stack Developer',
+      ru: 'Старший Full-Stack разработчик',
+    },
     period: '2022 — Present',
     startDate: new Date('2022-03-01'),
     endDate: null,
@@ -27,13 +30,15 @@ export const JOBS: Job[] = [
     current: true,
     employmentType: 'full-time',
     level: 'senior',
-    companyUrl: 'https://techcorp.com',
     featured: true,
   },
   {
     id: '2',
     company: 'StartUp Innovations',
-    position: 'Frontend Developer',
+    position: {
+      en: 'Frontend Developer',
+      ru: 'Фронтенд-разработчик',
+    },
     period: '2020 — 2022',
     startDate: new Date('2020-06-01'),
     endDate: new Date('2022-02-28'),
@@ -56,13 +61,15 @@ export const JOBS: Job[] = [
     current: false,
     employmentType: 'full-time',
     level: 'middle',
-    companyUrl: 'https://startup-innovations.com',
     featured: false,
   },
   {
     id: '3',
     company: 'Digital Agency Pro',
-    position: 'Junior Web Developer',
+    position: {
+      en: 'Junior Web Developer',
+      ru: 'Junior-веб-разработчик',
+    },
     period: '2018 — 2020',
     startDate: new Date('2018-09-01'),
     endDate: new Date('2020-05-31'),
@@ -83,7 +90,6 @@ export const JOBS: Job[] = [
     current: false,
     employmentType: 'full-time',
     level: 'junior',
-    companyUrl: 'https://digitalagencypro.com',
     featured: false,
   },
 ];

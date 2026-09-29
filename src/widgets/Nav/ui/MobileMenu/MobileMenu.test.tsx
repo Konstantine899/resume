@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ADMIN_HREF, NAV_ITEMS } from '../../model/constants';
+import { NAV_ITEMS } from '../../model/constants';
 import { MobileMenu } from './MobileMenu';
 
 // Identity i18n: t(key) => key — assertions prove the i18n KEY was used,
@@ -71,7 +71,7 @@ describe('MobileMenu: slide-in panel (T6, R4/R9/R11)', () => {
     const links = within(dialog).getAllByRole('link');
     const first = links[0];
     const last = links[links.length - 1];
-    expect(links).toHaveLength(NAV_ITEMS.length + 1); // 6 sections + 🔐 AdminLink
+    expect(links).toHaveLength(NAV_ITEMS.length + 3); // 6 sections + 3 social links
 
     last?.focus();
     expect(last).toHaveFocus();
@@ -111,13 +111,15 @@ describe('MobileMenu: slide-in panel (T6, R4/R9/R11)', () => {
     });
   });
 
-  it('renders the switch rows + 🔐, but NO CTA inside the panel (R4/R5)', () => {
+  it('renders the switch rows + socials, but NO CTA and NO AdminLink in the panel (R4/R5, audit P0)', () => {
     render(<MobileMenu open onClose={vi.fn()} />);
     const dialog = screen.getByRole('dialog');
 
     expect(within(dialog).getByTestId('language-switch')).toBeInTheDocument();
     expect(within(dialog).getByTestId('theme-switch')).toBeInTheDocument();
-    expect(within(dialog).getByTestId('nav-admin-link')).toHaveAttribute('href', ADMIN_HREF);
+    // Social profile links replace the 🔐 AdminLink (recruiter audit P0).
+    expect(within(dialog).getByTestId('nav-social-links')).toBeInTheDocument();
+    expect(within(dialog).queryByTestId('nav-admin-link')).toBeNull();
 
     // R4: the resume CTA stays in the header — never inside the panel.
     expect(within(dialog).queryByTestId('nav-cta')).toBeNull();
@@ -136,7 +138,7 @@ describe('MobileMenu: slide-in panel (T6, R4/R9/R11)', () => {
     expect(onNavigate).toHaveBeenCalledWith('#about');
 
     // Non-active rows stay unmarked.
-    expect(screen.getByRole('link', { name: 'home' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('link', { name: 'contact' })).not.toHaveAttribute('aria-current');
   });
 
   it('tolerates a section click when onNavigate is not wired (optional prop)', () => {

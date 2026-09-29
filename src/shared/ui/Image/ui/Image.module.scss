@@ -72,6 +72,29 @@
   }
 }
 
+// Transparent variant — no background fill, no radius: container, placeholder and error state stay fully see-through so cut-out PNGs keep their alpha. Compound selectors are deliberate: `.container.variantTransparent` (0,2,0) out-ranks plain `.container` (0,1,0) incl. the prefers-color-scheme override below, and `.variantTransparent.error .placeholder` (0,3,0) out-ranks `.error .placeholder` (0,2,0).
+.container.variantTransparent {
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.container.variantTransparent .placeholder {
+  background-color: transparent;
+}
+
+.variantTransparent.error .placeholder {
+  background-color: transparent;
+}
+
+.container.variantTransparent .fallback {
+  background-color: transparent;
+}
+
+// Neutralize the nested ImageSkeleton/Skeleton shimmer fill too — otherwise the loading skeleton paints a solid box over a "fully transparent" variant
+.container.variantTransparent .placeholder > * {
+  background-color: transparent;
+}
+
 // ============================================
 
 // Sizes
@@ -280,6 +303,7 @@
 @media (prefers-reduced-motion: reduce) {
   .image,
   .variantThumbnail,
+  .variantTransparent,
   .placeholder {
     transition: none;
     animation: none;

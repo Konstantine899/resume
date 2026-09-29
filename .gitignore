@@ -282,6 +282,8 @@ lerna-debug.log*
 *.png
 *.jpeg
 *.webp
+# Production portrait asset — required by src/features/About (exception to the screenshot rule)
+!src/shared/assets/Firefly_RemoveBackground.png
 
 # ============================================
 # MISCELLANEOUS

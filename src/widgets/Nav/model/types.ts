@@ -69,10 +69,25 @@ export interface CtaButtonProps {
 }
 
 /**
+ * Props for the `SocialLinks` icon row (recruiter audit P1).
+ *
+ * GitHub / LinkedIn / Telegram icon-only links reusing the shared
+ * `SOCIAL_LINKS` constants — rendered in the desktop right side AND in
+ * the mobile menu panel footer.
+ */
+export interface SocialLinksProps {
+  /** Rendering context (shares the `NavItemVariant` values). */
+  variant?: NavItemVariant;
+  className?: string;
+  'data-testid'?: string;
+}
+
+/**
  * Props for the `AdminLink` 🔐 placeholder (issue #138, T5, decision R3).
  *
- * Read-only icon-only link to `ADMIN_HREF` (`#/admin`) — visible in BOTH
- * surfaces (the mobile menu panel of T6 reuses it unchanged).
+ * Read-only icon-only link to `ADMIN_HREF` (`#/admin`). The component is
+ * kept intact (routing, tests, stories) but is NO LONGER rendered on any
+ * public nav surface (recruiter audit P0) — wire it back only deliberately.
  */
 export interface AdminLinkProps {
   className?: string;

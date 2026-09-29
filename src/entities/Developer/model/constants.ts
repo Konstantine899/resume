@@ -1,5 +1,7 @@
 import { getInitials } from '@/shared/lib/utils';
-import type { DeveloperProfile } from './types';
+import { GitHubIcon, LinkedInIcon } from '@/shared/ui/Icon';
+import { Send } from 'lucide-react';
+import type { DeveloperProfile, SocialLink } from './types';
 
 export const DEVELOPER_DATA: DeveloperProfile = {
   fullName: 'Атрощенко Константин',
@@ -39,9 +41,40 @@ export const DEVELOPER_DATA: DeveloperProfile = {
     methodologies: ['Agile', 'FSD', 'SOLID', 'DRY', 'KISS', 'YAGNI'],
     architecture: ['Feature-Sliced Design (FSD)', 'Domain-Driven Design (DDD)'],
   },
-  yearsOfExperience: 6,
-  age: 36,
 };
+
+/**
+ * Headline stack shown in the Hero code block / stack badges and the About
+ * panel badges — the single source both features read (FSD: features may
+ * only import from entities/shared, so the list lives HERE).
+ */
+export const PROFILE_STACK = ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'] as const;
+
+/**
+ * Public social profiles of the developer — single source of truth for the
+ * Contact section, the Hero socials, and the Nav SocialLinks row.
+ * `labelKey` is the i18n aria-label used wherever the links are rendered.
+ */
+export const SOCIAL_LINKS: readonly SocialLink[] = [
+  {
+    name: 'GitHub',
+    href: 'https://github.com/konstantin-atroshchenko',
+    icon: GitHubIcon,
+    labelKey: 'githubLabel',
+  },
+  {
+    name: 'LinkedIn',
+    href: 'https://linkedin.com/in/konstantin-atroshchenko',
+    icon: LinkedInIcon,
+    labelKey: 'linkedInLabel',
+  },
+  {
+    name: 'Telegram',
+    href: 'https://t.me/konstantin_atroshchenko',
+    icon: Send,
+    labelKey: 'telegramLabel',
+  },
+];
 
 /**
  * Получить инициалы разработчика

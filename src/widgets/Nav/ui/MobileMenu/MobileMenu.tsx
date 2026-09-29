@@ -8,9 +8,9 @@ import { Overlay } from '@/shared/ui/Overlay';
 import React, { useEffect, useRef } from 'react';
 import { sectionIdFromHref, trapFocus } from '../../lib/useNavigation';
 import { MOBILE_MENU_ID, NAV_ITEMS } from '../../model/constants';
-import { AdminLink } from '../AdminLink';
 import { NavControls } from '../NavControls';
 import { NavItem } from '../NavItem';
+import { SocialLinks } from '../SocialLinks';
 import styles from './MobileMenu.module.scss';
 
 export interface MobileMenuProps {
@@ -33,8 +33,10 @@ export interface MobileMenuProps {
  *   rows are a plain `<ul>` belonging to the ONE navigation landmark that
  *   lives on Nav's own `<nav>`.
  * - Decision R4: panel content is sections (NavItem `mobile`) + 🌍🎨 switch
- *   rows (`NavControls variant="mobile"`) + 🔐 `AdminLink`. NO CTA (it stays
- *   in the header), NO header, NO footer — unlike the old Sidebar panel.
+ *   rows (`NavControls variant="mobile"`) + social profile links. NO CTA (it
+ *   stays in the header), NO header, NO footer — unlike the old Sidebar
+ *   panel. The 🔐 `AdminLink` was dropped from the panel (recruiter audit
+ *   P0).
  * - Decision R11: `trapFocus(panelRef, onClose)` from `useNavigation` binds
  *   the WORKING focus trap while open — Tab cycles inside the panel,
  *   Escape closes. Initial focus mirrors the old Sidebar: the first panel
@@ -91,10 +93,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           ))}
         </ul>
 
-        {/* R4 panel footer block: 🌍🎨 rows + 🔐 — no CTA, no header, no footer text. */}
+        {/* R4 panel footer block: 🌍🎨 rows + socials — no CTA, no header, no footer text. */}
         <div className={styles.controls}>
           <NavControls variant="mobile" />
-          <AdminLink className={styles.adminLink} />
+          <SocialLinks variant="mobile" />
         </div>
       </div>
 

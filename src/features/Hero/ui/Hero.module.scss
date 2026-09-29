@@ -87,7 +87,11 @@
   justify-content: space-between;
   width: 80%;
   max-width: 80%;
-  height: 80vh;
+
+  // min-height, NOT height: the added role/badges/CTA/social content must
+
+  // never be clipped by the old fixed 80vh box (recruiter audit P1).
+  min-height: 80vh;
   padding-bottom: $spacing-20;
 
   @include lg {
@@ -101,7 +105,6 @@
 .leftContent {
   width: 100%;
   min-width: 0;
-  height: 80vh;
 
   @include lg {
     max-width: 42rem;
@@ -128,7 +131,7 @@
 }
 
 .name {
-  margin-bottom: $spacing-lg;
+  margin-bottom: $spacing-md;
   font-size: $font-size-3xl;
   font-weight: 700;
   color: var(--color-text-primary);
@@ -137,6 +140,57 @@
   @include xs {
     font-size: $font-size-4xl;
   }
+}
+
+// Role · experience line — the one-line "what I am" signal (no age)
+.roleLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+
+  @include sm {
+    font-size: $font-size-xl;
+  }
+}
+
+.roleDivider {
+  opacity: 0.7;
+}
+
+// Stack badges — scannable tech proof above the fold
+.stackBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: 0;
+  margin: 0 0 $spacing-md;
+  list-style: none;
+}
+
+// CTA pair: Download Resume + Hire Me (both → #contact until the PDF exists)
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+// Icon-only social profile links
+.socials {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-1;
 }
 
 // --------------------------------------------
@@ -350,6 +404,10 @@
 
 [data-theme='light'] {
   .greeting {
+    color: var(--color-text-primary);
+  }
+
+  .roleLine {
     color: var(--color-text-primary);
   }
 }

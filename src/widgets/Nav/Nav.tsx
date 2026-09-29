@@ -11,11 +11,11 @@ import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
-import { AdminLink } from './ui/AdminLink';
 import { CtaButton } from './ui/CtaButton';
 import { MobileMenu } from './ui/MobileMenu';
 import { NavControls } from './ui/NavControls';
 import { NavItem } from './ui/NavItem';
+import { SocialLinks } from './ui/SocialLinks';
 
 /**
  * Sticky top navigation bar (issue #138).
@@ -32,8 +32,10 @@ import { NavItem } from './ui/NavItem';
  * Active-section highlighting and click handling come from `useNavigation`
  * (single state owner, plan §5; NAV_ITEMS-derived tracking, decision R8).
  * Desktop renders `NavItem` rows left, `NavControls` + `CtaButton` +
- * `AdminLink` right (R5). Mobile renders the burger ☰/✕ toggle with the
+ * social links right (R5). Mobile renders the burger ☰/✕ toggle with the
  * compact CTA beside it (R4), and the T6 `MobileMenu` panel (R9/R10/R11).
+ * The `AdminLink` 🔐 placeholder stays available as a component but is no
+ * longer rendered on any public nav surface (recruiter audit P0).
  */
 export const Nav: React.FC<NavProps> = ({
   className = '',
@@ -92,11 +94,11 @@ export const Nav: React.FC<NavProps> = ({
           <CtaButton variant="mobile" data-testid="nav-cta-mobile" />
         </div>
 
-        {/* Right-side controls (decision R5): 🌍🎨 switches (T4) → 📄 CTA → 🔐 AdminLink (T5). */}
+        {/* Right-side controls (decision R5): 🌍🎨 switches (T4) → 📄 CTA → socials. */}
         <div className={styles.controls} data-testid="nav-controls">
           <NavControls />
           <CtaButton variant="desktop" />
-          <AdminLink />
+          <SocialLinks />
         </div>
       </nav>
 

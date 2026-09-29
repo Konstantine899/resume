@@ -7,8 +7,10 @@ import { ImgHTMLAttributes, ReactNode, CSSProperties } from 'react';
  * @example variant="rounded" — изображение со скруглёнными углами
  * @example variant="circular" — круглое изображение (avatar-style)
  * @example variant="thumbnail" — изображение с рамкой и тенью
+ * @example variant="transparent" — полностью прозрачный контейнер: без фона,
+ * без border-radius, прозрачные placeholder и error-состояние (вырезанные PNG-портреты)
  */
-export type ImageVariant = 'default' | 'rounded' | 'circular' | 'thumbnail';
+export type ImageVariant = 'default' | 'rounded' | 'circular' | 'thumbnail' | 'transparent';
 
 /**
  * Размеры изображения

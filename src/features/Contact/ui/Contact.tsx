@@ -1,3 +1,4 @@
+import { SOCIAL_LINKS } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
@@ -14,7 +15,7 @@ import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
-import { SOCIAL_LINKS } from '../model/constants';
+import { CONTACT_EMAIL } from '../model/constants';
 import styles from './Contact.module.scss';
 
 export function Contact() {
@@ -89,8 +90,16 @@ export function Contact() {
                 {/* Теперь уведомления показываются через Toast */}
               </Form>
 
-              {/* Социальные ссылки */}
+              {/* Прямой email + социальные ссылки (audit P1: видимый mailto) */}
               <div className={styles.socialLinks}>
+                <Link
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  variant="text-on-dark"
+                  showExternalIcon={false}
+                  icon={<Icon name={Mail} size="sm" color="inherit" decorative />}
+                >
+                  {CONTACT_EMAIL}
+                </Link>
                 {SOCIAL_LINKS.map((link, index: number) => (
                   <Link
                     key={index}
@@ -115,6 +124,9 @@ export function Contact() {
             >
               <Paragraph theme="muted" align="center">
                 {t('contactDescription')}
+              </Paragraph>
+              <Paragraph size="s" align="center">
+                {t('responseTimeHint')}
               </Paragraph>
             </ContactCard>
           </AnimatedSection>

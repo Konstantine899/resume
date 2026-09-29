@@ -5,14 +5,7 @@
 import { TechIcon } from '@/shared/ui/Card';
 
 export type ProjectCategory =
-  | 'ecommerce'
-  | 'portfolio'
-  | 'saas'
-  | 'blockchain'
-  | 'mobile'
-  | 'dashboard'
-  | 'api'
-  | 'other';
+  'ecommerce' | 'portfolio' | 'saas' | 'blockchain' | 'mobile' | 'dashboard' | 'api' | 'other';
 
 // ============================================
 // Project Status Types
@@ -35,6 +28,22 @@ export interface Project {
   category: ProjectCategory;
   status: ProjectStatus;
   featured: boolean;
+  /**
+   * The role actually held on the project, localized (recruiter audit P1).
+   * Kept honest — grounded in the real stack/description, never inflated.
+   */
+  role?: {
+    en: string;
+    ru: string;
+  };
+  /**
+   * Outcome metrics for the featured card (e.g. "1M+ users").
+   * OPTIONAL and data-gated: only rendered when real numbers exist —
+   * never invented to fill the UI.
+   */
+  metrics?: string[];
+  /** Display year of the project (grounded in `createdAt` when known). */
+  year?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

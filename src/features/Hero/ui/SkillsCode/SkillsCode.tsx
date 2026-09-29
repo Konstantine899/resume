@@ -1,72 +1,53 @@
-import { DEVELOPER_DATA } from '@/entities/Developer';
+import { PROFILE_STACK } from '@/entities/Developer';
 import React from 'react';
 
-const SkillsCode: React.FC = () => {
-  const skills = DEVELOPER_DATA.skills;
+export interface SkillsCodeProps {
+  /** Localized role, e.g. "Senior Full-Stack Developer" */
+  role: string;
+  /** Localized focus line, e.g. "Accessible, tested, maintainable web apps" */
+  focus: string;
+}
 
-  return (
-    <>
-      <span className="keyword">const</span> <span className="property">developer</span> ={' '}
-      <span className="punctuation">{'{'}</span>
-      {'\n'}
-      {'  '}
-      <span className="property">fullName</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.fullName}&apos;</span>,{'\n'}
-      {'  '}
-      <span className="property">profession</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.profession}&apos;</span>,{'\n'}
-      {'  '}
-      <span className="property">yearsOfExperience</span>:{' '}
-      <span className="number">{DEVELOPER_DATA.yearsOfExperience}</span>,{'\n'}
-      {'  '}
-      <span className="property">age</span>: <span className="number">{DEVELOPER_DATA.age}</span>,
-      {'\n'}
-      {'  '}
-      <span className="property">skills</span>: <span className="punctuation">{'{'}</span>
-      {'\n'}
-      {'    '}
-      <span className="property">frontend</span>: <span className="punctuation">[</span>
-      {skills?.frontend.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.frontend.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">backend</span>: <span className="punctuation">[</span>
-      {skills?.backend.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.backend.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">testing</span>: <span className="punctuation">[</span>
-      {skills?.testing.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.testing.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">devops</span>: <span className="punctuation">[</span>
-      {skills?.devops.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.devops.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>
-      {'\n'}
-      {'  '}
-      <span className="punctuation">{'}'}</span>
-      {'\n'}
-      <span className="punctuation">{'};'}</span>
-    </>
-  );
-};
+/**
+ * Syntax-highlighted `developer.ts` snippet inside the Hero code block.
+ *
+ * Selling-oriented object: `role` + `stack` + `focus` only — no age and no
+ * other personal data (recruiter audit P0). Property names stay code-English;
+ * the stack entries come from the shared `PROFILE_STACK` (proper nouns, same
+ * convention as the Skills data).
+ *
+ * MUST stay hook-free. `Code` derives the clipboard text by calling function
+ * components as plain functions (`lib/utils/extractTextFromNode`), which runs
+ * inside a `useMemo` in `useCopyCode`. A hook here is therefore called from
+ * inside another hook's callback: React throws "Do not call Hooks inside
+ * useMemo", the partially-registered hook corrupts the hook list, and the
+ * whole tree unmounts. Localized strings are passed in as props by the Hero
+ * instead of being read via `useLanguage` here.
+ */
+const SkillsCode: React.FC<SkillsCodeProps> = ({ role, focus }) => (
+  <>
+    <span className="keyword">const</span> <span className="property">developer</span> ={' '}
+    <span className="punctuation">{'{'}</span>
+    {'\n'}
+    {'  '}
+    <span className="property">role</span>: <span className="string">&apos;{role}&apos;</span>,
+    {'\n'}
+    {'  '}
+    <span className="property">stack</span>: <span className="punctuation">[</span>
+    {PROFILE_STACK.map((skill) => (
+      <React.Fragment key={skill}>
+        {'\n    '}
+        <span className="string">&apos;{skill}&apos;</span>
+        <span className="punctuation">,</span>
+      </React.Fragment>
+    ))}
+    {'\n  '}
+    <span className="punctuation">]</span>,{'\n'}
+    {'  '}
+    <span className="property">focus</span>: <span className="string">&apos;{focus}&apos;</span>
+    {'\n'}
+    <span className="punctuation">{'};'}</span>
+  </>
+);
 
 export default SkillsCode;

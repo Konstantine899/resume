@@ -20,8 +20,6 @@ export interface HeroTranslations {
   profession: string;
   specialties: string;
   skillsLabel: string;
-  yearsOfExperience: string;
-  age: string;
 }
 
 /**
