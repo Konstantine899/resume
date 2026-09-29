@@ -138,7 +138,7 @@ describe('MobileMenu: slide-in panel (T6, R4/R9/R11)', () => {
     expect(onNavigate).toHaveBeenCalledWith('#about');
 
     // Non-active rows stay unmarked.
-    expect(screen.getByRole('link', { name: 'home' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('link', { name: 'contact' })).not.toHaveAttribute('aria-current');
   });
 
   it('tolerates a section click when onNavigate is not wired (optional prop)', () => {

@@ -275,7 +275,7 @@ describe('icon-adoption: data maps are not mutated across renders', () => {
   it('NAV_ITEMS exposes stable icon references across a Nav render', () => {
     const before = NAV_ITEMS.map((item) => item.icon);
 
-    expect(NAV_ITEMS).toHaveLength(6);
+    expect(NAV_ITEMS).toHaveLength(5);
     NAV_ITEMS.forEach((item) => expect(item.icon).toBeDefined());
 
     // Rendering Nav must not mutate the shared data map (single source).

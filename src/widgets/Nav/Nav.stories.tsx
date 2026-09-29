@@ -128,9 +128,16 @@ export const MobileBurger: Story = {
     // R9: still exactly ONE navigation landmark while the panel is open.
     expect(canvas.getAllByRole('navigation')).toHaveLength(1);
 
-    // R11: initial focus lands on the first panel row (Home).
-    const homeRow = within(dialog).getByRole('link', { name: i18n.t('home') });
-    await waitFor(() => expect(homeRow).toHaveFocus());
+    // R11: initial focus lands on the first panel row. Derived from NAV_ITEMS
+    // so the assertion follows the nav order instead of pinning a label.
+    const [firstItem] = NAV_ITEMS;
+    if (!firstItem) {
+      throw new Error('NAV_ITEMS is empty — the panel has no first row to focus');
+    }
+    const firstRow = within(dialog).getByRole('link', {
+      name: i18n.t(firstItem.labelKey),
+    });
+    await waitFor(() => expect(firstRow).toHaveFocus());
 
     // Panel: every section as a plain link (R10) + 🔐 Admin (R4: no CTA).
     for (const item of NAV_ITEMS) {
