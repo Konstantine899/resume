@@ -49,7 +49,11 @@ export function validateLinkProps(props: LinkOwnProps): void {
     !href.startsWith('/') &&
     !href.startsWith('http://') &&
     !href.startsWith('https://') &&
-    !href.startsWith('#')
+    !href.startsWith('#') &&
+    // Contact details are non-executable schemes and are already accepted by
+    // hasSafeUrlScheme below — the two checks must agree.
+    !href.startsWith('mailto:') &&
+    !href.startsWith('tel:')
   ) {
     console.warn(
       `[Link] href "${href}" may be invalid — expected absolute path, URL, or hash fragment`
