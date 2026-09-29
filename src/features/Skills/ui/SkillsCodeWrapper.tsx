@@ -16,7 +16,7 @@ export interface SkillsCodeWrapperProps {
  * Presentational wrapper for the `developer.ts` snippet at the top of Skills.
  *
  * Layout + surface styling live in `Skills.module.scss`: the outer
- * `.codeBlockWrapper` owns width and centering, `.codeBlock` owns the surface
+ * `.codeBlockWrapper` owns width and spacing, `.codeBlock` owns the surface
  * skin passed down to `Code`.
  *
  * MUST stay hook-free. It renders `Code`, and `Code` calls its function

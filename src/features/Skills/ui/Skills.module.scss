@@ -101,18 +101,12 @@
 
 // ============================================
 
-// CODE BLOCK WRAPPER — 80% of the Skills content column, centered
+// CODE BLOCK WRAPPER — full width of the Skills content column
 
 // ============================================
 .codeBlockWrapper {
   width: 100%;
   margin-bottom: 32px; // md:mb-8
-
-  @media (width >= 768px) {
-    width: 80%;
-    margin-right: auto;
-    margin-left: auto;
-  }
 }
 
 // ============================================
