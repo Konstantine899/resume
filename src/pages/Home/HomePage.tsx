@@ -38,13 +38,15 @@ export const HomePage: React.FC = () => {
       <Nav />
 
       <div className={styles.homePage}>
-        {/* Main Content */}
+        {/* Main Content — recruiter-audit order: Hero → About → Skills →
+            featured Work → Experience → Contact. NAV_ITEMS keeps its own
+            order (nav anchors ≠ render order — flagged as a known mismatch). */}
         <main id="main-content" className={styles.mainContent}>
           <Hero />
-          <MyWork />
-          <WorkHistory />
           <About />
           <Skills />
+          <MyWork />
+          <WorkHistory />
           <Contact />
         </main>
       </div>
