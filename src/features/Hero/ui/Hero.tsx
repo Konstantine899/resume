@@ -96,7 +96,7 @@ export const Hero: React.FC<HeroProps> = ({ className = '', 'data-testid': testI
               })
             }
           >
-            <SkillsCode />
+            <SkillsCode role={t('heroRole')} focus={t('heroFocus')} />
           </Code>
 
           {/* CTA pair — both point at Contact until the resume PDF exists */}
