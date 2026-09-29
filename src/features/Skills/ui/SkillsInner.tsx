@@ -49,7 +49,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
       >
         <AnimatedSection animation="fadeUp">
           <Container size="lg" padding="lg">
-            <Heading level={3} className={styles.title}>
+            <Heading level={2} className={styles.title}>
               {t('mySkills')}
             </Heading>
             <Paragraph theme="muted" align="center" className={styles.emptyState}>
@@ -71,7 +71,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
     >
       <AnimatedSection animation="fadeUp">
         <Container size="lg" padding="lg">
-          <Heading level={3} className={styles.title}>
+          <Heading level={2} className={styles.title}>
             {t('mySkills')}
           </Heading>
           <SkillsCodeWrapper
