@@ -71,14 +71,14 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
     >
       <AnimatedSection animation="fadeUp">
         <Container size="lg" padding="lg">
+          <Heading level={3} className={styles.title}>
+            {t('mySkills')}
+          </Heading>
           <SkillsCodeWrapper
             role={t('skillsCodeRole')}
             focus={t('skillsCodeFocus')}
             onCopyResult={handleCodeCopy}
           />
-          <Heading level={3} className={styles.title}>
-            {t('mySkills')}
-          </Heading>
           <CardGrid columns={2} gap="md" role="list" className={styles.categoriesList}>
             {SKILLS_DATA.map((categoryData, index) => (
               <AnimatedSection key={categoryData.category} animation="fadeIn" delay={index * 30}>
