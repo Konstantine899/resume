@@ -97,17 +97,27 @@
   transition: all 0.4s ease;
 
   @media (width >= 640px) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%; // full-stack card (reference: panel 492px vs stack 468px), content at the top
+    // In flow (NOT absolute): the panel defines the stage height, so the
+
+    // added paragraphs/badges/stats grow the card instead of overflowing a
+
+    // fixed box (recruiter audit P1 — no clipping). The min-heights keep the
+
+    // reference proportions (card/stage sizes from issue #142) as a floor.
+    min-height: 380px;
+  }
+
+  @media (width >= 768px) {
+    min-height: 440px;
   }
 
   @media (width >= 1024px) {
+    min-height: 540px;
     padding: 18px;
   }
 
   @media (width >= 1280px) {
+    min-height: 600px;
     padding: 21px;
   }
 }
@@ -150,7 +160,14 @@
 }
 
 // Left-aligned in the panel (reference layout): auto margins removed so the text column stays clear of the portrait overlapping the panel's right side
+
+// Wrapper of the 3-paragraph pitch (recruiter audit P1): layout only — gap
+
+// gives the inter-paragraph rhythm (Paragraph has margin: 0 by default).
 .description {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   max-width: 672px;
   margin-bottom: 16px;
 
@@ -164,6 +181,57 @@
     margin-bottom: 32px; // md:mb-8
     font-size: 18px; // md:text-lg
   }
+}
+
+// Stack badges (shared PROFILE_STACK) — scannable tech proof in the panel
+.stackBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 16px;
+  list-style: none;
+
+  @media (width >= 640px) {
+    max-width: 60%; // stay clear of the overlapping portrait
+    margin-bottom: 20px;
+  }
+
+  @media (width >= 768px) {
+    margin-bottom: 24px;
+  }
+}
+
+// Stats row: facts separated by decorative dots (recruiter audit P1)
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+
+  @media (width >= 640px) {
+    max-width: 60%; // stay clear of the overlapping portrait
+    margin-bottom: 24px;
+  }
+
+  @media (width >= 768px) {
+    margin-bottom: 28px;
+  }
+}
+
+.stat {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-accent);
+
+  @media (width >= 768px) {
+    font-size: 15px;
+  }
+}
+
+.statSeparator {
+  color: var(--color-text-muted);
 }
 
 .ctaButton {

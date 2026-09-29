@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEVELOPER_DATA } from '@/entities/Developer';
 import { About } from './About';
@@ -83,6 +83,35 @@ describe('About: Link CTA integration', () => {
 
     expect(screen.getByText('aboutDescription')).toBeInTheDocument();
     expect(screen.getByText('getInTouch')).toBeInTheDocument();
+  });
+
+  it('renders the expanded 3-paragraph pitch (recruiter audit P1)', () => {
+    render(<About />);
+
+    expect(screen.getByText('aboutDescription')).toBeInTheDocument();
+    expect(screen.getByText('aboutDescription2')).toBeInTheDocument();
+    expect(screen.getByText('aboutDescription3')).toBeInTheDocument();
+  });
+
+  it('renders the stack badges from the shared PROFILE_STACK', () => {
+    render(<About />);
+
+    const badges = screen.getByTestId('about-stack');
+    for (const tech of ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker']) {
+      expect(within(badges).getByText(tech)).toBeInTheDocument();
+    }
+  });
+
+  it('renders the translatable stats row (data-backed, i18n keys)', () => {
+    render(<About />);
+
+    const stats = screen.getByTestId('about-stats');
+    expect(stats).toHaveTextContent('aboutStatYears');
+    expect(stats).toHaveTextContent('aboutStatProjects');
+    expect(stats).toHaveTextContent('aboutStatUsers');
+    expect(stats).toHaveTextContent('aboutStatRemote');
+    // Decorative separators are hidden from assistive tech.
+    expect(stats.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
   });
 
   it('no longer renders the AvatarAbout avatar', () => {

@@ -34,6 +34,10 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
     return job.description[lang] || job.description.en || [];
   };
 
+  // Position title is localized on the entity — no render-time translation.
+  const getPosition = (job: Job): string =>
+    (language === 'ru' ? job.position.ru : job.position.en) || job.position.en;
+
   return (
     <Section
       size="lg"
@@ -52,8 +56,9 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
           {jobs.map((job: Job, index) => (
             <AnimatedSection key={job.id} animation="fadeUp" delay={index * 150}>
               <WorkHistoryCard
-                title={job.position}
+                title={getPosition(job)}
                 company={job.company}
+                companyUrl={job.companyUrl}
                 period={job.period}
                 periodBadge={job.current ? t(`present`) : undefined}
                 location={job.location}

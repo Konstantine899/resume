@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { SOCIAL_LINKS } from '@/entities/Developer';
+import { CONTACT_EMAIL } from '../model/constants';
 import { Contact } from './Contact';
 
 vi.mock('@/shared/lib/i18n/hooks', () => ({
@@ -27,18 +29,32 @@ describe('Contact: social links integration', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders one external Link per social link with _blank + noopener noreferrer', () => {
+  it('renders a visible mailto link plus one external Link per social link', () => {
     render(<Contact />);
 
     const links = screen.getAllByRole('link');
-    expect(links.length).toBe(3);
+    expect(links.length).toBe(4);
 
-    for (const link of links) {
+    // The direct email is a plain mailto — never opened in a new tab.
+    const mailto = links.find((link) => link.getAttribute('href')?.startsWith('mailto:'));
+    expect(mailto).toBeDefined();
+    expect(mailto).toHaveTextContent(CONTACT_EMAIL);
+    expect(mailto).not.toHaveAttribute('target');
+
+    const external = links.filter((link) => link !== mailto);
+    expect(external).toHaveLength(SOCIAL_LINKS.length);
+    for (const link of external) {
       expect(link).toHaveAttribute('target', '_blank');
       const rel = link.getAttribute('rel');
       expect(rel).toContain('noopener');
       expect(rel).toContain('noreferrer');
     }
+  });
+
+  it('renders the response-time hint via i18n (recruiter audit P1)', () => {
+    render(<Contact />);
+
+    expect(screen.getByText('responseTimeHint')).toBeInTheDocument();
   });
 
   it('does NOT render the redundant "Opens in new tab" external icon (W-R1)', () => {
