@@ -70,10 +70,11 @@ describe('Skills', () => {
       const { container } = render(<Skills />);
 
       // Scoped to the categories grid: after the P9 move the `developer.ts`
-      // snippet above the heading also renders stack names (PROFILE_STACK), and
-      // the line-numbered code block renders its own `role="list"`. Neither
-      // `getByText` nor `getByRole('list')` is unambiguous here, so the grid is
-      // addressed by the class its own module gives it.
+      // snippet between the heading and the grid also renders stack names
+      // (PROFILE_STACK), and the line-numbered code block renders its own
+      // `role="list"`. Neither `getByText` nor `getByRole('list')` is
+      // unambiguous here, so the grid is addressed by the class its own module
+      // gives it.
       const grid = container.querySelector('[class*="categoriesList"]');
       if (!(grid instanceof HTMLElement)) throw new Error('categories grid not rendered');
 
@@ -177,13 +178,13 @@ describe('Skills', () => {
       expect(screen.getByText('developer.ts')).toBeInTheDocument();
     });
 
-    it('должен ставить блок ПЕРЕД заголовком секции', () => {
+    it('должен ставить блок ПОД заголовком секции', () => {
       render(<Skills />);
 
       const block = screen.getByTestId('code-block');
       const heading = screen.getByText('My Skills');
       // DOM order, not visual order — position is the point of this move.
-      expect(block.compareDocumentPosition(heading)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(heading.compareDocumentPosition(block)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
 
     it('должен рендерить сниппет через компонент SkillsCode, а не инлайновую разметку', () => {
