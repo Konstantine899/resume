@@ -101,12 +101,19 @@
 
 // ============================================
 
-// CODE BLOCK WRAPPER — full width of the Skills content column
+/* CODE BLOCK WRAPPER — full width of the Skills content column, desktop only
 
-// ============================================
+   Mobile-first hide + re-enable at md, the same shape as `.rightContent`
+   (the Hero photo) in Hero.module.scss. jsdom evaluates no media queries,
+   so Skills.test.tsx guards this rule at the source level. */
 .codeBlockWrapper {
+  display: none;
   width: 100%;
   margin-bottom: 32px; // md:mb-8
+
+  @media (width >= 768px) {
+    display: block;
+  }
 }
 
 // ============================================
