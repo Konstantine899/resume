@@ -26,7 +26,11 @@ export type JobLevel = 'junior' | 'middle' | 'senior' | 'lead' | 'principal' | '
 export interface Job {
   id: string;
   company: string;
-  position: string;
+  /** Localized position title — rendered via the active language (no lossy RU translation at render time). */
+  position: {
+    en: string;
+    ru: string;
+  };
   period: string;
   startDate: Date;
   endDate: Date | null;
@@ -48,7 +52,10 @@ export interface Job {
  */
 export interface CreateJobDto {
   company: string;
-  position: string;
+  position: {
+    en: string;
+    ru: string;
+  };
   period: string;
   startDate: Date;
   endDate?: Date | null;

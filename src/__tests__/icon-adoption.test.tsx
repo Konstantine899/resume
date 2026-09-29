@@ -196,7 +196,7 @@ describe('icon-adoption: Nav widget size guards', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'navMenuLabel' });
     const links = within(dialog).getAllByRole('link');
-    expect(links).toHaveLength(NAV_ITEMS.length + 1); // 6 sections + 🔐 AdminLink
+    expect(links).toHaveLength(NAV_ITEMS.length + 3); // 6 sections + 3 social links
 
     const item = links[0] as HTMLElement;
     expect(item).toHaveAttribute('role', 'link');

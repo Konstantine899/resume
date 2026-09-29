@@ -77,6 +77,11 @@ export const PROJECTS: Project[] = [
     category: 'ecommerce',
     status: 'completed',
     featured: true,
+    role: {
+      en: 'Frontend Developer',
+      ru: 'Фронтенд-разработчик',
+    },
+    year: 2023,
   },
   {
     id: '2',
@@ -91,6 +96,11 @@ export const PROJECTS: Project[] = [
     category: 'portfolio',
     status: 'completed',
     featured: true,
+    role: {
+      en: 'Full-Stack Developer',
+      ru: 'Full-Stack разработчик',
+    },
+    year: 2023,
   },
   {
     id: '3',
@@ -111,6 +121,11 @@ export const PROJECTS: Project[] = [
     category: 'ecommerce',
     status: 'completed',
     featured: true,
+    role: {
+      en: 'Full-Stack Developer',
+      ru: 'Full-Stack разработчик',
+    },
+    year: 2023,
   },
   {
     id: '4',
@@ -166,7 +181,13 @@ export const PROJECTS: Project[] = [
     image: 'https://ext.same-assets.com/55871041/2693025968.webp',
     category: 'dashboard',
     status: 'completed',
-    featured: false,
+    featured: true,
+    // Grounded in the real description (Johns Hopkins scraping) — no numbers invented.
+    role: {
+      en: 'Built a COVID-19 dashboard on Johns Hopkins data',
+      ru: 'Собрал дашборд COVID-19 на данных Johns Hopkins',
+    },
+    year: 2023,
   },
 ];
 
