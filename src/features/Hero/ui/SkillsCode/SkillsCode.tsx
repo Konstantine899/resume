@@ -1,8 +1,17 @@
-import { DEVELOPER_DATA } from '@/entities/Developer';
+import { PROFILE_STACK } from '@/entities/Developer';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import React from 'react';
 
+/**
+ * Syntax-highlighted `developer.ts` snippet inside the Hero code block.
+ *
+ * Selling-oriented object: `role` + `stack` + `focus` only — no age and no
+ * other personal data (recruiter audit P0). Property names stay code-English;
+ * the `role` / `focus` values come from i18n, the stack entries come from the
+ * shared `PROFILE_STACK` (proper nouns, same convention as the Skills data).
+ */
 const SkillsCode: React.FC = () => {
-  const skills = DEVELOPER_DATA.skills;
+  const { t } = useLanguage();
 
   return (
     <>
@@ -10,59 +19,22 @@ const SkillsCode: React.FC = () => {
       <span className="punctuation">{'{'}</span>
       {'\n'}
       {'  '}
-      <span className="property">fullName</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.fullName}&apos;</span>,{'\n'}
+      <span className="property">role</span>:{' '}
+      <span className="string">&apos;{t('heroRole')}&apos;</span>,{'\n'}
       {'  '}
-      <span className="property">profession</span>:{' '}
-      <span className="string">&apos;{DEVELOPER_DATA.profession}&apos;</span>,{'\n'}
-      {'  '}
-      <span className="property">yearsOfExperience</span>:{' '}
-      <span className="number">{DEVELOPER_DATA.yearsOfExperience}</span>,{'\n'}
-      {'  '}
-      <span className="property">age</span>: <span className="number">{DEVELOPER_DATA.age}</span>,
-      {'\n'}
-      {'  '}
-      <span className="property">skills</span>: <span className="punctuation">{'{'}</span>
-      {'\n'}
-      {'    '}
-      <span className="property">frontend</span>: <span className="punctuation">[</span>
-      {skills?.frontend.map((skill, i) => (
+      <span className="property">stack</span>: <span className="punctuation">[</span>
+      {PROFILE_STACK.map((skill) => (
         <React.Fragment key={skill}>
+          {'\n    '}
           <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.frontend.length - 1 ? ', ' : ''}</span>
+          <span className="punctuation">,</span>
         </React.Fragment>
       ))}
+      {'\n  '}
       <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">backend</span>: <span className="punctuation">[</span>
-      {skills?.backend.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.backend.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">testing</span>: <span className="punctuation">[</span>
-      {skills?.testing.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.testing.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>,{'\n'}
-      {'    '}
-      <span className="property">devops</span>: <span className="punctuation">[</span>
-      {skills?.devops.map((skill, i) => (
-        <React.Fragment key={skill}>
-          <span className="string">&apos;{skill}&apos;</span>
-          <span className="punctuation">{i < skills.devops.length - 1 ? ', ' : ''}</span>
-        </React.Fragment>
-      ))}
-      <span className="punctuation">]</span>
-      {'\n'}
       {'  '}
-      <span className="punctuation">{'}'}</span>
+      <span className="property">focus</span>:{' '}
+      <span className="string">&apos;{t('heroFocus')}&apos;</span>
       {'\n'}
       <span className="punctuation">{'};'}</span>
     </>
