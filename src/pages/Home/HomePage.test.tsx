@@ -7,7 +7,6 @@ import styles from './HomePage.module.scss';
 // we exercise the HomePage skip link only.
 vi.mock('@/features/About', () => ({ About: () => null }));
 vi.mock('@/features/Contact', () => ({ Contact: () => null }));
-vi.mock('@/features/Hero', () => ({ Hero: () => null }));
 vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
