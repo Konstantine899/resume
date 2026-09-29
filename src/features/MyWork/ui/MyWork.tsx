@@ -2,7 +2,7 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS } from '@/entities/Project';
+import { PROJECTS, getFeaturedProjects } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
@@ -23,6 +23,9 @@ export const MyWork: React.FC<MyWorkProps> = ({
 }) => {
   const { t, language } = useLanguage();
 
+  // Recruiter audit P1: only the featured projects surface here.
+  const projects = getFeaturedProjects(PROJECTS);
+
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
   };
@@ -37,7 +40,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         </AnimatedSection>
 
         <CardGrid columns={1} gap="md">
-          {PROJECTS.map((project, index) => (
+          {projects.map((project, index) => (
             <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
               <ProjectCard
                 title={project.title}
@@ -45,6 +48,11 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 backgroundImage={project.image}
                 techIcons={project.techIcons}
                 link={project.link}
+                role={
+                  project.role ? (language === 'en' ? project.role.en : project.role.ru) : undefined
+                }
+                metrics={project.metrics}
+                year={project.year}
                 builtUsingLabel={t('builtUsing')}
                 linkLabel={t('link')}
                 onClick={() => handleProjectClick(project.id)}
@@ -54,7 +62,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         </CardGrid>
 
         {/* Empty State */}
-        {PROJECTS.length === 0 && (
+        {projects.length === 0 && (
           <div className={styles.emptyState}>
             <Icon name={FolderOpen} size={48} color="foreground-muted" decorative />
             <Paragraph theme="muted" align="center">

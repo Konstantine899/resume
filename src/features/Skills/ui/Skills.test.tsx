@@ -50,14 +50,14 @@ describe('Skills', () => {
     it('должен рендерить все категории из SKILLS_DATA', () => {
       render(<Skills />);
 
-      // Проверяем наличие всех 7 категорий
+      // Проверяем наличие всех 6 категорий (Methodologies удалён — audit P1)
       expect(screen.getByText('Frontend')).toBeInTheDocument();
       expect(screen.getByText('Backend')).toBeInTheDocument();
       expect(screen.getByText('Testing')).toBeInTheDocument();
       expect(screen.getByText('DevOps & CI/CD')).toBeInTheDocument();
-      expect(screen.getByText('Methodologies')).toBeInTheDocument();
       expect(screen.getByText('Architecture')).toBeInTheDocument();
       expect(screen.getByText('AI & Automation')).toBeInTheDocument();
+      expect(screen.queryByText('Methodologies')).not.toBeInTheDocument();
     });
 
     it('должен рендерить технологии для каждой категории', () => {
@@ -75,7 +75,7 @@ describe('Skills', () => {
       expect(screen.getByText('Jest')).toBeInTheDocument();
       expect(screen.getByText('Cypress')).toBeInTheDocument();
       expect(screen.getByText('Docker')).toBeInTheDocument();
-      expect(screen.getByText('SOLID')).toBeInTheDocument();
+      expect(screen.getByText('GitHub Actions')).toBeInTheDocument();
       expect(screen.getByText('Feature-Sliced Design (FSD)')).toBeInTheDocument();
       expect(screen.getByText('Cursor')).toBeInTheDocument();
       expect(screen.getByText('GitHub Copilot')).toBeInTheDocument();
@@ -116,12 +116,12 @@ describe('Skills', () => {
       expect(section).toBeInTheDocument();
     });
 
-    it('должен рендерить 7 элементов списка с role="listitem" (категории)', () => {
+    it('должен рендерить 6 элементов списка с role="listitem" (категории)', () => {
       const { container } = render(<Skills />);
 
       const listItems = container.querySelectorAll('[role="listitem"]');
-      // 7 categories
-      expect(listItems.length).toBeGreaterThanOrEqual(7);
+      // 6 categories (Methodologies удалён — audit P1)
+      expect(listItems.length).toBeGreaterThanOrEqual(6);
     });
 
     it('должен иметь фокусируемые элементы для keyboard navigation', () => {
