@@ -70,8 +70,10 @@ describe('SkillsCode: selling-oriented developer.ts (recruiter audit P0/P1)', ()
  * and the ENTIRE app unmounts (blank page). Production builds skip the dev-only
  * guard, so this is invisible until you open dev mode.
  *
- * `Hero.test.tsx` mocks both `Code` and `SkillsCode`, so nothing else in the
- * suite ever exercises this pair — this block is the only place it runs for real.
+ * After the P9 move out of Hero, this block is still the only place that
+ * exercises the pair deliberately: `Skills.test.tsx` renders the real `Code` +
+ * `SkillsCode` through `SkillsCodeWrapper`, but only to assert placement, while
+ * the assertions below pin the seam itself.
  */
 describe('SkillsCode: the Code seam', () => {
   const writeText = vi.fn().mockResolvedValue(undefined);

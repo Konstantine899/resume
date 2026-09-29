@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PROFILE_STACK } from '@/entities/Developer';
 import { Skills } from './Skills';
 import * as constants from '../model/constants';
 
@@ -22,6 +23,11 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string) => ({ mySkills: 'My Skills' })[key] ?? key,
   }),
+}));
+
+// SkillsInner wires the code-copy toast — no-op provider, same pattern as Hero
+vi.mock('@/shared/lib/contexts/ToastContext', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
 }));
 
 describe('Skills', () => {
@@ -61,24 +67,32 @@ describe('Skills', () => {
     });
 
     it('должен рендерить технологии для каждой категории', () => {
-      render(<Skills />);
+      const { container } = render(<Skills />);
+
+      // Scoped to the categories grid: after the P9 move the `developer.ts`
+      // snippet above the heading also renders stack names (PROFILE_STACK), and
+      // the line-numbered code block renders its own `role="list"`. Neither
+      // `getByText` nor `getByRole('list')` is unambiguous here, so the grid is
+      // addressed by the class its own module gives it.
+      const grid = container.querySelector('[class*="categoriesList"]');
+      if (!(grid instanceof HTMLElement)) throw new Error('categories grid not rendered');
 
       // Проверяем технологии из разных категорий
-      expect(screen.getByText('React')).toBeInTheDocument();
-      expect(screen.getByText('TypeScript')).toBeInTheDocument();
-      expect(screen.getByText('Redux Toolkit')).toBeInTheDocument();
-      expect(screen.getByText('Material-UI')).toBeInTheDocument();
-      expect(screen.getByText('Node.js')).toBeInTheDocument();
-      expect(screen.getByText('Nest.js')).toBeInTheDocument();
-      expect(screen.getByText('REST API')).toBeInTheDocument();
-      expect(screen.getByText('WebSocket')).toBeInTheDocument();
-      expect(screen.getByText('Jest')).toBeInTheDocument();
-      expect(screen.getByText('Cypress')).toBeInTheDocument();
-      expect(screen.getByText('Docker')).toBeInTheDocument();
-      expect(screen.getByText('GitHub Actions')).toBeInTheDocument();
-      expect(screen.getByText('Feature-Sliced Design (FSD)')).toBeInTheDocument();
-      expect(screen.getByText('Cursor')).toBeInTheDocument();
-      expect(screen.getByText('GitHub Copilot')).toBeInTheDocument();
+      expect(within(grid).getByText('React')).toBeInTheDocument();
+      expect(within(grid).getByText('TypeScript')).toBeInTheDocument();
+      expect(within(grid).getByText('Redux Toolkit')).toBeInTheDocument();
+      expect(within(grid).getByText('Material-UI')).toBeInTheDocument();
+      expect(within(grid).getByText('Node.js')).toBeInTheDocument();
+      expect(within(grid).getByText('Nest.js')).toBeInTheDocument();
+      expect(within(grid).getByText('REST API')).toBeInTheDocument();
+      expect(within(grid).getByText('WebSocket')).toBeInTheDocument();
+      expect(within(grid).getByText('Jest')).toBeInTheDocument();
+      expect(within(grid).getByText('Cypress')).toBeInTheDocument();
+      expect(within(grid).getByText('Docker')).toBeInTheDocument();
+      expect(within(grid).getByText('GitHub Actions')).toBeInTheDocument();
+      expect(within(grid).getByText('Feature-Sliced Design (FSD)')).toBeInTheDocument();
+      expect(within(grid).getByText('Cursor')).toBeInTheDocument();
+      expect(within(grid).getByText('GitHub Copilot')).toBeInTheDocument();
     });
 
     it('должен иметь data-testid по умолчанию', () => {
@@ -152,6 +166,48 @@ describe('Skills', () => {
       vi.spyOn(constants, 'SKILLS_DATA', 'get').mockReturnValue([]);
 
       expect(() => render(<Skills />)).not.toThrow();
+    });
+  });
+
+  describe('Code block placement (P9)', () => {
+    it('должен рендерить блок developer.ts в секции', () => {
+      render(<Skills />);
+
+      expect(screen.getByTestId('code-block')).toBeInTheDocument();
+      expect(screen.getByText('developer.ts')).toBeInTheDocument();
+    });
+
+    it('должен ставить блок ПЕРЕД заголовком секции', () => {
+      render(<Skills />);
+
+      const block = screen.getByTestId('code-block');
+      const heading = screen.getByText('My Skills');
+      // DOM order, not visual order — position is the point of this move.
+      expect(block.compareDocumentPosition(heading)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+
+    it('должен рендерить сниппет через компонент SkillsCode, а не инлайновую разметку', () => {
+      const { container } = render(<Skills />);
+
+      // The snippet itself IS the markup (SkillsCode owns the highlighting) —
+      // what must not exist is a second, hand-rolled copy of the stack.
+      const block = screen.getByTestId('code-block');
+      expect(block.textContent).toContain('const');
+      expect(block.textContent).toContain('developer');
+      // The stack is rendered from the shared PROFILE_STACK by SkillsCode only.
+      const quoted = (container.textContent ?? '').match(/'[^']+'/g) ?? [];
+      for (const tech of PROFILE_STACK) {
+        expect(quoted.filter((entry) => entry === `'${tech}'`)).toHaveLength(1);
+      }
+    });
+
+    it('не должен рендерить блок в empty-state', () => {
+      vi.spyOn(constants, 'SKILLS_DATA', 'get').mockReturnValue([]);
+
+      render(<Skills />);
+
+      // D5: the snippet is about the profile, not about the section data.
+      expect(screen.queryByTestId('code-block')).not.toBeInTheDocument();
     });
   });
 
