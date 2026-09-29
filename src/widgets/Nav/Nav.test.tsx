@@ -21,7 +21,6 @@ vi.mock('@/features/ThemeSwitch/hooks/useThemeSwitch', () => ({
 // Heavy composed sections are out of scope — we exercise the Nav integration only.
 vi.mock('@/features/About', () => ({ About: () => null }));
 vi.mock('@/features/Contact', () => ({ Contact: () => null }));
-vi.mock('@/features/Hero', () => ({ Hero: () => null }));
 vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));

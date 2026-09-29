@@ -3,7 +3,6 @@
 // ============================================
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
-import { Hero } from '@/features/Hero';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
 import { WorkHistory } from '@/features/WorkHistory';
@@ -38,14 +37,13 @@ export const HomePage: React.FC = () => {
       <Nav />
 
       <div className={styles.homePage}>
-        {/* Main Content — recruiter-audit order: About → Hero → Skills →
-            featured Work → Experience → Contact. About leads with the value
-            proposition, the Hero follows with the craft proof. NAV_ITEMS uses
+        {/* Main Content — recruiter-audit order: About → Skills → featured
+            Work → Experience → Contact. About leads with the value
+            proposition, Skills follows with the craft proof. NAV_ITEMS uses
             the same order (the standalone "home" anchor was dropped, so nav
             anchors and render order are one list, not two). */}
         <main id="main-content" className={styles.mainContent}>
           <About />
-          <Hero />
           <Skills />
           <MyWork />
           <WorkHistory />
