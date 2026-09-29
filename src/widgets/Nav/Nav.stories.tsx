@@ -1,11 +1,12 @@
 // ============================================
-// Nav Widget Stories — Desktop / Mobile / Admin tooltip
+// Nav Widget Stories — Desktop / Mobile / Social links
 // ============================================
 import i18n from '@/shared/lib/i18n/config/i18n';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { SOCIAL_LINKS } from '@/entities/Developer';
 import { Nav } from './Nav';
-import { ADMIN_HREF, CTA_HREF, MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
+import { CTA_HREF, MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 
 /**
  * Page-like mount: the sticky header above an empty body — the same shape
@@ -67,7 +68,8 @@ export const Desktop: Story = {
     const firstSection = sectionLinks[0] as HTMLElement;
     expect(firstSection).toHaveAttribute('aria-current', 'page');
 
-    // Right side (decision R5): 🌍🎨 switches → 📄 CTA → 🔐 Admin.
+    // Right side (decision R5): 🌍🎨 switches → 📄 CTA → social links
+    // (the 🔐 AdminLink is hidden from public surfaces — recruiter audit P0).
     const controls = canvas.getByTestId('nav-controls');
     expect(within(controls).getByTestId('language-switch')).toBeVisible();
     expect(within(controls).getByTestId('theme-switch')).toBeVisible();
@@ -77,10 +79,14 @@ export const Desktop: Story = {
     expect(cta).toHaveAttribute('href', CTA_HREF);
     expect(cta).toHaveTextContent(i18n.t('getResume'));
 
-    const admin = within(controls).getByTestId('nav-admin-link');
-    expect(admin).toBeVisible();
-    expect(admin).toHaveAttribute('href', ADMIN_HREF);
-    expect(admin).toHaveAccessibleName(i18n.t('navAdmin'));
+    const socials = within(controls).getByTestId('nav-social-links');
+    expect(socials).toBeVisible();
+    for (const link of SOCIAL_LINKS) {
+      const anchor = within(socials).getByRole('link', { name: i18n.t(link.labelKey) });
+      expect(anchor).toBeVisible();
+      expect(anchor).toHaveAttribute('href', link.href);
+    }
+    expect(within(controls).queryByTestId('nav-admin-link')).toBeNull();
 
     // Burger row is hidden at the desktop breakpoint (decision R4).
     expect(canvas.getByTestId('nav-burger')).not.toBeVisible();
@@ -130,7 +136,8 @@ export const MobileBurger: Story = {
     for (const item of NAV_ITEMS) {
       expect(within(dialog).getByRole('link', { name: i18n.t(item.labelKey) })).toBeVisible();
     }
-    expect(within(dialog).getByTestId('nav-admin-link')).toBeVisible();
+    expect(within(dialog).getByTestId('nav-social-links')).toBeVisible();
+    expect(within(dialog).queryByTestId('nav-admin-link')).not.toBeInTheDocument();
     expect(within(dialog).queryByTestId('nav-cta')).not.toBeInTheDocument();
 
     // Burger flips ☰ → ✕ — state reflected in aria.
@@ -145,29 +152,22 @@ export const MobileBurger: Story = {
 };
 
 // ============================================
-// Admin link — icon-only with hover tooltip
+// Social links — icon-only with i18n accessible names (audit P1)
 // ============================================
-export const AdminLinkTooltip: Story = {
+export const SocialLinks: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const admin = within(canvas.getByTestId('nav-controls')).getByTestId('nav-admin-link');
+    const socials = within(canvas.getByTestId('nav-controls')).getByTestId('nav-social-links');
 
-    expect(admin).toBeVisible();
-    expect(admin).toHaveAttribute('href', ADMIN_HREF);
-    expect(admin).toHaveAccessibleName(i18n.t('navAdmin'));
+    expect(socials).toBeVisible();
+    for (const link of SOCIAL_LINKS) {
+      const anchor = within(socials).getByRole('link', { name: i18n.t(link.labelKey) });
+      expect(anchor).toBeVisible();
+      expect(anchor).toHaveAttribute('href', link.href);
+      expect(anchor).toHaveAttribute('target', '_blank');
+    }
 
-    // Hover reveals the shared Tooltip (decision R5 — no native title).
-    await userEvent.hover(admin);
-    const tooltip = await screen.findByRole('tooltip');
-    expect(tooltip).toHaveTextContent(i18n.t('navAdmin'));
-
-    // Unhover hides it again.
-    await userEvent.unhover(admin);
-    await waitFor(
-      () => {
-        expect(tooltip).not.toBeInTheDocument();
-      },
-      { timeout: 500 }
-    );
+    // The 🔐 AdminLink is hidden from public surfaces (recruiter audit P0).
+    expect(canvas.queryByTestId('nav-admin-link')).toBeNull();
   },
 };

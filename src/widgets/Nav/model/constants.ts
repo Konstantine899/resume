@@ -10,10 +10,10 @@ import type { NavItem } from './types';
  */
 export const NAV_ITEMS: NavItem[] = [
   { id: 'home', href: '#home', labelKey: 'home', icon: Home },
-  { id: 'work', href: '#work', labelKey: 'work', icon: Code },
-  { id: 'experience', href: '#experience', labelKey: 'workHistory', icon: WorkflowIcon },
   { id: 'about', href: '#about', labelKey: 'about', icon: FileText },
   { id: 'skills', href: '#skills', labelKey: 'skills', icon: Sparkles },
+  { id: 'work', href: '#work', labelKey: 'work', icon: Code },
+  { id: 'experience', href: '#experience', labelKey: 'workHistory', icon: WorkflowIcon },
   { id: 'contact', href: '#contact', labelKey: 'contact', icon: Mail },
 ];
 
@@ -26,6 +26,11 @@ export const ADMIN_HREF = '#/admin';
 /**
  * CTA target (decision R7) — points at Contact until a downloadable resume
  * file exists, so the button is never a dead end.
+ *
+ * TODO(resume-pdf): when the real resume PDF exists, swap this constant to
+ * its URL — the Nav CtaButton reads it, and the Hero "Download Resume"
+ * button mirrors `#contact` (features cannot import widgets) and must be
+ * updated together. This is the ONLY sanctioned TODO in the portfolio UI.
  */
 export const CTA_HREF = '#contact';
 
