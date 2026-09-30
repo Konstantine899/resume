@@ -3,7 +3,7 @@
 // ============================================
 
 import { I18nProvider, ThemeProvider } from '@/app/providers';
-import { HomePage } from '@/pages/Home';
+import { AppRouter } from '@/pages/AppRouter';
 import '@/shared/styles/globals/index.scss';
 
 import React from 'react';
@@ -11,15 +11,15 @@ import { ToastProvider } from './shared/lib/contexts/ToastContext';
 /**
  * Main App Component
  *
- * This component will be replaced by the FSD structure.
- * Currently serves as a bridge during migration.
+ * Provider stack + global router (wiki/plan/admin-panel.md §2.1-A):
+ * Toast → I18n → Theme → AppRouter (routes `/` showcase, `/admin` placeholder).
  */
 const App: React.FC = () => {
   return (
     <ToastProvider>
       <I18nProvider>
         <ThemeProvider>
-          <HomePage />
+          <AppRouter />
         </ThemeProvider>
       </I18nProvider>
     </ToastProvider>
