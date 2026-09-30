@@ -38,7 +38,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
       data-testid={testId}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <Heading level={4} className={styles.categoryName}>
+      <Heading level={3} className={styles.categoryName}>
         {categoryName}
       </Heading>
 
