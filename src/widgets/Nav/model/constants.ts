@@ -22,10 +22,11 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * Admin area stub (decision R3) — leads to the future `#/admin` route;
- * the full admin flow lands with the Supabase stage.
+ * Admin area entry (decision R3, updated in WU-1) — a REAL path route: the
+ * app router serves `/admin` (src/pages/routerConfig.tsx). The full admin
+ * flow lands with the Supabase stage.
  */
-export const ADMIN_HREF = '#/admin';
+export const ADMIN_HREF = '/admin';
 
 /**
  * CTA target (decision R7) — points at Contact until a downloadable resume

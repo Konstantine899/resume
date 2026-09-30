@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { Nav } from './Nav';
-import { CTA_HREF, MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
+import { ADMIN_HREF, CTA_HREF, MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 
 /**
  * Page-like mount: the sticky header above an empty body — the same shape
@@ -86,7 +86,9 @@ export const Desktop: Story = {
       expect(anchor).toBeVisible();
       expect(anchor).toHaveAttribute('href', link.href);
     }
-    expect(within(controls).queryByTestId('nav-admin-link')).toBeNull();
+    const admin = within(controls).getByTestId('nav-admin-link');
+    expect(admin).toBeVisible();
+    expect(admin).toHaveAttribute('href', ADMIN_HREF);
 
     // Burger row is hidden at the desktop breakpoint (decision R4).
     expect(canvas.getByTestId('nav-burger')).not.toBeVisible();
@@ -174,7 +176,9 @@ export const SocialLinks: Story = {
       expect(anchor).toHaveAttribute('target', '_blank');
     }
 
-    // The 🔐 AdminLink is hidden from public surfaces (recruiter audit P0).
-    expect(canvas.queryByTestId('nav-admin-link')).toBeNull();
+    // The 🔐 AdminLink is the desktop admin entry (wired back deliberately).
+    const admin = canvas.getByTestId('nav-admin-link');
+    expect(admin).toBeVisible();
+    expect(admin).toHaveAttribute('href', ADMIN_HREF);
   },
 };
