@@ -44,10 +44,23 @@ describe('AppRouter', () => {
     expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
   });
 
-  it('renders the localised admin placeholder at /admin', () => {
+  it('mounts /admin behind a lazy boundary (no admin page chunk on /)', () => {
+    // Config-level guarantee that vite code-splits the admin area: the route
+    // exposes only `lazy`, never a statically imported Component — visiting
+    // `/` must not pull the admin page module into the main bundle (WU-2).
+    const adminRoute = routerConfig.find((route) => route.path === '/admin');
+
+    expect(adminRoute?.lazy).toBeTypeOf('function');
+    expect(adminRoute?.Component).toBeUndefined();
+  });
+
+  it('renders the localised admin placeholder at /admin', async () => {
     renderAt('/admin');
 
-    expect(screen.getByRole('heading', { level: 1, name: /admin panel/i })).toBeInTheDocument();
+    // Lazy route: the module resolves asynchronously on navigation.
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /admin panel/i })
+    ).toBeInTheDocument();
     expect(screen.getByText(/under construction/i)).toBeInTheDocument();
     // Admin route replaces the showcase — no showcase chrome leaks in.
     expect(screen.queryByRole('link', { name: /skip to main content/i })).not.toBeInTheDocument();
