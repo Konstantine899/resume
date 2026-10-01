@@ -52,6 +52,13 @@ describe('AppRouter', () => {
 
     expect(adminRoute?.lazy).toBeTypeOf('function');
     expect(adminRoute?.Component).toBeUndefined();
+    // WU-3: the lazy parent is the layout shell; both children are lazy too
+    // so neither the shell nor the stubs reach the showcase bundle.
+    expect(adminRoute?.children).toHaveLength(2);
+    expect(adminRoute?.children?.every((child) => child.lazy)).toBe(true);
+    // Deep /admin loads hydrate asynchronously — the route carries a fallback
+    // so React Router 8 doesn't warn about a missing HydrateFallback.
+    expect(adminRoute?.hydrateFallbackElement).toBeDefined();
   });
 
   it('renders the localised admin placeholder at /admin', async () => {
@@ -64,6 +71,9 @@ describe('AppRouter', () => {
     expect(screen.getByText(/under construction/i)).toBeInTheDocument();
     // Admin route replaces the showcase — no showcase chrome leaks in.
     expect(screen.queryByRole('link', { name: /skip to main content/i })).not.toBeInTheDocument();
+    // WU-3: the /admin render goes through the layout shell (header back link).
+    expect(screen.getByTestId('admin-back-to-site')).toHaveAttribute('href', '/');
+    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument();
   });
 
   it('redirects unknown paths to /', async () => {

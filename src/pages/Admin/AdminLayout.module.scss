@@ -1,0 +1,104 @@
+// ============================================
+
+// Admin Layout — header + sidebar shell (admin-panel plan WU-3)
+
+// ============================================
+
+// Token-only styling (plan criteria): colors via the runtime custom
+
+// properties defined in shared/styles/globals/_theme.scss (multi-theme
+
+// safe — plain hex here would break dark mode), spacing/radius via the
+
+// shared SCSS variables. Raw px is used only for layout geometry that has
+
+// no token (sidebar width).
+
+@use '@/shared/styles/variables' as *;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: var(--background);
+}
+
+.header {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+  padding: $spacing-3 $spacing-5;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.brand {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: $spacing-1;
+  align-items: center;
+  margin-left: auto;
+}
+
+.backLink {
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: $spacing-1;
+  width: 220px;
+  padding: $spacing-4 $spacing-3;
+  border-right: 1px solid var(--color-border);
+}
+
+.navLink {
+  display: block;
+  padding: $spacing-2 $spacing-3;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: $border-radius-md;
+
+  &:hover {
+    background: var(--background-alt);
+  }
+}
+
+.navLinkActive {
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+
+  // Same specificity as .navLink:hover but declared later — the active item
+
+  // must keep its accent state while hovered (recess-order pins this block
+
+  // after .navLink, so the tie goes to the active state).
+  &:hover {
+    color: var(--color-accent);
+    background: var(--color-accent-subtle);
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-6 $spacing-5;
+}
