@@ -1,0 +1,20 @@
+// ============================================
+
+// DashboardPage — admin dashboard layout (admin-panel plan WU-4)
+
+// ============================================
+
+// Token-only (plan criteria).
+
+@use '@/shared/styles/variables' as *;
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+.empty {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+}
