@@ -32,6 +32,9 @@ const MIN_CLASS_RULES = 500;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const THEMES = ['light', 'dark'];
 
+/** Pages scanned per theme (WU-6: the admin shell joins the gate). */
+const PATHS = ['/', '/admin'];
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -63,7 +66,21 @@ function startStaticServer() {
       const body = await readFile(filePath);
       res.writeHead(200, { 'content-type': MIME[extname(filePath)] ?? 'application/octet-stream' });
       res.end(body);
-    } catch {
+    } catch (error) {
+      // SPA fallback (WU-6): client-side routes like /admin have no file on
+      // disk — without this the gate would scan a 404 body. Extensionless
+      // paths only, so a missing .js/.css still 404s loudly.
+      const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+      if (error?.code === 'ENOENT' && !extname(pathname)) {
+        try {
+          const html = await readFile(join(DIST, 'index.html'));
+          res.writeHead(200, { 'content-type': MIME['.html'] });
+          res.end(html);
+          return;
+        } catch {
+          // fall through to 404
+        }
+      }
       res.writeHead(404).end('not found');
     }
   });
@@ -107,72 +124,83 @@ async function main() {
   const report = [];
   let failed = false;
 
+  // WU-6: the admin shell is scanned too — the showcase alone would never
+  // see AdminGate/AdminLayout regressions. The auth flag (§8.4-B) is seeded
+  // so /admin renders the shell, not the login panel.
   for (const theme of THEMES) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     // ThemeContext reads localStorage on mount — seed it before the app boots.
     await context.addInitScript((value) => window.localStorage.setItem('theme', value), theme);
-    await page.goto(baseURL, { waitUntil: 'networkidle' });
-    await page.waitForSelector('#root > *', { timeout: 15_000 });
-    await page.waitForFunction((value) => document.documentElement.dataset.theme === value, theme, {
-      timeout: 5_000,
-    });
-    await page.addScriptTag({ content: axeSource });
+    await context.addInitScript(() => window.localStorage.setItem('resume.admin.auth', '1'));
 
-    const metrics = await page.evaluate(() => {
-      let classRules = 0;
-      let totalRules = 0;
+    for (const path of PATHS) {
+      await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle' });
+      await page.waitForSelector('#root > *', { timeout: 15_000 });
+      await page.waitForFunction(
+        (value) => document.documentElement.dataset.theme === value,
+        theme,
+        { timeout: 5_000 }
+      );
+      await page.addScriptTag({ content: axeSource });
 
-      const visit = (rules) => {
-        for (const rule of rules) {
-          totalRules += 1;
-          if (rule.selectorText && /\.[A-Za-z_]/.test(rule.selectorText)) classRules += 1;
-          if (rule.cssRules) visit(rule.cssRules);
+      const metrics = await page.evaluate(() => {
+        let classRules = 0;
+        let totalRules = 0;
+
+        const visit = (rules) => {
+          for (const rule of rules) {
+            totalRules += 1;
+            if (rule.selectorText && /\.[A-Za-z_]/.test(rule.selectorText)) classRules += 1;
+            if (rule.cssRules) visit(rule.cssRules);
+          }
+        };
+
+        for (const sheet of Array.from(document.styleSheets)) {
+          let rules;
+          try {
+            rules = sheet.cssRules;
+          } catch {
+            continue;
+          }
+          if (rules) visit(rules);
         }
-      };
 
-      for (const sheet of Array.from(document.styleSheets)) {
-        let rules;
-        try {
-          rules = sheet.cssRules;
-        } catch {
-          continue;
-        }
-        if (rules) visit(rules);
+        return { classRules, totalRules };
+      });
+
+      const results = await page.evaluate(
+        (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
+        AXE_TAGS
+      );
+      const violations = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        help: v.help,
+        nodes: v.nodes.length,
+        targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')),
+      }));
+
+      report.push({ theme, path, metrics, violations });
+
+      console.log(
+        `\n[${theme} ${path}] class rules: ${metrics.classRules} / total rules: ${metrics.totalRules} ` +
+          `(axe violations: ${violations.length})`
+      );
+      for (const v of violations) {
+        console.log(`  - ${v.id} (${v.impact}) x${v.nodes}: ${v.targets.join(' | ')}`);
       }
 
-      return { classRules, totalRules };
-    });
-
-    const results = await page.evaluate(
-      (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
-      AXE_TAGS
-    );
-    const violations = results.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.length,
-      targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')),
-    }));
-
-    report.push({ theme, metrics, violations });
-
-    console.log(
-      `\n[${theme}] class rules: ${metrics.classRules} / total rules: ${metrics.totalRules} ` +
-        `(axe violations: ${violations.length})`
-    );
-    for (const v of violations) {
-      console.log(`  - ${v.id} (${v.impact}) x${v.nodes}: ${v.targets.join(' | ')}`);
-    }
-
-    if (metrics.classRules < MIN_CLASS_RULES) {
-      console.error(
-        `  ✗ CSS integrity failed: ${metrics.classRules} class rules < ${MIN_CLASS_RULES} — ` +
-          'the stylesheet was over-purged.'
-      );
-      failed = true;
+      // CSS-integrity gate stays on `/` — the global stylesheet is fully
+      // loaded there; /admin only ADDS lazy admin CSS on top.
+      if (path === '/' && metrics.classRules < MIN_CLASS_RULES) {
+        console.error(
+          `  ✗ CSS integrity failed: ${metrics.classRules} class rules < ${MIN_CLASS_RULES} — ` +
+            'the stylesheet was over-purged.'
+        );
+        failed = true;
+      }
     }
 
     await context.close();
@@ -206,7 +234,7 @@ async function main() {
       for (const v of entry.violations) {
         if (!known.has(`${entry.theme}|${fingerprint(v)}`)) {
           console.error(
-            `\n✗ NEW ${entry.theme} violation: ${v.id} (${v.impact}) — ${v.targets.join(' | ')}`
+            `\n✗ NEW ${entry.theme} violation on ${entry.path}: ${v.id} (${v.impact}) — ${v.targets.join(' | ')}`
           );
           failed = true;
         }
