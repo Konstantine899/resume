@@ -7,10 +7,11 @@
 // injection from the composition root (src/App.tsx) is covered by
 // StoreProvider.test; here we only prove the pure state machine.
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { adminAuthReducer, enter, leave } from './authSlice';
 import { selectIsAuthed } from './selectors';
+import { ADMIN_AUTH_STORAGE_KEY } from './storage';
 import type { AdminAuthRootState } from './types';
 
 describe('adminAuth slice', () => {
@@ -45,5 +46,20 @@ describe('selectIsAuthed', () => {
 
     expect(selectIsAuthed(authed)).toBe(true);
     expect(selectIsAuthed(guest)).toBe(false);
+  });
+});
+
+// Keep LAST: vi.resetModules + a fresh dynamic import replace the module
+// copy for the rest of this file's imports (the static bindings above stay).
+describe('persistence (§8.4-B)', () => {
+  it('hydrates the initial state from the localStorage flag', async () => {
+    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
+    vi.resetModules();
+    const fresh = await import('./authSlice');
+
+    expect(fresh.adminAuthReducer(undefined, { type: 'unknown' })).toEqual({
+      isAuthed: true,
+    });
+    localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
   });
 });
