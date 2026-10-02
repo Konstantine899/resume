@@ -3,18 +3,12 @@
 // ============================================
 
 import { I18nProvider, StoreProvider, ThemeProvider } from '@/app/providers';
-import { adminAuthReducer } from '@/features/AdminAuth';
 import { AppRouter } from '@/pages/AppRouter';
 import '@/shared/styles/globals/index.scss';
 
 import React from 'react';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';
-
-// Stable reducer-map reference (StoreProvider useMemo contract): keep it at
-// module level — an inline object literal would rebuild the store on every
-// render (admin-panel plan WU-2). App.tsx is the composition root, outside
-// FSD slices, which is why it may inject features/AdminAuth here.
-const storeReducers = { adminAuth: adminAuthReducer };
+import { storeReducers } from './storeReducers';
 
 /**
  * Main App Component
