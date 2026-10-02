@@ -350,7 +350,13 @@
   // Text tokens for dark theme
   --color-text-primary: #e8e6e3;
   --color-text-secondary: #9ca3af;
-  --color-text-tertiary: #6b7280;
+
+  // #6b7280 (light-theme value) only reaches 3.07:1 on #292726 surfaces —
+
+  // WCAG AA fail; #9096a0 keeps the tertiary < secondary ladder and clears
+
+  // 4.5:1 on every dark surface (cards 5.0, header 5.7).
+  --color-text-tertiary: #9096a0;
   --color-text-quaternary: #4b5563;
   --color-text-inverse: #0f0f0f;
 

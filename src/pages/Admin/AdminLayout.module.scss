@@ -48,7 +48,11 @@
 .logout {
   padding: 0;
   font-size: var(--text-sm);
-  color: var(--color-text-muted);
+
+  // muted (#6b7280) is 3.88:1 on the #e8e6e3 header — AA needs 4.5.
+
+  // secondary (#374151) clears it with room to spare.
+  color: var(--color-text-secondary);
   cursor: pointer;
   background: none;
   border: none;
@@ -59,7 +63,12 @@
 }
 
 .backLink {
-  color: var(--color-accent);
+  // Base accent #2563eb only reaches 4.14:1 on the tinted header — use the
+
+  // darker accent-hover (#1d4ed8 light / lighter orange dark), which clears
+
+  // 4.5:1 on both header and sidebar surfaces in each theme.
+  color: var(--color-accent-hover);
   text-decoration: none;
 
   &:hover {
@@ -96,7 +105,10 @@
 }
 
 .navLinkActive {
-  color: var(--color-accent);
+  // Base accent is 3.8:1 on the active-item background (#d6ddef) in light —
+
+  // accent-hover clears 4.5:1 there and on the dark sidebar (see .backLink).
+  color: var(--color-accent-hover);
   background: var(--color-accent-subtle);
 
   // Same specificity as .navLink:hover but declared later — the active item
@@ -105,7 +117,7 @@
 
   // after .navLink, so the tie goes to the active state).
   &:hover {
-    color: var(--color-accent);
+    color: var(--color-accent-hover);
     background: var(--color-accent-subtle);
   }
 }
