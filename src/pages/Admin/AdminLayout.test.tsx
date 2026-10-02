@@ -2,8 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { AdminLayout } from './AdminLayout';
-import { AdminRoutes } from './AdminRoutes';
 import { AdminSettings } from './AdminSettings';
+
+// Local index stub: the shell test is page-agnostic — what fills the Outlet
+// belongs to DashboardPage's own tests (WU-4), not to the layout contract.
+const StubPage: React.FC = () => <div data-testid="admin-stub" />;
 
 // Deterministic spies shared by the mock factories below (vi.mock is hoisted
 // above regular imports/consts — vi.hoisted keeps the references valid).
@@ -43,7 +46,7 @@ const routes = [
     path: '/admin',
     Component: AdminLayout,
     children: [
-      { index: true, Component: AdminRoutes },
+      { index: true, Component: StubPage },
       { path: 'settings', Component: AdminSettings },
     ],
   },
@@ -65,8 +68,7 @@ describe('AdminLayout (WU-3: header, sidebar, outlet)', () => {
     expect(backLink).toHaveTextContent('adminBackToSite');
 
     expect(screen.getByRole('navigation', { name: 'adminNavLabel' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'navAdmin' })).toBeInTheDocument();
-    expect(screen.getByText('adminComingSoon')).toBeInTheDocument();
+    expect(screen.getByTestId('admin-stub')).toBeInTheDocument();
     // Both switches are reused in the header (reuse-first: features, not forks).
     expect(screen.getByTestId('language-switch')).toBeInTheDocument();
     expect(screen.getByTestId('theme-switch')).toBeInTheDocument();
@@ -81,12 +83,12 @@ describe('AdminLayout (WU-3: header, sidebar, outlet)', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'adminSettings' })
     ).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'navAdmin' })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('admin-stub')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('link', { name: 'adminNavDashboard' }));
 
     await waitFor(() => expect(router.state.location.pathname).toBe('/admin'));
-    expect(screen.getByRole('heading', { level: 1, name: 'navAdmin' })).toBeInTheDocument();
+    expect(screen.getByTestId('admin-stub')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'adminSettings' })).not.toBeInTheDocument();
   });
 

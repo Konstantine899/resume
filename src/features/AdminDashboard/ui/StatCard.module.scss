@@ -1,0 +1,33 @@
+// ============================================
+
+// StatCard — metric card styles (admin-panel plan WU-4)
+
+// ============================================
+
+// Token-only (plan criteria): runtime custom properties for colors,
+
+// shared SCSS variables for spacing.
+
+// Nested under .stat on purpose: the kit Card declares `p { color: inherit }`
+
+// (specificity 0,1,1), which beats a flat `.label` (0,1,0) — `.stat .label`
+
+// (0,2,0) wins and the muted/primary colors actually apply.
+
+@use '@/shared/styles/variables' as *;
+
+.stat {
+  padding: $spacing-4;
+
+  .label {
+    margin-bottom: $spacing-2;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}

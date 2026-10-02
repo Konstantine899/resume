@@ -16,8 +16,8 @@
 //   `/`      → HomePage (public showcase; hash anchors #contact etc. are kept
 //              natively — plan §8.3-B, no path-route migration)
 //   `/admin` → lazy parent `pages/Admin/AdminLayout` (WU-3 shell: header +
-//              sidebar + <Outlet/>) with lazy children — index stub
-//              (AdminRoutes, WU-2) and `settings` (AdminSettings). Every
+//              sidebar + <Outlet/>) with lazy children — the dashboard
+//              (DashboardPage, WU-4) and `settings` (AdminSettings). Every
 //              module is a dynamic import: the showcase `/` never loads an
 //              admin chunk.
 //   `*`      → redirect to `/` (unknown paths never 404 the SPA shell)
@@ -38,7 +38,7 @@ export const routerConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        lazy: () => import('./Admin/AdminRoutes').then((m) => ({ Component: m.AdminRoutes })),
+        lazy: () => import('./Admin/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
       },
       {
         path: 'settings',
