@@ -125,15 +125,14 @@ async function main() {
   let failed = false;
 
   // WU-6: the admin shell is scanned too — the showcase alone would never
-  // see AdminGate/AdminLayout regressions. The auth flag (§8.4-B) is seeded
-  // so /admin renders the shell, not the login panel.
+  // see AdminLayout regressions. Since the gate removal (plan rev.
+  // 2026-10-02) /admin renders the shell unconditionally — no auth seed.
   for (const theme of THEMES) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     // ThemeContext reads localStorage on mount — seed it before the app boots.
     await context.addInitScript((value) => window.localStorage.setItem('theme', value), theme);
-    await context.addInitScript(() => window.localStorage.setItem('resume.admin.auth', '1'));
 
     for (const path of PATHS) {
       // Review fix (spec WU-2): the showcase must never fetch lazy admin

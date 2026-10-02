@@ -36,8 +36,6 @@
   "adminNavDashboard": "Dashboard",
   "adminNavSettings": "Settings",
   "adminSettings": "Settings",
-  "adminGateTitle": "Development access only",
-  "adminLoginDev": "Sign in (dev)",
   "adminLogout": "Sign out",
   "adminDashboardEmpty": "No metrics yet.",
   "adminMetricProjects": "Projects",

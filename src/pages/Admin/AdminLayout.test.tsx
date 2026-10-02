@@ -11,6 +11,10 @@ import { AdminSettings } from './AdminSettings';
 // belongs to DashboardPage's own tests (WU-4), not to the layout contract.
 const StubPage: React.FC = () => <div data-testid="admin-stub" />;
 
+// Logout (plan rev. 2026-10-02) navigates to the showcase — the memory
+// router needs a real `/` route to land on.
+const HomeStub: React.FC = () => <div data-testid="home-stub" />;
+
 // Deterministic spies shared by the mock factories below (vi.mock is hoisted
 // above regular imports/consts — vi.hoisted keeps the references valid).
 const spies = vi.hoisted(() => ({
@@ -45,6 +49,7 @@ vi.mock('@/features/ThemeSwitch/hooks/useThemeSwitch', () => ({
 // Local memory router over the REAL layout + page components (static
 // children — lazy loading of the prod config is asserted in AppRouter.test).
 const routes = [
+  { path: '/', Component: HomeStub },
   {
     path: '/admin',
     Component: AdminLayout,
@@ -55,12 +60,10 @@ const routes = [
   },
 ];
 
-const renderAdmin = ({ withFlag = true }: { withFlag?: boolean } = {}) => {
-  if (withFlag) {
-    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
-  } else {
-    localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
-  }
+const renderAdmin = () => {
+  // No flag on purpose: since the gate removal (rev. 2026-10-02) the shell
+  // must render unconditionally — a persisted flag is no longer required.
+  localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
   const router = createMemoryRouter(routes, { initialEntries: ['/admin'] });
   render(
     <StoreProvider reducers={storeReducers}>
@@ -74,22 +77,26 @@ afterEach(() => {
   localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
 });
 
-describe('AdminGate placement (WU-5: flag decides shell vs login)', () => {
-  it('shows the login gate instead of the shell when the flag is missing', () => {
-    renderAdmin({ withFlag: false });
+describe('Admin entry (AdminGate removed — plan rev. 2026-10-02)', () => {
+  it('renders the shell even when no auth flag was ever persisted', () => {
+    renderAdmin();
 
-    expect(screen.getByTestId('admin-gate')).toBeInTheDocument();
-    expect(screen.queryByTestId('admin-layout')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('admin-sidebar')).not.toBeInTheDocument();
+    expect(localStorage.getItem(ADMIN_AUTH_STORAGE_KEY)).toBeNull();
+    expect(screen.getByTestId('admin-layout')).toBeInTheDocument();
+    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument();
+    // No login panel may ever replace the shell again.
+    expect(screen.queryByTestId('admin-gate')).not.toBeInTheDocument();
   });
 
-  it('logout clears the persisted flag and falls back to the gate', async () => {
-    renderAdmin();
+  it('logout clears the persisted flag and returns to the showcase', async () => {
+    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
+    const router = renderAdmin();
 
     fireEvent.click(screen.getByRole('button', { name: 'adminLogout' }));
 
     expect(localStorage.getItem(ADMIN_AUTH_STORAGE_KEY)).toBeNull();
-    expect(await screen.findByTestId('admin-gate')).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(await screen.findByTestId('home-stub')).toBeInTheDocument();
     expect(screen.queryByTestId('admin-layout')).not.toBeInTheDocument();
   });
 });

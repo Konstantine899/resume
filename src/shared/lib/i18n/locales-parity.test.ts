@@ -63,8 +63,6 @@ describe('locale parity (WU-6)', () => {
       'adminMetricProjects',
       'adminMetricSkills',
       'adminMetricSections',
-      'adminGateTitle',
-      'adminLoginDev',
       'adminLogout',
       'adminComingSoon',
     ];

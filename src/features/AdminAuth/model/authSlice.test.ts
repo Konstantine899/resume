@@ -3,7 +3,8 @@
 // ============================================
 //
 // The slice is the root store's first reducer: `login`/`logout` flip the
-// auth flag consumed by AdminGate (WU-3) via selectIsAuthed. Reducer-map
+// auth flag kept as the §8.4 JWT swap-point (the AdminGate that read it via
+// selectIsAuthed was removed — plan rev. 2026-10-02). Reducer-map
 // injection from the composition root (src/App.tsx) is covered by
 // StoreProvider.test; here we only prove the pure state machine.
 
