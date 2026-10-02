@@ -15,9 +15,13 @@
 // Route table:
 //   `/`      → HomePage (public showcase; hash anchors #contact etc. are kept
 //              natively — plan §8.3-B, no path-route migration)
-//   `/admin` → lazy `pages/Admin/AdminRoutes` (WU-2): the admin page module
-//              is code-split — the showcase `/` never loads an admin chunk
+//   `/admin` → lazy parent `pages/Admin/AdminLayout` (WU-3 shell: header +
+//              sidebar + <Outlet/>) with lazy children — index stub
+//              (AdminRoutes, WU-2) and `settings` (AdminSettings). Every
+//              module is a dynamic import: the showcase `/` never loads an
+//              admin chunk.
 //   `*`      → redirect to `/` (unknown paths never 404 the SPA shell)
+import { AdminHydrateFallback } from './Admin/AdminHydrateFallback';
 import { HomePage } from '@/pages/Home';
 import { redirect } from 'react-router';
 import type { RouteObject } from 'react-router';
@@ -26,8 +30,21 @@ export const routerConfig: RouteObject[] = [
   { path: '/', Component: HomePage },
   {
     path: '/admin',
-    // Dynamic import = vite code-split point (test: AppRouter > lazy boundary).
-    lazy: () => import('./Admin/AdminRoutes').then((m) => ({ Component: m.AdminRoutes })),
+    // Dynamic imports = vite code-split points (tests: AppRouter > lazy boundary).
+    lazy: () => import('./Admin/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+    // Deep-loads of /admin hydrate asynchronously (RR 8 initial-hydration
+    // path) — a route-level fallback prevents the blank frame + RR warning.
+    hydrateFallbackElement: <AdminHydrateFallback />,
+    children: [
+      {
+        index: true,
+        lazy: () => import('./Admin/AdminRoutes').then((m) => ({ Component: m.AdminRoutes })),
+      },
+      {
+        path: 'settings',
+        lazy: () => import('./Admin/AdminSettings').then((m) => ({ Component: m.AdminSettings })),
+      },
+    ],
   },
   { path: '*', loader: () => redirect('/') },
 ];
