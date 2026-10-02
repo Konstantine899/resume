@@ -11,11 +11,12 @@ import { ADMIN_HREF } from '../../model/constants';
 import type { AdminLinkProps } from '../../model/types';
 
 /**
- * Read-only 🔐 placeholder of the Nav right side (issue #138, T5).
+ * 🔐 admin entry of the Nav right side (issue #138, T5; wired back in WU-1).
  *
- * - Decision R3: a plain link to `ADMIN_HREF` (`#/admin`) — a placeholder
- *   until the real admin area exists. The constant is imported; the literal
- *   never appears here (source guard).
+ * - Decision R3: a plain anchor to `ADMIN_HREF` (a REAL `/admin` path route
+ *   since WU-1 — full document navigation on purpose: entering the admin
+ *   area is a section boundary, and Storybook has no router context). The
+ *   constant is imported; the literal never appears here (source guard).
  * - Decision R5: icon-only (no visible text) — an i18n `aria-label` carries
  *   the accessible name, and the SHARED `Tooltip` (position `bottom`, the
  *   side facing away from the top bar) supplies the sighted hover hint. The

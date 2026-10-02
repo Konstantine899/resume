@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "description": "Performance budgets for bundle size enforcement. Caps are set from the 2026-09-26 measured build (post PurgeCSS rewrite, locale chunk split, assetsInlineLimit: 0) plus ~7-10% headroom.",
+  "description": "Performance budgets for bundle size enforcement. Caps are set from the 2026-09-26 measured build (post PurgeCSS rewrite, locale chunk split, assetsInlineLimit: 0) plus ~7-10% headroom. Revised 2026-09-30 after WU-1 (react-router 8.4.0): vendor/total raised from the fresh measured build with human approval (PR #146).",
   "budgets": {
     "chunks": {
       "default": {
@@ -9,9 +9,9 @@
         "description": "Default chunk size limit (97kb raw, 30kb gzip). Measured: i18n 54652 raw / 18278 gzip."
       },
       "vendor": {
-        "maxSize": 200000,
-        "maxSizeGzip": 70000,
-        "description": "Vendor chunk limit (195kb raw, 68kb gzip). Measured: vendor 195288 raw / 63621 gzip."
+        "maxSize": 295000,
+        "maxSizeGzip": 100000,
+        "description": "Vendor chunk limit (288kb raw, 97kb gzip). Measured WU-1 (2026-09-30): vendor 287121 raw / 91660 gzip (react-router 8.4.0 in graph; baseline dev was 195288 raw / 62130 gzip)."
       },
       "main": {
         "maxSize": 160000,
@@ -20,9 +20,9 @@
       }
     },
     "total": {
-      "maxSize": 420000,
-      "maxSizeGzip": 160000,
-      "description": "Total JS bundle size limit (410kb raw, 156kb gzip). Measured: 392676 raw / 133765 gzip."
+      "maxSize": 485000,
+      "maxSizeGzip": 175000,
+      "description": "Total JS bundle size limit (473kb raw, 170kb gzip). Measured WU-1 (2026-09-30): 476365 raw / 157620 gzip JS (baseline dev was 375.0 KiB raw)."
     },
     "assets": {
       "maxSize": 122880,

@@ -85,9 +85,9 @@ export interface SocialLinksProps {
 /**
  * Props for the `AdminLink` 🔐 placeholder (issue #138, T5, decision R3).
  *
- * Read-only icon-only link to `ADMIN_HREF` (`#/admin`). The component is
- * kept intact (routing, tests, stories) but is NO LONGER rendered on any
- * public nav surface (recruiter audit P0) — wire it back only deliberately.
+ * Read-only icon-only link to `ADMIN_HREF` (the real `/admin` path route).
+ * Rendered as the last link of the desktop Nav controls — the admin entry
+ * (wired back deliberately); the mobile panel keeps it hidden.
  */
 export interface AdminLinkProps {
   className?: string;

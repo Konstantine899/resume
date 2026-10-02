@@ -44,8 +44,8 @@ const sampleCode = (
 );
 
 /**
- * Локальный аналог SkillsCode (из features/Hero) — разметка «developer object»,
- * чтобы не нарушать FSD: shared/ui/Code не может импортировать features/Hero.
+ * Локальный аналог SkillsCode (из features/Skills) — разметка «developer object»,
+ * чтобы не нарушать FSD: shared/ui/Code не может импортировать features/Skills.
  */
 const skillsCodeContent = (
   <>
