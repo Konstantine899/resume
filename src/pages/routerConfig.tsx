@@ -15,16 +15,19 @@
 // Route table:
 //   `/`      → HomePage (public showcase; hash anchors #contact etc. are kept
 //              natively — plan §8.3-B, no path-route migration)
-//   `/admin` → localised placeholder until WU-3 swaps it for `pages/Admin`
-//              behind a lazy boundary
+//   `/admin` → lazy `pages/Admin/AdminRoutes` (WU-2): the admin page module
+//              is code-split — the showcase `/` never loads an admin chunk
 //   `*`      → redirect to `/` (unknown paths never 404 the SPA shell)
 import { HomePage } from '@/pages/Home';
 import { redirect } from 'react-router';
 import type { RouteObject } from 'react-router';
-import { AdminComingSoon } from './AdminComingSoon';
 
 export const routerConfig: RouteObject[] = [
   { path: '/', Component: HomePage },
-  { path: '/admin', Component: AdminComingSoon },
+  {
+    path: '/admin',
+    // Dynamic import = vite code-split point (test: AppRouter > lazy boundary).
+    lazy: () => import('./Admin/AdminRoutes').then((m) => ({ Component: m.AdminRoutes })),
+  },
   { path: '*', loader: () => redirect('/') },
 ];
