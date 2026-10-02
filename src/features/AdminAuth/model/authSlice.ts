@@ -8,11 +8,10 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 
+import { readAdminAuthFlag } from './storage';
 import type { AdminAuthState } from './types';
 
-const initialState: AdminAuthState = {
-  isAuthed: false,
-};
+const initialState: AdminAuthState = { isAuthed: false };
 
 const authSlice = createSlice({
   name: 'adminAuth',
@@ -28,4 +27,11 @@ const authSlice = createSlice({
 });
 
 export const { enter, leave } = authSlice.actions;
-export const adminAuthReducer = authSlice.reducer;
+
+// Lazy hydration (plan §8.4-B, WU-5): the persisted flag is read on the
+// FIRST reducer call — i.e. at configureStore time — not at module import.
+// A const `initialState` would freeze whatever localStorage held when the
+// bundle first loaded, so a flag set later (tests, late login) never showed.
+// The gate's first render is still correct: no sync effect, no login flash.
+export const adminAuthReducer: typeof authSlice.reducer = (state, action) =>
+  authSlice.reducer(state ?? { isAuthed: readAdminAuthFlag() }, action);

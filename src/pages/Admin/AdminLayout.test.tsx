@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { StoreProvider } from '@/app/providers';
+import { ADMIN_AUTH_STORAGE_KEY } from '@/features/AdminAuth';
+import { storeReducers } from '@/storeReducers';
 import { AdminLayout } from './AdminLayout';
 import { AdminSettings } from './AdminSettings';
 
@@ -52,11 +55,44 @@ const routes = [
   },
 ];
 
-const renderAdmin = () => {
+const renderAdmin = ({ withFlag = true }: { withFlag?: boolean } = {}) => {
+  if (withFlag) {
+    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
+  } else {
+    localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
+  }
   const router = createMemoryRouter(routes, { initialEntries: ['/admin'] });
-  render(<RouterProvider router={router} />);
+  render(
+    <StoreProvider reducers={storeReducers}>
+      <RouterProvider router={router} />
+    </StoreProvider>
+  );
   return router;
 };
+
+afterEach(() => {
+  localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
+});
+
+describe('AdminGate placement (WU-5: flag decides shell vs login)', () => {
+  it('shows the login gate instead of the shell when the flag is missing', () => {
+    renderAdmin({ withFlag: false });
+
+    expect(screen.getByTestId('admin-gate')).toBeInTheDocument();
+    expect(screen.queryByTestId('admin-layout')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('admin-sidebar')).not.toBeInTheDocument();
+  });
+
+  it('logout clears the persisted flag and falls back to the gate', async () => {
+    renderAdmin();
+
+    fireEvent.click(screen.getByRole('button', { name: 'adminLogout' }));
+
+    expect(localStorage.getItem(ADMIN_AUTH_STORAGE_KEY)).toBeNull();
+    expect(await screen.findByTestId('admin-gate')).toBeInTheDocument();
+    expect(screen.queryByTestId('admin-layout')).not.toBeInTheDocument();
+  });
+});
 
 describe('AdminLayout (WU-3: header, sidebar, outlet)', () => {
   it('renders the admin shell: back link, sidebar nav and the dashboard outlet', () => {

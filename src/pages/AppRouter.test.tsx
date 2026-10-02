@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
+import { ADMIN_AUTH_STORAGE_KEY } from '@/features/AdminAuth';
 import { mockAdminMetrics } from '@/features/AdminDashboard';
 import { storeReducers } from '@/storeReducers';
 import { AppRouter } from './AppRouter';
@@ -71,6 +72,8 @@ describe('AppRouter', () => {
   });
 
   it('renders the admin dashboard at /admin', async () => {
+    // WU-5: the gate needs the persisted flag — the store hydrates from it.
+    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
     renderAt('/admin');
 
     // Lazy route: the module resolves asynchronously on navigation (WU-4).
@@ -100,4 +103,9 @@ describe('AppRouter', () => {
 
     expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
   });
+});
+
+// The flag leaks across tests otherwise — each file gets one jsdom env.
+afterEach(() => {
+  localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
 });

@@ -45,6 +45,19 @@
   margin-left: auto;
 }
 
+.logout {
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
 .backLink {
   color: var(--color-accent);
   text-decoration: none;
