@@ -12,11 +12,12 @@
 //
 // WU-5: the whole shell sits behind AdminGate (§8.4-B) — no persisted flag
 // and the visitor gets the dev-login panel instead of header/sidebar/outlet.
-import { AdminGate, leave, persistAdminAuth } from '@/features/AdminAuth';
+import { AdminGate, logout } from '@/features/AdminAuth';
 import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
+import { Button } from '@/shared/ui/Button';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, NavLink, Outlet } from 'react-router';
@@ -30,8 +31,7 @@ export const AdminLayout: React.FC = () => {
   const dispatch = useDispatch();
 
   const handleLogout = (): void => {
-    persistAdminAuth(false);
-    dispatch(leave());
+    logout(dispatch);
   };
 
   return (
@@ -42,9 +42,15 @@ export const AdminLayout: React.FC = () => {
           <div className={styles.controls}>
             <LanguageSwitch variant="desktop" isCollapsed fullWidth={false} />
             <ThemeSwitch variant="desktop" isCollapsed fullWidth={false} />
-            <button type="button" className={styles.logout} onClick={handleLogout}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.logout}
+              onClick={handleLogout}
+              data-testid="admin-logout"
+            >
               {t('adminLogout')}
-            </button>
+            </Button>
           </div>
           <Link to="/" className={styles.backLink} data-testid="admin-back-to-site">
             {t('adminBackToSite')}

@@ -38,7 +38,10 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
       data-testid={testId}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <Heading level={4} className={styles.categoryName}>
+      {/* Category = h3: child of the section h2, sibling order stays
+          unskipped now that About owns the page h1 (heading-order).
+          size="3xl" pins the pre-fix h4 visual scale. */}
+      <Heading level={3} size="3xl" className={styles.categoryName}>
         {categoryName}
       </Heading>
 

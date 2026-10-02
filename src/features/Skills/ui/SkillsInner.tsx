@@ -49,7 +49,10 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
       >
         <AnimatedSection animation="fadeUp">
           <Container size="lg" padding="lg">
-            <Heading level={3} className={styles.title}>
+            {/* Section title = h2: About carries the page h1 (review fix),
+                categories below are h3 — no skipped levels (heading-order).
+                size="4xl" pins the pre-fix visual scale. */}
+            <Heading level={2} size="4xl" className={styles.title}>
               {t('mySkills')}
             </Heading>
             <Paragraph theme="muted" align="center" className={styles.emptyState}>
@@ -71,7 +74,9 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
     >
       <AnimatedSection animation="fadeUp">
         <Container size="lg" padding="lg">
-          <Heading level={3} className={styles.title}>
+          {/* See above: section h2 under the About h1 (heading-order);
+              size pins the old h3 scale. */}
+          <Heading level={2} size="4xl" className={styles.title}>
             {t('mySkills')}
           </Heading>
           <SkillsCodeWrapper

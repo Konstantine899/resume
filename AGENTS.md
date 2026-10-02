@@ -12,7 +12,7 @@ Five canonical roles with default label strings: `needs-triage`, `needs-info`, `
 
 ### Domain docs
 
-Single-context layout: `docs/context.md` (domain context) plus `docs/adr/`. See `docs/agents/domain.md`.
+Single-context domain doc lives in the Obsidian vault: `resume-app/wiki/context/03-domain.md` (the in-repo `docs/context.md` + `docs/adr/` were migrated out — see `docs/agents/` for tracker/labels).
 
 ## Git workflow
 

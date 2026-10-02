@@ -3,8 +3,9 @@
 // ============================================
 //
 // Stub auth session for the localStorage-based AdminGate (plan §8.4-B):
-// `enter`/`leave` only flip a flag today; the Supabase/NestJS stage swaps
-// the flag for a token without touching the public action API.
+// `login`/`logout` only flip a flag today; the Supabase/NestJS stage swaps
+// the flag for a token without touching the public action API. Side effects
+// (persisting the flag) live in `session.ts` — reducers stay pure.
 
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -17,16 +18,16 @@ const authSlice = createSlice({
   name: 'adminAuth',
   initialState,
   reducers: {
-    enter(state) {
+    login(state) {
       state.isAuthed = true;
     },
-    leave(state) {
+    logout(state) {
       state.isAuthed = false;
     },
   },
 });
 
-export const { enter, leave } = authSlice.actions;
+export const { login, logout } = authSlice.actions;
 
 // Lazy hydration (plan §8.4-B, WU-5): the persisted flag is read on the
 // FIRST reducer call — i.e. at configureStore time — not at module import.

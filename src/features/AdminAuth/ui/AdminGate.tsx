@@ -16,9 +16,8 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
-import { enter } from '../model/authSlice';
 import { selectIsAuthed } from '../model/selectors';
-import { persistAdminAuth } from '../model/storage';
+import { login } from '../model/session';
 import styles from './AdminGate.module.scss';
 
 export interface AdminGateProps {
@@ -35,8 +34,7 @@ export const AdminGate: React.FC<AdminGateProps> = ({ children }) => {
   }
 
   const handleLogin = (): void => {
-    persistAdminAuth(true);
-    dispatch(enter());
+    login(dispatch);
   };
 
   return (

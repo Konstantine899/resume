@@ -2,14 +2,14 @@
 // adminAuth slice — WU-2 stub (admin-panel plan)
 // ============================================
 //
-// The slice is the root store's first reducer: `enter`/`leave` flip the
+// The slice is the root store's first reducer: `login`/`logout` flip the
 // auth flag consumed by AdminGate (WU-3) via selectIsAuthed. Reducer-map
 // injection from the composition root (src/App.tsx) is covered by
 // StoreProvider.test; here we only prove the pure state machine.
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { adminAuthReducer, enter, leave } from './authSlice';
+import { adminAuthReducer, login, logout } from './authSlice';
 import { selectIsAuthed } from './selectors';
 import { ADMIN_AUTH_STORAGE_KEY } from './storage';
 import type { AdminAuthRootState } from './types';
@@ -21,21 +21,21 @@ describe('adminAuth slice', () => {
     });
   });
 
-  it('enter marks the session authed', () => {
-    expect(adminAuthReducer({ isAuthed: false }, enter())).toEqual({
+  it('login marks the session authed', () => {
+    expect(adminAuthReducer({ isAuthed: false }, login())).toEqual({
       isAuthed: true,
     });
   });
 
-  it('leave clears the session', () => {
-    expect(adminAuthReducer({ isAuthed: true }, leave())).toEqual({
+  it('logout clears the session', () => {
+    expect(adminAuthReducer({ isAuthed: true }, logout())).toEqual({
       isAuthed: false,
     });
   });
 
   it('exposes namespaced action types', () => {
-    expect(enter().type).toBe('adminAuth/enter');
-    expect(leave().type).toBe('adminAuth/leave');
+    expect(login().type).toBe('adminAuth/login');
+    expect(logout().type).toBe('adminAuth/logout');
   });
 });
 

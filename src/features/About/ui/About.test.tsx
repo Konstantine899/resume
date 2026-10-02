@@ -72,8 +72,10 @@ describe('About: Link CTA integration', () => {
   it('uses the developer full name as the heading instead of the "About" label', () => {
     render(<About />);
 
+    // level 1: this heading is the page's document outline now (Hero was
+    // removed; review fix promoted the silent level-3 to the h1).
     expect(
-      screen.getByRole('heading', { level: 3, name: DEVELOPER_DATA.fullName })
+      screen.getByRole('heading', { level: 1, name: DEVELOPER_DATA.fullName })
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'about' })).not.toBeInTheDocument();
   });
