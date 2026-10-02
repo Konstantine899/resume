@@ -94,11 +94,12 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     const controls = screen.getByTestId('nav-controls');
     const links = within(controls).getAllByRole('link');
 
-    // Right-side order (decision R5): [🌍🎨 switches][📄 CTA][socials].
-    // The 🔐 AdminLink must NOT appear — recruiter audit P0 (review fix).
+    // Right-side order (decision R5, extended): [🌍🎨 switches][📄 CTA][socials][🔐 admin].
+    // The 🔐 AdminLink is the desktop admin entry (wired back deliberately).
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       CTA_HREF,
       ...SOCIAL_LINKS.map((link) => link.href),
+      ADMIN_HREF,
     ]);
 
     // Switches precede the CTA in document order.
@@ -108,14 +109,14 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  it('does NOT render the AdminLink on the public nav (recruiter audit P0)', () => {
+  it('renders the AdminLink as the last link of the desktop controls (admin entry)', () => {
     render(<Nav />);
 
     const controls = screen.getByTestId('nav-controls');
-    // The component stays available (placeholder for a later stage) but no
-    // public nav surface may expose it.
-    expect(within(controls).queryByTestId('nav-admin-link')).toBeNull();
-    expect(screen.queryByTestId('nav-admin-link')).toBeNull();
+    const adminLink = within(controls).getByTestId('nav-admin-link');
+    expect(adminLink).toHaveAttribute('href', ADMIN_HREF);
+    // Identity i18n mock → the key itself carries the accessible name.
+    expect(adminLink).toHaveAccessibleName('navAdmin');
   });
 
   it('invokes onNavigation with the section href when a link is activated', () => {

@@ -11,6 +11,7 @@ import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types';
+import { AdminLink } from './ui/AdminLink';
 import { CtaButton } from './ui/CtaButton';
 import { MobileMenu } from './ui/MobileMenu';
 import { NavControls } from './ui/NavControls';
@@ -34,9 +35,9 @@ import { SocialLinks } from './ui/SocialLinks';
  * Desktop renders `NavItem` rows left, `NavControls` + `CtaButton` +
  * social links right (R5). Mobile renders the burger ☰/✕ toggle with the
  * compact CTA beside it (R4), and the T6 `MobileMenu` panel (R9/R10/R11).
- * The `AdminLink` 🔐 placeholder stays available as a component but is no
- * longer rendered on any public nav surface (recruiter audit P0; review
- * fix — a WU-1 commit re-rendered it without a spec item, removed again).
+ * The `AdminLink` 🔐 renders as the last controls link — the desktop entry
+ * to `/admin` (wired back deliberately in WU-1); the mobile panel keeps it
+ * hidden.
  */
 export const Nav: React.FC<NavProps> = ({
   className = '',
@@ -100,6 +101,7 @@ export const Nav: React.FC<NavProps> = ({
           <NavControls />
           <CtaButton variant="desktop" />
           <SocialLinks />
+          <AdminLink />
         </div>
       </nav>
 
