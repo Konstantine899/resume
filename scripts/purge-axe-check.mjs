@@ -125,17 +125,25 @@ async function main() {
   let failed = false;
 
   // WU-6: the admin shell is scanned too — the showcase alone would never
-  // see AdminGate/AdminLayout regressions. The auth flag (§8.4-B) is seeded
-  // so /admin renders the shell, not the login panel.
+  // see AdminLayout regressions. Since the gate removal (plan rev.
+  // 2026-10-02) /admin renders the shell unconditionally — no auth seed.
   for (const theme of THEMES) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     // ThemeContext reads localStorage on mount — seed it before the app boots.
     await context.addInitScript((value) => window.localStorage.setItem('theme', value), theme);
-    await context.addInitScript(() => window.localStorage.setItem('resume.admin.auth', '1'));
 
     for (const path of PATHS) {
+      // Review fix (spec WU-2): the showcase must never fetch lazy admin
+      // page chunks — track JS requests per visit, fail on `/`.
+      const adminChunks = [];
+      const trackAdminChunk = (request) => {
+        const file = request.url().split('/').pop() ?? '';
+        if (file.endsWith('.js') && /(admin|dashboard)/i.test(file)) adminChunks.push(file);
+      };
+      page.on('request', trackAdminChunk);
+
       await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle' });
       await page.waitForSelector('#root > *', { timeout: 15_000 });
       await page.waitForFunction(
@@ -143,6 +151,20 @@ async function main() {
         theme,
         { timeout: 5_000 }
       );
+      // Settle transient motion state: AnimatedSection sets aria-hidden
+      // while its entrance animation runs (SR4, ~900ms). axe would race
+      // that window — the baseline only ever captures settled-state
+      // violations, so scan after the animations finish. Best-effort: a
+      // STUCK aria-hidden still surfaces below as a real violation.
+      await page
+        .waitForFunction(
+          () =>
+            document.querySelectorAll('[data-testid="animated-section"][aria-hidden]').length === 0,
+          { timeout: 5_000 }
+        )
+        .catch(() =>
+          console.log(`  (note: animated sections still aria-hidden after 5s — ${path})`)
+        );
       await page.addScriptTag({ content: axeSource });
 
       const metrics = await page.evaluate(() => {
@@ -201,6 +223,15 @@ async function main() {
         );
         failed = true;
       }
+
+      // Lazy-admin-chunk gate: `/` must not request any admin/dashboard JS.
+      if (path === '/' && adminChunks.length > 0) {
+        console.error(`  ✗ admin page chunks loaded on /: ${adminChunks.join(', ')}`);
+        failed = true;
+      } else if (path !== '/') {
+        console.log(`  admin chunks loaded (expected here): ${adminChunks.join(', ') || 'none'}`);
+      }
+      page.off('request', trackAdminChunk);
     }
 
     await context.close();

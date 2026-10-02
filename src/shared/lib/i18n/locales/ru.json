@@ -36,8 +36,6 @@
   "adminNavDashboard": "Главная",
   "adminNavSettings": "Настройки",
   "adminSettings": "Настройки",
-  "adminGateTitle": "Вход только для разработки",
-  "adminLoginDev": "Войти (dev)",
   "adminLogout": "Выйти",
   "adminDashboardEmpty": "Метрик пока нет.",
   "adminMetricProjects": "Проекты",

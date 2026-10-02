@@ -2,8 +2,11 @@
 // AdminDashboard - Public API (FSD slice)
 // ============================================
 
-export { adminDashboardReducer, clearMetrics, setMetrics } from './model/adminDashboardSlice';
-export { selectAdminMetrics, selectMetricsCount } from './model/selectors';
+// Only what consumers actually import — `setMetrics`/`selectMetricsCount`
+// were exported speculatively (review finding) and stay module-internal
+// until a real consumer appears (tests deep-import them from model/).
+export { adminDashboardReducer, clearMetrics } from './model/adminDashboardSlice';
+export { selectAdminMetrics } from './model/selectors';
 export { mockAdminMetrics } from './model/mockAdminMetrics';
 export { StatCard } from './ui/StatCard';
 export type { StatCardProps } from './ui/StatCard';

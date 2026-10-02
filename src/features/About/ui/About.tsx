@@ -38,7 +38,11 @@ export const About: React.FC<AboutFeatureProps> = ({
         <div className={styles.stack}>
           <div className={styles.panel} data-testid="about-panel">
             <span className={styles.accent} data-testid="about-accent" aria-hidden="true" />
-            <Heading level={3} className={styles.title}>
+            {/* The candidate name IS the page h1 (Hero was removed in
+                ee547ca — this heading carries the document outline now;
+                review fix, was a silent level-3). size="4xl" keeps the
+                original visual scale — level alone would jump to 6xl. */}
+            <Heading level={1} size="4xl" className={styles.title}>
               {DEVELOPER_DATA.fullName}
             </Heading>
             {/* Recruiter-audit P1: expanded multi-paragraph pitch (i18n both locales). */}

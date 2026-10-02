@@ -45,17 +45,18 @@
   margin-left: auto;
 }
 
-.logout {
-  padding: 0;
-  font-size: var(--text-sm);
+// Kit Button owns padding/font/background/border (review fix: raw
 
-  // muted (#6b7280) is 3.88:1 on the #e8e6e3 header — AA needs 4.5.
+// <button> → Button, reuse-first); this block only tints the ghost
+
+// variant. `.controls .logout` (0,2,0) beats the Button module class
+
+// (0,1,0) so the color actually lands.
+.controls .logout {
+  // muted (#6b7280) was 3.88:1 on the #e8e6e3 header — AA needs 4.5.
 
   // secondary (#374151) clears it with room to spare.
   color: var(--color-text-secondary);
-  cursor: pointer;
-  background: none;
-  border: none;
 
   &:hover {
     color: var(--text-primary);

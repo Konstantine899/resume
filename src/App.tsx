@@ -13,21 +13,22 @@ import { storeReducers } from './storeReducers';
 /**
  * Main App Component
  *
- * Provider stack + global router (wiki/plan/admin-panel.md §2.1-A):
- * Toast → I18n → Theme → Store → AppRouter (routes `/` showcase,
- * `/admin` lazy page module).
+ * Provider stack + global router (wiki/plan/admin-panel.md §2.3):
+ * Store → Toast → I18n → Theme → Router (RTK provider outermost, per spec —
+ * review fix reordered it back; routes: `/` showcase, `/admin` lazy page
+ * module).
  */
 const App: React.FC = () => {
   return (
-    <ToastProvider>
-      <I18nProvider>
-        <ThemeProvider>
-          <StoreProvider reducers={storeReducers}>
+    <StoreProvider reducers={storeReducers}>
+      <ToastProvider>
+        <I18nProvider>
+          <ThemeProvider>
             <AppRouter />
-          </StoreProvider>
-        </ThemeProvider>
-      </I18nProvider>
-    </ToastProvider>
+          </ThemeProvider>
+        </I18nProvider>
+      </ToastProvider>
+    </StoreProvider>
   );
 };
 
