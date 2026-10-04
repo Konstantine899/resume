@@ -75,14 +75,19 @@ block.
       one; route registration stays a manual gate (Next steps)
 - [x] **Gate:** smoke S2, S3 (`--with-slice`), S4 (story build), S5 (rerun), S6 (prettier),
       S8 (cleanup) — see REQ-Q5; `git status` clean after S5/S8 — ALL PASSED 2026-10-04 on
-      PR #157 (stacked on `feat/fsd-layers-ssot`): S1 6-file tree; S2 validate 2771 zero
-      edits; S3 with-slice validate 2776; S4 build-storybook ok; S5 prettier ok; S6 rerun
-      exit 1 + byte-identical status; S7 cleanup validate 2770 (= baseline 2746 + 24); S8
-      i18n-first/reuse-first pass. **Owner-approved deviations (VS Code stays open):** D1 =
+      PR #157 (stacked on `feat/fsd-layers-ssot`): S2 validate 2771 zero
+      edits; S3 with-slice validate 2776; S4 build-storybook ok; S5 rerun
+      exit 1 + byte-identical status; S6 prettier ok; S8 cleanup validate
+      2770 (= baseline 2746 + 24). S1 = the Stage 0.5 gates (green there);
+      S7 (refactoring dry-runs) is due with Stage 2. Out-of-matrix
+      self-checks: i18n-first/reuse-first pass. **Owner-approved deviations (VS Code stays open):** D1 =
       real-src `--with-slice` via `rm -rf` + regen (Windows `EPERM`: editor file watchers
       hold dir handles — live-probed, exit 1 + hint, target byte-intact); D2 = `--force`
       swap proven in clean tmp root incl. REQ-G6 foreign-file preservation. Generator suite
-      32/32 (`scripts/`, incl. 8 SSOT invariants). CI checks for #157 start only after
+      31/31 (`scripts/`, incl. 8 SSOT invariants) after the 2026-10-04 dual review
+      (`3b1382a`: REQ-T3 children case added to the component-test template, PowerShell
+      lock test removed — shell breach of plan R6 + flaky under parallel runs, English
+      comments restored). CI checks for #157 start only after
       retarget to `dev` (workflows trigger on main/dev only). AGENTS gotcha:
       `resume-genslice-eperm`; plan rev.5
 

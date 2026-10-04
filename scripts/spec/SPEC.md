@@ -167,7 +167,10 @@ passing `npm run validate` on generated output with zero manual edits.
 - **REQ-T1 `types.mjs`** — see REQ-G9/G10. Banner comment `// ==== <Name> — … ====`.
 - **REQ-T2 `component.mjs`** — `memo` named function; props imported as
   `import type { <Name>Props } from '../model/types'` (precedent: `About.tsx`, `Nav.tsx`);
-  `import type { ReactNode } from 'react'` (explicit type import, not bare `React.ReactNode`);
+  `ReactNode` is imported ONLY by `model/types.ts` for the `children` slot (plan §4.5.7) —
+  the component must NOT import it (unused-import lint violation; bare `React.ReactNode` is
+  likewise forbidden) — _amended after the Stage-1 gates, which proved the old wording
+  red under `no-unused-vars`_;
   `className={classNames(styles.<camel>, {}, [className])}` with
   `import { classNames } from '@/shared/lib/utils/classNames'` — **the only allowed path**
   (forbidden: `clsx`, `classnames`, `shared/lib/classNames/…`);
