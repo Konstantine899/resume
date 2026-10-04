@@ -46,7 +46,28 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
 - `npm run generate:slice <layer> <SliceName>` — scaffolds an FSD slice through `scripts/createSlices/` (templates in `createSlices/templates/`). Layers come from `scripts/fsd-layers.json` only; reruns need `--force`; route/composition-root/i18n edits are printed as "Next steps" and never auto-applied. Gotchas: `resume-fsd-ssot`, `resume-genslice-eperm`.
 - `npm run check:public-api` — shared/ui barrel boundary, the **last step of `npm run validate`** (exit 1 on a missing `index.ts` or a deep `<Component>/<X>` import). Sibling `npm run refactor:imports` rewrites bare FSD-layer specifiers (dry-run default, `--fix` to write). Gotcha: `resume-refactor-tools`.
 - Not ported by decision — `clear-cache`, `getApiUrl`/`build:dev` (xargs), Loki report, `print-env.mjs` (OPEN-7 No). Gotcha: `resume-scripts-nonported`.
-- Spec-driven changes run as `SPEC.md` (survives) + `TODO.md` (burns down); templates and stage rules live in `scripts/spec/`.
+- Spec-driven changes run as `SPEC.md` (survives) + `TODO.md` (burns down); the pack's own pair lives in `scripts/spec/`. The per-feature spec workflow (same pair, per slice) is defined in **Spec-driven features** below.
+
+## Spec-driven features
+
+Каждая фича при начале планирования получает папку `src/features/<name>/spec/`:
+
+- `SPEC.md` — контракт. Живёт вместе с фичей. Пишется ПЕРВЫМ.
+- `TODO.md` — план. Сгорает по мере работы. Пишется ВТОРЫМ.
+
+Статусы во frontmatter: `draft` (пишем) → `approved` (можно в код) → `done`.
+
+Правила:
+
+1. Критерии готовности всегда раньше плана. План без критериев не ревьюится.
+2. Критерий = наблюдаемый исход ("- [ ] неверный пароль → надпись X"),
+   не оценка ("работает корректно").
+3. `approved` = допуск начать, а не заморозка. Правки плана после approve
+   идут вместе с кодом.
+4. Шаг выполнен → пункт в TODO удаляется, а не отмечается.
+5. SPEC — единственная копия. Не дублировать в vault / openspec.
+6. Папку `spec/` не заводить заранее — только при старте планирования.
+7. При расхождении SPEC с кодом обновить SPEC и дату `verified`.
 
 ## Project conventions (strict — all agents MUST follow)
 
