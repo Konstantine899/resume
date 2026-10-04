@@ -46,7 +46,7 @@ block.
 - [x] **0.5.3** Run type-check + eslint + stylelint (+ prettier --check) on the samples — S1
       green: all four gates passed on the FIRST run, zero edits (plus `vitest run` on the
       probe: 2 files / 6 tests; plus a negative FSD probe — `import { Nav } from
-  '@/widgets/Nav'` inside features → eslint exit 1, `fsd-imports` fired — proving the
+'@/widgets/Nav'` inside features → eslint exit 1, `fsd-imports` fired — proving the
       gate really lints the samples)
 - [x] **0.5.4** Fix templates until all four gates pass with zero manual edits — not needed:
       zero edits were required; verified content folded back into plan §4.5 (rev.4)
@@ -58,20 +58,33 @@ block.
 
 ## Stage 1 — Generator `scripts/createSlices/` (P0, TDD)
 
-- [ ] **1.1** Tests first (in `scripts/__tests__/`): naming helpers, CLI validation, tree shape
+- [x] **1.1** Tests first (in `scripts/__tests__/`): naming helpers, CLI validation, tree shape
       (base + `--with-slice`), rerun byte-identical, `--dry-run` zero writes, template content
-      assertions — REQ-Q3, REQ-Q4.1–4.6
-- [ ] **1.2** `resolve-root.mjs` (`import.meta.url`, `--root`/`SLICE_ROOT`) + SSOT integration
-- [ ] **1.3** `index.mjs` entry: validation, flags, `try/catch` → `process.exitCode = 1` — REQ-G1/G2
-- [ ] **1.4** Templates (from Stage 0.5 samples): REQ-T1–T9
-- [ ] **1.5** `create-model.mjs`, `create-ui.mjs`, `create-public-api.mjs`
-- [ ] **1.6** `create-template.mjs`: preflight → staging dir → atomic rename + rollback;
-      `--force` swap that never deletes foreign files — REQ-G4–G6
-- [ ] **1.7** npm script `generate:slice` → `node scripts/createSlices/index.mjs`
+      assertions — REQ-Q3, REQ-Q4.1–4.6 — 24 tests, all green (`e894d33`)
+- [x] **1.2** `resolve-root.mjs` (`import.meta.url`, `--root`/`SLICE_ROOT`) + SSOT integration
+      (`getGeneratorLayers()` accessor added to `scripts/fsd-layers.mjs`)
+- [x] **1.3** `index.mjs` entry: validation, flags, `try/catch` → `process.exitCode = 1` — REQ-G1/G2
+- [x] **1.4** Templates (from Stage 0.5 samples / plan §4.5 rev.4): REQ-T1–T9 — 8 modules under
+      `scripts/createSlices/templates/` (`d03f2a1`)
+- [x] **1.5** `create-model.mjs`, `create-ui.mjs`, `create-public-api.mjs`
+- [x] **1.6** `create-template.mjs`: preflight → staging dir → atomic rename + rollback;
+      `--force` swap that never deletes foreign files — REQ-G4–G6 (EPERM-on-locked-dir hint +
+      rollback: `a3e2593`)
+- [x] **1.7** npm script `generate:slice` → `node scripts/createSlices/index.mjs`
 - [x] **1.8** OPEN-2 **decided (owner, 2026-10-04)**: `pages` IN `generatorLayers` from day
       one; route registration stays a manual gate (Next steps)
-- [ ] **Gate:** smoke S2, S3 (`--with-slice`), S4 (story build), S5 (rerun), S6 (prettier),
-      S8 (cleanup) — see REQ-Q5; `git status` clean after S5/S8
+- [x] **Gate:** smoke S2, S3 (`--with-slice`), S4 (story build), S5 (rerun), S6 (prettier),
+      S8 (cleanup) — see REQ-Q5; `git status` clean after S5/S8 — ALL PASSED 2026-10-04 on
+      PR #157 (stacked on `feat/fsd-layers-ssot`): S1 6-file tree; S2 validate 2771 zero
+      edits; S3 with-slice validate 2776; S4 build-storybook ok; S5 prettier ok; S6 rerun
+      exit 1 + byte-identical status; S7 cleanup validate 2770 (= baseline 2746 + 24); S8
+      i18n-first/reuse-first pass. **Owner-approved deviations (VS Code stays open):** D1 =
+      real-src `--with-slice` via `rm -rf` + regen (Windows `EPERM`: editor file watchers
+      hold dir handles — live-probed, exit 1 + hint, target byte-intact); D2 = `--force`
+      swap proven in clean tmp root incl. REQ-G6 foreign-file preservation. Generator suite
+      32/32 (`scripts/`, incl. 8 SSOT invariants). CI checks for #157 start only after
+      retarget to `dev` (workflows trigger on main/dev only). AGENTS gotcha:
+      `resume-genslice-eperm`; plan rev.5
 
 ## Stage 2 — Refactoring tools (P1)
 
