@@ -50,3 +50,28 @@ export function getModuleSpecifiers(sourceFile) {
   }
   return references;
 }
+
+/**
+ * Shared CLI flag parsing for the refactoring tools: `--fix`, the accepted
+ * no-op `--dry-run` (dry-run IS the default) and the `--root=` prefix that
+ * `resolveRoot` consumes. Anything else throws with the caller's usage line.
+ *
+ * @param {string[]} argv arguments without `node` and script path
+ * @param {string} usage usage line printed when an option is unknown
+ * @returns {{ fix: boolean }}
+ */
+export function parseArgs(argv, usage) {
+  let fix = false;
+  for (const arg of argv) {
+    if (arg === '--fix') {
+      fix = true;
+    } else if (arg === '--dry-run') {
+      // Dry-run is the default; the explicit flag is accepted as a no-op.
+    } else if (arg.startsWith('--root=')) {
+      // Consumed by resolveRoot.
+    } else {
+      throw new Error(`Unknown option "${arg}".\n${usage}`);
+    }
+  }
+  return { fix };
+}

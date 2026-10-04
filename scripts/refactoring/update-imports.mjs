@@ -23,7 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveRoot } from '../createSlices/resolve-root.mjs';
 import { getFsdLayers } from '../fsd-layers.mjs';
-import { createSrcProject, getModuleSpecifiers } from './src-scan.mjs';
+import { createSrcProject, getModuleSpecifiers, parseArgs } from './src-scan.mjs';
 
 const USAGE = 'Usage: node scripts/refactoring/update-imports.mjs [--fix] [--root=<dir>]';
 
@@ -47,32 +47,12 @@ export function startsWithFsdLayer(specifier) {
 }
 
 /**
- * @param {string[]} argv arguments without `node` and script path
- * @returns {{ fix: boolean }}
- */
-function parseArgs(argv) {
-  let fix = false;
-  for (const arg of argv) {
-    if (arg === '--fix') {
-      fix = true;
-    } else if (arg === '--dry-run') {
-      // Dry-run is the default; the explicit flag is accepted as a no-op.
-    } else if (arg.startsWith('--root=')) {
-      // Consumed by resolveRoot.
-    } else {
-      throw new Error(`Unknown option "${arg}".\n${USAGE}`);
-    }
-  }
-  return { fix };
-}
-
-/**
  * Scan `src/`, report (or rewrite with `--fix`) bare FSD-layer specifiers.
  * @returns {Promise<void>}
  */
 async function main() {
   const argv = process.argv.slice(2);
-  const { fix } = parseArgs(argv);
+  const { fix } = parseArgs(argv, USAGE);
   const root = resolveRoot(argv);
   const project = createSrcProject(path.join(root, 'src'));
 

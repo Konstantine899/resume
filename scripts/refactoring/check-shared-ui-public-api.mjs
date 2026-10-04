@@ -30,9 +30,10 @@
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Node } from 'ts-morph';
 import { resolveRoot } from '../createSlices/resolve-root.mjs';
-import { createSrcProject, getModuleSpecifiers } from './src-scan.mjs';
+import { createSrcProject, getModuleSpecifiers, parseArgs } from './src-scan.mjs';
 
 const USAGE =
   'Usage: node scripts/refactoring/check-shared-ui-public-api.mjs [--fix] [--root=<dir>]';
@@ -95,7 +96,7 @@ function buildBarrelContent(project, componentDir, componentDirPosix) {
     .filter((file) => {
       const abs = file.getFilePath().split(path.sep).join('/');
       if (!abs.startsWith(dirPrefix)) return false;
-      const relPath = abs.slice(dirPrefix.length).split('/').join('/');
+      const relPath = abs.slice(dirPrefix.length);
       if (relPath === 'index.ts') return false;
       if (relPath.endsWith('.d.ts')) return false;
       if (relPath.endsWith('.test.ts') || relPath.endsWith('.test.tsx')) return false;
@@ -137,32 +138,12 @@ function buildBarrelContent(project, componentDir, componentDirPosix) {
 }
 
 /**
- * @param {string[]} argv arguments without `node` and script path
- * @returns {{ fix: boolean }}
- */
-function parseArgs(argv) {
-  let fix = false;
-  for (const arg of argv) {
-    if (arg === '--fix') {
-      fix = true;
-    } else if (arg === '--dry-run') {
-      // Dry-run is the default; the explicit flag is accepted as a no-op.
-    } else if (arg.startsWith('--root=')) {
-      // Consumed by resolveRoot.
-    } else {
-      throw new Error(`Unknown option "${arg}".\n${USAGE}`);
-    }
-  }
-  return { fix };
-}
-
-/**
  * Analyze (and with `--fix` repair) the shared/ui public API.
  * @returns {Promise<void>}
  */
 async function main() {
   const argv = process.argv.slice(2);
-  const { fix } = parseArgs(argv);
+  const { fix } = parseArgs(argv, USAGE);
   const root = resolveRoot(argv);
   const srcSharedUi = path.join(root, 'src', 'shared', 'ui');
   if (!existsSync(srcSharedUi)) {
@@ -262,9 +243,15 @@ async function main() {
   );
 }
 
-try {
-  await main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+// Run only when executed directly (in-process tests can import main's
+// helpers without triggering a CLI run) — same guard style as update-imports.
+const invokedDirectly =
+  process.argv[1] !== undefined && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invokedDirectly) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }
