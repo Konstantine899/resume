@@ -18,6 +18,10 @@
  *      and restored on failure. Only generator-owned files are replaced;
  *      foreign files are copied into the new target and listed in the output,
  *      never deleted (plan §2.3.2 п.7).
+ *   7. On Windows, editors/watchers (e.g. VS Code) can hold open handles on
+ *      the target directory, so its rename fails with EPERM/EBUSY/EACCES.
+ *      Lock errors are reported with an actionable hint (exit 1, staging
+ *      removed, target untouched); the atomic-dir design itself is unchanged.
  *
  * Emitted content is run through `prettier.format()` with the repository
  * `.prettierrc` (REQ-G13 / plan R17): long generated lines (e.g. the `memo`
@@ -76,6 +80,22 @@ function createStagingWriter() {
 
 function messageOf(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+/** Windows lock codes: rename of a watched/open directory fails with these. */
+const LOCK_CODES = new Set(['EPERM', 'EBUSY', 'EACCES']);
+
+/** @param {unknown} error @returns {boolean} */
+function isLockError(error) {
+  return error != null && LOCK_CODES.has(/** @type {any} */ (error).code);
+}
+
+/** Actionable hint for a blocked swap (REQ-G6 recovery guidance). */
+function lockedSwapError(targetDir) {
+  return new GeneratorError(
+    `Cannot swap ${targetDir}: directory is locked by another process (Windows). ` +
+      'Close file watchers/editors or remove the directory manually, then rerun with --force.'
+  );
 }
 
 function printTree(header, files) {
@@ -153,11 +173,25 @@ async function preserveForeignFiles(oldDir, targetDir, names) {
  */
 async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts) {
   const oldDir = path.join(layerDir, `${names.name}.old-${ts}`);
-  await rename(targetDir, oldDir);
+  try {
+    await rename(targetDir, oldDir);
+  } catch (error) {
+    if (isLockError(error)) throw lockedSwapError(targetDir);
+    throw error;
+  }
   try {
     await rename(stagingDir, targetDir);
   } catch (error) {
-    await rename(oldDir, targetDir); // rollback: the previous tree takes its place again
+    // rollback: the previous tree takes its place again
+    try {
+      await rename(oldDir, targetDir);
+    } catch (rollbackError) {
+      throw new GeneratorError(
+        `Swap failed (${messageOf(error)}) and rollback failed (${messageOf(rollbackError)}). ` +
+          `Previous tree kept at ${oldDir}; staging is removed. Restore it manually.`
+      );
+    }
+    if (isLockError(error)) throw lockedSwapError(targetDir);
     throw error;
   }
   try {
