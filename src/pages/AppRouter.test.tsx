@@ -98,7 +98,13 @@ describe('AppRouter', () => {
   });
 
   it('renders through the AppRouter component (browser-history router)', () => {
-    render(<AppRouter />);
+    // HomePage reads the AboutContent slice (WU-2) — same store shape as
+    // the renderAt() helper above, so this path needs the Provider too.
+    render(
+      <StoreProvider reducers={storeReducers}>
+        <AppRouter />
+      </StoreProvider>
+    );
 
     expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
   });

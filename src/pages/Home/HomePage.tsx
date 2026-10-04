@@ -1,6 +1,7 @@
 // ============================================
 // Home Page
 // ============================================
+import { selectAboutContent } from '@/features/AdminAbout';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';
@@ -9,6 +10,7 @@ import { WorkHistory } from '@/features/WorkHistory';
 import { Nav } from '@/widgets/Nav';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styles from './HomePage.module.scss';
 
 /**
@@ -16,6 +18,11 @@ import styles from './HomePage.module.scss';
  * Composes all widgets and features following FSD architecture.
  */
 export const HomePage: React.FC = () => {
+  // WU-2 read-path (Design C): pages is the ONLY layer that reads the
+  // AboutContent slice — the vitrina receives it as a prop and keeps its
+  // store-free fallback (bare tests render without a Provider).
+  const aboutContent = useSelector(selectAboutContent);
+
   return (
     <>
       {/* Skip link for accessibility — R6: the single skip link lives here,
@@ -43,7 +50,7 @@ export const HomePage: React.FC = () => {
             the same order (the standalone "home" anchor was dropped, so nav
             anchors and render order are one list, not two). */}
         <main id="main-content" className={styles.mainContent}>
-          <About />
+          <About content={aboutContent} />
           <Skills />
           <MyWork />
           <WorkHistory />

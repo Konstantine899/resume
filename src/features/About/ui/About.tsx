@@ -24,8 +24,9 @@ const STATS_KEYS = [
 export const About: React.FC<AboutFeatureProps> = ({
   className = '',
   'data-testid': testId = 'about',
+  content,
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <Section
@@ -43,13 +44,19 @@ export const About: React.FC<AboutFeatureProps> = ({
                 review fix, was a silent level-3). size="4xl" keeps the
                 original visual scale — level alone would jump to 6xl. */}
             <Heading level={1} size="4xl" className={styles.title}>
-              {DEVELOPER_DATA.fullName}
+              {content?.fullName ?? DEVELOPER_DATA.fullName}
             </Heading>
             {/* Recruiter-audit P1: expanded multi-paragraph pitch (i18n both locales). */}
             <div className={styles.description}>
-              <Paragraph theme="muted">{t('aboutDescription')}</Paragraph>
-              <Paragraph theme="muted">{t('aboutDescription2')}</Paragraph>
-              <Paragraph theme="muted">{t('aboutDescription3')}</Paragraph>
+              <Paragraph theme="muted">
+                {content?.descriptions[0][language] ?? t('aboutDescription')}
+              </Paragraph>
+              <Paragraph theme="muted">
+                {content?.descriptions[1][language] ?? t('aboutDescription2')}
+              </Paragraph>
+              <Paragraph theme="muted">
+                {content?.descriptions[2][language] ?? t('aboutDescription3')}
+              </Paragraph>
             </div>
             {/* Stack badges — shared PROFILE_STACK, scannable proof. */}
             <ul className={styles.stackBadges} data-testid="about-stack">
@@ -70,7 +77,7 @@ export const About: React.FC<AboutFeatureProps> = ({
                       ·
                     </span>
                   )}
-                  <span className={styles.stat}>{t(key)}</span>
+                  <span className={styles.stat}>{content?.stats[key][language] ?? t(key)}</span>
                 </Fragment>
               ))}
             </div>
@@ -81,7 +88,7 @@ export const About: React.FC<AboutFeatureProps> = ({
               underline="never"
               className={styles.ctaButton}
             >
-              {t('getInTouch')}
+              {content?.ctaLabel[language] ?? t('getInTouch')}
             </Link>
           </div>
           <Image

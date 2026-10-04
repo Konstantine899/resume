@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { StoreProvider } from '@/app/providers';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { HomePage } from '@/pages/Home';
+import { storeReducers } from '@/storeReducers';
 import { ADMIN_HREF, CTA_HREF, NAV_ITEMS } from './model/constants';
 import { Nav } from './index';
 import styles from './Nav.module.scss';
@@ -245,7 +247,12 @@ describe('Nav: renders within HomePage', () => {
   });
 
   it('renders the sticky Nav before <main> with exactly one skip link', () => {
-    render(<HomePage />);
+    // HomePage reads the AboutContent slice (WU-2) — needs the store.
+    render(
+      <StoreProvider reducers={storeReducers}>
+        <HomePage />
+      </StoreProvider>
+    );
 
     const header = screen.getByRole('banner');
     const main = screen.getByRole('main');
