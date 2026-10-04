@@ -5,6 +5,8 @@
  * even though `globals: true` is on. The second case asserts the merged
  * `className` via `toHaveClass('custom')` (AnimatedSection.test.tsx:64
  * precedent; jest-dom matchers are global through src/tests/setup.ts).
+ * The third case (REQ-T3) renders children through the component's
+ * `{children}` slot.
  *
  * @param {{ name: string, kebab: string }} names
  * @returns {string}
@@ -24,6 +26,11 @@ describe('${name}', () => {
   it('merges custom className', () => {
     render(<${name} className="custom" />);
     expect(screen.getByTestId('${kebab}')).toHaveClass('custom');
+  });
+
+  it('renders children', () => {
+    render(<${name}>child content</${name}>);
+    expect(screen.getByText('child content')).toBeInTheDocument();
   });
 });
 `;

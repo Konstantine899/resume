@@ -39,7 +39,7 @@ export function modelFiles(names) {
  * @param {string} stagingDir absolute path of the staging directory
  * @param {{ name: string, camel: string, withSlice?: boolean }} names
  * @param {(absPath: string, content: string) => Promise<void>} writeFileWx
- *   fail-if-exists writer supplied by the orchestrator (plan §2.3.2 п.4)
+ *   fail-if-exists writer supplied by the orchestrator (plan §2.3.2 item 4)
  */
 export async function createModel(stagingDir, names, writeFileWx) {
   for (const file of modelFiles(names)) {

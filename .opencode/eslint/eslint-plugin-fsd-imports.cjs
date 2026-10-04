@@ -15,14 +15,14 @@
 const fs = require('fs');
 const path = require('path');
 
-// Единый источник правды по слоям FSD — scripts/fsd-layers.json (SSOT).
-// ⚠️ Глубина require ОБЯЗАТЕЛЬНО '../../' из .opencode/eslint/: '../../../'
-// уходит выше корня репозитория → MODULE_NOT_FOUND → ESLint не загрузится и
-// весь npm run lint станет красным. Не храните списки слоёв локально —
-// инвариант: scripts/__tests__/fsd-layers.test.ts.
+// Single source of truth for FSD layers: scripts/fsd-layers.json (SSOT).
+// ⚠️ The require depth MUST be '../../' from .opencode/eslint/: '../../../'
+// resolves above the repo root → MODULE_NOT_FOUND → ESLint fails to load and
+// the whole `npm run lint` goes red. Never keep layer lists local —
+// invariant: scripts/__tests__/fsd-layers.test.ts.
 const FSD = require('../../scripts/fsd-layers.json');
 
-// All FSD layer names, bottom-up (used to build every layer regex below).
+// All FSD layer names, SSOT order (used to build every layer regex below).
 const LAYERS = FSD.layers;
 
 // Allowed imports per source layer — straight from the SSOT.
@@ -108,7 +108,8 @@ module.exports = {
           description: 'Validate FSD layer dependency rules',
         },
         messages: {
-          violation: 'FSD layer violation: "{{sourceLayer}}" cannot import from "{{targetLayer}}". Allowed: {{allowed}}',
+          violation:
+            'FSD layer violation: "{{sourceLayer}}" cannot import from "{{targetLayer}}". Allowed: {{allowed}}',
         },
         schema: [],
       },
@@ -135,9 +136,10 @@ module.exports = {
               data: {
                 sourceLayer,
                 targetLayer,
-                allowed: allowed.length > 0
-                  ? allowed.join(', ')
-                  : 'none (shared cannot import from other layers)',
+                allowed:
+                  allowed.length > 0
+                    ? allowed.join(', ')
+                    : 'none (shared cannot import from other layers)',
               },
             });
           },
@@ -211,14 +213,19 @@ module.exports = {
 
             // For other layers: importing into internal folders is a violation
             // But first check disallow patterns for deep imports
-            if (disallowPatterns.some((p) => {
-              const escaped = p.replace(/\*\*/g, '(.+)?').replace(/\*/g, '[^/]+').replace(/\//g, '\\/');
-              try {
-                return new RegExp(escaped).test(source);
-              } catch {
-                return false;
-              }
-            })) {
+            if (
+              disallowPatterns.some((p) => {
+                const escaped = p
+                  .replace(/\*\*/g, '(.+)?')
+                  .replace(/\*/g, '[^/]+')
+                  .replace(/\//g, '\\/');
+                try {
+                  return new RegExp(escaped).test(source);
+                } catch {
+                  return false;
+                }
+              })
+            ) {
               context.report({
                 node,
                 messageId: 'violation',
@@ -337,7 +344,8 @@ module.exports = {
           description: 'Detect circular imports between FSD layers',
         },
         messages: {
-          violation: 'Potential circular dependency detected: "{{source}}" creates a cycle with "{{filePath}}"',
+          violation:
+            'Potential circular dependency detected: "{{source}}" creates a cycle with "{{filePath}}"',
         },
         schema: [],
       },

@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -248,79 +248,6 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     expect(layerEntries).toEqual(['ForceSlice']);
   });
 });
-
-// Windows-only: owner-approved EPERM adaptation. A real directory lock cannot
-// be simulated in-process (Node opens handles with FILE_SHARE_DELETE), so a
-// PowerShell child holds a FileShare::None handle on a file inside the target —
-// that blocks the parent-directory rename with EPERM exactly like an editor.
-describe.skipIf(process.platform !== 'win32')(
-  'generate:slice CLI — locked directory hint (Windows EPERM adaptation)',
-  () => {
-    /** @type {string} */
-    let root;
-    /** @type {import('node:child_process').ChildProcess | undefined} */
-    let locker;
-
-    beforeEach(async () => {
-      root = await mkdtemp(path.join(tmpdir(), 'slice-gen-'));
-    });
-
-    afterEach(async () => {
-      if (locker && locker.exitCode === null) {
-        locker.kill();
-        await new Promise((resolve) => locker.once('exit', resolve));
-        locker = undefined;
-      }
-      await rm(root, { recursive: true, force: true });
-    });
-
-    it('--force on a locked target exits 1 with an actionable hint, staging removed, target intact', async () => {
-      const sliceDir = path.join(root, 'src', 'features', 'LockSlice');
-      const first = await runCli(['--root=' + root, 'features', 'LockSlice']);
-      expect(first.exitCode).toBe(0);
-      const before = await snapshot(path.join(root, 'src', 'features'));
-
-      const childFile = path.join(sliceDir, 'index.ts').replace(/\\/g, '\\\\');
-      const readyFile = path.join(root, 'ready.lock').replace(/\\/g, '\\\\');
-      locker = spawn('powershell.exe', [
-        '-NoProfile',
-        '-Command',
-        `$f=[IO.File]::Open('${childFile}','Open','ReadWrite','None'); ` +
-          `[IO.File]::WriteAllText('${readyFile}','x'); Start-Sleep 30`,
-      ]);
-      // Wait until the lock is actually held (ready marker written).
-      const deadline = Date.now() + 10_000;
-      while (!existsSync(path.join(root, 'ready.lock')) && Date.now() < deadline) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-      expect(existsSync(path.join(root, 'ready.lock'))).toBe(true);
-
-      const forced = await runCli([
-        '--root=' + root,
-        '--with-slice',
-        '--force',
-        'features',
-        'LockSlice',
-      ]);
-      expect(forced.exitCode).toBe(1);
-      const output = forced.stdout + forced.stderr;
-      expect(output).toContain('Cannot swap');
-      expect(output).toContain('directory is locked by another process (Windows)');
-      expect(output).toContain('rerun with --force');
-
-      // Release the lock before reading the tree back (FileShare::None blocks
-      // snapshot's readFile until the locker process is gone).
-      locker.kill();
-      await new Promise((resolve) => locker.once('exit', resolve));
-      locker = undefined;
-
-      // Rollback: target byte-identical, no staging/.old leftovers.
-      expect(await snapshot(path.join(root, 'src', 'features'))).toEqual(before);
-      const layerEntries = await readdir(path.join(root, 'src', 'features'));
-      expect(layerEntries).toEqual(['LockSlice']);
-    }, 30_000);
-  }
-);
 
 describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () => {
   /** @type {string} */

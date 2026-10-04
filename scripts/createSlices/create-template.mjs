@@ -8,16 +8,16 @@
  *      with a recovery hint, exit 1, tree byte-identical (REQ-G5/G6).
  *   3. The full tree is written into a staging directory next to the target
  *      (`src/<layer>/.<Name>.tmp-<ts>/`, same filesystem), every file with the
- *      fail-if-exists `'wx'` flag (plan §2.3.2 п.3–4).
+ *      fail-if-exists `'wx'` flag (plan §2.3.2 item 3–4).
  *   4. Each step (`createModel` → `createUI` → `createPublicApi`) gets its own
  *      try; errors are aggregated and the FIRST error aborts — staging is
- *      removed, the target is never left in a mixed state (plan §2.3.2 п.5).
+ *      removed, the target is never left in a mixed state (plan §2.3.2 item 5).
  *   5. Atomic `rename` staging → target.
  *   6. `--force`: swap — the existing target is renamed to `<Name>.old-<ts>`,
  *      the staged tree takes its place, the old tree is removed after success
  *      and restored on failure. Only generator-owned files are replaced;
  *      foreign files are copied into the new target and listed in the output,
- *      never deleted (plan §2.3.2 п.7).
+ *      never deleted (plan §2.3.2 item 7).
  *   7. On Windows, editors/watchers (e.g. VS Code) can hold open handles on
  *      the target directory, so its rename fails with EPERM/EBUSY/EACCES.
  *      Lock errors are reported with an actionable hint (exit 1, staging
@@ -67,7 +67,7 @@ function prettierConfig() {
 
 /**
  * Staging writer: prettier-formats the content, then writes with `'wx'`
- * (fail-if-exists — third line of defense, plan §2.3.2 п.4).
+ * (fail-if-exists — third line of defense, plan §2.3.2 item 4).
  * @returns {(absPath: string, content: string) => Promise<void>}
  */
 function createStagingWriter() {
@@ -231,7 +231,7 @@ export async function createTemplate({ root, names, force = false, dryRun = fals
   const writeFileWx = createStagingWriter();
 
   try {
-    // plan §2.3.2 п.3 — recursive mkdir only for the staging tree, post-preflight.
+    // plan §2.3.2 item 3 — recursive mkdir only for the staging tree, post-preflight.
     await mkdir(stagingDir, { recursive: true });
     for (const dir of new Set(planFiles(names).map((file) => path.dirname(file.relPath)))) {
       if (dir !== '.') await mkdir(path.join(stagingDir, dir), { recursive: true });
@@ -261,7 +261,7 @@ export async function createTemplate({ root, names, force = false, dryRun = fals
       await rename(stagingDir, targetDir);
     }
   } catch (error) {
-    // Any failure: staging removed, target untouched (plan §2.3.2 п.2).
+    // Any failure: staging removed, target untouched (plan §2.3.2 item 2).
     await rm(stagingDir, { recursive: true, force: true });
     throw error;
   }
