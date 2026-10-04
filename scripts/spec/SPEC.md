@@ -208,6 +208,13 @@ passing `npm run validate` on generated output with zero manual edits.
   `--fix` creates barrels with **named** re-exports, never `export *`). Pass 2: deep imports
   `@/shared/ui/<C>/<X>` → `@/shared/ui/<C>` (dry-run exit 1 on violations; `--fix` rewrites).
   Every `file.save()` / `project.save()` is awaited (no floating promises).
+  **Amended 2026-10-04 (evidence, Stage 2):** pass 2 skips a deep import when the first segment
+  after the component is a sanctioned internal segment (`lib`, `constants`, `types`, `model` —
+  mirrors `public-api-only.allowInternal` in `eslint.config.js`). Forcing the real tree's 18
+  `model`/`lib` deep imports through barrels breaks type-check (symbols such as
+  `getFallbackColor`, `validateDividerProps`, `ToastAction` are deliberately not
+  barrel-exported) and would contradict the ESLint gate inside `npm run validate` (OPEN-6);
+  the literal predicate would also make smoke S7's clean-tree exit 0 impossible.
 - **REQ-R3** Runtime: **Variant A** — ESM `.mjs` + `ts-morph` (latest per `resume-version-policy`),
   zero config changes (decision OPEN-4; fallback Variant B `.ts` + `tsx` + config edits listed in
   the plan §2.4).
@@ -277,7 +284,7 @@ passing `npm run validate` on generated output with zero manual edits.
 | OPEN-1 | Keep `entities` in `generatorLayers`?               | **Yes — decided (owner, 2026-10-04): uniform generation in any slice layer**; the "existing entities have no `ui/`" observation is history, not a rule. Superseded requirement: uniform tree, no per-layer variants (REQ-G8) | Stage 1   | **decided** |
 | OPEN-2 | Add `pages` to `generatorLayers`?                   | **Yes — decided (owner, 2026-10-04): included from day one**; route registration stays a manual gate (REQ-G11). `shared`/`app` remain out of scope (different slice structure)                                               | Stage 1   | **decided** |
 | OPEN-3 | Wire or delete `eslint-plugin-fsd-imports.test.js`? | **Repoint to `.cjs` + add `.opencode/eslint/**` to vitest include** — decided (owner, 2026-10-04)                                                                                                                            | Stage 0   | **decided** |
-| OPEN-4 | Refactoring tools: `.mjs` (A) or `.ts`+`tsx` (B)?   | **A** — zero config changes                                                                                                                                                                                                  | Stage 2   | pending     |
+| OPEN-4 | Refactoring tools: `.mjs` (A) or `.ts`+`tsx` (B)?   | **A — decided (owner, 2026-10-04): ESM `.mjs` + `ts-morph` (latest), zero config changes**; Variant B (`.ts` + `tsx` + config edits) stays documented in plan §2.4 as the fallback                                           | Stage 2   | **decided** |
 | OPEN-5 | Extend vitest `include` with `scripts/**`?          | **Yes** (fallback: dedicated node project) — decided (owner, 2026-10-04)                                                                                                                                                     | Stage 0/1 | **decided** |
-| OPEN-6 | Add `check:public-api` to `npm run validate`?       | Yes, after Stage 2                                                                                                                                                                                                           | Stage 2   | pending     |
+| OPEN-6 | Add `check:public-api` to `npm run validate`?       | **Yes — decided (owner, 2026-10-04): appended as the final step of `npm run validate`** after Stage 2 (clean-tree exit 0 proven by smoke S7)                                                                                 | Stage 2   | **decided** |
 | OPEN-7 | Implement `print-env.mjs`?                          | No, while `__API__` is unused                                                                                                                                                                                                | —         | pending     |
