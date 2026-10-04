@@ -9,19 +9,29 @@ block.
 
 - [x] **0.1** OPEN-3 + OPEN-5 **decided (owner, 2026-10-04)**: repoint plugin test to `.cjs` + include `.opencode/eslint/**`; extend vitest include with `scripts/**` (fallback:
       dedicated node project)
-- [ ] **0.2** Create `scripts/fsd-layers.json` exactly per REQ-S2
-- [ ] **0.3** Create `scripts/fsd-layers.mjs` wrapper (`getFsdLayers`, `isFsdLayer`,
-      `layerFromPath`, `layerFromSpecifier`) — REQ-S1
-- [ ] **0.4** Point `.opencode/eslint/eslint-plugin-fsd-imports.cjs` at the JSON via
+- [x] **0.2** Create `scripts/fsd-layers.json` exactly per REQ-S2 — done (`11a57b1`, PR #156)
+- [x] **0.3** Create `scripts/fsd-layers.mjs` wrapper (`getFsdLayers`, `isFsdLayer`,
+      `layerFromPath`, `layerFromSpecifier`) — REQ-S1 — done (`11a57b1`)
+- [x] **0.4** Point `.opencode/eslint/eslint-plugin-fsd-imports.cjs` at the JSON via
       `require('../../scripts/fsd-layers.json')` — **separate commit, immediate `npm run lint`**
-      (REQ-S3; wrong depth crashes every lint run)
-- [ ] **0.5** Resolve tracked dead test: repoint to `.cjs` + wire `.opencode/eslint/**` into
-      vitest include, or delete — REQ-S4 / OPEN-3
-- [ ] **0.6** Invariant test `scripts/__tests__/fsd-layers.test.ts` (subset check minus
-      `{src, locales, buildLocales}`) — REQ-S5, REQ-S6
-- [ ] **0.7** Add `scripts/**/*.ts` to `tsconfig.node.json → include` — REQ-Q2
-- [ ] **0.8** Point-of-truth note in AGENTS.md: "no local layer arrays" (partial — finish in Stage 4)
-- [ ] **Gate:** `npm run validate` green; invariant green; `npm run lint` unchanged
+      (REQ-S3; wrong depth crashes every lint run) — done (`1f047da`, lint green immediately)
+- [x] **0.5** Resolve tracked dead test: repoint to `.cjs` + wire `.opencode/eslint/**` into
+      vitest include — REQ-S4 / OPEN-3 — done (`11a57b1`); fixture audit found the test
+      referenced a non-existent `@/widgets/Sidebar` (repo has `Nav`) — fixtures fixed, 14 tests
+      execute and pass (0 before)
+- [x] **0.6** Invariant test `scripts/__tests__/fsd-layers.test.ts` (subset check minus
+      `{src, locales, buildLocales}`) — REQ-S5, REQ-S6 — done (`1f047da`); coverage-exclude
+      `**/.opencode/eslint/**` added (tooling, mirrors `scripts/` rule) — thresholds untouched
+- [x] **0.7** Type-check wiring — REQ-Q2 **as amended 2026-10-04**: root `tsconfig.json → include += scripts/**/*.ts` (the ONLY project `npm run type-check` runs);
+      `tsconfig.node.json` belongs to no gate and is pre-existing red (TS5097/TS7016) — see
+      AGENTS.md `resume-tsconfig-node-dead`
+- [x] **0.8** Point-of-truth note in AGENTS.md: "no local layer arrays" — done (`resume-fsd-ssot`,
+      `1f047da`; broader Stage-4 notes remain)
+- [x] **Gate:** `npm run validate` green (158 files / 2746 tests; stmts 91.67 ≥ 90, branch 87.98
+      ≥ 85, funcs 88.31 ≥ 87, lines 92.79 ≥ 92); invariant green; `npm run lint` unchanged
+
+> **Stage 0 executed 2026-10-04** — branch `feat/fsd-layers-ssot`, PR #156 (draft), commits
+> `11a57b1` (SSOT + wiring) and `1f047da` (plugin → JSON + invariant + docs).
 
 ## Stage 0.5 — Template verification before any wiring (REQ-T9)
 

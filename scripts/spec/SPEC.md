@@ -219,9 +219,12 @@ passing `npm run validate` on generated output with zero manual edits.
   `scripts/**/*.{test,spec}.{ts,tsx,mjs}` (OPEN-5, human-approved config change).
   Fallback if refused: a dedicated vitest project `scripts` with `environment: 'node'` —
   do NOT rely on tests that never execute.
-- **REQ-Q2** Type-check coverage: add `scripts/**/*.ts` to `tsconfig.node.json → include`
-  (precedent: `config/**/*.ts` is already type-checked there). Tests not in any tsconfig are
-  invisible to `tsc --noEmit`.
+- **REQ-Q2** Type-check coverage: `scripts/**/*.ts` must be in the **root** `tsconfig.json → include`
+  — the root project is the only one `npm run type-check` runs (`tsc --noEmit`; `references` are
+  ignored by plain `tsc`). **Amended 2026-10-04 (evidence):** `tsconfig.node.json` belongs to no
+  gate and is red today with pre-existing errors (TS5097 ×4, TS7016 ×1), so `scripts/**` there
+  would gate nothing; root-include was implemented instead and the gotcha recorded in AGENTS.md
+  (`resume-tsconfig-node-dead`). Tests outside the root include are invisible to the gate.
 - **REQ-Q3** Generator tests spawn the CLI via `execFile(process.execPath, [entry, …args])` in a
   temp root (`--root` / `SLICE_ROOT` env) — never through a shell, never `spawn('node')`.
 - **REQ-Q4** Required tests (TDD — written before implementation):
