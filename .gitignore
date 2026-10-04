@@ -187,6 +187,10 @@ pnpm-lock.yaml
 !CONTRIBUTING.md
 !SECURITY.md
 !RELEASE.md
+# Scripts package: spec/TODO are repo artifacts, not notes (gitignore has no dir exclusion here,
+# only *.md — so the file-level negation is enough)
+!scripts/spec/**/*.md
+!scripts/createSlices/*.md
 
 # GitHub templates (must be tracked; *.md is ignored above)
 !.github/PULL_REQUEST_TEMPLATE.md
