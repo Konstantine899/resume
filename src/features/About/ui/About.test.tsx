@@ -1,10 +1,13 @@
 import { render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { AboutContent } from '@/entities/AboutContent';
 import { DEVELOPER_DATA } from '@/entities/Developer';
 import { About } from './About';
 
 vi.mock('@/shared/lib/i18n/hooks', () => ({
-  useLanguage: () => ({ t: (key: string) => key }),
+  // `language` is what the store branch indexes content by (About.tsx line
+  // 29); the 9 fallback cases never touch it, WU-4's store case does.
+  useLanguage: () => ({ t: (key: string) => key, language: 'ru' }),
 }));
 vi.mock('@/shared/ui/AnimatedSection', () => ({
   AnimatedSection: ({ children }: { children: React.ReactNode }) => (
@@ -121,5 +124,64 @@ describe('About: Link CTA integration', () => {
 
     // AvatarAbout received alt={fullName}; the portrait is decorative (alt="").
     expect(screen.queryAllByAltText(DEVELOPER_DATA.fullName)).toHaveLength(0);
+  });
+});
+
+// WU-4: the store branch. The 9 cases above stay on the fallback (no prop);
+// this case proves the chain's second half — HomePage proves store → prop
+// (WU-2 provodka tests), this proves prop → DOM, together = "витрина читает
+// стор". Content is a hand-built contract literal: features/About may import
+// types from entities, never seed/storage from features/AdminAbout.
+describe('About: store-content branch (WU-4)', () => {
+  const storeContent: AboutContent = {
+    fullName: 'STORE_H1_FULL_NAME',
+    descriptions: [
+      { en: 'store p1 en', ru: 'STORE_PARAGRAPH_ONE_RU' },
+      { en: 'store p2 en', ru: 'STORE_PARAGRAPH_TWO_RU' },
+      { en: 'store p3 en', ru: 'STORE_PARAGRAPH_THREE_RU' },
+    ],
+    stats: {
+      aboutStatYears: { en: 'store years en', ru: 'STORE_STAT_YEARS_RU' },
+      aboutStatProjects: { en: 'store proj en', ru: 'STORE_STAT_PROJECTS_RU' },
+      aboutStatUsers: { en: 'store users en', ru: 'STORE_STAT_USERS_RU' },
+      aboutStatRemote: { en: 'store remote en', ru: 'STORE_STAT_REMOTE_RU' },
+    },
+    ctaLabel: { en: 'store cta en', ru: 'STORE_CTA_RU' },
+  };
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders every editable value from the content prop instead of i18n keys', () => {
+    render(<About content={storeContent} />);
+
+    // h1 — single source with the store (fullName is not localized).
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('STORE_H1_FULL_NAME');
+
+    // Three paragraphs, indexed by language === 'ru'.
+    expect(screen.getByText('STORE_PARAGRAPH_ONE_RU')).toBeInTheDocument();
+    expect(screen.getByText('STORE_PARAGRAPH_TWO_RU')).toBeInTheDocument();
+    expect(screen.getByText('STORE_PARAGRAPH_THREE_RU')).toBeInTheDocument();
+
+    // Four stats.
+    const stats = screen.getByTestId('about-stats');
+    for (const value of [
+      'STORE_STAT_YEARS_RU',
+      'STORE_STAT_PROJECTS_RU',
+      'STORE_STAT_USERS_RU',
+      'STORE_STAT_REMOTE_RU',
+    ]) {
+      expect(within(stats).getByText(value)).toBeInTheDocument();
+    }
+
+    // CTA keeps the #contact contract with the store label.
+    const cta = screen.getByRole('link', { name: 'STORE_CTA_RU' });
+    expect(cta).toHaveAttribute('href', '#contact');
+
+    // The i18n fallback branch did NOT run (key would be rendered as text).
+    expect(screen.queryByText('aboutDescription')).toBeNull();
+    expect(screen.queryByText('aboutStatYears')).toBeNull();
+    expect(screen.queryByText('getInTouch')).toBeNull();
   });
 });

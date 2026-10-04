@@ -61,9 +61,10 @@ describe('AppRouter', () => {
 
     expect(adminRoute?.lazy).toBeTypeOf('function');
     expect(adminRoute?.Component).toBeUndefined();
-    // WU-3: the lazy parent is the layout shell; both children (dashboard,
-    // settings) are lazy too so no admin page reaches the showcase bundle.
-    expect(adminRoute?.children).toHaveLength(2);
+    // WU-3: the lazy parent is the layout shell; all children (dashboard,
+    // settings, about — About CRUD §10 WU-3) are lazy too so no admin page
+    // reaches the showcase bundle.
+    expect(adminRoute?.children).toHaveLength(3);
     expect(adminRoute?.children?.every((child) => child.lazy)).toBe(true);
     // Deep /admin loads hydrate asynchronously — the route carries a fallback
     // so React Router 8 doesn't warn about a missing HydrateFallback.
@@ -98,7 +99,13 @@ describe('AppRouter', () => {
   });
 
   it('renders through the AppRouter component (browser-history router)', () => {
-    render(<AppRouter />);
+    // HomePage reads the AboutContent slice (WU-2) — same store shape as
+    // the renderAt() helper above, so this path needs the Provider too.
+    render(
+      <StoreProvider reducers={storeReducers}>
+        <AppRouter />
+      </StoreProvider>
+    );
 
     expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
   });
