@@ -26,7 +26,12 @@ export default defineConfig({
           include: [
             'src/**/*.{test,spec}.{ts,tsx}',
             'config/**/*.{test,spec}.{ts,tsx}',
+            // SSOT-инвариант и тесты генератора срезов (scripts/, Этапы 0–1).
+            'scripts/**/*.{test,spec}.{ts,tsx,mjs}',
             '.opencode/plugins/**/*.{test,spec}.{js,ts}',
+            // Тесты ESLint-плагина FSD (OPEN-3): иначе tracked .test.js никогда
+            // не исполняется и импортирует gitignored-дубль плагина.
+            '.opencode/eslint/**/*.{test,spec}.{js,ts}',
           ],
           // Playwright-спеки (src/__tests__/*.spec.ts) гоняются через `npx playwright test`,
           // НЕ через vitest — исключаем, чтобы vitest не падал на браузерных тестах.
@@ -78,6 +83,10 @@ export default defineConfig({
         // scripts/ — утилиты сборки/аналитики, не код приложения: их импорт
         // из конфиг-тестов не должен двигать глобальные coverage-пороги.
         '**/scripts/**',
+        // .opencode/eslint — ESLint-плагин (тулинг, не код приложения): после
+        // подключения его тестов (OPEN-3) файл плагина начал инструментироваться
+        // и тянул бы глобальные пороги вниз без отношения к качеству src/.
+        '**/.opencode/eslint/**',
       ],
       // Vitest 4 трактует любой НЕ-метрический ключ внутри `thresholds`
       // как glob по файлам, поэтому вложенный блок `global: {...}`

@@ -15,37 +15,19 @@
 const fs = require('fs');
 const path = require('path');
 
-// FSD layer hierarchy: higher number = higher layer
-const LAYER_ORDER = {
-  app: 7,
-  pages: 6,
-  widgets: 5,
-  features: 4,
-  entities: 3,
-  shared: 2,
-};
+// Единый источник правды по слоям FSD — scripts/fsd-layers.json (SSOT).
+// ⚠️ Глубина require ОБЯЗАТЕЛЬНО '../../' из .opencode/eslint/: '../../../'
+// уходит выше корня репозитория → MODULE_NOT_FOUND → ESLint не загрузится и
+// весь npm run lint станет красным. Не храните списки слоёв локально —
+// инвариант: scripts/__tests__/fsd-layers.test.ts.
+const FSD = require('../../scripts/fsd-layers.json');
 
-// Layer names for error messages
-const LAYER_NAMES = {
-  app: 'app',
-  pages: 'pages',
-  widgets: 'widgets',
-  features: 'features',
-  entities: 'entities',
-  shared: 'shared',
-};
+// All FSD layer names, bottom-up (used to build every layer regex below).
+const LAYERS = FSD.layers;
 
-// Allowed imports per source layer.
+// Allowed imports per source layer — straight from the SSOT.
 // FSD: a layer imports from itself and all layers below it (never from above).
-// Matches docs/specs/fsd-architecture.md (pages compose features, widgets consume features).
-const ALLOWED_IMPORTS = {
-  app: ['shared'],
-  pages: ['app', 'pages', 'widgets', 'features', 'entities', 'shared'],
-  widgets: ['app', 'pages', 'features', 'entities', 'shared'],
-  features: ['entities', 'shared'],
-  entities: ['shared'],
-  shared: ['shared'],
-};
+const ALLOWED_IMPORTS = FSD.allowedImports;
 
 /**
  * Extract the FSD layer from a file path
@@ -53,7 +35,7 @@ const ALLOWED_IMPORTS = {
 function getLayerFromPath(filePath) {
   if (!filePath) return null;
   const normalized = filePath.replace(/\\/g, '/');
-  const match = normalized.match(/\/(app|pages|widgets|features|entities|shared)\//);
+  const match = normalized.match(new RegExp(`/(${LAYERS.join('|')})/`));
   return match ? match[1] : null;
 }
 
@@ -62,7 +44,7 @@ function getLayerFromPath(filePath) {
  */
 function getLayerFromImport(source) {
   if (!source) return null;
-  const match = source.match(/^@\/(app|pages|widgets|features|entities|shared)(\/|$)/);
+  const match = source.match(new RegExp(`^@/(${LAYERS.join('|')})(/|$)`));
   return match ? match[1] : null;
 }
 
@@ -151,10 +133,10 @@ module.exports = {
               node,
               messageId: 'violation',
               data: {
-                sourceLayer: LAYER_NAMES[sourceLayer] || sourceLayer,
-                targetLayer: LAYER_NAMES[targetLayer] || targetLayer,
+                sourceLayer,
+                targetLayer,
                 allowed: allowed.length > 0
-                  ? allowed.map((l) => LAYER_NAMES[l] || l).join(', ')
+                  ? allowed.join(', ')
                   : 'none (shared cannot import from other layers)',
               },
             });
@@ -200,7 +182,7 @@ module.exports = {
             if (!source || source.startsWith('.')) return;
 
             // Check if import bypasses public API
-            const match = source.match(/^@\/(app|pages|widgets|features|entities|shared)\/([^/]+)\/(.+)/);
+            const match = source.match(new RegExp(`^@/(${LAYERS.join('|')})/([^/]+)/(.+)`));
             if (!match) return;
 
             const [, layer, slice, rest] = match;
