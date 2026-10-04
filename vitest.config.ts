@@ -26,7 +26,12 @@ export default defineConfig({
           include: [
             'src/**/*.{test,spec}.{ts,tsx}',
             'config/**/*.{test,spec}.{ts,tsx}',
+            // SSOT-инвариант и тесты генератора срезов (scripts/, Этапы 0–1).
+            'scripts/**/*.{test,spec}.{ts,tsx,mjs}',
             '.opencode/plugins/**/*.{test,spec}.{js,ts}',
+            // Тесты ESLint-плагина FSD (OPEN-3): иначе tracked .test.js никогда
+            // не исполняется и импортирует gitignored-дубль плагина.
+            '.opencode/eslint/**/*.{test,spec}.{js,ts}',
           ],
           // Playwright-спеки (src/__tests__/*.spec.ts) гоняются через `npx playwright test`,
           // НЕ через vitest — исключаем, чтобы vitest не падал на браузерных тестах.
