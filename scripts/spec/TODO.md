@@ -93,13 +93,17 @@ block.
 
 ## Stage 2 — Refactoring tools (P1)
 
-- [ ] **2.1** Answer OPEN-4, OPEN-6
-- [ ] **2.2** `update-imports.mjs`: fixture tests + `--fix` idempotency (REQ-R1, REQ-Q4.7–4.8)
-- [ ] **2.3** `check-shared-ui-public-api.mjs`: guards, awaited saves, named barrels,
-      dry-run exit 1 (REQ-R2, REQ-R4, REQ-Q4.9)
-- [ ] **2.4** npm scripts `refactor:imports`, `check:public-api`
-- [ ] **2.5** Optional (OPEN-6): wire `check:public-api` into `npm run validate`
-- [ ] **Gate:** smoke S7 both tools; clean-tree dry-runs exit 0
+- [x] **2.1** Answer OPEN-4, OPEN-6
+- [x] **2.2** `update-imports.mjs`: fixture tests + `--fix` idempotency (REQ-R1, REQ-Q4.7–4.8)
+- [x] **2.3** `check-shared-ui-public-api.mjs`: guards, awaited saves, named barrels,
+      dry-run exit 1 (REQ-R2, REQ-R4, REQ-Q4.9); pass-2 carve-out for sanctioned internal
+      segments (`lib`/`constants`/`types`/`model`, mirrors `allowInternal` — REQ-R2 amended)
+- [x] **2.4** npm scripts `refactor:imports`, `check:public-api`
+- [x] **2.5** Optional (OPEN-6): wire `check:public-api` into `npm run validate`
+- [x] **Gate:** smoke S7 both tools; clean-tree dry-runs exit 0
+      (`update-imports` 0 findings / 532 files; `check:public-api` 28/28 barrels,
+      0 deep imports; SmokeProbe break → exit 1 → `--fix` exit 0 (barrel + rewrites)
+      → revert → exit 0; `npm run validate` green with `check:public-api` appended)
 
 ## Stage 3 — Utilities (P2/P3, mostly decisions)
 
