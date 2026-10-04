@@ -37,11 +37,24 @@ block.
 
 - [x] **0.5.1** OPEN-1 **decided (owner, 2026-10-04)**: `entities` STAYS in `generatorLayers`;
       uniform output in any slice layer, no per-layer variants (REQ-G8)
-- [ ] **0.5.2** Hand-write all 7 templates as samples in a tmp dir: `types`, `component`,
-      `component-test`, `story`, `style`, `redux-slice` (`*Slice.ts` + `selectors.ts`), `index`
-- [ ] **0.5.3** Run type-check + eslint + stylelint (+ prettier --check) on the samples — S1
-- [ ] **0.5.4** Fix templates until all four gates pass with zero manual edits
-- [ ] **Gate:** S1 green; deviations from plan §4.5 recorded back into the plan
+- [x] **0.5.2** Hand-write all 7 templates as samples: `types`, `component`,
+      `component-test`, `story`, `style`, `redux-slice` (`*Slice.ts` + `selectors.ts` + slice
+      test), `index` — 9 files total. **Placement deviation:** a literal tmp dir outside the
+      repo would be invisible to the repo-scoped gates, so the sample slice lives at
+      `src/features/TemplateProbe/` (exercises the real FSD path detection) and is DELETED
+      after verification (2026-10-04)
+- [x] **0.5.3** Run type-check + eslint + stylelint (+ prettier --check) on the samples — S1
+      green: all four gates passed on the FIRST run, zero edits (plus `vitest run` on the
+      probe: 2 files / 6 tests; plus a negative FSD probe — `import { Nav } from
+  '@/widgets/Nav'` inside features → eslint exit 1, `fsd-imports` fired — proving the
+      gate really lints the samples)
+- [x] **0.5.4** Fix templates until all four gates pass with zero manual edits — not needed:
+      zero edits were required; verified content folded back into plan §4.5 (rev.4)
+- [x] **Gate:** S1 green; deviations from plan §4.5 recorded back into the plan — §4.5.1
+      (drop unused `type ReactNode` import), §4.5.2 (English comments per artifact-language
+      contract), §4.5.5 (2nd case → `toHaveClass('custom')` + verified slice-test snippet),
+      NEW §4.5.7 (`types.mjs` had no section), §2.3.4 (`State` as `type` alias per
+      AdminAuth). Plan header bumped to rev.4
 
 ## Stage 1 — Generator `scripts/createSlices/` (P0, TDD)
 
