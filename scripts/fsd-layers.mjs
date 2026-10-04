@@ -4,8 +4,16 @@
  * JSON instead (guarded by scripts/__tests__/fsd-layers.test.ts).
  */
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const data = JSON.parse(readFileSync(new URL('./fsd-layers.json', import.meta.url), 'utf8'));
+// NOTE: load via `fileURLToPath(import.meta.url)` + `path.join`, NOT the
+// `new URL('./file', import.meta.url)` literal — Vite rewrites that pattern
+// to a dev-server URL inside vitest, and `readFileSync` then rejects it
+// ("The URL must be of scheme file") when a test imports this module
+// in-process.
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const data = JSON.parse(readFileSync(path.join(MODULE_DIR, 'fsd-layers.json'), 'utf8'));
 
 /** @returns {string[]} copy of the layer list (SSOT layer order) */
 export function getFsdLayers() {
