@@ -11,6 +11,7 @@
     "analyze:dead-code": "knip --include files,dependencies,exports",
     "check:bundle": "node scripts/check-bundle.mjs public",
     "check:axe": "node scripts/purge-axe-check.mjs",
+    "generate:slice": "node scripts/createSlices/index.mjs",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "type-check:strict": "tsc --noEmit --maxNodeModuleJsDepth 0",

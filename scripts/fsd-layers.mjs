@@ -7,9 +7,17 @@ import { readFileSync } from 'node:fs';
 
 const data = JSON.parse(readFileSync(new URL('./fsd-layers.json', import.meta.url), 'utf8'));
 
-/** @returns {string[]} copy of the layer list (bottom-up FSD order) */
+/** @returns {string[]} copy of the layer list (SSOT layer order) */
 export function getFsdLayers() {
   return [...data.layers];
+}
+
+/**
+ * Slice layers the generator may scaffold (SSOT key `generatorLayers`).
+ * @returns {string[]}
+ */
+export function getGeneratorLayers() {
+  return [...data.generatorLayers];
 }
 
 /** @param {string} value @returns {boolean} */
