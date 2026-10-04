@@ -12,6 +12,14 @@ export function getFsdLayers() {
   return [...data.layers];
 }
 
+/**
+ * Slice layers the generator may scaffold (SSOT key `generatorLayers`).
+ * @returns {string[]}
+ */
+export function getGeneratorLayers() {
+  return [...data.generatorLayers];
+}
+
 /** @param {string} value @returns {boolean} */
 export function isFsdLayer(value) {
   return data.layers.includes(value);
