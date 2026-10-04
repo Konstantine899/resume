@@ -4,6 +4,7 @@
 import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
+import { LiveClock } from '@/features/LiveClock';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
 import { WorkHistory } from '@/features/WorkHistory';
@@ -55,6 +56,9 @@ export const HomePage: React.FC = () => {
           <MyWork />
           <WorkHistory />
           <Contact />
+          {/* Temporary test feature (issue #161) — deleted after the first
+              spec-workflow cycle completes. No nav anchor by design. */}
+          <LiveClock />
         </main>
       </div>
     </>
