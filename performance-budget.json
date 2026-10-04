@@ -14,15 +14,15 @@
         "description": "Vendor chunk limit (288kb raw, 97kb gzip). Measured WU-2 (2026-09-30): vendor 289067 raw (react-redux landed here); WU-1 was 287121 raw / 91660 gzip (react-router 8.4.0; baseline dev 195288 raw / 62130 gzip)."
       },
       "main": {
-        "maxSize": 160000,
-        "maxSizeGzip": 60000,
-        "description": "Main chunk limit (156kb raw, 58kb gzip). Measured: index 142147 raw / 51497 gzip. Tightened below the pre-inline-removal level so re-inlining assets is caught."
+        "maxSize": 200000,
+        "maxSizeGzip": 74000,
+        "description": "Main chunk limit (195kb raw, 72kb gzip). Raised 160000→200000 with human approval (About CRUD WU-4, 2026-10-04): react-hook-form now rides the lazy /admin/about chunk, main measured 190071 raw (zod stays in main for sync hydration)."
       }
     },
     "total": {
-      "maxSize": 510000,
-      "maxSizeGzip": 175000,
-      "description": "Total JS bundle size limit (498kb raw, 170kb gzip). Measured WU-2 (2026-09-30): 500880 raw (RTK 2.13 + react-redux 9: immer in main, react-redux in vendor), raised from 485000 with human approval. WU-1 measurement was 476365 raw / 157620 gzip JS."
+      "maxSize": 625000,
+      "maxSizeGzip": 215000,
+      "description": "Total JS bundle size limit (610kb raw, 210kb gzip). Raised 510000→625000 with human approval (About CRUD WU-4, 2026-10-04): measured 596100 raw after zod + About CRUD slices. Prior WU-2 (2026-09-30): 500880 raw, raised from 485000 with human approval (PR #146). WU-1 measurement was 476365 raw / 157620 gzip JS."
     },
     "assets": {
       "maxSize": 122880,

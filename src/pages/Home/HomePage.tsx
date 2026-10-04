@@ -1,7 +1,7 @@
 // ============================================
 // Home Page
 // ============================================
-import { selectAboutContent } from '@/features/AdminAbout';
+import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';
