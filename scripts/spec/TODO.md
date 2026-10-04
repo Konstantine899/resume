@@ -107,10 +107,14 @@ block.
 
 ## Stage 3 — Utilities (P2/P3, mostly decisions)
 
-- [ ] **3.1** Record "not ported" decisions: `clear-cache`, `getApiUrl`/`build:dev` (xargs),
-      Loki report — REQ §2.2 non-goals
-- [ ] **3.2** Answer OPEN-7 (`print-env.mjs`) — implement only on real need
-- [ ] **Gate:** no dead npm scripts (`npm run` shows no entry pointing at a missing file)
+- [x] **3.1** Record "not ported" decisions: `clear-cache`, `getApiUrl`/`build:dev` (xargs),
+      Loki report — REQ §2.2 non-goals — recorded in AGENTS.md (`resume-scripts-nonported`) +
+      vault `memory.md` (2026-10-04)
+- [x] **3.2** Answer OPEN-7 (`print-env.mjs`) — **decided: No** (no real need; `__API__` defined
+      but unused in `src`) — SPEC §5 + plan §7 (2026-10-04)
+- [x] **Gate:** no dead npm scripts — removed `validate:continue` (dead: no `continue` binary in
+      `node_modules/.bin`, not on PATH, zero references; `npm run` now maps every entry to an
+      existing file/binary); no `postinstall` / `test:ui:*`
 
 ## Stage 4 — Documentation and memory
 

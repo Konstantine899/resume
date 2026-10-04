@@ -34,8 +34,7 @@
     "build-storybook": "storybook build",
     "storybook:test": "test-storybook",
     "test:storybook": "vitest --project=storybook",
-    "lint:storybook": "eslint .storybook/**/* --max-warnings 0",
-    "validate:continue": "continue validate --fsd --style --test --quick"
+    "lint:storybook": "eslint .storybook/**/* --max-warnings 0"
   },
   "keywords": [],
   "author": "",
