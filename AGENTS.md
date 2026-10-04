@@ -34,10 +34,19 @@ Verify work with the project's CLI tooling before claiming it done. LSP is inten
 - `npm run type-check` — TypeScript typecheck (`tsc --noEmit`).
 - `npm run lint` — ESLint on `.ts/.tsx` with zero warnings allowed.
 - `npm run lint:styles` — Stylelint on all `.scss`.
-- `npm run validate` — `type-check` + `lint` + `lint:styles` (full gate).
+- `npm run validate` — `type-check` + `lint:all` (ts + scss) + unit tests with coverage + `check:public-api` (full gate).
 - `npm run format:check` — Prettier formatting check.
 
 Run `npm run validate` as the standard pre-completion check.
+
+## Scripts pack (`scripts/`)
+
+Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scripts/spec/SPEC.md` / `scripts/spec/TODO.md`; plan §5 in the vault (`wiki/plan/implementation-plan.md`).
+
+- `npm run generate:slice <layer> <SliceName>` — scaffolds an FSD slice through `scripts/createSlices/` (templates in `createSlices/templates/`). Layers come from `scripts/fsd-layers.json` only; reruns need `--force`; route/composition-root/i18n edits are printed as "Next steps" and never auto-applied. Gotchas: `resume-fsd-ssot`, `resume-genslice-eperm`.
+- `npm run check:public-api` — shared/ui barrel boundary, the **last step of `npm run validate`** (exit 1 on a missing `index.ts` or a deep `<Component>/<X>` import). Sibling `npm run refactor:imports` rewrites bare FSD-layer specifiers (dry-run default, `--fix` to write). Gotcha: `resume-refactor-tools`.
+- Not ported by decision — `clear-cache`, `getApiUrl`/`build:dev` (xargs), Loki report, `print-env.mjs` (OPEN-7 No). Gotcha: `resume-scripts-nonported`.
+- Spec-driven changes run as `SPEC.md` (survives) + `TODO.md` (burns down); templates and stage rules live in `scripts/spec/`.
 
 ## Project conventions (strict — all agents MUST follow)
 
