@@ -44,6 +44,11 @@ export const routerConfig: RouteObject[] = [
         path: 'settings',
         lazy: () => import('./Admin/AdminSettings').then((m) => ({ Component: m.AdminSettings })),
       },
+      {
+        // About CRUD stage-1 (plan §10 WU-3) — own chunk like the rest.
+        path: 'about',
+        lazy: () => import('./Admin/AdminAboutPage').then((m) => ({ Component: m.AdminAboutPage })),
+      },
     ],
   },
   { path: '*', loader: () => redirect('/') },

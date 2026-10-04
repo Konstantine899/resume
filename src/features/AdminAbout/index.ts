@@ -20,3 +20,5 @@ export {
   removeAboutContent,
 } from './model/storage';
 export type { AboutContentRootState } from './model/types';
+export { AboutEditorForm } from './ui/AboutEditorForm';
+export type { AboutEditorFormProps } from './ui/AboutEditorForm';

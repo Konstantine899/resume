@@ -1,0 +1,59 @@
+// ============================================
+
+// AboutEditorForm — admin form layout (About CRUD §10 WU-3)
+
+// ============================================
+
+// Layout only: spacing via $spacing-* scale, colors come from inherited
+
+// tokens inside the shared inputs — no hardcoded values (plan §8).
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// One row = one field in both locales (en | ru), stacked on narrow screens.
+.localeRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-3;
+
+  @media (width < 48rem) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.stackList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

@@ -65,6 +65,23 @@ describe('locale parity (WU-6)', () => {
       'adminMetricSections',
       'adminLogout',
       'adminComingSoon',
+      // About CRUD stage-1 (plan_about_crud §10 WU-3) — all 16 keys.
+      'adminNavAbout',
+      'adminAboutTitle',
+      'adminAboutHint',
+      'aboutFieldFullName',
+      'aboutFieldDescriptions',
+      'aboutFieldStats',
+      'aboutFieldCta',
+      'aboutSave',
+      'aboutReset',
+      'aboutSaved',
+      'aboutSaveError',
+      'aboutResetConfirm',
+      'aboutNameRequired',
+      'aboutParagraphEmpty',
+      'aboutStatRequired',
+      'aboutCtaRequired',
     ];
 
     for (const key of adminKeys) {
