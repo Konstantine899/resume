@@ -12,10 +12,10 @@ export type {
   JobKey,
   JobLevel,
   UpdateJobDto,
-} from './types';
+} from './model/types';
 
 // Constants
-export { EMPLOYMENT_TYPES, JOB_LEVELS, JOBS } from './constants';
+export { EMPLOYMENT_TYPES, JOB_LEVELS, JOBS } from './model/constants';
 
 // Utils
 export {

@@ -10,7 +10,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { mockAdminMetrics } from '../model/mockAdminMetrics';
+import { mockAdminMetrics } from '../model/services/mockAdminMetrics';
 import type { AdminMetric } from '../model/types';
 import { StatCard } from './StatCard';
 

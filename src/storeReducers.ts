@@ -9,7 +9,7 @@
 //
 // Stable reference (StoreProvider useMemo contract): module-level const —
 // an inline object literal in JSX would rebuild the store on every render.
-import { aboutContentReducer } from '@/features/AdminAbout/model/aboutContentSlice';
+import { aboutContentReducer } from '@/features/AdminAbout/model/slices/aboutContentSlice';
 import { adminAuthReducer } from '@/features/AdminAuth';
 import { adminDashboardReducer } from '@/features/AdminDashboard';
 

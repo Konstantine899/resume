@@ -3,7 +3,7 @@
 // ============================================
 
 // Main Component
-export { Nav } from './Nav';
+export { Nav } from './ui/Nav';
 
 // Model
 export { ADMIN_HREF, CTA_HREF, NAV_ITEMS } from './model/constants';

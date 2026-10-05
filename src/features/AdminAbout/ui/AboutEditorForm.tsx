@@ -30,10 +30,10 @@ import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { createAboutSeed } from '../model/seed';
-import { resetToDefaults, updateAboutContent } from '../model/aboutContentSlice';
+import { createAboutSeed } from '../model/services/seed';
+import { resetToDefaults, updateAboutContent } from '../model/slices/aboutContentSlice';
 import { selectAboutContent } from '../model/selectors';
-import { persistAboutContent, removeAboutContent } from '../model/storage';
+import { persistAboutContent, removeAboutContent } from '../model/services/storage';
 import styles from './AboutEditorForm.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */

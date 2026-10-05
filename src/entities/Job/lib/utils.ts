@@ -1,5 +1,5 @@
-import { JOBS } from '../constants';
-import type { EmploymentType, Job, JobFilters, JobLevel } from '../types';
+import { JOBS } from '../model/constants';
+import type { EmploymentType, Job, JobFilters, JobLevel } from '../model/types';
 
 /**
  * Filter jobs by level

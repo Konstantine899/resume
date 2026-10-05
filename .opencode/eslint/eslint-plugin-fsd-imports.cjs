@@ -271,12 +271,14 @@ module.exports = {
         const srcRoot = path.join(cwd, 'src');
 
         /**
-         * Find the deepest existing index.ts prefix for a path (relative segments).
-         * Public API in FSD = the deepest directory that has an index.ts.
+         * Find the SHORTEST existing index.ts prefix for a path (relative segments).
+         * Public API in FSD = the slice root (the first directory with an index.ts),
+         * NOT the deepest one — nested barrels (model/types/, model/constants/, ...)
+         * are slice internals, never public API boundaries (Stage M nesting).
          * Returns the relative path (e.g. "shared/lib/contexts/ToastContext") or null.
          */
-        function deepestPublicApi(segments) {
-          for (let i = segments.length; i >= 2; i--) {
+        function publicApiRoot(segments) {
+          for (let i = 2; i <= segments.length; i++) {
             const candidate = segments.slice(0, i).join('/');
             if (fs.existsSync(path.join(srcRoot, candidate, 'index.ts'))) {
               return candidate;
@@ -285,13 +287,13 @@ module.exports = {
           return null;
         }
 
-        // Own slice = deepest index.ts prefix in the test file's own directory chain
+        // Own slice = slice root (first index.ts prefix) in the test file's own directory chain
         let ownSlice = null;
         const relMatch = normalizedPath.match(/(?:^|\/)src\/(.+)$/);
         if (relMatch) {
           const dirSegments = relMatch[1].split('/').filter(Boolean);
           dirSegments.pop(); // drop filename
-          ownSlice = deepestPublicApi(dirSegments);
+          ownSlice = publicApiRoot(dirSegments);
         }
 
         return {
@@ -303,7 +305,7 @@ module.exports = {
             if (segments.length < 2) return; // @/layer only — nothing to check
 
             const importPath = segments.join('/');
-            const publicApi = deepestPublicApi(segments);
+            const publicApi = publicApiRoot(segments);
 
             // Import exactly at the public API (index.ts) — fine
             if (publicApi && importPath === publicApi) return;

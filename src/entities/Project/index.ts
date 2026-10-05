@@ -2,10 +2,10 @@
 // Project Entity - Public API
 // ============================================
 
-export type { Project, ProjectCategory, ProjectFilters, ProjectStatus } from './types';
+export type { Project, ProjectCategory, ProjectFilters, ProjectStatus } from './model/types';
 
 // Constants
-export { PROJECT_CATEGORIES, PROJECT_STATUSES, PROJECTS } from './constants';
+export { PROJECT_CATEGORIES, PROJECT_STATUSES, PROJECTS } from './model/constants';
 
 // Utils
 export {
