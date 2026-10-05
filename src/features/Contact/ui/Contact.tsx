@@ -1,4 +1,5 @@
 import { SOCIAL_LINKS } from '@/entities/Developer';
+import { CONTACT_EMAIL } from '@/entities/ContactContent';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
@@ -15,7 +16,6 @@ import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
-import { CONTACT_EMAIL } from '../model/constants';
 import styles from './Contact.module.scss';
 
 export function Contact() {
