@@ -1,8 +1,8 @@
 /**
  * `model/` step of the slice generator — nested model directory
  * (owner decision 2026-10-04, SPEC §3.2 REQ-G8 amended): `model/` contains
- * ONLY the subdirectories `types/`, `slices/`, `selectors/`, `services/` —
- * flat files directly in `model/` are forbidden.
+ * ONLY the subdirectories `types/`, `slices/`, `selectors/`, `services/`,
+ * `constants/` — flat files directly in `model/` are forbidden.
  *
  * Files:
  *   - always: `types/index.ts` (`<Name>Props`; + `<Name>State`/`<Name>RootState`
@@ -10,8 +10,9 @@
  *   - only with `--with-slice`: `slices/<camel>Slice.ts` (name must match `*Slice.ts`
  *     for the `no-param-reassign` override), `selectors/index.ts` (REQ-G10),
  *     `slices/<camel>Slice.test.ts`;
- *   - `services/` is never created (empty directories are not committable) —
- *     it is created by hand when real service files appear.
+ *   - `services/` and `constants/` are never created by the generator (empty
+ *     directories are not committable) — they are created by hand when real
+ *     files appear.
  *
  * The orchestrator (create-template.mjs) performs the actual staged writes;
  * this module owns the file plan and the per-step write order.

@@ -1,14 +1,14 @@
 # SPEC — FSD slice generator and repo scripts
 
-| Field   | Value                                                                                                 |
-| ------- | ----------------------------------------------------------------------------------------------------- |
-| Status  | draft                                                                                                 |
-| Date    | 2026-10-04                                                                                            |
-| Change  | 2026-10-04: nested `model/{types,slices,selectors}` subdirectories — owner directive (REQ-G8 amended) |
-| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)  |
-| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)     |
-| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)   |
-| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                        |
+| Field   | Value                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
+| Status  | draft                                                                                                           |
+| Date    | 2026-10-04                                                                                                      |
+| Change  | 2026-10-04: nested `model/{types,slices,selectors,constants}` subdirectories — owner directive (REQ-G8 amended) |
+| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)            |
+| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)               |
+| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)             |
+| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                                  |
 
 ---
 
@@ -146,13 +146,14 @@ passing `npm run validate` on generated output with zero manual edits.
   ```
 
   **Amended 2026-10-04 (owner directive): nested `model/`.** `model/` contains ONLY the
-  subdirectories `types/`, `slices/`, `selectors/`, `services/` — flat files directly in
-  `model/` are forbidden (supersedes the flat-model `AdminAuth`/`About` precedent of the
-  previous revision). The generator always emits `types/`; `slices/` + `selectors/` only
-  with `--with-slice`; `services/` is never auto-created (empty directories are not
-  committable) — it is created by hand when real service files appear. Cross-directory
-  template imports use `../types` and `../selectors`; barrel specifiers `./model/types`
-  and `./model/selectors` resolve unchanged (directory + `index.ts`).
+  subdirectories `types/`, `slices/`, `selectors/`, `services/`, `constants/` — flat files
+  directly in `model/` are forbidden (supersedes the flat-model `AdminAuth`/`About`
+  precedent of the previous revision). The generator always emits `types/`; `slices/` +
+  `selectors/` only with `--with-slice`; `services/` and `constants/` are never auto-created
+  (empty directories are not committable) — they are created by hand when real files
+  appear. Cross-directory template imports use `../types` and `../selectors`; barrel
+  specifiers `./model/types` and `./model/selectors` resolve unchanged (directory +
+  `index.ts`); the same holds for `./model/constants`.
 
   The tree is IDENTICAL in every generator layer (`entities`, `features`, `pages`, `widgets`) —
   OPEN-1 decided (owner): no per-layer variants in v1. If a data-only slice is ever needed,

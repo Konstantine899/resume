@@ -136,6 +136,10 @@ block.
 - [x] **Gate:** `npm run validate` green ×2 (with generated slice 9-file tree; after cleanup
       162 files / 2786 tests = baseline, stmts 91.67, Public API 28/28); generator suite
       48/48; worktree residue-free
+- [x] **3.5.7** Fifth subdirectory decided (owner, 2026-10-04): `constants/` joins the
+      closed set `types/`, `slices/`, `selectors/`, `services/` — docs-only in this PR
+      (the generator never emits constants; SPEC REQ-G8 paragraph + `create-model.mjs`
+      docstring amended; `./model/constants` specifiers resolve unchanged)
 
 ## Stage 4 — Documentation and memory
 
