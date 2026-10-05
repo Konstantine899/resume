@@ -5,7 +5,7 @@
 export type { Project, ProjectCategory, ProjectFilters, ProjectStatus } from './types';
 
 // Constants
-export { PROJECT_CATEGORIES, PROJECT_STATUSES, PROJECTS } from './constants';
+export { PROJECT_CATEGORIES, PROJECT_STATUSES, PROJECTS, TECH_ICONS } from './constants';
 
 // Utils
 export {
@@ -14,5 +14,6 @@ export {
   filterProjectsByStatus,
   getAllProjects,
   getFeaturedProjects,
+  resolveTechIcons,
   searchProjects,
 } from './lib/utils';

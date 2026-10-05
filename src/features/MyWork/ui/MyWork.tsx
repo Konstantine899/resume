@@ -2,7 +2,7 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS, getFeaturedProjects } from '@/entities/Project';
+import { PROJECTS, getFeaturedProjects, resolveTechIcons } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
@@ -46,7 +46,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 title={project.title}
                 description={language === 'en' ? project.description.en : project.description.ru}
                 backgroundImage={project.image}
-                techIcons={project.techIcons}
+                techIcons={resolveTechIcons(project.techIcons)}
                 link={project.link}
                 role={
                   project.role ? (language === 'en' ? project.role.en : project.role.ru) : undefined
