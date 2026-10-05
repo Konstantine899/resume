@@ -12,9 +12,14 @@
 import { aboutContentReducer } from '@/features/AdminAbout/model/aboutContentSlice';
 import { adminAuthReducer } from '@/features/AdminAuth';
 import { adminDashboardReducer } from '@/features/AdminDashboard';
+// Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminContact's
+// public API will export the editor form (RHF) in WU-3 — instantiating the
+// barrel here would pull it into the main chunk.
+import { contactContentReducer } from '@/features/AdminContact/model/contactContentSlice';
 
 export const storeReducers = {
   aboutContent: aboutContentReducer,
   adminAuth: adminAuthReducer,
   adminDashboard: adminDashboardReducer,
+  contactContent: contactContentReducer,
 };

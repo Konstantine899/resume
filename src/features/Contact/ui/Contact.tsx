@@ -1,4 +1,5 @@
 import { SOCIAL_LINKS } from '@/entities/Developer';
+import { CONTACT_EMAIL, type ContactContent } from '@/entities/ContactContent';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
@@ -15,15 +16,24 @@ import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
 import { useRef } from 'react';
 import { useContactForm } from '../hooks/useContactForm';
-import { CONTACT_EMAIL } from '../model/constants';
+import type { ContactProps } from '../model/types';
 import styles from './Contact.module.scss';
 
-export function Contact() {
+export function Contact({ content }: ContactProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
-  // ✅ Используем хук формы (внутри уже есть Toast)
-  const { formData, status, setFormData, handleSubmit } = useContactForm();
+  // Fallback branch keeps rendering constants/t() — identical to the
+  // pre-store behavior (the 3 legacy tests assert this, §11).
+  const email = content?.email ?? CONTACT_EMAIL;
+  const text = (key: keyof ContactContent['texts']): string =>
+    content?.texts[key][language] ?? t(key);
+
+  // ✅ Используем хук формы (внутри уже есть Toast); admin-edited
+  // formTexts reach the Create toasts via the texts option (R-11).
+  const { formData, status, setFormData, handleSubmit } = useContactForm({
+    texts: content?.formTexts,
+  });
 
   return (
     <Section id="contact" size="xl" className={styles.container}>
@@ -43,8 +53,8 @@ export function Contact() {
                 <Input
                   type="text"
                   name="user_name"
-                  label={t('nameField')}
-                  placeholder={t('namePlaceholder')}
+                  label={text('nameField')}
+                  placeholder={text('namePlaceholder')}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={status === 'submitting'}
@@ -55,8 +65,8 @@ export function Contact() {
                 {/* Email */}
                 <InputEmail
                   name="user_email"
-                  label={t('email')}
-                  placeholder={t('emailPlaceholder')}
+                  label={text('email')}
+                  placeholder={text('emailPlaceholder')}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={status === 'submitting'}
@@ -67,8 +77,8 @@ export function Contact() {
                 {/* Сообщение */}
                 <Textarea
                   name="message"
-                  label={t('message')}
-                  placeholder={t('messagePlaceholder')}
+                  label={text('message')}
+                  placeholder={text('messagePlaceholder')}
                   rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -83,7 +93,7 @@ export function Contact() {
 
                 {/* Кнопка отправки */}
                 <Button type="submit" loading={status === 'submitting'} fullWidth>
-                  {status === 'submitting' ? t('sending') : t('sendMessage')}
+                  {status === 'submitting' ? text('sending') : text('sendMessage')}
                 </Button>
 
                 {/* ✅ УБРАНЫ блоки errorMessage и successMessage */}
@@ -93,12 +103,12 @@ export function Contact() {
               {/* Прямой email + социальные ссылки (audit P1: видимый mailto) */}
               <div className={styles.socialLinks}>
                 <Link
-                  href={`mailto:${CONTACT_EMAIL}`}
+                  href={`mailto:${email}`}
                   variant="text-on-dark"
                   showExternalIcon={false}
                   icon={<Icon name={Mail} size="sm" color="inherit" decorative />}
                 >
-                  {CONTACT_EMAIL}
+                  {email}
                 </Link>
                 {SOCIAL_LINKS.map((link, index: number) => (
                   <Link
@@ -123,10 +133,10 @@ export function Contact() {
               icon={<Icon name={Mail} size={40} color="var(--color-accent)" decorative />}
             >
               <Paragraph theme="muted" align="center">
-                {t('contactDescription')}
+                {text('contactDescription')}
               </Paragraph>
               <Paragraph size="s" align="center">
-                {t('responseTimeHint')}
+                {text('responseTimeHint')}
               </Paragraph>
             </ContactCard>
           </AnimatedSection>

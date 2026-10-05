@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SOCIAL_LINKS } from '@/entities/Developer';
-import { CONTACT_EMAIL } from '../model/constants';
+import { CONTACT_EMAIL } from '@/entities/ContactContent';
 import { Contact } from './Contact';
 
 vi.mock('@/shared/lib/i18n/hooks', () => ({

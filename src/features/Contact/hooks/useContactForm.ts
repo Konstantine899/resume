@@ -2,6 +2,11 @@
 // Contact Form Hook with EmailJS & Toast
 // ============================================
 
+import {
+  ContactFormDataSchema,
+  type FormTextKey,
+  type LocalizedText,
+} from '@/entities/ContactContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import emailjs from '@emailjs/browser';
@@ -11,6 +16,12 @@ import type { ContactFormData, FormStatus } from '../model/types';
 interface UseContactFormOptions {
   /** Overrides the default EmailJS send call (used for testing). */
   send?: (form: HTMLFormElement) => Promise<unknown>;
+  /**
+   * Admin-edited toast texts (resolved `content.formTexts[language]`,
+   * passed by Contact — R-11). Absent → fallback to `t()`, so the hook
+   * stays usable without a Provider (its bare tests).
+   */
+  texts?: Record<FormTextKey, LocalizedText>;
 }
 
 interface UseContactFormReturn {
@@ -45,8 +56,10 @@ async function emailjsSend(form: HTMLFormElement): Promise<unknown> {
 
 export function useContactForm(options?: UseContactFormOptions): UseContactFormReturn {
   const { addToast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const sendForm = options?.send ?? emailjsSend;
+  // R-11: store-edited text wins, t() is the store-free fallback.
+  const toastText = (key: FormTextKey): string => options?.texts?.[key]?.[language] ?? t(key);
 
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
@@ -65,10 +78,13 @@ export function useContactForm(options?: UseContactFormOptions): UseContactFormR
     setStatus('submitting');
 
     try {
-      // 1. Validation
-      if (!formData.name || !formData.email || !formData.message) {
+      // 1. Validation — zod ContactFormDataSchema (§7): trim+format email,
+      // name 2–80 after trim, message 10–2000. All failures map to ONE
+      // toast (R-4: no per-key messages in the schema).
+      const parsed = ContactFormDataSchema.safeParse(formData);
+      if (!parsed.success) {
         setStatus('error');
-        addToast({ message: t('contactFormRequired'), type: 'error', duration: 5000 });
+        addToast({ message: toastText('contactFormRequired'), type: 'error', duration: 5000 });
         return;
       }
 
@@ -78,14 +94,16 @@ export function useContactForm(options?: UseContactFormOptions): UseContactFormR
 
       // 3. Success → Toast + reset
       setStatus('success');
-      addToast({ message: t('contactFormSent'), type: 'success', duration: 5000 });
+      addToast({ message: toastText('contactFormSent'), type: 'success', duration: 5000 });
       resetForm();
     } catch (error) {
       // 4. Error → Toast
       setStatus('error');
 
       const message =
-        error instanceof EmailJSConfigError ? t('contactFormConfigError') : t('contactFormError');
+        error instanceof EmailJSConfigError
+          ? toastText('contactFormConfigError')
+          : toastText('contactFormError');
 
       addToast({ message, type: 'error', duration: 5000 });
     }

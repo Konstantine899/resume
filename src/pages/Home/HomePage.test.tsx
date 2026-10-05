@@ -3,16 +3,23 @@ import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
 import { About } from '@/features/About';
+import { Contact } from '@/features/Contact';
 import { createAboutSeed, persistAboutContent, removeAboutContent } from '@/features/AdminAbout';
+import {
+  createContactSeed,
+  persistContactContent,
+  removeContactContent,
+} from '@/features/AdminContact';
 import { storeReducers } from '@/storeReducers';
 import { HomePage } from './HomePage';
 import styles from './HomePage.module.scss';
 
 // Heavy composed features/widgets are out of scope for this integration test —
-// we exercise the HomePage skip link only. About is captured as a spy so the
-// WU-2 wiring test can assert the content prop it receives from the store.
+// we exercise the HomePage skip link only. About/Contact are captured as
+// spies so the WU-2 wiring tests can assert the content props they receive
+// from the store.
 vi.mock('@/features/About', () => ({ About: vi.fn(() => null) }));
-vi.mock('@/features/Contact', () => ({ Contact: () => null }));
+vi.mock('@/features/Contact', () => ({ Contact: vi.fn(() => null) }));
 vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
@@ -86,5 +93,37 @@ describe('HomePage: About content wiring (WU-2)', () => {
     const calls = vi.mocked(About).mock.calls;
     expect(calls.length).toBeGreaterThan(0);
     expect(calls[0]?.[0]?.content?.fullName).toBe(createAboutSeed().fullName);
+  });
+});
+
+// Contact CRUD stage-1 (plan_contact_crud §10 WU-4): the same wiring for
+// the Contact vitrina — store → prop, the vitrina itself stays store-free.
+describe('HomePage: Contact content wiring (WU-4)', () => {
+  afterEach(() => {
+    removeContactContent();
+    vi.clearAllMocks();
+  });
+
+  it('passes the persisted Contact content from the store into Contact', () => {
+    const seeded = createContactSeed();
+    seeded.email = 'wired@example.com';
+    persistContactContent(seeded);
+    vi.mocked(Contact).mockClear(); // drop calls from the tests above
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(Contact).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]?.[0]?.content?.email).toBe('wired@example.com');
+  });
+
+  it('falls back to the seed when localStorage is empty', () => {
+    vi.mocked(Contact).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(Contact).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]?.[0]?.content?.email).toBe(createContactSeed().email);
   });
 });
