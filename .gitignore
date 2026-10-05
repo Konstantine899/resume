@@ -191,9 +191,13 @@ pnpm-lock.yaml
 # only *.md — so the file-level negation is enough)
 !scripts/spec/**/*.md
 !scripts/createSlices/*.md
-# Feature spec-workflow (AGENTS § Spec-driven features): each feature's spec/SPEC.md + spec/TODO.md
-# are repo artifacts too — without this negation they stay local-only and never reach git history.
+# Spec-workflow (AGENTS § Spec-driven features): a slice's spec/SPEC.md + spec/TODO.md are repo
+# artifacts too — without these negations they stay local-only and never reach git history.
+# `spec/` is a legal segment of ANY slice (plan rev.4: root = {model, ui, lib, hooks, spec}),
+# so every FSD layer gets its own negation — features only would silently drop entity/widget specs.
 !src/features/*/spec/**/*.md
+!src/entities/*/spec/**/*.md
+!src/widgets/*/spec/**/*.md
 
 # GitHub templates (must be tracked; *.md is ignored above)
 !.github/PULL_REQUEST_TEMPLATE.md
