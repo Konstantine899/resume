@@ -2,6 +2,9 @@
 // Home Page
 // ============================================
 import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
+// Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
+// barrel will export the WU-3 editor form and must stay lazy-only.
+import { selectContactContent } from '@/features/AdminContact/model/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';
@@ -19,9 +22,11 @@ import styles from './HomePage.module.scss';
  */
 export const HomePage: React.FC = () => {
   // WU-2 read-path (Design C): pages is the ONLY layer that reads the
-  // AboutContent slice — the vitrina receives it as a prop and keeps its
-  // store-free fallback (bare tests render without a Provider).
+  // AboutContent/ContactContent slices — the vitrinas receive them as
+  // props and keep their store-free fallback (bare tests render without
+  // a Provider).
   const aboutContent = useSelector(selectAboutContent);
+  const contactContent = useSelector(selectContactContent);
 
   return (
     <>
@@ -54,7 +59,7 @@ export const HomePage: React.FC = () => {
           <Skills />
           <MyWork />
           <WorkHistory />
-          <Contact />
+          <Contact content={contactContent} />
         </main>
       </div>
     </>
