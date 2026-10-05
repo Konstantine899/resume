@@ -116,6 +116,27 @@ block.
       `node_modules/.bin`, not on PATH, zero references; `npm run` now maps every entry to an
       existing file/binary); no `postinstall` / `test:ui:*`
 
+## Stage 3.5 — Nested `model/` subdirectories (owner directive, 2026-10-04)
+
+- [x] **3.5.1** SPEC §3.2 amended first (REQ-G8/G9/G10/G11, REQ-T2/T6): `model/` = only
+      `types/`, `slices/`, `selectors/`, `services/`; flat files forbidden; `services/`
+      never auto-created — header `Change` row added (2026-10-04)
+- [x] **3.5.2** Tests first (REQ-Q4.3/Q4.6): `create-slices-cli.test.mjs` assertions →
+      nested paths + `../types` content import — suite 48/48 green
+- [x] **3.5.3** `create-model.mjs` planFiles + docstring → `model/types/index.ts`,
+      `model/slices/<camel>Slice(.test).ts`, `model/selectors/index.ts`
+- [x] **3.5.4** Templates: relative imports `./types` → `../types`, `./selectors` →
+      `../selectors` (redux-slice, selectors); barrel `./model/<camel>Slice` →
+      `./model/slices/<camel>Slice` (index.mjs)
+- [x] **3.5.5** `printNextSteps` snippet → `model/slices/<camel>Slice` (create-template.mjs)
+      — verified live in smoke output
+- [x] **3.5.6** Smoke: tmp-root `--dry-run` (nested tree, zero writes), base + `--with-slice`
+      generation, `--force` keeps foreign files (REQ-G5); live S2/S3 `--with-slice` in real
+      `src` → validate exit 0 (nested `../types` compiles + lints)
+- [x] **Gate:** `npm run validate` green ×2 (with generated slice 9-file tree; after cleanup
+      162 files / 2786 tests = baseline, stmts 91.67, Public API 28/28); generator suite
+      48/48; worktree residue-free
+
 ## Stage 4 — Documentation and memory
 
 - [ ] **4.1** AGENTS.md section: `generate:slice`, `check:public-api`, SSOT rule, "not ported"

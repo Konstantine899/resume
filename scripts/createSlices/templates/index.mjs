@@ -21,7 +21,7 @@ export type { ${name}Props } from './model/types';
   if (!withSlice) return base;
 
   return `${base}export type { ${name}State, ${name}RootState } from './model/types';
-export { ${camel}Reducer, setInitialized } from './model/${camel}Slice';
+export { ${camel}Reducer, setInitialized } from './model/slices/${camel}Slice';
 export { select${name}Initialized } from './model/selectors';
 `;
 }

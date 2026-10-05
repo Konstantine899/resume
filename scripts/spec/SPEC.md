@@ -1,13 +1,14 @@
 # SPEC — FSD slice generator and repo scripts
 
-| Field   | Value                                                                                                |
-| ------- | ---------------------------------------------------------------------------------------------------- |
-| Status  | draft                                                                                                |
-| Date    | 2026-10-04                                                                                           |
-| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied) |
-| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)    |
-| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)  |
-| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                       |
+| Field   | Value                                                                                                 |
+| ------- | ----------------------------------------------------------------------------------------------------- |
+| Status  | draft                                                                                                 |
+| Date    | 2026-10-04                                                                                            |
+| Change  | 2026-10-04: nested `model/{types,slices,selectors}` subdirectories — owner directive (REQ-G8 amended) |
+| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)  |
+| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)     |
+| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)   |
+| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                        |
 
 ---
 
@@ -122,7 +123,8 @@ passing `npm run validate` on generated output with zero manual edits.
   src/<layer>/<Name>/
   ├── index.ts
   ├── model/
-  │   └── types.ts          # <Name>Props (resume convention: props live in model/types.ts)
+  │   └── types/
+  │       └── index.ts      # <Name>Props (nested model: types live in model/types/)
   └── ui/
       ├── <Name>.tsx
       ├── <Name>.test.tsx
@@ -134,28 +136,40 @@ passing `npm run validate` on generated output with zero manual edits.
 
   ```
   ├── model/
-  │   ├── types.ts          # + <Name>State, <Name>RootState (structural)
-  │   ├── <name>Slice.ts    # file MUST match *Slice.ts (no-param-reassign override)
-  │   ├── selectors.ts
-  │   └── <name>Slice.test.ts
+  │   ├── types/
+  │   │   └── index.ts      # + <Name>State, <Name>RootState (structural)
+  │   ├── slices/
+  │   │   ├── <name>Slice.ts      # file MUST match *Slice.ts (no-param-reassign override)
+  │   │   └── <name>Slice.test.ts
+  │   └── selectors/
+  │       └── index.ts
   ```
+
+  **Amended 2026-10-04 (owner directive): nested `model/`.** `model/` contains ONLY the
+  subdirectories `types/`, `slices/`, `selectors/`, `services/` — flat files directly in
+  `model/` are forbidden (supersedes the flat-model `AdminAuth`/`About` precedent of the
+  previous revision). The generator always emits `types/`; `slices/` + `selectors/` only
+  with `--with-slice`; `services/` is never auto-created (empty directories are not
+  committable) — it is created by hand when real service files appear. Cross-directory
+  template imports use `../types` and `../selectors`; barrel specifiers `./model/types`
+  and `./model/selectors` resolve unchanged (directory + `index.ts`).
 
   The tree is IDENTICAL in every generator layer (`entities`, `features`, `pages`, `widgets`) —
   OPEN-1 decided (owner): no per-layer variants in v1. If a data-only slice is ever needed,
   that is a separate explicit decision (e.g. a `--no-ui` flag), never a silent layer
   special-case.
 
-- **REQ-G9** `model/types.ts` content: without slice — `<Name>Props` only; with slice — plus
+- **REQ-G9** `model/types/index.ts` content: without slice — `<Name>Props` only; with slice — plus
   `<Name>State` (≥1 field; `no-empty-object-type`) and structural
   `<Name>RootState = { <name>: <Name>State }` with the composition-root comment
-  (precedent: `AdminAuth/model/types.ts` — no global RootState can exist while reducers are
+  (precedent: `AdminAuth/model/types` — no global RootState can exist while reducers are
   injected from `src/App.tsx`).
-- **REQ-G10** `model/selectors.ts` (only with `--with-slice`):
+- **REQ-G10** `model/selectors/index.ts` (only with `--with-slice`):
   `export const select… = (state: <Name>RootState): … => state.<name>…;`
-  (precedent: `AdminAuth/model/selectors.ts`).
+  (precedent: `AdminAuth/model/selectors`).
 - **REQ-G11** The generator never edits `storeReducers.ts` / `routerConfig.tsx` / `HomePage.tsx` /
-  locales; it prints a "Next steps" block with the exact reducer import snippet when
-  `--with-slice` was used.
+  locales; it prints a "Next steps" block with the exact reducer import snippet
+  (`model/slices/<camel>Slice`) when `--with-slice` was used.
 - **REQ-G12** Windows: npm scripts are plain `node <file>` — no pipes, no `xargs`, no `npx`
   inside spawned processes; subprocesses in tests use `process.execPath`.
 - **REQ-G13** Emitted output must be Prettier-clean (`printWidth: 100`, single quotes) — either
@@ -167,7 +181,7 @@ passing `npm run validate` on generated output with zero manual edits.
 - **REQ-T1 `types.mjs`** — see REQ-G9/G10. Banner comment `// ==== <Name> — … ====`.
 - **REQ-T2 `component.mjs`** — `memo` named function; props imported as
   `import type { <Name>Props } from '../model/types'` (precedent: `About.tsx`, `Nav.tsx`);
-  `ReactNode` is imported ONLY by `model/types.ts` for the `children` slot (plan §4.5.7) —
+  `ReactNode` is imported ONLY by `model/types/index.ts` for the `children` slot (plan §4.5.7) —
   the component must NOT import it (unused-import lint violation; bare `React.ReactNode` is
   likewise forbidden) — _amended after the Stage-1 gates, which proved the old wording
   red under `no-unused-vars`_;
@@ -189,7 +203,8 @@ passing `npm run validate` on generated output with zero manual edits.
 - **REQ-T6 `redux-slice.mjs`** (only `--with-slice`) — `createSlice` with named action exports;
   lazy-hydration wrapper `export const <name>Reducer: typeof <name>Slice.reducer = (state, action) =>
 <name>Slice.reducer(state ?? initialState, action)` + lesson comment (`resume-rtk-lazy-hydration`);
-  file name `*Slice.ts` (scope of the `no-param-reassign` override).
+  file name `*Slice.ts` at `model/slices/<name>Slice.ts` (scope of the
+  `no-param-reassign` override).
 - **REQ-T7 `selectors.mjs`** — see REQ-G10.
 - **REQ-T8 `index.mjs`** — banner + **named re-exports only** (no `export *`):
   base: `export { <Name> } from './ui/<Name>';` + `export type { <Name>Props } from './model/types';`

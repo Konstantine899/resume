@@ -140,7 +140,7 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     await rm(root, { recursive: true, force: true });
   });
 
-  it('base tree: index + model/types + 4 ui files, nothing else', async () => {
+  it('base tree: index + model/types/ + 4 ui files, nothing else', async () => {
     const result = await runCli(['--root=' + root, 'features', 'TreeBase']);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Created src/features/TreeBase');
@@ -149,7 +149,7 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     expect(files).toEqual(
       [
         'index.ts',
-        'model/types.ts',
+        'model/types/index.ts',
         'ui/TreeBase.module.scss',
         'ui/TreeBase.stories.tsx',
         'ui/TreeBase.test.tsx',
@@ -158,7 +158,7 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     );
   });
 
-  it('--with-slice tree adds *Slice.ts, selectors.ts and the slice test', async () => {
+  it('--with-slice tree adds model/slices, model/selectors and the slice test', async () => {
     const result = await runCli(['--root=' + root, '--with-slice', 'features', 'SliceTree']);
     expect(result.exitCode).toBe(0);
 
@@ -166,10 +166,10 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     expect(files).toEqual(
       [
         'index.ts',
-        'model/selectors.ts',
-        'model/sliceTreeSlice.test.ts',
-        'model/sliceTreeSlice.ts',
-        'model/types.ts',
+        'model/selectors/index.ts',
+        'model/slices/sliceTreeSlice.test.ts',
+        'model/slices/sliceTreeSlice.ts',
+        'model/types/index.ts',
         'ui/SliceTree.module.scss',
         'ui/SliceTree.stories.tsx',
         'ui/SliceTree.test.tsx',
@@ -202,7 +202,7 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     expect(result.exitCode).toBe(0);
     for (const planned of [
       'index.ts',
-      'model/types.ts',
+      'model/types/index.ts',
       'ui/DrySlice.tsx',
       'ui/DrySlice.test.tsx',
       'ui/DrySlice.stories.tsx',
@@ -233,8 +233,8 @@ describe('generate:slice CLI — output tree (REQ-G8, plan §2.3.3)', () => {
     expect(forced.exitCode).toBe(0);
 
     // Generator-owned files were replaced with the new configuration.
-    expect(existsSync(path.join(sliceDir, 'model', 'forceSliceSlice.ts'))).toBe(true);
-    expect(existsSync(path.join(sliceDir, 'model', 'selectors.ts'))).toBe(true);
+    expect(existsSync(path.join(sliceDir, 'model', 'slices', 'forceSliceSlice.ts'))).toBe(true);
+    expect(existsSync(path.join(sliceDir, 'model', 'selectors', 'index.ts'))).toBe(true);
 
     // Foreign files survive and are reported in the output.
     expect(await readFile(path.join(sliceDir, 'notes.txt'), 'utf8')).toBe('keep me');
@@ -312,8 +312,8 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
     expect(story).toContain('export const Default: Story');
   });
 
-  it('types.ts always carries Props, and State/RootState with --with-slice', () => {
-    const types = files['model/types.ts'];
+  it('types/ always carries Props, and State/RootState with --with-slice', () => {
+    const types = files['model/types/index.ts'];
     expect(types).toContain('export interface ContentSliceProps {');
     expect(types).toContain('export type ContentSliceState = {');
     expect(types).toContain('export type ContentSliceRootState = {');
@@ -322,7 +322,7 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
   });
 
   it('redux model follows the lazy-hydration rule in a *Slice.ts file', () => {
-    const slice = files['model/contentSliceSlice.ts'];
+    const slice = files['model/slices/contentSliceSlice.ts'];
     expect(slice).toBeDefined();
     expect(slice).toContain("name: 'contentSlice'");
     expect(slice).toContain('resume-rtk-lazy-hydration');
@@ -330,16 +330,16 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
       'export const contentSliceReducer: typeof contentSliceSlice.reducer = (state, action) =>'
     );
     expect(slice).toContain('contentSliceSlice.reducer(state ?? initialState, action)');
-    expect(slice).toContain("import type { ContentSliceState } from './types';");
+    expect(slice).toContain("import type { ContentSliceState } from '../types';");
   });
 
   it('selectors and the slice test read the structural root state', () => {
-    const selectors = files['model/selectors.ts'];
+    const selectors = files['model/selectors/index.ts'];
     expect(selectors).toContain('export const selectContentSliceInitialized');
     expect(selectors).toContain('(state: ContentSliceRootState): boolean');
     expect(selectors).toContain('state.contentSlice.initialized');
 
-    const sliceTest = files['model/contentSliceSlice.test.ts'];
+    const sliceTest = files['model/slices/contentSliceSlice.test.ts'];
     expect(sliceTest).toContain("import { describe, expect, it } from 'vitest';");
     expect(sliceTest).toContain("toBe('contentSlice/setInitialized')");
     expect(sliceTest).toContain('selectContentSliceInitialized');
@@ -359,7 +359,7 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
       "export type { ContentSliceState, ContentSliceRootState } from './model/types';"
     );
     expect(index).toContain(
-      "export { contentSliceReducer, setInitialized } from './model/contentSliceSlice';"
+      "export { contentSliceReducer, setInitialized } from './model/slices/contentSliceSlice';"
     );
     expect(index).toContain("export { selectContentSliceInitialized } from './model/selectors';");
     expect(index).not.toContain('export *');
