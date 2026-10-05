@@ -12,6 +12,7 @@
 // instantiated only by the lazy `/admin/contact` route (lesson
 // resume-lazy-rhf-chunk).
 
+export { ContactEditorForm } from './ui/ContactEditorForm';
 export {
   contactContentReducer,
   resetToDefaults,

@@ -82,6 +82,21 @@ describe('locale parity (WU-6)', () => {
       'aboutParagraphEmpty',
       'aboutStatRequired',
       'aboutCtaRequired',
+      // Contact CRUD stage-1 (plan_contact_crud §10 WU-3) — all 14 keys.
+      'adminNavContact',
+      'adminContactTitle',
+      'adminContactHint',
+      'adminFieldEmail',
+      'adminFieldTexts',
+      'adminFieldFormTexts',
+      'contactSave',
+      'contactReset',
+      'contactSaved',
+      'contactSaveError',
+      'contactResetConfirm',
+      'contactEmailInvalid',
+      'contactTextEmpty',
+      'contactFormTextEmpty',
     ];
 
     for (const key of adminKeys) {
