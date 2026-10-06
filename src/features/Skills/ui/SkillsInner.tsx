@@ -21,9 +21,13 @@ import styles from './Skills.module.scss';
 export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   className = '',
   'data-testid': testId = 'skills',
+  content,
 }) => {
   const { t } = useLanguage();
   const { addToast } = useToast();
+  // Design C: store data wins when provided (HomePage wires selectSkillsData);
+  // bare consumers fall back to the entity seed — no react-redux in this slice.
+  const data = content ?? SKILLS_DATA;
 
   // The `developer.ts` snippet moved here from Hero (P9). `SkillsCode` and
   // `SkillsCodeWrapper` are hook-free by contract — `Code` executes function
@@ -38,7 +42,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   };
 
   // Empty state handling
-  if (!SKILLS_DATA || SKILLS_DATA.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <Section
         size="xl"
@@ -85,7 +89,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
             onCopyResult={handleCodeCopy}
           />
           <CardGrid columns={2} gap="md" role="list" className={styles.categoriesList}>
-            {SKILLS_DATA.map((categoryData, index) => (
+            {data.map((categoryData, index) => (
               <AnimatedSection key={categoryData.category} animation="fadeIn" delay={index * 30}>
                 <SkillItem categoryData={categoryData} delay={index * 30} />
               </AnimatedSection>
