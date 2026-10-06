@@ -23,14 +23,14 @@ const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() =
   addToast: vi.fn(),
 }));
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistAboutContent: persistSpy,
   removeAboutContent: removeSpy,
 }));
 
-vi.mock('../model/aboutContentSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/aboutContentSlice')>()),
+vi.mock('../model/slices/aboutContentSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/aboutContentSlice')>()),
   updateAboutContent: updateSpy,
   resetToDefaults: resetSpy,
 }));
@@ -58,7 +58,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 // a seed-shaped state, so the selector wiring stays covered.
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
-  const { createAboutSeed } = await import('../model/seed');
+  const { createAboutSeed } = await import('../model/services/seed');
   const state = { aboutContent: createAboutSeed() };
   return {
     ...actual,

@@ -22,14 +22,14 @@ const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() =
   addToast: vi.fn(),
 }));
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistContactContent: persistSpy,
   removeContactContent: removeSpy,
 }));
 
-vi.mock('../model/contactContentSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/contactContentSlice')>()),
+vi.mock('../model/slices/contactContentSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/contactContentSlice')>()),
   updateContactContent: updateSpy,
   resetToDefaults: resetSpy,
 }));
@@ -54,7 +54,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 // banned FSD hop. The REAL selector runs against a seed-shaped state.
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
-  const { createContactSeed } = await import('../model/seed');
+  const { createContactSeed } = await import('../model/services/seed');
   const state = { contactContent: createContactSeed() };
   return {
     ...actual,

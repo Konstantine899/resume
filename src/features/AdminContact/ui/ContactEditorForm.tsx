@@ -37,10 +37,10 @@ import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { createContactSeed } from '../model/seed';
-import { resetToDefaults, updateContactContent } from '../model/contactContentSlice';
+import { createContactSeed } from '../model/services/seed';
+import { resetToDefaults, updateContactContent } from '../model/slices/contactContentSlice';
 import { selectContactContent } from '../model/selectors';
-import { persistContactContent, removeContactContent } from '../model/storage';
+import { persistContactContent, removeContactContent } from '../model/services/storage';
 import styles from './ContactEditorForm.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */

@@ -26,9 +26,9 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteProject } from '../model/myWorkSlice';
+import { deleteProject } from '../model/slices/myWorkSlice';
 import { selectAllProjects } from '../model/selectors';
-import { persistProjects } from '../model/storage';
+import { persistProjects } from '../model/services/storage';
 import type { ProjectStatus } from '@/entities/Project';
 import styles from './MyWorkEditorList.module.scss';
 

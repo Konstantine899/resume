@@ -8,7 +8,7 @@
 // HomePage (Design C).
 //
 // WU-2 ships the model only; the editor UI is exported from here in
-// WU-4 — and `storeReducers.ts` deep-imports `./model/myWorkSlice`
+// WU-4 — and `storeReducers.ts` deep-imports `./model/slices/myWorkSlice`
 // precisely so this barrel (and the form/RHF code behind it) is
 // instantiated only by the lazy `/admin/mywork` route (lesson
 // resume-lazy-rhf-chunk).
@@ -21,15 +21,15 @@ export {
   myWorkReducer,
   resetToDefaults,
   updateProject,
-} from './model/myWorkSlice';
-export { createProjectsSeed } from './model/seed';
+} from './model/slices/myWorkSlice';
+export { createProjectsSeed } from './model/services/seed';
 export { selectAllProjects, selectFeaturedProjects, selectProjectById } from './model/selectors';
 export {
   PROJECTS_STORAGE_KEY,
   persistProjects,
   readProjects,
   removeProjects,
-} from './model/storage';
+} from './model/services/storage';
 export type { MyWorkRootState, ProjectUpdatePatch } from './model/types';
 
 // WU-4: the editor UI — consumed by the lazy /admin/mywork page only
