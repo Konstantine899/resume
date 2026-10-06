@@ -7,7 +7,7 @@ import { Section } from '@/shared/ui/Section';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
-import { SKILLS_DATA } from '../model/constants';
+import { SKILLS_DATA } from '@/entities/Skill';
 import type { SkillsFeatureProps } from '../model/types';
 import { SkillItem } from './SkillItem/SkillItem';
 import { SkillsCodeWrapper } from './SkillsCodeWrapper';

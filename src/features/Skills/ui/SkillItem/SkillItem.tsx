@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
-import type { SkillCategoryData } from '../../model/types';
+import type { SkillCategoryData } from '@/entities/Skill';
 import styles from './SkillItem.module.scss';
 
 /**

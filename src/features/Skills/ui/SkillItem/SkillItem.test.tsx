@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { SkillItem } from './SkillItem';
 import styles from './SkillItem.module.scss';
-import type { SkillCategoryData } from '../../model/types';
+import type { SkillCategoryData } from '@/entities/Skill';
 
 const mockFrontendCategory: SkillCategoryData = {
   category: 'frontend',

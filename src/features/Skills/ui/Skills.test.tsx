@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PROFILE_STACK } from '@/entities/Developer';
 import { Skills } from './Skills';
-import * as constants from '../model/constants';
+import * as constants from '@/entities/Skill';
 
 // Mock AnimatedSection to avoid animation complexity in tests
 vi.mock('@/shared/ui/AnimatedSection', () => ({

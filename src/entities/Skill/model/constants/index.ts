@@ -1,4 +1,4 @@
-import type { SkillCategoryData } from './types';
+import type { SkillCategoryData } from '../types';
 
 // Frontend иконки
 import javascriptIcon from '@/shared/assets/icons/skills/javascript.svg';
