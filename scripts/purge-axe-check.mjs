@@ -32,8 +32,8 @@ const MIN_CLASS_RULES = 500;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const THEMES = ['light', 'dark'];
 
-/** Pages scanned per theme (WU-6: the admin shell joins the gate). */
-const PATHS = ['/', '/admin'];
+/** Pages scanned per theme (WU-6: the admin shell joins; WU-7: the skills page). */
+const PATHS = ['/', '/admin', '/admin/skills'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
