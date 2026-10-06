@@ -36,7 +36,15 @@
 
   --color-text-primary: #0f0f0f;
   --color-text-secondary: #374151;
-  --color-text-tertiary: #6b7280;
+
+  // #6b7280 only reaches 4.36:1 on the warm admin surface (#f5f3f0) — AA
+
+  // needs 4.5 (axe, /admin/skills light; same latent fail on the About/
+
+  // Contact/MyWork hint paragraphs). #666d7a = 4.70 on #f5f3f0, 5.20 on
+
+  // #fff, keeps the tertiary < secondary ladder (dark twin: #9096a0).
+  --color-text-tertiary: #666d7a;
   --color-text-quaternary: #9ca3af;
   --color-text-inverse: #fff;
   --color-text: var(--color-text-primary);
@@ -487,7 +495,9 @@
 
   --color-text-primary: #0f0f0f;
   --color-text-secondary: #374151;
-  --color-text-tertiary: #6b7280;
+
+  // AA fix mirrors :root above — keep both light declarations in sync.
+  --color-text-tertiary: #666d7a;
   --color-text-quaternary: #9ca3af;
   --color-text-inverse: #fff;
 

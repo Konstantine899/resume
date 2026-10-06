@@ -1,0 +1,58 @@
+// ============================================
+
+// SkillCategoryForm — admin category form layout (Skills CRUD §7 WU-5)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens inside the shared inputs — no hardcoded values (plan §8).
+
+// Same structure as ProjectForm.module.scss (form/intro/field/actions).
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+// Native <select> (kit Select is absent): keep the input visual rhythm.
+.selectLabel {
+  margin-bottom: $spacing-1;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.select {
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

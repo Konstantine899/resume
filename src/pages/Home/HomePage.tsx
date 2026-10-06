@@ -8,6 +8,9 @@ import { selectContactContent } from '@/features/AdminContact/model/selectors';
 // Projects CRUD WU-3: deep import for the same lazy-barrel reason — the
 // AdminMyWork barrel will export the WU-4 RHF editor form.
 import { selectFeaturedProjects } from '@/features/AdminMyWork/model/selectors';
+// Skills CRUD WU-4: deep import, pages is the only layer that reads the
+// adminSkills slice — the vitrina stays store-free (Design C / R-5).
+import { selectSkillsData } from '@/features/AdminSkills/model/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';
@@ -33,6 +36,9 @@ export const HomePage: React.FC = () => {
   // Projects CRUD WU-3 (Design C): pages reads the slice, MyWork stays
   // store-free and receives the featured list as a prop.
   const featuredProjects = useSelector(selectFeaturedProjects);
+  // Skills CRUD WU-4 (Design C): pages reads the adminSkills slice; the
+  // Skills vitrina falls back to the entity seed without a Provider.
+  const skillsContent = useSelector(selectSkillsData);
 
   return (
     <>
@@ -62,7 +68,7 @@ export const HomePage: React.FC = () => {
             anchors and render order are one list, not two). */}
         <main id="main-content" className={styles.mainContent}>
           <About content={aboutContent} />
-          <Skills />
+          <Skills content={skillsContent} />
           <MyWork content={featuredProjects} />
           <WorkHistory />
           <Contact content={contactContent} />

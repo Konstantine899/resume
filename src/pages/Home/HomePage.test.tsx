@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
+import { SKILLS_DATA } from '@/entities/Skill';
 import { getFeaturedProjects, PROJECTS } from '@/entities/Project';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
@@ -12,7 +13,9 @@ import {
   removeContactContent,
 } from '@/features/AdminContact';
 import { removeProjects } from '@/features/AdminMyWork';
+import { persistSkills, removeSkills } from '@/features/AdminSkills';
 import { MyWork } from '@/features/MyWork';
+import { Skills } from '@/features/Skills';
 import { storeReducers } from '@/storeReducers';
 import { HomePage } from './HomePage';
 import styles from './HomePage.module.scss';
@@ -20,11 +23,12 @@ import styles from './HomePage.module.scss';
 // Heavy composed features/widgets are out of scope for this integration test —
 // we exercise the HomePage skip link only. About/Contact are captured as
 // spies so the WU-2 wiring tests can assert the content props they receive
-// from the store. MyWork is a spy too (WU-3 wiring test below).
+// from the store. MyWork is a spy too (WU-3 wiring test below), Skills the
+// same for WU-4.
 vi.mock('@/features/About', () => ({ About: vi.fn(() => null) }));
 vi.mock('@/features/Contact', () => ({ Contact: vi.fn(() => null) }));
 vi.mock('@/features/MyWork', () => ({ MyWork: vi.fn(() => null) }));
-vi.mock('@/features/Skills', () => ({ Skills: () => null }));
+vi.mock('@/features/Skills', () => ({ Skills: vi.fn(() => null) }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
 // The Nav right-side switches (T4) are provider-dependent slices out of this
 // skip-link test's scope — same null-mock style as the features above.
@@ -152,5 +156,45 @@ describe('HomePage: MyWork content wiring (WU-3)', () => {
     expect(content?.map((project) => project.title)).toEqual(
       getFeaturedProjects(PROJECTS).map((project) => project.title)
     );
+  });
+});
+
+// Skills CRUD WU-4 (plan_skills_crud §12 WU-4): Design C — pages/Home reads
+// the adminSkills slice and hands it to the vitrina as `content`; the vitrina
+// itself keeps no react-redux import (R-5 hook-free guard).
+describe('HomePage: Skills content wiring (WU-4)', () => {
+  afterEach(() => {
+    removeSkills();
+    vi.clearAllMocks();
+  });
+
+  it('passes the persisted Skills data from the store into Skills', () => {
+    persistSkills([
+      {
+        category: 'frontend',
+        categoryName: 'WU4 Frontend',
+        technologies: [{ name: 'React', iconSvg: '/icons/react.svg' }],
+      },
+    ]);
+    vi.mocked(Skills).mockClear(); // drop calls from the tests above
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(Skills).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]?.[0]?.content?.[0]?.categoryName).toBe('WU4 Frontend');
+  });
+
+  it('falls back to the seed when localStorage is empty', () => {
+    removeSkills();
+    vi.mocked(Skills).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(Skills).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const content = calls[0]?.[0]?.content;
+    expect(content?.length).toBeGreaterThan(0);
+    expect(content?.[0]?.categoryName).toBe(SKILLS_DATA[0]?.categoryName);
   });
 });

@@ -7,7 +7,7 @@ import { Section } from '@/shared/ui/Section';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
-import { SKILLS_DATA } from '../model/constants';
+import { SKILLS_DATA } from '@/entities/Skill';
 import type { SkillsFeatureProps } from '../model/types';
 import { SkillItem } from './SkillItem/SkillItem';
 import { SkillsCodeWrapper } from './SkillsCodeWrapper';
@@ -21,9 +21,13 @@ import styles from './Skills.module.scss';
 export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   className = '',
   'data-testid': testId = 'skills',
+  content,
 }) => {
   const { t } = useLanguage();
   const { addToast } = useToast();
+  // Design C: store data wins when provided (HomePage wires selectSkillsData);
+  // bare consumers fall back to the entity seed — no react-redux in this slice.
+  const data = content ?? SKILLS_DATA;
 
   // The `developer.ts` snippet moved here from Hero (P9). `SkillsCode` and
   // `SkillsCodeWrapper` are hook-free by contract — `Code` executes function
@@ -38,13 +42,13 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   };
 
   // Empty state handling
-  if (!SKILLS_DATA || SKILLS_DATA.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <Section
         size="xl"
         id="skills"
         className={classNames(styles.skillsSection, className)}
-        aria-label="Навыки разработчика"
+        aria-label={t('skillsAriaLabel')}
         data-testid={testId}
       >
         <AnimatedSection animation="fadeUp">
@@ -69,7 +73,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
       size="xl"
       id="skills"
       className={classNames(styles.skillsSection, className)}
-      aria-label="Навыки разработчика"
+      aria-label={t('skillsAriaLabel')}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">
@@ -85,7 +89,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
             onCopyResult={handleCodeCopy}
           />
           <CardGrid columns={2} gap="md" role="list" className={styles.categoriesList}>
-            {SKILLS_DATA.map((categoryData, index) => (
+            {data.map((categoryData, index) => (
               <AnimatedSection key={categoryData.category} animation="fadeIn" delay={index * 30}>
                 <SkillItem categoryData={categoryData} delay={index * 30} />
               </AnimatedSection>
