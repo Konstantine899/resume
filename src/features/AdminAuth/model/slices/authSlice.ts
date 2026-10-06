@@ -12,7 +12,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 import { readAdminAuthFlag } from '../services/storage';
-import type { AdminAuthState } from '../types';
+import type { AdminAuthState } from '../types/types';
 
 const initialState: AdminAuthState = { isAuthed: false };
 

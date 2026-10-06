@@ -6,7 +6,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { mockAdminMetrics } from '../constants';
-import type { AdminDashboardState, AdminMetric } from '../types';
+import type { AdminDashboardState, AdminMetric } from '../types/types';
 
 const initialState: AdminDashboardState = {
   metrics: mockAdminMetrics,

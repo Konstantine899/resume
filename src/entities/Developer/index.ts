@@ -4,4 +4,4 @@ export {
   PROFILE_STACK,
   SOCIAL_LINKS,
 } from './model/constants';
-export type { DeveloperProfile, DeveloperSkills, SocialLink } from './model/types';
+export type { DeveloperProfile, DeveloperSkills, SocialLink } from './model/types/types';

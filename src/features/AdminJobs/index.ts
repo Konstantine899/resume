@@ -32,7 +32,7 @@ export {
   selectSortedJobs,
 } from './model/selectors';
 export { JOBS_STORAGE_KEY, persistJobs, readJobs, removeJobs } from './model/services/storage';
-export type { JobsRootState } from './model/types';
+export type { JobsRootState } from './model/types/types';
 
 // WU-5: the editor UI — consumed by the lazy /admin/jobs page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).

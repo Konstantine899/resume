@@ -1,7 +1,7 @@
 // jobs selectors (plan_workhistory_crud WU-2, A1/§5).
 
 import { sortJobsByDate, type Job } from '@/entities/Job';
-import type { JobsRootState } from '../types';
+import type { JobsRootState } from '../types/types';
 
 export const selectAllJobs = (state: JobsRootState): Job[] => state.adminJobs;
 

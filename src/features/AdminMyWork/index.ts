@@ -13,6 +13,14 @@
 // instantiated only by the lazy `/admin/mywork` route (lesson
 // resume-lazy-rhf-chunk).
 
+export { selectAllProjects, selectFeaturedProjects, selectProjectById } from './model/selectors';
+export { createProjectsSeed } from './model/services/seed';
+export {
+  persistProjects,
+  PROJECTS_STORAGE_KEY,
+  readProjects,
+  removeProjects,
+} from './model/services/storage';
 export {
   addProject,
   deleteProject,
@@ -22,19 +30,11 @@ export {
   resetToDefaults,
   updateProject,
 } from './model/slices/myWorkSlice';
-export { createProjectsSeed } from './model/services/seed';
-export { selectAllProjects, selectFeaturedProjects, selectProjectById } from './model/selectors';
-export {
-  PROJECTS_STORAGE_KEY,
-  persistProjects,
-  readProjects,
-  removeProjects,
-} from './model/services/storage';
-export type { MyWorkRootState, ProjectUpdatePatch } from './model/types';
+export type { MyWorkRootState, ProjectUpdatePatch } from './model/types/types';
 
 // WU-4: the editor UI — consumed by the lazy /admin/mywork page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
-export { MyWorkEditorList } from './ui/MyWorkEditorList';
-export type { MyWorkEditorListProps } from './ui/MyWorkEditorList';
-export { ProjectForm } from './ui/ProjectForm';
-export type { ProjectFormProps } from './ui/ProjectForm';
+export { MyWorkEditorList } from './ui/MyWorkEditorList/MyWorkEditorList';
+export type { MyWorkEditorListProps } from './ui/MyWorkEditorList/MyWorkEditorList';
+export { ProjectForm } from './ui/ProjectForm/ProjectForm';
+export type { ProjectFormProps } from './ui/ProjectForm/ProjectForm';

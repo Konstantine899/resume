@@ -1,7 +1,7 @@
 import { getInitials } from '@/shared/lib/utils';
 import { GitHubIcon, LinkedInIcon } from '@/shared/ui/Icon';
 import { Send } from 'lucide-react';
-import type { DeveloperProfile, SocialLink } from '../types';
+import type { DeveloperProfile, SocialLink } from '../types/types';
 
 export const DEVELOPER_DATA: DeveloperProfile = {
   fullName: 'Атрощенко Константин',

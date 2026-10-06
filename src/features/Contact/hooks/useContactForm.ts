@@ -11,7 +11,7 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import emailjs from '@emailjs/browser';
 import { useState } from 'react';
-import type { ContactFormData, FormStatus } from '../model/types';
+import type { ContactFormData, FormStatus } from '../model/types/types';
 
 interface UseContactFormOptions {
   /** Overrides the default EmailJS send call (used for testing). */

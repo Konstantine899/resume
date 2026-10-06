@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { mockAdminMetrics } from '../constants';
 import { adminDashboardReducer, clearMetrics, setMetrics } from './adminDashboardSlice';
 import { selectAdminMetrics, selectMetricsCount } from '../selectors';
-import type { AdminDashboardRootState, AdminMetric } from '../types';
+import type { AdminDashboardRootState, AdminMetric } from '../types/types';
 
 describe('adminDashboard slice', () => {
   it('boots with the typed mock metrics (tests share the same mock)', () => {

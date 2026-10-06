@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { AboutContent } from '../types';
+import type { AboutContent } from '../types/types';
 import { AboutContentEnvelopeSchema, AboutContentSchema } from './schema';
 
 const VALID: AboutContent = {

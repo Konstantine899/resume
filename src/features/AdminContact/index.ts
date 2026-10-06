@@ -12,18 +12,18 @@
 // instantiated only by the lazy `/admin/contact` route (lesson
 // resume-lazy-rhf-chunk).
 
-export { ContactEditorForm } from './ui/ContactEditorForm';
-export {
-  contactContentReducer,
-  resetToDefaults,
-  updateContactContent,
-} from './model/slices/contactContentSlice';
-export { createContactSeed } from './model/services/seed';
 export { selectContactContent } from './model/selectors';
+export { createContactSeed } from './model/services/seed';
 export {
   CONTACT_CONTENT_STORAGE_KEY,
   persistContactContent,
   readContactContent,
   removeContactContent,
 } from './model/services/storage';
-export type { ContactContentRootState } from './model/types';
+export {
+  contactContentReducer,
+  resetToDefaults,
+  updateContactContent,
+} from './model/slices/contactContentSlice';
+export type { ContactContentRootState } from './model/types/types';
+export { ContactEditorForm } from './ui/ContactEditorForm/ContactEditorForm';

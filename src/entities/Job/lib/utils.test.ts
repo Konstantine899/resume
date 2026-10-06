@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 // Same-layer test: relative imports only — an `@/entities/Job` alias here
 // is an "entities → entities" FSD violation (resume-fsd-relative-import).
-import { JOBS } from '../constants';
+import { JOBS } from '../model/constants/constants';
 import { formatJobPeriod } from './utils';
 
 describe('formatJobPeriod', () => {

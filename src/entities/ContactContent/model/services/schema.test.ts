@@ -9,7 +9,7 @@ import {
   ContactContentSchema,
   ContactFormDataSchema,
 } from './schema';
-import type { ContactContent } from '../types';
+import type { ContactContent } from '../types/types';
 
 const VALID: ContactContent = {
   email: 'kostay375298918971@gmail.com',

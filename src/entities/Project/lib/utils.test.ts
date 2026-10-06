@@ -3,7 +3,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { PROJECTS, TECH_ICONS } from '../constants';
+import { PROJECTS, TECH_ICONS } from '../model/constants/constants';
 import { resolveTechIcons } from './utils';
 
 describe('resolveTechIcons', () => {

@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { SKILLS_DATA } from '../constants';
-import type { SkillCategoryData } from '../types';
+import type { SkillCategoryData } from '../types/types';
 import { SkillsEnvelopeSchema, SkillCategoryDataSchema, TechnologySchema } from './schema';
 
 const VALID_CATEGORY: SkillCategoryData = {
