@@ -16,6 +16,7 @@ import { removeProjects } from '@/features/AdminMyWork';
 import { persistSkills, removeSkills } from '@/features/AdminSkills';
 import { MyWork } from '@/features/MyWork';
 import { Skills } from '@/features/Skills';
+import { WorkHistory } from '@/features/WorkHistory';
 import { storeReducers } from '@/storeReducers';
 import { HomePage } from './HomePage';
 import styles from './HomePage.module.scss';
@@ -29,7 +30,7 @@ vi.mock('@/features/About', () => ({ About: vi.fn(() => null) }));
 vi.mock('@/features/Contact', () => ({ Contact: vi.fn(() => null) }));
 vi.mock('@/features/MyWork', () => ({ MyWork: vi.fn(() => null) }));
 vi.mock('@/features/Skills', () => ({ Skills: vi.fn(() => null) }));
-vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
+vi.mock('@/features/WorkHistory', () => ({ WorkHistory: vi.fn(() => null) }));
 // The Nav right-side switches (T4) are provider-dependent slices out of this
 // skip-link test's scope — same null-mock style as the features above.
 vi.mock('@/features/LanguageSwitch', () => ({ LanguageSwitch: () => null }));
@@ -196,5 +197,30 @@ describe('HomePage: Skills content wiring (WU-4)', () => {
     const content = calls[0]?.[0]?.content;
     expect(content?.length).toBeGreaterThan(0);
     expect(content?.[0]?.categoryName).toBe(SKILLS_DATA[0]?.categoryName);
+  });
+});
+
+// WU-1 (plan_workhistory_crud §8): recruiter-audit order — About → Skills →
+// MyWork → WorkHistory → Contact. Assertion via React render (invocation)
+// order of the feature spies; mockClear keeps invocationCallOrder history,
+// so read the index of the LAST call per spy.
+describe('HomePage: recruiter section order (§8)', () => {
+  it('renders the five content blocks in the canonical order', () => {
+    render(renderHome(<HomePage />));
+
+    const lastCallOrder = (mock: { mock: { calls: unknown[]; invocationCallOrder: number[] } }) =>
+      mock.mock.invocationCallOrder[mock.mock.calls.length - 1] as number;
+
+    const order = [
+      lastCallOrder(vi.mocked(About)),
+      lastCallOrder(vi.mocked(Skills)),
+      lastCallOrder(vi.mocked(MyWork)),
+      lastCallOrder(vi.mocked(WorkHistory)),
+      lastCallOrder(vi.mocked(Contact)),
+    ];
+
+    // strictly increasing → rendered in JSX order
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(new Set(order).size).toBe(5);
   });
 });
