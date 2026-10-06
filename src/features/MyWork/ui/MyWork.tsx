@@ -2,7 +2,7 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS, getFeaturedProjects } from '@/entities/Project';
+import { PROJECTS, getFeaturedProjects, resolveTechIcons } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
@@ -18,13 +18,16 @@ import styles from './MyWork.module.scss';
 
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
+  content,
   onProjectClick,
   'data-testid': testId = 'my-work',
 }) => {
   const { t, language } = useLanguage();
 
-  // Recruiter audit P1: only the featured projects surface here.
-  const projects = getFeaturedProjects(PROJECTS);
+  // Recruiter audit P1: only the featured projects surface here. WU-3
+  // (Design C): HomePage feeds the store value through the `content` prop;
+  // the seed fallback keeps bare renders store-free (no useSelector here).
+  const projects = content ?? getFeaturedProjects(PROJECTS);
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
@@ -46,7 +49,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
                 title={project.title}
                 description={language === 'en' ? project.description.en : project.description.ru}
                 backgroundImage={project.image}
-                techIcons={project.techIcons}
+                techIcons={resolveTechIcons(project.techIcons)}
                 link={project.link}
                 role={
                   project.role ? (language === 'en' ? project.role.en : project.role.ru) : undefined
@@ -61,12 +64,12 @@ export const MyWork: React.FC<MyWorkProps> = ({
           ))}
         </CardGrid>
 
-        {/* Empty State */}
+        {/* Empty State (i18n — R-7: no hardcoded copy) */}
         {projects.length === 0 && (
           <div className={styles.emptyState}>
             <Icon name={FolderOpen} size={48} color="foreground-muted" decorative />
             <Paragraph theme="muted" align="center">
-              No projects yet
+              {t('noProjectsYet')}
             </Paragraph>
           </div>
         )}

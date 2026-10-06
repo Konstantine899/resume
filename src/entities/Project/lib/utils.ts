@@ -1,5 +1,29 @@
-import { PROJECTS } from '../constants';
+import type { TechIcon } from '@/shared/ui/Card';
+
+import { PROJECTS, TECH_ICONS } from '../constants';
 import { Project, ProjectCategory, ProjectFilters, ProjectStatus } from '../types';
+
+/**
+ * Resolve stored tech icon KEYS to TechIcon objects for rendering (plan §5 A3).
+ * The store/seed keeps only keys — TECH_ICONS is never serialized.
+ * Unknown keys (corrupted legacy data) are skipped with a warning.
+ */
+export const resolveTechIcons = (keys: string[]): TechIcon[] => {
+  const table = TECH_ICONS as Record<string, TechIcon | undefined>;
+  const resolved: TechIcon[] = [];
+
+  for (const key of keys) {
+    const icon = table[key];
+    if (icon) {
+      resolved.push(icon);
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(`[entities/Project] Unknown tech icon key "${key}" — skipped`);
+    }
+  }
+
+  return resolved;
+};
 
 /**
  * Filter projects by category

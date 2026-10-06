@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
+import { getFeaturedProjects, PROJECTS } from '@/entities/Project';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { createAboutSeed, persistAboutContent, removeAboutContent } from '@/features/AdminAbout';
@@ -10,6 +11,8 @@ import {
   persistContactContent,
   removeContactContent,
 } from '@/features/AdminContact';
+import { removeProjects } from '@/features/AdminMyWork';
+import { MyWork } from '@/features/MyWork';
 import { storeReducers } from '@/storeReducers';
 import { HomePage } from './HomePage';
 import styles from './HomePage.module.scss';
@@ -17,10 +20,10 @@ import styles from './HomePage.module.scss';
 // Heavy composed features/widgets are out of scope for this integration test —
 // we exercise the HomePage skip link only. About/Contact are captured as
 // spies so the WU-2 wiring tests can assert the content props they receive
-// from the store.
+// from the store. MyWork is a spy too (WU-3 wiring test below).
 vi.mock('@/features/About', () => ({ About: vi.fn(() => null) }));
 vi.mock('@/features/Contact', () => ({ Contact: vi.fn(() => null) }));
-vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
+vi.mock('@/features/MyWork', () => ({ MyWork: vi.fn(() => null) }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
 // The Nav right-side switches (T4) are provider-dependent slices out of this
@@ -125,5 +128,29 @@ describe('HomePage: Contact content wiring (WU-4)', () => {
     const calls = vi.mocked(Contact).mock.calls;
     expect(calls.length).toBeGreaterThan(0);
     expect(calls[0]?.[0]?.content?.email).toBe(createContactSeed().email);
+  });
+});
+
+// Projects CRUD WU-3 (plan §11, case 5): Design C — pages/Home is the only
+// layer that reads the myWork slice, the vitrina receives the featured
+// projects as a prop and stays store-free (its 3 bare renders stay green).
+describe('HomePage: MyWork content wiring (WU-3)', () => {
+  afterEach(() => {
+    removeProjects();
+    vi.clearAllMocks();
+  });
+
+  it('passes selectFeaturedProjects from the store into MyWork', () => {
+    vi.mocked(MyWork).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(MyWork).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const content = calls[0]?.[0]?.content;
+    expect(content).toHaveLength(4);
+    expect(content?.map((project) => project.title)).toEqual(
+      getFeaturedProjects(PROJECTS).map((project) => project.title)
+    );
   });
 });

@@ -55,6 +55,13 @@ export const routerConfig: RouteObject[] = [
         lazy: () =>
           import('./Admin/AdminContactPage').then((m) => ({ Component: m.AdminContactPage })),
       },
+      {
+        // Projects CRUD stage-1 (plan_projects_crud §10 WU-4) — own chunk;
+        // carries the RHF editor (resume-lazy-rhf-chunk, same as /admin/about).
+        path: 'mywork',
+        lazy: () =>
+          import('./Admin/AdminMyWorkPage').then((m) => ({ Component: m.AdminMyWorkPage })),
+      },
     ],
   },
   { path: '*', loader: () => redirect('/') },

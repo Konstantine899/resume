@@ -20,9 +20,9 @@
       }
     },
     "total": {
-      "maxSize": 625000,
-      "maxSizeGzip": 215000,
-      "description": "Total JS bundle size limit (610kb raw, 210kb gzip). Raised 510000→625000 with human approval (About CRUD WU-4, 2026-10-04): measured 596100 raw after zod + About CRUD slices. Prior WU-2 (2026-09-30): 500880 raw, raised from 485000 with human approval (PR #146). WU-1 measurement was 476365 raw / 157620 gzip JS."
+      "maxSize": 655360,
+      "maxSizeGzip": 225280,
+      "description": "Total JS bundle size limit (640kb raw, 220kb gzip). Raised 625000/215000 -> 655360/225280 with human approval (Projects CRUD WU-3, 2026-10-06): measured 628224 raw (613.5 KiB) after WU-1..WU-3 (+11.6 KiB vs dev 601.9 KiB — ProjectSchema zod contract, seed/storage/myWorkSlice in main via storeReducers, resolveTechIcons); headroom reserved for the WU-4 lazy admin form chunk. Prior About CRUD WU-4 (2026-10-04): 510000->625000, measured 596100 raw. WU-2 (2026-09-30): 485000->510000. WU-1 measurement was 476365 raw / 157620 gzip JS."
     },
     "assets": {
       "maxSize": 122880,
