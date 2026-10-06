@@ -12,6 +12,7 @@ import {
   persistContactContent,
   removeContactContent,
 } from '@/features/AdminContact';
+import { createJobsSeed, persistJobs } from '@/features/AdminJobs';
 import { removeProjects } from '@/features/AdminMyWork';
 import { persistSkills, removeSkills } from '@/features/AdminSkills';
 import { MyWork } from '@/features/MyWork';
@@ -222,5 +223,45 @@ describe('HomePage: recruiter section order (§8)', () => {
     // strictly increasing → rendered in JSX order
     expect(order).toEqual([...order].sort((a, b) => a - b));
     expect(new Set(order).size).toBe(5);
+  });
+});
+
+// WorkHistory CRUD WU-4 (plan §12, store-aware cases): HomePage is the only
+// useSelector owner — the store value must land in the WorkHistory `content`
+// prop untouched ([] stays [], corrupt storage hydrates to the seed).
+describe('HomePage: WorkHistory store read-path (WU-4)', () => {
+  it('passes the persisted jobs from the store into WorkHistory', () => {
+    // Two seed records are enough to prove wiring + selector sorting.
+    persistJobs(createJobsSeed().slice(0, 2));
+    vi.mocked(WorkHistory).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(WorkHistory).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const content = calls[calls.length - 1]?.[0]?.content;
+    expect(content?.map((job) => job.id)).toEqual(['1', '2']);
+  });
+
+  it('passes an empty collection through as [] (empty state, NOT seed)', () => {
+    persistJobs([]);
+    vi.mocked(WorkHistory).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(WorkHistory).mock.calls;
+    const content = calls[calls.length - 1]?.[0]?.content;
+    expect(content).toEqual([]);
+  });
+
+  it('hydrates the seed when the envelope is corrupt', () => {
+    localStorage.setItem('resume.jobs', '{broken');
+    vi.mocked(WorkHistory).mockClear();
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(WorkHistory).mock.calls;
+    const content = calls[calls.length - 1]?.[0]?.content;
+    expect(content?.map((job) => job.id)).toEqual(['1', '2', '3']);
   });
 });

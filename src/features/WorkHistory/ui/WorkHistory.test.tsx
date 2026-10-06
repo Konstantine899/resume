@@ -122,3 +122,40 @@ describe('WorkHistory vitrina (WU-1)', () => {
     expect(screen.queryByTestId('work-history')).not.toBeInTheDocument();
   });
 });
+
+// WorkHistory CRUD WU-4 (plan §9 Design C): the vitrina stays store-free —
+// HomePage feeds the store value through `content`; an explicit [] must win
+// over the seed (nullish, never length-based) and show the i18n empty state.
+describe('WorkHistory: content prop, empty state, memo (WU-4)', () => {
+  it('renders the workHistoryEmpty key when content=[] (no seed fallback)', () => {
+    render(<WorkHistory content={[]} />);
+
+    expect(screen.getByText('workHistoryEmpty')).toBeInTheDocument();
+    expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
+    for (const job of JOBS) {
+      expect(screen.queryByText(job.company)).not.toBeInTheDocument();
+    }
+  });
+
+  it('renders the provided content instead of the seed', () => {
+    const custom = [{ ...(JOBS[0] as (typeof JOBS)[number]), company: 'Store Corp' }];
+    render(<WorkHistory content={custom} />);
+
+    expect(screen.getByText('Store Corp')).toBeInTheDocument();
+    expect(screen.getByText('present')).toBeInTheDocument();
+    expect(screen.queryByText('StartUp Innovations')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
+  });
+
+  it('falls back to the seed when content is undefined (bare render)', () => {
+    render(<WorkHistory content={undefined} />);
+
+    expect(screen.getByText('Tech Corp International')).toBeInTheDocument();
+    expect(screen.queryByText('workHistoryEmpty')).not.toBeInTheDocument();
+  });
+
+  it('is memoized with React.memo', () => {
+    const memoType = (WorkHistory as unknown as { $$typeof?: symbol }).$$typeof;
+    expect(memoType).toBe(Symbol.for('react.memo'));
+  });
+});

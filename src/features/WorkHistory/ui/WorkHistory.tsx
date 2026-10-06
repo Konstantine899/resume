@@ -7,8 +7,9 @@ import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { WorkHistoryCard } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
-import React from 'react';
+import React, { memo } from 'react';
 import type { WorkHistoryProps } from '../model/types';
 import styles from './WorkHistory.module.scss';
 
@@ -18,15 +19,20 @@ import styles from './WorkHistory.module.scss';
  * Displays work experience timeline with gradient container.
  * Pixel-perfect match to original Tailwind design.
  * Follows FSD architecture - features layer.
+ *
+ * WorkHistory CRUD WU-4 (Design C): store-free — HomePage feeds the sorted
+ * store value through `content`; bare renders fall back to the seed via
+ * nullish `??` (an explicit [] reaches the empty state, never the seed).
  */
-export const WorkHistory: React.FC<WorkHistoryProps> = ({
+const WorkHistoryInner: React.FC<WorkHistoryProps> = ({
   className = '',
+  content,
   'data-testid': testId = 'work-history',
 }) => {
   const { t, language } = useLanguage();
 
-  // Sort jobs by date (newest first)
-  const jobs = sortJobsByDate(JOBS);
+  // WU-4: content ?? seed — nullish, never length-based (resume-shared-key-splitbrain).
+  const jobs = content ?? sortJobsByDate(JOBS);
 
   // Get description based on current language
   const getDescription = (job: Job): string[] => {
@@ -53,25 +59,36 @@ export const WorkHistory: React.FC<WorkHistoryProps> = ({
         </AnimatedSection>
 
         <div className={styles.timeline}>
-          {jobs.map((job: Job, index) => (
-            <AnimatedSection key={job.id} animation="fadeUp" delay={index * 150}>
-              <WorkHistoryCard
-                title={getPosition(job)}
-                company={job.company}
-                companyUrl={job.companyUrl}
-                period={job.period}
-                periodBadge={job.current ? t(`present`) : undefined}
-                location={job.location}
-                achievements={getDescription(job)}
-                techStack={job.technologies}
-              />
-            </AnimatedSection>
-          ))}
+          {/* Empty state (WU-4, i18n R-7: no hardcoded copy) */}
+          {jobs.length === 0 ? (
+            <Paragraph theme="muted" align="center">
+              {t('workHistoryEmpty')}
+            </Paragraph>
+          ) : (
+            jobs.map((job: Job, index: number) => (
+              <AnimatedSection key={job.id} animation="fadeUp" delay={index * 150}>
+                <WorkHistoryCard
+                  title={getPosition(job)}
+                  company={job.company}
+                  companyUrl={job.companyUrl}
+                  period={job.period}
+                  periodBadge={job.current ? t(`present`) : undefined}
+                  location={job.location}
+                  achievements={getDescription(job)}
+                  techStack={job.technologies}
+                />
+              </AnimatedSection>
+            ))
+          )}
         </div>
       </Container>
     </Section>
   );
 };
+
+// WorkHistory CRUD WU-4: memoized at the section level (plan §9) so parent
+// re-renders with an unchanged jobs list skip the whole timeline.
+export const WorkHistory = memo(WorkHistoryInner);
 
 WorkHistory.displayName = 'WorkHistory';
 export default WorkHistory;
