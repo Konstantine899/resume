@@ -38,10 +38,10 @@ import {
   makeProjectRecord,
   makeUpdatePatch,
   updateProject,
-} from '../model/myWorkSlice';
-import { deleteProject, resetToDefaults } from '../model/myWorkSlice';
+} from '../model/slices/myWorkSlice';
+import { deleteProject, resetToDefaults } from '../model/slices/myWorkSlice';
 import { selectAllProjects } from '../model/selectors';
-import { persistProjects, removeProjects } from '../model/storage';
+import { persistProjects, removeProjects } from '../model/services/storage';
 import {
   ProjectFormSchema,
   emptyProjectFormValues,

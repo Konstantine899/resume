@@ -7,7 +7,7 @@
 // touches it (the vitrina receives content as a prop from HomePage).
 //
 // WU-1 ships the model only; the editor form is exported from here in
-// WU-3 — and `storeReducers.ts` deep-imports `./model/contactContentSlice`
+// WU-3 — and `storeReducers.ts` deep-imports `./model/slices/contactContentSlice`
 // precisely so this barrel (and the form/RHF code behind it) is
 // instantiated only by the lazy `/admin/contact` route (lesson
 // resume-lazy-rhf-chunk).
@@ -17,13 +17,13 @@ export {
   contactContentReducer,
   resetToDefaults,
   updateContactContent,
-} from './model/contactContentSlice';
-export { createContactSeed } from './model/seed';
+} from './model/slices/contactContentSlice';
+export { createContactSeed } from './model/services/seed';
 export { selectContactContent } from './model/selectors';
 export {
   CONTACT_CONTENT_STORAGE_KEY,
   persistContactContent,
   readContactContent,
   removeContactContent,
-} from './model/storage';
+} from './model/services/storage';
 export type { ContactContentRootState } from './model/types';

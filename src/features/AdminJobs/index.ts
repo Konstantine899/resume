@@ -8,7 +8,7 @@
 // (Design C).
 //
 // WU-2 ships the model only; the editor UI is exported from here in
-// WU-5 — and `storeReducers.ts` deep-imports `./model/jobsSlice`
+// WU-5 — and `storeReducers.ts` deep-imports `./model/slices/jobsSlice`
 // precisely so this barrel (and the form/RHF code behind it) is
 // instantiated only by the lazy `/admin/jobs` route (lesson
 // resume-lazy-rhf-chunk).
@@ -23,15 +23,15 @@ export {
   resetToDefaults,
   toggleCurrent,
   updateJob,
-} from './model/jobsSlice';
-export { createJobsSeed } from './model/seed';
+} from './model/slices/jobsSlice';
+export { createJobsSeed } from './model/services/seed';
 export {
   selectAllJobs,
   selectCurrentJob,
   selectJobById,
   selectSortedJobs,
 } from './model/selectors';
-export { JOBS_STORAGE_KEY, persistJobs, readJobs, removeJobs } from './model/storage';
+export { JOBS_STORAGE_KEY, persistJobs, readJobs, removeJobs } from './model/services/storage';
 export type { JobsRootState } from './model/types';
 
 // WU-5: the editor UI — consumed by the lazy /admin/jobs page only

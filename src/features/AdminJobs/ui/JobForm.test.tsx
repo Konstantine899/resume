@@ -25,15 +25,15 @@ const { persistSpy, addJobSpy, updateJobSpy, addToast, holder } = vi.hoisted(() 
   },
 }));
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistJobs: persistSpy,
 }));
 
 // Only the ACTIONS are spied — makeJobRecord/applyJobUpdate stay real so
 // the persisted array carries the real period recomputation (A5).
-vi.mock('../model/jobsSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/jobsSlice')>()),
+vi.mock('../model/slices/jobsSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/jobsSlice')>()),
   addJob: addJobSpy,
   updateJob: updateJobSpy,
 }));

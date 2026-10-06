@@ -10,15 +10,15 @@ export {
   aboutContentReducer,
   resetToDefaults,
   updateAboutContent,
-} from './model/aboutContentSlice';
-export { createAboutSeed } from './model/seed';
+} from './model/slices/aboutContentSlice';
+export { createAboutSeed } from './model/services/seed';
 export { selectAboutContent } from './model/selectors';
 export {
   ABOUT_CONTENT_STORAGE_KEY,
   persistAboutContent,
   readAboutContent,
   removeAboutContent,
-} from './model/storage';
+} from './model/services/storage';
 export type { AboutContentRootState } from './model/types';
 export { AboutEditorForm } from './ui/AboutEditorForm';
 export type { AboutEditorFormProps } from './ui/AboutEditorForm';

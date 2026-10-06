@@ -33,9 +33,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { addJob, applyJobUpdate, makeJobRecord, updateJob } from '../model/jobsSlice';
+import { addJob, applyJobUpdate, makeJobRecord, updateJob } from '../model/slices/jobsSlice';
 import { selectAllJobs } from '../model/selectors';
-import { persistJobs } from '../model/storage';
+import { persistJobs } from '../model/services/storage';
 import {
   emptyJobFormValues,
   jobFormSchema,

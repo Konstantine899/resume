@@ -25,13 +25,13 @@ const { persistSpy, deleteJobSpy, addToast, holder } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistJobs: persistSpy,
 }));
 
-vi.mock('../model/jobsSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/jobsSlice')>()),
+vi.mock('../model/slices/jobsSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/jobsSlice')>()),
   deleteJob: deleteJobSpy,
 }));
 

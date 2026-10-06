@@ -11,7 +11,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project } from '@/entities/Project';
-import { createProjectsSeed } from '../model/seed';
+import { createProjectsSeed } from '../model/services/seed';
 import { MyWorkEditorList } from './MyWorkEditorList';
 
 const { persistSpy, deleteSpy, addToast, holder } = vi.hoisted(() => ({
@@ -21,13 +21,13 @@ const { persistSpy, deleteSpy, addToast, holder } = vi.hoisted(() => ({
   holder: { state: { myWork: [] as Project[] } },
 }));
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistProjects: persistSpy,
 }));
 
-vi.mock('../model/myWorkSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/myWorkSlice')>()),
+vi.mock('../model/slices/myWorkSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/myWorkSlice')>()),
   deleteProject: deleteSpy,
 }));
 

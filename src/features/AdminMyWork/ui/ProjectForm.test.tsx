@@ -11,7 +11,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PROJECT_CATEGORIES, TECH_ICONS, type Project } from '@/entities/Project';
-import { createProjectsSeed } from '../model/seed';
+import { createProjectsSeed } from '../model/services/seed';
 import { ProjectForm } from './ProjectForm';
 
 const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast } = vi.hoisted(
@@ -26,14 +26,14 @@ const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast 
   })
 );
 
-vi.mock('../model/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/storage')>()),
+vi.mock('../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/services/storage')>()),
   persistProjects: persistSpy,
   removeProjects: removeSpy,
 }));
 
-vi.mock('../model/myWorkSlice', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../model/myWorkSlice')>()),
+vi.mock('../model/slices/myWorkSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../model/slices/myWorkSlice')>()),
   addProject: addSpy,
   updateProject: updateSpy,
   deleteProject: deleteSpy,
@@ -60,7 +60,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 // FSD hop; the REAL selectors run against a seed-shaped state (About pattern).
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
-  const { createProjectsSeed: seed } = await import('../model/seed');
+  const { createProjectsSeed: seed } = await import('../model/services/seed');
   const state = { myWork: seed() };
   return {
     ...actual,

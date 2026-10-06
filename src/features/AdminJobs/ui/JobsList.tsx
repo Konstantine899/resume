@@ -24,9 +24,9 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Job } from '@/entities/Job';
-import { deleteJob } from '../model/jobsSlice';
+import { deleteJob } from '../model/slices/jobsSlice';
 import { selectSortedJobs } from '../model/selectors';
-import { persistJobs } from '../model/storage';
+import { persistJobs } from '../model/services/storage';
 import styles from './JobsList.module.scss';
 
 export interface JobsListProps {
