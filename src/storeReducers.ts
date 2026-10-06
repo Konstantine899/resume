@@ -16,10 +16,15 @@ import { adminDashboardReducer } from '@/features/AdminDashboard';
 // public API will export the editor form (RHF) in WU-3 — instantiating the
 // barrel here would pull it into the main chunk.
 import { contactContentReducer } from '@/features/AdminContact/model/contactContentSlice';
+// Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminMyWork's
+// public API will export the editor form (RHF) in WU-4 — instantiating the
+// barrel here would pull it into the main chunk.
+import { myWorkReducer } from '@/features/AdminMyWork/model/myWorkSlice';
 
 export const storeReducers = {
   aboutContent: aboutContentReducer,
   adminAuth: adminAuthReducer,
   adminDashboard: adminDashboardReducer,
   contactContent: contactContentReducer,
+  myWork: myWorkReducer,
 };
