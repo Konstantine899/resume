@@ -14,14 +14,14 @@ export function publicApiTemplate(names) {
 // ${name} — Public API (FSD slice)
 // ============================================
 
-export { ${name} } from './ui/${name}';
-export type { ${name}Props } from './model/types';
+export { ${name} } from './ui/${name}/${name}';
+export type { ${name}Props } from './model/types/types';
 `;
 
   if (!withSlice) return base;
 
-  return `${base}export type { ${name}State, ${name}RootState } from './model/types';
-export { ${camel}Reducer, setInitialized } from './model/${camel}Slice';
-export { select${name}Initialized } from './model/selectors';
+  return `${base}export type { ${name}State, ${name}RootState } from './model/types/types';
+export { ${camel}Reducer, setInitialized } from './model/slices/${camel}Slice';
+export { select${name}Initialized } from './model/selectors/selectors';
 `;
 }

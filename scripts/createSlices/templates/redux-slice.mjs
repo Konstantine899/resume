@@ -10,7 +10,7 @@
  */
 
 /**
- * `model/<camel>Slice.ts`.
+ * `model/slices/<camel>Slice.ts`.
  * @param {{ name: string, camel: string }} names
  * @returns {string}
  */
@@ -27,7 +27,7 @@ export function reduxSliceTemplate(names) {
 // (tests, a future persistence stage) never showed.
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ${name}State } from './types';
+import type { ${name}State } from '../types/types';
 
 const initialState: ${name}State = { initialized: false };
 
@@ -49,7 +49,7 @@ export const ${camel}Reducer: typeof ${camel}Slice.reducer = (state, action) =>
 }
 
 /**
- * `model/<camel>Slice.test.ts` — pure state machine only; reducer-map
+ * `model/slices/<camel>Slice.test.ts` — pure state machine only; reducer-map
  * injection from the composition root is covered by StoreProvider tests.
  * @param {{ name: string, camel: string }} names
  * @returns {string}
@@ -65,8 +65,8 @@ export function sliceTestTemplate(names) {
 
 import { describe, expect, it } from 'vitest';
 import { setInitialized, ${camel}Reducer } from './${camel}Slice';
-import { select${name}Initialized } from './selectors';
-import type { ${name}RootState } from './types';
+import { select${name}Initialized } from '../selectors/selectors';
+import type { ${name}RootState } from '../types/types';
 
 describe('${camel} slice', () => {
   it('hydrates the initial state on the first reducer call', () => {
