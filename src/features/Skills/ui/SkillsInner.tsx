@@ -44,7 +44,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
         size="xl"
         id="skills"
         className={classNames(styles.skillsSection, className)}
-        aria-label="Навыки разработчика"
+        aria-label={t('skillsAriaLabel')}
         data-testid={testId}
       >
         <AnimatedSection animation="fadeUp">
@@ -69,7 +69,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
       size="xl"
       id="skills"
       className={classNames(styles.skillsSection, className)}
-      aria-label="Навыки разработчика"
+      aria-label={t('skillsAriaLabel')}
       data-testid={testId}
     >
       <AnimatedSection animation="fadeUp">

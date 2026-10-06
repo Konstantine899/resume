@@ -1,8 +1,28 @@
 import { render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillItem } from './SkillItem';
 import styles from './SkillItem.module.scss';
 import type { SkillCategoryData } from '@/entities/Skill';
+
+// Identity-style mock with a real ru plural for the counter — the aria-label
+// assertion below proves the t('skillsCategoryCount', {count}) wiring (WU-3).
+vi.mock('@/shared/lib/i18n/hooks', () => ({
+  useLanguage: () => ({
+    t: (key: string, opts?: { count?: number }) => {
+      if (key === 'skillsCategoryCount') {
+        const count = opts?.count ?? 0;
+        const plural =
+          count % 10 === 1 && count % 100 !== 11
+            ? 'технология'
+            : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)
+              ? 'технологии'
+              : 'технологий';
+        return `${count} ${plural}`;
+      }
+      return key;
+    },
+  }),
+}));
 
 const mockFrontendCategory: SkillCategoryData = {
   category: 'frontend',
@@ -136,7 +156,8 @@ describe('SkillItem', () => {
       const { container } = render(<SkillItem categoryData={mockBackendCategory} />);
 
       const item = container.querySelector('[role="listitem"]');
-      expect(item).toHaveAttribute('aria-label', 'Backend: 2 технологий');
+      // ru plural: 2 → «технологии» (was hardcoded «технологий» before i18n)
+      expect(item).toHaveAttribute('aria-label', 'Backend: 2 технологии');
     });
 
     it('должен иметь aria-label на каждой технологии', () => {

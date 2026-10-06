@@ -23,7 +23,8 @@ vi.mock('@/shared/lib/contexts/ThemeContext', () => ({
 // Mock LanguageContext
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => ({ mySkills: 'My Skills' })[key] ?? key,
+    t: (key: string) =>
+      ({ mySkills: 'My Skills', skillsAriaLabel: 'Developer skills' })[key] ?? key,
   }),
 }));
 
@@ -42,10 +43,10 @@ describe('Skills', () => {
   });
 
   describe('Integration: Render Categories', () => {
-    it('должен рендерить секцию с aria-label "Навыки разработчика"', () => {
+    it('должен рендерить секцию с aria-label "Developer skills" (t skillsAriaLabel)', () => {
       render(<Skills />);
 
-      const section = screen.getByRole('region', { name: /навыки/i });
+      const section = screen.getByRole('region', { name: 'Developer skills' });
       expect(section).toBeInTheDocument();
     });
 
@@ -129,7 +130,7 @@ describe('Skills', () => {
     it('должен иметь aria-label на секции', () => {
       const { container } = render(<Skills />);
 
-      const section = container.querySelector('section[aria-label="Навыки разработчика"]');
+      const section = container.querySelector('section[aria-label="Developer skills"]');
       expect(section).toBeInTheDocument();
     });
 

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
@@ -40,6 +41,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
   delay = 0,
   'data-testid': testId = 'skill-item',
 }) => {
+  const { t } = useLanguage();
   const { category, categoryName, technologies } = categoryData;
 
   return (
@@ -47,7 +49,7 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
       className={classNames(styles.skillItem)}
       data-category={category}
       role="listitem"
-      aria-label={`${categoryName}: ${technologies.length} технологий`}
+      aria-label={`${categoryName}: ${t('skillsCategoryCount', { count: technologies.length })}`}
       data-testid={testId}
       style={{ animationDelay: `${delay}ms` }}
     >
