@@ -97,6 +97,25 @@ describe('locale parity (WU-6)', () => {
       'contactEmailInvalid',
       'contactTextEmpty',
       'contactFormTextEmpty',
+      // WorkHistory CRUD stage-1 (plan_workhistory_crud WU-3) — 14 plan keys
+      // + adminNavJobs (the plan's key lists omit the nav label, but every
+      // other admin section ships an adminNav* key and WU-5's sidebar entry
+      // follows the same pattern).
+      'workHistoryEmpty',
+      'adminJobs',
+      'adminAddJob',
+      'adminEditJob',
+      'adminJobsEmpty',
+      'adminNavJobs',
+      'adminJobErrCompany',
+      'adminJobErrPosition',
+      'adminJobErrStartDate',
+      'adminJobErrEndDate',
+      'adminJobErrDescription',
+      'adminJobErrTechnologies',
+      'adminJobErrLocation',
+      'adminJobErrUrl',
+      'adminJobErrEnum',
     ];
 
     for (const key of adminKeys) {
