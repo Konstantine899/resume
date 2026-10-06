@@ -31,3 +31,10 @@ export {
   removeProjects,
 } from './model/storage';
 export type { MyWorkRootState, ProjectUpdatePatch } from './model/types';
+
+// WU-4: the editor UI — consumed by the lazy /admin/mywork page only
+// (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
+export { MyWorkEditorList } from './ui/MyWorkEditorList';
+export type { MyWorkEditorListProps } from './ui/MyWorkEditorList';
+export { ProjectForm } from './ui/ProjectForm';
+export type { ProjectFormProps } from './ui/ProjectForm';

@@ -70,6 +70,7 @@
   "aboutStatRequired": "Каждая локаль статистики обязательна (до 60 символов).",
   "aboutCtaRequired": "Обе локали кнопки обязательны (до 40 символов).",
   "adminNavContact": "Контакты",
+  "adminNavMyWork": "Проекты",
   "adminContactTitle": "Редактировать секцию «Контакты»",
   "adminContactHint": "Изменения сохраняются в этот браузер и сразу появляются на главной странице.",
   "adminFieldEmail": "Email для контакта",

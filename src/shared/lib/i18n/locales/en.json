@@ -70,6 +70,7 @@
   "aboutStatRequired": "Every stat locale is required (up to 60 characters).",
   "aboutCtaRequired": "Both CTA locales are required (up to 40 characters).",
   "adminNavContact": "Contact",
+  "adminNavMyWork": "Projects",
   "adminContactTitle": "Edit Contact section",
   "adminContactHint": "Changes are saved to this browser and show up on the home page right away.",
   "adminFieldEmail": "Contact email",
