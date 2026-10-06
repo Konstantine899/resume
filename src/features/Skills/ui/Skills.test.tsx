@@ -1,5 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
-import { readFileSync } from 'node:fs';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PROFILE_STACK } from '@/entities/Developer';
@@ -28,9 +28,12 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
   }),
 }));
 
-// SkillsInner wires the code-copy toast — no-op provider, same pattern as Hero
+// WU-6: stable spy — copy tests assert on the SAME instance every render.
+const { addToastSpy } = vi.hoisted(() => ({ addToastSpy: vi.fn() }));
+
+// SkillsInner wires the code-copy toast — spy provider, same pattern as Hero
 vi.mock('@/shared/lib/contexts/ToastContext', () => ({
-  useToast: () => ({ addToast: vi.fn() }),
+  useToast: () => ({ addToast: addToastSpy }),
 }));
 
 describe('Skills', () => {
@@ -281,5 +284,92 @@ describe('Skills: code block hidden on mobile (source guard)', () => {
     const mq = wrapperRule().split('@media')[1] ?? '';
     expect(mq, 'must re-enable inside a media query').toMatch(/width\s*>=\s*768px/);
     expect(mq).toMatch(/display:\s*block/);
+  });
+});
+
+/**
+ * Source-level hook-free guard (R-5 / WU-4 Design C): the vitrina slice
+ * must never import react-redux — store values arrive as the `content`
+ * prop from pages/Home. A runtime test cannot catch an import (the store
+ * dependency would only blow up at Provider-less RENDER time, and mocks
+ * hide it), so scanning the slice sources is the faithful guard — the
+ * same technique as the `SkillsCode` hook guard above.
+ */
+describe('Skills: hook-free slice (source guard, R-5)', () => {
+  const SLICE_DIR = join(__dirname, '..');
+
+  /** Production files only — tests may mock anything; sources may not import. */
+  function sourceFiles(dir: string): string[] {
+    const found: string[] = [];
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) found.push(...sourceFiles(full));
+      else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.includes('.test.')) found.push(full);
+    }
+    return found;
+  }
+
+  it('never imports react-redux (Data must arrive as props)', () => {
+    const files = sourceFiles(SLICE_DIR);
+    // Non-vacuous: an empty/deleted slice must not pass the guard silently.
+    expect(files.length, 'guard must scan a real slice, not an empty set').toBeGreaterThan(3);
+
+    const offenders = files.filter((file) => {
+      const raw = readFileSync(file, 'utf-8');
+      const stripped = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+      return /from\s+['"]react-redux['"]/.test(stripped);
+    });
+    expect(offenders, 'features/Skills must stay hook-free (R-5)').toEqual([]);
+  });
+});
+
+/**
+ * WU-6 (plan_skills_crud §12): the code-copy path must keep its behavior —
+ * `Code` → `onCopyResult(success)` → `SkillsInner.handleCodeCopy` → Toast.
+ * The success branch is the existing behavior; the ERROR branch (clipboard
+ * reject → `codeCopyFailed` error-toast) is the regression this guards.
+ * The clipboard is mocked at the API boundary, same technique as Code.test.
+ */
+describe('Skills: code copy toasts (WU-6)', () => {
+  const setClipboard = (writeText: ReturnType<typeof vi.fn>) => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      writable: true,
+      configurable: true,
+    });
+  };
+
+  beforeEach(() => {
+    addToastSpy.mockReset();
+  });
+
+  it('clipboard resolves → codeCopied success toast (behavior kept)', async () => {
+    setClipboard(vi.fn().mockResolvedValue(undefined));
+    render(<Skills />);
+
+    fireEvent.click(screen.getByTestId('code-copy-button'));
+
+    await vi.waitFor(() =>
+      expect(addToastSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'codeCopied', type: 'success' })
+      )
+    );
+  });
+
+  it('clipboard rejects → codeCopyFailed error toast (error branch)', async () => {
+    setClipboard(vi.fn().mockRejectedValue(new Error('denied')));
+    render(<Skills />);
+
+    fireEvent.click(screen.getByTestId('code-copy-button'));
+
+    await vi.waitFor(() =>
+      expect(addToastSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'codeCopyFailed', type: 'error' })
+      )
+    );
+    // No success toast may leak from the failed copy.
+    expect(addToastSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'codeCopied' })
+    );
   });
 });
