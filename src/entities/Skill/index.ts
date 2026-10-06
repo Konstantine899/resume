@@ -16,3 +16,4 @@ export {
   TechnologySchema,
 } from './model/services/schema';
 export type { SkillsEnvelope } from './model/services/schema';
+export { resolveIconSvg } from './lib/resolveIconSvg';
