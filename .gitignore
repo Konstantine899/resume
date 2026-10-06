@@ -86,10 +86,13 @@ output/
 storybook-static/
 
 # Vite build artifacts (auto-generated, do not commit)
+# outDir = public (config/vite/buildViteConfig.ts), so index.html and the
+# hashed *.svg/*.png are build OUTPUT — nothing here is a source file.
 public/*.js
 public/*.css
 public/*.map
-!public/index.html
+public/index.html
+public/*.svg
 
 # Locale files (managed separately, do not commit with code changes)
 public/locales/
