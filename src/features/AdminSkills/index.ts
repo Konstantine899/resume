@@ -30,3 +30,12 @@ export {
   removeSkills,
 } from './model/services/storage';
 export type { AdminSkillsRootState } from './model/types';
+
+// WU-5: the editor UI — consumed by the lazy /admin/skills page only
+// (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
+export { SkillCategoryForm } from './ui/SkillCategoryForm';
+export type { SkillCategoryFormProps } from './ui/SkillCategoryForm';
+export { SkillsEditorList } from './ui/SkillsEditorList';
+export type { SkillsEditorListProps } from './ui/SkillsEditorList';
+export { TechnologyForm } from './ui/TechnologyForm';
+export type { TechnologyFormProps } from './ui/TechnologyForm';
