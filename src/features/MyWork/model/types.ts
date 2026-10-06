@@ -6,6 +6,12 @@ import { Project } from '@/entities/Project';
 
 export interface MyWorkProps {
   className?: string;
+  /**
+   * WU-3 (Design C): the vitrina never touches the store — HomePage passes
+   * the featured projects from `selectFeaturedProjects`. Without the prop
+   * it falls back to the entity seed, so bare renders stay store-free.
+   */
+  content?: Project[];
   onProjectClick?: (projectId: string) => void;
   'data-testid'?: string;
 }

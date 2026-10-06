@@ -49,3 +49,19 @@ describe('MyWork: featured projects only (recruiter audit P1)', () => {
     expect(screen.queryByText('1M+ users')).not.toBeInTheDocument();
   });
 });
+
+// Projects CRUD WU-3 (plan §11, case 4): Design C — the vitrina is still
+// store-free; an explicit EMPTY content must win over the seed fallback
+// and the empty state must be the i18n key (identity t-mock), not a
+// hardcoded English sentence (R-7).
+describe('MyWork: empty state through the content prop (WU-3)', () => {
+  it('renders the noProjectsYet key when content=[] (no seed fallback)', () => {
+    render(<MyWork content={[]} />);
+
+    expect(screen.getByText('noProjectsYet')).toBeInTheDocument();
+    // The seed must NOT leak through when the caller passed an empty list.
+    for (const project of getFeaturedProjects(PROJECTS)) {
+      expect(screen.queryByText(project.title)).not.toBeInTheDocument();
+    }
+  });
+});

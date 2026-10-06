@@ -5,6 +5,9 @@ import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
 // Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
 // barrel will export the WU-3 editor form and must stay lazy-only.
 import { selectContactContent } from '@/features/AdminContact/model/selectors';
+// Projects CRUD WU-3: deep import for the same lazy-barrel reason — the
+// AdminMyWork barrel will export the WU-4 RHF editor form.
+import { selectFeaturedProjects } from '@/features/AdminMyWork/model/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';
@@ -27,6 +30,9 @@ export const HomePage: React.FC = () => {
   // a Provider).
   const aboutContent = useSelector(selectAboutContent);
   const contactContent = useSelector(selectContactContent);
+  // Projects CRUD WU-3 (Design C): pages reads the slice, MyWork stays
+  // store-free and receives the featured list as a prop.
+  const featuredProjects = useSelector(selectFeaturedProjects);
 
   return (
     <>
@@ -57,7 +63,7 @@ export const HomePage: React.FC = () => {
         <main id="main-content" className={styles.mainContent}>
           <About content={aboutContent} />
           <Skills />
-          <MyWork />
+          <MyWork content={featuredProjects} />
           <WorkHistory />
           <Contact content={contactContent} />
         </main>
