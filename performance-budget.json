@@ -20,9 +20,9 @@
       }
     },
     "total": {
-      "maxSize": 655360,
-      "maxSizeGzip": 225280,
-      "description": "Total JS bundle size limit (640kb raw, 220kb gzip). Raised 625000/215000 -> 655360/225280 with human approval (Projects CRUD WU-3, 2026-10-06): measured 628224 raw (613.5 KiB) after WU-1..WU-3 (+11.6 KiB vs dev 601.9 KiB — ProjectSchema zod contract, seed/storage/myWorkSlice in main via storeReducers, resolveTechIcons); headroom reserved for the WU-4 lazy admin form chunk. Prior About CRUD WU-4 (2026-10-04): 510000->625000, measured 596100 raw. WU-2 (2026-09-30): 485000->510000. WU-1 measurement was 476365 raw / 157620 gzip JS."
+      "maxSize": 737280,
+      "maxSizeGzip": 258048,
+      "description": "Total JS bundle size limit (720kb raw, 252kb gzip). Raised 655360/225280 -> 737280/258048 with human approval (Skills CRUD WU-5, 2026-10-06): measured 685467 raw / 224580 gzip (+35 KiB vs dev 634.4 KiB — AdminSkills model in main via storeReducers, +19.1 KiB; lazy /admin/skills chunk, +11.3 KiB; i18n keys, +3.9 KiB; Modal hoisted to a shared chunk, net neutral; RHF/zod stayed out of main). Headroom reserved for plan_workhistory_crud (model-in-main + lazy page + i18n, ~+25-30 KiB). Projects CRUD (2026-10-06): 625000->655360, measured 628224. About CRUD WU-4 (2026-10-04): 510000->625000, measured 596100. WU-2 (2026-09-30): 485000->510000. WU-1 measurement was 476365 raw / 157620 gzip JS."
     },
     "assets": {
       "maxSize": 122880,
