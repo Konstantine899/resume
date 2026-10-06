@@ -69,6 +69,13 @@ export const routerConfig: RouteObject[] = [
         lazy: () =>
           import('./Admin/AdminSkillsPage').then((m) => ({ Component: m.AdminSkillsPage })),
       },
+      {
+        // WorkHistory CRUD stage-1 (plan_workhistory_crud §9 WU-5) — own
+        // chunk; carries the RHF editor (resume-lazy-rhf-chunk, same as
+        // /admin/about). RHF must never reach the showcase bundle.
+        path: 'jobs',
+        lazy: () => import('./Admin/AdminJobsPage').then((m) => ({ Component: m.AdminJobsPage })),
+      },
     ],
   },
   { path: '*', loader: () => redirect('/') },

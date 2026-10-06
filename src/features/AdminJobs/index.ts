@@ -36,5 +36,5 @@ export type { JobsRootState } from './model/types';
 
 // WU-5: the editor UI — consumed by the lazy /admin/jobs page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
-// export { JobForm } from './ui/JobForm';
-// export { JobsList } from './ui/JobsList';
+export { JobForm } from './ui/JobForm';
+export { JobsList } from './ui/JobsList';
