@@ -97,6 +97,64 @@ describe('locale parity (WU-6)', () => {
       'contactEmailInvalid',
       'contactTextEmpty',
       'contactFormTextEmpty',
+      // WorkHistory CRUD stage-1 (plan_workhistory_crud WU-3) — 14 plan keys
+      // + adminNavJobs (the plan's key lists omit the nav label, but every
+      // other admin section ships an adminNav* key and WU-5's sidebar entry
+      // follows the same pattern).
+      'workHistoryEmpty',
+      'adminJobs',
+      'adminAddJob',
+      'adminEditJob',
+      'adminJobsEmpty',
+      'adminNavJobs',
+      'adminJobErrCompany',
+      'adminJobErrPosition',
+      'adminJobErrStartDate',
+      'adminJobErrEndDate',
+      'adminJobErrDescription',
+      'adminJobErrTechnologies',
+      'adminJobErrLocation',
+      'adminJobErrUrl',
+      'adminJobErrEnum',
+      // WU-5 form + list copy: the 20 remaining keys from the plan's WU-5
+      // list (the four admin basics shipped in WU-3) + adminJobPositionEn/
+      // Ru — the plan lists one adminJobPosition, but the form has two
+      // locale inputs (position.en / position.ru) and each needs its label.
+      'adminJobCompany',
+      'adminJobPosition',
+      'adminJobPositionEn',
+      'adminJobPositionRu',
+      'adminJobStartDate',
+      'adminJobEndDate',
+      'adminJobCurrent',
+      'adminJobDescription',
+      'adminJobTechnologies',
+      'adminJobLocation',
+      'adminJobEmploymentType',
+      'adminJobLevel',
+      'adminJobCompanyUrl',
+      'adminJobFeatured',
+      'adminJobAddBullet',
+      'adminJobRemoveBullet',
+      // Editor affordances beyond the plan's list: bullet reorder needs
+      // i18n aria-labels, the two description blocks need visible per-locale
+      // headings, and the chip editor has add/remove controls.
+      'adminJobBulletUp',
+      'adminJobBulletDown',
+      'adminJobDescriptionEn',
+      'adminJobDescriptionRu',
+      'adminJobAddTech',
+      'adminJobRemoveTech',
+      'adminJobSave',
+      // Not in the plan's 33-key list — the Save/Cancel row and the Modal
+      // confirm both need it (Skills reuses skillsCancel; jobs stays
+      // self-contained instead of borrowing another feature's key).
+      'adminJobCancel',
+      'adminJobDelete',
+      'adminJobConfirmDelete',
+      'adminJobSaved',
+      'adminJobDeleted',
+      'adminJobPersistError',
     ];
 
     for (const key of adminKeys) {

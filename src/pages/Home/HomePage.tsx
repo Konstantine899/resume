@@ -5,6 +5,9 @@ import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
 // Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
 // barrel will export the WU-3 editor form and must stay lazy-only.
 import { selectContactContent } from '@/features/AdminContact/model/selectors';
+// WorkHistory CRUD WU-4: same Design C pattern — pages reads the adminJobs
+// slice, WorkHistory stays store-free and receives the sorted list as a prop.
+import { selectSortedJobs } from '@/features/AdminJobs/model/selectors';
 // Projects CRUD WU-3: deep import for the same lazy-barrel reason — the
 // AdminMyWork barrel will export the WU-4 RHF editor form.
 import { selectFeaturedProjects } from '@/features/AdminMyWork/model/selectors';
@@ -39,6 +42,9 @@ export const HomePage: React.FC = () => {
   // Skills CRUD WU-4 (Design C): pages reads the adminSkills slice; the
   // Skills vitrina falls back to the entity seed without a Provider.
   const skillsContent = useSelector(selectSkillsData);
+  // WorkHistory CRUD WU-4 (Design C): pages reads the adminJobs slice; the
+  // WorkHistory vitrina falls back to the entity seed without a Provider.
+  const jobsContent = useSelector(selectSortedJobs);
 
   return (
     <>
@@ -70,7 +76,7 @@ export const HomePage: React.FC = () => {
           <About content={aboutContent} />
           <Skills content={skillsContent} />
           <MyWork content={featuredProjects} />
-          <WorkHistory />
+          <WorkHistory content={jobsContent} />
           <Contact content={contactContent} />
         </main>
       </div>

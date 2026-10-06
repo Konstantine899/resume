@@ -16,6 +16,10 @@ import { adminDashboardReducer } from '@/features/AdminDashboard';
 // public API will export the editor form (RHF) in WU-3 — instantiating the
 // barrel here would pull it into the main chunk.
 import { contactContentReducer } from '@/features/AdminContact/model/contactContentSlice';
+// Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminJobs'
+// public API will export the editor form (RHF) in WU-5 — instantiating the
+// barrel here would pull it into the main chunk.
+import { jobsReducer } from '@/features/AdminJobs/model/jobsSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminMyWork's
 // public API will export the editor form (RHF) in WU-4 — instantiating the
 // barrel here would pull it into the main chunk.
@@ -29,6 +33,7 @@ export const storeReducers = {
   aboutContent: aboutContentReducer,
   adminAuth: adminAuthReducer,
   adminDashboard: adminDashboardReducer,
+  adminJobs: jobsReducer,
   adminSkills: skillsReducer,
   contactContent: contactContentReducer,
   myWork: myWorkReducer,
