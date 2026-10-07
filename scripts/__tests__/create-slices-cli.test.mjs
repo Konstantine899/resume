@@ -145,9 +145,9 @@ describe('generate:slice CLI — validation and exit codes (REQ-G1/G2)', () => {
   it('redirects writes through the SLICE_ROOT env when --root is absent (REQ-Q3)', async () => {
     const result = await runCli(['features', 'EnvSlice'], { env: { SLICE_ROOT: root } });
     expect(result.exitCode).toBe(0);
-    expect(
-      existsSync(path.join(root, 'src', 'features', 'EnvSlice', 'spec', 'SPEC.md'))
-    ).toBe(true);
+    expect(existsSync(path.join(root, 'src', 'features', 'EnvSlice', 'spec', 'SPEC.md'))).toBe(
+      true
+    );
     // The real repository must stay untouched.
     expect(existsSync(path.resolve(REPO_ROOT, 'src/features/EnvSlice'))).toBe(false);
   });
@@ -208,7 +208,7 @@ describe('generate:slice CLI — phase A default spec scaffold (REQ-G14)', () =>
     );
     expect(slicedTodo).toContain('src/storeReducers.ts');
     expect(slicedTodo).toContain('slicedASlice');
-    expect(slicedTodo).toContain("model/slices/slicedASlice");
+    expect(slicedTodo).toContain('model/slices/slicedASlice');
     // Composition-root steps live in the TODO, never on the console (REQ-G11).
     expect(sliced.stdout).not.toContain('Next steps');
     expect(sliced.stdout).toContain('spec/TODO.md');
@@ -454,7 +454,9 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
     expect(component).toContain("import { classNames } from '@/shared/lib/utils/classNames';");
     expect(component).toContain("'data-testid': testId = 'content-slice'");
     expect(component).toContain('classNames(styles.contentSlice, {}, [className])');
-    expect(component).toContain("import type { ContentSliceProps } from '../../model/types/types';");
+    expect(component).toContain(
+      "import type { ContentSliceProps } from '../../model/types/types';"
+    );
     expect(component).not.toContain('ReactNode');
   });
 
@@ -518,7 +520,9 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
     expect(index).toContain(
       "export { contentSliceReducer, setInitialized } from './model/slices/contentSliceSlice';"
     );
-    expect(index).toContain("export { selectContentSliceInitialized } from './model/selectors/selectors';");
+    expect(index).toContain(
+      "export { selectContentSliceInitialized } from './model/selectors/selectors';"
+    );
     expect(index).not.toContain('export *');
   });
 });

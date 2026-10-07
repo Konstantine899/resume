@@ -121,8 +121,16 @@ export function todoMd(names) {
     '## Work units',
     '',
     '- [ ] Fill §SPEC.md§ with observable acceptance criteria; owner sets §status: approved§',
-    '- [ ] Scaffold the code: §npm run generate:slice -- ' + names.layer + ' ' + names.name + ' --scaffold§',
-    '- [ ] Implement §ui/' + names.name + '/' + names.name + '.tsx§ per criteria (tests before code where applicable)',
+    '- [ ] Scaffold the code: §npm run generate:slice -- ' +
+      names.layer +
+      ' ' +
+      names.name +
+      ' --scaffold§',
+    '- [ ] Implement §ui/' +
+      names.name +
+      '/' +
+      names.name +
+      '.tsx§ per criteria (tests before code where applicable)',
   ];
   if (names.withSlice) {
     lines.push(
