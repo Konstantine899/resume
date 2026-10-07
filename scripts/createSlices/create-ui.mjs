@@ -8,19 +8,25 @@
  */
 import path from 'node:path';
 import { componentTemplate } from './templates/component.mjs';
+import { componentSkeletonTestTemplate } from './templates/component-skeleton-test.mjs';
 import { componentTestTemplate } from './templates/component-test.mjs';
 import { storyTemplate } from './templates/story.mjs';
 import { styleTemplate } from './templates/style.mjs';
 
 /**
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string }} names
+ * @param {{ skeleton?: boolean }} [options] skeleton = Plan-files extra
+ *   (REQ-G16): TODO(spec) marker + `it.todo` test instead of the real cases.
  * @returns {{ relPath: string, content: string }[]}
  */
-export function uiFiles(names) {
+export function uiFiles(names, { skeleton = false } = {}) {
   const { name } = names;
   return [
-    { relPath: `ui/${name}/${name}.tsx`, content: componentTemplate(names) },
-    { relPath: `ui/${name}/${name}.test.tsx`, content: componentTestTemplate(names) },
+    { relPath: `ui/${name}/${name}.tsx`, content: componentTemplate(names, { skeleton }) },
+    {
+      relPath: `ui/${name}/${name}.test.tsx`,
+      content: skeleton ? componentSkeletonTestTemplate(names) : componentTestTemplate(names),
+    },
     { relPath: `ui/${name}/${name}.stories.tsx`, content: storyTemplate(names) },
     { relPath: `ui/${name}/${name}.module.scss`, content: styleTemplate(names) },
   ];
