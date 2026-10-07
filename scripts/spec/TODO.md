@@ -189,6 +189,23 @@ block.
       CPU 33% window + prettier clean on every touched file — PASSED 2026-10-07.
       Dogfood: `npm run check:spec` / `spec:status` green on the real repo (0 specs).
 
+## Stage 8 — spec-planner agent (plan_spec_workflow Этап 3, 2026-10-07)
+
+- [x] **8.1** `.opencode/agents/spec-planner.md` — contract per plan §2-Этап 3: input =
+      fresh phase-A spec/ + feature context; ≤1–2 clarifying questions; fills SPEC.md
+      (observable criteria + Plan files incl. extra `ui/<X>/` paths) and TODO.md (burn-down
+      WUs incl. composition-root steps); writes ONLY `spec/`; status stays `draft`
+      (owner approves); English artifacts; short output summary. Trigger phrases in the
+      description («заполни spec для <slice>», "fill spec", "spec-planner").
+      No SPEC amendment: `scripts/spec/SPEC.md` scope = "generator and repo scripts" (D1–D8),
+      `.opencode/` is out of scope.
+- [x] **8.2** `.opencode/opencode.json` pair `spec-planner-deepseek` / `spec-planner-qwen`
+      (precedent `review-*`: hidden, subagent, `opencode/mimo-v2.6-flash-free`, tools
+      read/edit/write only) — JSON validated (66 agents).
+- [ ] **Gate:** functional dry-run on one slice + owner review — **requires opencode
+      restart** (config is loaded once, never hot-reloaded — customize-opencode skill):
+      restart → invoke spec-planner on one real slice → owner reviews the filled pair.
+
 ## Cross-stage risks to keep visible (plan §6)
 
 - R14: bad `require` path in the ESLint plugin → entire lint red (Stage 0.4 guard)
