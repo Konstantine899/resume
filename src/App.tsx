@@ -4,7 +4,7 @@
 
 import { I18nProvider, StoreProvider, ThemeProvider } from '@/app/providers';
 import { AppRouter } from '@/pages/AppRouter';
-import '@/shared/styles/globals/index.scss';
+import './app/styles/globals/index.scss';
 
 import React from 'react';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';

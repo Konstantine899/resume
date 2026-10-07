@@ -3,7 +3,7 @@ import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import type { Preview } from '@storybook/react-vite';
 import { I18nProvider } from '../src/app/providers/I18nProvider';
 import { ThemeProvider } from '../src/app/providers/ThemeProvider';
-import '../src/shared/styles/globals/index.scss';
+import '../src/app/styles/globals/index.scss';
 
 const withProviders = (Story: React.ComponentType, context: { globals: { theme?: string } }) => {
   const theme = context.globals?.theme || 'dark';
