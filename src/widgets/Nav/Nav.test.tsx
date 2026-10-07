@@ -51,10 +51,7 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(scss).toMatch(/position:\s*sticky/);
     expect(scss).toContain('var(--z-nav)');
 
-    const theme = readFileSync(
-      resolve(__dirname, '../../shared/styles/globals/_theme.scss'),
-      'utf8'
-    );
+    const theme = readFileSync(resolve(__dirname, '../../app/styles/globals/_theme.scss'), 'utf8');
     expect(theme).toMatch(/--z-nav:\s*2000/);
   });
 

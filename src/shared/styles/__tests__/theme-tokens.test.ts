@@ -16,7 +16,7 @@ import { describe, expect, it } from 'vitest';
 
 const SRC_ROOT = resolve(__dirname, '../../..'); // src/
 const REPO_ROOT = resolve(SRC_ROOT, '..');
-const THEME_PATH = join(SRC_ROOT, 'shared/styles/globals/_theme.scss');
+const THEME_PATH = join(SRC_ROOT, 'app/styles/globals/_theme.scss');
 const STORYBOOK_PREVIEW_PATH = join(REPO_ROOT, '.storybook/preview.tsx');
 
 /** Source extensions that can carry a token reference at runtime. */

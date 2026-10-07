@@ -9,7 +9,7 @@ export const MODAL_CONSTANTS = {
 /**
  * Exit (close) animation duration for `forceMount` modals, in milliseconds.
  * @description Must mirror the CSS token `--duration-normal`
- * (see `src/shared/styles/globals/_theme.scss`), which drives the `scaleOut`
+ * (see `src/app/styles/globals/_theme.scss`), which drives the `scaleOut`
  * close animation applied by `.modal.closing` in `ModalRoot.module.scss`.
  * The `.closing` class (and its `pointer-events: none`) is kept for exactly
  * this long while the exit delay runs.
