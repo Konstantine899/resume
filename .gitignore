@@ -116,6 +116,9 @@ public/locales/
 *.ipr
 *.iws
 
+# Obsidian (repo is a registered second vault; app config stays local — *.base dashboards remain tracked)
+.obsidian/
+
 # Editor files
 *.swp
 *.swo
