@@ -166,6 +166,29 @@ block.
       validate → cleanup → `git status` back to baseline) + negative probes (missing SPEC /
       draft → exit 1) — PASSED 2026-10-07
 
+## Stage 7 — Spec gates + Plan-files extras (plan_spec_workflow Этап 2, 2026-10-07)
+
+- [x] **7.1** SPEC first: REQ-G16 (Plan-files extras), REQ-G17 (`check:spec`, pass =
+      `approved|done` — clarification of plan §1.3), REQ-G18 (`spec:status` + shared
+      `spec-tools.mjs`), REQ-Q4.12–4.14, D8
+- [x] **7.2** Tests red first: 4× `spec-tools-cli` (draft/missing → exit 1, approved|done →
+      exit 0, empty root → exit 0, status table) + 3× extras (skeleton quad + `manual:` note,
+      lone test-entry registers the component, rerun keeps exactly the spec pair foreign)
+      — 7 red confirmed against the old implementation
+- [x] **7.3** Implemented: `scripts/spec-tools.mjs` (shared walk + frontmatter parser —
+      now ALSO used by the scaffold gate, single source of status semantics),
+      `check-spec.mjs` / `spec-status.mjs` + npm scripts, `plan-extras.mjs`,
+      `component.mjs` skeleton marker, `component-skeleton-test.mjs` (`it.todo` trio, no
+      component import → no TS6133), `uiFiles(names, {skeleton})`, create-template wiring
+      (gate returns spec content → extras parsed → `createExtras` step → `ownedSet` passed
+      through `swapIntoPlace`/`preserveForeignFiles`)
+- [x] **7.4** R5 check PASSED: scaffolded `R5Panel` skeleton run under vitest with a
+      tmp-root config → exit 0, `1 file / 3 todo` (empty-suites would fail; todo counts)
+- [x] **Gate:** `scripts/` 62/62 (55 old + 7 new) + `npm run validate` EXIT:0 —
+      3152 tests / 194 files, coverage 92.05 / 86.66 / 88.25 / 93.12 (all above floors),
+      CPU 33% window + prettier clean on every touched file — PASSED 2026-10-07.
+      Dogfood: `npm run check:spec` / `spec:status` green on the real repo (0 specs).
+
 ## Cross-stage risks to keep visible (plan §6)
 
 - R14: bad `require` path in the ESLint plugin → entire lint red (Stage 0.4 guard)

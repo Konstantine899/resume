@@ -43,6 +43,9 @@ import { createModel, modelFiles } from './create-model.mjs';
 import { createSpec, specFiles } from './create-spec.mjs';
 import { createPublicApi, publicApiFiles } from './create-public-api.mjs';
 import { createUI, uiFiles } from './create-ui.mjs';
+import { deriveNames } from './naming.mjs';
+import { planFileExtras } from './plan-extras.mjs';
+import { readSpecStatus } from '../spec-tools.mjs';
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PRETTIER_CONFIG_PATH = path.resolve(MODULE_DIR, '..', '..', '.prettierrc');
@@ -115,19 +118,13 @@ function printTree(header, files) {
   }
 }
 
-/** Frontmatter `status:` value of a generated SPEC (REQ-G15); null if absent. */
-function readSpecStatus(specContent) {
-  const frontmatter = specContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  const block = frontmatter ? frontmatter[1] : '';
-  const match = block.match(/^status:[ \t]*(\S+)[ \t]*$/m);
-  return match ? match[1] : null;
-}
-
 /**
  * Phase-B gate (REQ-G15): missing spec → phase-A recovery hint; any status
  * other than `approved` → error naming it. Runs before dry-run/preflight, so
- * a blocked scaffold touches zero bytes.
+ * a blocked scaffold touches zero bytes. On success returns the spec content
+ * (the extras plan REQ-G16 is parsed from it).
  * @param {string} targetDir
+ * @returns {Promise<string>} spec/SPEC.md content
  */
 async function assertScaffoldAllowed(targetDir) {
   const specPath = path.join(targetDir, 'spec', 'SPEC.md');
@@ -137,13 +134,15 @@ async function assertScaffoldAllowed(targetDir) {
         'npm run generate:slice -- <Layer> <SliceName>'
     );
   }
-  const status = readSpecStatus(await readFile(specPath, 'utf8'));
+  const specContent = await readFile(specPath, 'utf8');
+  const status = readSpecStatus(specContent);
   if (status !== 'approved') {
     throw new GeneratorError(
       `Scaffold blocked: spec/SPEC.md status is "${status ?? 'missing'}" — ` +
         'only "approved" allows --scaffold. Fill the spec, set status: approved, then rerun.'
     );
   }
+  return specContent;
 }
 
 /** Console output = a pointer to the next phase, never the steps themselves (REQ-G11). */
@@ -164,20 +163,17 @@ function printPointer(names, scaffold) {
 /**
  * Copy every non-generator-owned file of the previous tree into the new
  * target, then report what was kept. Foreign files are NEVER deleted (REQ-G5).
+ *
+ * The owned set is computed ONCE by the caller (`ownedSet`): everything the
+ * generator can emit in EITHER with-slice mode (so dropping `--with-slice`
+ * still removes now-stale redux files) plus the current Plan-files extras
+ * (REQ-G16) — spec/ is human-owned after phase A and is preserved as foreign.
  * @param {string} oldDir
  * @param {string} targetDir
- * @param {{ name: string, camel: string, kebab: string, storyTitle: string, withSlice?: boolean }} names
+ * @param {Set<string>} owned relPaths the generator owns
  * @returns {Promise<string[]>} kept foreign paths (`/`-separated, sorted)
  */
-async function preserveForeignFiles(oldDir, targetDir, names, scaffold) {
-  // Owned = phase A: only the spec pair (code is foreign and survives a
-  // `--force`); phase B: every code file in EITHER with-slice mode, so
-  // dropping `--with-slice` still removes now-stale redux files — spec/ is
-  // human-owned after phase A and is preserved as foreign.
-  const owned = new Set(
-    planFiles({ ...names, withSlice: true }, scaffold).map((file) => file.relPath)
-  );
-
+async function preserveForeignFiles(oldDir, targetDir, owned) {
   const entries = await readdir(oldDir, { recursive: true });
   const kept = [];
   for (const entry of entries) {
@@ -212,8 +208,9 @@ async function preserveForeignFiles(oldDir, targetDir, names, scaffold) {
  * @param {string} layerDir
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string, withSlice?: boolean }} names
  * @param {number} ts
+ * @param {Set<string>} ownedSet generator-owned relPaths (see preserveForeignFiles)
  */
-async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, scaffold) {
+async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, ownedSet) {
   const oldDir = path.join(layerDir, `${names.name}.old-${ts}`);
   try {
     await rename(targetDir, oldDir);
@@ -237,7 +234,7 @@ async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, scaffol
     throw error;
   }
   try {
-    await preserveForeignFiles(oldDir, targetDir, names, scaffold);
+    await preserveForeignFiles(oldDir, targetDir, ownedSet);
   } catch (error) {
     throw new GeneratorError(
       `Swap succeeded, but keeping foreign files failed: ${messageOf(error)}. ` +
@@ -265,12 +262,33 @@ export async function createTemplate({
   const displayPath = `src/${names.layer}/${names.name}`;
 
   // Phase-B gate FIRST (REQ-G15): even a dry run must not print a code tree
-  // for an unapproved spec, and a blocked run must write nothing.
-  if (scaffold) await assertScaffoldAllowed(targetDir);
+  // for an unapproved spec, and a blocked run must write nothing. Returns the
+  // spec content — the Plan-files extras (REQ-G16) are parsed from it.
+  const specContent = scaffold ? await assertScaffoldAllowed(targetDir) : null;
 
-  const files = planFiles(names, scaffold);
+  const standard = planFiles(names, scaffold);
+  const extras = scaffold
+    ? planFileExtras(
+        specContent,
+        standard.map((file) => file.relPath)
+      )
+    : { components: [], manual: [] };
+  const extraFiles = extras.components.flatMap((componentName) =>
+    uiFiles(deriveNames(names.layer, componentName, false), { skeleton: true })
+  );
+  const files = [...standard, ...extraFiles];
+
+  // Owned set for the swap: everything the generator can emit in EITHER
+  // with-slice mode (stale-redux cleanup) + the currently listed extras.
+  const ownedSet = new Set(
+    [...planFiles({ ...names, withSlice: true }, scaffold), ...extraFiles].map(
+      (file) => file.relPath
+    )
+  );
+
   if (dryRun) {
     printTree(`Dry run — nothing will be written. Would create ${displayPath}:`, files);
+    for (const manualPath of extras.manual) console.log(`  manual: ${manualPath}`);
     return;
   }
 
@@ -300,6 +318,16 @@ export async function createTemplate({
           ['createModel', () => createModel(stagingDir, names, writeFileWx)],
           ['createUI', () => createUI(stagingDir, names, writeFileWx)],
           ['createPublicApi', () => createPublicApi(stagingDir, names, writeFileWx)],
+          // Plan-files extras (REQ-G16): skeleton quads whose content was
+          // built above; the dirs already exist (the mkdir loop covers `files`).
+          [
+            'createExtras',
+            async () => {
+              for (const file of extraFiles) {
+                await writeFileWx(path.join(stagingDir, file.relPath), file.content);
+              }
+            },
+          ],
         ]
       : [['createSpec', () => createSpec(stagingDir, names, writeFileWx)]];
     for (const [label, runStep] of steps) {
@@ -315,7 +343,7 @@ export async function createTemplate({
     }
 
     if (targetExists) {
-      await swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, scaffold);
+      await swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, ownedSet);
     } else {
       await rename(stagingDir, targetDir);
     }
@@ -326,5 +354,9 @@ export async function createTemplate({
   }
 
   printTree(`Created ${displayPath}:`, files);
+  if (extras.manual.length > 0) {
+    console.log('Listed in the SPEC but not scaffoldable — create by hand:');
+    for (const manualPath of extras.manual) console.log(`  manual: ${manualPath}`);
+  }
   printPointer(names, scaffold);
 }

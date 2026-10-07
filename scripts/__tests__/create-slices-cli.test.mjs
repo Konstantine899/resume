@@ -396,6 +396,115 @@ describe('generate:slice CLI — phase B --scaffold gate and tree (REQ-G15, REQ-
   });
 });
 
+describe('generate:slice CLI — Plan-files extras skeletons (REQ-G16, REQ-Q4.12)', () => {
+  /** @type {string} */
+  let root;
+
+  beforeEach(async () => {
+    root = await mkdtemp(path.join(tmpdir(), 'slice-gen-'));
+  });
+
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
+
+  /**
+   * Phase A, then amend the SPEC "Plan files" section with extra entries and
+   * flip status to approved — the exact owner workflow.
+   * @param {string} name
+   * @param {string[]} extraLines markdown list lines, e.g. '- `ui/Extra/Extra.tsx`'
+   */
+  async function phaseAWithPlanExtras(name, extraLines) {
+    const sliceDir = path.join(root, 'src', 'features', name);
+    const phaseA = await runCli(['--root=' + root, 'features', name]);
+    expect(phaseA.exitCode).toBe(0);
+    const specPath = path.join(sliceDir, 'spec', 'SPEC.md');
+    const spec = await readFile(specPath, 'utf8');
+    const marker = `- \`ui/${name}/${name}.module.scss\``;
+    expect(spec, 'standard quad marker').toContain(marker);
+    const amended = spec
+      .replace(marker, [marker, ...extraLines].join('\n'))
+      .replace('status: draft', 'status: approved');
+    expect(amended).not.toBe(spec);
+    await writeFile(specPath, amended);
+    return sliceDir;
+  }
+
+  it('scaffolds extra components as skeletons and prints non-ui paths as manual (REQ-Q4.12)', async () => {
+    const sliceDir = await phaseAWithPlanExtras('ExtrasBase', [
+      '- `ui/ExtraPanel/ExtraPanel.tsx`',
+      '- `lib/handmade.ts`',
+    ]);
+
+    const result = await runCli(['--root=' + root, '--scaffold', 'features', 'ExtrasBase']);
+    expect(result.exitCode, result.stdout + result.stderr).toBe(0);
+
+    // The whole quad is emitted for the listed component.
+    const files = await listFiles(sliceDir);
+    for (const rel of [
+      'ui/ExtraPanel/ExtraPanel.tsx',
+      'ui/ExtraPanel/ExtraPanel.test.tsx',
+      'ui/ExtraPanel/ExtraPanel.stories.tsx',
+      'ui/ExtraPanel/ExtraPanel.module.scss',
+    ]) {
+      expect(files).toContain(rel);
+    }
+
+    // Skeleton content: TODO(spec) marker in the body, it.todo test instead
+    // of the real one.
+    const extra = await readFile(path.join(sliceDir, 'ui/ExtraPanel/ExtraPanel.tsx'), 'utf8');
+    expect(extra).toContain('// TODO(spec): implement per ../../spec/SPEC.md');
+    const extraTest = await readFile(
+      path.join(sliceDir, 'ui/ExtraPanel/ExtraPanel.test.tsx'),
+      'utf8'
+    );
+    expect(extraTest).toContain("it.todo('renders with default testid')");
+    expect(extraTest).not.toContain('render, screen');
+
+    // The standard component keeps its REAL test (no skeleton contamination).
+    const mainTest = await readFile(
+      path.join(sliceDir, 'ui/ExtrasBase/ExtrasBase.test.tsx'),
+      'utf8'
+    );
+    expect(mainTest).toContain('render, screen');
+
+    // Non-ui listed path is reported for hand creation, not emitted.
+    expect(result.stdout).toContain('manual: lib/handmade.ts');
+    expect(existsSync(path.join(sliceDir, 'lib'))).toBe(false);
+  });
+
+  it('registers a component from ANY of its quad paths (e.g. a lone test entry)', async () => {
+    const sliceDir = await phaseAWithPlanExtras('ExtrasQuad', [
+      '- `ui/OnlyListed/OnlyListed.test.tsx`',
+    ]);
+
+    const result = await runCli(['--root=' + root, '--scaffold', 'features', 'ExtrasQuad']);
+    expect(result.exitCode, result.stdout + result.stderr).toBe(0);
+
+    const files = await listFiles(sliceDir);
+    expect(files).toContain('ui/OnlyListed/OnlyListed.tsx');
+    expect(files).toContain('ui/OnlyListed/OnlyListed.module.scss');
+    // Standard paths from the template are never re-registered as extras.
+    expect(result.stdout).not.toContain('manual: ui/OnlyListed');
+  });
+
+  it('treats scaffolded extras as generator-owned on rerun (no foreign resurrect)', async () => {
+    const sliceDir = await phaseAWithPlanExtras('ExtrasRerun', [
+      '- `ui/RerunPanel/RerunPanel.tsx`',
+    ]);
+
+    const first = await runCli(['--root=' + root, '--scaffold', 'features', 'ExtrasRerun']);
+    expect(first.exitCode).toBe(0);
+    const second = await runCli(['--root=' + root, '--scaffold', 'features', 'ExtrasRerun']);
+    expect(second.exitCode).toBe(0);
+    // Exactly the human-owned spec pair stays foreign — the scaffolded extra
+    // must be generator-owned, not resurrected as "kept" (4 kept would mean
+    // the extra leaked into the foreign set).
+    expect(second.stdout).toContain('Kept 2 foreign file(s)');
+    expect(existsSync(path.join(sliceDir, 'ui/RerunPanel/RerunPanel.tsx'))).toBe(true);
+  });
+});
+
 describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () => {
   /** @type {string} */
   let root;

@@ -30,6 +30,7 @@ passing `npm run validate` on generated output with zero manual edits.
 | D5  | Tests for D1–D4                                                                                 | `scripts/__tests__/**`                                                        |
 | D6  | Decision records and docs                                                                       | AGENTS.md section, `wiki/scripts/*` status, engram + vault                    |
 | D7  | Spec-phase workflow: phase A `spec/` scaffold (default) + phase B `--scaffold` (approved-gated) | `scripts/createSlices/**` + npm `generate:slice`                              |
+| D8  | Spec gates `check:spec` / `spec:status` + Plan-files-driven skeleton extras (Этап 2)            | `scripts/{check-spec,spec-status,spec-tools}.mjs` + npm scripts               |
 
 ### 2.2 Out of scope (non-goals, fixed decisions)
 
@@ -224,6 +225,33 @@ passing `npm run validate` on generated output with zero manual edits.
     itself;
   - success output prints only a pointer to `spec/TODO.md` (the console "Next steps" block of
     the former REQ-G11 moved into the TODO template with this amendment).
+- **REQ-G16** `--scaffold` extra components from the SPEC "Plan files" section (Этап 2):
+  - listed paths are diffed against the standard code plan (REQ-G8); any path under
+    `ui/<Pascal>/` that is NOT in the standard plan registers component `<Pascal>` — the
+    full quad is emitted (tsx + test + story + style) as a SKELETON: the component body
+    carries a `// TODO(spec): implement per ../../spec/SPEC.md` marker and the test is
+    three `it.todo(...)` placeholders mirroring the standard cases (burned together with
+    the TODO Work unit);
+  - listing only some files of the quad (e.g. just `<X>.test.tsx`) still emits the whole
+    component directory;
+  - listed paths that do not match the component pattern (`lib/…`, `model/…`, non-Pascal
+    dirs) are NOT emitted — they print as `manual: <path>` for hand creation;
+  - removing an entry from "Plan files" does NOT auto-delete a previously scaffolded extra
+    (it survives as a foreign file and is reported) — manual cleanup;
+  - accepted side effect (plan R2): `it.todo` skeletons and unexecuted components LOWER
+    coverage — a slice with extras may legitimately keep `npm run validate` red until it is
+    implemented ("don't merge empty" is the point). Standard-tree slices stay green.
+- **REQ-G17** `npm run check:spec` (`scripts/check-spec.mjs`): scans
+  `<root>/src/**/spec/SPEC.md`; a spec PASSES when frontmatter status is `approved` or
+  `done` (`done` is past approval — the gate's purpose is "no draft survives into
+  implementation"; this clarifies plan §1.3's `status != approved`), any other status
+  (missing / `draft` / unknown) is a violation: listed with its path, exit 1; zero specs →
+  exit 0. `--root=<dir>` for fixtures, same convention as the generator CLI.
+- **REQ-G18** `npm run spec:status` (`scripts/spec-status.mjs`): prints one
+  `slice | status | verified` row per `src/**/spec/SPEC.md` — the dashboard source the
+  vault plan READS (the vault never edits specs); always exit 0; `--root=<dir>` supported.
+  Both scripts and the scaffold gate share ONE scanner/frontmatter parser
+  (`scripts/spec-tools.mjs`).
 
 ### 3.3 Templates (REQ-T)
 
@@ -322,7 +350,13 @@ passing `npm run validate` on generated output with zero manual edits.
   10. phase A default → tree is exactly `spec/SPEC.md` + `spec/TODO.md` (REQ-G14), nothing else
       in the slice dir; the TODO contains the storeReducers Work unit iff `--with-slice`;
   11. `--scaffold` → exit 1 without `spec/SPEC.md`; exit 1 with `status: draft`; code tree of
-      REQ-G8 with `status: approved`, and spec/ preserved byte-identical (REQ-G15).
+      REQ-G8 with `status: approved`, and spec/ preserved byte-identical (REQ-G15);
+  12. extras (REQ-G16): approved SPEC whose "Plan files" lists `ui/Extra/Extra.tsx` →
+      scaffold emits the `ui/Extra/` quad with the TODO(spec) marker and an `it.todo` test;
+      a non-ui listed path prints `manual:`; standard paths are never duplicated;
+  13. `check:spec` (REQ-G17): draft → exit 1 + path listed; approved/done → exit 0;
+      zero specs → exit 0;
+  14. `spec:status` (REQ-G18): one row per spec, exit 0.
 - **REQ-Q5** Smoke matrix (each stage's integration point):
 
   | #   | Check                                                                                                |
