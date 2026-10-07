@@ -2,10 +2,16 @@
  * Slice generator orchestrator — plan §2.3.2 (fail-fast rewrite of the
  * source's `createTemplate.js`; treats CRITICAL R1/R2 and HIGH #3/#4).
  *
- * Semantics:
+ * Semantics (spec-phase workflow, REQ-G14/G15):
+ *   0. Phase A (default) scaffolds only `spec/SPEC.md` + `spec/TODO.md` —
+ *      the generator owns exactly that pair; phase B (`--scaffold`) emits the
+ *      REQ-G8 code tree and is gated on the SPEC frontmatter
+ *      `status: approved` BEFORE anything else (missing spec → phase-A hint,
+ *      other status → error naming it; blocked runs write zero bytes).
  *   1. `--dry-run` prints the future file tree and returns — zero writes (REQ-G7).
- *   2. Preflight BEFORE any write: existing target without `--force` → error
- *      with a recovery hint, exit 1, tree byte-identical (REQ-G5/G6).
+ *   2. Preflight BEFORE any write: existing target without `--force` (phase A
+ *      only — scaffold always swaps) → error with a recovery hint, exit 1,
+ *      tree byte-identical (REQ-G5/G6).
  *   3. The full tree is written into a staging directory next to the target
  *      (`src/<layer>/.<Name>.tmp-<ts>/`, same filesystem), every file with the
  *      fail-if-exists `'wx'` flag (plan §2.3.2 item 3–4).
@@ -29,11 +35,12 @@
  * and the smoke S6 check can never rewrite the generated tree.
  */
 import { existsSync } from 'node:fs';
-import { copyFile, mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { format, resolveConfig } from 'prettier';
 import { createModel, modelFiles } from './create-model.mjs';
+import { createSpec, specFiles } from './create-spec.mjs';
 import { createPublicApi, publicApiFiles } from './create-public-api.mjs';
 import { createUI, uiFiles } from './create-ui.mjs';
 
@@ -50,11 +57,14 @@ export class GeneratorError extends Error {
 
 /**
  * The complete file plan for a slice (used by `--dry-run`, the success log
- * and foreign-file detection).
+ * and foreign-file detection). Mode-aware: phase A (default) plans the spec
+ * pair only, phase B (`scaffold`) plans the REQ-G8 code tree.
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string, withSlice?: boolean }} names
+ * @param {boolean} scaffold
  * @returns {{ relPath: string, content: string }[]}
  */
-export function planFiles(names) {
+export function planFiles(names, scaffold = false) {
+  if (!scaffold) return specFiles(names);
   return [...modelFiles(names), ...uiFiles(names), ...publicApiFiles(names)];
 }
 
@@ -105,22 +115,50 @@ function printTree(header, files) {
   }
 }
 
-function printNextSteps(names) {
-  console.log('Next steps — manual gates (the generator never edits composition files):');
-  if (names.withSlice) {
-    console.log(
-      `  - src/storeReducers.ts: import { ${names.camel}Reducer } from ` +
-        `'@/${names.layer}/${names.name}/model/slices/${names.camel}Slice'; and register it in the reducers map.`
+/** Frontmatter `status:` value of a generated SPEC (REQ-G15); null if absent. */
+function readSpecStatus(specContent) {
+  const frontmatter = specContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const block = frontmatter ? frontmatter[1] : '';
+  const match = block.match(/^status:[ \t]*(\S+)[ \t]*$/m);
+  return match ? match[1] : null;
+}
+
+/**
+ * Phase-B gate (REQ-G15): missing spec → phase-A recovery hint; any status
+ * other than `approved` → error naming it. Runs before dry-run/preflight, so
+ * a blocked scaffold touches zero bytes.
+ * @param {string} targetDir
+ */
+async function assertScaffoldAllowed(targetDir) {
+  const specPath = path.join(targetDir, 'spec', 'SPEC.md');
+  if (!existsSync(specPath)) {
+    throw new GeneratorError(
+      `No spec/SPEC.md at ${specPath}. Run phase A first: ` +
+        'npm run generate:slice -- <Layer> <SliceName>'
     );
   }
-  console.log(
-    '  - src/pages/routerConfig.tsx / src/pages/Home/ui/HomePage/HomePage.tsx: ' +
-      'register a route or a home section if this slice needs one.'
-  );
-  console.log(
-    '  - src/shared/lib/i18n/locales/en.json + ru.json: add keys only when you introduce ' +
-      'user-facing text (none is generated).'
-  );
+  const status = readSpecStatus(await readFile(specPath, 'utf8'));
+  if (status !== 'approved') {
+    throw new GeneratorError(
+      `Scaffold blocked: spec/SPEC.md status is "${status ?? 'missing'}" — ` +
+        'only "approved" allows --scaffold. Fill the spec, set status: approved, then rerun.'
+    );
+  }
+}
+
+/** Console output = a pointer to the next phase, never the steps themselves (REQ-G11). */
+function printPointer(names, scaffold) {
+  const specDir = `src/${names.layer}/${names.name}/spec`;
+  if (scaffold) {
+    console.log(
+      `Next: work through ${specDir}/TODO.md (burn-down). The generator never edits composition files.`
+    );
+  } else {
+    console.log(
+      `Next: fill ${specDir}/SPEC.md (owner sets status: approved), then rerun with ` +
+        `--scaffold — Work units: ${specDir}/TODO.md.`
+    );
+  }
 }
 
 /**
@@ -131,10 +169,14 @@ function printNextSteps(names) {
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string, withSlice?: boolean }} names
  * @returns {Promise<string[]>} kept foreign paths (`/`-separated, sorted)
  */
-async function preserveForeignFiles(oldDir, targetDir, names) {
-  // Owned = anything the generator can emit for this slice in EITHER mode, so
-  // `--force` without `--with-slice` also removes now-stale redux files.
-  const owned = new Set(planFiles({ ...names, withSlice: true }).map((file) => file.relPath));
+async function preserveForeignFiles(oldDir, targetDir, names, scaffold) {
+  // Owned = phase A: only the spec pair (code is foreign and survives a
+  // `--force`); phase B: every code file in EITHER with-slice mode, so
+  // dropping `--with-slice` still removes now-stale redux files — spec/ is
+  // human-owned after phase A and is preserved as foreign.
+  const owned = new Set(
+    planFiles({ ...names, withSlice: true }, scaffold).map((file) => file.relPath)
+  );
 
   const entries = await readdir(oldDir, { recursive: true });
   const kept = [];
@@ -171,7 +213,7 @@ async function preserveForeignFiles(oldDir, targetDir, names) {
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string, withSlice?: boolean }} names
  * @param {number} ts
  */
-async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts) {
+async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, scaffold) {
   const oldDir = path.join(layerDir, `${names.name}.old-${ts}`);
   try {
     await rename(targetDir, oldDir);
@@ -195,7 +237,7 @@ async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts) {
     throw error;
   }
   try {
-    await preserveForeignFiles(oldDir, targetDir, names);
+    await preserveForeignFiles(oldDir, targetDir, names, scaffold);
   } catch (error) {
     throw new GeneratorError(
       `Swap succeeded, but keeping foreign files failed: ${messageOf(error)}. ` +
@@ -207,20 +249,35 @@ async function swapIntoPlace(stagingDir, targetDir, layerDir, names, ts) {
 
 /**
  * Generate a slice at `<root>/src/<layer>/<Name>` (plan §2.3.2/§2.3.3).
- * @param {{ root: string, names: object, force?: boolean, dryRun?: boolean }} options
+ * Phase A (default) = spec pair only; `scaffold` = phase-B code tree behind
+ * the approved gate (REQ-G14/G15).
+ * @param {{ root: string, names: object, force?: boolean, dryRun?: boolean, scaffold?: boolean }} options
  */
-export async function createTemplate({ root, names, force = false, dryRun = false }) {
+export async function createTemplate({
+  root,
+  names,
+  force = false,
+  dryRun = false,
+  scaffold = false,
+}) {
   const layerDir = path.join(root, 'src', names.layer);
   const targetDir = path.join(layerDir, names.name);
   const displayPath = `src/${names.layer}/${names.name}`;
 
+  // Phase-B gate FIRST (REQ-G15): even a dry run must not print a code tree
+  // for an unapproved spec, and a blocked run must write nothing.
+  if (scaffold) await assertScaffoldAllowed(targetDir);
+
+  const files = planFiles(names, scaffold);
   if (dryRun) {
-    printTree(`Dry run — nothing will be written. Would create ${displayPath}:`, planFiles(names));
+    printTree(`Dry run — nothing will be written. Would create ${displayPath}:`, files);
     return;
   }
 
   const targetExists = existsSync(targetDir);
-  if (targetExists && !force) {
+  // Phase-A rerun guard (REQ-G5). Scaffold always swaps: the target exists by
+  // definition (the spec lives inside it) and never requires --force.
+  if (targetExists && !force && !scaffold) {
     throw new GeneratorError(
       `Target ${targetDir} already exists. Remove it manually or rerun with --force.`
     );
@@ -233,16 +290,18 @@ export async function createTemplate({ root, names, force = false, dryRun = fals
   try {
     // plan §2.3.2 item 3 — recursive mkdir only for the staging tree, post-preflight.
     await mkdir(stagingDir, { recursive: true });
-    for (const dir of new Set(planFiles(names).map((file) => path.dirname(file.relPath)))) {
+    for (const dir of new Set(files.map((file) => path.dirname(file.relPath)))) {
       if (dir !== '.') await mkdir(path.join(stagingDir, dir), { recursive: true });
     }
 
     const errors = [];
-    const steps = [
-      ['createModel', () => createModel(stagingDir, names, writeFileWx)],
-      ['createUI', () => createUI(stagingDir, names, writeFileWx)],
-      ['createPublicApi', () => createPublicApi(stagingDir, names, writeFileWx)],
-    ];
+    const steps = scaffold
+      ? [
+          ['createModel', () => createModel(stagingDir, names, writeFileWx)],
+          ['createUI', () => createUI(stagingDir, names, writeFileWx)],
+          ['createPublicApi', () => createPublicApi(stagingDir, names, writeFileWx)],
+        ]
+      : [['createSpec', () => createSpec(stagingDir, names, writeFileWx)]];
     for (const [label, runStep] of steps) {
       if (errors.length > 0) break; // first error aborts the remaining steps
       try {
@@ -256,7 +315,7 @@ export async function createTemplate({ root, names, force = false, dryRun = fals
     }
 
     if (targetExists) {
-      await swapIntoPlace(stagingDir, targetDir, layerDir, names, ts);
+      await swapIntoPlace(stagingDir, targetDir, layerDir, names, ts, scaffold);
     } else {
       await rename(stagingDir, targetDir);
     }
@@ -266,6 +325,6 @@ export async function createTemplate({ root, names, force = false, dryRun = fals
     throw error;
   }
 
-  printTree(`Created ${displayPath}:`, planFiles(names));
-  printNextSteps(names);
+  printTree(`Created ${displayPath}:`, files);
+  printPointer(names, scaffold);
 }

@@ -1,13 +1,13 @@
 # SPEC — FSD slice generator and repo scripts
 
-| Field   | Value                                                                                                |
-| ------- | ---------------------------------------------------------------------------------------------------- |
-| Status  | draft                                                                                                |
-| Date    | 2026-10-07 (ARCH-1 amendment — owner architecture, see REQ-G8 in §3.2)                               |
-| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied) |
-| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)    |
-| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)  |
-| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                       |
+| Field   | Value                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
+| Status  | draft                                                                                                           |
+| Date    | 2026-10-07 (ARCH-1 amendment — owner architecture, see REQ-G8 in §3.2; spec-phase amendment — REQ-G14/G15 §3.2) |
+| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)            |
+| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)               |
+| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)             |
+| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                                  |
 
 ---
 
@@ -21,24 +21,24 @@ passing `npm run validate` on generated output with zero manual edits.
 
 ### 2.1 In scope (deliverables)
 
-| ID  | Deliverable                                                | Path                                                                          |
-| --- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| D1  | SSOT for FSD layers + thin ESM wrapper                     | `scripts/fsd-layers.json`, `scripts/fsd-layers.mjs`                           |
-| D2  | Slice generator (rewritten templates, fail-fast semantics) | `scripts/createSlices/**` + npm `generate:slice`                              |
-| D3  | Alias-consistency checker (dry-run by default)             | `scripts/refactoring/update-imports.mjs` + npm `refactor:imports`             |
-| D4  | `shared/ui` public-API checker (dry-run / `--fix`)         | `scripts/refactoring/check-shared-ui-public-api.mjs` + npm `check:public-api` |
-| D5  | Tests for D1–D4                                            | `scripts/__tests__/**`                                                        |
-| D6  | Decision records and docs                                  | AGENTS.md section, `wiki/scripts/*` status, engram + vault                    |
+| ID  | Deliverable                                                                                     | Path                                                                          |
+| --- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| D1  | SSOT for FSD layers + thin ESM wrapper                                                          | `scripts/fsd-layers.json`, `scripts/fsd-layers.mjs`                           |
+| D2  | Slice generator (rewritten templates, fail-fast semantics)                                      | `scripts/createSlices/**` + npm `generate:slice`                              |
+| D3  | Alias-consistency checker (dry-run by default)                                                  | `scripts/refactoring/update-imports.mjs` + npm `refactor:imports`             |
+| D4  | `shared/ui` public-API checker (dry-run / `--fix`)                                              | `scripts/refactoring/check-shared-ui-public-api.mjs` + npm `check:public-api` |
+| D5  | Tests for D1–D4                                                                                 | `scripts/__tests__/**`                                                        |
+| D6  | Decision records and docs                                                                       | AGENTS.md section, `wiki/scripts/*` status, engram + vault                    |
+| D7  | Spec-phase workflow: phase A `spec/` scaffold (default) + phase B `--scaffold` (approved-gated) | `scripts/createSlices/**` + npm `generate:slice`                              |
 
 ### 2.2 Out of scope (non-goals, fixed decisions)
 
 - `clear-cache.js`, `getApiUrl.js` + `build:dev` (xargs), Loki `generate-visual-json-report.js` —
   not ported (no `postinstall`, dead `__API__`, no `.loki/`; POSIX pipelines are forbidden).
 - Source `README.md` files (learning material of another project).
-- In-slice `spec/` generator (plan Appendix A, stage P4 — starts only after a manual trial).
 - Auto-editing composition root (`src/storeReducers.ts`, `src/pages/routerConfig.tsx`,
-  `src/pages/Home/ui/HomePage/HomePage.tsx`, `en.json`/`ru.json`) — generator prints "Next
-  steps" instead.
+  `src/pages/Home/ui/HomePage/HomePage.tsx`, `en.json`/`ru.json`) — those steps are emitted as
+  Work units in the phase-A `spec/TODO.md` (REQ-G14) instead.
 - User-facing text in generated code → no i18n keys are ever emitted in v1.
 
 ## 3. Requirements
@@ -91,7 +91,11 @@ passing `npm run validate` on generated output with zero manual edits.
 
 ### 3.2 Generator — `scripts/createSlices/` (REQ-G)
 
-- **REQ-G1** CLI: `npm run generate:slice -- <Layer> <SliceName> [--with-slice] [--force] [--dry-run]`.
+- **REQ-G1** CLI: `npm run generate:slice -- <Layer> <SliceName> [--with-slice] [--force] [--dry-run] [--scaffold]`.
+  Two phases (spec-phase workflow, owner-approved plan `wiki/plan/plan_spec_workflow.md`,
+  2026-10-07): DEFAULT = phase A — scaffold `spec/SPEC.md` + `spec/TODO.md` only (planning
+  first, no code); `--scaffold` = phase B — emit the code tree of REQ-G8, allowed only when the
+  slice's SPEC carries `status: approved` (REQ-G14, REQ-G15).
   Entry `scripts/createSlices/index.mjs`; all modules `.mjs` ESM (a `.ts` entry would fail
   `npm run lint` `no-console` — verified).
 - **REQ-G2** Validation: `layer ∈ generatorLayers`; `SliceName` matches `/^[A-Z][a-zA-Z0-9]*$/`;
@@ -117,7 +121,8 @@ passing `npm run validate` on generated output with zero manual edits.
 - **REQ-G6** Recovery message on a leftover/partial target:
   `Target <path> already exists. Remove it manually or rerun with --force.`
 - **REQ-G7** `--dry-run`: prints the full future file tree, zero writes, exit 0.
-- **REQ-G8** Output tree — base (no `--with-slice`):
+- **REQ-G8** Code tree — emitted ONLY by `--scaffold` (phase B, after `status: approved`,
+  REQ-G15) — base (no `--with-slice`):
 
   ```
   src/<layer>/<Name>/
@@ -174,13 +179,51 @@ passing `npm run validate` on generated output with zero manual edits.
   `export const select… = (state: <Name>RootState): … => state.<name>…;`
   (precedent: `AdminAbout/model/selectors/selectors.ts`; self-named file per ARCH-1).
 - **REQ-G11** The generator never edits `storeReducers.ts` / `routerConfig.tsx` /
-  `HomePage.tsx` / locales; it prints a "Next steps" block with the exact reducer import
-  snippet (`…/model/slices/<camel>Slice`) when `--with-slice` was used.
+  `HomePage.tsx` / locales; those steps (exact reducer import snippet
+  `…/model/slices/<camel>Slice` when `--with-slice` was used) are emitted as Work units in the
+  phase-A `spec/TODO.md` template (REQ-G14); console output prints only a pointer to the next
+  phase.
 - **REQ-G12** Windows: npm scripts are plain `node <file>` — no pipes, no `xargs`, no `npx`
   inside spawned processes; subprocesses in tests use `process.execPath`.
 - **REQ-G13** Emitted output must be Prettier-clean (`printWidth: 100`, single quotes) — either
   run emitted strings through `prettier.format()` (programmatic API) or assert
   `prettier --check` on the generated directory in the smoke (REQ-Q6).
+- **REQ-G14** Phase A (DEFAULT, no `--scaffold`) — spec scaffolding, NO code:
+
+  ```
+  src/<layer>/<Name>/
+  └── spec/
+      ├── SPEC.md    # frontmatter status: draft — Goal / Context / Acceptance criteria /
+      │              # Plan files / Non-goals / Risks / Open questions
+      └── TODO.md    # frontmatter + Work units (burn-down list: completed items are DELETED)
+  ```
+
+  - Default content: acceptance criteria start as an empty checklist with an observability hint
+    (a criterion = an observable outcome, not an evaluation); the **Plan files** section lists
+    the exact paths phase B emits (REQ-G8 base + `--with-slice` extras, plus a free list for
+    extra components to scaffold in the follow-up stage); Work units ALWAYS include the
+    composition-root steps of REQ-G11 (storeReducers import — only with `--with-slice`,
+    router/HomePage, i18n en+ru) and the phase flow: fill SPEC → owner sets
+    `status: approved` → run `--scaffold` → implement per criteria.
+  - Frontmatter consumed by tooling: `status: draft | approved | done`, `epic:` (vault plan
+    name), `issue:`, `created:`, `verified:`.
+  - Generic semantics REQ-G4–G7 apply with owned files = `spec/SPEC.md` + `spec/TODO.md`:
+    phase A `--force` replaces the spec pair and NEVER deletes foreign (code) files.
+  - `.gitignore` must track spec files in EVERY generator layer: `!src/**/spec/**/*.md`
+    (the old `!src/features/*/spec/**/*.md` covered features only). A test asserts
+    `git check-ignore` reports NOT ignored for `entities/`, `pages/`, `widgets/` paths too.
+
+- **REQ-G15** `--scaffold` (phase B) gate and semantics:
+  - `spec/SPEC.md` missing → exit 1 with the phase-A command as the recovery hint;
+  - frontmatter `status:` ≠ `approved` → exit 1 naming the current status (draft / done /
+    absent);
+  - `status: approved` → emit the REQ-G8 code tree through the staging pipeline (REQ-G4–G7);
+    spec files are NOT generator-owned in phase B (human-owned after phase A — a `--force`-style
+    swap preserves them as foreign files);
+  - the target dir must already exist (phase A ran first) — phase B never creates the slice
+    itself;
+  - success output prints only a pointer to `spec/TODO.md` (the console "Next steps" block of
+    the former REQ-G11 moved into the TODO template with this amendment).
 
 ### 3.3 Templates (REQ-T)
 
@@ -275,19 +318,23 @@ passing `npm run validate` on generated output with zero manual edits.
   7. SSOT invariant (REQ-S5);
   8. `update-imports`: fixture with/without `@/`; `--fix` idempotency;
   9. `check-shared-ui-public-api`: missing-dir guard → exit 1; barrel emission format;
-     deep-import fix; clean-tree exit 0.
+     deep-import fix; clean-tree exit 0;
+  10. phase A default → tree is exactly `spec/SPEC.md` + `spec/TODO.md` (REQ-G14), nothing else
+      in the slice dir; the TODO contains the storeReducers Work unit iff `--with-slice`;
+  11. `--scaffold` → exit 1 without `spec/SPEC.md`; exit 1 with `status: draft`; code tree of
+      REQ-G8 with `status: approved`, and spec/ preserved byte-identical (REQ-G15).
 - **REQ-Q5** Smoke matrix (each stage's integration point):
 
-  | #   | Check                                                                                         |
-  | --- | --------------------------------------------------------------------------------------------- |
-  | S1  | all 7 templates through type-check + eslint + stylelint in a tmp dir (stage 0.5)              |
-  | S2  | `generate:slice -- features SmokeSlice` → `npm run validate` green, no manual edits           |
-  | S3  | same with `--with-slice` → `npm run validate` green (coverage + `*Slice.ts` override)         |
-  | S4  | new story builds: `npm run build-storybook` or `npm run test:storybook`                       |
-  | S5  | rerun same command → exit 1, `git status` unchanged                                           |
-  | S6  | `prettier --check` on the generated directory (REQ-G13)                                       |
-  | S7  | refactoring tools: dry-run exit 0 on clean tree; `--fix` on artificially broken tree + revert |
-  | S8  | cleanup of smoke slice → `npm run validate` green again                                       |
+  | #   | Check                                                                                                |
+  | --- | ---------------------------------------------------------------------------------------------------- |
+  | S1  | all 7 templates through type-check + eslint + stylelint in a tmp dir (stage 0.5)                     |
+  | S2  | phase A → SPEC fixture `status: approved` → `--scaffold` → `npm run validate` green, no manual edits |
+  | S3  | same with `--with-slice` → `npm run validate` green (coverage + `*Slice.ts` override)                |
+  | S4  | new story builds: `npm run build-storybook` or `npm run test:storybook`                              |
+  | S5  | rerun same command → exit 1, `git status` unchanged                                                  |
+  | S6  | `prettier --check` on the generated directory (REQ-G13)                                              |
+  | S7  | refactoring tools: dry-run exit 0 on clean tree; `--fix` on artificially broken tree + revert        |
+  | S8  | cleanup of smoke slice → `npm run validate` green again                                              |
 
 - **REQ-Q6** Coverage thresholds stay untouched (branches 85 / functions 87 / lines 92 /
   statements 90). `**/scripts/**` remains coverage-excluded; S2/S3 are the empirical R8 gate.
@@ -315,3 +362,4 @@ passing `npm run validate` on generated output with zero manual edits.
 | OPEN-6 | Add `check:public-api` to `npm run validate`?       | **Yes — decided (owner, 2026-10-04): appended as the final step of `npm run validate`** after Stage 2 (clean-tree exit 0 proven by smoke S7)                                                                                                                                                                                                                                                                                                      | Stage 2   | **decided** |
 | OPEN-7 | Implement `print-env.mjs`?                          | **No — decided 2026-10-04 (Stage 3): no real need exists**; `__API__` is defined (`config/vite/buildViteConfig.ts:61`) but unused anywhere in `src` (only the `vite-env.d.ts` declaration), so there is no env to print. Revisit only when a concrete task needs env inspection (Stage 3 / plan §7)                                                                                                                                               | Stage 3   | **decided** |
 | OPEN-8 | Align the remaining `model/` divergences to ARCH-1? | Raised 2026-10-07, NOT yet decided: `constants/index.ts` (ContactContent, Developer) vs self-named `constants/constants.ts` (Job, Project); zod schema in `services/schema.ts` (#179 entities) vs `schemes/schema.ts` (Job, Project); `selectors/{selectors.ts,index.ts}` double file (admin features) vs single `selectors/selectors.ts` (ARCH-1); flat `model/constants.ts` in `widgets/Nav`. ARCH-1 migration of 2026-10-07 covered TYPES only | Stage 5   | **open**    |
+| OPEN-9 | Default mode of `generate:slice`: code or spec?     | **spec-only — decided (owner, 2026-10-07, plan_spec_workflow §0.6)**: planning first; code only via `--scaffold` after `status: approved` (REQ-G1/G14/G15)                                                                                                                                                                                                                                                                                        | Этап 1    | **decided** |

@@ -132,12 +132,39 @@ block.
 > his directive: the generator must match that architecture, errors fixed, committed.
 
 - [x] **5.2–5.4** done 2026-10-07: tests first (11 red → 17/17 green), generator + templates + `printNextSteps` on ARCH-1
-- [ ] **5.5** Migrate existing slices: flat `model/types.ts` and `model/types/index.ts` →
-      `model/types/types.ts` + rewrite every importer specifier (`shared/**` untouched)
-- [ ] **5.6** Gates: `npm run validate` (CPU <45% window), `npm run build` + `check:bundle`
-- [ ] **5.7** Stage-4-style docs: AGENTS.md gotcha + vault `memory.md` dual-write; report
-      OPEN-8 + issues #142/#138 + stale PRs #167/#168 to the owner
-- [ ] **Gate:** validate green on generated output (smoke S2/S3 in a tmp root) + repo validate
+- [x] **5.5–5.7 + Gate** done 2026-10-07: 19 slices migrated `model/types/types.ts` (git mv +
+      tsc-TS2307 loop, 58 importers, `shared/**` untouched); `npm run validate` 3138/3138 +
+      `build` + `check:bundle` 692.1/720 KiB; dual-write (`resume-arch1-alignment` in AGENTS.md + vault `memory.md`) + report (OPEN-8, #142/#138 = feature work, PRs #167/#168
+      superseded); PR #181 all 8 checks green
+
+## Stage 6 — Spec-phase workflow (plan_spec_workflow, 2026-10-07, auto mode)
+
+> Owner-approved plan `wiki/plan/plan_spec_workflow.md`. Phase A (default) = spec scaffold →
+> owner sets `status: approved` → phase B `--scaffold` = code → implement per criteria.
+> **Deviation rev.2 (recorded):** `--scaffold` + approved-gate land in Этап 1 — otherwise the
+> merged PR removes every code path until Этап 2 and the tool is broken in between. Этап 2
+> keeps `check:spec` / `spec:status` / extra components from «Plan files».
+
+- [x] **6.1** SPEC.md amended FIRST: REQ-G1 (+`--scaffold`, two phases), REQ-G8 (scaffold-only),
+      REQ-G11 (→ TODO Work units), REQ-G14/G15 (new), REQ-Q4.10–4.11, REQ-Q5 S2, OPEN-9,
+      D7, §2.2 non-goal removed
+- [x] **6.2** CLI tests first (red → green): 12 red on the old generator, 24/24 green after
+      implementation — phase-A tree = exactly `spec/{SPEC.md,TODO.md}`; `--scaffold`
+      missing-SPEC → exit 1; `status: draft` → exit 1 + zero bytes; `status: approved` → code
+      tree + spec preserved byte-identical; TODO storeReducers WU iff `--with-slice`;
+      `git check-ignore` NOT-ignored for all four layers
+- [x] **6.3** `templates/spec.mjs` (SPEC.md + TODO.md defaults, frontmatter, Plan files;
+      backtick-as-§ rendering trick) + `create-spec.mjs` phase-A step
+- [x] **6.4** `index.mjs` `--scaffold` flag + usage; `create-template.mjs`: mode-aware
+      `planFiles(names, scaffold)`, `assertScaffoldAllowed` gate BEFORE dry-run/preflight,
+      owned = spec pair (phase A) / code union (phase B), `printPointer` replaces
+      `printNextSteps` (steps moved into the TODO template)
+- [x] **6.5** `.gitignore`: `!src/**/spec/**/*.md` (was features-only) + comment
+- [x] **Gate:** generator suite green (55/55 `scripts/`) + `npm run validate` EXIT:0 twice
+      (baseline 3145 tests; smoke run 3155 with both slices) + S2/S3 real-src smoke
+      (`SpecPhaseSmokeA` base + `SpecPhaseSmokeS` with-slice: phase A → approve → scaffold →
+      validate → cleanup → `git status` back to baseline) + negative probes (missing SPEC /
+      draft → exit 1) — PASSED 2026-10-07
 
 ## Cross-stage risks to keep visible (plan §6)
 
