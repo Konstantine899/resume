@@ -18,8 +18,8 @@ const readScss = (relativePath: string): string =>
   readFileSync(new URL(relativePath, import.meta.url), 'utf-8');
 
 const paragraphScss = readScss('./Paragraph.module.scss');
-const themeScss = readScss('../../../../shared/styles/globals/_theme.scss');
-const gradientScss = readScss('../../../../shared/styles/globals/_gradient.scss');
+const themeScss = readScss('../../../../app/styles/globals/_theme.scss');
+const gradientScss = readScss('../../../../app/styles/globals/_gradient.scss');
 
 describe('Paragraph', () => {
   beforeEach(() => {

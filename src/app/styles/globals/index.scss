@@ -12,4 +12,4 @@
 @forward 'gradient';
 
 // Single source of @keyframes (C4 dedup) — emitted once, globally
-@forward '../animations/keyframes';
+@forward '@/shared/styles/animations/keyframes';

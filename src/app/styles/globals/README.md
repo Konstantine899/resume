@@ -18,14 +18,14 @@
 ### В app/layout.tsx или главном entry point:
 
 ```scss
-@use '@/shared/styles/globals' as *;
+@use '@/app/styles/globals' as *;
 ```
 
 ### Селективный импорт (если нужны только конкретные стили):
 
 ```scss
-@use '@/shared/styles/globals/theme' as *;
-@use '@/shared/styles/globals/scrollbar' as *;
+@use '@/app/styles/globals/theme' as *;
+@use '@/app/styles/globals/scrollbar' as *;
 ```
 
 ## CSS Custom Properties
@@ -77,7 +77,7 @@
 
 ```scss
 // src/app/styles/global.scss
-@use '@/shared/styles/globals' as *;
+@use '@/app/styles/globals' as *;
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;
 @use '@/shared/styles/animations' as *;
@@ -93,7 +93,7 @@
 
 Теперь создам wrapper для обратной совместимости и обновлю главный файл подключения:
 
-```scss src/shared/styles/globals.scss
+```scss src/app/styles/globals.scss
 // ============================================
 // Wrapper for backward compatibility
 // ============================================

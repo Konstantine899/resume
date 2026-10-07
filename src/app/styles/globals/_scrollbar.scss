@@ -4,8 +4,8 @@
 
 // ============================================
 
-@use '../variables/colors' as *;
-@use '../variables/radius' as *;
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/radius' as *;
 
 // Глобальные скроллбары для всех элементов
 * {
