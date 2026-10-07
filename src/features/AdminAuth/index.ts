@@ -10,4 +10,4 @@ export {
   persistAdminAuth,
   readAdminAuthFlag,
 } from './model/services/storage';
-export type { AdminAuthRootState, AdminAuthState } from './model/types';
+export type { AdminAuthRootState, AdminAuthState } from './model/types/types';

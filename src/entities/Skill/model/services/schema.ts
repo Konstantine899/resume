@@ -19,7 +19,7 @@
 
 import { z } from 'zod';
 
-import type { SkillCategoryData } from '../types';
+import type { SkillCategoryData } from '../types/types';
 
 export const SKILL_CATEGORY_VALUES = [
   'frontend',

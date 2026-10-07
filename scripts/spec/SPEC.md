@@ -3,7 +3,7 @@
 | Field   | Value                                                                                                |
 | ------- | ---------------------------------------------------------------------------------------------------- |
 | Status  | draft                                                                                                |
-| Date    | 2026-10-04                                                                                           |
+| Date    | 2026-10-07 (ARCH-1 amendment — owner architecture, see REQ-G8 in §3.2)                               |
 | Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied) |
 | Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)    |
 | Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)  |
@@ -37,7 +37,8 @@ passing `npm run validate` on generated output with zero manual edits.
 - Source `README.md` files (learning material of another project).
 - In-slice `spec/` generator (plan Appendix A, stage P4 — starts only after a manual trial).
 - Auto-editing composition root (`src/storeReducers.ts`, `src/pages/routerConfig.tsx`,
-  `src/pages/Home/HomePage.tsx`, `en.json`/`ru.json`) — generator prints "Next steps" instead.
+  `src/pages/Home/ui/HomePage/HomePage.tsx`, `en.json`/`ru.json`) — generator prints "Next
+  steps" instead.
 - User-facing text in generated code → no i18n keys are ever emitted in v1.
 
 ## 3. Requirements
@@ -122,40 +123,59 @@ passing `npm run validate` on generated output with zero manual edits.
   src/<layer>/<Name>/
   ├── index.ts
   ├── model/
-  │   └── types.ts          # <Name>Props (resume convention: props live in model/types.ts)
+  │   └── types/
+  │       └── types.ts      # <Name>Props (self-named file, ARCH-1: no index barrel)
   └── ui/
-      ├── <Name>.tsx
-      ├── <Name>.test.tsx
-      ├── <Name>.stories.tsx
-      └── <Name>.module.scss
+      └── <Name>/
+          ├── <Name>.tsx
+          ├── <Name>.test.tsx
+          ├── <Name>.stories.tsx
+          └── <Name>.module.scss
   ```
 
   Extra with `--with-slice`:
 
   ```
   ├── model/
-  │   ├── types.ts          # + <Name>State, <Name>RootState (structural)
-  │   ├── <name>Slice.ts    # file MUST match *Slice.ts (no-param-reassign override)
-  │   ├── selectors.ts
-  │   └── <name>Slice.test.ts
+  │   ├── types/
+  │   │   └── types.ts      # + <Name>State, <Name>RootState (structural)
+  │   ├── slices/
+  │   │   ├── <name>Slice.ts       # file MUST match *Slice.ts (no-param-reassign override)
+  │   │   └── <name>Slice.test.ts
+  │   └── selectors/
+  │       └── selectors.ts         # self-named file, no index barrel (ARCH-1)
   ```
 
-  The tree is IDENTICAL in every generator layer (`entities`, `features`, `pages`, `widgets`) —
-  OPEN-1 decided (owner): no per-layer variants in v1. If a data-only slice is ever needed,
-  that is a separate explicit decision (e.g. a `--no-ui` flag), never a silent layer
-  special-case.
+  **ARCH-1 (owner, 2026-10-07) — canonical slice architecture**, derived from the owner's
+  hand-applied restructuring of `src/` and binding for the generator:
+  - **`ui/` is per-component directories**: `ui/<Name>/<Name>.{tsx,test.tsx,stories.tsx,module.scss}`
+    (precedent: `features/About/ui/About/`, `pages/Admin/ui/<Page>/`). Flat `ui/<Name>.tsx`
+    is no longer emitted.
+  - **`model/` holds ONLY subdirectories; every file is self-named** (`types/types.ts`,
+    `selectors/selectors.ts`, `slices/<name>Slice.ts`, `constants/constants.ts`,
+    `schemes/schema.ts`) — no `index.ts` barrels inside `model/`, so importers spell the
+    full path (`./model/types/types`, precedent `entities/Job/index.ts`). Importer specifiers
+    therefore DO change when a slice migrates (unlike the index-barrel design of plan rev.4).
+  - **`services/` and `constants/` and `schemes/` are never created by the generator** (empty
+    dirs are not committable) — they are made by hand when real files appear. `schemes/` is
+    the entity home for zod schema files (precedent `entities/Job/model/schemes/schema.ts`);
+    feature storage/seed/session logic stays in `services/`.
+  - The tree is IDENTICAL in every generator layer (`entities`, `features`, `pages`, `widgets`)
+    — OPEN-1 (owner, 2026-10-04) still holds; ARCH-1 changes the shape, not the uniformity rule.
+  - `shared/**` is OUT of scope: not in `generatorLayers`, still flat `shared/ui/*/model/types.ts`
+    (plan §5 / risk R6 unchanged). Two conventions coexist BY DESIGN.
 
-- **REQ-G9** `model/types.ts` content: without slice — `<Name>Props` only; with slice — plus
-  `<Name>State` (≥1 field; `no-empty-object-type`) and structural
+- **REQ-G9** `model/types/types.ts` content: without slice — `<Name>Props` only; with slice —
+  plus `<Name>State` (≥1 field; `no-empty-object-type`) and structural
   `<Name>RootState = { <name>: <Name>State }` with the composition-root comment
-  (precedent: `AdminAuth/model/types.ts` — no global RootState can exist while reducers are
-  injected from `src/App.tsx`).
-- **REQ-G10** `model/selectors.ts` (only with `--with-slice`):
+  (precedent: `AdminAuth/model/types/index.ts` — no global RootState can exist while reducers
+  are injected from `src/App.tsx`).
+- **REQ-G10** `model/selectors/selectors.ts` (only with `--with-slice`):
   `export const select… = (state: <Name>RootState): … => state.<name>…;`
-  (precedent: `AdminAuth/model/selectors.ts`).
-- **REQ-G11** The generator never edits `storeReducers.ts` / `routerConfig.tsx` / `HomePage.tsx` /
-  locales; it prints a "Next steps" block with the exact reducer import snippet when
-  `--with-slice` was used.
+  (precedent: `AdminAbout/model/selectors/selectors.ts`; self-named file per ARCH-1).
+- **REQ-G11** The generator never edits `storeReducers.ts` / `routerConfig.tsx` /
+  `HomePage.tsx` / locales; it prints a "Next steps" block with the exact reducer import
+  snippet (`…/model/slices/<camel>Slice`) when `--with-slice` was used.
 - **REQ-G12** Windows: npm scripts are plain `node <file>` — no pipes, no `xargs`, no `npx`
   inside spawned processes; subprocesses in tests use `process.execPath`.
 - **REQ-G13** Emitted output must be Prettier-clean (`printWidth: 100`, single quotes) — either
@@ -166,7 +186,8 @@ passing `npm run validate` on generated output with zero manual edits.
 
 - **REQ-T1 `types.mjs`** — see REQ-G9/G10. Banner comment `// ==== <Name> — … ====`.
 - **REQ-T2 `component.mjs`** — `memo` named function; props imported as
-  `import type { <Name>Props } from '../model/types'` (precedent: `About.tsx`, `Nav.tsx`);
+  `import type { <Name>Props } from '../../model/types/types'` (the component sits in
+  `ui/<Name>/`, two levels below the slice root; precedent: `About/ui/About/About.tsx`);
   `ReactNode` is imported ONLY by `model/types.ts` for the `children` slot (plan §4.5.7) —
   the component must NOT import it (unused-import lint violation; bare `React.ReactNode` is
   likewise forbidden) — _amended after the Stage-1 gates, which proved the old wording
@@ -189,11 +210,16 @@ passing `npm run validate` on generated output with zero manual edits.
 - **REQ-T6 `redux-slice.mjs`** (only `--with-slice`) — `createSlice` with named action exports;
   lazy-hydration wrapper `export const <name>Reducer: typeof <name>Slice.reducer = (state, action) =>
 <name>Slice.reducer(state ?? initialState, action)` + lesson comment (`resume-rtk-lazy-hydration`);
-  file name `*Slice.ts` (scope of the `no-param-reassign` override).
-- **REQ-T7 `selectors.mjs`** — see REQ-G10.
-- **REQ-T8 `index.mjs`** — banner + **named re-exports only** (no `export *`):
-  base: `export { <Name> } from './ui/<Name>';` + `export type { <Name>Props } from './model/types';`
-  with slice: also `<Name>State`, `<Name>RootState`, reducer, actions, selectors.
+  file name `model/slices/<name>Slice.ts` (scope of the `no-param-reassign` override); the
+  slice and its test import the state from `'../types/types'`, the test imports selectors from
+  `'../selectors/selectors'`.
+- **REQ-T7 `selectors.mjs`** — see REQ-G10; reads `<Name>RootState` from `'../types/types'`.
+- **REQ-T8** `index.mjs` — banner + **named re-exports only** (no `export *`):
+  base: `export { <Name> } from './ui/<Name>/<Name>';` +
+  `export type { <Name>Props } from './model/types/types';`
+  with slice: also `<Name>State`, `<Name>RootState`,
+  `export { <name>Reducer, setInitialized } from './model/slices/<name>Slice';`,
+  `export { select<Name>Initialized } from './model/selectors/selectors';`.
 - **REQ-T9** Every template must pass all four gates (type-check, eslint, stylelint, vitest
   coverage) as an isolated sample BEFORE the generator ships (stage 0.5).
 
@@ -279,12 +305,13 @@ passing `npm run validate` on generated output with zero manual edits.
 
 ## 5. Open decisions (block the listed stage)
 
-| ID     | Question                                            | Recommendation                                                                                                                                                                                                                                                                                      | Blocks    | Status      |
-| ------ | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------- |
-| OPEN-1 | Keep `entities` in `generatorLayers`?               | **Yes — decided (owner, 2026-10-04): uniform generation in any slice layer**; the "existing entities have no `ui/`" observation is history, not a rule. Superseded requirement: uniform tree, no per-layer variants (REQ-G8)                                                                        | Stage 1   | **decided** |
-| OPEN-2 | Add `pages` to `generatorLayers`?                   | **Yes — decided (owner, 2026-10-04): included from day one**; route registration stays a manual gate (REQ-G11). `shared`/`app` remain out of scope (different slice structure)                                                                                                                      | Stage 1   | **decided** |
-| OPEN-3 | Wire or delete `eslint-plugin-fsd-imports.test.js`? | **Repoint to `.cjs` + add `.opencode/eslint/**` to vitest include** — decided (owner, 2026-10-04)                                                                                                                                                                                                   | Stage 0   | **decided** |
-| OPEN-4 | Refactoring tools: `.mjs` (A) or `.ts`+`tsx` (B)?   | **A — decided (owner, 2026-10-04): ESM `.mjs` + `ts-morph` (latest), zero config changes**; Variant B (`.ts` + `tsx` + config edits) stays documented in plan §2.4 as the fallback                                                                                                                  | Stage 2   | **decided** |
-| OPEN-5 | Extend vitest `include` with `scripts/**`?          | **Yes** (fallback: dedicated node project) — decided (owner, 2026-10-04)                                                                                                                                                                                                                            | Stage 0/1 | **decided** |
-| OPEN-6 | Add `check:public-api` to `npm run validate`?       | **Yes — decided (owner, 2026-10-04): appended as the final step of `npm run validate`** after Stage 2 (clean-tree exit 0 proven by smoke S7)                                                                                                                                                        | Stage 2   | **decided** |
-| OPEN-7 | Implement `print-env.mjs`?                          | **No — decided 2026-10-04 (Stage 3): no real need exists**; `__API__` is defined (`config/vite/buildViteConfig.ts:61`) but unused anywhere in `src` (only the `vite-env.d.ts` declaration), so there is no env to print. Revisit only when a concrete task needs env inspection (Stage 3 / plan §7) | Stage 3   | **decided** |
+| ID     | Question                                            | Recommendation                                                                                                                                                                                                                                                                                                                                                                                                                                    | Blocks    | Status      |
+| ------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------- |
+| OPEN-1 | Keep `entities` in `generatorLayers`?               | **Yes — decided (owner, 2026-10-04): uniform generation in any slice layer**; the "existing entities have no `ui/`" observation is history, not a rule. Superseded requirement: uniform tree, no per-layer variants (REQ-G8)                                                                                                                                                                                                                      | Stage 1   | **decided** |
+| OPEN-2 | Add `pages` to `generatorLayers`?                   | **Yes — decided (owner, 2026-10-04): included from day one**; route registration stays a manual gate (REQ-G11). `shared`/`app` remain out of scope (different slice structure)                                                                                                                                                                                                                                                                    | Stage 1   | **decided** |
+| OPEN-3 | Wire or delete `eslint-plugin-fsd-imports.test.js`? | **Repoint to `.cjs` + add `.opencode/eslint/**` to vitest include** — decided (owner, 2026-10-04)                                                                                                                                                                                                                                                                                                                                                 | Stage 0   | **decided** |
+| OPEN-4 | Refactoring tools: `.mjs` (A) or `.ts`+`tsx` (B)?   | **A — decided (owner, 2026-10-04): ESM `.mjs` + `ts-morph` (latest), zero config changes**; Variant B (`.ts` + `tsx` + config edits) stays documented in plan §2.4 as the fallback                                                                                                                                                                                                                                                                | Stage 2   | **decided** |
+| OPEN-5 | Extend vitest `include` with `scripts/**`?          | **Yes** (fallback: dedicated node project) — decided (owner, 2026-10-04)                                                                                                                                                                                                                                                                                                                                                                          | Stage 0/1 | **decided** |
+| OPEN-6 | Add `check:public-api` to `npm run validate`?       | **Yes — decided (owner, 2026-10-04): appended as the final step of `npm run validate`** after Stage 2 (clean-tree exit 0 proven by smoke S7)                                                                                                                                                                                                                                                                                                      | Stage 2   | **decided** |
+| OPEN-7 | Implement `print-env.mjs`?                          | **No — decided 2026-10-04 (Stage 3): no real need exists**; `__API__` is defined (`config/vite/buildViteConfig.ts:61`) but unused anywhere in `src` (only the `vite-env.d.ts` declaration), so there is no env to print. Revisit only when a concrete task needs env inspection (Stage 3 / plan §7)                                                                                                                                               | Stage 3   | **decided** |
+| OPEN-8 | Align the remaining `model/` divergences to ARCH-1? | Raised 2026-10-07, NOT yet decided: `constants/index.ts` (ContactContent, Developer) vs self-named `constants/constants.ts` (Job, Project); zod schema in `services/schema.ts` (#179 entities) vs `schemes/schema.ts` (Job, Project); `selectors/{selectors.ts,index.ts}` double file (admin features) vs single `selectors/selectors.ts` (ARCH-1); flat `model/constants.ts` in `widgets/Nav`. ARCH-1 migration of 2026-10-07 covered TYPES only | Stage 5   | **open**    |

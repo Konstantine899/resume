@@ -1,7 +1,7 @@
 import type { TechIcon } from '@/shared/ui/Card';
 
-import { PROJECTS, TECH_ICONS } from '../constants';
-import { Project, ProjectCategory, ProjectFilters, ProjectStatus } from '../types';
+import { PROJECTS, TECH_ICONS } from '../model/constants/constants';
+import { Project, ProjectCategory, ProjectFilters, ProjectStatus } from '../model/types/types';
 
 /**
  * Resolve stored tech icon KEYS to TechIcon objects for rendering (plan §5 A3).

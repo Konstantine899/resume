@@ -1,14 +1,17 @@
 /**
- * `model/` step of the slice generator — plan §2.3.3 (flat model directory,
- * AdminAuth/About precedent: no `model/types/`, `model/slices/`, or empty
- * `model/services/` subdirectories).
+ * `model/` step of the slice generator — SPEC REQ-G8 / ARCH-1 (owner,
+ * 2026-10-07): `model/` holds ONLY subdirectories and every file is
+ * self-named (NO index barrels), so importers spell the full path
+ * (`./model/types/types`, precedent `entities/Job/index.ts`).
  *
  * Files:
- *   - always: `types.ts` (`<Name>Props`; + `<Name>State`/`<Name>RootState`
- *     with `--with-slice`, REQ-G9);
- *   - only with `--with-slice`: `<camel>Slice.ts` (name must match `*Slice.ts`
- *     for the `no-param-reassign` override), `selectors.ts` (REQ-G10),
- *     `<camel>Slice.test.ts`.
+ *   - always: `types/types.ts` (`<Name>Props`; + `<Name>State`/
+ *     `<Name>RootState` with `--with-slice`, REQ-G9);
+ *   - only with `--with-slice`: `slices/<camel>Slice.ts` (name must match
+ *     `*Slice.ts` for the `no-param-reassign` override),
+ *     `selectors/selectors.ts` (REQ-G10), `slices/<camel>Slice.test.ts`;
+ *   - `services/`, `constants/`, `schemes/` are NEVER created (empty dirs are
+ *     not committable) — they are made by hand when real files appear.
  *
  * The orchestrator (create-template.mjs) performs the actual staged writes;
  * this module owns the file plan and the per-step write order.
@@ -23,12 +26,12 @@ import { typesTemplate } from './templates/types.mjs';
  * @returns {{ relPath: string, content: string }[]}
  */
 export function modelFiles(names) {
-  const files = [{ relPath: 'model/types.ts', content: typesTemplate(names) }];
+  const files = [{ relPath: 'model/types/types.ts', content: typesTemplate(names) }];
   if (names.withSlice) {
     files.push(
-      { relPath: `model/${names.camel}Slice.ts`, content: reduxSliceTemplate(names) },
-      { relPath: 'model/selectors.ts', content: selectorsTemplate(names) },
-      { relPath: `model/${names.camel}Slice.test.ts`, content: sliceTestTemplate(names) }
+      { relPath: `model/slices/${names.camel}Slice.ts`, content: reduxSliceTemplate(names) },
+      { relPath: 'model/selectors/selectors.ts', content: selectorsTemplate(names) },
+      { relPath: `model/slices/${names.camel}Slice.test.ts`, content: sliceTestTemplate(names) }
     );
   }
   return files;

@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 
-import type { AboutContent } from '../types';
+import type { AboutContent } from '../types/types';
 
 /** One localized string with a shared per-locale length cap. */
 const localizedText = (max: number) =>

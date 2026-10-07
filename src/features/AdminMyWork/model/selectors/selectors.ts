@@ -1,7 +1,7 @@
 // myWork selectors (plan_projects_crud §4).
 
 import { getFeaturedProjects, type Project } from '@/entities/Project';
-import type { MyWorkRootState } from '../types';
+import type { MyWorkRootState } from '../types/types';
 
 export const selectAllProjects = (state: MyWorkRootState): Project[] => state.myWork;
 

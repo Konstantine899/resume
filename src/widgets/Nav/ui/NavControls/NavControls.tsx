@@ -5,7 +5,7 @@ import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { classNames } from '@/shared/lib/utils';
 import React from 'react';
-import type { NavControlsProps } from '../../model/types';
+import type { NavControlsProps } from '../../model/types/types';
 import styles from './NavControls.module.scss';
 
 /**

@@ -110,11 +110,11 @@ function printNextSteps(names) {
   if (names.withSlice) {
     console.log(
       `  - src/storeReducers.ts: import { ${names.camel}Reducer } from ` +
-        `'@/${names.layer}/${names.name}/model/${names.camel}Slice'; and register it in the reducers map.`
+        `'@/${names.layer}/${names.name}/model/slices/${names.camel}Slice'; and register it in the reducers map.`
     );
   }
   console.log(
-    '  - src/pages/routerConfig.tsx / src/pages/Home/HomePage.tsx: ' +
+    '  - src/pages/routerConfig.tsx / src/pages/Home/ui/HomePage/HomePage.tsx: ' +
       'register a route or a home section if this slice needs one.'
   );
   console.log(

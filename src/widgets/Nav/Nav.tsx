@@ -10,7 +10,7 @@ import React, { useEffect, useRef } from 'react';
 import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
-import type { NavProps } from './model/types';
+import type { NavProps } from './model/types/types';
 import { AdminLink } from './ui/AdminLink';
 import { CtaButton } from './ui/CtaButton';
 import { MobileMenu } from './ui/MobileMenu';

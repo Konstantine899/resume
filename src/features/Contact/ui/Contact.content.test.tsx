@@ -6,10 +6,10 @@
 // the `contact` heading stays i18n-owned (§2), and the resolved
 // `formTexts` reach the Create toasts (R-11).
 
+import type { ContactContent } from '@/entities/ContactContent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { ContactContent } from '@/entities/ContactContent';
-import { Contact } from './Contact';
+import { Contact } from './Contact/Contact';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
 

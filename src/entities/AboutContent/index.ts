@@ -2,7 +2,7 @@
 // AboutContent Entity — Public API
 // ============================================
 
-export type { AboutContent, StatKey } from './model/types';
+export type { AboutContent, StatKey } from './model/types/types';
 export {
   AboutContentEnvelopeSchema,
   AboutContentSchema,

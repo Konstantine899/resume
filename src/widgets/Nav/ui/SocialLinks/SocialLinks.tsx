@@ -7,7 +7,7 @@ import { classNames } from '@/shared/lib/utils';
 import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
-import type { SocialLinksProps } from '../../model/types';
+import type { SocialLinksProps } from '../../model/types/types';
 import styles from './SocialLinks.module.scss';
 
 /**

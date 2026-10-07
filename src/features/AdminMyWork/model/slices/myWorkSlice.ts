@@ -19,7 +19,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Project, ProjectFormData } from '@/entities/Project';
 import { createProjectsSeed } from '../services/seed';
 import { readProjects } from '../services/storage';
-import type { ProjectUpdatePatch } from '../types';
+import type { ProjectUpdatePatch } from '../types/types';
 
 const myWorkSlice = createSlice({
   name: 'myWork',

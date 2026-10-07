@@ -12,10 +12,10 @@ export type {
   JobKey,
   JobLevel,
   UpdateJobDto,
-} from './types';
+} from './model/types/types';
 
 // Constants
-export { EMPLOYMENT_TYPES, JOB_LEVELS, JOBS } from './constants';
+export { EMPLOYMENT_TYPES, JOB_LEVELS, JOBS } from './model/constants/constants';
 
 // Utils
 export {
@@ -31,5 +31,5 @@ export {
 } from './lib/utils';
 
 // Zod schemas (store read/envelope — plan_workhistory_crud §6)
-export { JobSchema, JobsEnvelopeSchema } from './schema';
-export type { JobRecord, JobsEnvelope } from './schema';
+export { JobSchema, JobsEnvelopeSchema } from './model/schemes/schema';
+export type { JobRecord, JobsEnvelope } from './model/schemes/schema';

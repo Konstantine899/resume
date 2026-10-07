@@ -2,7 +2,7 @@
 // AdminDashboard — selectors (admin-panel plan WU-4)
 // ============================================
 
-import type { AdminDashboardRootState, AdminMetric } from '../types';
+import type { AdminDashboardRootState, AdminMetric } from '../types/types';
 
 export const selectAdminMetrics = (state: AdminDashboardRootState): AdminMetric[] =>
   state.adminDashboard.metrics;

@@ -32,5 +32,11 @@
       }
     ]
   },
-  "testing.automaticallyOpenTestResults": "neverOpen"
+  "testing.automaticallyOpenTestResults": "neverOpen",
+
+  // Проектный тест-раннер — vitest. Расширение Orta.vscode-jest находит
+  // транзитивный jest (от @storybook/test-runner), гоняет его через babel-jest
+  // без конфига и падает на TS-синтаксисе (inline `type` в импортах) —
+  // ложные красные метки в тестах.
+  "jest.enable": false
 }

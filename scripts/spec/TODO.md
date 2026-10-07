@@ -125,6 +125,20 @@ block.
 - [ ] **4.4** Update plan status: `draft` → per-stage `done`
 - [ ] **Gate:** checklist of the plan fully checked
 
+## Stage 5 — Owner architecture alignment (ARCH-1, 2026-10-07)
+
+> Triggered by the owner's hand-applied `src/` restructuring (per-component `ui/<Name>/`
+> dirs, `pages/*/ui/<Page>/`, entities Job/Project `model/{types,constants,schemes}/`) and
+> his directive: the generator must match that architecture, errors fixed, committed.
+
+- [x] **5.2–5.4** done 2026-10-07: tests first (11 red → 17/17 green), generator + templates + `printNextSteps` on ARCH-1
+- [ ] **5.5** Migrate existing slices: flat `model/types.ts` and `model/types/index.ts` →
+      `model/types/types.ts` + rewrite every importer specifier (`shared/**` untouched)
+- [ ] **5.6** Gates: `npm run validate` (CPU <45% window), `npm run build` + `check:bundle`
+- [ ] **5.7** Stage-4-style docs: AGENTS.md gotcha + vault `memory.md` dual-write; report
+      OPEN-8 + issues #142/#138 + stale PRs #167/#168 to the owner
+- [ ] **Gate:** validate green on generated output (smoke S2/S3 in a tmp root) + repo validate
+
 ## Cross-stage risks to keep visible (plan §6)
 
 - R14: bad `require` path in the ESLint plugin → entire lint red (Stage 0.4 guard)

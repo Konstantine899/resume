@@ -13,7 +13,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { adminAuthReducer, login, logout } from './authSlice';
 import { selectIsAuthed } from '../selectors';
 import { ADMIN_AUTH_STORAGE_KEY } from '../services/storage';
-import type { AdminAuthRootState } from '../types';
+import type { AdminAuthRootState } from '../types/types';
 
 describe('adminAuth slice', () => {
   it('starts unauthenticated', () => {

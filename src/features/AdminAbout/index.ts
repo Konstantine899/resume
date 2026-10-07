@@ -6,19 +6,19 @@
 // API — `features → features` is banned, so `features/About` never
 // touches it (the vitrina receives content as a prop from HomePage).
 
-export {
-  aboutContentReducer,
-  resetToDefaults,
-  updateAboutContent,
-} from './model/slices/aboutContentSlice';
-export { createAboutSeed } from './model/services/seed';
 export { selectAboutContent } from './model/selectors';
+export { createAboutSeed } from './model/services/seed';
 export {
   ABOUT_CONTENT_STORAGE_KEY,
   persistAboutContent,
   readAboutContent,
   removeAboutContent,
 } from './model/services/storage';
-export type { AboutContentRootState } from './model/types';
-export { AboutEditorForm } from './ui/AboutEditorForm';
-export type { AboutEditorFormProps } from './ui/AboutEditorForm';
+export {
+  aboutContentReducer,
+  resetToDefaults,
+  updateAboutContent,
+} from './model/slices/aboutContentSlice';
+export type { AboutContentRootState } from './model/types/types';
+export { AboutEditorForm } from './ui/AboutEditorForm/AboutEditorForm';
+export type { AboutEditorFormProps } from './ui/AboutEditorForm/AboutEditorForm';

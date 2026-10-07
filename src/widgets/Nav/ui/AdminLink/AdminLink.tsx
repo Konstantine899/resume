@@ -8,7 +8,7 @@ import { Tooltip } from '@/shared/ui/Tooltip';
 import { Lock } from 'lucide-react';
 import React from 'react';
 import { ADMIN_HREF } from '../../model/constants';
-import type { AdminLinkProps } from '../../model/types';
+import type { AdminLinkProps } from '../../model/types/types';
 
 /**
  * 🔐 admin entry of the Nav right side (issue #138, T5; wired back in WU-1).

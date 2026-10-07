@@ -1,2 +1,2 @@
-export type { SkillsFeatureProps } from './model/types';
-export { Skills } from './ui/Skills';
+export type { SkillsFeatureProps } from './model/types/types';
+export { Skills } from './ui/Skills/Skills';

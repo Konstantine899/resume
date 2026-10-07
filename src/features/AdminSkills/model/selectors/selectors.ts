@@ -1,7 +1,7 @@
 // skills selectors (plan_skills_crud §12 WU-1).
 
 import type { SkillCategoryData } from '@/entities/Skill';
-import type { AdminSkillsRootState } from '../types';
+import type { AdminSkillsRootState } from '../types/types';
 
 /** Admin read path: EVERY category, empty ones included. */
 export const selectAllSkillsData = (state: AdminSkillsRootState): SkillCategoryData[] =>

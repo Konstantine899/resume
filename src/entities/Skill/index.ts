@@ -7,7 +7,7 @@
 // feature (`features/AdminSkills`) — import THIS barrel; feature→feature
 // imports are banned by FSD even through a public API (R-4).
 
-export type { SkillCategory, SkillCategoryData, Technology } from './model/types';
+export type { SkillCategory, SkillCategoryData, Technology } from './model/types/types';
 export { SKILLS_DATA } from './model/constants';
 export {
   SkillCategoryDataSchema,
