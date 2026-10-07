@@ -1,13 +1,13 @@
 # SPEC — FSD slice generator and repo scripts
 
-| Field   | Value                                                                                                |
-| ------- | ---------------------------------------------------------------------------------------------------- |
-| Status  | draft                                                                                                |
-| Date    | 2026-10-07 (ARCH-1 amendment — REQ-G8 §3.2; spec-phase amendment — REQ-G14/G15 §3.2)                 |
-| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied) |
-| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)    |
-| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)  |
-| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                       |
+| Field   | Value                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------------------- |
+| Status  | draft                                                                                                           |
+| Date    | 2026-10-07 (ARCH-1 amendment — owner architecture, see REQ-G8 in §3.2; spec-phase amendment — REQ-G14/G15 §3.2) |
+| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)            |
+| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)               |
+| Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)             |
+| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                                  |
 
 ---
 
