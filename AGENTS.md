@@ -50,25 +50,7 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
 
 ## Spec-driven features
 
-Каждая фича при начале планирования получает папку `src/<layer>/<name>/spec/`. Workflow
-(фазы генератора, план `wiki/plan/plan_spec_workflow.md`):
-
-1. **Фаза A** — `npm run generate:slice -- <Layer> <SliceName>` создаёт только пару
-   `spec/SPEC.md` + `spec/TODO.md` (статус `draft`); `--force` на существующую цель перезаписывает
-   ТОЛЬКО эту пару.
-2. **Заполнение** — агент `spec-planner` (триггер «заполни spec для \<slice\>» / "fill spec")
-   или вручную: наблюдаемые критерии + «Plan files» в SPEC, burn-down Work units в TODO.
-   Пишется ТОЛЬКО в `spec/`; `approved` ставит только владелец.
-3. **Фаза B** — `--scaffold` после `status: approved`: код-дерево (REQ-G8) + extras-скелеты
-   из «Plan files» (лишние `ui/<X>/` — `TODO(spec)`-маркер + `it.todo`, не-`ui`-пути печатаются
-   как `manual:`). Без спеки/до approved — отказ с подсказкой.
-4. **Реализация** по TODO → выполненный пункт **удаляется** (не отмечается) → `status: done`
-   (+ дата `verified`).
-
-Гейты репо: `npm run check:spec` — exit 1, пока хоть одна спека не `approved|done`
-(запускать перед массовой реализацией; в `validate` НЕ входит); `npm run spec:status` —
-таблица `slice | status | verified` (vault читает её как дашборд; контент спек правится
-ТОЛЬКО в репо — vault только нарратив/связи, правило R3).
+Каждая фича при начале планирования получает папку `src/features/<name>/spec/`:
 
 - `SPEC.md` — контракт. Живёт вместе с фичей. Пишется ПЕРВЫМ.
 - `TODO.md` — план. Сгорает по мере работы. Пишется ВТОРЫМ.
@@ -84,8 +66,7 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
    идут вместе с кодом.
 4. Шаг выполнен → пункт в TODO удаляется, а не отмечается.
 5. SPEC — единственная копия. Не дублировать в vault / openspec.
-6. Папку `spec/` не заводить руками заранее — её создаёт генератор фазы A при старте
-   планирования; `--scaffold` без неё падает с подсказкой запустить фазу A.
+6. Папку `spec/` не заводить заранее — только при старте планирования.
 7. При расхождении SPEC с кодом обновить SPEC и дату `verified`.
 
 ## Project conventions (strict — all agents MUST follow)
