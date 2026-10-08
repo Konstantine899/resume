@@ -3,9 +3,12 @@
  *
  * Two passes over `src/` (dry-run by default, exit 1 on findings):
  *
- *  1. Barrels — every directory under `src/shared/ui/` must have an
- *     `index.ts`. `--fix` creates it with NAMED re-exports collected from
- *     the component's own files (never `export *`, per REQ-R2), skipping
+ *  1. Barrels — every directory under `src/shared/ui/` that contains source
+ *     files (`.ts`/`.tsx` outside `spec/`) must have an `index.ts`. Phase-A
+ *     dirs (spec pair only, no code yet — spec-driven workflow) are skipped
+ *     with a visible note and re-checked once source files land. `--fix`
+ *     creates the barrel with NAMED re-exports collected from the
+ *     component's own files (never `export *`, per REQ-R2), skipping
  *     tests/stories. A directory without any named export fails loudly
  *     instead of writing an empty barrel.
  *  2. Deep imports — `@/shared/ui/<Component>/<X>` must go through the
@@ -153,10 +156,29 @@ async function main() {
   }
 
   const entries = await readdir(srcSharedUi, { withFileTypes: true });
-  const componentDirs = entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+
+  // Phase A (spec-driven workflow) may create a `spec/` pair before any code
+  // exists: a directory with no .ts/.tsx files OUTSIDE `spec/` has nothing to
+  // barrel yet — skip it with a visible note; the gate re-engages the moment
+  // source files land (phase-A CLI tests).
+  /** @type {string[]} */
+  const componentDirs = [];
+  /** @type {string[]} */
+  const phaseAOnly = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const files = await readdir(path.join(srcSharedUi, entry.name), { recursive: true });
+    const hasSource = files.some(
+      (rel) => (rel.endsWith('.ts') || rel.endsWith('.tsx')) && !rel.split(path.sep).includes('spec')
+    );
+    (hasSource ? componentDirs : phaseAOnly).push(entry.name);
+  }
+  componentDirs.sort();
+  phaseAOnly.sort();
+  for (const name of phaseAOnly) {
+    console.log(`Phase-A only (no source files yet): src/shared/ui/${name}`);
+  }
+
   const missingBarrels = componentDirs.filter(
     (name) => !existsSync(path.join(srcSharedUi, name, 'index.ts'))
   );
@@ -193,8 +215,9 @@ async function main() {
       return;
     }
     const withIndex = componentDirs.length - missingBarrels.length;
+    const skipped = phaseAOnly.length > 0 ? ` (${phaseAOnly.length} phase-A dir(s) skipped)` : '';
     console.log(
-      `Public API OK: ${withIndex}/${componentDirs.length} shared/ui directories have index.ts; ${deepImports.length} deep import violation(s).`
+      `Public API OK: ${withIndex}/${componentDirs.length} shared/ui directories have index.ts${skipped}; ${deepImports.length} deep import violation(s).`
     );
     return;
   }

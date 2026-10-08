@@ -29,6 +29,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
  *   (e) clean tree → exit 0; `--fix` idempotency (REQ-R4);
  *   (f) a directory with no named exports fails loudly instead of writing an
  *       empty barrel.
+ *   (g) phase-A dirs (`spec/` pair only, no source files — spec-driven
+ *       workflow) are skipped with a visible note; the gate re-engages when
+ *       the first `.ts`/`.tsx` lands.
  */
 
 const execFileAsync = promisify(execFile);
@@ -238,6 +241,49 @@ describe('check-shared-ui-public-api CLI — pass 2, deep imports (REQ-R2, REQ-R
     } finally {
       await rm(internalRoot, { recursive: true, force: true });
     }
+  });
+});
+
+describe('check-shared-ui-public-api CLI — phase-A spec-only dirs are skipped', () => {
+  /** @type {string} */
+  let root;
+
+  beforeEach(async () => {
+    root = await mkdtemp(path.join(tmpdir(), 'public-api-phaseA-'));
+    // Planned has ONLY spec/ (phase A) — no source files, nothing to barrel.
+    await writeFiles(root, {
+      ...cleanSharedUiFiles(),
+      'src/shared/ui/Planned/spec/SPEC.md': '# SPEC — shared/ui/Planned\n',
+      'src/shared/ui/Planned/spec/TODO.md': '# TODO — shared/ui/Planned\n',
+    });
+  });
+
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it('a directory with only spec/ (no source files) is not a missing barrel', async () => {
+    const result = await runTool(['--root=' + root]);
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toContain('Missing barrel: src/shared/ui/Planned');
+    expect(result.stdout).toContain('Public API OK: 2/2');
+    // Informational: the skip is visible, never silent.
+    expect(result.stdout).toContain('Planned');
+  });
+
+  it('--fix does not create a barrel for a spec-only directory', async () => {
+    const fixed = await runTool(['--fix', '--root=' + root]);
+    expect(fixed.exitCode).toBe(0);
+    expect(existsSync(path.join(root, 'src/shared/ui/Planned/index.ts'))).toBe(false);
+  });
+
+  it('once source files land, the barrel becomes required again', async () => {
+    await writeFiles(root, {
+      'src/shared/ui/Planned/Planned.tsx': 'export function Planned() {\n  return null;\n}\n',
+    });
+    const result = await runTool(['--root=' + root]);
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain('Missing barrel: src/shared/ui/Planned');
   });
 });
 
