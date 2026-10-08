@@ -15,6 +15,9 @@
 //   dispatches resetToDefaults.
 // - Delete callbacks let the page close a form whose record vanished.
 // - ALL copy is i18n (i18n-first); counts render as plain numbers.
+// - Pagination pilot (plan_kit_pagination §7): rows are flattened techs
+//   (+ a placeholder per EMPTY category so it stays reachable), windowed
+//   by PAGE_SIZE; the footer owns the clamp and the aria-live counter.
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
@@ -23,6 +26,7 @@ import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
+import { Pagination } from '@/shared/ui/Pagination';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,6 +38,18 @@ import {
   resetToDefaults,
 } from '../../model/slices/skillsSlice';
 import styles from './SkillsEditorList.module.scss';
+
+/** Rows per page for the kit Pagination pilot (plan §7: 10–12 → 3–4 pages). */
+const PAGE_SIZE = 12;
+
+/** One tech of the flattened window, or a placeholder keeping an empty category visible. */
+type ListRow = { categoryId: string; techName?: string };
+
+/** One category present in the current window, with only its visible techs. */
+type VisibleGroup = {
+  entry: import('@/entities/Skill').SkillCategoryData;
+  techNames: string[];
+};
 
 /** One pending destructive action behind the shared Modal confirm. */
 type PendingDelete =
@@ -76,6 +92,46 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const { addToast } = useToast();
   const [pending, setPending] = useState<PendingDelete>(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+
+  // ---- Pagination pilot (plan §7): flatten → window → group ----
+  // Flattened rows = every tech in `all` order + one placeholder per EMPTY
+  // category (otherwise an empty category would fall out of the window and
+  // become unreachable).
+  const rows: ListRow[] = all.flatMap((entry) =>
+    entry.technologies.length > 0
+      ? entry.technologies.map((tech) => ({ categoryId: entry.category, techName: tech.name }))
+      : [{ categoryId: entry.category }]
+  );
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+
+  // The authoritative clamp lives here (plan A2) — the component only
+  // derives defensively. A stale `page` (record deleted under it) resolves
+  // back into range without any effect/setState dance.
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  const windowRows = rows.slice(start, start + PAGE_SIZE);
+
+  // Group the window back into categories, preserving `all` order.
+  const groupsByCategory = new Map<string, VisibleGroup>();
+  const visibleGroups: VisibleGroup[] = [];
+  for (const row of windowRows) {
+    let group = groupsByCategory.get(row.categoryId);
+    if (!group) {
+      const entry = all.find((item) => item.category === row.categoryId);
+      if (!entry) continue;
+      group = { entry, techNames: [] };
+      groupsByCategory.set(row.categoryId, group);
+      visibleGroups.push(group);
+    }
+    if (row.techName !== undefined) {
+      group.techNames.push(row.techName);
+    }
+  }
+
+  const rangeFrom = start + 1;
+  const rangeTo = Math.min(start + PAGE_SIZE, rows.length);
+  const showFooter = totalPages > 1;
 
   const closeModal = () => {
     setPending(null);
@@ -156,89 +212,100 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       {all.length === 0 ? (
         <Paragraph theme="muted">{t('skillsListEmpty')}</Paragraph>
       ) : (
-        <ul className={styles.list} aria-label={t('adminSkillsTitle')}>
-          {all.map((entry) => (
-            <li
-              key={entry.category}
-              className={styles.row}
-              data-testid={`skill-category-row-${entry.category}`}
-            >
-              <div className={styles.rowHeader}>
-                <div className={styles.info}>
-                  <Heading level={3}>{entry.categoryName}</Heading>
-                  <Badge variant="outline" size="sm">
-                    {entry.technologies.length}
-                  </Badge>
+        <>
+          <ul className={styles.list} aria-label={t('adminSkillsTitle')}>
+            {visibleGroups.map(({ entry, techNames }) => (
+              <li
+                key={entry.category}
+                className={styles.row}
+                data-testid={`skill-category-row-${entry.category}`}
+              >
+                <div className={styles.rowHeader}>
+                  <div className={styles.info}>
+                    <Heading level={3}>{entry.categoryName}</Heading>
+                    <Badge variant="outline" size="sm">
+                      {entry.technologies.length}
+                    </Badge>
+                  </div>
+                  <div
+                    className={styles.actions}
+                    data-testid={`skill-category-actions-${entry.category}`}
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEditCategory?.(entry)}
+                    >
+                      {t('skillsEditCategory')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
+                    >
+                      {t('skillsDelete')}
+                    </Button>
+                  </div>
                 </div>
-                <div
-                  className={styles.actions}
-                  data-testid={`skill-category-actions-${entry.category}`}
-                >
+
+                <div className={styles.techList}>
+                  {techNames.map((techName) => (
+                    <div
+                      key={techName}
+                      className={styles.techRow}
+                      data-testid={`skill-tech-row-${techName}`}
+                    >
+                      <span className={styles.techName}>{techName}</span>
+                      <div className={styles.actions}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEditTechnology?.(entry.category, techName)}
+                        >
+                          {t('skillsEditTechnology')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() =>
+                            setPending({
+                              kind: 'technology',
+                              categoryId: entry.category,
+                              techName,
+                            })
+                          }
+                        >
+                          {t('skillsDelete')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => onEditCategory?.(entry)}
+                    onClick={() => onAddTechnology?.(entry.category)}
                   >
-                    {t('skillsEditCategory')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
-                  >
-                    {t('skillsDelete')}
+                    {t('skillsAddTechnology')}
                   </Button>
                 </div>
-              </div>
+              </li>
+            ))}
+          </ul>
 
-              <div className={styles.techList}>
-                {entry.technologies.map((tech) => (
-                  <div
-                    key={tech.name}
-                    className={styles.techRow}
-                    data-testid={`skill-tech-row-${tech.name}`}
-                  >
-                    <span className={styles.techName}>{tech.name}</span>
-                    <div className={styles.actions}>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEditTechnology?.(entry.category, tech.name)}
-                      >
-                        {t('skillsEditTechnology')}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="sm"
-                        onClick={() =>
-                          setPending({
-                            kind: 'technology',
-                            categoryId: entry.category,
-                            techName: tech.name,
-                          })
-                        }
-                      >
-                        {t('skillsDelete')}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onAddTechnology?.(entry.category)}
-                >
-                  {t('skillsAddTechnology')}
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+          {showFooter && (
+            <div className={styles.footer} data-testid="skills-pagination-footer">
+              <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+              <span className={styles.range} aria-live="polite">
+                {t('paginationRange', { from: rangeFrom, to: rangeTo, total: rows.length })}
+              </span>
+            </div>
+          )}
+        </>
       )}
 
       <Modal
