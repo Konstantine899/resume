@@ -230,5 +230,10 @@
   "copyCode": "Копировать код",
   "clickToCopy": "Нажмите, чтобы скопировать код",
   "codeBlock": "Блок кода",
-  "codeBlockWithTitle": "Блок кода: {{title}}"
+  "codeBlockWithTitle": "Блок кода: {{title}}",
+  "paginationNav": "Пагинация",
+  "paginationPrevious": "Предыдущая страница",
+  "paginationNext": "Следующая страница",
+  "paginationPage": "Страница {{number}}",
+  "paginationRange": "Показано {{from}}–{{to}} из {{total}}"
 }

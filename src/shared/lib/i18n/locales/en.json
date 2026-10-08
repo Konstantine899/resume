@@ -230,5 +230,10 @@
   "copyCode": "Copy code",
   "clickToCopy": "Click to copy code",
   "codeBlock": "Code block",
-  "codeBlockWithTitle": "Code block: {{title}}"
+  "codeBlockWithTitle": "Code block: {{title}}",
+  "paginationNav": "Pagination",
+  "paginationPrevious": "Previous page",
+  "paginationNext": "Next page",
+  "paginationPage": "Page {{number}}",
+  "paginationRange": "Showing {{from}}–{{to}} of {{total}}"
 }

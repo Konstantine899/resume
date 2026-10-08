@@ -9,7 +9,7 @@
 // a mutable holder whose dispatched actions REALLY mutate the rows, so
 // "the row disappears" is a real assertion, not a mocked one.
 
-import type { SkillCategoryData } from '@/entities/Skill';
+import type { SkillCategory, SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillsEditorList } from './SkillsEditorList';
@@ -292,5 +292,77 @@ describe('SkillsEditorList', () => {
     await waitFor(() => expect(resetSpy).toHaveBeenCalled());
     expect(persistSpy).not.toHaveBeenCalled(); // reset removes the key, it does not persist data
     await waitFor(() => expect(screen.getByText('skillsListEmpty')).toBeInTheDocument());
+  });
+
+  // ---- Pagination pilot (plan_kit_pagination §7) ----
+  describe('Pagination pilot', () => {
+    const makeTechs = (prefix: string, count: number) =>
+      Array.from({ length: count }, (_, index) => ({
+        name: `${prefix}${index + 1}`,
+        iconSvg: 'react',
+      }));
+
+    const CATEGORIES: SkillCategory[] = ['frontend', 'backend'];
+
+    const setRows = (techsPerCategory: number[]) => {
+      holder.state.adminSkills = techsPerCategory.map((count, index) => ({
+        category: CATEGORIES[index] as SkillCategory,
+        categoryName: `Category ${index + 1}`,
+        technologies: makeTechs(`C${index + 1}T`, count),
+      }));
+    };
+
+    it('hides the whole footer while everything fits on one page', () => {
+      renderList();
+
+      expect(screen.queryByRole('navigation')).toBeNull();
+      expect(screen.queryByTestId('skills-pagination-footer')).toBeNull();
+      expect(screen.queryByText('paginationRange')).toBeNull();
+    });
+
+    it('drops back to a single page when the page-2 category is deleted', async () => {
+      setRows([10, 3]); // 13 rows → 2 pages
+      renderList();
+
+      expect(screen.getByRole('navigation')).toBeInTheDocument();
+      // Items for page 1 of 13 (siblings=1): `1 2 … 13` — page 1 is the
+      // current span, so the only `2` on screen is the page-2 button.
+      fireEvent.click(screen.getByText('2'));
+      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+
+      // Delete the backend category (the only record on page 2) through the Modal.
+      const actions = screen.getByTestId('skill-category-actions-backend');
+      fireEvent.click(within(actions).getByRole('button', { name: 'skillsDelete' }));
+      const modal = await screen.findByRole('dialog');
+      fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
+
+      await waitFor(() => expect(screen.queryByTestId('skill-category-row-backend')).toBeNull());
+      // 10 rows ≤ PAGE_SIZE → clamp resolves to page 1, footer disappears,
+      // and every remaining technology is reachable again.
+      expect(screen.queryByRole('navigation')).toBeNull();
+      expect(screen.queryByText('paginationRange')).toBeNull();
+      for (let index = 1; index <= 10; index += 1) {
+        expect(screen.getByTestId(`skill-tech-row-C1T${index}`)).toBeInTheDocument();
+      }
+    });
+
+    it('keeps the current page when a record on that page is edited', () => {
+      setRows([10, 4]); // 14 rows → 2 pages
+      const { onEditTechnology } = renderList();
+
+      fireEvent.click(screen.getByText('2'));
+      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+
+      const row = screen.getByTestId('skill-tech-row-C2T3');
+      fireEvent.click(within(row).getByRole('button', { name: 'skillsEditTechnology' }));
+
+      expect(onEditTechnology).toHaveBeenCalledWith('backend', 'C2T3');
+      // No router coupling in this component: leaving for the edit form and
+      // coming Back cannot reset `page` (manual check in the real router).
+      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+    });
   });
 });
