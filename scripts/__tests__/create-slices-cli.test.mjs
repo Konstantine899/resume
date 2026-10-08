@@ -123,12 +123,26 @@ describe('generate:slice CLI — validation and exit codes (REQ-G1/G2)', () => {
     expect(existsSync(path.join(root, 'src'))).toBe(false);
   });
 
-  it('rejects layers outside the SSOT generatorLayers list (REQ-G2)', async () => {
-    for (const badLayer of ['shared', 'nope']) {
-      const result = await runCli(['--root=' + root, badLayer, 'GoodName']);
-      expect(result.exitCode, `layer "${badLayer}"`).toBe(1);
-      expect(result.stdout + result.stderr).toContain('Unknown layer');
+  it('rejects a typo layer with Unknown layer (REQ-G2)', async () => {
+    const result = await runCli(['--root=' + root, 'nope', 'GoodName']);
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout + result.stderr).toContain('Unknown layer');
+    expect(existsSync(path.join(root, 'src'))).toBe(false);
+  });
+
+  it('rejects a valid-but-not-generated FSD layer with a targeted hint (REQ-G2)', async () => {
+    for (const layer of ['shared', 'app']) {
+      const result = await runCli(['--root=' + root, layer, 'GoodName']);
+      expect(result.exitCode, `layer "${layer}"`).toBe(1);
+      const output = result.stdout + result.stderr;
+      expect(output).toContain(`Layer "${layer}" is a valid FSD layer but not a generator layer`);
+      expect(output).not.toContain('Unknown layer');
     }
+    // shared = kit: the hint must point at the manual phase-A pair in AGENTS.md.
+    const shared = await runCli(['--root=' + root, 'shared', 'GoodName']);
+    const output = shared.stdout + shared.stderr;
+    expect(output).toContain('hand-made');
+    expect(output).toContain('AGENTS.md § Spec-driven features');
     expect(existsSync(path.join(root, 'src'))).toBe(false);
   });
 

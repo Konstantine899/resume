@@ -15,7 +15,7 @@
  * silent exit 0 — plan R3/REQ-G2).
  */
 import process from 'node:process';
-import { getGeneratorLayers } from '../fsd-layers.mjs';
+import { getGeneratorLayers, isFsdLayer } from '../fsd-layers.mjs';
 import { createTemplate, GeneratorError } from './create-template.mjs';
 import { deriveNames } from './naming.mjs';
 import { resolveRoot } from './resolve-root.mjs';
@@ -57,6 +57,21 @@ async function main() {
 
   const generatorLayers = getGeneratorLayers();
   if (!generatorLayers.includes(layer)) {
+    // A real FSD layer that is deliberately NOT generated (shared, app) is a
+    // different mistake than a typo — say so and point at the manual path
+    // instead of the misleading "Unknown layer".
+    if (isFsdLayer(layer)) {
+      const kitHint =
+        layer === 'shared'
+          ? '\nFor shared (kit) components the phase-A spec pair is hand-made from ' +
+            'scripts/createSlices/templates/spec.mjs — see AGENTS.md § Spec-driven features.'
+          : '';
+      throw new GeneratorError(
+        `Layer "${layer}" is a valid FSD layer but not a generator layer ` +
+          `(scripts/fsd-layers.json → generatorLayers: ${generatorLayers.join(', ')}).` +
+          kitHint
+      );
+    }
     throw new GeneratorError(
       `Unknown layer "${layer}". Generator layers (scripts/fsd-layers.json → generatorLayers): ` +
         `${generatorLayers.join(', ')}.`
