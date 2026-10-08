@@ -1,7 +1,7 @@
 /**
- * Plan-files extras (REQ-G16) — diff the SPEC "Plan files" section against
- * the standard code plan so an owner-planned component gets scaffolded as a
- * skeleton in the same `--scaffold` run.
+ * Plan-files extras (REQ-G16) — diff the SPEC "Планируемые файлы" section
+ * against the standard code plan so an owner-planned component gets scaffolded
+ * as a skeleton in the same `--scaffold` run.
  *
  * Rules (REQ-G16):
  *   - listed paths already in the standard plan are skipped (never duplicated);
@@ -12,7 +12,8 @@
  *   - everything else (lib/, model/, non-Pascal dirs) returns in `manual` for
  *     hand creation — the generator never guesses what it cannot own.
  *
- * The "Plan files" section runs from its heading to the next `## ` heading.
+ * The "Планируемые файлы" section runs from its heading to the next `## `
+ * heading (Russian headings since 2026-10-08 — SPEC/TODO are always Russian).
  */
 import path from 'node:path';
 
@@ -29,7 +30,7 @@ export function planFileExtras(specContent, standardPaths) {
   // Locate the section WITHOUT a single mega-regex: `^` needs the `m` flag to
   // match mid-string, but with `m` a lazy `$` alternative would terminate the
   // section at the first line end. Explicit slicing is unambiguous.
-  const heading = specContent.match(/(?:^|\n)## Plan files[ \t]*\r?\n/);
+  const heading = specContent.match(/(?:^|\n)## Планируемые файлы[ \t]*\r?\n/);
   if (!heading) return { components: [], manual: [] };
   const rest = specContent.slice(heading.index + heading[0].length);
   const nextHeading = rest.search(/\n## /);
