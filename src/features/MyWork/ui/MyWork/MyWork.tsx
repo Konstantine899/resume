@@ -2,7 +2,7 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS, getFeaturedProjects, resolveTechIcons } from '@/entities/Project';
+import { PROJECTS, resolveTechIcons } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
@@ -24,10 +24,11 @@ export const MyWork: React.FC<MyWorkProps> = ({
 }) => {
   const { t, language } = useLanguage();
 
-  // Recruiter audit P1: only the featured projects surface here. WU-3
-  // (Design C): HomePage feeds the store value through the `content` prop;
-  // the seed fallback keeps bare renders store-free (no useSelector here).
-  const projects = content ?? getFeaturedProjects(PROJECTS);
+  // Owner decision (2026-10-08): the vitrina surfaces ALL projects — the
+  // featured flag no longer gates visibility (spec: src/features/MyWork).
+  // Design C (Projects CRUD WU-3): HomePage feeds the store value through
+  // the `content` prop; the seed fallback keeps bare renders store-free.
+  const projects = content ?? PROJECTS;
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);

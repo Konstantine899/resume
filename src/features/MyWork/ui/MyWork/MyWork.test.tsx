@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { PROJECTS, getFeaturedProjects } from '@/entities/Project';
+import { PROJECTS } from '@/entities/Project';
 import { MyWork } from './MyWork';
 
 // Identity i18n + language 'en' (existing repo pattern).
@@ -13,28 +13,27 @@ vi.mock('@/shared/ui/AnimatedSection', () => ({
   ),
 }));
 
-describe('MyWork: featured projects only (recruiter audit P1)', () => {
+describe('MyWork: all projects on the vitrina (owner decision 2026-10-08)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders exactly the featured projects from the entity', () => {
+  it('renders every project of the seed, featured or not', () => {
     render(<MyWork />);
 
-    const featured = getFeaturedProjects(PROJECTS);
-    expect(featured).toHaveLength(4);
-    for (const project of featured) {
+    expect(PROJECTS).toHaveLength(7);
+    for (const project of PROJECTS) {
       expect(screen.getByText(project.title)).toBeInTheDocument();
     }
   });
 
-  it('does NOT surface the non-featured projects', () => {
+  it('surfaces the non-featured projects too', () => {
     render(<MyWork />);
 
     const hidden = PROJECTS.filter((project) => !project.featured);
     expect(hidden.length).toBeGreaterThan(0);
     for (const project of hidden) {
-      expect(screen.queryByText(project.title)).not.toBeInTheDocument();
+      expect(screen.getByText(project.title)).toBeInTheDocument();
     }
   });
 
@@ -60,7 +59,7 @@ describe('MyWork: empty state through the content prop (WU-3)', () => {
 
     expect(screen.getByText('noProjectsYet')).toBeInTheDocument();
     // The seed must NOT leak through when the caller passed an empty list.
-    for (const project of getFeaturedProjects(PROJECTS)) {
+    for (const project of PROJECTS) {
       expect(screen.queryByText(project.title)).not.toBeInTheDocument();
     }
   });
