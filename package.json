@@ -11,6 +11,7 @@
     "analyze:dead-code": "knip --include files,dependencies,exports",
     "check:bundle": "node scripts/check-bundle.mjs public",
     "check:axe": "node scripts/purge-axe-check.mjs",
+    "check:axe:stories": "node scripts/axe-stories-check.mjs",
     "check:public-api": "node scripts/refactoring/check-shared-ui-public-api.mjs",
     "check:spec": "node scripts/check-spec.mjs",
     "spec:status": "node scripts/spec-status.mjs",

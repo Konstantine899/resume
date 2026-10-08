@@ -11,6 +11,7 @@
 @forward 'hover';
 @forward 'utilities';
 @forward 'button';
+@forward 'visually-hidden';
 
 // Re-export commonly used mixins for convenience
 @use 'responsive' as *;

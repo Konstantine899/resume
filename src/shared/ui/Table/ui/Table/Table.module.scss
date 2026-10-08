@@ -1,0 +1,88 @@
+// src/shared/ui/Table/ui/Table/Table.module.scss
+
+// ============================================
+
+// Table — semantic table primitive (plan_kit_table WU-1)
+
+// Layout + chrome only: borders / hover / zebra come from theme tokens, so
+
+// both themes follow automatically (plan A4) — no hardcoded colors.
+
+// ============================================
+
+@use '@/shared/styles/mixins' as *;
+
+// Scroll wrapper (plan A5): focusable so axe `scrollable-region-focusable`
+
+// stays clean while wide tables scroll horizontally.
+.region {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.region:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  border-collapse: collapse;
+}
+
+.caption {
+  @include visually-hidden;
+}
+
+// Shared `<th>`/`<td>` chrome.
+.cell {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.table thead .cell {
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-surface-alt);
+  border-bottom-color: var(--color-border);
+}
+
+// Zebra + hover, both token-driven (plan A4).
+.table tbody tr:nth-child(even) {
+  background: var(--color-surface-tertiary);
+}
+
+.table tbody tr:hover {
+  background: var(--color-surface-hover);
+}
+
+// Modifiers come after `.cell` — same specificity, later wins.
+.align-left {
+  text-align: left;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.empty-cell {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+// Plan A5: priority columns are dropped below the mobile breakpoint instead
+
+// of being crushed. Range syntax matches the repo-wide media query style.
+@media (width < 640px) {
+  .hide-on-mobile {
+    display: none;
+  }
+}
