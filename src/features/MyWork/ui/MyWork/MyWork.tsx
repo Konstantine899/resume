@@ -2,19 +2,26 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS, getFeaturedProjects, resolveTechIcons } from '@/entities/Project';
+import { PROJECTS, resolveTechIcons } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { Button } from '@/shared/ui/Button';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
+import { Pagination } from '@/shared/ui/Pagination';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { FolderOpen } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import type { MyWorkProps } from '../../model/types/types';
 import styles from './MyWork.module.scss';
+
+// Owner decision (2026-10-08): fixed page sizes for the vitrina window
+// (spec src/features/MyWork). The control lives in the consumer — one
+// consumer means the kit seam is not justified yet.
+const PAGE_SIZES = [5, 10, 50] as const;
 
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
@@ -23,14 +30,28 @@ export const MyWork: React.FC<MyWorkProps> = ({
   'data-testid': testId = 'my-work',
 }) => {
   const { t, language } = useLanguage();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
-  // Recruiter audit P1: only the featured projects surface here. WU-3
-  // (Design C): HomePage feeds the store value through the `content` prop;
-  // the seed fallback keeps bare renders store-free (no useSelector here).
-  const projects = content ?? getFeaturedProjects(PROJECTS);
+  // Owner decision (2026-10-08): the vitrina surfaces ALL projects — the
+  // featured flag no longer gates visibility (spec: src/features/MyWork).
+  // Design C (Projects CRUD WU-3): HomePage feeds the store value through
+  // the `content` prop; the seed fallback keeps bare renders store-free.
+  const projects = content ?? PROJECTS;
+  const totalPages = Math.ceil(projects.length / pageSize);
+  // Container-owned clamp (Pagination pilot rule): a shrinking list derives
+  // back into range during render — no setState-in-effect (react-hooks v7).
+  const safePage = Math.min(page, Math.max(totalPages, 1));
+  const windowRows = projects.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const showControls = totalPages > 1;
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
+  };
+
+  const handlePageSize = (size: number) => {
+    setPageSize(size);
+    setPage(1);
   };
 
   return (
@@ -43,7 +64,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         </AnimatedSection>
 
         <CardGrid columns={1} gap="md">
-          {projects.map((project, index) => (
+          {windowRows.map((project, index) => (
             <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
               <ProjectCard
                 title={project.title}
@@ -63,6 +84,27 @@ export const MyWork: React.FC<MyWorkProps> = ({
             </AnimatedSection>
           ))}
         </CardGrid>
+
+        {/* Pagination (spec features/MyWork): both controls appear only
+            when the list actually spans more than one page. */}
+        {showControls && (
+          <div className={styles.controls}>
+            <div className={styles.sizeGroup} role="group" aria-label={t('perPageLabel')}>
+              {PAGE_SIZES.map((size) => (
+                <Button
+                  key={size}
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={pageSize === size}
+                  onClick={() => handlePageSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+        )}
 
         {/* Empty State (i18n — R-7: no hardcoded copy) */}
         {projects.length === 0 && (

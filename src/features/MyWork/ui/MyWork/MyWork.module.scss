@@ -41,3 +41,35 @@
 
   @include text-lg;
 }
+
+// ============================================
+
+// PAGINATION CONTROLS ROW
+
+// ============================================
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-6;
+}
+
+// ============================================
+
+// PAGE SIZE BUTTON GROUP
+
+// ============================================
+
+.sizeGroup {
+  display: flex;
+  gap: $spacing-1;
+
+  // Active size emphasis — (0,2,0) beats the kit Button class (0,1,0).
+  [aria-pressed='true'] {
+    color: var(--color-text-primary);
+    background: var(--color-accent-subtle);
+  }
+}

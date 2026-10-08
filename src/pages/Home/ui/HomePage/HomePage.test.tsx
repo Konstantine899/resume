@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
 import { SKILLS_DATA } from '@/entities/Skill';
-import { getFeaturedProjects, PROJECTS } from '@/entities/Project';
+import { PROJECTS } from '@/entities/Project';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { createAboutSeed, persistAboutContent, removeAboutContent } from '@/features/AdminAbout';
@@ -137,16 +137,16 @@ describe('HomePage: Contact content wiring (WU-4)', () => {
   });
 });
 
-// Projects CRUD WU-3 (plan §11, case 5): Design C — pages/Home is the only
-// layer that reads the myWork slice, the vitrina receives the featured
-// projects as a prop and stays store-free (its 3 bare renders stay green).
+// MyWork pagination (spec src/features/MyWork, 2026-10-08): Design C —
+// pages/Home is the only layer that reads the myWork slice, the vitrina
+// receives ALL projects as a prop and stays store-free.
 describe('HomePage: MyWork content wiring (WU-3)', () => {
   afterEach(() => {
     removeProjects();
     vi.clearAllMocks();
   });
 
-  it('passes selectFeaturedProjects from the store into MyWork', () => {
+  it('passes ALL projects from the store into MyWork (not just featured)', () => {
     vi.mocked(MyWork).mockClear();
 
     render(renderHome(<HomePage />));
@@ -154,9 +154,9 @@ describe('HomePage: MyWork content wiring (WU-3)', () => {
     const calls = vi.mocked(MyWork).mock.calls;
     expect(calls.length).toBeGreaterThan(0);
     const content = calls[0]?.[0]?.content;
-    expect(content).toHaveLength(4);
+    expect(content).toHaveLength(PROJECTS.length);
     expect(content?.map((project) => project.title)).toEqual(
-      getFeaturedProjects(PROJECTS).map((project) => project.title)
+      PROJECTS.map((project) => project.title)
     );
   });
 });
