@@ -68,6 +68,18 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
 5. SPEC — единственная копия. Не дублировать в vault / openspec.
 6. Папку `spec/` не заводить заранее — только при старте планирования.
 7. При расхождении SPEC с кодом обновить SPEC и дату `verified`.
+8. Язык: `SPEC.md` и `TODO.md` ВСЕГДА на русском (владелец, 2026-10-08) —
+   включая заголовки секций и прозу; это перекрывает дефолтный English
+   Language Domain Contract для этих двух файлов. Исключение — КЛЮЧИ
+   frontmatter остаются английскими (`status`, `epic`, `issue`, `created`,
+   `verified`, `spec`) — их парсит `scripts/spec-tools.mjs`.
+9. Kit-компоненты: `spec/` живёт в `src/shared/ui/<Name>/spec/` (не только в
+   `features/`) — покрыто `!src/**/spec/**/*.md` в `.gitignore` и сканером
+   `check:spec`/`spec:status` (любой `src/**/spec/SPEC.md`). Для слоя
+   `shared` generator phase A недоступен (`generatorLayers` в
+   `scripts/fsd-layers.json`) — пара создаётся вручную из
+   `scripts/createSlices/templates/spec.mjs`, phase B (`--scaffold`) тоже
+   ручной.
 
 ## Project conventions (strict — all agents MUST follow)
 
