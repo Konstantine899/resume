@@ -1,9 +1,9 @@
 ---
-status: approved
+status: done
 epic:
 issue:
 created: '2026-10-08'
-verified:
+verified: '2026-10-08'
 ---
 
 # SPEC — features/MyWork
