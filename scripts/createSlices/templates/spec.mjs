@@ -9,7 +9,10 @@
  *
  * Backticks in Markdown are written as § and substituted on render — a literal
  * ` inside a JS template literal would have to be escaped dozens of times.
- * Language: English (Language Domain Contract — generated technical artifacts).
+ * Language: Russian — owner decision 2026-10-08 (SPEC.md/TODO.md are ALWAYS
+ * Russian: headings + prose; frontmatter KEYS stay English because
+ * `scripts/spec-tools.mjs` parses them). NOTE: § always renders as a backtick,
+ * so never use a section sign § in prose.
  */
 
 const BACKTICK = String.fromCharCode(96);
@@ -30,7 +33,7 @@ function today() {
  * @returns {string}
  */
 export function specMd(names) {
-  const redux = names.withSlice ? 'yes (§--with-slice§)' : 'no';
+  const redux = names.withSlice ? 'да (§--with-slice§)' : 'нет';
   const planSlice = names.withSlice
     ? [
         '- §model/slices/' + names.camel + 'Slice.ts§',
@@ -50,30 +53,30 @@ export function specMd(names) {
     '',
     '# SPEC — ' + names.layer + '/' + names.name,
     '',
-    '> Single source of truth for this slice (spec-driven workflow:',
-    '> AGENTS.md § Spec-driven features). Status flow: §draft§ → §approved§ → §done§.',
-    '> §--scaffold§ stays blocked until the frontmatter says §status: approved§.',
+    '> Единственная истина для этого слайса (spec-driven workflow:',
+    '> AGENTS.md, раздел Spec-driven features). Статусы: §draft§ → §approved§ → §done§.',
+    '> §--scaffold§ заблокирован, пока во frontmatter нет §status: approved§.',
     '',
-    '## Goal',
+    '## Цель',
     '',
-    '<!-- What we are building and why — one paragraph. -->',
+    '<!-- Что строим и зачем — один абзац. -->',
     '',
-    '## Context',
+    '## Контекст',
     '',
-    '- Layer: §' + names.layer + '§ (FSD), slice: §' + names.name + '§',
-    '- Redux slice: ' + redux,
-    '- Related slices / dependencies: <!-- e.g. entities/Project -->',
+    '- Слой: §' + names.layer + '§ (FSD), слайс: §' + names.name + '§',
+    '- Redux-слайс: ' + redux,
+    '- Зависимости / соседние слайсы: <!-- например, entities/Project -->',
     '',
-    '## Acceptance criteria',
+    '## Критерии приёмки',
     '',
-    '<!-- A criterion = an observable outcome, not an evaluation.',
-    "     Example: - [ ] wrong password → the message 'Invalid credentials' appears. -->",
+    '<!-- Критерий = наблюдаемый исход, а не оценка.',
+    "     Пример: - [ ] неверный пароль → появляется надпись 'Invalid credentials'. -->",
     '',
-    '- [ ] <!-- replace with observable criteria; set status: approved when done -->',
+    '- [ ] <!-- замените на наблюдаемые критерии; status: approved ставит владелец -->',
     '',
-    '## Plan files',
+    '## Планируемые файлы',
     '',
-    '<!-- Exact paths the §--scaffold§ phase emits; add extra components here as you plan them. -->',
+    '<!-- Точные пути, которые эмитит §--scaffold§ (phase B); новые компоненты дописывайте сюда. -->',
     '',
     '- §index.ts§',
     '- §model/types/types.ts§',
@@ -83,17 +86,17 @@ export function specMd(names) {
     '- §ui/' + names.name + '/' + names.name + '.module.scss§',
     ...planSlice,
     '',
-    '## Non-goals',
+    '## Что не входит',
     '',
-    '- <!-- explicitly out of scope for this slice -->',
+    '- <!-- явно вне области этого слайса -->',
     '',
-    '## Risks',
+    '## Риски',
     '',
-    '- <!-- what can go wrong or invite rework -->',
+    '- <!-- что может пойти не так или повлечь переделку -->',
     '',
-    '## Open questions',
+    '## Открытые вопросы',
     '',
-    '- <!-- decisions the owner still has to make -->',
+    '- <!-- решения, которые ещё за владельцем -->',
     '',
   ];
   return render(lines.join('\n'));
@@ -114,23 +117,23 @@ export function todoMd(names) {
     '',
     '# TODO — ' + names.layer + '/' + names.name,
     '',
-    'Companion to [SPEC.md](./SPEC.md). Burn-down rules: a completed Work unit is',
-    '**deleted**, not checked; one Work unit = one reviewable unit; acceptance criteria',
-    'live in SPEC.md, never here.',
+    'Компаньон к [SPEC.md](./SPEC.md). Правила сгорания: выполненная единица',
+    '**удаляется**, а не отмечается; одна единица = один ревью-коммит; критерии',
+    'приёмки живут в SPEC.md, здесь их нет.',
     '',
-    '## Work units',
+    '## Рабочие единицы',
     '',
-    '- [ ] Fill §SPEC.md§ with observable acceptance criteria; owner sets §status: approved§',
-    '- [ ] Scaffold the code: §npm run generate:slice -- ' +
+    '- [ ] Заполнить §SPEC.md§ наблюдаемыми критериями; §status: approved§ ставит владелец',
+    '- [ ] Заскаффолдить код: §npm run generate:slice -- ' +
       names.layer +
       ' ' +
       names.name +
       ' --scaffold§',
-    '- [ ] Implement §ui/' +
+    '- [ ] Реализовать §ui/' +
       names.name +
       '/' +
       names.name +
-      '.tsx§ per criteria (tests before code where applicable)',
+      '.tsx§ по критериям (тесты до кода, где применимо)',
   ];
   if (names.withSlice) {
     lines.push(
@@ -142,13 +145,13 @@ export function todoMd(names) {
         names.name +
         '/model/slices/' +
         names.camel +
-        "Slice';§ + register it in the reducers map"
+        "Slice';§ + зарегистрировать в карте reducers"
     );
   }
   lines.push(
-    '- [ ] §src/pages/routerConfig.tsx§ / §src/pages/Home/ui/HomePage/HomePage.tsx§: register a route or home section if needed',
-    '- [ ] §src/shared/lib/i18n/locales/en.json§ + §ru.json§: add keys only for user-facing text (none is generated)',
-    '- [ ] §npm run validate§ green; update §verified§ in SPEC.md if the contract drifted',
+    '- [ ] §src/pages/routerConfig.tsx§ / §src/pages/Home/ui/HomePage/HomePage.tsx§: при необходимости зарегистрировать маршрут или секцию главной',
+    '- [ ] §src/shared/lib/i18n/locales/en.json§ + §ru.json§: добавить ключи только для пользовательского текста (генерируется пусто)',
+    '- [ ] §npm run validate§ зелёный; при расхождении контракта обновить §verified§ в SPEC.md',
     ''
   );
   return render(lines.join('\n'));
