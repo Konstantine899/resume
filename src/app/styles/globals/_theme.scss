@@ -50,9 +50,11 @@
   --color-text: var(--color-text-primary);
   --color-text-muted: var(--color-text-tertiary);
 
-  // Text on status fills (buttons) — dark ink on light status colors for AA
-  --color-text-on-success: #0f0f0f;
-  --color-text-on-warning: #0f0f0f;
+  // Text on status fills (buttons) — light-theme status fills are DARK for AA,
+
+  // so the ink flips to white (badge text on *-subtle needs ≥4.5:1 too)
+  --color-text-on-success: #fff;
+  --color-text-on-warning: #fff;
 
   // Brand / Accent
 
@@ -63,20 +65,24 @@
 
   // Semantic / Status
 
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #dc2626;
+  // AA (2026-10-08): badge text 12px on *-subtle over #f5f3f0 needs 4.5:1 —
+
+  // old #10b981/#f59e0b/#dc2626 were 2.03/1.75/3.48. Darkened one full step.
+
+  --color-success: #065f46;
+  --color-warning: #92400e;
+  --color-error: #991b1b;
   --color-info: #2563eb;
-  --color-success-muted: rgb(16 185 129 / 0.5);
-  --color-error-muted: rgb(220 38 38 / 0.5);
-  --color-success-subtle: rgb(16 185 129 / 0.15);
-  --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(220 38 38 / 0.15);
+  --color-success-muted: rgb(6 95 70 / 0.5);
+  --color-error-muted: rgb(153 27 27 / 0.5);
+  --color-success-subtle: rgb(6 95 70 / 0.15);
+  --color-warning-subtle: rgb(146 64 14 / 0.15);
+  --color-error-subtle: rgb(153 27 27 / 0.15);
   --color-accent-subtle: #eff6ff;
   --color-neutral-subtle: rgb(108 117 125 / 0.15);
-  --color-success-hover: #059669;
-  --color-error-hover: #b91c1c;
-  --color-warning-hover: #d97706;
+  --color-success-hover: #064e3b;
+  --color-error-hover: #7f1d1d;
+  --color-warning-hover: #78350f;
   --color-focus-ring: var(--color-accent);
   --color-skeleton: var(--color-surface-secondary);
 
@@ -374,14 +380,18 @@
   --color-accent-light: rgb(244 179 119 / 0.1);
 
   // Status tokens for dark theme
+
+  // AA (2026-10-08): error #f87171 = 4.27:1 on its own *-subtle (needs 4.5) —
+
+  // lightened to red-300 (6.2:1). success/warning already pass (5.0/5.2).
   --color-success: #22c55e;
   --color-warning: #f59e0b;
-  --color-error: #f87171;
+  --color-error: #fca5a5;
   --color-success-muted: rgb(34 197 94 / 0.5);
-  --color-error-muted: rgb(248 113 113 / 0.5);
+  --color-error-muted: rgb(252 165 165 / 0.5);
   --color-success-subtle: rgb(34 197 94 / 0.15);
   --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(248 113 113 / 0.15);
+  --color-error-subtle: rgb(252 165 165 / 0.15);
   --color-accent-subtle: rgb(244 179 119 / 0.15);
   --color-neutral-subtle: rgb(108 117 125 / 0.15);
 
@@ -506,13 +516,13 @@
   --color-accent-hover: #1d4ed8;
   --color-accent-light: #eff6ff;
 
-  // Status tokens for light theme
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #dc2626;
-  --color-success-subtle: rgb(16 185 129 / 0.15);
-  --color-warning-subtle: rgb(245 158 11 / 0.15);
-  --color-error-subtle: rgb(220 38 38 / 0.15);
+  // Status tokens for light theme (kept in sync with :root — resume-light-aa)
+  --color-success: #065f46;
+  --color-warning: #92400e;
+  --color-error: #991b1b;
+  --color-success-subtle: rgb(6 95 70 / 0.15);
+  --color-warning-subtle: rgb(146 64 14 / 0.15);
+  --color-error-subtle: rgb(153 27 27 / 0.15);
   --color-accent-subtle: #eff6ff;
   --color-neutral-subtle: rgb(108 117 125 / 0.15);
 
@@ -555,9 +565,9 @@
   --color-accent-muted: rgb(37 99 235 / 0.5);
   --color-focus-ring: var(--color-accent);
 
-  // Text on status fills (light theme) — dark ink keeps AA on light status colors
-  --color-text-on-success: #0f0f0f;
-  --color-text-on-warning: #0f0f0f;
+  // Text on status fills (light theme) — dark fills need white ink (see :root)
+  --color-text-on-success: #fff;
+  --color-text-on-warning: #fff;
 
   // Backward-compatible aliases
   --background: #f5f3f0;
