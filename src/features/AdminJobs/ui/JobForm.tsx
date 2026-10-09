@@ -14,7 +14,9 @@
 //   textarea cannot round-trip the string[] shape (R-6).
 // - technologies: a chip editor capped at 15 unique entries (§7).
 // - employmentType / level: native <select> over the entity enums (R-9);
-//   dates: native <input type="date"> (no kit DatePicker exists).
+// - dates: kit DatePicker (WU-4 pilot) — ISO in the form state, dd.mm.yyyy
+//   display; minDate(endDate) = startDate is a UX bound, the zod schema
+//   remains the only validator (A7 — no Date objects in the UI layer).
 //
 // Invariants: persist BEFORE dispatch (§3) — persist failure toasts
 // adminJobPersistError and the form keeps its values; ALL copy is i18n.
@@ -23,6 +25,7 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { DatePicker } from '@/shared/ui/DatePicker';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
@@ -306,42 +309,27 @@ export const JobForm: React.FC<JobFormProps> = ({
 
       <div className={styles.dateRow}>
         <div className={styles.field}>
-          <label className={styles.dateLabel} htmlFor="job-form-start">
-            {t('adminJobStartDate')}
-          </label>
-          <input
-            id="job-form-start"
-            type="date"
-            className={styles.dateInput}
-            aria-invalid={errors.startDate ? true : undefined}
-            value={values.startDate ?? ''}
-            {...register('startDate')}
+          {/* WU-4 pilot: kit DatePicker instead of a native <input type="date">.
+              Boundary value stays the ISO string (plan A7/OPEN-4). */}
+          <DatePicker
+            label={t('adminJobStartDate')}
+            value={values.startDate || null}
+            onChange={(iso) => setValue('startDate', iso ?? '', { shouldDirty: true })}
+            error={message(errors.startDate)}
+            clearable
           />
-          {errors.startDate && (
-            <Paragraph asChild theme="error" size="s">
-              <span role="alert">{t(message(errors.startDate) ?? 'adminJobErrStartDate')}</span>
-            </Paragraph>
-          )}
         </div>
 
         <div className={styles.field}>
-          <label className={styles.dateLabel} htmlFor="job-form-end">
-            {t('adminJobEndDate')}
-          </label>
-          <input
-            id="job-form-end"
-            type="date"
-            className={styles.dateInput}
+          <DatePicker
+            label={t('adminJobEndDate')}
+            value={values.endDate || null}
+            onChange={(iso) => setValue('endDate', iso ?? '', { shouldDirty: true })}
+            error={message(errors.endDate)}
+            minDate={values.startDate || undefined}
             disabled={values.current === true}
-            aria-invalid={errors.endDate ? true : undefined}
-            value={values.endDate ?? ''}
-            {...register('endDate')}
+            clearable
           />
-          {errors.endDate && (
-            <Paragraph asChild theme="error" size="s">
-              <span role="alert">{t(message(errors.endDate) ?? 'adminJobErrEndDate')}</span>
-            </Paragraph>
-          )}
         </div>
       </div>
 

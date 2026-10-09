@@ -170,6 +170,42 @@ describe('JobForm', () => {
     expect(endDate).toBeDisabled();
   });
 
+  // ---- WU-4: kit DatePicker pilot -------------------------------------
+
+  it('renders both date fields as kit DatePickers (calendar triggers)', () => {
+    render(<JobForm />);
+    expect(screen.getAllByRole('button', { name: 'calendarOpen' })).toHaveLength(2);
+  });
+
+  it('disables the endDate calendar trigger while current is checked (A6)', () => {
+    render(<JobForm />);
+    const triggers = screen.getAllByRole('button', { name: 'calendarOpen' });
+    expect(triggers[1]).toBeEnabled();
+
+    fireEvent.click(screen.getByLabelText('adminJobCurrent'));
+    expect(triggers[1]).toBeDisabled();
+  });
+
+  it('bounds the endDate calendar with minDate = startDate', () => {
+    render(<JobForm />);
+    // First day of NEXT month: every day of the current-month view is
+    // earlier than minDate → the whole grid must be aria-disabled.
+    const next = new Date();
+    next.setDate(1);
+    next.setMonth(next.getMonth() + 1);
+    const iso = `${next.getFullYear()}-${`${next.getMonth() + 1}`.padStart(2, '0')}-01`;
+    fireEvent.change(screen.getByLabelText('adminJobStartDate'), { target: { value: iso } });
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'calendarOpen' })[1] as HTMLElement);
+    // Visible cells = only the in-month days (padding is aria-hidden); the
+    // current-month view is entirely before the first of NEXT month.
+    const cells = screen.getAllByRole('gridcell');
+    expect(cells.length).toBeGreaterThanOrEqual(28);
+    for (const cell of cells) {
+      expect(cell).toHaveAttribute('aria-disabled', 'true');
+    }
+  });
+
   it('creates: persist FIRST, then dispatch, toast, reset', async () => {
     render(<JobForm />);
     fillValidForm();
