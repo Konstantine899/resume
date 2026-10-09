@@ -268,6 +268,179 @@ describe('Calendar', () => {
     });
   });
 
+  describe('Drill-down views (day → month → decade)', () => {
+    it('клик по шапке переводит в вид месяцев: 12 кнопок месяцев, без day-grid', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+
+      expect(screen.queryByRole('grid')).toBeNull();
+      const monthButtons = screen
+        .getAllByRole('button')
+        .filter((b) => /^calendarMonth/.test(b.textContent ?? ''));
+      expect(monthButtons).toHaveLength(12);
+    });
+
+    it('шапка в месячном виде — кнопка «год», кликом уходит в декаду', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      const yearHeader = screen.getByRole('button', { name: /calendarSelectYear/ });
+      expect(yearHeader).toHaveTextContent('2026');
+
+      await user.click(yearHeader);
+      expect(screen.getByText('2020–2029')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /calendarSelectYear/ })).toBeNull();
+    });
+
+    it('декада рендерит 10 кнопок лет; выбор года открывает месяцы этого года, месяц сохраняется', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-03-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: /calendarSelectYear/ }));
+
+      const yearButtons = screen
+        .getAllByRole('button')
+        .filter((b) => /^\d{4}$/.test(b.textContent ?? ''));
+      expect(yearButtons).toHaveLength(10);
+
+      await user.click(screen.getByRole('button', { name: '2024' }));
+
+      // Месячный вид 2024-го; март (сохранённый месяц) помечен и получает фокус.
+      const march = screen.getByRole('button', { name: 'calendarMonthMarch' });
+      expect(march).toHaveAttribute('data-current', 'true');
+      expect(march).toHaveFocus();
+    });
+
+    it('клик по месяцу возвращает в дни этого месяца и ставит фокус на roving-ячейку', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: 'calendarMonthMarch' }));
+
+      expect(screen.getByText('calendarMonthMarch 2026')).toBeInTheDocument();
+      expect(getDayCell(15)).toHaveFocus();
+    });
+
+    it('стрелки в месячном виде сдвигают год ±1', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+
+      await user.click(screen.getByRole('button', { name: 'calendarPrevYear' }));
+      expect(screen.getByRole('button', { name: /calendarSelectYear/ })).toHaveTextContent('2025');
+
+      await user.click(screen.getByRole('button', { name: 'calendarNextYear' }));
+      await user.click(screen.getByRole('button', { name: 'calendarNextYear' }));
+      expect(screen.getByRole('button', { name: /calendarSelectYear/ })).toHaveTextContent('2027');
+    });
+
+    it('стрелки в декаде сдвигают ±10 лет', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: /calendarSelectYear/ }));
+
+      await user.click(screen.getByRole('button', { name: 'calendarPrevDecade' }));
+      expect(screen.getByText('2010–2019')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'calendarNextDecade' }));
+      await user.click(screen.getByRole('button', { name: 'calendarNextDecade' }));
+      expect(screen.getByText('2030–2039')).toBeInTheDocument();
+    });
+
+    it('Enter на шапке поднимает уровень и фокус уходит на текущий месяц', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      screen.getByRole('button', { name: /calendarSelectMonth/ }).focus();
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByRole('button', { name: 'calendarMonthJune' })).toHaveFocus();
+    });
+
+    it('Enter на кнопке месяца выбирает её (нативная кнопка)', async () => {
+      const user = userEvent.setup();
+      render(<Calendar value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      screen.getByRole('button', { name: 'calendarMonthMarch' }).focus();
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText('calendarMonthMarch 2026')).toBeInTheDocument();
+    });
+
+    it('полный путь: декада → год → месяц → день вызывает onChange', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(<Calendar value={null} onChange={onChange} />);
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: /calendarSelectYear/ }));
+      await user.click(screen.getByRole('button', { name: '2024' }));
+      await user.click(screen.getByRole('button', { name: 'calendarMonthMarch' }));
+      await user.click(screen.getByRole('gridcell', { name: /^20 calendarMonthMarch/ }));
+
+      expect(onChange).toHaveBeenCalledWith('2024-03-20');
+    });
+
+    it('месяцы без доступных дней — aria-disabled и не выбираются кликом', async () => {
+      const user = userEvent.setup();
+      render(
+        <Calendar value={null} onChange={vi.fn()} minDate="2026-06-10" maxDate="2026-06-20" />
+      );
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+
+      const january = screen.getByRole('button', { name: 'calendarMonthJanuary' });
+      expect(january).toHaveAttribute('aria-disabled', 'true');
+      await user.click(january);
+      expect(screen.queryByRole('grid')).toBeNull();
+
+      expect(screen.getByRole('button', { name: 'calendarMonthJune' })).not.toHaveAttribute(
+        'aria-disabled'
+      );
+    });
+
+    it('годы без доступных дней — aria-disabled', async () => {
+      const user = userEvent.setup();
+      render(
+        <Calendar value={null} onChange={vi.fn()} minDate="2026-06-10" maxDate="2026-06-20" />
+      );
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: /calendarSelectYear/ }));
+
+      expect(screen.getByRole('button', { name: '2025' })).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('button', { name: '2026' })).not.toHaveAttribute('aria-disabled');
+      expect(screen.getByRole('button', { name: '2027' })).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('навигационные клики не всплывают (стоп для поповера), выбор дня — всплывает', async () => {
+      const user = userEvent.setup();
+      const outerClick = vi.fn();
+      render(
+        <div onClick={outerClick}>
+          <Calendar value="2026-06-15" onChange={vi.fn()} />
+        </div>
+      );
+
+      await user.click(screen.getByRole('button', { name: 'calendarPrevMonth' }));
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      await user.click(screen.getByRole('button', { name: 'calendarMonthMarch' }));
+      expect(outerClick).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('gridcell', { name: /^20 calendarMonthMarch/ }));
+      expect(outerClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('Month-crossing edge cases', () => {
     it('PageDown с 31 янв → февраль невисокосного: фокус зажат на 28-м', async () => {
       const user = userEvent.setup();

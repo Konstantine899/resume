@@ -77,6 +77,40 @@ describe('DatePicker', () => {
       expect(onChange).toHaveBeenCalledWith('2026-06-20');
       expect(screen.queryByRole('grid')).toBeNull();
     });
+
+    it('навигация по месяцам (chevron) НЕ закрывает поповер — предсуществующий баг', async () => {
+      const user = userEvent.setup();
+      render(<DatePicker value="2026-06-15" onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: 'calendarOpen' }));
+      await user.click(screen.getByRole('button', { name: 'calendarPrevMonth' }));
+
+      expect(screen.getByRole('grid')).toBeInTheDocument();
+      expect(screen.getByText('calendarMonthMay 2026')).toBeInTheDocument();
+    });
+
+    it('drill-down: выбор месяца/года не закрывает поповер, только день закрывает', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(<DatePicker value={null} onChange={onChange} />);
+
+      await user.click(screen.getByRole('button', { name: 'calendarOpen' }));
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectMonth/ }));
+      expect(screen.getByRole('button', { name: 'calendarMonthJune' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /calendarSelectYear/ }));
+      expect(screen.getByText('2020–2029')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: '2024' }));
+      await user.click(screen.getByRole('button', { name: 'calendarMonthMarch' }));
+      expect(screen.getByRole('grid')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('gridcell', { name: /^20 calendarMonthMarch/ }));
+
+      expect(onChange).toHaveBeenCalledWith('2024-03-20');
+      expect(screen.queryByRole('grid')).toBeNull();
+    });
   });
 
   describe('Manual text input', () => {
