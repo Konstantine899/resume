@@ -239,6 +239,8 @@
   "paginationRange": "Показано {{from}}–{{to}} из {{total}}",
   "calendarPrevMonth": "Предыдущий месяц",
   "calendarNextMonth": "Следующий месяц",
+  "calendarOpen": "Открыть календарь",
+  "calendarInvalidDate": "Неверная дата",
   "calendarWeekday_0": "Вс",
   "calendarWeekday_1": "Пн",
   "calendarWeekday_2": "Вт",

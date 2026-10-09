@@ -239,6 +239,8 @@
   "paginationRange": "Showing {{from}}–{{to}} of {{total}}",
   "calendarPrevMonth": "Previous month",
   "calendarNextMonth": "Next month",
+  "calendarOpen": "Open calendar",
+  "calendarInvalidDate": "Invalid date",
   "calendarWeekday_0": "Sun",
   "calendarWeekday_1": "Mon",
   "calendarWeekday_2": "Tue",

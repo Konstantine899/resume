@@ -16,3 +16,5 @@ export {
   partsToIso,
   weekdayMondayZero,
 } from './lib/isoDate';
+export type { DatePickerProps } from './ui/DatePicker/DatePicker';
+export { DatePicker } from './ui/DatePicker/DatePicker';
