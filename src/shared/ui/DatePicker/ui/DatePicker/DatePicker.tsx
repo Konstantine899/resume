@@ -29,6 +29,8 @@ export interface DatePickerProps {
   error?: string;
   /** Renders the clear button; clear fires onChange(null). */
   clearable?: boolean;
+  /** Disables the input, the clear button and the calendar trigger. */
+  disabled?: boolean;
   /** Extra class for the root element. */
   className?: string;
 }
@@ -61,6 +63,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   label,
   error,
   clearable = false,
+  disabled = false,
   className = '',
 }) => {
   const { t } = useLanguage();
@@ -100,7 +103,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   return (
     <div className={classNames(styles.datePicker, className)}>
-      <Popover.Provider closeOnContentClick closeOnEsc closeOnClickOutside>
+      <Popover.Provider closeOnContentClick closeOnEsc closeOnClickOutside disabled={disabled}>
         <div className={styles.row}>
           <Input
             value={text}
@@ -109,6 +112,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             error={error ?? (invalid ? t('calendarInvalidDate') : undefined)}
             clearable={clearable}
             onClear={clearable ? () => onChange(null) : undefined}
+            disabled={disabled}
             fullWidth
             showCounter={false}
             inputMode="numeric"
@@ -117,6 +121,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <Popover.Trigger
             as="button"
             type="button"
+            disabled={disabled}
             aria-label={t('calendarOpen')}
             className={styles.trigger}
           >
