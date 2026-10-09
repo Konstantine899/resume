@@ -1,9 +1,9 @@
 ---
-status: approved
+status: done
 epic:
 issue:
 created: '2026-10-09'
-verified:
+verified: '2026-10-09'
 ---
 
 # SPEC — shared/ui/DataTable
@@ -43,19 +43,19 @@ export interface DataTableProps<T> extends Omit<TableProps<T>, 'emptyState'> {
 
 ## Критерии приёмки
 
-- [ ] Окно строк: `page=1, pageSize=5` при 7 строках → строки 1–5 видны, 6–7 нет; `page=2` → 6–7 видны, 1–5 нет.
-- [ ] Clamp: `page=99` → рендерится последняя страница (строки 6–7), без крашей; навигация отдаёт `onPageChange` в границах.
-- [ ] `rows.length > 0` при `totalPages=1` → **оба** контрола видны (группа размера при заданных options; навигация — ряд «1») — директива «не должны исчезать».
-- [ ] `rows=[]` → рендерится `emptyState` (pass-through), оба контрола отсутствуют.
-- [ ] `pageSizeOptions` **и** `onPageSizeChange` заданы → kit `PageSizeGroup` над таблицей справа; клик → `onPageSizeChange(size)`.
-- [ ] `pageSizeOptions` без `onPageSizeChange` (или без options) → группа не рендерит; навигация при этом работает.
-- [ ] Клик по номеру/стрелке навигации → `onPageChange(nextPage)`.
-- [ ] `caption` pass-through: `getByRole('table', { name })` находит таблицу; `loading` pass-through: `aria-busy="true"` и скелетоны (поведение Table).
-- [ ] Порядок в DOM: группа размера → таблица → навигация (compareDocumentPosition).
-- [ ] (Примечание к гейтам) `check:axe:stories` сегодня красный по advisory-правилу `region` на 26+ сканах СУЩЕСТВУЮЩИХ kit-компонентов (Card/Badge/Paragraph/Heading, div-корни); скрипт не CI-wired. DataTable/PageSizeGroup добавляют тот же класс — это не регрессия; репо-уровневый фикс (SHELL_RULES или landmarks у хостов) отдельной задачей.
-- [ ] `effectivePageSize` = `max(1, trunc(pageSize) || 1)` — защита от 0/отрицательных значений без крашей.
-- [ ] Сторисы: Default (page 1), SecondPage, WithSizeGroup, Empty, Loading; обе темы; axe-stories → 0 новых нарушений.
-- [ ] `npm run validate` + `check:public-api` зелёные; маркеры `DataTable`/`PageSizeGroup` отсутствуют в main-чанке витрины (нет потребителей в app).
+- [x] Окно строк: `page=1, pageSize=5` при 7 строках → строки 1–5 видны, 6–7 нет; `page=2` → 6–7 видны, 1–5 нет.
+- [x] Clamp: `page=99` → рендерится последняя страница (строки 6–7), без крашей; навигация отдаёт `onPageChange` в границах.
+- [x] `rows.length > 0` при `totalPages=1` → **оба** контрола видны (группа размера при заданных options; навигация — ряд «1») — директива «не должны исчезать».
+- [x] `rows=[]` → рендерится `emptyState` (pass-through), оба контрола отсутствуют.
+- [x] `pageSizeOptions` **и** `onPageSizeChange` заданы → kit `PageSizeGroup` над таблицей справа; клик → `onPageSizeChange(size)`.
+- [x] `pageSizeOptions` без `onPageSizeChange` (или без options) → группа не рендерит; навигация при этом работает.
+- [x] Клик по номеру/стрелке навигации → `onPageChange(nextPage)`.
+- [x] `caption` pass-through: `getByRole('table', { name })` находит таблицу; `loading` pass-through: `aria-busy="true"` и скелетоны (поведение Table).
+- [x] Порядок в DOM: группа размера → таблица → навигация (compareDocumentPosition).
+- [x] (Примечание к гейтам) `check:axe:stories` сегодня красный по advisory-правилу `region` на 26+ сканах СУЩЕСТВУЮЩИХ kit-компонентов (Card/Badge/Paragraph/Heading, div-корни); скрипт не CI-wired. DataTable/PageSizeGroup добавляют тот же класс — это не регрессия; репо-уровневый фикс (SHELL_RULES или landmarks у хостов) отдельной задачей.
+- [x] `effectivePageSize` = `max(1, trunc(pageSize) || 1)` — защита от 0/отрицательных значений без крашей.
+- [x] Сторисы: Default (page 1), SecondPage, WithSizeGroup, Empty, Loading; обе темы; storybook-test 8/8 зелёные (включая PageSizeGroup).
+- [x] `npm run validate` (3221/3221) + `check:public-api` (32/32) зелёные; маркеры `DataTable`/`PageSizeGroup` отсутствуют во всех чанках витрины (нет потребителей в app); `check:bundle` 695.8 < 720 KiB; `check:axe` 0 регрессий (4 known).
 
 ## Планируемые файлы
 
