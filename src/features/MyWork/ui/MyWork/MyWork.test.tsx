@@ -52,13 +52,19 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
     for (const project of PROJECTS.slice(0, 5)) {
       expect(screen.queryByText(project.title)).not.toBeInTheDocument();
     }
+
+    // Directive (2026-10-09): a pagination click must not hide the controls.
+    expect(screen.getByRole('group', { name: 'perPageLabel' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 
-  it('hides both controls when the list fits one page', () => {
+  it('keeps both controls when the list fits one page (owner directive 2026-10-09)', () => {
     render(<MyWork content={PROJECTS.slice(0, 5)} />);
 
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
-    expect(screen.queryByRole('group')).not.toBeInTheDocument();
+    // 5 <= 5 -> one page, yet BOTH controls stay: hiding them strands the
+    // user with no way to pick another size (the exact trap the owner hit).
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'perPageLabel' })).toBeInTheDocument();
   });
 
   it('keeps controls hidden for the empty list (empty state only)', () => {
@@ -135,12 +141,17 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
     const group = screen.getByRole('group', { name: 'perPageLabel' });
     fireEvent.click(within(group).getByRole('button', { name: '10' }));
 
-    // 7 <= 10 -> one page: every card back, controls gone (page did NOT stay at 2).
+    // 7 <= 10 -> one page: every card back, page clamped to 1; controls STAY
+    // (owner directive 2026-10-09) — otherwise size 5 would be unreachable.
     for (const project of PROJECTS) {
       expect(screen.getByText(project.title)).toBeInTheDocument();
     }
-    expect(screen.queryByRole('group')).not.toBeInTheDocument();
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+        name: '10',
+      })
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 });
 

@@ -20,15 +20,21 @@ describe('Pagination', () => {
   });
 
   describe('Rendering', () => {
-    it('renders nothing when totalPages <= 1 (plan A3)', () => {
-      const { container } = render(<Pagination page={1} totalPages={1} onPageChange={vi.fn()} />);
-      const { container: emptyContainer } = render(
-        <Pagination page={1} totalPages={0} onPageChange={vi.fn()} />
-      );
+    it('renders nothing when totalPages < 1 (defensive)', () => {
+      const { container } = render(<Pagination page={1} totalPages={0} onPageChange={vi.fn()} />);
 
       expect(container).toBeEmptyDOMElement();
-      expect(emptyContainer).toBeEmptyDOMElement();
       expect(screen.queryByRole('navigation')).toBeNull();
+    });
+
+    it('renders the single-page row when totalPages = 1 (controls must not disappear, owner 2026-10-09)', () => {
+      render(<Pagination page={1} totalPages={1} onPageChange={vi.fn()} />);
+
+      const nav = screen.getByRole('navigation');
+      expect(nav.textContent).toBe('1');
+      expect(screen.getByText('1')).toHaveAttribute('aria-current', 'page');
+      expect(screen.getByLabelText('paginationPrevious')).toBeDisabled();
+      expect(screen.getByLabelText('paginationNext')).toBeDisabled();
     });
 
     it('wraps the row in a labelled navigation landmark', () => {

@@ -45,7 +45,11 @@ export const MyWork: React.FC<MyWorkProps> = ({
   // back into range during render — no setState-in-effect (react-hooks v7).
   const safePage = Math.min(page, Math.max(totalPages, 1));
   const windowRows = projects.slice((safePage - 1) * pageSize, safePage * pageSize);
-  const showControls = totalPages > 1;
+  // Owner directive (2026-10-09): the size group and the pagination must
+  // never disappear on interaction — a size that fits everything on one page
+  // would otherwise strand the user with no way back. Only an empty list
+  // (empty state) hides them.
+  const showControls = projects.length > 0;
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
