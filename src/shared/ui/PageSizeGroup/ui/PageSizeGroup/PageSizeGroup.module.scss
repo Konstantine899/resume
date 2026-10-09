@@ -1,5 +1,7 @@
 // src/shared/ui/PageSizeGroup/ui/PageSizeGroup/PageSizeGroup.module.scss
 
+@use '@/shared/styles/variables' as *;
+
 .sizeGroup {
   display: flex;
   gap: $spacing-1;
