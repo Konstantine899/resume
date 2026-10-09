@@ -14,7 +14,7 @@ import { Pagination } from '@/shared/ui/Pagination';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { FolderOpen } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import type { MyWorkProps } from '../../model/types/types';
 import styles from './MyWork.module.scss';
 
@@ -34,6 +34,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
   const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const sizeLabelId = useId();
 
   // Owner decision (2026-10-08): the vitrina surfaces ALL projects — the
   // featured flag no longer gates visibility (spec: src/features/MyWork).
@@ -85,7 +86,13 @@ export const MyWork: React.FC<MyWorkProps> = ({
             centered at the bottom. Both appear only for multi-page lists. */}
         {showControls && (
           <div className={styles.sizeRow}>
-            <div className={styles.sizeGroup} role="group" aria-label={t('perPageLabel')}>
+            <div className={styles.sizeGroup} role="group" aria-labelledby={sizeLabelId}>
+              {/* Visible caption (owner 2026-10-09): the aria-label alone left
+                  sighted users with a bare «5 10 20» — label and accessible
+                  name share this one i18n string via aria-labelledby. */}
+              <span id={sizeLabelId} className={styles.sizeLabel}>
+                {t('perPageLabel')}
+              </span>
               {PAGE_SIZES.map((size) => (
                 <Button
                   key={size}

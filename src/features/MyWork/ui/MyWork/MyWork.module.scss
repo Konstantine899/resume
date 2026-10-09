@@ -72,6 +72,14 @@
 
 // ============================================
 
+.sizeLabel {
+  align-self: center;
+  margin-right: $spacing-2;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .sizeGroup {
   display: flex;
   gap: $spacing-1;

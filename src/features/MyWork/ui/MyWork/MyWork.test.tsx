@@ -97,6 +97,14 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
 
   // Owner layout directive (2026-10-09): the size selector sits under the
   // section heading (above the cards), pagination stays at the bottom.
+  it('shows a visible caption for the size group (not aria-only, owner 2026-10-09)', () => {
+    render(<MyWork />);
+
+    const group = screen.getByRole('group', { name: 'perPageLabel' });
+    // Sighted users must learn what 5/10/20 do without a screen reader.
+    expect(within(group).getByText('perPageLabel')).toBeInTheDocument();
+  });
+
   it('places the size group above the cards and the pagination below them', () => {
     render(<MyWork />);
 
