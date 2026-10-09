@@ -111,6 +111,21 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
     );
   });
 
+  // Owner directive (2026-10-09): switching pages returns the viewport to
+  // the section top — same target (#work) and CSS offsets as clicking the
+  // Nav anchor link.
+  it('scrolls to the section top on page switch (nav anchor parity)', () => {
+    render(<MyWork />);
+
+    const section = document.getElementById('work');
+    if (!section) throw new Error('section #work missing');
+    const scrollSpy = vi.spyOn(section, 'scrollIntoView');
+
+    fireEvent.click(screen.getByRole('button', { name: 'paginationPage:2' }));
+
+    expect(scrollSpy).toHaveBeenCalledWith({ block: 'start' });
+  });
+
   it('resets to page 1 on size change (no empty page)', () => {
     render(<MyWork />);
 

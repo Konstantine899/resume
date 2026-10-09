@@ -56,6 +56,17 @@ export const MyWork: React.FC<MyWorkProps> = ({
     setPage(1);
   };
 
+  // Owner directive (2026-10-09): a page switch returns the viewport to the
+  // section top — same behavior as clicking the Nav `#work` anchor. That
+  // anchor is a native jump (html `scroll-behavior: smooth` +
+  // `scroll-padding/scroll-margin` offsets, see HomePage.module.scss), so
+  // `behavior` is intentionally omitted here: the default follows the CSS
+  // and stays prefers-reduced-motion aware.
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    document.getElementById('work')?.scrollIntoView({ block: 'start' });
+  };
+
   return (
     <Section size="xl" id="work" className={className} data-testid={testId}>
       <Container size="lg" padding="lg">
@@ -111,7 +122,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
         {/* Owner layout (2026-10-09): pagination centered at the bottom. */}
         {showControls && (
           <div className={styles.paginationRow}>
-            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
         )}
 
