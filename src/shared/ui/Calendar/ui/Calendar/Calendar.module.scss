@@ -1,0 +1,108 @@
+// src/shared/ui/Calendar/ui/Calendar/Calendar.module.scss
+
+// ============================================
+
+// Calendar Component — APG date-grid (plan_kit_calendar WU-1)
+
+// Layout only: the grid is a fixed 7-column table-like box (6 week-rows,
+
+// no layout shift); day cells own the 24×24 target-size floor
+
+// (CALENDAR_CONSTANTS.MIN_TAP_TARGET_PX, WCAG 2.2 SC 2.5.8). All color /
+
+// radius / motion values come from design tokens — no raw hex.
+
+// ============================================
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: max-content;
+  padding: var(--space-2);
+}
+
+.header {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monthLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-0-5);
+}
+
+.week,
+.weekHeader {
+  display: contents;
+}
+
+.weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-6);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-base);
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.daySelected {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-inverse);
+  background: var(--color-accent);
+}
+
+// "Сегодня" — акцентная рамка, чтобы не сливался с выбранным днём.
+.dayToday:not(.daySelected) {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.dayDisabled {
+  color: var(--color-text-quaternary);
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+// Дни соседних месяцев: видимая геометрия, но вне дерева доступности
+
+// (aria-hidden) и без interactivity.
+.dayOutside {
+  color: var(--color-text-quaternary);
+  pointer-events: none;
+}
