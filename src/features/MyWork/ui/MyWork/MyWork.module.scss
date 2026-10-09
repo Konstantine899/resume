@@ -44,16 +44,25 @@
 
 // ============================================
 
-// PAGINATION CONTROLS ROW
+// PAGE SIZE ROW (top-right, above the grid)
 
 // ============================================
 
-.controls {
+.sizeRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-4;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  margin-bottom: $spacing-6;
+}
+
+// ============================================
+
+// PAGINATION ROW (bottom, centered)
+
+// ============================================
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
   margin-top: $spacing-6;
 }
 

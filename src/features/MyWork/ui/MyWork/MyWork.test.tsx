@@ -81,9 +81,33 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
       'aria-pressed',
       'false'
     );
-    expect(within(group).getByRole('button', { name: '50' })).toHaveAttribute(
+    expect(within(group).getByRole('button', { name: '20' })).toHaveAttribute(
       'aria-pressed',
       'false'
+    );
+    // Owner directive (2026-10-09): the old third size 50 is gone.
+    expect(within(group).queryByRole('button', { name: '50' })).not.toBeInTheDocument();
+  });
+
+  // Owner layout directive (2026-10-09): the size selector sits under the
+  // section heading (above the cards), pagination stays at the bottom.
+  it('places the size group above the cards and the pagination below them', () => {
+    render(<MyWork />);
+
+    const group = screen.getByRole('group', { name: 'perPageLabel' });
+    const nav = screen.getByRole('navigation');
+    // Seed has 7 items (asserted in the first test); the default keeps tsc
+    // happy under noUncheckedIndexedAccess without a banned `!` assertion.
+    const [firstProject = { title: '' }] = PROJECTS;
+    const firstCardTitle = screen.getByText(firstProject.title);
+
+    // Size group precedes the grid (DOM order: heading -> group -> cards).
+    expect(
+      group.compareDocumentPosition(firstCardTitle) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
+    // Pagination follows the cards (bottom of the section).
+    expect(firstCardTitle.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(
+      0
     );
   });
 

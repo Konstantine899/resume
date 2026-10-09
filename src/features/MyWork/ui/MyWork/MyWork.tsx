@@ -21,7 +21,9 @@ import styles from './MyWork.module.scss';
 // Owner decision (2026-10-08): fixed page sizes for the vitrina window
 // (spec src/features/MyWork). The control lives in the consumer — one
 // consumer means the kit seam is not justified yet.
-const PAGE_SIZES = [5, 10, 50] as const;
+// Owner revision (2026-10-09): sizes are 5 / 10 / 20 (50 replaced — the
+// "filters by pages" selector lives above the grid, right-aligned).
+const PAGE_SIZES = [5, 10, 20] as const;
 
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
@@ -63,6 +65,27 @@ export const MyWork: React.FC<MyWorkProps> = ({
           </Heading>
         </AnimatedSection>
 
+        {/* Owner layout (2026-10-09): the size selector sits under the
+            heading, right-aligned, above the cards — pagination stays
+            centered at the bottom. Both appear only for multi-page lists. */}
+        {showControls && (
+          <div className={styles.sizeRow}>
+            <div className={styles.sizeGroup} role="group" aria-label={t('perPageLabel')}>
+              {PAGE_SIZES.map((size) => (
+                <Button
+                  key={size}
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={pageSize === size}
+                  onClick={() => handlePageSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <CardGrid columns={1} gap="md">
           {windowRows.map((project, index) => (
             <AnimatedSection key={project.id} animation="fadeUp" delay={index * 100}>
@@ -85,23 +108,9 @@ export const MyWork: React.FC<MyWorkProps> = ({
           ))}
         </CardGrid>
 
-        {/* Pagination (spec features/MyWork): both controls appear only
-            when the list actually spans more than one page. */}
+        {/* Owner layout (2026-10-09): pagination centered at the bottom. */}
         {showControls && (
-          <div className={styles.controls}>
-            <div className={styles.sizeGroup} role="group" aria-label={t('perPageLabel')}>
-              {PAGE_SIZES.map((size) => (
-                <Button
-                  key={size}
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={pageSize === size}
-                  onClick={() => handlePageSize(size)}
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
+          <div className={styles.paginationRow}>
             <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
