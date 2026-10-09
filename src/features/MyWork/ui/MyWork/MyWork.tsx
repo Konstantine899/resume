@@ -14,14 +14,16 @@ import { Pagination } from '@/shared/ui/Pagination';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { FolderOpen } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import type { MyWorkProps } from '../../model/types/types';
 import styles from './MyWork.module.scss';
 
 // Owner decision (2026-10-08): fixed page sizes for the vitrina window
 // (spec src/features/MyWork). The control lives in the consumer — one
 // consumer means the kit seam is not justified yet.
-const PAGE_SIZES = [5, 10, 50] as const;
+// Owner revision (2026-10-09): sizes are 5 / 10 / 20 (50 replaced — the
+// "filters by pages" selector lives above the grid, right-aligned).
+const PAGE_SIZES = [5, 10, 20] as const;
 
 export const MyWork: React.FC<MyWorkProps> = ({
   className = '',
@@ -32,6 +34,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
   const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const sizeLabelId = useId();
 
   // Owner decision (2026-10-08): the vitrina surfaces ALL projects — the
   // featured flag no longer gates visibility (spec: src/features/MyWork).
@@ -43,7 +46,11 @@ export const MyWork: React.FC<MyWorkProps> = ({
   // back into range during render — no setState-in-effect (react-hooks v7).
   const safePage = Math.min(page, Math.max(totalPages, 1));
   const windowRows = projects.slice((safePage - 1) * pageSize, safePage * pageSize);
-  const showControls = totalPages > 1;
+  // Owner directive (2026-10-09): the size group and the pagination must
+  // never disappear on interaction — a size that fits everything on one page
+  // would otherwise strand the user with no way back. Only an empty list
+  // (empty state) hides them.
+  const showControls = projects.length > 0;
 
   const handleProjectClick = (projectId: string) => {
     onProjectClick?.(projectId);
@@ -54,6 +61,17 @@ export const MyWork: React.FC<MyWorkProps> = ({
     setPage(1);
   };
 
+  // Owner directive (2026-10-09): a page switch returns the viewport to the
+  // section top — same behavior as clicking the Nav `#work` anchor. That
+  // anchor is a native jump (html `scroll-behavior: smooth` +
+  // `scroll-padding/scroll-margin` offsets, see HomePage.module.scss), so
+  // `behavior` is intentionally omitted here: the default follows the CSS
+  // and stays prefers-reduced-motion aware.
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    document.getElementById('work')?.scrollIntoView({ block: 'start' });
+  };
+
   return (
     <Section size="xl" id="work" className={className} data-testid={testId}>
       <Container size="lg" padding="lg">
@@ -62,6 +80,33 @@ export const MyWork: React.FC<MyWorkProps> = ({
             {t('myWork')}
           </Heading>
         </AnimatedSection>
+
+        {/* Owner layout (2026-10-09): the size selector sits under the
+            heading, right-aligned, above the cards — pagination stays
+            centered at the bottom. Both appear only for multi-page lists. */}
+        {showControls && (
+          <div className={styles.sizeRow}>
+            <div className={styles.sizeGroup} role="group" aria-labelledby={sizeLabelId}>
+              {/* Visible caption (owner 2026-10-09): the aria-label alone left
+                  sighted users with a bare «5 10 20» — label and accessible
+                  name share this one i18n string via aria-labelledby. */}
+              <span id={sizeLabelId} className={styles.sizeLabel}>
+                {t('perPageLabel')}
+              </span>
+              {PAGE_SIZES.map((size) => (
+                <Button
+                  key={size}
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={pageSize === size}
+                  onClick={() => handlePageSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <CardGrid columns={1} gap="md">
           {windowRows.map((project, index) => (
@@ -85,24 +130,10 @@ export const MyWork: React.FC<MyWorkProps> = ({
           ))}
         </CardGrid>
 
-        {/* Pagination (spec features/MyWork): both controls appear only
-            when the list actually spans more than one page. */}
+        {/* Owner layout (2026-10-09): pagination centered at the bottom. */}
         {showControls && (
-          <div className={styles.controls}>
-            <div className={styles.sizeGroup} role="group" aria-label={t('perPageLabel')}>
-              {PAGE_SIZES.map((size) => (
-                <Button
-                  key={size}
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={pageSize === size}
-                  onClick={() => handlePageSize(size)}
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
-            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+          <div className={styles.paginationRow}>
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
         )}
 

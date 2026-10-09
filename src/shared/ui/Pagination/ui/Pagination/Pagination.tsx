@@ -16,7 +16,9 @@ import styles from './Pagination.module.scss';
  * @remarks
  * - Purely presentational (plan A2): no internal state, no clamp of its own —
  *   `page`/`totalPages` come from the consuming container.
- * - `totalPages <= 1` renders nothing (plan A3).
+ * - `totalPages < 1` renders nothing (defensive); `totalPages = 1` renders
+ *   the full `‹ 1 ›` row with both edges disabled — the control must never
+ *   disappear under the user (owner directive 2026-10-09).
  * - Edges keep prev/next visible but `disabled` (plan A3-bis).
  * - Every user-facing string, including aria-labels, goes through i18n (A4).
  *
@@ -34,7 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  if (totalPages <= 1) {
+  if (totalPages < 1) {
     return null;
   }
 

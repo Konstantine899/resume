@@ -23,7 +23,7 @@ export const buildPageItems = (
   totalPages: number,
   siblings: number
 ): PaginationItem[] => {
-  if (!Number.isFinite(totalPages) || totalPages <= 1) return [];
+  if (!Number.isFinite(totalPages) || totalPages < 1) return [];
 
   const current = Math.min(Math.max(Math.trunc(page) || 1, 1), totalPages);
   const siblingCount = Math.max(Math.trunc(siblings) || 0, 0);

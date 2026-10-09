@@ -61,8 +61,11 @@ describe('buildPageItems', () => {
     expect(render(buildPageItems(2, 5, 1))).toBe('1 2 3 4 5');
   });
 
-  it('returns nothing for a single or empty page range', () => {
-    expect(buildPageItems(1, 1, 1)).toEqual([]);
+  it('returns the single page item for a one-page range (owner directive 2026-10-09)', () => {
+    expect(buildPageItems(1, 1, 1)).toEqual([{ type: 'page', page: 1 }]);
+  });
+
+  it('returns nothing for an empty or invalid page range', () => {
     expect(buildPageItems(1, 0, 1)).toEqual([]);
     expect(buildPageItems(1, -3, 1)).toEqual([]);
   });

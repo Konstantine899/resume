@@ -52,13 +52,19 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
     for (const project of PROJECTS.slice(0, 5)) {
       expect(screen.queryByText(project.title)).not.toBeInTheDocument();
     }
+
+    // Directive (2026-10-09): a pagination click must not hide the controls.
+    expect(screen.getByRole('group', { name: 'perPageLabel' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 
-  it('hides both controls when the list fits one page', () => {
+  it('keeps both controls when the list fits one page (owner directive 2026-10-09)', () => {
     render(<MyWork content={PROJECTS.slice(0, 5)} />);
 
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
-    expect(screen.queryByRole('group')).not.toBeInTheDocument();
+    // 5 <= 5 -> one page, yet BOTH controls stay: hiding them strands the
+    // user with no way to pick another size (the exact trap the owner hit).
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'perPageLabel' })).toBeInTheDocument();
   });
 
   it('keeps controls hidden for the empty list (empty state only)', () => {
@@ -81,10 +87,57 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
       'aria-pressed',
       'false'
     );
-    expect(within(group).getByRole('button', { name: '50' })).toHaveAttribute(
+    expect(within(group).getByRole('button', { name: '20' })).toHaveAttribute(
       'aria-pressed',
       'false'
     );
+    // Owner directive (2026-10-09): the old third size 50 is gone.
+    expect(within(group).queryByRole('button', { name: '50' })).not.toBeInTheDocument();
+  });
+
+  // Owner layout directive (2026-10-09): the size selector sits under the
+  // section heading (above the cards), pagination stays at the bottom.
+  it('shows a visible caption for the size group (not aria-only, owner 2026-10-09)', () => {
+    render(<MyWork />);
+
+    const group = screen.getByRole('group', { name: 'perPageLabel' });
+    // Sighted users must learn what 5/10/20 do without a screen reader.
+    expect(within(group).getByText('perPageLabel')).toBeInTheDocument();
+  });
+
+  it('places the size group above the cards and the pagination below them', () => {
+    render(<MyWork />);
+
+    const group = screen.getByRole('group', { name: 'perPageLabel' });
+    const nav = screen.getByRole('navigation');
+    // Seed has 7 items (asserted in the first test); the default keeps tsc
+    // happy under noUncheckedIndexedAccess without a banned `!` assertion.
+    const [firstProject = { title: '' }] = PROJECTS;
+    const firstCardTitle = screen.getByText(firstProject.title);
+
+    // Size group precedes the grid (DOM order: heading -> group -> cards).
+    expect(
+      group.compareDocumentPosition(firstCardTitle) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
+    // Pagination follows the cards (bottom of the section).
+    expect(firstCardTitle.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(
+      0
+    );
+  });
+
+  // Owner directive (2026-10-09): switching pages returns the viewport to
+  // the section top — same target (#work) and CSS offsets as clicking the
+  // Nav anchor link.
+  it('scrolls to the section top on page switch (nav anchor parity)', () => {
+    render(<MyWork />);
+
+    const section = document.getElementById('work');
+    if (!section) throw new Error('section #work missing');
+    const scrollSpy = vi.spyOn(section, 'scrollIntoView');
+
+    fireEvent.click(screen.getByRole('button', { name: 'paginationPage:2' }));
+
+    expect(scrollSpy).toHaveBeenCalledWith({ block: 'start' });
   });
 
   it('resets to page 1 on size change (no empty page)', () => {
@@ -96,12 +149,17 @@ describe('MyWork: pagination window (spec features/MyWork)', () => {
     const group = screen.getByRole('group', { name: 'perPageLabel' });
     fireEvent.click(within(group).getByRole('button', { name: '10' }));
 
-    // 7 <= 10 -> one page: every card back, controls gone (page did NOT stay at 2).
+    // 7 <= 10 -> one page: every card back, page clamped to 1; controls STAY
+    // (owner directive 2026-10-09) — otherwise size 5 would be unreachable.
     for (const project of PROJECTS) {
       expect(screen.getByText(project.title)).toBeInTheDocument();
     }
-    expect(screen.queryByRole('group')).not.toBeInTheDocument();
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+        name: '10',
+      })
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 });
 
