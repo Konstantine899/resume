@@ -1,0 +1,22 @@
+// src/shared/ui/PageSizeGroup/ui/PageSizeGroup/PageSizeGroup.module.scss
+
+.sizeGroup {
+  display: flex;
+  gap: $spacing-1;
+}
+
+.sizeLabel {
+  align-self: center;
+  margin-right: $spacing-2;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+// Active size emphasis — (0,2,0) beats the kit Button class (0,1,0).
+
+// Ported verbatim from the MyWork inline control (owner-approved visual).
+.sizeButton[aria-pressed='true'] {
+  color: var(--color-text-primary);
+  background: var(--color-accent-subtle);
+}
