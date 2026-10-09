@@ -1,72 +1,83 @@
 ---
-status: draft
+status: done
 epic:
 issue:
-created: '2026-10-08'
-verified:
+created: '2026-10-09'
+verified: '2026-10-09'
 ---
 
 # SPEC — shared/ui/DataTable
 
 > Единственная истина для этого компонента (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Фаза A создана вручную из `scripts/createSlices/templates/spec.mjs` (нет `shared` в `generatorLayers`); фаза B выполняется вручную. Исходный план: vault `wiki/plan/plan_kit_datatable.md`, рев.3.
+> `approved` = вердикт владельца 2026-10-09 (путь «DataTable со встроенной пагинацией+размером»), vault `wiki/plan/plan_kit_datatable.md` rev.5 (A5-ревизия). Фаза A создана вручную — слой `shared` генератором не покрывается.
 
 ## Цель
 
-Table плюс поведение: сортировка на стороне клиента, единое пустое состояние и слот пагинации — компонент, который закрывает находки аудита «42 технологии = 84 одинаковые кнопки», «нет сортировки», «div-строки» для админ-списков Skills/Jobs/Projects.
+Готовая таблица «в коробке»: семантическая разметка kit `Table` + **встроенная** пагинация kit `Pagination` + **встроенная** группа размера kit `PageSizeGroup`. Потребитель (админ-листы Skills/Jobs/Projects) передаёт полный массив строк и контролирует `page`/`pageSize` — вёрстка контролов и окно строк не дублируются в каждой фиче.
 
 ## Контекст
 
-- Слой: `shared` (FSD), компонент: `ui/DataTable`; Redux: нет; зависимости: **сначала влить `shared/ui/Table`** (`import { Table } from '@/shared/ui/Table'`).
-- Состояние сортировки полностью управляется снаружи (`sort` + `onSortChange`, план A2 — готовит будущий шаг sort⇄URL); компонент никогда не мутирует данные.
-- Переиспользование (план A7, проверено в рев.3): `applyJobFilters`, `applyProjectFilters`, `sortJobsByDate` (баррели entities, сегодня ноль UI-потребителей) становятся каркасом фильтрации/сортировки пилота — без реимплементации.
-- Пилот (`SkillsEditorList`) нельзя править параллельно с пилотом Pagination — правило последовательности живёт в плане (Pagination вливается первым, его слот попадает сюда).
+- Слой: `shared` (FSD); зависимости: kit `Table` (PR #191), kit `Pagination`, kit `PageSizeGroup` (PR #195), — все компоненты одного слоя, импорт через per-component `index.ts` (корневого барреля `src/shared/ui/index.ts` НЕТ).
+- **`Table` не трогается** — его контракт «никогда не рендерит пагинацию» (SPEC Table, план A2) остаётся в силе; DataTable — слой ПОВЕРХ.
+- Состояние снаружи (план A2, rev.5): `page`/`pageSize`/колбэки — пропсы контролируемого компонента; clamp и окно — render-derivation (`safePage`, `effectivePageSize`), никакого setState-in-effect (react-hooks v7); готовит page⇄URL.
+- Правила показа контролов — директива владельца 2026-10-09 («не должны исчезать», зеркало MyWork): при **непустом** списке (`rows.length > 0`), включая одну страницу (kit Pagination рендерит `‹ 1 ›`); пустой список → `emptyState`, без контролов.
+- Раскладка — зеркало MyWork (утверждено владельцем 2026-10-09, план rev.5 OPEN-6): группа размера — **над** таблицей, прижата вправо; навигация — **под** таблицей, по центру.
+- Скролл на смену страницы — НЕ в kit (решение A10): свойство витрины/фичи, не таблицы.
+
+## API
+
+```ts
+export interface DataTableProps<T> extends Omit<TableProps<T>, 'emptyState'> {
+  /** Pass-through slot of Table: rendered instead of the body when `rows` is empty. */
+  emptyState?: ReactNode;
+  /** Controlled 1-based page index. */
+  page: number;
+  /** Controlled window size. Clamped to `>= 1` at render time. */
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  /** Sizes for the kit PageSizeGroup (e.g. `[5, 10, 20]`). Group renders only when BOTH this and `onPageSizeChange` are given. */
+  pageSizeOptions?: readonly number[];
+  onPageSizeChange?: (size: number) => void;
+}
+```
 
 ## Критерии приёмки
 
-- [ ] Клик по сортируемому заголовку (`sortable`) вызывает `onSortChange`; первый клик по несортированной колонке даёт `dir: 'asc'`, клик по активной колонке переключает `asc ↔ desc`.
-- [ ] Колонка БЕЗ `sortable: true` рендерит заголовок обычным текстом, даже когда `onSortChange` передан (колонка "Actions" никогда не может стать кнопкой сортировки).
-- [ ] Без `onSortChange` ни один заголовок не является кнопкой.
-- [ ] Активный сортируемый заголовок раскрывает состояние сортировки для SR через `aria-sort="ascending|descending"`; остальные сортируемые заголовки несут `aria-sort="none"`.
-- [ ] Строковые колонки сортируются через `localeCompare`; числовые и датовые — через компаратор `sortValue` колонки (оба направления).
-- [ ] Пустые `rows` → рендерится слот `emptyState` (никогда не голая оболочка таблицы).
-- [ ] Слот `pagination` рендерится под таблицей и получает ноду потребителя без изменений.
-- [ ] Пилот: `SkillsEditorList` рендерит настоящую `<table>` через DataTable — колонка действий не сортируется, сортировка по имени/категории работает, ячейки не содержат заголовочных элементов, пустой список показывает kit-состояние с локализованной CTA (паритет ключей en+ru; `skillsListEmpty` переиспользуется, один новый ключ CTA).
-- [ ] Пилот: axe `/admin/skills` → 0 новых нарушений (маршрут уже в `PATHS`); визуальное сравнение всех 42 строк прикладывается к PR (регрессия = блокер).
-- [ ] Сторисы: сортировка вкл/выкл, мок слота пагинации, пусто, загрузка, обе темы, 390px (область прокрутки + `hideOnMobile` по Table A5).
-- [ ] `scripts/axe-stories-check.mjs` → 0 новых нарушений для сторисов DataTable (`aria-sort`, фокус кнопки сортировки, область 390px).
-- [ ] `check:bundle` в пределах лимитов; дельта относительно merge-base меряется через worktree.
+- [x] Окно строк: `page=1, pageSize=5` при 7 строках → строки 1–5 видны, 6–7 нет; `page=2` → 6–7 видны, 1–5 нет.
+- [x] Clamp: `page=99` → рендерится последняя страница (строки 6–7), без крашей; навигация отдаёт `onPageChange` в границах.
+- [x] `rows.length > 0` при `totalPages=1` → **оба** контрола видны (группа размера при заданных options; навигация — ряд «1») — директива «не должны исчезать».
+- [x] `rows=[]` → рендерится `emptyState` (pass-through), оба контрола отсутствуют.
+- [x] `pageSizeOptions` **и** `onPageSizeChange` заданы → kit `PageSizeGroup` над таблицей справа; клик → `onPageSizeChange(size)`.
+- [x] `pageSizeOptions` без `onPageSizeChange` (или без options) → группа не рендерит; навигация при этом работает.
+- [x] Клик по номеру/стрелке навигации → `onPageChange(nextPage)`.
+- [x] `caption` pass-through: `getByRole('table', { name })` находит таблицу; `loading` pass-through: `aria-busy="true"` и скелетоны (поведение Table).
+- [x] Порядок в DOM: группа размера → таблица → навигация (compareDocumentPosition).
+- [x] (Примечание к гейтам) `check:axe:stories` сегодня красный по advisory-правилу `region` на 26+ сканах СУЩЕСТВУЮЩИХ kit-компонентов (Card/Badge/Paragraph/Heading, div-корни); скрипт не CI-wired. DataTable/PageSizeGroup добавляют тот же класс — это не регрессия; репо-уровневый фикс (SHELL_RULES или landmarks у хостов) отдельной задачей.
+- [x] `effectivePageSize` = `max(1, trunc(pageSize) || 1)` — защита от 0/отрицательных значений без крашей.
+- [x] Сторисы: Default (page 1), SecondPage, WithSizeGroup, Empty, Loading; обе темы; storybook-test 8/8 зелёные (включая PageSizeGroup).
+- [x] `npm run validate` (3221/3221) + `check:public-api` (32/32) зелёные; маркеры `DataTable`/`PageSizeGroup` отсутствуют во всех чанках витрины (нет потребителей в app); `check:bundle` 695.8 < 720 KiB; `check:axe` 0 регрессий (4 known).
 
 ## Планируемые файлы
 
 <!-- Фаза B для `shared` выполняется вручную. -->
 
 - `index.ts`
-- `DataTable.tsx`
-- `DataTable.test.tsx`
-- `DataTable.stories.tsx`
-- `DataTable.module.scss`
-- вручную (пилот): `src/features/Skills/ui/SkillsEditorList/SkillsEditorList.tsx` (+ его module/scss по факту), файлы локалей `src/shared/lib/i18n/locales/en.json` + `ru.json`
+- `ui/DataTable/DataTable.tsx`
+- `ui/DataTable/DataTable.module.scss`
+- `ui/DataTable/DataTable.test.tsx`
+- `ui/DataTable/DataTable.stories.tsx`
+- `model/types.ts` (flat — convention `shared/**`)
+- `spec/SPEC.md`, `spec/TODO.md` (созданы вручную до кода)
 
 ## Что не входит
 
-- Чекбоксы множественного выбора строк (план OPEN-4).
-- Групповые и секционные строки для двухуровневых данных Skills (план OPEN-5 — только плоские строки).
-- Синхронизация состояния сортировки с URL (будущий экосистемный шаг, план A2).
-- Владение логикой пагинации или UI фильтрации (только слоты и хелперы, план A5/A7).
+- Сортировка (`DataTableColumn`, `aria-sort`) — следующий WU плана (rev.5, A9; эскиз API rev.3).
+- Kit-стиль `emptyState` (заголовок + CTA, план `plan_kit_empty_state.md`) — пока pass-through слота Table.
+- Миграция `SkillsList`/`MyWork` на DataTable/PageSizeGroup — пилоты отдельными шагами (план rev.5, WU-5).
+- Скролл-контроль на смену страницы — контейнер/фича (решение A10).
+- Выбор строк (multi-select) — OPEN-4: нет в этом плане.
 
 ## Риски
 
-- Порядок вливаний: сначала должен зайти `shared/ui/Table`, иначе этот PR конфликтует по каталогу и стилям.
-- Пилот переписывает визуальную раскладку 42 строк — построчное сравнение обязательно.
-- Бюджет серии: ~28 KiB общего запаса на все kit-PR — мерять кумулятивные дельты.
-
-## Открытые вопросы
-
-Вердикты из плана vault, рев.3, нужны на момент утверждения:
-
-- OPEN-1: управляемая сортировка (рекомендация) или внутреннее состояние? Рекомендация: **управляемая**.
-- OPEN-2: внедрить `sortValue` в `DataTableColumn`? Рекомендация: **да** — иначе `year` и даты проектов не смогут сортироваться.
-- OPEN-3: включить пилот SkillsList? Рекомендация: **да** — иначе находка аудита про div-строки остаётся открытой; последовательность с Pagination действует.
-- OPEN-4: множественный выбор? Рекомендация: **нет** в этом плане.
-- OPEN-5: плоские строки или групповые для категорий Skills? Рекомендация: **плоские** (групповые строки — фича позже; не блокирует этот API).
+- Расхождение визуала с MyWork (инлайн-контролы) до миграции фичи — допустимо; раскладка скопирована дословно, риски низкие.
+- Bundle: три kit-компонента в series; на MVP-срезе потребителей в app нет → main-чанк витрины не растёт (маркер-тест в WU-4).

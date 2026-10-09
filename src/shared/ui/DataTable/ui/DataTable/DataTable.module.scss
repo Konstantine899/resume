@@ -1,0 +1,21 @@
+// src/shared/ui/DataTable/ui/DataTable/DataTable.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+// Layout mirrors the approved MyWork arrangement (plan rev.5 OPEN-6,
+
+// owner 2026-10-09): size group above the table, right-aligned;
+
+// navigation below, centered.
+
+.sizeRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-6;
+}
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-6;
+}
