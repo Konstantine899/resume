@@ -265,6 +265,29 @@ describe('SkillsEditorList', () => {
     expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'React');
   });
 
+  // WU-4: pin the placement map after WU-5 — section header / block header / row column.
+  it('places every action per the placement map (section / block header / row column)', () => {
+    renderList();
+
+    // Section header: «Добавить категорию» + reset live next to the list h2 —
+    // NOT inside a category block (OPEN-3 keeps «Добавить технологию» out of here).
+    const section = screen.getByTestId('skills-editor-list');
+    expect(within(section).getAllByRole('button', { name: 'skillsAddCategory' })).toHaveLength(1);
+    expect(within(section).getByRole('button', { name: 'skillsReset' })).toBeInTheDocument();
+
+    // Block header (OPEN-3): exactly Edit category / Add technology / Delete category.
+    const blockButtons = categoryActions('frontend')
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(blockButtons).toEqual(['skillsEditCategory', 'skillsAddTechnology', 'skillsDelete']);
+
+    // Row actions column: ONLY that technology's Edit + Delete (SPEC) — no add.
+    const rowButtons = techActions('React')
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(rowButtons).toEqual(['skillsEditTechnology', 'skillsDelete']);
+  });
+
   it('deletes a technology through Modal confirm: persist BEFORE dispatch + toast', async () => {
     const calls: string[] = [];
     persistSpy.mockImplementation(() => {
