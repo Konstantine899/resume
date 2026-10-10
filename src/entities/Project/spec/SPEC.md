@@ -25,47 +25,47 @@ verified:
 - Хранилище данных — localStorage (бэкенда нет) ⇒ сид-файлы «лежат в проекте» (git), а файл, выбранный в браузере, в git попасть **физически не может** — отсюда OPEN-6 (куда уходят байты при загрузке с компьютера).
 - **Архитектурный конвейер (единственный рабочий вариант):** источник в `src/shared/assets/images/projects/` (под git) → `vite-plugin-static-copy` кладёт в `public/images/projects/` на dev и на сборке. Альтернативы отвергнуты: положить в `public/` напрямую нельзя (сборка пустит `public/` — доказано опытно), импорт из `src` нельзя (в `[name].[hash].[ext]` путь переколлится).
 - В `public/` уже лежит результат такой же копии — `public/locales` (прецедент `buildPlugins.ts`); SSOT путей — тип `BuildPath` (`config/vite/types/config.ts`) + сборка в `vite.config.ts` + фикстуры в `config/vite/__tests__/*`.
-- **FileUpload:** в `shared/ui` компоненты нет (reuse-first проверено 2026-10-10); есть сирота-хук `shared/ui/Image/lib/hooks/useImageDragDrop.ts` — File API, валидация, FileReader → dataURL, **0 прод-потребителей**, хардкод английской строки `'Failed to read file'` (нарушение i18n-first/A2) — материал для компонента.
+- **FileUpload:** компонента в `shared/ui` не было (reuse-first проверено 2026-10-10); материалом послужил сирота-хук `shared/ui/Image/lib/hooks/useImageDragDrop.ts` (File API, FileReader → dataURL, **0 прод-потребителей**, хардкод английской строки) — перенесён в `shared/ui/FileUpload/lib/` и переписан без собственных строк (A2, коды ошибок); старое расположение удалено (WU-4, verified 2026-10-10).
 - Конвенция kit (Select/DataTable/EmptyState/Pagination): компонент идёт **с пилотом**, тестами, сторисами (en+ru, обе темы, инлайн-viewport 390px — встроенный `mobile1` = 320px), записью в каталог `wiki/ui-kit/components-list.md` и гейтом `axe-stories --filter=<Name>` (после новых сторис — со `--build`).
 
 ## Критерии приёмки
 
 ### Схема
 
-- [ ] **Принцип суперсета:** всё правдоподобное, что принимала старая `z.url()`, остаётся валидным, кроме осознанных security-отклонений — иначе `readProjects` молча откатывает весь энвелоп к сиду (факт гидрации, план rev.3 / решение 5).
-- [ ] `image` принимает внутренний путь `/images/projects/foo.webp` (тест schema: `safeParse` → success).
-- [ ] `image` принимает абсолютный `https://…` **и `http://…`** (совместимость: `http://` валиден сегодня; старые данные в localStorage владельца и существующие тест-фикстуры валидны — OPEN-1, вердикт rev.3).
-- [ ] `image` отвергает мусор: `javascript:alert(1)`, `ftp://…`, `file://…`, пустую строку, `not-a-url`; в форме это по-прежнему даёт `projectImageInvalid` (существующий маппинг не меняется).
-- [ ] Протокольно-относительные пути `//host/x.png` **и `/\host/x.png`** отклоняются (вердикт OPEN-2 rev.3: бэкслэш нормализуется браузером в `//` — одного `!startsWith('//')` мало).
-- [ ] `image` принимает `data:image/<mime>;base64,…` со **строгим префиксом** (`image/` обязателен, `data:text/html;base64,…` и «голый» `data:` — нет) и длиной ≤ ≈512K симв (защитный кап); ветка действует всегда (суперсет — вердикт OPEN-6 управляет только пилотом, не схемой).
+- [x] **Принцип суперсета:** всё правдоподобное, что принимала старая `z.url()`, остаётся валидным, кроме осознанных security-отклонений — иначе `readProjects` молча откатывает весь энвелоп к сиду (факт гидрации, план rev.3 / решение 5).
+- [x] `image` принимает внутренний путь `/images/projects/foo.webp` (тест schema: `safeParse` → success).
+- [x] `image` принимает абсолютный `https://…` **и `http://…`** (совместимость: `http://` валиден сегодня; старые данные в localStorage владельца и существующие тест-фикстуры валидны — OPEN-1, вердикт rev.3).
+- [x] `image` отвергает мусор: `javascript:alert(1)`, `ftp://…`, `file://…`, пустую строку, `not-a-url`; в форме это по-прежнему даёт `projectImageInvalid` (существующий маппинг не меняется).
+- [x] Протокольно-относительные пути `//host/x.png` **и `/\host/x.png`** отклоняются (вердикт OPEN-2 rev.3: бэкслэш нормализуется браузером в `//` — одного `!startsWith('//')` мало).
+- [x] `image` принимает `data:image/<mime>;base64,…` со **строгим префиксом** (`image/` обязателен, `data:text/html;base64,…` и «голый» `data:` — нет) и длиной ≤ ≈512K симв (защитный кап); ветка действует всегда (суперсет — вердикт OPEN-6 управляет только пилотом, не схемой).
 
 ### Перенос файлов (сид)
 
-- [ ] 7 файлов сида лежат в источнике `src/shared/assets/images/projects/` и после `npm run build` присутствуют в `public/images/projects/` (сборка не уничтожает их — копия создаётся эмиссией).
-- [ ] В dev-сервере `GET /images/projects/<имя>` отдаёт файл (static-copy dev mode — не только после сборки).
-- [ ] Константы сида указывают `/images/projects/<имя>`; `grep -r "ext.same-assets" src/` → 0 вхождений.
-- [ ] **Тест-страж:** каждый `image` из сида существует как реальный файл источника (`fs.existsSync`) — опечатка или переименование валит тест, а не молча ломает витрину.
-- [ ] Имена файлов — kebab-case/lowercase, расширение сохранено (OPEN-4); размер каждого файла ≤ ~3 MB (OPEN-5).
+- [x] 7 файлов сида лежат в источнике `src/shared/assets/images/projects/` и после `npm run build` присутствуют в `public/images/projects/` (сборка не уничтожает их — копия создаётся эмиссией).
+- [x] В dev-сервере `GET /images/projects/<имя>` отдаёт файл (static-copy dev mode — не только после сборки).
+- [x] Константы сида указывают `/images/projects/<имя>`; `grep -r "ext.same-assets" src/` → 0 вхождений.
+- [x] **Тест-страж:** каждый `image` из сида существует как реальный файл источника (`fs.existsSync`) — опечатка или переименование валит тест, а не молча ломает витрину.
+- [x] Имена файлов — kebab-case/lowercase, расширение сохранено (OPEN-4); размер каждого файла ≤ ~3 MB (OPEN-5).
 
 ### FileUpload (kit + пилот)
 
-- [ ] Компонент по ARCH-1: `src/shared/ui/FileUpload/` (`ui/FileUpload/FileUpload.{tsx,module.scss,test,stories}` + `model/types.ts` + `lib/useImageDragDrop.ts` + barrel `index.ts`).
-- [ ] **A2 — ни одной собственной строки:** лейблы, тексты ошибок и превью-подписи приходят пропсами от потребителя (`t()` формы); тест фиксирует отсутствие хардкода внутри компонента.
-- [ ] `useImageDragDrop` перенесён из `shared/ui/Image` (у него 0 потребителей), английский хардкод `'Failed to read file'` устранён; у `shared/ui/Image` не осталось ссылок на хук.
-- [ ] Поведение: кнопка выбора + drag&drop, превью выбранного; результат — чистый колбэк `onFileSelect(value)`, никакого RHF внутри (форма делает `setValue('image', v, { shouldDirty: true, shouldValidate: true })` — без `shouldValidate` ошибка формы не пересчитается до submit).
-- [ ] **Кодек (OPEN-6=A rev.3):** webp при поддержке, иначе **явный JPEG** — детект `toDataURL('image/webp').startsWith('data:image/webp')`, нет поддержки → повторный ресайз + `image/jpeg` (Safari молча откатывается в PNG, фото-PNG рвёт бюджет); тест: mock `toDataURL` → не-webp → выбран jpeg.
-- [ ] Reject-кейсы: не-изображение; файл сверх лимита (≈400K символов dataURL); **недекодируемое изображение (HEIC и т.п.) — через `img.onerror`** (`file.type` подделывается; arbiter — успех canvas-декода).
-- [ ] **Квота:** тест с mock `localStorage.setItem` → throw `QuotaExceededError` → тост `projectSaveError`, форма не теряет значения (механизм `persistProjects` → `false` закреплён тестом, а не только кодом).
-- [ ] **Доступность:** видимый label/accessible name у input и кнопки; ошибки — `role=alert` + `aria-describedby` (прецедент kit Input); кнопка выбора присутствует всегда — drag не единственный путь (WCAG SC 2.5.7/2.1.1); цели ≥24×24 (SC 2.5.8, прецедент Pagination); статус успеха — `aria-live="polite"`.
-- [ ] Тесты: выбор/перетаскивание → `onFileSelect` с ожидаемым значением; все reject-кейсы (включая onerror); webp-фолбэк; клавиатура/focus; тексты — только от потребителя. Заметка: jsdom не реализует `DataTransfer` — dnd-путь через фейковый объект, основной путь — `input[type=file]`.
-- [ ] Сторисы: en+ru, обе темы, инлайн-viewport 390px; запись в каталог `wiki/ui-kit/components-list.md` (включая сводную таблицу).
-- [ ] Пилот `ProjectForm`: ручное поле URL сохраняется как есть (второй вход, OPEN-7); выбор файла → `setValue('image', …)` → валидация ок → сохранён в стор (тест пилота); новые i18n-ключи — в обе локали + parity-тест.
-- [ ] `axe-stories --filter=FileUpload` — 0 violations.
+- [x] Компонент по ARCH-1: `src/shared/ui/FileUpload/` (`ui/FileUpload/FileUpload.{tsx,module.scss,test,stories}` + `model/types.ts` + `lib/useImageDragDrop.ts` + barrel `index.ts`).
+- [x] **A2 — ни одной собственной строки:** лейблы, тексты ошибок и превью-подписи приходят пропсами от потребителя (`t()` формы); тест фиксирует отсутствие хардкода внутри компонента.
+- [x] `useImageDragDrop` перенесён из `shared/ui/Image` (у него 0 потребителей), английский хардкод `'Failed to read file'` устранён; у `shared/ui/Image` не осталось ссылок на хук.
+- [x] Поведение: кнопка выбора + drag&drop, превью выбранного; результат — чистый колбэк `onFileSelect(value)`, никакого RHF внутри (форма делает `setValue('image', v, { shouldDirty: true, shouldValidate: true })` — без `shouldValidate` ошибка формы не пересчитается до submit).
+- [x] **Кодек (OPEN-6=A rev.3):** webp при поддержке, иначе **явный JPEG** — детект `toDataURL('image/webp').startsWith('data:image/webp')`, нет поддержки → повторный ресайз + `image/jpeg` (Safari молча откатывается в PNG, фото-PNG рвёт бюджет); тест: mock `toDataURL` → не-webp → выбран jpeg.
+- [x] Reject-кейсы: не-изображение; файл сверх лимита (≈400K символов dataURL); **недекодируемое изображение (HEIC и т.п.) — через `img.onerror`** (`file.type` подделывается; arbiter — успех canvas-декода).
+- [x] **Квота:** тест с mock `localStorage.setItem` → throw `QuotaExceededError` → тост `projectSaveError`, форма не теряет значения (механизм `persistProjects` → `false` закреплён тестом, а не только кодом).
+- [x] **Доступность:** видимый label/accessible name у input и кнопки; ошибки — `role=alert` + `aria-describedby` (прецедент kit Input); кнопка выбора присутствует всегда — drag не единственный путь (WCAG SC 2.5.7/2.1.1); цели ≥24×24 (SC 2.5.8, прецедент Pagination); статус успеха — `aria-live="polite"`.
+- [x] Тесты: выбор/перетаскивание → `onFileSelect` с ожидаемым значением; все reject-кейсы (включая onerror); webp-фолбэк; клавиатура/focus; тексты — только от потребителя. Заметка: jsdom не реализует `DataTransfer` — dnd-путь через фейковый объект, основной путь — `input[type=file]`.
+- [x] Сторисы: en+ru, обе темы, инлайн-viewport 390px; запись в каталог `wiki/ui-kit/components-list.md` (включая сводную таблицу).
+- [x] Пилот `ProjectForm`: ручное поле URL сохраняется как есть (второй вход, OPEN-7); выбор файла → `setValue('image', …)` → валидация ок → сохранён в стор (тест пилота); новые i18n-ключи — в обе локали + parity-тест.
+- [x] `axe-stories --filter=FileUpload` — 0 violations.
 
 ### Отображение
 
-- [ ] Витрина: `ProjectCard` получает значение `image` (путь) и отрисовывает background — при ручной проверке в браузере все 7 карточек сида показывают картинку, ни одной битой.
-- [ ] Форма админки: ввод внутреннего пути проходит валидацию и сохраняется в стор (кейс в `ProjectForm.test`); остальные тесты форм/стора зелёны **без правок** (их https-фикстуры совместимы).
+- [x] Витрина: `ProjectCard` получает значение `image` (путь) и отрисовывает background — при ручной проверке в браузере все 7 карточек сида показывают картинку, ни одной битой.
+- [x] Форма админки: ввод внутреннего пути проходит валидацию и сохраняется в стор (кейс в `ProjectForm.test`); остальные тесты форм/стора зелёны **без правок** (их https-фикстуры совместимы).
 
 ### Гейты
 
