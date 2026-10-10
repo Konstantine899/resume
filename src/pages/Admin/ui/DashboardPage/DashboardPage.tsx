@@ -13,6 +13,7 @@ import {
 } from '@/features/AdminDashboard';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { CardGrid } from '@/shared/ui/Card';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -26,7 +27,7 @@ export const DashboardPage: React.FC = () => {
     <div className={styles.dashboard} data-testid="admin-dashboard">
       <Heading level={1}>{t('adminNavDashboard')}</Heading>
       {metrics.length === 0 ? (
-        <p className={styles.empty}>{t('adminDashboardEmpty')}</p>
+        <EmptyState title={t('adminDashboardEmpty')} />
       ) : (
         <CardGrid>
           {metrics.map((metric) => (
