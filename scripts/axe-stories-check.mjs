@@ -53,16 +53,22 @@ const RENDER_SELECTOR = '#storybook-root > *';
 /**
  * Best-practice rules that describe the STORYBOOK DOCUMENT SHELL rather than
  * the component: the story iframe renders a bare `#storybook-root` div — no
- * `<main>` landmark and no `<h1>` — so `landmark-one-main` and
+ * `<main>` landmark and no `<h1>` — so `landmark-one-main`,
  * `page-has-heading-one` fire on EVERY story of EVERY component, always.
- * Scanning an embedded fragment with document-level rules disabled is the
- * standard component-testing setup; suppressing them hides nothing a
- * component can actually fix. Everything else (heading-order,
- * scrollable-region-focusable, color-contrast, cell bindings) stays on.
+ * `region` joined them after a transitive axe-core bump (4.10 → 4.13, unpinned)
+ * started flagging the bare root on every story (verified: EmptyState that
+ * previously passed 16/16 now fails 28/28 identically to a new component) —
+ * same class: the shell lacks the landmark, a kit primitive cannot fix it
+ * without shipping a fake `<main>`. Scanning an embedded fragment with
+ * document-level rules disabled is the standard component-testing setup;
+ * suppressing them hides nothing a component can actually fix. Everything
+ * else (heading-order, scrollable-region-focusable, color-contrast, cell
+ * bindings) stays on.
  */
 const SHELL_RULES = {
   'landmark-one-main': { enabled: false },
   'page-has-heading-one': { enabled: false },
+  region: { enabled: false },
 };
 const THEME_SELECTOR = '[data-theme="%s"]';
 
