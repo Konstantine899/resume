@@ -13,7 +13,8 @@
 // - description: a per-locale bullet editor (add / remove / reorder) — a
 //   textarea cannot round-trip the string[] shape (R-6).
 // - technologies: a chip editor capped at 15 unique entries (§7).
-// - employmentType / level: native <select> over the entity enums (R-9);
+// - employmentType / level: kit Select over the entity enums (R-9,
+//   plan_kit_select);
 // - dates: kit DatePicker (WU-4 pilot) — ISO in the form state, dd.mm.yyyy
 //   display; minDate(endDate) = startDate is a UX bound, the zod schema
 //   remains the only validator (A7 — no Date objects in the UI layer).
@@ -31,6 +32,7 @@ import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Label } from '@/shared/ui/Label';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Select } from '@/shared/ui/Select';
 import { EMPLOYMENT_TYPES, JOB_LEVELS, type Job } from '@/entities/Job';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
@@ -394,25 +396,17 @@ export const JobForm: React.FC<JobFormProps> = ({
 
       <div className={styles.selectRow}>
         <div className={styles.field}>
-          <label className={styles.dateLabel} htmlFor="job-form-employment">
-            {t('adminJobEmploymentType')}
-          </label>
-          <select
+          <Select
             id="job-form-employment"
-            className={styles.select}
+            label={t('adminJobEmploymentType')}
+            options={EMPLOYMENT_TYPES.map((option) => ({ value: option, label: option }))}
             value={values.employmentType ?? 'full-time'}
-            onChange={(event) =>
-              setValue('employmentType', event.target.value as (typeof EMPLOYMENT_TYPES)[number], {
+            onChange={(value) =>
+              setValue('employmentType', value as (typeof EMPLOYMENT_TYPES)[number], {
                 shouldDirty: true,
               })
             }
-          >
-            {EMPLOYMENT_TYPES.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          />
           {errors.employmentType && (
             <Paragraph asChild theme="error" size="s">
               <span role="alert">{t(message(errors.employmentType) ?? 'adminJobErrEnum')}</span>
@@ -421,25 +415,15 @@ export const JobForm: React.FC<JobFormProps> = ({
         </div>
 
         <div className={styles.field}>
-          <label className={styles.dateLabel} htmlFor="job-form-level">
-            {t('adminJobLevel')}
-          </label>
-          <select
+          <Select
             id="job-form-level"
-            className={styles.select}
+            label={t('adminJobLevel')}
+            options={JOB_LEVELS.map((option) => ({ value: option, label: option }))}
             value={values.level ?? 'middle'}
-            onChange={(event) =>
-              setValue('level', event.target.value as (typeof JOB_LEVELS)[number], {
-                shouldDirty: true,
-              })
+            onChange={(value) =>
+              setValue('level', value as (typeof JOB_LEVELS)[number], { shouldDirty: true })
             }
-          >
-            {JOB_LEVELS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          />
           {errors.level && (
             <Paragraph asChild theme="error" size="s">
               <span role="alert">{t(message(errors.level) ?? 'adminJobErrEnum')}</span>

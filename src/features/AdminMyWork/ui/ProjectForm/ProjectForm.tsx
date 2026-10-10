@@ -28,6 +28,7 @@ import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
@@ -248,23 +249,18 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
 
       <div className={styles.localeRow}>
         <div className={styles.field}>
-          <label className={styles.selectLabel} htmlFor="project-form-category">
-            {t('projectFieldCategory')}
-          </label>
-          <select
+          <Select
             id="project-form-category"
-            className={styles.select}
+            label={t('projectFieldCategory')}
+            options={PROJECT_CATEGORIES.map((category) => ({
+              value: category,
+              label: category,
+            }))}
             value={values.category ?? 'other'}
-            onChange={(event) =>
-              setValue('category', event.target.value as ProjectCategory, { shouldDirty: true })
+            onChange={(value) =>
+              setValue('category', value as ProjectCategory, { shouldDirty: true })
             }
-          >
-            {PROJECT_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          />
           {errors.category && (
             <Paragraph asChild theme="error" size="s">
               <span role="alert">{t('projectEnumInvalid')}</span>
@@ -272,23 +268,13 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           )}
         </div>
         <div className={styles.field}>
-          <label className={styles.selectLabel} htmlFor="project-form-status">
-            {t('projectFieldStatus')}
-          </label>
-          <select
+          <Select
             id="project-form-status"
-            className={styles.select}
+            label={t('projectFieldStatus')}
+            options={PROJECT_STATUSES.map((status) => ({ value: status, label: status }))}
             value={values.status ?? 'completed'}
-            onChange={(event) =>
-              setValue('status', event.target.value as ProjectStatus, { shouldDirty: true })
-            }
-          >
-            {PROJECT_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setValue('status', value as ProjectStatus, { shouldDirty: true })}
+          />
           {errors.status && (
             <Paragraph asChild theme="error" size="s">
               <span role="alert">{t('projectEnumInvalid')}</span>

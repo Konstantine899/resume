@@ -26,6 +26,7 @@ import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Select } from '@/shared/ui/Select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -132,23 +133,13 @@ export const SkillCategoryForm: React.FC<SkillCategoryFormProps> = ({
       </div>
 
       <div className={styles.field}>
-        <label className={styles.selectLabel} htmlFor="skill-category-form-category">
-          {t('skillsCategoryType')}
-        </label>
-        <select
+        <Select
           id="skill-category-form-category"
-          className={styles.select}
+          label={t('skillsCategoryType')}
+          options={SKILL_CATEGORY_VALUES.map((option) => ({ value: option, label: option }))}
           value={values.category ?? 'frontend'}
-          onChange={(event) =>
-            setValue('category', event.target.value as SkillCategory, { shouldDirty: true })
-          }
-        >
-          {SKILL_CATEGORY_VALUES.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => setValue('category', value as SkillCategory, { shouldDirty: true })}
+        />
         {errors.category && (
           <Paragraph asChild theme="error" size="s">
             <span role="alert">{t('skillsErrCategoryExists')}</span>
