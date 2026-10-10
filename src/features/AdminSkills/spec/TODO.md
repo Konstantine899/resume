@@ -18,7 +18,7 @@ spec: SPEC.md
 - [ ] WU-7 i18n: **переиспользовать** `skillsCategoryCount_one/_few/_many/_other` (счётчик, уже в обеих локалях) и `skillsDelete`/`skillsConfirmDelete` (OPEN-10 = дефолт); новые ключи только: `skillsCategoryEmpty` + уточнённое подтверждение категории (OPEN-4) + подписи контролов — в `en.json` + `ru.json`; паритет-тест зелёный; grep на захардкоженные строки блока.
 - [ ] WU-8 Тесты: **создать `AdminSkillsPage.test.tsx`** (файла сегодня нет) и закрепить в нём модальные критерии SPEC (открытие/закрытие модалок, Save-потоки, confirm); обновить `SkillsEditorList.test` под per-category DOM (пустая категория, независимая пагинация, сброс страницы); формы-тесты (SkillCategoryForm/TechnologyForm) прогнать без правок — модалки заворачивает страница.
 - [ ] WU-9 Гейты: `npm run validate`; `check:axe` (0 регрессий); `check:bundle` (лимит 737280 B); `check:public-api`.
-- [ ] Git flow: реализация на `feat/admin-skills-edit` от `dev` → DRAFT PR в начале → `gh pr ready` при зелёных гейтах → squash merge + удаление ветки (по инструкции владельца).
+- [ ] Git flow: реализация на `feat/admin-skills-edit` от `dev` → DRAFT PR в начале → `gh pr ready` при зелёных гейтах → squash merge + удаление ветки **автоматически при зелёных проверках** (auto-режим, согласован владельцем 2026-10-10).
 
 ## Заметки
 
