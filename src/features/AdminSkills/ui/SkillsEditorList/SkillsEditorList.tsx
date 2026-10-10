@@ -24,6 +24,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
 import { Pagination } from '@/shared/ui/Pagination';
@@ -210,7 +211,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       </div>
 
       {all.length === 0 ? (
-        <Paragraph theme="muted">{t('skillsListEmpty')}</Paragraph>
+        <EmptyState title={t('skillsListEmpty')} />
       ) : (
         <>
           <ul className={styles.list} aria-label={t('adminSkillsTitle')}>
