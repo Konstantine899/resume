@@ -1,5 +1,5 @@
 ---
-status: draft
+status: approved
 epic: admin-panel-edit
 issue:
 created: '2026-10-10'
