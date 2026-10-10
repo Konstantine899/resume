@@ -17,8 +17,9 @@
 // not a mocked one. A6 (plan_kit_table): no heading elements inside
 // cells — the first cell uses <strong>.
 //
-// The t() mock renders plural counts as `${key}:${count}` so badge
-// assertions can verify the count OPTION, not just the key.
+// The t() mock renders options as `${key}:${parts}` — `count` for badge
+// assertions, `number` for pagination pages, and `name` (WU-6, OPEN-10)
+// so the confirm subtitle can prove it NAMES the entity.
 
 import type { SkillCategory, SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -73,14 +74,15 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
-// A `count` option renders as `${key}:${count}` (plural badge checks) and a
-// `number` option as `${key}:${number}` (kit Pagination page buttons).
+// Known options render as `${key}:${values}` (name, count, number), so a
+// test can verify WHICH option was passed, not just the key.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { count?: number; number?: number }) => {
-      if (options?.count !== undefined) return `${key}:${options.count}`;
-      if (options?.number !== undefined) return `${key}:${options.number}`;
-      return key;
+    t: (key: string, options?: { name?: string; count?: number; number?: number }) => {
+      const parts = [options?.name, options?.count, options?.number].filter(
+        (value) => value !== undefined
+      );
+      return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
     },
     language: 'en',
     setLanguage: vi.fn(),
@@ -303,6 +305,8 @@ describe('SkillsEditorList', () => {
     // §6: kit Modal confirm, not window.confirm.
     fireEvent.click(techActions('React').getByRole('button', { name: 'skillsDelete' }));
     const modal = await screen.findByRole('dialog');
+    // OPEN-10 «Вариант А»: the confirm text (subtitle → aria-describedby) NAMES the entity.
+    expect(within(modal).getByText('skillsConfirmDelete:React')).toBeInTheDocument();
     fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
 
     await waitFor(() =>
@@ -335,6 +339,10 @@ describe('SkillsEditorList', () => {
     );
     expect(deleteTechnologySpy).not.toHaveBeenCalled();
     expect(screen.getByText('React')).toBeInTheDocument();
+    // OPEN-9: the confirm modal stays OPEN for a retry (unified with the forms).
+    const openDialog = screen.getByRole('dialog');
+    expect(openDialog).toBeInTheDocument();
+    expect(within(openDialog).getByRole('button', { name: 'skillsDelete' })).toBeEnabled();
   });
 
   it('deletes a whole category through Modal confirm and notifies the page', async () => {
@@ -343,6 +351,8 @@ describe('SkillsEditorList', () => {
     fireEvent.click(categoryActions('backend').getByRole('button', { name: 'skillsDelete' }));
 
     const modal = await screen.findByRole('dialog');
+    // OPEN-4 + OPEN-10: category confirm names it and shows scale — count when N > 0.
+    expect(within(modal).getByText('skillsConfirmDeleteCategory:Backend:1')).toBeInTheDocument();
     fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
 
     await waitFor(() =>
@@ -354,6 +364,27 @@ describe('SkillsEditorList', () => {
     // The whole BLOCK disappears with its record.
     await waitFor(() => expect(screen.queryByTestId('skills-category-block-backend')).toBeNull());
     expect(screen.queryByText('Backend')).not.toBeInTheDocument();
+  });
+
+  it('moves focus to «Отмена» after the destructive confirm opens (SPEC §6)', async () => {
+    renderList();
+
+    fireEvent.click(techActions('React').getByRole('button', { name: 'skillsDelete' }));
+    const modal = await screen.findByRole('dialog');
+    const cancel = within(modal).getByRole('button', { name: 'skillsCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+  });
+
+  it('category confirm with N=0: names the category and shows NO count (OPEN-4)', async () => {
+    holder.state.adminSkills = [
+      { category: 'frontend', categoryName: 'Frontend', technologies: [] },
+    ];
+    renderList();
+
+    fireEvent.click(categoryActions('frontend').getByRole('button', { name: 'skillsDelete' }));
+    const modal = await screen.findByRole('dialog');
+    // No `count` option → the base key (без количества), but the name is there.
+    expect(within(modal).getByText('skillsConfirmDeleteCategory:Frontend')).toBeInTheDocument();
   });
 
   it('reset restores defaults through Modal confirm (remove + dispatch)', async () => {

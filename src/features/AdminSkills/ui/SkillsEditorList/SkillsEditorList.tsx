@@ -33,7 +33,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SkillCategoryData } from '@/entities/Skill';
 import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
@@ -101,6 +101,8 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const { addToast } = useToast();
   const [pending, setPending] = useState<PendingDelete>(null);
   const [deleting, setDeleting] = useState(false);
+  // Destructive-confirm pattern (SPEC §6): focus lands on «Отмена» after open.
+  const cancelRef = useRef<HTMLButtonElement>(null);
   // A4: page, sort and page SIZE are PER TABLE, keyed by category.
   const [pages, setPages] = useState<Record<string, number>>({});
   const [sorts, setSorts] = useState<Record<string, SortState | null>>({});
@@ -120,8 +122,9 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       const { categoryId } = pending;
       const next = all.filter((entry) => entry.category !== categoryId);
       if (!persistSkills(next)) {
+        // OPEN-9: failure keeps the modal OPEN for a retry (unified with the forms).
         addToast({ message: t('skillsPersistError'), type: 'error' });
-        closeModal();
+        setDeleting(false);
         return;
       }
       dispatch(deleteSkillCategory(categoryId));
@@ -139,8 +142,9 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           : entry
       );
       if (!persistSkills(next)) {
+        // OPEN-9: failure keeps the modal OPEN for a retry (unified with the forms).
         addToast({ message: t('skillsPersistError'), type: 'error' });
-        closeModal();
+        setDeleting(false);
         return;
       }
       dispatch(deleteTechnology({ categoryId, techName }));
@@ -157,8 +161,26 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   };
 
   const confirmLabel = pending?.kind === 'reset' ? t('skillsReset') : t('skillsDelete');
-  const confirmBody =
-    pending?.kind === 'reset' ? t('skillsResetConfirm') : t('skillsConfirmDelete');
+  /**
+   * Confirm copy NAMES the entity (OPEN-10 «Вариант А»): «Удалить React?».
+   * Category adds scale per OPEN-4 — technologies go together, count only
+   * when N > 0 (без количества для пустой категории). Rendered through the
+   * modal `subtitle` so kit `aria-describedby` links it to the dialog.
+   */
+  let confirmBody = '';
+  if (pending?.kind === 'reset') {
+    confirmBody = t('skillsResetConfirm');
+  } else if (pending?.kind === 'technology') {
+    confirmBody = t('skillsConfirmDelete', { name: pending.techName });
+  } else if (pending?.kind === 'category') {
+    const entry = all.find((item) => item.category === pending.categoryId);
+    const name = entry?.categoryName ?? pending.categoryId;
+    const count = entry?.technologies.length ?? 0;
+    confirmBody =
+      count > 0
+        ? t('skillsConfirmDeleteCategory', { name, count })
+        : t('skillsConfirmDeleteCategory', { name });
+  }
 
   /** Columns of ONE category table: the shared tech pair (no category column). */
   const makeColumns = (): DataTableColumn<TechRow>[] => [
@@ -340,10 +362,13 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
         isOpen={pending !== null}
         onClose={closeModal}
         title={confirmLabel}
+        // The confirm copy IS the subtitle (visible + aria-describedby).
+        subtitle={pending ? confirmBody : undefined}
         size="sm"
+        initialFocusRef={cancelRef}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={closeModal}>
+            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
               {t('skillsCancel')}
             </Button>
             <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
@@ -352,7 +377,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           </>
         }
       >
-        <Paragraph>{confirmBody}</Paragraph>
+        {null}
       </Modal>
     </div>
   );
