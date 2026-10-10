@@ -8,6 +8,12 @@ import type { ReactNode } from 'react';
 export type TableAlign = 'left' | 'right' | 'center';
 
 /**
+ * Values accepted by the ARIA `aria-sort` attribute (APG: the attribute
+ * lives on `<th>`, which only Table renders).
+ */
+export type TableAriaSort = 'ascending' | 'descending' | 'none';
+
+/**
  * One column of the table.
  */
 export interface Column<T> {
@@ -27,6 +33,13 @@ export interface Column<T> {
   align?: TableAlign;
   /** Hides the column below the mobile breakpoint (plan A5). */
   hideOnMobile?: boolean;
+  /**
+   * Pass-through of the `aria-sort` attribute onto the `<th>` (rev.4,
+   * DataTable WU-5). APG mandates the attribute on `<th>` — a layer above
+   * cannot reach it, so DataTable computes the value and Table only prints
+   * it. Markup, not behaviour: Table still renders no sort controls.
+   */
+  ariaSort?: TableAriaSort;
 }
 
 /**

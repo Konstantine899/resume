@@ -188,5 +188,18 @@ describe('Table', () => {
       expect(table.querySelectorAll('input, [role="checkbox"], [aria-sort]')).toHaveLength(0);
       expect(table.querySelector('nav')).toBeNull();
     });
+
+    it('passes ariaSort through to the th as aria-sort, omitting it otherwise (rev.4)', () => {
+      renderTable({
+        columns: [
+          { key: 'name', header: 'Technology' },
+          { key: 'category', header: 'Category', ariaSort: 'descending' },
+        ],
+      });
+
+      const [nameHeader, categoryHeader] = screen.getAllByRole('columnheader');
+      expect(nameHeader).not.toHaveAttribute('aria-sort');
+      expect(categoryHeader).toHaveAttribute('aria-sort', 'descending');
+    });
   });
 });
