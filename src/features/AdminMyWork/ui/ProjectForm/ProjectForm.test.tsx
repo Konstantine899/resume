@@ -105,6 +105,10 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.clearAllMocks();
+  // FileUpload pilot stubs Image/canvas (jsdom has neither) — restore so
+  // spies and globals never leak into the next test.
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('ProjectForm: render (WU-4)', () => {
@@ -274,6 +278,25 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
     expect(titleInput()).toHaveValue('');
   });
 
+  it('accepts an internal /images/projects path as image and persists it verbatim (WU-3)', async () => {
+    renderCreate();
+
+    fillMinimalValid();
+    // Replace the https fixture with the new internal-path contract.
+    fireEvent.change(imageInput(), { target: { value: '/images/projects/dragonfly.webp' } });
+    fireEvent.change(screen.getByLabelText('projectFieldYear'), {
+      target: { value: '2025' },
+    });
+    fireEvent.click(saveButton());
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.image).toBe('/images/projects/dragonfly.webp');
+    expect(addSpy).toHaveBeenCalledTimes(1);
+    expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
+  });
+
   it('keeps the form filled, skips dispatch and toasts projectSaveError when persist fails', async () => {
     renderCreate();
 
@@ -384,5 +407,70 @@ describe('ProjectForm: delete (Modal confirm, edit mode)', () => {
 
     expect(persistSpy).not.toHaveBeenCalled();
     expect(deleteSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ============================================
+// FileUpload pilot (plan_project_images WU-4 / OPEN-6=A / OPEN-7)
+// ============================================
+
+/** jsdom never decodes images or rasterises canvas — minimal stand-ins. */
+class FakeUploadImage {
+  onload: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  naturalWidth = 100;
+  naturalHeight = 100;
+  set src(_value: string) {
+    setTimeout(() => this.onload?.(), 0);
+  }
+}
+
+describe('ProjectForm: FileUpload pilot (WU-4)', () => {
+  const DATA_URL = 'data:image/webp;base64,AAAA';
+
+  beforeEach(() => {
+    vi.stubGlobal('Image', FakeUploadImage);
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage: vi.fn(),
+    } as unknown as ReturnType<HTMLCanvasElement['getContext']>);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(DATA_URL);
+  });
+
+  it('writes the compressed dataURL into the image field and revalidates it (OPEN-7)', async () => {
+    renderCreate();
+    fillMinimalValid();
+    // Break only the image — resolver mode is onSubmit, so surface the
+    // error through Save (§7 pattern), exactly one alert stays unique.
+    fireEvent.change(imageInput(), { target: { value: '' } });
+    fireEvent.click(saveButton());
+    expect(await screen.findByRole('alert')).toHaveTextContent('projectImageInvalid');
+    expect(persistSpy).not.toHaveBeenCalled();
+
+    const file = document.querySelector('input[type="file"]');
+    expect(file).not.toBeNull();
+    fireEvent.change(file as Element, {
+      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
+    });
+
+    // OPEN-7: setValue(..., { shouldDirty: true, shouldValidate: true })
+    // re-runs zod — the dataURL passes the union and the error clears.
+    await waitFor(() => expect((imageInput() as HTMLInputElement).value).toBe(DATA_URL));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    // SPEC criterion: the uploaded dataURL reaches the persisted record.
+    // persistProjects saves the WHOLE collection — the new record rides in
+    // the addProject payload.
+    fireEvent.click(saveButton());
+    await waitFor(() => expect(addSpy).toHaveBeenCalled());
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ image: DATA_URL }));
+    expect(persistSpy).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ image: DATA_URL })])
+    );
+  });
+
+  it('the URL field stays editable (picker is additive, not a replacement)', () => {
+    renderCreate();
+    fireEvent.change(imageInput(), { target: { value: '/images/projects/x.webp' } });
+    expect((imageInput() as HTMLInputElement).value).toBe('/images/projects/x.webp');
   });
 });
