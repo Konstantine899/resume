@@ -1,19 +1,25 @@
 // ============================================
-// SkillsEditorList tests (WU-5c pilot, plan_kit_datatable A6/OPEN-3/OPEN-5)
+// SkillsEditorList tests (plan_admin_panel_edit rev.3, WU-1)
 // ============================================
 //
-// RED-first contract for the DataTable pilot: FLAT rows (one per technology,
-// plus a placeholder keeping an empty category reachable), category actions
-// (Edit/Delete Category + Add Technology) on the FIRST visible row of each
-// category in the current window (owner verdict 2026-10-10), controlled
-// sorting, and Delete flows through a kit Modal confirm with persist BEFORE
-// dispatch (§3) and Toast feedback. The react-redux store is a mutable
-// holder whose dispatched actions REALLY mutate the rows, so "the row
-// disappears" is a real assertion, not a mocked one.
+// Contract of the per-category rewrite: ONE DataTable per category (block
+// order = storage order, OPEN-6), block header = h3 (category name +
+// plural count Badge via `skillsCategoryCount`, verdict OPEN-8) + the
+// block-level actions (Edit/Add technology/Delete — verdict OPEN-3), no
+// category column, EmptyState `skillsCategoryEmpty` instead of a
+// placeholder row (verdict OPEN-7), section-level `skillsListEmpty` when
+// the STORE is empty. Page and sort are PER TABLE keyed by category (A4):
+// clicking a toggle only emits `onSortChange` for its own block (A9) and
+// resets that block to page 1; the kit owns the clamp (A10).
 //
-// A6 (plan_kit_table): no heading elements inside cells — the first cell
-// uses <strong>; category names are plain text now (this suite asserts the
-// absence of level-3 headings).
+// The react-redux store is a mutable holder whose dispatched actions
+// REALLY mutate the rows, so "the row disappears" is a real assertion,
+// not a mocked one. A6 (plan_kit_table): no heading elements inside
+// cells — the first cell uses <strong>.
+//
+// The t() mock renders options as `${key}:${parts}` — `count` for badge
+// assertions, `number` for pagination pages, and `name` (WU-6, OPEN-10)
+// so the confirm subtitle can prove it NAMES the entity.
 
 import type { SkillCategory, SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -68,9 +74,16 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
+// Known options render as `${key}:${values}` (name, count, number), so a
+// test can verify WHICH option was passed, not just the key.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { name?: string; count?: number; number?: number }) => {
+      const parts = [options?.name, options?.count, options?.number].filter(
+        (value) => value !== undefined
+      );
+      return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
+    },
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -148,13 +161,16 @@ const renderList = (props: Partial<React.ComponentProps<typeof SkillsEditorList>
   return { ...render(<SkillsEditorList {...merged} />), ...merged };
 };
 
-/** Buttons of one technology row. */
+/** Buttons of one technology row (row actions, unchanged ids). */
 const techActions = (techName: string) =>
   within(screen.getByTestId(`skill-tech-actions-${techName}`));
 
-/** Buttons of one category (they live on that category's first visible row). */
+/** Block-level category actions (Edit/Add technology/Delete) in the header. */
 const categoryActions = (categoryId: string) =>
   within(screen.getByTestId(`skill-category-actions-${categoryId}`));
+
+const block = (categoryId: string) =>
+  within(screen.getByTestId(`skills-category-block-${categoryId}`));
 
 describe('SkillsEditorList', () => {
   beforeEach(() => {
@@ -170,48 +186,60 @@ describe('SkillsEditorList', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the section intro and one flat row per technology (A6: no headings in cells)', () => {
+  it('renders one block per category: h3 + plural badge + its own table (A6 cells)', () => {
     renderList();
 
     expect(screen.getByRole('heading', { level: 2, name: 'adminSkillsTitle' })).toBeInTheDocument();
     expect(screen.getByText('adminSkillsHint')).toBeInTheDocument();
 
-    // OPEN-5: flat rows — header row + one row per technology (3).
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(4);
+    // OPEN-6: block order = storage order (frontend first).
+    const blocks = screen.getAllByTestId(/^skills-category-block-/);
+    expect(blocks).toHaveLength(2);
+    expect(within(blocks[0] as HTMLElement).getByRole('heading', { level: 3 })).toHaveTextContent(
+      'Frontend'
+    );
 
-    // A6: the first cell is <strong>, never a heading — level 3 is gone.
-    expect(screen.queryByRole('heading', { level: 3 })).toBeNull();
+    // Verdict OPEN-8: the h3 carries name + plural count badge, with the
+    // count OPTION passed to the plural key (`${key}:${count}` mock).
+    const headings = screen.getAllByRole('heading', { level: 3 });
+    expect(headings).toHaveLength(2);
+    expect(headings[0]).toHaveTextContent('skillsCategoryCount:2');
+    expect(headings[1]).toHaveTextContent('Backend');
+    expect(headings[1]).toHaveTextContent('skillsCategoryCount:1');
+
+    // One table per category, named by its caption — no shared flat table.
+    expect(screen.getAllByRole('table')).toHaveLength(2);
+    expect(screen.getByRole('table', { name: 'Frontend' })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: 'Backend' })).toBeInTheDocument();
+    expect(block('frontend').getAllByRole('row')).toHaveLength(3); // header + 2 techs
+    expect(block('backend').getAllByRole('row')).toHaveLength(2); // header + 1 tech
+
     expect(screen.getByTestId('skill-tech-row-React')).toBeInTheDocument();
     expect(screen.getByTestId('skill-tech-row-TypeScript')).toBeInTheDocument();
     expect(screen.getByTestId('skill-tech-row-Node.js')).toBeInTheDocument();
 
-    // Category identity lives in the Category cell of the category's first
-    // row, with its count rendered as a plain number (§9).
-    expect(screen.getByTestId('skill-category-row-frontend')).toHaveTextContent('Frontend');
-    expect(screen.getByTestId('skill-category-row-frontend')).toHaveTextContent('2');
-    expect(screen.getByTestId('skill-category-row-backend')).toHaveTextContent('Backend');
-    expect(screen.getByTestId('skill-category-row-backend')).toHaveTextContent('1');
-    // Exactly one category marker per category — later rows stay plain.
-    expect(screen.getAllByTestId('skill-category-row-frontend')).toHaveLength(1);
-    expect(screen.getAllByTestId('skill-category-row-backend')).toHaveLength(1);
+    // A6: the tech cell is <strong>, never a heading (level 3 lives only
+    // in the block header, outside the table).
+    const techCell = screen.getByTestId('skill-tech-row-React');
+    expect(techCell.querySelector('strong')?.textContent).toBe('React');
+    expect(techCell.closest('tr')?.querySelector('h1,h2,h3,h4,h5,h6')).toBeNull();
   });
 
-  it('renders each technology with Edit/Delete and the empty state when store is empty', () => {
+  it('renders tech edit/delete buttons; empty store shows the section empty state', () => {
     const { unmount } = renderList();
 
     expect(screen.getAllByRole('button', { name: 'skillsEditTechnology' })).toHaveLength(3);
-    expect(screen.getAllByRole('button', { name: 'skillsDelete' }).length).toBeGreaterThanOrEqual(
-      4 // 3 tech deletes + 2 category deletes
-    );
+    // 3 tech-row deletes + 2 block-level category deletes.
+    expect(screen.getAllByRole('button', { name: 'skillsDelete' })).toHaveLength(5);
     unmount();
 
-    // Empty store → skillsListEmpty, no rows, no controls (A5: rows.length>0 gate).
+    // Empty store → skillsListEmpty, no blocks, no controls (A5 gate).
     holder.state.adminSkills = [];
     render(<SkillsEditorList onAddCategory={vi.fn()} onEditCategory={vi.fn()} />);
     expect(screen.getByText('skillsListEmpty')).toBeInTheDocument();
+    expect(screen.queryByTestId(/^skills-category-block-/)).toBeNull();
     expect(screen.queryByRole('navigation')).toBeNull();
-    expect(screen.queryByTestId('skills-pagination-footer')).toBeNull();
+    expect(screen.queryAllByTestId(/^skills-pagination-footer/)).toHaveLength(0);
   });
 
   it('wires category add/edit callbacks', () => {
@@ -220,7 +248,7 @@ describe('SkillsEditorList', () => {
     fireEvent.click(screen.getByRole('button', { name: 'skillsAddCategory' }));
     expect(onAddCategory).toHaveBeenCalledTimes(1);
 
-    // Category actions sit on each category's first visible row.
+    // Block-level actions live in the category block's header.
     fireEvent.click(
       categoryActions('frontend').getByRole('button', { name: 'skillsEditCategory' })
     );
@@ -239,6 +267,29 @@ describe('SkillsEditorList', () => {
     expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'React');
   });
 
+  // WU-4: pin the placement map after WU-5 — section header / block header / row column.
+  it('places every action per the placement map (section / block header / row column)', () => {
+    renderList();
+
+    // Section header: «Добавить категорию» + reset live next to the list h2 —
+    // NOT inside a category block (OPEN-3 keeps «Добавить технологию» out of here).
+    const section = screen.getByTestId('skills-editor-list');
+    expect(within(section).getAllByRole('button', { name: 'skillsAddCategory' })).toHaveLength(1);
+    expect(within(section).getByRole('button', { name: 'skillsReset' })).toBeInTheDocument();
+
+    // Block header (OPEN-3): exactly Edit category / Add technology / Delete category.
+    const blockButtons = categoryActions('frontend')
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(blockButtons).toEqual(['skillsEditCategory', 'skillsAddTechnology', 'skillsDelete']);
+
+    // Row actions column: ONLY that technology's Edit + Delete (SPEC) — no add.
+    const rowButtons = techActions('React')
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(rowButtons).toEqual(['skillsEditTechnology', 'skillsDelete']);
+  });
+
   it('deletes a technology through Modal confirm: persist BEFORE dispatch + toast', async () => {
     const calls: string[] = [];
     persistSpy.mockImplementation(() => {
@@ -254,6 +305,8 @@ describe('SkillsEditorList', () => {
     // §6: kit Modal confirm, not window.confirm.
     fireEvent.click(techActions('React').getByRole('button', { name: 'skillsDelete' }));
     const modal = await screen.findByRole('dialog');
+    // OPEN-10 «Вариант А»: the confirm text (subtitle → aria-describedby) NAMES the entity.
+    expect(within(modal).getByText('skillsConfirmDelete:React')).toBeInTheDocument();
     fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
 
     await waitFor(() =>
@@ -286,6 +339,10 @@ describe('SkillsEditorList', () => {
     );
     expect(deleteTechnologySpy).not.toHaveBeenCalled();
     expect(screen.getByText('React')).toBeInTheDocument();
+    // OPEN-9: the confirm modal stays OPEN for a retry (unified with the forms).
+    const openDialog = screen.getByRole('dialog');
+    expect(openDialog).toBeInTheDocument();
+    expect(within(openDialog).getByRole('button', { name: 'skillsDelete' })).toBeEnabled();
   });
 
   it('deletes a whole category through Modal confirm and notifies the page', async () => {
@@ -294,6 +351,8 @@ describe('SkillsEditorList', () => {
     fireEvent.click(categoryActions('backend').getByRole('button', { name: 'skillsDelete' }));
 
     const modal = await screen.findByRole('dialog');
+    // OPEN-4 + OPEN-10: category confirm names it and shows scale — count when N > 0.
+    expect(within(modal).getByText('skillsConfirmDeleteCategory:Backend:1')).toBeInTheDocument();
     fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
 
     await waitFor(() =>
@@ -302,7 +361,30 @@ describe('SkillsEditorList', () => {
     expect(persistSpy).toHaveBeenCalledWith([expect.objectContaining({ category: 'frontend' })]);
     expect(deleteCategorySpy).toHaveBeenCalledWith('backend');
     expect(onCategoryDeleted).toHaveBeenCalledWith('backend');
-    await waitFor(() => expect(screen.queryByText('Backend')).not.toBeInTheDocument());
+    // The whole BLOCK disappears with its record.
+    await waitFor(() => expect(screen.queryByTestId('skills-category-block-backend')).toBeNull());
+    expect(screen.queryByText('Backend')).not.toBeInTheDocument();
+  });
+
+  it('moves focus to «Отмена» after the destructive confirm opens (SPEC §6)', async () => {
+    renderList();
+
+    fireEvent.click(techActions('React').getByRole('button', { name: 'skillsDelete' }));
+    const modal = await screen.findByRole('dialog');
+    const cancel = within(modal).getByRole('button', { name: 'skillsCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+  });
+
+  it('category confirm with N=0: names the category and shows NO count (OPEN-4)', async () => {
+    holder.state.adminSkills = [
+      { category: 'frontend', categoryName: 'Frontend', technologies: [] },
+    ];
+    renderList();
+
+    fireEvent.click(categoryActions('frontend').getByRole('button', { name: 'skillsDelete' }));
+    const modal = await screen.findByRole('dialog');
+    // No `count` option → the base key (без количества), but the name is there.
+    expect(within(modal).getByText('skillsConfirmDeleteCategory:Frontend')).toBeInTheDocument();
   });
 
   it('reset restores defaults through Modal confirm (remove + dispatch)', async () => {
@@ -337,132 +419,192 @@ describe('SkillsEditorList', () => {
   };
 
   describe('Pagination pilot', () => {
-    it('shows controls (nav + range) even when everything fits on one page', () => {
-      renderList(); // 3 rows ≤ 12
+    it('shows controls (size group + nav + range) per block even when everything fits', () => {
+      renderList(); // 2 + 1 rows, both blocks ≤ 5
 
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
-      expect(screen.getByTestId('skills-pagination-footer')).toBeInTheDocument();
-      expect(screen.getByText('paginationRange')).toBeInTheDocument();
+      // A5: every non-empty block renders its own controls.
+      expect(screen.getAllByRole('navigation')).toHaveLength(2);
+      expect(screen.getAllByTestId(/^skills-pagination-footer/)).toHaveLength(2);
+      expect(screen.getAllByText('paginationRange')).toHaveLength(2);
+      // Verdict OPEN-1: kit PageSizeGroup (5/10/20, default 5) per block.
+      expect(screen.getAllByRole('group', { name: 'perPageLabel' })).toHaveLength(2);
+      expect(block('frontend').getByRole('button', { name: '5' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
     });
 
-    it('drops back to a single page when the page-2 category is deleted', async () => {
-      setRows([10, 3]); // 13 rows → 2 pages
+    it('keeps page state independent per block (A4)', async () => {
+      setRows([15, 3]); // block1: 15 rows / 5 = 3 pages; block2: 3 → 1 page
       renderList();
 
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
-      // Items for page 1 of 13 (siblings=1): `1 2 … 13` — page 1 is the
-      // current span, so the only `2` on screen is the page-2 button.
-      fireEvent.click(screen.getByText('2'));
-      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+      // 3 pages prove the default size is 5, not 12 (kit aria-label
+      // `paginationPage` carries the number option).
+      expect(
+        block('frontend').getByRole('button', { name: 'paginationPage:3' })
+      ).toBeInTheDocument();
 
-      // Delete the backend category (the only record on page 2) through the Modal.
+      fireEvent.click(block('frontend').getByText('2'));
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
+
+      // The other block is untouched: still its own page 1.
+      expect(block('backend').getByText('1')).toHaveAttribute('aria-current', 'page');
+      expect(block('backend').getByTestId('skill-tech-row-C2T1')).toBeInTheDocument();
+
+      // Deleting the OTHER block does not disturb this block's page (A4).
       fireEvent.click(categoryActions('backend').getByRole('button', { name: 'skillsDelete' }));
       const modal = await screen.findByRole('dialog');
       fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
 
-      await waitFor(() => expect(screen.queryByText('Category 2')).not.toBeInTheDocument());
-      // 10 rows ≤ PAGE_SIZE → the container's clamp resolves page 2 → 1;
-      // controls stay visible (A5) and every technology is reachable again.
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
-      for (let index = 1; index <= 10; index += 1) {
-        expect(screen.getByTestId(`skill-tech-row-C1T${index}`)).toBeInTheDocument();
-      }
+      await waitFor(() => expect(screen.queryByTestId('skills-category-block-backend')).toBeNull());
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
+    });
+
+    it('changes the page size per block: reset to page 1, other block untouched', () => {
+      setRows([15, 3]);
+      renderList();
+
+      fireEvent.click(block('frontend').getByText('2'));
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
+
+      // Verdict OPEN-1: pick 10 in the FRONTEND block only.
+      fireEvent.click(
+        within(block('frontend').getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+          name: '10',
+        })
+      );
+
+      // New size → back to page 1 (no hidden top of the re-windowed order).
+      expect(block('frontend').getByTestId('skill-tech-row-C1T1')).toBeInTheDocument();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T10')).toBeInTheDocument();
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T11')).toBeNull();
+      expect(
+        within(block('frontend').getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+          name: '10',
+        })
+      ).toHaveAttribute('aria-pressed', 'true');
+
+      // A4: the backend block keeps its own size of 5.
+      const backendGroup = within(block('backend').getByRole('group', { name: 'perPageLabel' }));
+      expect(backendGroup.getByRole('button', { name: '5' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+    });
+
+    it('clamps page to the new totalPages when the last row of the last page is deleted (A10)', async () => {
+      setRows([11, 3]); // block1: 11 rows / 5 = 3 pages, page 3 holds C1T11 only
+      renderList();
+
+      fireEvent.click(block('frontend').getByText('3'));
+      expect(block('frontend').getByTestId('skill-tech-row-C1T11')).toBeInTheDocument();
+
+      fireEvent.click(techActions('C1T11').getByRole('button', { name: 'skillsDelete' }));
+      const modal = await screen.findByRole('dialog');
+      fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
+
+      // 10 rows → 2 pages: the stale page 3 is clamped to page 2 — no empty page.
+      await waitFor(() =>
+        expect(block('frontend').queryByTestId('skill-tech-row-C1T11')).toBeNull()
+      );
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
+      expect(block('frontend').queryByRole('button', { name: 'paginationPage:3' })).toBeNull();
     });
 
     it('keeps the current page when a record on that page is edited', () => {
-      setRows([10, 4]); // 14 rows → 2 pages
+      setRows([15, 3]); // block1: 15 rows / 5 = 3 pages
       const { onEditTechnology } = renderList();
 
-      fireEvent.click(screen.getByText('2'));
-      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+      fireEvent.click(block('frontend').getByText('2'));
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
 
-      fireEvent.click(techActions('C2T3').getByRole('button', { name: 'skillsEditTechnology' }));
+      fireEvent.click(techActions('C1T7').getByRole('button', { name: 'skillsEditTechnology' }));
 
-      expect(onEditTechnology).toHaveBeenCalledWith('backend', 'C2T3');
+      expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'C1T7');
       // No router coupling in this component: leaving for the edit form and
       // coming Back cannot reset `page` (manual check in the real router).
-      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
     });
   });
 
-  // ---- Controlled sorting (plan_kit_datatable WU-5, OPEN-1) ----
-  describe('Sorting (WU-5)', () => {
-    it('offers sort toggles on name/category columns only', () => {
+  // ---- Controlled sorting (plan_admin_panel_edit WU-1, kit WU-5 contract) ----
+  describe('Sorting (per-block, A4/A9)', () => {
+    it('offers a sort toggle on the tech column only (category column is gone)', () => {
       renderList();
 
-      expect(screen.getByRole('button', { name: 'technologies' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'projectFieldCategory' })).toBeInTheDocument();
+      // One toggle per table — no shared flat table, no category column.
+      expect(screen.getAllByRole('button', { name: 'technologies' })).toHaveLength(2);
+      expect(screen.queryByRole('button', { name: 'projectFieldCategory' })).toBeNull();
       // The actions column is not sortable — its header is plain text.
       expect(screen.queryByRole('button', { name: 'skillsTableActions' })).toBeNull();
-      // Unsorted → no aria-sort anywhere.
+      // Unsorted → no aria-sort anywhere (2 tables × 2 columns).
+      expect(screen.getAllByRole('columnheader')).toHaveLength(4);
       for (const header of screen.getAllByRole('columnheader')) {
         expect(header).not.toHaveAttribute('aria-sort');
       }
     });
 
-    it('sorts technologies asc → desc by click (controlled: re-render echoes state)', () => {
+    it('sorts asc → desc → исходный within its block, without touching the other', () => {
+      setRows([3, 3]);
       renderList();
 
-      const order = () =>
-        screen
+      const order = (scope: ReturnType<typeof within>) =>
+        scope
           .getAllByRole('row')
           .slice(1) // header row
-          .map((row) => row.querySelector('td')?.textContent ?? '');
+          .map((row: HTMLElement) => row.querySelector('td')?.textContent ?? '');
 
-      fireEvent.click(screen.getByRole('button', { name: 'technologies' }));
-      expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'ascending');
-      expect(order()).toEqual(['Node.js', 'React', 'TypeScript']);
+      const frontend = block('frontend');
+      const backend = block('backend');
+      const backendOrderBefore = order(backend);
 
-      fireEvent.click(screen.getByRole('button', { name: 'technologies' }));
-      expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'descending');
-      expect(order()).toEqual(['TypeScript', 'React', 'Node.js']);
+      fireEvent.click(frontend.getByRole('button', { name: 'technologies' }));
+      expect(frontend.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'ascending');
+      expect(order(frontend)).toEqual(['C1T1', 'C1T2', 'C1T3']);
+      // A4: sorting one block leaves the other block's sort untouched.
+      expect(backend.getAllByRole('columnheader')[0]).not.toHaveAttribute('aria-sort');
+      expect(order(backend)).toEqual(backendOrderBefore);
+
+      fireEvent.click(frontend.getByRole('button', { name: 'technologies' }));
+      expect(frontend.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'descending');
+      expect(order(frontend)).toEqual(['C1T3', 'C1T2', 'C1T1']);
+
+      // Third click of the same key → back to the исходный порядок.
+      fireEvent.click(frontend.getByRole('button', { name: 'technologies' }));
+      expect(frontend.getAllByRole('columnheader')[0]).not.toHaveAttribute('aria-sort');
+      expect(order(frontend)).toEqual(['C1T1', 'C1T2', 'C1T3']);
     });
 
-    it('sorts by category and moves category actions with the first visible row', () => {
+    it('resets only its own block to page 1 on sort', () => {
+      setRows([15, 3]);
       renderList();
 
-      // asc by category name: Backend < Frontend → Node.js row leads.
-      fireEvent.click(screen.getByRole('button', { name: 'projectFieldCategory' }));
-      expect(screen.getAllByRole('columnheader')[1]).toHaveAttribute('aria-sort', 'ascending');
-      expect(screen.getByTestId('skill-tech-row-Node.js')).toBeInTheDocument();
+      fireEvent.click(block('frontend').getByText('2'));
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
 
-      // Category actions follow the FIRST visible row of their category:
-      // after sorting by technology, React is the first frontend row and
-      // TypeScript carries no category buttons.
-      fireEvent.click(screen.getByRole('button', { name: 'technologies' }));
-      const frontendMarkers = screen.getAllByTestId('skill-category-actions-frontend');
-      expect(frontendMarkers).toHaveLength(1);
-      expect(frontendMarkers[0]?.closest('tr')?.querySelector('td')?.textContent).toBe('React');
-      expect(
-        screen
-          .getByTestId('skill-tech-row-TypeScript')
-          .closest('tr')
-          ?.querySelector('[data-testid^="skill-category-actions-"]')
-      ).toBeNull();
-    });
-
-    it('resets to the first page on sort — the top of the new order must be visible', () => {
-      setRows([10, 4]); // 14 rows → 2 pages
-      renderList();
-
-      fireEvent.click(screen.getByText('2'));
-      expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-      expect(screen.queryByTestId('skill-tech-row-C1T1')).toBeNull();
-
-      fireEvent.click(screen.getByRole('button', { name: 'technologies' }));
+      fireEvent.click(block('frontend').getByRole('button', { name: 'technologies' }));
 
       // Page returns to 1, so the beginning of the freshly sorted order is
       // what the user actually sees (staying on page 2 would look like a
-      // no-op sort).
-      expect(screen.getByText('1')).toHaveAttribute('aria-current', 'page');
-      expect(screen.getByTestId('skill-tech-row-C1T1')).toBeInTheDocument();
-      expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'ascending');
+      // no-op sort) — and only THIS block resets.
+      expect(block('frontend').getByText('1')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').getByTestId('skill-tech-row-C1T1')).toBeInTheDocument();
+      expect(block('frontend').getAllByRole('columnheader')[0]).toHaveAttribute(
+        'aria-sort',
+        'ascending'
+      );
+      expect(block('backend').getAllByRole('columnheader')[0]).not.toHaveAttribute('aria-sort');
     });
 
-    it('keeps every row reachable: placeholder row for an empty category', () => {
+    it('renders skillsCategoryEmpty in an empty block (no placeholder row)', () => {
       holder.state.adminSkills = [
         ...SEED.map((entry) => ({ ...entry, technologies: [...entry.technologies] })),
         {
@@ -473,10 +615,16 @@ describe('SkillsEditorList', () => {
       ];
       renderList();
 
-      // The placeholder keeps the empty category actionable (its first cell
-      // says so, its actions cell carries the category buttons).
-      expect(screen.getByTestId('skill-category-actions-devops')).toBeInTheDocument();
-      expect(screen.getAllByRole('row')).toHaveLength(5); // header + 3 techs + placeholder
+      // OPEN-7: the block stays reachable (header actions intact) but its
+      // table renders the EmptyState instead of a placeholder row.
+      expect(block('devops').getByText('skillsCategoryEmpty')).toBeInTheDocument();
+      expect(
+        categoryActions('devops').getByRole('button', { name: 'skillsEditCategory' })
+      ).toBeInTheDocument();
+      expect(block('devops').queryAllByTestId(/^skills-pagination-footer/)).toHaveLength(0);
+      expect(block('devops').queryByRole('navigation')).toBeNull();
+      // 3 real tech rows total — no placeholder row anywhere.
+      expect(screen.getAllByTestId(/^skill-tech-row-/)).toHaveLength(3);
     });
   });
 });

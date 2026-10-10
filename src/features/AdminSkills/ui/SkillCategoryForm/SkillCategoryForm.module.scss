@@ -8,19 +8,15 @@
 
 // tokens inside the shared inputs — no hardcoded values (plan §8).
 
-// Same structure as ProjectForm.module.scss (form/intro/field/actions).
+// Same structure as ProjectForm.module.scss (form/field/actions) minus the
+
+// intro — the modal header owns the title (WU-5).
 
 @use '@/shared/styles/variables' as *;
 
 .form {
   display: flex;
   flex-direction: column;
-}
-
-.intro {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
 }
 
 .field {

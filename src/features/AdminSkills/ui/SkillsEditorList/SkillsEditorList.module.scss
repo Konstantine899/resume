@@ -1,14 +1,14 @@
 // ============================================
 
-// SkillsEditorList — admin DataTable pilot (plan_kit_datatable WU-5c)
+// SkillsEditorList — per-category blocks (plan_admin_panel_edit rev.3, WU-1)
 
 // ============================================
 
 // Layout only: spacing via the $spacing-* scale, colors come from inherited
 
-// tokens — no hardcoded values (plan §8). Flat tech rows inside kit Table;
+// tokens — no hardcoded values (plan §8). One block per category: h3 with a
 
-// category actions stack ABOVE tech actions inside the first row's cell.
+// count Badge + block-level actions, then that category's DataTable.
 
 @use '@/shared/styles/variables' as *;
 
@@ -37,28 +37,32 @@
   gap: $spacing-2;
 }
 
+// One <section> per category (WU-1): header row (h3 + block actions), then
+
+// the category's own DataTable and range footer underneath.
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.blockHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: space-between;
+}
+
 // First cell: <strong> label (A6), keeps long names from stretching the cell.
 .nameCell {
   min-width: 0;
 }
 
-// Category identity cell (first row per category): name + plain-number badge.
-.categoryCell {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-2;
-  align-items: center;
-}
+// Wrapping button row for block-level or tech-row actions (5 buttons fit on
 
-// Actions cell: category group stacked over the tech group; each group is a
-
-// wrapping button row (5 buttons fit on desktop, stack on narrow viewports).
-.actionsCell {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
-  align-items: flex-start;
-}
+// desktop, stack on narrow viewports).
 
 .actions {
   display: flex;
