@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import i18n from '@/shared/lib/i18n/config/i18n';
 import type { Column } from '@/shared/ui/Table';
-import type { DataTableProps } from '../../model/types';
+import type { DataTableColumn, DataTableProps } from '../../model/types';
 import { DataTable } from './DataTable';
 
 const meta = {
@@ -107,4 +107,88 @@ export const Empty: Story = {
 
 export const Loading: Story = {
   args: storyArgs({ ...BASE_ARGS, loading: true }),
+};
+
+// ============================================
+// Sorting (WU-5) — the kit is controlled: each story renders a `sort` prop
+// state and asserts the emitted `onSortChange`, mirroring the unit cycle.
+// ============================================
+
+const SORTABLE_COLUMNS: DataTableColumn<Person>[] = [
+  { key: 'name', header: 'Name', sortable: true },
+  { key: 'role', header: 'Role', sortable: true },
+];
+
+const SORT_ARGS: DataTableProps<Person> = {
+  ...BASE_ARGS,
+  columns: SORTABLE_COLUMNS,
+  // One page keeps every row visible — the story is about order, not windows.
+  pageSize: 10,
+  sort: null,
+  onSortChange: fn(),
+};
+
+export const Sortable: Story = {
+  args: storyArgs(SORT_ARGS),
+  play: async ({ canvasElement, args }) => {
+    const user = userEvent.setup();
+    const canvas = within(canvasElement);
+
+    // Both headers are toggle buttons; no aria-sort until the prop says so.
+    await expect(canvas.getByRole('button', { name: 'Name' })).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Role' })).toBeVisible();
+    await expect(canvas.getAllByRole('columnheader')[0]).not.toHaveAttribute('aria-sort');
+
+    await user.click(canvas.getByRole('button', { name: 'Name' }));
+    await expect(args.onSortChange).toHaveBeenCalledWith({ key: 'name', direction: 'asc' });
+  },
+};
+
+export const SortedAsc: Story = {
+  args: storyArgs({
+    ...SORT_ARGS,
+    sort: { key: 'name', direction: 'asc' },
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [nameHeader] = canvas.getAllByRole('columnheader');
+
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+    // localeCompare order: Ada → Alan → Barbara → Donald → Edsger → Grace → Margaret
+    await expect(canvas.getByText('Ada Lovelace')).toBeVisible();
+  },
+};
+
+export const SortedDesc: Story = {
+  args: storyArgs({
+    ...SORT_ARGS,
+    sort: { key: 'name', direction: 'desc' },
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [nameHeader] = canvas.getAllByRole('columnheader');
+
+    await expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
+    await expect(canvas.getByText('Margaret Hamilton')).toBeVisible();
+  },
+};
+
+export const SortCycle: Story = {
+  args: storyArgs({ ...SORT_ARGS, sort: { key: 'name', direction: 'asc' } }),
+  play: async ({ canvasElement, args }) => {
+    const user = userEvent.setup();
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Name' });
+
+    // asc → desc (the parent would echo it back — covered by unit tests).
+    await user.click(button);
+    await expect(args.onSortChange).toHaveBeenLastCalledWith({
+      key: 'name',
+      direction: 'desc',
+    });
+
+    // Switching columns always restarts at asc.
+    await user.click(canvas.getByRole('button', { name: 'Role' }));
+    await expect(args.onSortChange).toHaveBeenLastCalledWith({ key: 'role', direction: 'asc' });
+  },
 };
