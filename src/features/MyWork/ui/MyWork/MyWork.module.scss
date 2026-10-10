@@ -65,28 +65,3 @@
   justify-content: center;
   margin-top: $spacing-6;
 }
-
-// ============================================
-
-// PAGE SIZE BUTTON GROUP
-
-// ============================================
-
-.sizeLabel {
-  align-self: center;
-  margin-right: $spacing-2;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.sizeGroup {
-  display: flex;
-  gap: $spacing-1;
-
-  // Active size emphasis — (0,2,0) beats the kit Button class (0,1,0).
-  [aria-pressed='true'] {
-    color: var(--color-text-primary);
-    background: var(--color-accent-subtle);
-  }
-}

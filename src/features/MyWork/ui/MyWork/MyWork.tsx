@@ -5,24 +5,24 @@
 import { PROJECTS, resolveTechIcons } from '@/entities/Project';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
-import { Button } from '@/shared/ui/Button';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Pagination } from '@/shared/ui/Pagination';
+import { PageSizeGroup } from '@/shared/ui/PageSizeGroup';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { FolderOpen } from 'lucide-react';
-import React, { useId, useState } from 'react';
+import React, { useState } from 'react';
 import type { MyWorkProps } from '../../model/types/types';
 import styles from './MyWork.module.scss';
 
 // Owner decision (2026-10-08): fixed page sizes for the vitrina window
-// (spec src/features/MyWork). The control lives in the consumer — one
-// consumer means the kit seam is not justified yet.
-// Owner revision (2026-10-09): sizes are 5 / 10 / 20 (50 replaced — the
-// "filters by pages" selector lives above the grid, right-aligned).
+// (spec src/features/MyWork). Owner revision (2026-10-09): sizes are
+// 5 / 10 / 20 (50 replaced — the selector sits above the grid, right-aligned).
+// WU-5d (2026-10-10): the control itself migrated to the kit PageSizeGroup —
+// the directive is «size group lives in the table kit» (plan A5-bis).
 const PAGE_SIZES = [5, 10, 20] as const;
 
 export const MyWork: React.FC<MyWorkProps> = ({
@@ -34,7 +34,6 @@ export const MyWork: React.FC<MyWorkProps> = ({
   const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const sizeLabelId = useId();
 
   // Owner decision (2026-10-08): the vitrina surfaces ALL projects — the
   // featured flag no longer gates visibility (spec: src/features/MyWork).
@@ -83,28 +82,12 @@ export const MyWork: React.FC<MyWorkProps> = ({
 
         {/* Owner layout (2026-10-09): the size selector sits under the
             heading, right-aligned, above the cards — pagination stays
-            centered at the bottom. Both appear only for multi-page lists. */}
+            centered at the bottom. Controls follow `showControls`. WU-5d:
+            the group is now the kit PageSizeGroup (visuals ported verbatim
+            into the kit, so the look is unchanged). */}
         {showControls && (
           <div className={styles.sizeRow}>
-            <div className={styles.sizeGroup} role="group" aria-labelledby={sizeLabelId}>
-              {/* Visible caption (owner 2026-10-09): the aria-label alone left
-                  sighted users with a bare «5 10 20» — label and accessible
-                  name share this one i18n string via aria-labelledby. */}
-              <span id={sizeLabelId} className={styles.sizeLabel}>
-                {t('perPageLabel')}
-              </span>
-              {PAGE_SIZES.map((size) => (
-                <Button
-                  key={size}
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={pageSize === size}
-                  onClick={() => handlePageSize(size)}
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
+            <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
           </div>
         )}
 
