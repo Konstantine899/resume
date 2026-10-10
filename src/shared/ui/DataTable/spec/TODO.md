@@ -9,5 +9,4 @@ spec: SPEC.md
 
 ## Рабочие единицы
 
-- [ ] Финальные гейты: `npm run validate`, `check:axe` 0 регрессий, bundle worktree-дельта (cap 737280 B), `check:public-api`.
 - [ ] Git flow: DRAFT PR → `gh pr ready` → squash + удаление ветки (auto по плану).
