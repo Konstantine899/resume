@@ -15,6 +15,10 @@
 // - ALL copy is i18n (i18n-first): labels, validation keys, toasts.
 // - Edit vs create: the `category` prop switches the mode; the page owns
 //   the key-remount (Design C).
+// - WU-5/A7: the form renders INSIDE the page's kit Modal — the modal
+//   header owns the visible title (this form no longer renders its own
+//   h2), and a SUCCESSFUL Save (create or edit) closes through
+//   `onExitEdit` — create used to stay open inline.
 
 import type { SkillCategory, SkillCategoryData } from '@/entities/Skill';
 import { SKILL_CATEGORY_VALUES } from '@/entities/Skill';
@@ -23,7 +27,6 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
-import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
@@ -48,7 +51,7 @@ export interface SkillCategoryFormProps {
   'data-testid'?: string;
   /** Edit mode: record being edited. Absent = create mode. */
   category?: SkillCategoryData;
-  /** Edit mode exit — the page clears its selection (key-remounts us). */
+  /** Close signal: edit exit AND successful create-save (WU-5/A7) — the page clears its selection (key-remounts us). */
   onExitEdit?: () => void;
 }
 
@@ -114,6 +117,8 @@ export const SkillCategoryForm: React.FC<SkillCategoryFormProps> = ({
     dispatch(addSkillCategory(record));
     addToast({ message: t('skillsSaved'), type: 'success' });
     reset(emptyCategoryFormValues());
+    // A7: successful create closes the modal too (was: inline form stayed open).
+    onExitEdit?.();
   });
 
   const handleCancel = () => {
@@ -128,10 +133,6 @@ export const SkillCategoryForm: React.FC<SkillCategoryFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
-      <div className={styles.intro}>
-        <Heading level={2}>{t(category ? 'skillsEditCategory' : 'skillsAddCategory')}</Heading>
-      </div>
-
       <div className={styles.field}>
         <Select
           id="skill-category-form-category"

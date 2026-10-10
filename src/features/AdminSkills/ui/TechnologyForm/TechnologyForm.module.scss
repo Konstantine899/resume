@@ -8,19 +8,15 @@
 
 // tokens inside the shared inputs — no hardcoded values (plan §8).
 
-// Same structure as ProjectForm.module.scss + a checkbox row.
+// Same structure as ProjectForm.module.scss + a checkbox row; no intro —
+
+// the modal header owns the title and the categoryId subtitle (WU-5).
 
 @use '@/shared/styles/variables' as *;
 
 .form {
   display: flex;
   flex-direction: column;
-}
-
-.intro {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
 }
 
 .field {

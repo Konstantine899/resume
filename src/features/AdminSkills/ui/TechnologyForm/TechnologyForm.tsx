@@ -16,6 +16,10 @@
 // - persist BEFORE dispatch (§3) with the nested collection rebuilt from
 //   one `all` snapshot — store === storage.
 // - ALL copy is i18n; Delete lives in SkillsEditorList (§9).
+// - WU-5/A7: the form renders INSIDE the page's kit Modal — the modal
+//   header owns the title and the fixed categoryId moved to the modal
+//   `subtitle` («как сейчас muted-строкой», SPEC); a SUCCESSFUL Save
+//   (create or edit) closes through `onExitEdit`.
 
 import type { SkillCategoryData, Technology } from '@/entities/Skill';
 import { SKILL_ICON_KEYS } from '@/entities/Skill';
@@ -24,7 +28,6 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
-import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
@@ -52,7 +55,7 @@ export interface TechnologyFormProps {
   categoryId: string;
   /** Edit mode: record being edited. Absent = create mode. */
   technology?: Technology;
-  /** Edit mode exit — the page clears its selection (key-remounts us). */
+  /** Close signal: edit exit AND successful create-save (WU-5/A7) — the page clears its selection (key-remounts us). */
   onExitEdit?: () => void;
 }
 
@@ -149,6 +152,8 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     dispatch(addTechnology({ categoryId, technology: record }));
     addToast({ message: t('skillsSaved'), type: 'success' });
     reset(emptyTechnologyFormValues());
+    // A7: successful create closes the modal too (was: inline form stayed open).
+    onExitEdit?.();
   });
 
   const handleCancel = () => {
@@ -169,13 +174,6 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
-      <div className={styles.intro}>
-        <Heading level={2}>
-          {t(technology ? 'skillsEditTechnology' : 'skillsAddTechnology')}
-        </Heading>
-        <Paragraph theme="muted">{categoryId}</Paragraph>
-      </div>
-
       <div className={styles.field}>
         <Input
           label={t('skillsTechnologyName')}

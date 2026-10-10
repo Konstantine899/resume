@@ -3,8 +3,16 @@
 // ============================================
 //
 // Child route `/admin/skills` rendered through AdminLayout's <Outlet/>.
-// Thin page: list + one open form with the selection state — all CRUD
-// logic lives in features/AdminSkills (FSD pages compose).
+// Thin page: list + ONE open modal form with the selection state — all
+// CRUD logic lives in features/AdminSkills (FSD pages compose).
+//
+// WU-5 (OPEN-2): the create/edit forms render inside a kit Modal owned by
+// this page — `isOpen`/`onClose` are the page's `form` state (A12: at
+// most one modal, form XOR confirm — the overlay blocks the list). The
+// modal header owns the title (forms dropped their own h2); the fixed
+// categoryId of the technology form is the modal `subtitle` (SPEC).
+// Cancel / ESC / overlay (A8) and a successful Save (A7) all close via
+// `closeForm`.
 //
 // The open form is a discriminated union (category | technology): the two
 // editors have different props, and only one renders at a time.
@@ -21,7 +29,9 @@ import {
   selectAllSkillsData,
 } from '@/features/AdminSkills';
 import type { SkillCategoryData } from '@/entities/Skill';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import { Modal } from '@/shared/ui/Modal';
 import { Section } from '@/shared/ui/Section';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -34,7 +44,21 @@ type SkillsFormState =
 
 export const AdminSkillsPage: React.FC = () => {
   const categories = useSelector(selectAllSkillsData);
+  const { t } = useLanguage();
   const [form, setForm] = useState<SkillsFormState>(null);
+
+  const closeForm = () => setForm(null);
+
+  // Modal chrome derived from the open form (null = closed, title unused).
+  let formTitle: string | undefined;
+  let formSubtitle: string | undefined;
+  if (form?.kind === 'category') {
+    formTitle = t(form.category ? 'skillsEditCategory' : 'skillsAddCategory');
+  } else if (form?.kind === 'technology') {
+    formTitle = t(form.techName ? 'skillsEditTechnology' : 'skillsAddTechnology');
+    // «как сейчас muted-строкой → subtitle модалки» (SPEC, verdict OPEN-2).
+    formSubtitle = form.categoryId;
+  }
 
   // Record deleted elsewhere → fall back to create (AdminMyWorkPage
   // precedent); a vanished CATEGORY closes the technology form entirely
@@ -48,7 +72,7 @@ export const AdminSkillsPage: React.FC = () => {
       <SkillCategoryForm
         key={record?.category ?? 'category-create'}
         category={record}
-        onExitEdit={() => setForm(null)}
+        onExitEdit={closeForm}
       />
     );
   } else if (form?.kind === 'technology') {
@@ -62,7 +86,7 @@ export const AdminSkillsPage: React.FC = () => {
           key={`${form.categoryId}:${form.techName ?? 'create'}`}
           categoryId={form.categoryId}
           technology={technology}
-          onExitEdit={() => setForm(null)}
+          onExitEdit={closeForm}
         />
       );
     }
@@ -99,7 +123,9 @@ export const AdminSkillsPage: React.FC = () => {
           onCategoryDeleted={handleCategoryDeleted}
           onTechnologyDeleted={handleTechnologyDeleted}
         />
-        {formElement}
+        <Modal isOpen={form !== null} onClose={closeForm} title={formTitle} subtitle={formSubtitle}>
+          {formElement}
+        </Modal>
       </ErrorBoundary>
     </Section>
   );
