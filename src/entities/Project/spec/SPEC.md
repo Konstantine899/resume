@@ -19,9 +19,9 @@ verified:
 
 ## Контекст
 
-- Поле `image` (`entities/Project/model/schemes/schema.ts`) — обязательное, сегодня `z.url()` **запрещает внутренние пути**; у `link` в том же файле уже есть union «https | `/…`» (`linkSchema`) — образец для правки. Внутри `z.url()` лежит `new URL()` — `javascript:` формально проходит; гасится union-правкой (WU-1).
+- Поле `image` (`entities/Project/model/schemes/schema.ts`) — обязательное; **до WU-1** было `z.url()`, что **запрещало внутренние пути**; у `link` в том же файле уже был union «https | `/…`» (`linkSchema`) — образец для правки. Внутри `z.url()` лежит `new URL()` — `javascript:` формально проходил; погашен union-правкой (WU-1, verified 2026-10-10).
 - Потребители всего два: форма `AdminMyWork/ProjectForm` (plain `Input`, ошибка `projectImageInvalid`) и витрина `MyWork` → `ProjectCard` (проп `backgroundImage`, CSS background — битая картинка молча пустая).
-- Сид: 7 картинок на `ext.same-assets.com` (живы на 2026-10-10, но это третья сторона).
+- Сид: 7 картинок (verified 2026-10-10, WU-3) указывают внутренние пути `/images/projects/<имя>`; файлы лежат в источнике `src/shared/assets/images/projects/` (6 webp + 1 png, все ≤ 1 MB). Исторически сид ссылался на `ext.same-assets.com` (третья сторона — источник link rot, мотив плана).
 - Хранилище данных — localStorage (бэкенда нет) ⇒ сид-файлы «лежат в проекте» (git), а файл, выбранный в браузере, в git попасть **физически не может** — отсюда OPEN-6 (куда уходят байты при загрузке с компьютера).
 - **Архитектурный конвейер (единственный рабочий вариант):** источник в `src/shared/assets/images/projects/` (под git) → `vite-plugin-static-copy` кладёт в `public/images/projects/` на dev и на сборке. Альтернативы отвергнуты: положить в `public/` напрямую нельзя (сборка пустит `public/` — доказано опытно), импорт из `src` нельзя (в `[name].[hash].[ext]` путь переколлится).
 - В `public/` уже лежит результат такой же копии — `public/locales` (прецедент `buildPlugins.ts`); SSOT путей — тип `BuildPath` (`config/vite/types/config.ts`) + сборка в `vite.config.ts` + фикстуры в `config/vite/__tests__/*`.

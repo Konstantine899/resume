@@ -274,6 +274,25 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
     expect(titleInput()).toHaveValue('');
   });
 
+  it('accepts an internal /images/projects path as image and persists it verbatim (WU-3)', async () => {
+    renderCreate();
+
+    fillMinimalValid();
+    // Replace the https fixture with the new internal-path contract.
+    fireEvent.change(imageInput(), { target: { value: '/images/projects/dragonfly.webp' } });
+    fireEvent.change(screen.getByLabelText('projectFieldYear'), {
+      target: { value: '2025' },
+    });
+    fireEvent.click(saveButton());
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.image).toBe('/images/projects/dragonfly.webp');
+    expect(addSpy).toHaveBeenCalledTimes(1);
+    expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
+  });
+
   it('keeps the form filled, skips dispatch and toasts projectSaveError when persist fails', async () => {
     renderCreate();
 

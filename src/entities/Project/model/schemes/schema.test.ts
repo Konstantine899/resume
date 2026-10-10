@@ -14,7 +14,7 @@ const VALID: Project = {
   description: { en: 'An ecommerce platform.', ru: 'Интернет-платформа.' },
   techIcons: ['react', 'nextjs'],
   link: 'https://dragonflyprocessing.com',
-  image: 'https://ext.same-assets.com/55871041/1910007590.webp',
+  image: '/images/projects/dragonfly.webp',
   category: 'ecommerce',
   status: 'completed',
   featured: true,
