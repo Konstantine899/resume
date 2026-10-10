@@ -1,13 +1,15 @@
 // ============================================
-// SkillsEditorList — flat DataTable pilot (WU-5c, plan_kit_datatable)
+// SkillsEditorList — per-category blocks (plan_admin_panel_edit rev.3, WU-1)
 // ============================================
 //
-// Stage-1 CRUD over a FLAT tech list (OPEN-5): one table row per technology
-// plus a placeholder row keeping an EMPTY category reachable. Category
-// actions (Edit/Delete Category + Add Technology) live on the FIRST visible
-// row of their category in the current window (owner verdict 2026-10-10) —
-// when sorting scatters a category, exactly one of its rows still carries
-// them, so every visible category stays actionable on every page.
+// One DataTable per category (OPEN-6: block order = storage order): the
+// block header carries the h3 (category name + plural count Badge —
+// verdict OPEN-8, existing key `skillsCategoryCount`) and the block-level
+// actions (Edit category / Add technology — verdict OPEN-3 / Delete
+// category); the table below lists that category's technologies with row
+// actions. An empty category renders EmptyState `skillsCategoryEmpty`
+// (verdict OPEN-7) instead of a placeholder row; an empty STORE renders
+// the section-level `skillsListEmpty`.
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the next array is rebuilt from the
@@ -15,12 +17,10 @@
 // - Reset removes the storage key instead of persisting (§5), then
 //   dispatches resetToDefaults.
 // - Delete callbacks let the page close a form whose record vanished.
-// - ALL copy is i18n (i18n-first); counts render as plain numbers.
-// - Sorting is CONTROLLED (OPEN-1): clicks only emit `onSortChange`; this
-//   component owns the state today (sort⇄URL is a later step). The local
-//   sort+window mirror of DataTable is required to know WHICH row is first
-//   in the visible window — the kit windows internally, and the marker must
-//   match what is actually on screen.
+// - ALL copy is i18n (i18n-first); counts render via the plural key.
+// - Sorting is CONTROLLED and PER TABLE (A9): clicks only emit
+//   `onSortChange` to that block's table; page and sort state are keyed
+//   by category (A4), and a sort resets only its own table to page 1.
 // - A6: no heading elements inside cells — first cell is <strong>.
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
@@ -46,19 +46,14 @@ import {
 } from '../../model/slices/skillsSlice';
 import styles from './SkillsEditorList.module.scss';
 
-/** Rows per page (plan §7 pilot: 10–12 → 3–4 pages). No size group. */
+/** Rows per page until WU-2 lands the 5/10/20 size group (OPEN-1). */
 const PAGE_SIZE = 12;
 
-/** One flat row: a technology, or a placeholder keeping its category reachable. */
-type SkillRow = {
+/** One row of a single-category table. */
+type TechRow = {
   id: string;
-  techName?: string;
-  category: string;
-  categoryName: string;
-  techCount: number;
+  techName: string;
   entry: SkillCategoryData;
-  /** First occurrence of the category inside the CURRENT window. */
-  isFirstInWindow: boolean;
 };
 
 /** One pending destructive action behind the shared Modal confirm. */
@@ -102,64 +97,9 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const { addToast } = useToast();
   const [pending, setPending] = useState<PendingDelete>(null);
   const [deleting, setDeleting] = useState(false);
-  const [page, setPage] = useState(1);
-  const [sort, setSort] = useState<SortState | null>(null);
-
-  // ---- Flatten (OPEN-5): every tech + one placeholder per empty category ----
-  const rows: SkillRow[] = all.flatMap((entry) =>
-    entry.technologies.length > 0
-      ? entry.technologies.map((tech) => ({
-          id: `${entry.category}::${tech.name}`,
-          techName: tech.name,
-          category: entry.category,
-          categoryName: entry.categoryName,
-          techCount: entry.technologies.length,
-          entry,
-          isFirstInWindow: false,
-        }))
-      : [
-          {
-            id: `${entry.category}::`,
-            category: entry.category,
-            categoryName: entry.categoryName,
-            techCount: entry.technologies.length,
-            entry,
-            isFirstInWindow: false,
-          },
-        ]
-  );
-
-  // ---- Mirror of DataTable's controlled sort (A2/A3): same comparator ----
-  // (string localeCompare — both sortable columns use sortValue), then the
-  // same window math, so the "first row in window" marker always lands on
-  // the rows actually rendered by the kit.
-  const sortedRows = (() => {
-    if (!sort) return rows;
-    const value = (row: SkillRow) =>
-      sort.key === 'tech' ? (row.techName ?? '') : row.categoryName;
-    const sorted = [...rows].sort((a, b) => value(a).localeCompare(value(b)));
-    return sort.direction === 'asc' ? sorted : sorted.reverse();
-  })();
-
-  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE));
-  // The authoritative clamp lives in DataTable (plan A2); this mirror keeps
-  // the range counter and the marker consistent with what it renders.
-  const safePage = Math.min(Math.max(page, 1), totalPages);
-  const start = (safePage - 1) * PAGE_SIZE;
-
-  const flaggedRows = (() => {
-    const windowIds = new Set(sortedRows.slice(start, start + PAGE_SIZE).map((row) => row.id));
-    const seen = new Set<string>();
-    return sortedRows.map((row) => {
-      if (!windowIds.has(row.id)) return row;
-      const first = !seen.has(row.category);
-      seen.add(row.category);
-      return first ? { ...row, isFirstInWindow: true } : row;
-    });
-  })();
-
-  const rangeFrom = sortedRows.length > 0 ? start + 1 : 0;
-  const rangeTo = Math.min(start + PAGE_SIZE, sortedRows.length);
+  // A4: page and sort are PER TABLE, keyed by category.
+  const [pages, setPages] = useState<Record<string, number>>({});
+  const [sorts, setSorts] = useState<Record<string, SortState | null>>({});
 
   const closeModal = () => {
     setPending(null);
@@ -215,97 +155,46 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const confirmBody =
     pending?.kind === 'reset' ? t('skillsResetConfirm') : t('skillsConfirmDelete');
 
-  const columns: DataTableColumn<SkillRow>[] = [
+  /** Columns of ONE category table: the shared tech pair (no category column). */
+  const makeColumns = (): DataTableColumn<TechRow>[] => [
     {
       key: 'tech',
       header: t('technologies'),
       sortable: true,
-      sortValue: (row) => row.techName ?? '',
+      sortValue: (row) => row.techName,
       render: (row) => (
-        <span
-          className={styles.nameCell}
-          data-testid={row.techName ? `skill-tech-row-${row.techName}` : undefined}
-        >
-          <strong>{row.techName ?? t('skillsEmpty')}</strong>
+        <span className={styles.nameCell} data-testid={`skill-tech-row-${row.techName}`}>
+          <strong>{row.techName}</strong>
         </span>
       ),
-    },
-    {
-      key: 'category',
-      header: t('projectFieldCategory'),
-      sortable: true,
-      sortValue: (row) => row.categoryName,
-      render: (row) =>
-        row.isFirstInWindow ? (
-          <span className={styles.categoryCell} data-testid={`skill-category-row-${row.category}`}>
-            <span>{row.categoryName}</span>
-            <Badge variant="outline" size="sm">
-              {row.techCount}
-            </Badge>
-          </span>
-        ) : (
-          <span>{row.categoryName}</span>
-        ),
     },
     {
       key: 'actions',
       header: t('skillsTableActions'),
       render: (row) => (
-        <div className={styles.actionsCell}>
-          {row.isFirstInWindow && (
-            <div className={styles.actions} data-testid={`skill-category-actions-${row.category}`}>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onEditCategory?.(row.entry)}
-              >
-                {t('skillsEditCategory')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onAddTechnology?.(row.category)}
-              >
-                {t('skillsAddTechnology')}
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => setPending({ kind: 'category', categoryId: row.category })}
-              >
-                {t('skillsDelete')}
-              </Button>
-            </div>
-          )}
-          {row.techName !== undefined && (
-            <div className={styles.actions} data-testid={`skill-tech-actions-${row.techName}`}>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onEditTechnology?.(row.category, row.techName ?? '')}
-              >
-                {t('skillsEditTechnology')}
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() =>
-                  setPending({
-                    kind: 'technology',
-                    categoryId: row.category,
-                    techName: row.techName ?? '',
-                  })
-                }
-              >
-                {t('skillsDelete')}
-              </Button>
-            </div>
-          )}
+        <div className={styles.actions} data-testid={`skill-tech-actions-${row.techName}`}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
+          >
+            {t('skillsEditTechnology')}
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            onClick={() =>
+              setPending({
+                kind: 'technology',
+                categoryId: row.entry.category,
+                techName: row.techName,
+              })
+            }
+          >
+            {t('skillsDelete')}
+          </Button>
         </div>
       ),
     },
@@ -333,31 +222,105 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
         </div>
       </div>
 
-      <DataTable<SkillRow>
-        caption={t('adminSkillsTitle')}
-        columns={columns}
-        rows={flaggedRows}
-        getKey={(row) => row.id}
-        page={page}
-        pageSize={PAGE_SIZE}
-        onPageChange={setPage}
-        sort={sort}
-        onSortChange={(next) => {
-          setSort(next);
-          // A sort the user cannot SEE reads as a broken button: leaving a
-          // stale mid-list page would show rows 13–24 of the new order, not
-          // its top — so the pilot always jumps back to page 1.
-          setPage(1);
-        }}
-        emptyState={<EmptyState title={t('skillsListEmpty')} />}
-      />
+      {all.length === 0 ? (
+        // Section-level empty: no categories at all (skillsListEmpty).
+        <EmptyState title={t('skillsListEmpty')} />
+      ) : (
+        // Storage order (OPEN-6) — selectAllSkillsData keeps it.
+        all.map((entry) => {
+          // A9: the kit owns sorting (sortValue on the column) and the
+          // pagination window (A10 clamp) — this block only supplies the
+          // CONTROLLED sort/page state, keyed by category (A4).
+          const techRows: TechRow[] = entry.technologies.map((tech) => ({
+            id: `${entry.category}::${tech.name}`,
+            techName: tech.name,
+            entry,
+          }));
 
-      {sortedRows.length > 0 && (
-        <div className={styles.footer} data-testid="skills-pagination-footer">
-          <span className={styles.range} aria-live="polite">
-            {t('paginationRange', { from: rangeFrom, to: rangeTo, total: sortedRows.length })}
-          </span>
-        </div>
+          const totalPages = Math.max(1, Math.ceil(techRows.length / PAGE_SIZE));
+          // Mirror of the kit's safePage so the range counter always agrees
+          // with the window DataTable actually renders (A10).
+          const safePage = Math.min(Math.max(pages[entry.category] ?? 1, 1), totalPages);
+          const start = (safePage - 1) * PAGE_SIZE;
+
+          const rangeFrom = techRows.length > 0 ? start + 1 : 0;
+          const rangeTo = Math.min(start + PAGE_SIZE, techRows.length);
+
+          return (
+            <section
+              key={entry.category}
+              className={styles.block}
+              data-testid={`skills-category-block-${entry.category}`}
+            >
+              <div className={styles.blockHeader}>
+                <Heading level={3}>
+                  {entry.categoryName}{' '}
+                  <Badge variant="outline" size="sm">
+                    {t('skillsCategoryCount', { count: entry.technologies.length })}
+                  </Badge>
+                </Heading>
+                <div
+                  className={styles.actions}
+                  data-testid={`skill-category-actions-${entry.category}`}
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEditCategory?.(entry)}
+                  >
+                    {t('skillsEditCategory')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onAddTechnology?.(entry.category)}
+                  >
+                    {t('skillsAddTechnology')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
+                  >
+                    {t('skillsDelete')}
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable<TechRow>
+                caption={entry.categoryName}
+                columns={makeColumns()}
+                rows={techRows}
+                getKey={(row) => row.id}
+                page={pages[entry.category] ?? 1}
+                pageSize={PAGE_SIZE}
+                onPageChange={(next) => setPages((prev) => ({ ...prev, [entry.category]: next }))}
+                sort={sorts[entry.category] ?? null}
+                onSortChange={(next) => {
+                  setSorts((prev) => ({ ...prev, [entry.category]: next }));
+                  // A sort the user cannot SEE reads as a broken button:
+                  // reset only THIS table to the top of the new order (A9).
+                  setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                }}
+                emptyState={<EmptyState title={t('skillsCategoryEmpty')} compact />}
+              />
+
+              {techRows.length > 0 && (
+                <div
+                  className={styles.footer}
+                  data-testid={`skills-pagination-footer-${entry.category}`}
+                >
+                  <span className={styles.range} aria-live="polite">
+                    {t('paginationRange', { from: rangeFrom, to: rangeTo, total: techRows.length })}
+                  </span>
+                </div>
+              )}
+            </section>
+          );
+        })
       )}
 
       <Modal

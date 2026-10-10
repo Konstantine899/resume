@@ -133,6 +133,7 @@
   "adminSkillsTitle": "Редактировать секцию «Навыки»",
   "adminSkillsHint": "Изменения сохраняются в этом браузере и сразу появляются на главной.",
   "skillsListEmpty": "Категорий навыков пока нет",
+  "skillsCategoryEmpty": "В этой категории пока нет технологий",
   "skillsTableActions": "Действия",
   "skillsAddCategory": "Добавить категорию",
   "skillsEditCategory": "Редактировать категорию",

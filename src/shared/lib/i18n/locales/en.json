@@ -133,6 +133,7 @@
   "adminSkillsTitle": "Edit Skills section",
   "adminSkillsHint": "Changes are saved to this browser and show up on the home page right away.",
   "skillsListEmpty": "No skill categories yet",
+  "skillsCategoryEmpty": "No technologies in this category yet",
   "skillsTableActions": "Actions",
   "skillsAddCategory": "Add category",
   "skillsEditCategory": "Edit category",
