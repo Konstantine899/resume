@@ -27,6 +27,7 @@ import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
@@ -187,21 +188,13 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       </div>
 
       <div className={styles.field}>
-        <label className={styles.selectLabel} htmlFor="skill-technology-form-icon">
-          {t('skillsIcon')}
-        </label>
-        <select
+        <Select
           id="skill-technology-form-icon"
-          className={styles.select}
+          label={t('skillsIcon')}
+          options={knownIcons.map((icon) => ({ value: icon, label: icon }))}
           value={values.iconSvg ?? ''}
-          onChange={(event) => setValue('iconSvg', event.target.value, { shouldDirty: true })}
-        >
-          {knownIcons.map((icon) => (
-            <option key={icon} value={icon}>
-              {icon}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => setValue('iconSvg', value, { shouldDirty: true })}
+        />
         {errors.iconSvg && (
           <Paragraph asChild theme="error" size="s">
             <span role="alert">{t('skillsErrIcon')}</span>
