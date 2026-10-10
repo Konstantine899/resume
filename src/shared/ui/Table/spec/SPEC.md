@@ -1,9 +1,9 @@
 ---
-status: draft
+status: done
 epic:
 issue:
 created: '2026-10-08'
-verified:
+verified: '2026-10-10'
 ---
 
 # SPEC — shared/ui/Table
