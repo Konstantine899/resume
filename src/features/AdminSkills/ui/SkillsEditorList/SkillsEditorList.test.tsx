@@ -73,11 +73,15 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
-// A `count` option renders as `${key}:${count}` (plural badge checks).
+// A `count` option renders as `${key}:${count}` (plural badge checks) and a
+// `number` option as `${key}:${number}` (kit Pagination page buttons).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { count?: number }) =>
-      options?.count !== undefined ? `${key}:${options.count}` : key,
+    t: (key: string, options?: { count?: number; number?: number }) => {
+      if (options?.count !== undefined) return `${key}:${options.count}`;
+      if (options?.number !== undefined) return `${key}:${options.number}`;
+      return key;
+    },
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -361,23 +365,35 @@ describe('SkillsEditorList', () => {
   };
 
   describe('Pagination pilot', () => {
-    it('shows controls (nav + range) per block even when everything fits', () => {
-      renderList(); // 2 + 1 rows, both blocks ≤ 12
+    it('shows controls (size group + nav + range) per block even when everything fits', () => {
+      renderList(); // 2 + 1 rows, both blocks ≤ 5
 
-      // A5: every non-empty block renders its own nav and range mirror.
+      // A5: every non-empty block renders its own controls.
       expect(screen.getAllByRole('navigation')).toHaveLength(2);
       expect(screen.getAllByTestId(/^skills-pagination-footer/)).toHaveLength(2);
       expect(screen.getAllByText('paginationRange')).toHaveLength(2);
+      // Verdict OPEN-1: kit PageSizeGroup (5/10/20, default 5) per block.
+      expect(screen.getAllByRole('group', { name: 'perPageLabel' })).toHaveLength(2);
+      expect(block('frontend').getByRole('button', { name: '5' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
     });
 
     it('keeps page state independent per block (A4)', async () => {
-      setRows([15, 3]); // block1: 15 rows → 2 pages; block2: 3 → 1 page
+      setRows([15, 3]); // block1: 15 rows / 5 = 3 pages; block2: 3 → 1 page
       renderList();
+
+      // 3 pages prove the default size is 5, not 12 (kit aria-label
+      // `paginationPage` carries the number option).
+      expect(
+        block('frontend').getByRole('button', { name: 'paginationPage:3' })
+      ).toBeInTheDocument();
 
       fireEvent.click(block('frontend').getByText('2'));
       expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
       expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
-      expect(block('frontend').getByTestId('skill-tech-row-C1T13')).toBeInTheDocument();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
 
       // The other block is untouched: still its own page 1.
       expect(block('backend').getByText('1')).toHaveAttribute('aria-current', 'page');
@@ -391,20 +407,72 @@ describe('SkillsEditorList', () => {
       await waitFor(() => expect(screen.queryByTestId('skills-category-block-backend')).toBeNull());
       expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
       expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
-      expect(block('frontend').getByTestId('skill-tech-row-C1T13')).toBeInTheDocument();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
+    });
+
+    it('changes the page size per block: reset to page 1, other block untouched', () => {
+      setRows([15, 3]);
+      renderList();
+
+      fireEvent.click(block('frontend').getByText('2'));
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
+
+      // Verdict OPEN-1: pick 10 in the FRONTEND block only.
+      fireEvent.click(
+        within(block('frontend').getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+          name: '10',
+        })
+      );
+
+      // New size → back to page 1 (no hidden top of the re-windowed order).
+      expect(block('frontend').getByTestId('skill-tech-row-C1T1')).toBeInTheDocument();
+      expect(block('frontend').getByTestId('skill-tech-row-C1T10')).toBeInTheDocument();
+      expect(block('frontend').queryByTestId('skill-tech-row-C1T11')).toBeNull();
+      expect(
+        within(block('frontend').getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+          name: '10',
+        })
+      ).toHaveAttribute('aria-pressed', 'true');
+
+      // A4: the backend block keeps its own size of 5.
+      const backendGroup = within(block('backend').getByRole('group', { name: 'perPageLabel' }));
+      expect(backendGroup.getByRole('button', { name: '5' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+    });
+
+    it('clamps page to the new totalPages when the last row of the last page is deleted (A10)', async () => {
+      setRows([11, 3]); // block1: 11 rows / 5 = 3 pages, page 3 holds C1T11 only
+      renderList();
+
+      fireEvent.click(block('frontend').getByText('3'));
+      expect(block('frontend').getByTestId('skill-tech-row-C1T11')).toBeInTheDocument();
+
+      fireEvent.click(techActions('C1T11').getByRole('button', { name: 'skillsDelete' }));
+      const modal = await screen.findByRole('dialog');
+      fireEvent.click(within(modal).getByRole('button', { name: 'skillsDelete' }));
+
+      // 10 rows → 2 pages: the stale page 3 is clamped to page 2 — no empty page.
+      await waitFor(() =>
+        expect(block('frontend').queryByTestId('skill-tech-row-C1T11')).toBeNull()
+      );
+      expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').getByTestId('skill-tech-row-C1T6')).toBeInTheDocument();
+      expect(block('frontend').queryByRole('button', { name: 'paginationPage:3' })).toBeNull();
     });
 
     it('keeps the current page when a record on that page is edited', () => {
-      setRows([15, 3]); // block1: 15 rows → 2 pages
+      setRows([15, 3]); // block1: 15 rows / 5 = 3 pages
       const { onEditTechnology } = renderList();
 
       fireEvent.click(block('frontend').getByText('2'));
       expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');
       expect(block('frontend').queryByTestId('skill-tech-row-C1T1')).toBeNull();
 
-      fireEvent.click(techActions('C1T14').getByRole('button', { name: 'skillsEditTechnology' }));
+      fireEvent.click(techActions('C1T7').getByRole('button', { name: 'skillsEditTechnology' }));
 
-      expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'C1T14');
+      expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'C1T7');
       // No router coupling in this component: leaving for the edit form and
       // coming Back cannot reset `page` (manual check in the real router).
       expect(block('frontend').getByText('2')).toHaveAttribute('aria-current', 'page');

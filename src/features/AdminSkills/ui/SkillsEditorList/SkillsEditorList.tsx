@@ -46,8 +46,12 @@ import {
 } from '../../model/slices/skillsSlice';
 import styles from './SkillsEditorList.module.scss';
 
-/** Rows per page until WU-2 lands the 5/10/20 size group (OPEN-1). */
-const PAGE_SIZE = 12;
+/**
+ * Default rows per page + the kit `PageSizeGroup` options — verdict
+ * OPEN-1/OPEN-5 (2026-10-10): 5 / 10 / 20, default 5 (not 12).
+ */
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
 
 /** One row of a single-category table. */
 type TechRow = {
@@ -97,9 +101,10 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const { addToast } = useToast();
   const [pending, setPending] = useState<PendingDelete>(null);
   const [deleting, setDeleting] = useState(false);
-  // A4: page and sort are PER TABLE, keyed by category.
+  // A4: page, sort and page SIZE are PER TABLE, keyed by category.
   const [pages, setPages] = useState<Record<string, number>>({});
   const [sorts, setSorts] = useState<Record<string, SortState | null>>({});
+  const [sizes, setSizes] = useState<Record<string, number>>({});
 
   const closeModal = () => {
     setPending(null);
@@ -237,14 +242,15 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
             entry,
           }));
 
-          const totalPages = Math.max(1, Math.ceil(techRows.length / PAGE_SIZE));
+          const pageSize = sizes[entry.category] ?? DEFAULT_PAGE_SIZE;
+          const totalPages = Math.max(1, Math.ceil(techRows.length / pageSize));
           // Mirror of the kit's safePage so the range counter always agrees
           // with the window DataTable actually renders (A10).
           const safePage = Math.min(Math.max(pages[entry.category] ?? 1, 1), totalPages);
-          const start = (safePage - 1) * PAGE_SIZE;
+          const start = (safePage - 1) * pageSize;
 
           const rangeFrom = techRows.length > 0 ? start + 1 : 0;
-          const rangeTo = Math.min(start + PAGE_SIZE, techRows.length);
+          const rangeTo = Math.min(start + pageSize, techRows.length);
 
           return (
             <section
@@ -296,7 +302,14 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                 rows={techRows}
                 getKey={(row) => row.id}
                 page={pages[entry.category] ?? 1}
-                pageSize={PAGE_SIZE}
+                pageSize={pageSize}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+                onPageSizeChange={(next) => {
+                  setSizes((prev) => ({ ...prev, [entry.category]: next }));
+                  // A new size re-windows everything — top of page 1 of the
+                  // new order (SPEC A4/WU-3; A10 has no empty page either).
+                  setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                }}
                 onPageChange={(next) => setPages((prev) => ({ ...prev, [entry.category]: next }))}
                 sort={sorts[entry.category] ?? null}
                 onSortChange={(next) => {
