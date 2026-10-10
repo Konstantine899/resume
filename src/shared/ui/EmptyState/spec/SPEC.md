@@ -1,5 +1,5 @@
 ---
-status: draft
+status: approved
 epic:
 issue:
 created: '2026-10-08'
@@ -9,6 +9,7 @@ verified:
 # SPEC — shared/ui/EmptyState
 
 > Единственная истина для этого компонента (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
+> **approved (2026-10-10, вердикт владельца):** OPEN-1 = пилот «дашборд + админ-Skills»; OPEN-2 = без иконки. Источник: vault `wiki/plan/plan_kit_empty_state.md` rev.3.
 > Фаза A создана вручную из `scripts/createSlices/templates/spec.mjs` (нет `shared` в `generatorLayers`); фаза B выполняется вручную. Исходный план: vault `wiki/plan/plan_kit_empty_state.md`, рев.1.
 
 ## Цель
@@ -61,5 +62,5 @@ verified:
 
 Вердикты из плана vault, рев.1, нужны на момент утверждения:
 
-- OPEN-1: объём пилота — только дашборд или дашборд плюс один список? Рекомендация: **дашборд + админ-список Skills** (два файла, минимально и репрезентативно).
-- OPEN-2: иллюстративная иконка? Рекомендация: **нет**.
+- OPEN-1: **закрыт (2026-10-10)** — дашборд + админ-список Skills.
+- OPEN-2: **закрыт (2026-10-10)** — иконку не делаем.
