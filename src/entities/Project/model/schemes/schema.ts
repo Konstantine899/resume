@@ -13,7 +13,9 @@
 //
 // Limits come straight from the plan's validation table (§7): title 2–100
 // after trim; description locale ≤600; ≥1 techIcon key from TECH_ICONS;
-// link = null | absolute https:// | internal `/…`; image = valid URL;
+// link = null | absolute https:// | internal `/…`; image = internal `/…`
+// (single slash) | absolute http(s):// | base64 `data:image/…` ≤512K chars
+// (superset union, plan project-images rev.3);
 // role requires BOTH locales when present; metric ≤40; year 2000…2100.
 // Messages are NOT set here — the form maps failures to i18n keys (i18n-first).
 
@@ -39,6 +41,42 @@ const linkSchema = z.union([
     .refine((value) => value.startsWith('/')),
 ]);
 
+/**
+ * image = superset union (plan project-images rev.3, решение 5):
+ * - internal path `/…` — but NOT protocol-relative `//host` and not the
+ *   browser-normalized `/\host` (backslash is a slash in special-scheme
+ *   URLs, OPEN-2 rev.3);
+ * - absolute `https://` | `http://` — http was already accepted by the
+ *   legacy bare `z.url()`; rejecting it would silently invalidate the
+ *   stored envelope on hydration (readProjects → safeParse → seed);
+ * - `data:image/…` — strict raster prefix + 512K-char cap (defense in
+ *   depth; the branch exists REGARDLESS of the FileUpload pilot, OPEN-6
+ *   governs only where the pilot writes, not this schema).
+ * `javascript:`/`ftp://`/`file:` are deliberately rejected (security).
+ */
+const DATA_IMAGE_MAX_CHARS = 512_000;
+
+const imageSchema = z.union([
+  z
+    .string()
+    .min(2)
+    .refine(
+      (value) => value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\'),
+      { message: 'Internal image path must start with a single slash' }
+    ),
+  z.url().refine((value) => value.startsWith('https://') || value.startsWith('http://'), {
+    message: 'Absolute image URL must use http(s)',
+  }),
+  z
+    .string()
+    .regex(/^data:image\/(?:png|jpe?g|webp|gif|avif);base64,/i, {
+      message: 'data: image must be a base64 raster image',
+    })
+    .max(DATA_IMAGE_MAX_CHARS, {
+      message: `data: image must not exceed ${DATA_IMAGE_MAX_CHARS} chars`,
+    }),
+]);
+
 export const ProjectSchema = z.object({
   id: z.string().min(1),
   title: z.string().trim().min(2).max(100),
@@ -48,7 +86,7 @@ export const ProjectSchema = z.object({
   }),
   techIcons: z.array(z.enum(TECH_ICON_KEYS)).min(1),
   link: linkSchema,
-  image: z.url(),
+  image: imageSchema,
   category: categoryEnum,
   status: statusEnum,
   featured: z.boolean(),

@@ -94,6 +94,49 @@ describe('ProjectSchema', () => {
     expect(ProjectSchema.safeParse({ ...VALID, image: 'not-a-url' }).success).toBe(false);
   });
 
+  // Superset union (plan rev.3, решение 5): internal path | http(s):// | data:image/.
+  it('accepts an internal image path, http://, https:// and data:image URLs', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, image: '/images/projects/foo.webp' }).success).toBe(
+      true
+    );
+    expect(ProjectSchema.safeParse({ ...VALID, image: 'https://x.com/img.png' }).success).toBe(
+      true
+    );
+    expect(ProjectSchema.safeParse({ ...VALID, image: 'http://x.com/img.png' }).success).toBe(true);
+    expect(
+      ProjectSchema.safeParse({ ...VALID, image: 'data:image/webp;base64,AAAA' }).success
+    ).toBe(true);
+  });
+
+  it('rejects unsafe or malformed image values (security hardening)', () => {
+    // Concatenated so the `no-script-url` rule doesn't flag the test literal.
+    const scriptUrl = `java${'script:'}alert(1)`;
+    const rejected = [
+      scriptUrl,
+      'ftp://host/x.png',
+      'file:///etc/passwd',
+      '//host/x.png',
+      '/\\host/x.png',
+      'data:text/html;base64,PHNjcmlwdD4=',
+      'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+      'data:image/png;base64',
+      '',
+      '/',
+      'example.com',
+    ];
+    for (const image of rejected) {
+      expect(ProjectSchema.safeParse({ ...VALID, image }).success).toBe(false);
+    }
+  });
+
+  it('accepts a data:image URL at the 512K-char cap and rejects one char over', () => {
+    const prefix = 'data:image/webp;base64,';
+    const atCap = prefix + 'A'.repeat(512_000 - prefix.length);
+    expect(atCap).toHaveLength(512_000);
+    expect(ProjectSchema.safeParse({ ...VALID, image: atCap }).success).toBe(true);
+    expect(ProjectSchema.safeParse({ ...VALID, image: `${atCap}A` }).success).toBe(false);
+  });
+
   it('rejects category/status outside their enums', () => {
     expect(ProjectSchema.safeParse({ ...VALID, category: 'mainframe' }).success).toBe(false);
     expect(ProjectSchema.safeParse({ ...VALID, status: 'paused' }).success).toBe(false);
