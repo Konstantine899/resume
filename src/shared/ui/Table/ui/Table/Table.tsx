@@ -108,6 +108,7 @@ export function Table<T>({
                 scope="col"
                 className={cellClassName(column)}
                 style={column.width ? { width: column.width } : undefined}
+                aria-sort={column.ariaSort}
               >
                 {column.header}
               </th>

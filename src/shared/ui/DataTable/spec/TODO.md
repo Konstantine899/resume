@@ -1,10 +1,12 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
 ---
 
 # TODO — shared/ui/DataTable
 
-Компаньон к [SPEC.md](./SPEC.md). Все рабочие единицы сгорены
-(Phase A, Phase B, TDD-коммит, сторисы, гейты) — план закрыт
-2026-10-09, PR #195, ветка `feat/kit-datatable`.
+Компаньон к [SPEC.md](./SPEC.md) (rev.6, WU-5 «Сортировка»). Правила сгорания: выполненная единица **удаляется**, а не отмечается; одна единица = один ревью-коммит; критерии приёмки — в SPEC.md.
+
+## Рабочие единицы
+
+- [ ] Git flow: DRAFT PR → `gh pr ready` → squash + удаление ветки (auto по плану).

@@ -1,14 +1,14 @@
 // ============================================
 
-// SkillsEditorList — admin row list layout (Skills CRUD §9 WU-5)
+// SkillsEditorList — admin DataTable pilot (plan_kit_datatable WU-5c)
 
 // ============================================
 
 // Layout only: spacing via the $spacing-* scale, colors come from inherited
 
-// tokens — no hardcoded values (plan §8). Category rows are <li>, technology
+// tokens — no hardcoded values (plan §8). Flat tech rows inside kit Table;
 
-// rows are plain divs nested inside (listitem semantics stay category-scoped).
+// category actions stack ABOVE tech actions inside the first row's cell.
 
 @use '@/shared/styles/variables' as *;
 
@@ -37,77 +37,39 @@
   gap: $spacing-2;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+// First cell: <strong> label (A6), keeps long names from stretching the cell.
+.nameCell {
+  min-width: 0;
 }
 
-.row {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-  padding: $spacing-3;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-}
-
-.rowHeader {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.info {
+// Category identity cell (first row per category): name + plain-number badge.
+.categoryCell {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-2;
   align-items: center;
-  min-width: 0;
+}
+
+// Actions cell: category group stacked over the tech group; each group is a
+
+// wrapping button row (5 buttons fit on desktop, stack on narrow viewports).
+.actionsCell {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  align-items: flex-start;
 }
 
 .actions {
   display: flex;
-  gap: $spacing-2;
-}
-
-// Nested technology rows: indented, lighter border, same action rhythm.
-.techList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
-  padding-top: $spacing-2;
-  border-top: 1px dashed var(--color-border-subtle);
-}
-
-.techRow {
-  display: flex;
   flex-wrap: wrap;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: space-between;
+  gap: $spacing-2;
 }
 
-.techName {
-  min-width: 0;
-  font-size: var(--text-base);
-  color: var(--color-text-primary);
-}
-
-// Pagination footer (kit Pagination pilot): controls left, range counter
-
-// right; wraps into two rows on narrow viewports.
+// Range counter under the DataTable's pagination (kit Pagination pilot §7).
 .footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .range {
