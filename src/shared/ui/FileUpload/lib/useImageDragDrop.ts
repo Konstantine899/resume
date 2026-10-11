@@ -94,8 +94,9 @@ export function sanitizeFileName(originalName: string, blob: Blob): string {
  * Rejects a missing `<svg` root and active content (`<script`, `javascript:`).
  */
 export function isSafeSvgText(text: string): boolean {
-  if (!/<svg[\s>]/i.test(text)) return false;
-  return !/<script[\s>]/i.test(text) && !/javascript:/i.test(text);
+  // `[\s/>]` — a self-closing `<svg/>` root is valid SVG too.
+  if (!/<svg[\s/>]/i.test(text)) return false;
+  return !/<script[\s/>]/i.test(text) && !/javascript:/i.test(text);
 }
 
 export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDragDropReturn {

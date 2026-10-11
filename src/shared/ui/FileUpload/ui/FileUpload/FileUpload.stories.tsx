@@ -103,3 +103,36 @@ export const UploadsAFile: Story = {
     expect(canvas.getByText('Image selected')).toBeInTheDocument();
   },
 };
+
+// skills-icon-upload rev.2: image/svg+xml takes the RAW passthrough — the
+// original File is the blob (no canvas), the name keeps the .svg extension.
+export const UploadsAnSvg: Story = {
+  args: {
+    texts: { ...meta.args.texts, hint: 'SVG up to ~50 KB' },
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvasElement.querySelector<HTMLInputElement>('input[type="file"]');
+    expect(input).not.toBeNull();
+
+    const file = new File(
+      ['<svg xmlns="http://www.w3.org/2000/svg"><circle r="4"/></svg>'],
+      'React Logo.svg',
+      {
+        type: 'image/svg+xml',
+      }
+    );
+    await userEvent.upload(input as HTMLInputElement, [file]);
+
+    await waitFor(() =>
+      expect(args.onFileSelect).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'react-logo.svg', blob: expect.any(Blob) })
+      )
+    );
+    const selection = args.onFileSelect.mock.calls[
+      args.onFileSelect.mock.calls.length - 1
+    ]?.[0] as { blob: Blob };
+    expect(selection.blob.type).toBe('image/svg+xml');
+    expect(canvas.getByText('Image selected')).toBeInTheDocument();
+  },
+};
