@@ -235,13 +235,28 @@ async function main() {
             throw new Error('axe-core did not load into the story iframe');
           }
 
+          // axe.run under CPU load can exceed Playwright's default 30s
+          // evaluate timeout; a timed-out run keeps the axe global busy and
+          // the NEXT story then dies with "Axe is already running" — give
+          // the scan 60s and drain/retry while the flag is still set.
           const results = await page.evaluate(
-            ({ ruleTags, disabledRules }) =>
-              window.axe.run(document, {
+            async ({ ruleTags, disabledRules }) => {
+              const opts = {
                 runOnly: { type: 'tag', values: ruleTags },
                 rules: disabledRules,
-              }),
-            { ruleTags: tags, disabledRules: SHELL_RULES }
+              };
+              for (let attempt = 0; attempt < 15; attempt += 1) {
+                try {
+                  return await window.axe.run(document, opts);
+                } catch (error) {
+                  if (!String(error?.message ?? '').includes('already running')) throw error;
+                  await new Promise((resolve) => setTimeout(resolve, 2_000));
+                }
+              }
+              throw new Error('axe.run stayed busy after 15 drain attempts');
+            },
+            { ruleTags: tags, disabledRules: SHELL_RULES },
+            { timeout: 60_000 }
           );
           scansRun += 1;
 

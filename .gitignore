@@ -97,6 +97,11 @@ public/*.svg
 # Locale files (managed separately, do not commit with code changes)
 public/locales/
 
+# Project showcase images emitted by vite-plugin-static-copy (WU-2,
+# plan_project_images) — source of truth is src/shared/assets/images/projects,
+# public/ is build output wiped by emptyOutDir.
+public/images/
+
 # Build artifacts
 *.dll
 *.exe
@@ -298,6 +303,11 @@ lerna-debug.log*
 *.webp
 # Production portrait asset — required by src/features/About (exception to the screenshot rule)
 !src/shared/assets/Firefly_RemoveBackground.png
+# Project showcase images (plan_project_images WU-2) — source of truth tracked
+# in git; public/images/ emission is ignored above. The screenshot rules
+# (*.png/*.webp) don't apply here: these are content, not artifacts.
+!src/shared/assets/images/projects/*.png
+!src/shared/assets/images/projects/*.webp
 
 # ============================================
 # MISCELLANEOUS

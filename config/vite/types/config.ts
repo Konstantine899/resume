@@ -4,6 +4,10 @@ export interface BuildPath {
   src: string;
   locales: string;
   buildLocales: string;
+  /** Project showcase images — source of truth tracked in git. */
+  imagesProjects: string;
+  /** vite-plugin-static-copy dest for project images (emitted into public/). */
+  buildImagesProjects: string;
   app: string;
   pages: string;
   widgets: string;

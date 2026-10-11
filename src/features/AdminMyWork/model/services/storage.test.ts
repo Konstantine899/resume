@@ -94,8 +94,10 @@ describe('persistProjects', () => {
   });
 
   it('reports failure instead of throwing on quota/SecurityError', () => {
+    // Faithful to browsers: setItem throws a DOMException named
+    // QuotaExceededError (plan M6 — OPEN-6=A truth), not a plain Error.
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('QuotaExceededError');
+      throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
     });
     expect(persistProjects(VALID)).toBe(false);
   });

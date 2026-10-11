@@ -23,6 +23,7 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { FileUpload } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
@@ -244,6 +245,22 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           value={values.image ?? ''}
           fullWidth
           {...register('image')}
+        />
+        {/* WU-4 pilot (plan_project_images): file picker → compressed dataURL.
+            RHF wiring stays in the form (Select precedent — no RHF in kit). */}
+        <FileUpload
+          label={t('projectFileUploadLabel')}
+          texts={{
+            button: t('projectFileUploadButton'),
+            hint: t('projectFileUploadHint'),
+            notImage: t('projectFileUploadNotImage'),
+            tooLarge: t('projectFileUploadTooLarge'),
+            undecodable: t('projectFileUploadUndecodable'),
+            selected: t('projectFileUploadSelected'),
+          }}
+          onFileSelect={(value) =>
+            setValue('image', value, { shouldDirty: true, shouldValidate: true })
+          }
         />
       </div>
 

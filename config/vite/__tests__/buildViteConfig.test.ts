@@ -15,6 +15,8 @@ const paths: BuildPath = {
   src: '/repo/src',
   locales: '/repo/src/shared/lib/i18n/locales',
   buildLocales: '/repo/public/locales',
+  imagesProjects: '/repo/src/shared/assets/images/projects',
+  buildImagesProjects: '/repo/public/images/projects',
   app: '/repo/src/app',
   pages: '/repo/src/pages',
   entities: '/repo/src/entities',
