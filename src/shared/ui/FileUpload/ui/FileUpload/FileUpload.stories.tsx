@@ -1,7 +1,7 @@
 // src/shared/ui/FileUpload/ui/FileUpload/FileUpload.stories.tsx
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
 import { FileUpload } from './FileUpload';
 
@@ -77,5 +77,29 @@ export const Russian: Story = {
       undecodable: 'Не удалось обработать изображение',
       selected: 'Изображение выбрано',
     },
+  },
+};
+
+// Real browser pipeline: a genuine 1×1 PNG goes through decode → canvas →
+// toBlob — rev.4 contract: onFileSelect receives a Blob + sanitized name.
+const TINY_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+export const UploadsAFile: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvasElement.querySelector<HTMLInputElement>('input[type="file"]');
+    expect(input).not.toBeNull();
+
+    const bytes = Uint8Array.from(atob(TINY_PNG_BASE64), (char) => char.charCodeAt(0));
+    const file = new File([bytes], 'Demo Photo.png', { type: 'image/png' });
+    await userEvent.upload(input as HTMLInputElement, [file]);
+
+    await waitFor(() =>
+      expect(args.onFileSelect).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'demo-photo.webp', blob: expect.any(Blob) })
+      )
+    );
+    expect(canvas.getByText('Image selected')).toBeInTheDocument();
   },
 };

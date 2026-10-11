@@ -1,18 +1,20 @@
 // src/shared/ui/FileUpload/ui/FileUpload/FileUpload.test.tsx
 //
-// WU-4 (plan_project_images): kit FileUpload — file input + dropzone that
-// emits a COMPRESSED dataURL (webp when canvas supports it, else explicit
-// jpeg — Safari silently falls back to png otherwise). jsdom has no image
-// decoding and no canvas backend, so `Image` and the 2d context/toDataURL
-// are stubbed; the production pipeline is otherwise real (FileReader,
-// handlers, state).
+// WU-4 (plan_project_images) + rev.4 (owner directive 2026-10-10): kit
+// FileUpload — file input + dropzone that emits a COMPRESSED Blob + a
+// filesystem-safe name (webp when canvas supports it, else explicit jpeg —
+// Safari silently falls back to png otherwise). The consumer writes the
+// blob into a real directory; the kit never emits a dataURL. jsdom has no
+// image decoding and no canvas backend, so `Image`, the 2d context/toBlob
+// and object URLs are stubbed; the production pipeline is otherwise real
+// (FileReader, handlers, state).
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FileUpload } from './FileUpload';
-import type { FileUploadTexts } from '../../model/types';
+import type { FileUploadSelection, FileUploadTexts } from '../../model/types';
 
 const TEXTS: FileUploadTexts = {
   button: 'Choose image',
@@ -22,9 +24,6 @@ const TEXTS: FileUploadTexts = {
   undecodable: 'The image could not be decoded',
   selected: 'Image selected',
 };
-
-const WEBP_URL = 'data:image/webp;base64,AAAA';
-const JPEG_URL = 'data:image/jpeg;base64,BBBB';
 
 /** Controllable stand-in for the DOM Image (jsdom never decodes pixels). */
 let imageBehavior: 'load' | 'error' = 'load';
@@ -38,12 +37,30 @@ class FakeImage {
   }
 }
 
+/** toBlob mock: webp-capable runtime unless the test flips `webpCapable`. */
+let webpCapable = true;
+const mockCanvasToBlob = () =>
+  vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+    callback: BlobCallback,
+    type?: string
+  ) {
+    const resolved =
+      type === 'image/webp'
+        ? webpCapable
+          ? 'image/webp'
+          : 'image/png' // Safari's silent fallback — not webp!
+        : 'image/jpeg';
+    callback(new Blob(['compressed'], { type: resolved }));
+  });
+
 const renderFU = (props: Partial<Parameters<typeof FileUpload>[0]> = {}) => {
-  const onFileSelect = props.onFileSelect ?? vi.fn();
+  const mock = vi.fn<(file: FileUploadSelection) => void>();
   const utils = render(
-    <FileUpload label="Project image" texts={TEXTS} onFileSelect={onFileSelect} {...props} />
+    <FileUpload label="Project image" texts={TEXTS} onFileSelect={mock} {...props} />
   );
-  return { ...utils, onFileSelect };
+  // Tests that pass their own handler never touch `.mock` — the default is
+  // always a typed Mock, so callers can assert on calls.
+  return { ...utils, onFileSelect: mock };
 };
 
 // The dropzone group ALSO carries the label as its accessible name
@@ -57,7 +74,16 @@ const attachFile = (file: File) => {
 
 beforeEach(() => {
   imageBehavior = 'load';
+  webpCapable = true;
   vi.stubGlobal('Image', FakeImage);
+  // jsdom implements neither — the preview uses object URLs now.
+  vi.stubGlobal(
+    'URL',
+    Object.assign(Object.create(URL) as typeof URL, {
+      createObjectURL: vi.fn(() => 'blob:preview'),
+      revokeObjectURL: vi.fn(),
+    })
+  );
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
     drawImage: vi.fn(),
   } as unknown as ReturnType<HTMLCanvasElement['getContext']>);
@@ -69,28 +95,41 @@ afterEach(() => {
 });
 
 describe('FileUpload: selection pipeline', () => {
-  it('calls onFileSelect with a webp dataURL when canvas supports webp', async () => {
-    const toDataURL = vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
+  it('calls onFileSelect with a webp Blob + sanitized name when canvas supports webp', async () => {
+    const toBlob = mockCanvasToBlob();
     const { onFileSelect } = renderFU();
 
-    attachFile(new File(['x'], 'photo.png', { type: 'image/png' }));
+    attachFile(new File(['x'], 'My Photo (1).PNG', { type: 'image/png' }));
 
-    await waitFor(() => expect(onFileSelect).toHaveBeenCalledWith(WEBP_URL));
+    await waitFor(() =>
+      expect(onFileSelect).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'my-photo-1.webp',
+      })
+    );
+    const selection = onFileSelect.mock.calls[0]?.[0] as { blob: Blob };
+    expect(selection.blob.type).toBe('image/webp');
     // webp is probed first and accepted — jpeg never requested.
-    expect(toDataURL).toHaveBeenCalledTimes(1);
-    expect(toDataURL).toHaveBeenCalledWith('image/webp', 0.8);
+    expect(toBlob).toHaveBeenCalledTimes(1);
+    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/webp', 0.8);
   });
 
   it('falls back to an explicit JPEG when webp is unsupported (Safari)', async () => {
-    // Probe returns png (Safari's silent fallback), real encode returns jpeg.
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation((type?: string) =>
-      type === 'image/webp' ? 'data:image/png;base64,STUB' : JPEG_URL
-    );
+    // Probe answers png (Safari's silent fallback), real encode returns jpeg.
+    webpCapable = false;
+    mockCanvasToBlob();
     const { onFileSelect } = renderFU();
 
     attachFile(new File(['x'], 'photo.heic', { type: 'image/heic' }));
 
-    await waitFor(() => expect(onFileSelect).toHaveBeenCalledWith(JPEG_URL));
+    await waitFor(() =>
+      expect(onFileSelect).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'photo.jpg',
+      })
+    );
+    const selection = onFileSelect.mock.calls[0]?.[0] as { blob: Blob };
+    expect(selection.blob.type).toBe('image/jpeg');
   });
 
   it('rejects a non-image file with the notImage error (role=alert)', async () => {
@@ -104,7 +143,7 @@ describe('FileUpload: selection pipeline', () => {
 
   it('rejects an undecodable image through img.onerror (HEIC-style)', async () => {
     imageBehavior = 'error';
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
+    mockCanvasToBlob();
     const { onFileSelect } = renderFU();
 
     attachFile(new File(['x'], 'photo.heic', { type: 'image/heic' }));
@@ -113,9 +152,9 @@ describe('FileUpload: selection pipeline', () => {
     expect(onFileSelect).not.toHaveBeenCalled();
   });
 
-  it('rejects a compressed dataURL over the character cap (tooLarge)', async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
-    const { onFileSelect } = renderFU({ maxDataUrlChars: 10 });
+  it('rejects a compressed blob over the byte cap (tooLarge)', async () => {
+    mockCanvasToBlob();
+    const { onFileSelect } = renderFU({ maxBlobBytes: 1 });
 
     attachFile(new File(['x'], 'photo.png', { type: 'image/png' }));
 
@@ -124,18 +163,23 @@ describe('FileUpload: selection pipeline', () => {
   });
 
   it('accepts a dropped file through the dropzone handlers', async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
+    mockCanvasToBlob();
     const { onFileSelect } = renderFU();
     const file = new File(['x'], 'dropped.png', { type: 'image/png' });
 
     const zone = screen.getByRole('group', { name: 'Project image' });
     fireEvent.drop(zone, { dataTransfer: { files: [file], items: [] } });
 
-    await waitFor(() => expect(onFileSelect).toHaveBeenCalledWith(WEBP_URL));
+    await waitFor(() =>
+      expect(onFileSelect).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'dropped.webp',
+      })
+    );
   });
 
   it('clears a previous error once a valid file is selected', async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
+    mockCanvasToBlob();
     const { onFileSelect } = renderFU();
 
     attachFile(new File(['plain'], 'notes.txt', { type: 'text/plain' }));
@@ -145,7 +189,7 @@ describe('FileUpload: selection pipeline', () => {
     // Await the PIPELINE END, not just the error clearing (setErrorCode(null)
     // is synchronous) — otherwise the Image onload timer outlives the test
     // and fires after afterEach restored the canvas mock.
-    await waitFor(() => expect(onFileSelect).toHaveBeenCalledWith(WEBP_URL));
+    await waitFor(() => expect(onFileSelect).toHaveBeenCalledTimes(1));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
@@ -184,7 +228,7 @@ describe('FileUpload: accessibility', () => {
   });
 
   it('announces a successful selection through an aria-live=polite region', async () => {
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(WEBP_URL);
+    mockCanvasToBlob();
     renderFU();
 
     attachFile(new File(['x'], 'photo.png', { type: 'image/png' }));

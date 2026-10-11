@@ -1,5 +1,5 @@
 // ============================================
-// ProjectForm tests (plan_projects_crud §10 WU-4, §7)
+// ProjectForm tests (plan_projects_crud §10 WU-4, §7; rev.4 image flow)
 // ============================================
 //
 // RED-first contract: render in both modes, §7 validation mapped to i18n
@@ -7,6 +7,11 @@
 // (§3), Toast feedback, and the Modal confirms for Reset/Delete (§6 —
 // Modal, not window.confirm). Storage and action creators are spied at
 // the module boundary; selectors run REAL against a seed-shaped state.
+//
+// rev.4 (owner directive 2026-10-10): there is NO URL input — the image
+// value only ever comes from the FileUpload → save-to-directory flow, so
+// every test that needs a valid image drives the file input against a
+// mocked imageDir service (path `/images/projects/<name>`).
 
 import { PROJECT_CATEGORIES, TECH_ICONS, type Project } from '@/entities/Project';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -14,8 +19,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
 import { ProjectForm } from './ProjectForm';
 
-const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast } = vi.hoisted(
-  () => ({
+const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast, dirMocks } =
+  vi.hoisted(() => ({
     persistSpy: vi.fn((_projects: unknown[]) => true),
     removeSpy: vi.fn(),
     addSpy: vi.fn((project: unknown) => ({ type: 'myWork/addProject', payload: project })),
@@ -23,13 +28,35 @@ const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast 
     deleteSpy: vi.fn((id: string) => ({ type: 'myWork/deleteProject', payload: id })),
     resetSpy: vi.fn(() => ({ type: 'myWork/resetToDefaults' })),
     addToast: vi.fn(),
-  })
-);
+    dirMocks: {
+      supported: vi.fn(() => true),
+      read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
+      pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
+      write: vi.fn(async () => undefined),
+      getSubdir: vi.fn(
+        async (_root: unknown, name: string) =>
+          ({ kind: 'directory', name }) as FileSystemDirectoryHandle
+      ),
+      save: vi.fn(
+        async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
+          `/images/${subdir}/${name}`
+      ),
+    },
+  }));
 
 vi.mock('../../model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/services/storage')>()),
   persistProjects: persistSpy,
   removeProjects: removeSpy,
+}));
+
+vi.mock('@/shared/lib/imageDir', () => ({
+  isDirectoryPickerSupported: dirMocks.supported,
+  readImagesRootHandle: dirMocks.read,
+  pickImagesRoot: dirMocks.pick,
+  writeImagesRootHandle: dirMocks.write,
+  getOrCreateSubdir: dirMocks.getSubdir,
+  saveImageToDir: dirMocks.save,
 }));
 
 vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
@@ -71,6 +98,17 @@ vi.mock('react-redux', async (importOriginal) => {
 
 const seedProjects = createProjectsSeed();
 
+/** jsdom never decodes images or rasterises canvas — minimal stand-ins. */
+class FakeUploadImage {
+  onload: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  naturalWidth = 100;
+  naturalHeight = 100;
+  set src(_value: string) {
+    setTimeout(() => this.onload?.(), 0);
+  }
+}
+
 const renderCreate = () => render(<ProjectForm />);
 const renderEdit = (project: Project, onExitEdit = vi.fn()) => ({
   onExitEdit,
@@ -78,13 +116,24 @@ const renderEdit = (project: Project, onExitEdit = vi.fn()) => ({
 });
 
 const titleInput = () => screen.getByLabelText('projectFieldTitle');
-const imageInput = () => screen.getByLabelText('projectFieldImage');
 const saveButton = () => screen.getByRole('button', { name: 'projectSave' });
+const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
+
+/** Drive the FileUpload pipeline against the mocked canvas + imageDir. */
+const uploadImageFile = async (fileName = 'photo.png') => {
+  // Await a NEW save call — a plain toHaveBeenCalled() passes instantly on
+  // the second upload (the first call is still recorded).
+  const savesBefore = dirMocks.save.mock.calls.length;
+  fireEvent.change(fileInput(), {
+    target: { files: [new File(['x'], fileName, { type: 'image/png' })] },
+  });
+  await waitFor(() => expect(dirMocks.save.mock.calls.length).toBeGreaterThan(savesBefore));
+};
 
 /** Fill the minimal valid create-mode payload around the required title/image. */
-const fillMinimalValid = () => {
+const fillMinimalValid = async () => {
   fireEvent.change(titleInput(), { target: { value: 'Test Project' } });
-  fireEvent.change(imageInput(), { target: { value: 'https://example.com/p.png' } });
+  await uploadImageFile();
   fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
     target: { value: 'English description' },
   });
@@ -101,12 +150,50 @@ beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   persistSpy.mockReturnValue(true);
+  // FileUpload pipeline stubs (jsdom has neither decoding nor canvas).
+  vi.stubGlobal('Image', FakeUploadImage);
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+    drawImage: vi.fn(),
+  } as unknown as ReturnType<HTMLCanvasElement['getContext']>);
+  vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+    callback: BlobCallback,
+    type?: string
+  ) {
+    callback(
+      new Blob(['compressed'], { type: type === 'image/webp' ? 'image/webp' : 'image/jpeg' })
+    );
+  });
+  // URL.createObjectURL is missing in jsdom — patch the REAL URL class.
+  // NEVER replace the class (Object.create(URL) breaks `new URL()` inside
+  // zod v4's url() check → edit-mode link validation throws TypeError and
+  // handleSubmit never reaches the callback).
+  vi.stubGlobal(
+    'URL',
+    class extends URL {
+      static createObjectURL = vi.fn(() => 'blob:preview');
+      static revokeObjectURL = vi.fn();
+    }
+  );
+  // imageDir defaults — some tests override per-case.
+  dirMocks.supported.mockReturnValue(true);
+  dirMocks.read.mockResolvedValue(null);
+  dirMocks.pick.mockResolvedValue({
+    kind: 'directory',
+    name: 'images',
+  } as FileSystemDirectoryHandle);
+  dirMocks.write.mockResolvedValue(undefined);
+  dirMocks.getSubdir.mockImplementation(
+    async (_root: unknown, name: string) =>
+      ({ kind: 'directory', name }) as FileSystemDirectoryHandle
+  );
+  dirMocks.save.mockImplementation(
+    async (_root: unknown, _blob: Blob, name: string, subdir: string) => `/images/${subdir}/${name}`
+  );
 });
 
 afterEach(() => {
   vi.clearAllMocks();
-  // FileUpload pilot stubs Image/canvas (jsdom has neither) — restore so
-  // spies and globals never leak into the next test.
+  // Restore spies and globals so they never leak into the next test.
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -120,16 +207,20 @@ describe('ProjectForm: render (WU-4)', () => {
 
     expect(titleInput()).toHaveValue('');
     expect(document.querySelectorAll('textarea')).toHaveLength(5); // desc×2, role×2, metrics
-    // category + status are NATIVE selects (Select is absent from the kit).
+    // imageSubdir + category + status are kit Selects.
     const selects = document.querySelectorAll('select');
-    expect(selects).toHaveLength(2);
-    expect([...(selects[0] as HTMLSelectElement).options].map((option) => option.value)).toEqual(
+    expect(selects).toHaveLength(3);
+    expect([...(selects[1] as HTMLSelectElement).options].map((option) => option.value)).toEqual(
       PROJECT_CATEGORIES
     );
 
     // One toggle per TECH_ICONS key — the dictionary IS the option list.
     const toggles = screen.getByRole('group', { name: 'projectFieldTech' });
     expect(toggles.querySelectorAll('button')).toHaveLength(Object.keys(TECH_ICONS).length);
+
+    // rev.4: the image control is the file picker — no URL input exists.
+    expect(fileInput()).toBeInTheDocument();
+    expect(screen.queryByLabelText('projectFieldImage')).not.toBeInTheDocument();
 
     // §9 idle: Save disabled until dirty; Cancel/Delete are edit-only.
     expect(saveButton()).toBeDisabled();
@@ -138,12 +229,13 @@ describe('ProjectForm: render (WU-4)', () => {
     expect(screen.queryByRole('button', { name: 'projectCancel' })).not.toBeInTheDocument();
   });
 
-  it('edit mode: fields prefilled from the project, Cancel + Delete appear', () => {
+  it('edit mode: fields prefilled from the project, image path shown read-only, Cancel + Delete appear', () => {
     const project = seedProjects[0] as Project;
     renderEdit(project);
 
     expect(titleInput()).toHaveValue(project.title);
-    expect(imageInput()).toHaveValue(project.image);
+    // rev.4: the stored path renders as the current-value row, not an input.
+    expect(screen.getByText(project.image)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'projectCancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'projectDelete' })).toBeInTheDocument();
     // Pristine edit form → Save disabled (nothing changed yet).
@@ -157,7 +249,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
 
     // Make the form dirty FIRST (Save is disabled until dirty, §9), then
     // break ONLY the title — exactly one alert so findByRole stays single.
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.change(titleInput(), { target: { value: '' } });
     fireEvent.click(saveButton());
 
@@ -165,11 +257,20 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     expect(persistSpy).not.toHaveBeenCalled();
   });
 
-  it('maps an invalid image URL to projectImageInvalid', async () => {
+  it('maps a missing image to projectImageInvalid (no upload yet)', async () => {
     renderCreate();
 
-    fillMinimalValid();
-    fireEvent.change(imageInput(), { target: { value: 'not-a-url' } });
+    // Everything valid EXCEPT the image — a single alert stays unique.
+    fireEvent.change(titleInput(), { target: { value: 'Test Project' } });
+    fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
+      target: { value: 'English description' },
+    });
+    fireEvent.change(screen.getByLabelText('projectFieldDescription · RU'), {
+      target: { value: 'Описание' },
+    });
+    fireEvent.click(
+      screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
+    );
     fireEvent.click(saveButton());
 
     expect(await screen.findByRole('alert')).toHaveTextContent('projectImageInvalid');
@@ -180,7 +281,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     renderCreate();
 
     fireEvent.change(titleInput(), { target: { value: 'No tech yet' } });
-    fireEvent.change(imageInput(), { target: { value: 'https://example.com/p.png' } });
+    await uploadImageFile();
     fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
       target: { value: 'English' },
     });
@@ -196,9 +297,10 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
   it('rejects a category outside the enum (projectEnumInvalid)', async () => {
     renderCreate();
 
-    fillMinimalValid();
+    await fillMinimalValid();
+    // selects[0] = imageSubdir, [1] = category, [2] = status.
     const selects = document.querySelectorAll('select');
-    fireEvent.change(selects[0] as HTMLSelectElement, {
+    fireEvent.change(selects[1] as HTMLSelectElement, {
       target: { value: 'definitely-not-a-category' },
     });
     fireEvent.click(saveButton());
@@ -210,7 +312,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
   it('requires both role locales when one is set (projectRoleLocaleRequired)', async () => {
     renderCreate();
 
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.change(screen.getByLabelText('projectFieldRole · EN'), {
       target: { value: 'Frontend Developer' },
     });
@@ -223,7 +325,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
   it('rejects an out-of-range year (projectYearInvalid)', async () => {
     renderCreate();
 
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.change(screen.getByLabelText('projectFieldYear'), {
       target: { value: '1999' },
     });
@@ -236,7 +338,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
   it('rejects a metric line over 40 chars (projectMetricInvalid)', async () => {
     renderCreate();
 
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.change(screen.getByLabelText('projectFieldMetrics'), {
       target: { value: 'x'.repeat(41) },
     });
@@ -251,7 +353,7 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
   it('persists the collection with the new record BEFORE dispatching addProject', async () => {
     renderCreate();
 
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.change(screen.getByLabelText('projectFieldYear'), {
       target: { value: '2025' },
     });
@@ -268,7 +370,12 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
     const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
     const record = persisted[persisted.length - 1] as Project;
     expect(persisted).toHaveLength(seedProjects.length + 1);
-    expect(record).toMatchObject({ title: 'Test Project', year: 2025, featured: false });
+    expect(record).toMatchObject({
+      title: 'Test Project',
+      year: 2025,
+      featured: false,
+      image: '/images/projects/photo.webp',
+    });
     expect(record.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     expect(addSpy.mock.calls[0]?.[0]).toBe(record);
     expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
@@ -278,12 +385,11 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
     expect(titleInput()).toHaveValue('');
   });
 
-  it('accepts an internal /images/projects path as image and persists it verbatim (WU-3)', async () => {
+  it('persists the uploaded /images/projects path verbatim (rev.4 replaces the WU-3 typed-path test)', async () => {
+    dirMocks.save.mockResolvedValue('/images/projects/dragonfly.webp');
     renderCreate();
 
-    fillMinimalValid();
-    // Replace the https fixture with the new internal-path contract.
-    fireEvent.change(imageInput(), { target: { value: '/images/projects/dragonfly.webp' } });
+    await fillMinimalValid();
     fireEvent.change(screen.getByLabelText('projectFieldYear'), {
       target: { value: '2025' },
     });
@@ -301,7 +407,7 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
     renderCreate();
 
     persistSpy.mockReturnValueOnce(false);
-    fillMinimalValid();
+    await fillMinimalValid();
     fireEvent.click(saveButton());
 
     await waitFor(() =>
@@ -411,66 +517,142 @@ describe('ProjectForm: delete (Modal confirm, edit mode)', () => {
 });
 
 // ============================================
-// FileUpload pilot (plan_project_images WU-4 / OPEN-6=A / OPEN-7)
+// FileUpload → save-to-directory (plan_project_images rev.4)
 // ============================================
 
-/** jsdom never decodes images or rasterises canvas — minimal stand-ins. */
-class FakeUploadImage {
-  onload: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  naturalWidth = 100;
-  naturalHeight = 100;
-  set src(_value: string) {
-    setTimeout(() => this.onload?.(), 0);
-  }
-}
-
-describe('ProjectForm: FileUpload pilot (WU-4)', () => {
-  const DATA_URL = 'data:image/webp;base64,AAAA';
-
-  beforeEach(() => {
-    vi.stubGlobal('Image', FakeUploadImage);
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
-      drawImage: vi.fn(),
-    } as unknown as ReturnType<HTMLCanvasElement['getContext']>);
-    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(DATA_URL);
-  });
-
-  it('writes the compressed dataURL into the image field and revalidates it (OPEN-7)', async () => {
+describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
+  it('writes the file into the project directory, stores the path and revalidates (OPEN-7)', async () => {
     renderCreate();
-    fillMinimalValid();
-    // Break only the image — resolver mode is onSubmit, so surface the
-    // error through Save (§7 pattern), exactly one alert stays unique.
-    fireEvent.change(imageInput(), { target: { value: '' } });
+    // Surface the image error through Save first (§7 pattern — single alert).
+    fireEvent.change(titleInput(), { target: { value: 'Test Project' } });
+    fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
+      target: { value: 'English description' },
+    });
+    fireEvent.change(screen.getByLabelText('projectFieldDescription · RU'), {
+      target: { value: 'Описание' },
+    });
+    fireEvent.click(
+      screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
+    );
     fireEvent.click(saveButton());
     expect(await screen.findByRole('alert')).toHaveTextContent('projectImageInvalid');
     expect(persistSpy).not.toHaveBeenCalled();
 
-    const file = document.querySelector('input[type="file"]');
-    expect(file).not.toBeNull();
-    fireEvent.change(file as Element, {
-      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-    });
+    await uploadImageFile();
 
     // OPEN-7: setValue(..., { shouldDirty: true, shouldValidate: true })
-    // re-runs zod — the dataURL passes the union and the error clears.
-    await waitFor(() => expect((imageInput() as HTMLInputElement).value).toBe(DATA_URL));
+    // re-runs zod — the returned path passes the union and the error clears.
+    expect(await screen.findByText('/images/projects/photo.webp')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-    // SPEC criterion: the uploaded dataURL reaches the persisted record.
-    // persistProjects saves the WHOLE collection — the new record rides in
-    // the addProject payload.
+    // SPEC criterion: the uploaded PATH reaches the persisted record.
     fireEvent.click(saveButton());
     await waitFor(() => expect(addSpy).toHaveBeenCalled());
-    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ image: DATA_URL }));
+    expect(addSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ image: '/images/projects/photo.webp' })
+    );
     expect(persistSpy).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ image: DATA_URL })])
+      expect.arrayContaining([expect.objectContaining({ image: '/images/projects/photo.webp' })])
     );
   });
 
-  it('the URL field stays editable (picker is additive, not a replacement)', () => {
+  it('remembers the picked ROOT directory: the second upload skips the root picker', async () => {
     renderCreate();
-    fireEvent.change(imageInput(), { target: { value: '/images/projects/x.webp' } });
-    expect((imageInput() as HTMLInputElement).value).toBe('/images/projects/x.webp');
+
+    await uploadImageFile('first.png');
+    expect(dirMocks.pick).toHaveBeenCalledTimes(1);
+    expect(dirMocks.write).toHaveBeenCalledTimes(1);
+
+    // The root handle is now "remembered" — the next upload goes straight to write.
+    dirMocks.read.mockResolvedValue({
+      kind: 'directory',
+      name: 'images',
+    } as FileSystemDirectoryHandle);
+    await uploadImageFile('second.png');
+
+    expect(dirMocks.pick).toHaveBeenCalledTimes(1);
+    expect(dirMocks.save).toHaveBeenLastCalledWith(
+      expect.objectContaining({ name: 'images' }),
+      expect.any(Blob),
+      'second.webp',
+      'projects'
+    );
+  });
+
+  // Amend 2026-10-10: default/create/select subdirectory behaviour.
+  it('defaults to the `projects` subdirectory when no explicit choice is made', async () => {
+    renderCreate();
+
+    await uploadImageFile();
+
+    expect(dirMocks.getSubdir).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'images' }),
+      'projects'
+    );
+    expect(dirMocks.save).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'images' }),
+      expect.any(Blob),
+      'photo.webp',
+      'projects'
+    );
+  });
+
+  it('creates/uses a NEW subdirectory when the select is switched to `new`', async () => {
+    renderCreate();
+    fireEvent.change(document.querySelector('select') as HTMLSelectElement, {
+      target: { value: 'new' },
+    });
+
+    await uploadImageFile();
+
+    expect(dirMocks.getSubdir).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'images' }),
+      'new'
+    );
+    expect(dirMocks.save).toHaveBeenLastCalledWith(
+      expect.objectContaining({ name: 'images' }),
+      expect.any(Blob),
+      'photo.webp',
+      'new'
+    );
+  });
+
+  it('shows projectFileUploadUnsupported when the File System Access API is missing', async () => {
+    dirMocks.supported.mockReturnValue(false);
+    renderCreate();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadUnsupported');
+    expect(dirMocks.pick).not.toHaveBeenCalled();
+    expect(dirMocks.save).not.toHaveBeenCalled();
+  });
+
+  it('stays silent when the user cancels the picker (AbortError)', async () => {
+    dirMocks.pick.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
+    renderCreate();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
+    });
+
+    await waitFor(() => expect(dirMocks.pick).toHaveBeenCalledTimes(1));
+    // No alarm, no path row, no value change.
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^\/images\/projects\//)).not.toBeInTheDocument();
+  });
+
+  it('shows projectFileUploadSaveError when the directory write fails', async () => {
+    dirMocks.save.mockRejectedValueOnce(new DOMException('quota', 'QuotaExceededError'));
+    renderCreate();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadSaveError');
+    expect(screen.queryByText(/^\/images\/projects\//)).not.toBeInTheDocument();
   });
 });

@@ -1,9 +1,8 @@
 // src/shared/ui/FileUpload/ui/FileUpload/FileUpload.tsx
 //
-// Kit file-upload primitive (plan_project_images WU-4). The manual URL
-// field stays with the consumer — this is a second entry point that emits
-// a compressed dataURL through `onFileSelect` (no RHF inside; the pilot
-// form calls `setValue` itself, Select precedent).
+// Kit file-upload primitive (plan_project_images WU-4; rev.4: emits a
+// compressed Blob — the consumer saves it into a real directory and stores
+// the resulting path; no RHF inside, Select precedent).
 
 import { useId, useState, type DragEvent } from 'react';
 
@@ -17,7 +16,7 @@ export function FileUpload({
   label,
   texts,
   onFileSelect,
-  maxDataUrlChars,
+  maxBlobBytes,
   disabled,
   className,
 }: FileUploadProps) {
@@ -34,7 +33,7 @@ export function FileUpload({
       // The parent re-validates through RHF; the kit only reports.
       onError: () => setAnnounceSuccess(false),
       onSuccess: () => setAnnounceSuccess(true),
-      maxDataUrlChars,
+      maxBlobBytes,
     });
 
   const errorText = errorCode ? texts[errorCode] : undefined;
