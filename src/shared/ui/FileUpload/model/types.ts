@@ -29,16 +29,19 @@ export interface FileUploadTexts {
 }
 
 /**
- * What `onFileSelect` delivers: the client-compressed image as a Blob plus
- * a filesystem-safe suggested name (encoded extension matches the blob).
+ * What `onFileSelect` delivers: an image Blob plus a filesystem-safe
+ * suggested name.
  *
  * @remarks
  * rev.4 (owner directive 2026-10-10): the consumer WRITES the blob into a
  * real project directory and stores the resulting `/images/projects/…`
  * path — the kit never emits a dataURL and never knows project paths.
+ * rev.5 (skills-icon-upload): `image/svg+xml` is passed through RAW —
+ * `blob` is the original File (no canvas), `name` keeps the `.svg`
+ * extension; raster types keep the webp/jpeg compression contract.
  */
 export interface FileUploadSelection {
-  /** Client-compressed image (webp when the runtime supports it, else jpeg). */
+  /** Original File for SVG; compressed webp/jpeg for raster types. */
   blob: Blob;
   /** Sanitized `name.ext`, e.g. `my-photo.webp`. */
   name: string;

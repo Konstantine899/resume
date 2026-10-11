@@ -3,7 +3,7 @@
 // ============================================
 //
 // Stage-1 CRUD (plan_skills_crud §7): react-hook-form + zodResolver
-// against `makeTechnologyFormSchema(existingNames, knownIcons)`.
+// against `makeTechnologyFormSchema(existingNames, mode)`.
 // Uniqueness is scoped to the OWNING category (render key, R-9) and the
 // current record's own name is excluded so edit mode can keep it.
 //
@@ -12,28 +12,42 @@
 //   presence (min/max) → skillsErrTechName;
 // - `iconSvg` / `iconFilter`: any issue → skillsErrIcon / skillsErrFilter.
 //
+// rev.2 (skills-icon-upload, OPEN-1 = A): the icon Select is GONE —
+// `iconSvg` only ever comes from FileUpload → save-to-directory (subdir
+// `skills`, the ProjectForm pattern from PR #209). Create requires an
+// upload; edit with '' KEEPS the stored record (legacy key or path).
+// The kit never owns copy — unsupported/save errors surface as i18n
+// keys through local state (plan A2).
+//
 // Invariants:
 // - persist BEFORE dispatch (§3) with the nested collection rebuilt from
 //   one `all` snapshot — store === storage.
 // - ALL copy is i18n; Delete lives in SkillsEditorList (§9).
 // - WU-5/A7: the form renders INSIDE the page's kit Modal — the modal
 //   header owns the title and the fixed categoryId moved to the modal
-//   `subtitle` («как сейчас muted-строкой», SPEC); a SUCCESSFUL Save
-//   (create or edit) closes through `onExitEdit`.
+//   `subtitle`; a SUCCESSFUL Save (create or edit) closes through
+//   `onExitEdit`.
 
-import type { SkillCategoryData, Technology } from '@/entities/Skill';
-import { SKILL_ICON_KEYS } from '@/entities/Skill';
+import { resolveIconSvg, type SkillCategoryData, type Technology } from '@/entities/Skill';
+import {
+  getOrCreateSubdir,
+  isDirectoryPickerSupported,
+  pickImagesRoot,
+  readImagesRootHandle,
+  saveImageToDir,
+  writeImagesRootHandle,
+} from '@/shared/lib/imageDir';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllSkillsData } from '../../model/selectors/selectors';
@@ -47,6 +61,11 @@ import {
   type TechnologyFormValues,
 } from '../lib/technologyFormSchema';
 import styles from './TechnologyForm.module.scss';
+
+/** SVG byte cap for the icon upload (~50 KB — plan D1). */
+const ICON_MAX_BYTES = 50_000;
+/** Fixed subdir under the remembered images root (plan D2). */
+const ICON_SUBDIR = 'skills';
 
 export interface TechnologyFormProps {
   className?: string;
@@ -82,12 +101,8 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     .map((tech) => tech.name)
     .filter((name) => name !== technology?.name);
 
-  // Editing must not fail on a legacy icon that is not a listed key:
-  // widen the known set with the record's current value (§7 contract).
-  const knownIcons =
-    technology?.iconSvg && !SKILL_ICON_KEYS.includes(technology.iconSvg)
-      ? [...SKILL_ICON_KEYS, technology.iconSvg]
-      : SKILL_ICON_KEYS;
+  // rev.2: create requires an upload; edit allows '' (keep the record).
+  const mode = technology ? 'edit' : 'create';
 
   const {
     register,
@@ -97,7 +112,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     setValue,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<TechnologyFormValues, unknown, TechnologyFormOutput>({
-    resolver: zodResolver(makeTechnologyFormSchema(existingNames, knownIcons)),
+    resolver: zodResolver(makeTechnologyFormSchema(existingNames, mode)),
     defaultValues: technology ? toTechnologyFormValues(technology) : emptyTechnologyFormValues(),
   });
 
@@ -105,12 +120,43 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   // ProjectForm pattern; watch() is React Compiler-incompatible).
   const values = useWatch({ control });
 
+  // File-upload save errors (unsupported / write failure) — i18n keys,
+  // rendered as role=alert below the control (plan A2, no kit copy).
+  const [iconSaveErrorKey, setIconSaveErrorKey] = useState<
+    'skillsIconUploadUnsupported' | 'skillsIconUploadSaveError' | null
+  >(null);
+
+  // rev.2 / D2: the ProjectForm pattern (PR #209) — root handle in
+  // IndexedDB, fixed `skills` subdir, the form stores the PATH.
+  const handleImageFile = useCallback(
+    async (file: FileUploadSelection) => {
+      setIconSaveErrorKey(null);
+      if (!isDirectoryPickerSupported()) {
+        setIconSaveErrorKey('skillsIconUploadUnsupported');
+        return;
+      }
+      try {
+        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
+        await writeImagesRootHandle(root); // best-effort remember
+        await getOrCreateSubdir(root, ICON_SUBDIR);
+        const path = await saveImageToDir(root, file.blob, file.name, ICON_SUBDIR);
+        setValue('iconSvg', path, { shouldDirty: true, shouldValidate: true });
+      } catch (error) {
+        // The user dismissed the picker — no alarm, no value change.
+        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        setIconSaveErrorKey('skillsIconUploadSaveError');
+      }
+    },
+    [setValue]
+  );
+
   /** §3 order: persist → dispatch → toast → pristine form / exit. */
   const handleSave = handleSubmit((data) => {
     if (technology) {
+      // rev.2: '' means «keep the stored record» (legacy key or path).
       const patch = {
         name: data.name,
-        iconSvg: data.iconSvg,
+        iconSvg: data.iconSvg || technology.iconSvg,
         iconFilter: data.iconFilter,
         invertInDark: data.invertInDark,
       };
@@ -167,6 +213,10 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       : t('skillsErrTechName')
     : undefined;
 
+  // rev.2: edit-mode preview of the CURRENT stored icon (key or path) —
+  // the FileUpload preview shows only the just-picked file.
+  const currentIconUrl = technology ? resolveIconSvg(technology.iconSvg) : undefined;
+
   return (
     <Form
       className={classNames(styles.form, className)}
@@ -186,13 +236,32 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       </div>
 
       <div className={styles.field}>
-        <Select
-          id="skill-technology-form-icon"
-          label={t('skillsIcon')}
-          options={knownIcons.map((icon) => ({ value: icon, label: icon }))}
-          value={values.iconSvg ?? ''}
-          onChange={(value) => setValue('iconSvg', value, { shouldDirty: true })}
+        {currentIconUrl && (
+          <div className={styles.iconPreviewRow}>
+            <img className={styles.iconPreview} src={currentIconUrl} alt="" />
+            <Paragraph asChild theme="muted" size="s">
+              <span>{t('skillsIconCurrent')}</span>
+            </Paragraph>
+          </div>
+        )}
+        <FileUpload
+          label={t('skillsIconUploadLabel')}
+          texts={{
+            button: t('skillsIconUploadButton'),
+            hint: t('skillsIconUploadHint'),
+            notImage: t('skillsIconUploadNotImage'),
+            tooLarge: t('skillsIconUploadTooLarge'),
+            undecodable: t('skillsIconUploadUndecodable'),
+            selected: t('skillsIconUploadSelected'),
+          }}
+          onFileSelect={handleImageFile}
+          maxBlobBytes={ICON_MAX_BYTES}
         />
+        {iconSaveErrorKey && (
+          <Paragraph asChild theme="error" size="s">
+            <span role="alert">{t(iconSaveErrorKey)}</span>
+          </Paragraph>
+        )}
         {errors.iconSvg && (
           <Paragraph asChild theme="error" size="s">
             <span role="alert">{t('skillsErrIcon')}</span>

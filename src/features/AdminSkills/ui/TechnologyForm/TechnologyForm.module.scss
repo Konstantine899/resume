@@ -24,6 +24,19 @@
   flex-direction: column;
 }
 
+// rev.2: edit-mode preview of the CURRENT stored icon above the uploader.
+.iconPreviewRow {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.iconPreview {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 // invertInDark: native checkbox + label (the kit has no toggle).
 .checkRow {
   display: flex;

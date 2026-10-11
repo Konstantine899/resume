@@ -194,6 +194,89 @@ describe('FileUpload: selection pipeline', () => {
   });
 });
 
+describe('FileUpload: raw SVG passthrough (skills-icon-upload)', () => {
+  const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><circle r="4"/></svg>';
+
+  it('passes an SVG through WITHOUT canvas — original type + .svg name', async () => {
+    const toBlob = mockCanvasToBlob();
+    const { onFileSelect } = renderFU();
+
+    attachFile(new File([SVG], 'React Logo.svg', { type: 'image/svg+xml' }));
+
+    await waitFor(() =>
+      expect(onFileSelect).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'react-logo.svg',
+      })
+    );
+    const selection = onFileSelect.mock.calls[0]?.[0] as { blob: Blob };
+    expect(selection.blob.type).toBe('image/svg+xml');
+    // Vector must never touch the raster pipeline.
+    expect(toBlob).not.toHaveBeenCalled();
+  });
+
+  it('rejects an SVG over the byte cap with tooLarge (size check, not canvas)', async () => {
+    const toBlob = mockCanvasToBlob();
+    const { onFileSelect } = renderFU({ maxBlobBytes: 1 });
+
+    attachFile(new File([SVG], 'big.svg', { type: 'image/svg+xml' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.tooLarge);
+    expect(onFileSelect).not.toHaveBeenCalled();
+    expect(toBlob).not.toHaveBeenCalled();
+  });
+
+  it('rejects an SVG containing a <script> tag (undecodable)', async () => {
+    const { onFileSelect } = renderFU();
+
+    attachFile(
+      new File(['<svg><script>alert(1)</script></svg>'], 'evil.svg', { type: 'image/svg+xml' })
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.undecodable);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('rejects an SVG containing a javascript: URL (undecodable)', async () => {
+    const { onFileSelect } = renderFU();
+
+    attachFile(
+      new File(['<svg><a href="javascript:alert(1)">x</a></svg>'], 'evil.svg', {
+        type: 'image/svg+xml',
+      })
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.undecodable);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('rejects a file typed as SVG that has no <svg> root (undecodable)', async () => {
+    const { onFileSelect } = renderFU();
+
+    attachFile(new File(['just text'], 'fake.svg', { type: 'image/svg+xml' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.undecodable);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('accepts a dropped SVG through the dropzone without canvas', async () => {
+    const toBlob = mockCanvasToBlob();
+    const { onFileSelect } = renderFU();
+    const file = new File([SVG], 'dropped.svg', { type: 'image/svg+xml' });
+
+    const zone = screen.getByRole('group', { name: 'Project image' });
+    fireEvent.drop(zone, { dataTransfer: { files: [file], items: [] } });
+
+    await waitFor(() =>
+      expect(onFileSelect).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'dropped.svg',
+      })
+    );
+    expect(toBlob).not.toHaveBeenCalled();
+  });
+});
+
 describe('FileUpload: accessibility', () => {
   it('associates the visible label with the file input', () => {
     renderFU();
