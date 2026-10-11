@@ -1,9 +1,9 @@
 ---
-status: approved
+status: done
 epic:
 issue:
 created: '2026-10-10'
-verified:
+verified: '2026-10-10'
 ---
 
 # SPEC — shared/ui/Select

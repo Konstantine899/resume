@@ -1,13 +1,11 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — shared/ui/EmptyState
 
-Компаньон к [SPEC.md](./SPEC.md). Правила сгорания: выполненная единица **удаляется**, а не отмечается; одна единица = один ревью-коммит; критерии приёмки живут в SPEC.md, здесь их нет.
-
-## Рабочие единицы
-
-- [ ] WU-2 гейты: `npm run validate` (CPU <45%); axe `/admin` 0 новых; `check:bundle` с worktree-дельтой относительно merge-base (лимит 737280 B).
-- [ ] Git flow: `gh pr ready` при зелёных гейтах → squash merge + удаление ветки (auto по плану).
+Компаньон к [SPEC.md](./SPEC.md). Все рабочие единицы сгорены (WU-1 компонент, пилоты
+Dashboard/SkillsEditorList; финальные гейты: validate 3299/3299, axe 0 регрессий,
+bundle 712.4 KiB < 720 KiB) — план закрыт 2026-10-10, PR #197, ветка `feat/kit-empty-state`,
+squash `00d4735`.
