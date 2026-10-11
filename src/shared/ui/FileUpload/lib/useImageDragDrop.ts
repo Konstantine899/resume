@@ -1,40 +1,43 @@
 // src/shared/ui/FileUpload/lib/useImageDragDrop.ts
 //
 // Migrated from src/shared/ui/Image/lib/hooks/useImageDragDrop.ts (the old
-// hook had ZERO consumers) and upgraded per plan_project_images WU-4 /
-// OPEN-6=A rev.3:
-//   - the value is the COMPRESSED dataURL, not the raw File;
-//   - codec: probe webp first, fall back to an EXPLICIT jpeg — Safari does
-//     not encode webp in canvas and silently returns png, which blows the
-//     localStorage budget 5–10×;
+// hook had ZERO consumers), upgraded per plan_project_images WU-4 / OPEN-6=A
+// rev.3, then reworked per rev.4 (owner directive 2026-10-10):
+//   - the value is a COMPRESSED Blob + suggested file name — the consumer
+//     writes it into a real project directory (File System Access API) and
+//     stores the resulting path; dataURL output is gone;
+//   - codec: probe webp via toBlob, fall back to an EXPLICIT jpeg — Safari
+//     does not encode webp in canvas and silently returns png;
 //   - undecodable images (HEIC etc.) are caught by img.onerror — file.type
 //     is spoofable, the canvas decode is the arbiter;
 //   - the kit owns NO copy: errors surface as codes (plan A2).
 
-import { useCallback, useRef, useState, type ChangeEvent, type DragEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type DragEvent } from 'react';
 
-import type { FileUploadErrorCode } from '../model/types';
+import type { FileUploadErrorCode, FileUploadSelection } from '../model/types';
 
-/** Longest-edge cap for the canvas resize (keeps photo dataURLs in budget). */
+/** Longest-edge cap for the canvas resize. */
 const MAX_EDGE_PX = 1600;
 const DEFAULT_QUALITY = 0.8;
-const DEFAULT_MAX_DATA_URL_CHARS = 400_000;
+/** ~400K-char dataURL in rev.3 ≈ 300 KB of binary — same budget, in bytes. */
+const DEFAULT_MAX_BLOB_BYTES = 300_000;
+const NAME_MAX_LENGTH = 64;
 
 export interface UseImageDragDropOptions {
-  /** Receives the compressed dataURL on success. */
-  onFileSelect: (dataUrl: string) => void;
+  /** Receives the compressed blob + name on success. */
+  onFileSelect: (file: FileUploadSelection) => void;
   /** Receives a rejection code; the component maps it to consumer copy. */
   onError: (code: FileUploadErrorCode) => void;
   /** Receives a success marker; the component announces `texts.selected`. */
   onSuccess: () => void;
-  /** Cap for the produced dataURL length in characters. */
-  maxDataUrlChars?: number;
+  /** Cap for the compressed blob size in bytes. */
+  maxBlobBytes?: number;
 }
 
 export interface UseImageDragDropReturn {
   /** A file drag is over the zone. */
   isDragging: boolean;
-  /** Preview of the last accepted selection (dataURL). */
+  /** Preview of the last accepted selection (object URL). */
   previewUrl: string | null;
   /** Last rejection code, or null when the last selection succeeded. */
   errorCode: FileUploadErrorCode | null;
@@ -48,21 +51,40 @@ export interface UseImageDragDropReturn {
   reset: () => void;
 }
 
-/** Encode via canvas: webp when the runtime supports it, else explicit jpeg. */
-function encodeCompressed(canvas: HTMLCanvasElement): string | null {
-  const probe = canvas.toDataURL('image/webp', DEFAULT_QUALITY);
-  if (typeof probe === 'string' && probe.startsWith('data:image/webp')) return probe;
-  const jpeg = canvas.toDataURL('image/jpeg', DEFAULT_QUALITY);
-  return typeof jpeg === 'string' && jpeg.length > 0 ? jpeg : null;
+function canvasToBlob(canvas: HTMLCanvasElement, type: string): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob(resolve, type, DEFAULT_QUALITY);
+  });
+}
+
+/**
+ * Encode via canvas: webp when the runtime supports it, else explicit jpeg.
+ *
+ * `toBlob` falls back to `image/png` for unsupported MIME types (Safari) —
+ * the returned blob's `type` is the capability probe.
+ */
+async function encodeCompressed(canvas: HTMLCanvasElement): Promise<Blob | null> {
+  const webp = await canvasToBlob(canvas, 'image/webp');
+  if (webp && webp.type === 'image/webp') return webp;
+  const jpeg = await canvasToBlob(canvas, 'image/jpeg');
+  return jpeg && jpeg.type === 'image/jpeg' ? jpeg : null;
+}
+
+/** Filesystem-safe name with the extension that matches the encoded blob. */
+export function sanitizeFileName(originalName: string, blob: Blob): string {
+  const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
+  const base = originalName
+    .replace(/\.[^.]+$/, '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\w-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, NAME_MAX_LENGTH);
+  return `${base || 'image'}.${ext}`;
 }
 
 export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDragDropReturn {
-  const {
-    onFileSelect,
-    onError,
-    onSuccess,
-    maxDataUrlChars = DEFAULT_MAX_DATA_URL_CHARS,
-  } = options;
+  const { onFileSelect, onError, onSuccess, maxBlobBytes = DEFAULT_MAX_BLOB_BYTES } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -70,14 +92,29 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef(0);
+  const previewObjectUrl = useRef<string | null>(null);
+
+  const setPreview = useCallback((url: string | null) => {
+    if (previewObjectUrl.current) URL.revokeObjectURL(previewObjectUrl.current);
+    previewObjectUrl.current = url;
+    setPreviewUrl(url);
+  }, []);
+
+  // Revoke the last object URL on unmount.
+  useEffect(
+    () => () => {
+      if (previewObjectUrl.current) URL.revokeObjectURL(previewObjectUrl.current);
+    },
+    []
+  );
 
   const fail = useCallback(
     (code: FileUploadErrorCode) => {
       setErrorCode(code);
-      setPreviewUrl(null);
+      setPreview(null);
       onError(code);
     },
-    [onError]
+    [onError, setPreview]
   );
 
   const processFile = useCallback(
@@ -112,26 +149,28 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
           }
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          const dataUrl = encodeCompressed(canvas);
-          if (dataUrl === null) {
-            fail('undecodable');
-            return;
-          }
-          if (dataUrl.length > maxDataUrlChars) {
-            fail('tooLarge');
-            return;
-          }
+          void (async () => {
+            const blob = await encodeCompressed(canvas);
+            if (blob === null) {
+              fail('undecodable');
+              return;
+            }
+            if (blob.size > maxBlobBytes) {
+              fail('tooLarge');
+              return;
+            }
 
-          setPreviewUrl(dataUrl);
-          setErrorCode(null);
-          onFileSelect(dataUrl);
-          onSuccess();
+            setPreview(URL.createObjectURL(blob));
+            setErrorCode(null);
+            onFileSelect({ blob, name: sanitizeFileName(file.name, blob) });
+            onSuccess();
+          })();
         };
         img.src = source;
       };
       reader.readAsDataURL(file);
     },
-    [fail, maxDataUrlChars, onFileSelect, onSuccess]
+    [fail, maxBlobBytes, onFileSelect, onSuccess, setPreview]
   );
 
   const handleInputChange = useCallback(
@@ -186,9 +225,9 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
   const reset = useCallback(() => {
     dragCounter.current = 0;
     setIsDragging(false);
-    setPreviewUrl(null);
+    setPreview(null);
     setErrorCode(null);
-  }, []);
+  }, [setPreview]);
 
   return {
     isDragging,

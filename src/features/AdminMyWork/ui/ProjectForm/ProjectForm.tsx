@@ -23,7 +23,7 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
-import { FileUpload } from '@/shared/ui/FileUpload';
+import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
@@ -32,10 +32,18 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
+import {
+  getOrCreateSubdir,
+  isDirectoryPickerSupported,
+  pickImagesRoot,
+  readImagesRootHandle,
+  saveImageToDir,
+  writeImagesRootHandle,
+} from '@/shared/lib/imageDir';
 import { persistProjects, removeProjects } from '../../model/services/storage';
 import {
   addProject,
@@ -56,6 +64,12 @@ import styles from './ProjectForm.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */
 const LOCALES = ['en', 'ru'] as const;
+
+/** Amend 2026-10-10: subdirectory options for the image picker (default + create-new). */
+const IMAGE_SUBDIR_OPTIONS = [
+  { value: 'projects', label: 'projects' },
+  { value: 'new', label: 'new' },
+];
 
 export interface ProjectFormProps {
   className?: string;
@@ -78,6 +92,8 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const { t } = useLanguage();
   const { addToast } = useToast();
   const [confirmTarget, setConfirmTarget] = useState<'reset' | 'delete' | null>(null);
+  // rev.4: i18n key of the last save-to-directory failure (null = none).
+  const [imageSaveErrorKey, setImageSaveErrorKey] = useState<string | null>(null);
 
   // The schema transforms raw DOM strings into the persisted contract
   // (link null, metrics string[], year number) — three generics keep the
@@ -110,6 +126,34 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const toggleFeatured = () => {
     setValue('featured', !values.featured, { shouldDirty: true });
   };
+
+  // rev.4 + amend 2026-10-10 (owner directive): the ROOT images directory
+  // is picked once and remembered in IndexedDB (`imagesRoot`); the chosen
+  // subdirectory (default `projects`, or a newly created one from the
+  // select below) is created under it and the file is WRITTEN there —
+  // the form stores the resulting `/images/<dir>/<name>` PATH.
+  const handleImageFile = useCallback(
+    async (file: FileUploadSelection) => {
+      setImageSaveErrorKey(null);
+      if (!isDirectoryPickerSupported()) {
+        setImageSaveErrorKey('projectFileUploadUnsupported');
+        return;
+      }
+      try {
+        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
+        await writeImagesRootHandle(root); // best-effort remember
+        const subdir = values.imageSubdir || 'projects';
+        await getOrCreateSubdir(root, subdir); // create-or-select under root
+        const path = await saveImageToDir(root, file.blob, file.name, subdir);
+        setValue('image', path, { shouldDirty: true, shouldValidate: true });
+      } catch (error) {
+        // The user dismissed the picker — no alarm, no value change.
+        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        setImageSaveErrorKey('projectFileUploadSaveError');
+      }
+    },
+    [setValue, values.imageSubdir]
+  );
 
   /** §3 order: persist → dispatch → toast → pristine form. */
   const handleSave = handleSubmit((data) => {
@@ -238,16 +282,18 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         />
       </div>
 
+      {/* rev.4 + amend 2026-10-10: no manual URL/path field — the file is
+          written into a subdirectory of the shared images root (default
+          `projects`, or a new one from the select) and the form stores
+          the returned /images/<dir>/<name> path. */}
       <div className={styles.field}>
-        <Input
-          label={t('projectFieldImage')}
-          error={errors.image ? t('projectImageInvalid') : undefined}
-          value={values.image ?? ''}
-          fullWidth
-          {...register('image')}
+        <Select
+          id="project-form-image-subdir"
+          label={t('projectImageSubdirLabel')}
+          options={IMAGE_SUBDIR_OPTIONS}
+          value={values.imageSubdir ?? 'projects'}
+          onChange={(value) => setValue('imageSubdir', value, { shouldDirty: true })}
         />
-        {/* WU-4 pilot (plan_project_images): file picker → compressed dataURL.
-            RHF wiring stays in the form (Select precedent — no RHF in kit). */}
         <FileUpload
           label={t('projectFileUploadLabel')}
           texts={{
@@ -258,10 +304,24 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
             undecodable: t('projectFileUploadUndecodable'),
             selected: t('projectFileUploadSelected'),
           }}
-          onFileSelect={(value) =>
-            setValue('image', value, { shouldDirty: true, shouldValidate: true })
-          }
+          onFileSelect={handleImageFile}
         />
+        {imageSaveErrorKey ? (
+          <Paragraph asChild theme="error" size="s">
+            <span role="alert">{t(imageSaveErrorKey)}</span>
+          </Paragraph>
+        ) : null}
+        {errors.image ? (
+          <Paragraph asChild theme="error" size="s">
+            <span role="alert">{t('projectImageInvalid')}</span>
+          </Paragraph>
+        ) : null}
+        {values.image ? (
+          <div className={styles.imageCurrent}>
+            <img src={values.image} alt="" className={styles.imageCurrentPreview} />
+            <span className={styles.imageCurrentPath}>{values.image}</span>
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.localeRow}>

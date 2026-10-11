@@ -62,8 +62,17 @@ export const ProjectFormSchema = ProjectFormDataSchema.extend({
 });
 
 /** Raw DOM values the form works with (RHF `useForm<T>` input type). */
-export type ProjectFormValues = z.input<typeof ProjectFormSchema>;
-/** Parsed output — identical to the persisted `ProjectFormData` contract. */
+export type ProjectFormValues = z.input<typeof ProjectFormSchema> & {
+  /**
+   * Amend 2026-10-10: UI-only subdirectory picker for the save-to-directory
+   * flow (default `projects`, or `new` for a fresh name). NOT persisted —
+   * stripped by the schema (`.strip()` in `output`), only read by the
+   * save-to-directory handler.
+   */
+  imageSubdir?: string;
+};
+/** Parsed output — identical to the persisted `ProjectFormData` contract
+ *  (no `imageSubdir`; the extra form-only field is stripped). */
 export type ProjectFormOutput = z.output<typeof ProjectFormSchema>;
 
 /** Fresh blank values (never share one mutable object across mounts). */
@@ -79,6 +88,7 @@ export const emptyProjectFormValues = (): ProjectFormValues => ({
   role: { en: '', ru: '' },
   metrics: '',
   year: '',
+  imageSubdir: 'projects',
 });
 
 /** Record → DOM values (edit-mode defaults; RHF needs the string forms). */
@@ -94,4 +104,5 @@ export const toProjectFormValues = (project: Project): ProjectFormValues => ({
   role: project.role ? { ...project.role } : { en: '', ru: '' },
   metrics: (project.metrics ?? []).join('\n'),
   year: project.year === undefined ? '' : String(project.year),
+  imageSubdir: 'projects',
 });

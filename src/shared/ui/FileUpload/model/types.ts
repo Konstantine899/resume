@@ -20,7 +20,7 @@ export interface FileUploadTexts {
   hint?: string;
   /** Error copy: the selected file is not an image. */
   notImage: string;
-  /** Error copy: the compressed dataURL exceeds the character cap. */
+  /** Error copy: the compressed blob exceeds the byte cap. */
   tooLarge: string;
   /** Error copy: the image could not be decoded (HEIC and friends). */
   undecodable: string;
@@ -29,18 +29,34 @@ export interface FileUploadTexts {
 }
 
 /**
- * Props of the kit file-upload primitive (plan_project_images WU-4,
- * OPEN-6=A: bytes become a client-compressed dataURL until a server exists).
+ * What `onFileSelect` delivers: the client-compressed image as a Blob plus
+ * a filesystem-safe suggested name (encoded extension matches the blob).
+ *
+ * @remarks
+ * rev.4 (owner directive 2026-10-10): the consumer WRITES the blob into a
+ * real project directory and stores the resulting `/images/projects/…`
+ * path — the kit never emits a dataURL and never knows project paths.
+ */
+export interface FileUploadSelection {
+  /** Client-compressed image (webp when the runtime supports it, else jpeg). */
+  blob: Blob;
+  /** Sanitized `name.ext`, e.g. `my-photo.webp`. */
+  name: string;
+}
+
+/**
+ * Props of the kit file-upload primitive (plan_project_images WU-4;
+ * rev.4: emits a compressed Blob the consumer saves to a real directory).
  */
 export interface FileUploadProps {
   /** Visible <label> text bound to the file input — required (a11y name). */
   label: string;
   /** All consumer-owned strings (plan A2 — the kit has no copy of its own). */
   texts: FileUploadTexts;
-  /** Receives the compressed dataURL (webp when supported, else jpeg). */
-  onFileSelect: (dataUrl: string) => void;
-  /** Cap for the produced dataURL length in characters (default 400_000). */
-  maxDataUrlChars?: number;
+  /** Receives the compressed blob + suggested name on success. */
+  onFileSelect: (file: FileUploadSelection) => void;
+  /** Cap for the compressed blob size in bytes (default 300_000). */
+  maxBlobBytes?: number;
   /** Disables the input and the button. */
   disabled?: boolean;
   /** Merged onto the root element. */
