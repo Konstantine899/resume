@@ -1,15 +1,11 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — entities/Project (хранилище изображений + FileUpload)
 
-Компаньон к [SPEC.md](./SPEC.md). Правила сгорания: выполненная единица **удаляется**, а не отмечается; одна единица = один ревью-коммит; критерии приёмки живут в SPEC.md, здесь их нет.
-
-## Рабочие единицы
-
-- [ ] **WU-5 Гейты и PR**: `npm run validate`; `check:axe` (0 регрессий); `axe-stories` (все сторис, включая FileUpload); `check:bundle` (737280 не меняется); `check:spec`; git flow: ветка `feat/project-images-storage` от `dev` → DRAFT PR → ready при зелёных → squash + удаление ветки (auto-режим, общее решение 2026-10-05).
+Компаньон к [SPEC.md](./SPEC.md). Все рабочие единицы сгорены (WU-1…WU-5 выполнены 2026-10-10, PR #207).
 
 ## Заметки
 

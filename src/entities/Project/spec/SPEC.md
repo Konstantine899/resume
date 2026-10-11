@@ -71,8 +71,8 @@ verified:
 
 - [x] `npm run validate` зелёный (verified 2026-10-10, WU-5: type-check + lint + scss + тесты + coverage + public-api 37/37).
 - [x] `check:axe` — 0 регрессий против baseline (verified 2026-10-10: `/admin/mywork` добавлен в PATHS, 0 violations в обеих темах; baseline 4 known на `/` не тронуты).
-- [ ] `axe-stories` — 0 violations по всем сторис, включая FileUpload. **FileUpload-filter: 16/16 ✓ (2 прогона, 0 violations; 2 первых падения — documented axe-run гонка, устранена drain-retry правкой скрипта). Полный прогон `--filter=shared`: ~1460 ✓ / 203 ✗ — ВСЕ в не тронутых веткой семействах (code/paragraph/tooltip/link/toast/animatedsection/heading/input/calendar/button/badge/avatar: color-contrast, landmark-unique, scrollable-region-focusable и др.) — pre-existing storybook-долг: никто никогда не гонял «все сторис» до зелени (прошлые kit-гейты шли filter'ом на свой набор). Требует отдельного cleanup-issue, вне рамок этого change.
-- [ ] `check:bundle` в лимите 737280 B. **Отклонение (WU-5): 722.5 KiB > 720.0 KiB.** Замер worktree на `origin/dev` (4cefc85): 713.9 KiB → дельта ветки **+8.6 KiB** (код FileUpload + CSS-модуль + i18n-ключи; картинки и dataURL в бюджет не входят). Ожидание плана «дельта = 0» неверно — компонент сам по себе даёт прирост. Кап — human-approved контракт; решение владельца требуется.
+- [x] `axe-stories` — 0 violations по сторисам FileUpload (verified 2026-10-10: `--filter=FileUpload` 16/16 обе темы × 2 вьюпорта). Полный прогон `--filter=shared`: ~1460 ✓ / 203 ✗ — ВСЕ в не тронутых веткой семействах — pre-existing storybook-долг, вынесен в отдельный issue **#208** по решению владельца (2026-10-10), вне рамок этого change.
+- [x] `check:bundle` в лимите (verified 2026-10-10: 722.5 KiB < **744.0 KiB**). Кап поднят 737280→761856 с явного одобрения владельца: дельта +8.6 KiB vs `origin/dev` (4cefc85 = 713.9 KiB) = код FileUpload; картинки и dataURL в бюджет не входят (`check-bundle` смотрит только js/css).
 - [x] `check:spec` — пара в статусе, проходящем гейт (verified 2026-10-10: `spec gate OK: 10 specs`).
 
 ## Планируемые файлы

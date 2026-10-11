@@ -20,9 +20,9 @@
       }
     },
     "total": {
-      "maxSize": 737280,
-      "maxSizeGzip": 258048,
-      "description": "Total JS bundle size limit (720kb raw, 252kb gzip). Raised 655360/225280 -> 737280/258048 with human approval (Skills CRUD WU-5, 2026-10-06): measured 685467 raw / 224580 gzip (+35 KiB vs dev 634.4 KiB — AdminSkills model in main via storeReducers, +19.1 KiB; lazy /admin/skills chunk, +11.3 KiB; i18n keys, +3.9 KiB; Modal hoisted to a shared chunk, net neutral; RHF/zod stayed out of main). Headroom reserved for plan_workhistory_crud (model-in-main + lazy page + i18n, ~+25-30 KiB). Projects CRUD (2026-10-06): 625000->655360, measured 628224. About CRUD WU-4 (2026-10-04): 510000->625000, measured 596100. WU-2 (2026-09-30): 485000->510000. WU-1 measurement was 476365 raw / 157620 gzip JS."
+      "maxSize": 761856,
+      "maxSizeGzip": 266240,
+      "description": "Total JS bundle size limit (744kb raw, 260kb gzip). Raised 737280/258048 -> 761856/266240 with human approval (project-images WU-5 / PR #207, 2026-10-10): FileUpload kit component (+8.6 KiB raw vs origin/dev 4cefc85 = 713.9 KiB measured; images and dataURLs are NOT in this budget — check-bundle walks only js/css). Headroom kept for future lazy admin chunks. History: 655360/225280 -> 737280/258048 (Skills CRUD WU-5, 2026-10-06, measured 685467); Projects CRUD 625000->655360 (2026-10-06); About CRUD WU-4 510000->625000 (2026-10-04); WU-2 485000->510000 (2026-09-30); WU-1 measurement 476365 raw / 157620 gzip JS."
     },
     "assets": {
       "maxSize": 122880,
