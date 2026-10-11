@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic:
 issue:
 created: '2026-10-09'

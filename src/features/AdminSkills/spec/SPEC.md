@@ -1,9 +1,9 @@
 ---
-status: approved
+status: done
 epic: admin-panel-edit
 issue:
 created: '2026-10-10'
-verified:
+verified: '2026-10-10'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
