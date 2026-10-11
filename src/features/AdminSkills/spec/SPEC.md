@@ -1,9 +1,9 @@
 ---
-status: approved
+status: done
 epic: skills-icon-upload
-issue:
+issue: 213
 created: '2026-10-10'
-verified:
+verified: '2026-10-11'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
