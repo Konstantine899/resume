@@ -1,15 +1,16 @@
 ---
-status: done
-epic: admin-panel-edit
+status: approved
+epic: skills-icon-upload
 issue:
 created: '2026-10-10'
-verified: '2026-10-10'
+verified:
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки»). Companion: [TODO.md](./TODO.md).
+> Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки», done 2026-10-10, PR #205).
+> **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»). §Критерии предыдущего эпика сгорели вместе с TODO #205; ниже — контракт нового эпика. Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
@@ -99,8 +100,19 @@ Section (data-testid="admin-skills")
 
 ### Select
 
-- Уже используются и сохраняются: ключ категории (`SkillCategoryForm`), иконка (`TechnologyForm`).
-- Контрол размера страницы — `PageSizeGroup` (kit-компонент под эту задачу), НЕ `Select`; `Select` остаётся для ключа категории и иконки.
+- Остаётся **только** ключ категории (`SkillCategoryForm`) — enum, файл сюда не загружаешь.
+- Select иконки в `TechnologyForm` **удаляется** (вердикт OPEN-1 = A, rev.2) — см. §Загрузка иконки.
+- Контрол размера страницы — `PageSizeGroup` (kit-компонент под эту задачу), НЕ `Select`.
+
+### Загрузка иконки (rev.2, эпик skills-icon-upload)
+
+- **Направление (вердикт OPEN-1 = A):** полная замена. В `TechnologyForm` Select `iconSvg` (62 ключа `SKILL_ICON_KEYS`) удаляется; новая иконка — только загрузка SVG-файла через kit `FileUpload`.
+- **kit FileUpload: raw-SVG passthrough.** При `file.type === 'image/svg+xml'` хук `useImageDragDrop` НЕ идёт в canvas-пайплайн (растеризация убивает вектор; dimensionless SVG → naturalWidth 0 в Firefox): проверка капа байтами (в вызове формы ~50 КБ → `tooLarge`), дешёвая санити-проверка текста (содержит `<svg`; не содержит `<script`/`javascript:` → `undecodable`), отдача **исходного File** как blob + objectURL-превью. Растер-путь (не-SVG) не меняется. A2: без собственных строк — коды ошибок/тексты через `texts` потребителя.
+- **Хранилище.** Паттерн ProjectForm (PR #209): `isDirectoryPickerSupported()` → нет: тост unsupported, форма без иконки (Chromium-only риск принят владельцем 2026-10-10); root-handle в IndexedDB `imagesRoot`; `getOrCreateSubdir(root, 'skills')` + `saveImageToDir(root, blob, name, 'skills')` → **путь** `/images/skills/<имя>` в `setValue('iconSvg', path, {shouldDirty, shouldValidate})`; AbortError молча (дисклеймер picker'а); прочая ошибка → тост save-error, значение не тронуто.
+- **Витрина без правок.** `resolveIconSvg` имеет passthrough для `/`-путей — загруженный SVG рендерится `<img src>` как есть; `iconFilter`/`invertInDark` (CSS-фильтры) продолжают работать.
+- **Легаси-ключи.** Записи со значениями-ключами (`'react'`) продолжают резолвиться в витрине (lookup-режим). В edit-режиме формы: превью текущей иконки через `resolveIconSvg`; Save без новой загрузки сохраняет прежнее значение (ключ или путь); загрузка нового файла заменяет значение путём.
+- **Схема формы.** `iconSvg` формы: create — обязателен файл (пустое значение → ошибка required, существующий `skillsErrIcon`); edit — `''` = «сохранить текущее» | путь после загрузки; `knownIcons`-рефайн (`knownIcons.includes`) удаляется; схема entities (`z.string().min(1)`) не меняется.
+- **i18n.** Новые ключи en+ru (паритет-тест): label/hint аплоада, unsupported, save-error — паттерн `projectFileUpload*`; `skillsIcon` перестаёт использоваться формой.
 
 ### i18n
 
