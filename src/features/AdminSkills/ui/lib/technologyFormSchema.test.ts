@@ -1,5 +1,6 @@
 // ============================================
 // technology form schema tests (WU-5, plan_skills_crud §7)
+// + skills-icon-upload rev.2 (WU-2): iconSvg contract
 // ============================================
 
 import { describe, expect, it } from 'vitest';
@@ -12,7 +13,7 @@ import {
 
 const VALID = {
   name: 'React',
-  iconSvg: 'react',
+  iconSvg: '/images/skills/react.svg',
   iconFilter: '',
   invertInDark: false,
 };
@@ -50,8 +51,8 @@ describe('makeTechnologyFormSchema', () => {
     }
   });
 
-  it('rejects an icon key that is not among the available files', () => {
-    const result = makeTechnologyFormSchema([]).safeParse({ ...VALID, iconSvg: 'unknown-icon' });
+  it('create mode: rejects an empty iconSvg (file required)', () => {
+    const result = makeTechnologyFormSchema([]).safeParse({ ...VALID, iconSvg: '' });
     expect(result.success).toBe(false);
     if (!result.success) {
       const issue = result.error.issues.find((entry) => entry.path[0] === 'iconSvg');
@@ -60,12 +61,31 @@ describe('makeTechnologyFormSchema', () => {
     }
   });
 
-  it('accepts an unknown stored icon when the caller widens knownIcons (edit mode)', () => {
-    const result = makeTechnologyFormSchema([], ['react', 'legacy-unknown']).safeParse({
+  it('create mode: rejects a bare legacy key — the form only accepts uploaded paths', () => {
+    const result = makeTechnologyFormSchema([]).safeParse({ ...VALID, iconSvg: 'react' });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issue = result.error.issues.find((entry) => entry.path[0] === 'iconSvg');
+      expect(issue?.message).toBe('skillsErrIcon');
+    }
+  });
+
+  it('edit mode: accepts empty iconSvg (keep the current value)', () => {
+    const result = makeTechnologyFormSchema([], 'edit').safeParse({ ...VALID, iconSvg: '' });
+    expect(result.success).toBe(true);
+  });
+
+  it('edit mode: accepts an uploaded path over the previous value', () => {
+    const result = makeTechnologyFormSchema([], 'edit').safeParse({
       ...VALID,
-      iconSvg: 'legacy-unknown',
+      iconSvg: '/images/skills/new-icon.svg',
     });
     expect(result.success).toBe(true);
+  });
+
+  it('edit mode: still rejects a bare key (no Select to produce one anymore)', () => {
+    const result = makeTechnologyFormSchema([], 'edit').safeParse({ ...VALID, iconSvg: 'nodejs' });
+    expect(result.success).toBe(false);
   });
 
   it('maps an empty iconFilter to undefined', () => {
@@ -107,20 +127,19 @@ describe('makeTechnologyFormSchema', () => {
 });
 
 describe('technology form value helpers', () => {
-  it('empty values start blank with the first icon key', () => {
+  it('empty values start with no icon file (create requires an upload)', () => {
     expect(emptyTechnologyFormValues()).toEqual({
       name: '',
-      iconSvg: expect.stringMatching(/^(?!.*\s)\S+$/),
+      iconSvg: '',
       iconFilter: '',
       invertInDark: false,
     });
-    expect(emptyTechnologyFormValues().iconSvg.length).toBeGreaterThan(0);
   });
 
-  it('toTechnologyFormValues maps a record, defaulting optionals', () => {
+  it('toTechnologyFormValues leaves iconSvg empty — the record stays until an upload (edit)', () => {
     expect(toTechnologyFormValues({ name: 'Node.js', iconSvg: 'nodejs' })).toEqual({
       name: 'Node.js',
-      iconSvg: 'nodejs',
+      iconSvg: '',
       iconFilter: '',
       invertInDark: false,
     });
