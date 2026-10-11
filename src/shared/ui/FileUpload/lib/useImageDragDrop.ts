@@ -10,7 +10,12 @@
 //     does not encode webp in canvas and silently returns png;
 //   - undecodable images (HEIC etc.) are caught by img.onerror — file.type
 //     is spoofable, the canvas decode is the arbiter;
-//   - the kit owns NO copy: errors surface as codes (plan A2).
+//   - the kit owns NO copy: errors surface as codes (plan A2);
+//   - raw-SVG passthrough (skills-icon-upload, 2026-10-11): image/svg+xml
+//     skips the canvas entirely (rasterization would kill the vector;
+//     dimensionless SVG → naturalWidth 0 in Firefox) — content is checked
+//     by TEXT, the byte cap applies to the FILE, the original File is
+//     emitted as the blob.
 
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type DragEvent } from 'react';
 
@@ -72,7 +77,7 @@ async function encodeCompressed(canvas: HTMLCanvasElement): Promise<Blob | null>
 
 /** Filesystem-safe name with the extension that matches the encoded blob. */
 export function sanitizeFileName(originalName: string, blob: Blob): string {
-  const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
+  const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/svg+xml' ? 'svg' : 'jpg';
   const base = originalName
     .replace(/\.[^.]+$/, '')
     .toLowerCase()
@@ -81,6 +86,16 @@ export function sanitizeFileName(originalName: string, blob: Blob): string {
     .replace(/^-+|-+$/g, '')
     .slice(0, NAME_MAX_LENGTH);
   return `${base || 'image'}.${ext}`;
+}
+
+/**
+ * Cheap content check for a file typed as SVG — the MIME type is spoofable,
+ * so the TEXT is the arbiter (the raster path uses img.onerror the same way).
+ * Rejects a missing `<svg` root and active content (`<script`, `javascript:`).
+ */
+export function isSafeSvgText(text: string): boolean {
+  if (!/<svg[\s>]/i.test(text)) return false;
+  return !/<script[\s>]/i.test(text) && !/javascript:/i.test(text);
 }
 
 export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDragDropReturn {
@@ -123,6 +138,31 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
 
       if (!file.type.startsWith('image/')) {
         fail('notImage');
+        return;
+      }
+
+      // Raw SVG passthrough (skills-icon-upload): the canvas pipeline would
+      // rasterize the vector (hundreds of KB) and dimensionless SVGs decode
+      // with naturalWidth 0 in Firefox. Content check by TEXT (MIME is
+      // spoofable), byte cap on the FILE itself, original File is the blob.
+      if (file.type === 'image/svg+xml') {
+        if (file.size > maxBlobBytes) {
+          fail('tooLarge');
+          return;
+        }
+        const svgReader = new FileReader();
+        svgReader.onerror = () => fail('undecodable');
+        svgReader.onload = () => {
+          if (!isSafeSvgText(String(svgReader.result ?? ''))) {
+            fail('undecodable');
+            return;
+          }
+          setPreview(URL.createObjectURL(file));
+          setErrorCode(null);
+          onFileSelect({ blob: file, name: sanitizeFileName(file.name, file) });
+          onSuccess();
+        };
+        svgReader.readAsText(file);
         return;
       }
 
