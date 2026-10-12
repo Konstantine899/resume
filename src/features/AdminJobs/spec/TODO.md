@@ -11,15 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-1 — ARCH-1 layout (SPEC R-1)
-
-- [ ] `git mv` `ui/JobForm.{tsx,module.scss,test.tsx}` → `ui/JobForm/`,
-      `ui/JobsList.*` → `ui/JobsList/`, `ui/lib/jobFormSchema.{ts,test.ts}` →
-      `ui/JobForm/lib/` (прецедент `DatePicker/lib/isoDate.ts`).
-- [ ] Переписать импорты tsc-driven (TS2307 → фикс → повтор; без blanket-sed):
-      баррел `index.ts`, внутренние импорты, тесты.
-- [ ] Гейт: `npm run validate`; на верхнем уровне `ui/` нет `.tsx`/`.scss`.
-
 ## WU-2 — persist-снимок insertion-order (SPEC R-2, TDD)
 
 - [ ] RED: тест в `ui/JobsList/JobsList.test.tsx` — сортированный рендер ≠
