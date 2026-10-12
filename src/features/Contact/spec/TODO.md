@@ -10,13 +10,6 @@ vault `wiki/plan/plan_contact_refactor.md`, rev.1. Правила: выполн�
 УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12: OPEN-1=A, OPEN-2=A (рекомендации приняты без изменений).
 
-## WU-1 — ARCH-1: тест в свою директорию (SPEC R-1)
-
-- [ ] `git mv src/features/Contact/ui/Contact.content.test.tsx` →
-      `src/features/Contact/ui/Contact/Contact.content.test.tsx`; правка
-      импорта `./Contact/Contact` → `./Contact`.
-- [ ] Гейт: `npm run validate`; на верхнем уровне `ui/` нет `.tsx`.
-
 ## WU-2 — Мёртвый код и пропсы (SPEC R-2/R-3)
 
 - [ ] Удалить `SocialLink` из `model/types/types.ts:26-30` (дубль
