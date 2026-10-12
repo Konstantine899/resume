@@ -11,22 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-6 — Витрина DataTable (SPEC R-6)
-
-- [ ] `JobsList.tsx` → kit `DataTable`; колонки company /
-      position(en,ru) / period / badges / actions; сортировка сбрасывает
-      страницу (тест); layout зеркалом Skills (page-size сверху справа,
-      навигация снизу по центру, контролы при rows>0).
-- [ ] Шапка витрины: текстовая кнопка `adminAddJob` (`JobsList.tsx:88-90`)
-      → kit `IconButton` (`aria-label={t('adminAddJob')}`, паттерн
-      `SkillsEditorList.tsx:232-238`); тест: клик по значку вызывает
-      `onAddJob` (create-модалка WU-5).
-- [ ] Новые i18n-ключи заголовков колонок при необходимости
-      (`adminJobsTable*`, en+ru).
-- [ ] Тесты: row-disappears, порядок persist→dispatch (`calls` array), переходы
-      страниц, sort → page=1.
-- [ ] Гейт: axe `/admin/jobs` — 0 регрессий.
-
 ## WU-7 — Лимиты entity-схемы (SPEC R-7)
 
 - [ ] `entities/Job/model/schemes/schema.ts`: `max(200)` на bullet в

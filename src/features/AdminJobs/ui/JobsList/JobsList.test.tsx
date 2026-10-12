@@ -36,12 +36,14 @@ vi.mock('../../model/slices/jobsSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
-// The `company` option renders as `${key}:${company}` (SkillsEditorList
-// precedent) so the confirm subtitle can prove it NAMES the entity.
+// The `company`/`number` options render as `${key}:${values}` (confirm
+// subtitle names the entity; Pagination aria-labels stay addressable).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { company?: string }) =>
-      options?.company !== undefined ? `${key}:${options.company}` : key,
+    t: (key: string, options?: { company?: string; number?: number }) => {
+      const parts = [options?.company, options?.number].filter((value) => value !== undefined);
+      return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
+    },
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -117,6 +119,24 @@ const renderList = (props: Partial<React.ComponentProps<typeof JobsList>> = {}) 
   return merged;
 };
 
+/**
+ * Body rows of the kit Table (the first `row` is the header). The vitrina
+ * swap (WU-6) replaced `<li role="listitem">` rows with table rows — role
+ * semantics move with the markup (Skills parity, design B).
+ */
+const dataRows = (): HTMLElement[] => screen.getAllByRole('row').slice(1);
+
+/** N distinct jobs: insertion order p1..pN, dates ascending. */
+const makeJobs = (count: number): Job[] =>
+  Array.from({ length: count }, (_, index) =>
+    makeJob({
+      id: `p${index + 1}`,
+      company: `Co ${index + 1}`,
+      startDate: new Date(2015 + index, 0, 1),
+      endDate: new Date(2016 + index, 0, 1),
+    })
+  );
+
 describe('JobsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -131,7 +151,7 @@ describe('JobsList', () => {
   it('renders rows newest-first with company, position[lang] and period', () => {
     renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     expect(rows).toHaveLength(2);
     expect(rows[0]).toHaveTextContent('New Co');
     expect(rows[0]).toHaveTextContent('Lead Developer');
@@ -156,7 +176,8 @@ describe('JobsList', () => {
     const title = screen.getByText('adminJobsEmpty');
     // EmptyState's title slot is a div (kit) — not the old bare <p> Paragraph.
     expect(title.tagName).toBe('DIV');
-    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+    // The slot renders as a tbody row — count DATA rows (testids), not rows.
+    expect(screen.queryAllByTestId(/^job-row-/)).toHaveLength(0);
   });
 
   it('wires Add/Edit callbacks for the page-owned form', () => {
@@ -182,7 +203,7 @@ describe('JobsList', () => {
     const { onJobDeleted } = renderList();
 
     // §6: kit Modal confirm, not window.confirm.
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
     const modal = await screen.findByRole('dialog');
     expect(within(modal).getByText('adminJobConfirmDelete')).toBeInTheDocument();
@@ -204,7 +225,7 @@ describe('JobsList', () => {
     holder.state.adminJobs = [OLDER, NEWER, MIDDLE];
     renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     expect(rows[0]).toHaveTextContent('New Co');
     expect(rows[1]).toHaveTextContent('Mid Co');
     expect(rows[2]).toHaveTextContent('Old Co');
@@ -224,7 +245,7 @@ describe('JobsList', () => {
     persistSpy.mockReturnValue(false);
     renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
     const modal = await screen.findByRole('dialog');
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
@@ -241,7 +262,7 @@ describe('JobsList', () => {
   it('confirm modal names the company in its subtitle (R-3)', async () => {
     renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
     const modal = await screen.findByRole('dialog');
 
@@ -251,7 +272,7 @@ describe('JobsList', () => {
   it('confirm modal focuses the Cancel button on open (R-3)', async () => {
     renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
     const modal = await screen.findByRole('dialog');
     const cancel = within(modal).getByRole('button', { name: 'adminJobCancel' });
@@ -263,7 +284,7 @@ describe('JobsList', () => {
     persistSpy.mockReturnValue(false);
     const { onJobDeleted } = renderList();
 
-    const rows = screen.getAllByRole('listitem');
+    const rows = dataRows();
     fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
     const modal = await screen.findByRole('dialog');
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
@@ -275,5 +296,79 @@ describe('JobsList', () => {
     expect(holder.state.adminJobs).toHaveLength(2);
     expect(onJobDeleted).not.toHaveBeenCalled();
     expect(screen.getByText('New Co')).toBeInTheDocument();
+  });
+
+  // ---- kit DataTable vitrina (admin-jobs-refactor WU-6, SPEC R-6) ----
+
+  it('header add control is the kit IconButton and fires onAddJob', () => {
+    const { onAddJob } = renderList();
+
+    const add = screen.getByRole('button', { name: 'adminAddJob' });
+    // R-6: the text button is gone — the kit icon-only button carries the name.
+    expect(add).toHaveAttribute('data-testid', 'icon-button');
+
+    fireEvent.click(add);
+    expect(onAddJob).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows size group + navigation whenever rows exist, even on one page (A5)', () => {
+    renderList(); // 2 rows ≤ default size 5
+
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    const sizes = screen.getByRole('group', { name: 'perPageLabel' });
+    expect(within(sizes).getByRole('button', { name: '5' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  it('paginates: page 2 shows the remaining rows (kit Pagination)', () => {
+    holder.state.adminJobs = makeJobs(7);
+    renderList();
+
+    // Sorted render (selectSortedJobs): p7..p1 — page 1 holds p7..p3.
+    expect(dataRows()).toHaveLength(5);
+    expect(screen.getByRole('button', { name: 'paginationPage:2' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('2'));
+
+    expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
+    expect(dataRows()).toHaveLength(2);
+    expect(screen.queryByTestId('job-row-p7')).toBeNull();
+    expect(screen.getByTestId('job-row-p2')).toBeInTheDocument();
+    expect(screen.getByTestId('job-row-p1')).toBeInTheDocument();
+  });
+
+  it('sorting resets the page to 1 (Skills WU-5a pattern)', () => {
+    holder.state.adminJobs = makeJobs(7);
+    renderList();
+
+    fireEvent.click(screen.getByText('2'));
+    expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByTestId('job-row-p7')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobsTableCompany' }));
+
+    // The user sees the TOP of the freshly sorted order, never a stale window.
+    expect(screen.getByText('1')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'ascending');
+    expect(screen.getByTestId('job-row-p1')).toBeInTheDocument();
+  });
+
+  it('the deleted row actually disappears from the table', async () => {
+    renderList();
+
+    expect(screen.getByTestId('job-row-newer')).toBeInTheDocument();
+
+    fireEvent.click(
+      within(screen.getByTestId('job-actions-newer')).getByRole('button', {
+        name: 'adminJobDelete',
+      })
+    );
+    const modal = await screen.findByRole('dialog');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
+
+    await waitFor(() => expect(screen.queryByTestId('job-row-newer')).not.toBeInTheDocument());
+    expect(dataRows()).toHaveLength(1);
   });
 });

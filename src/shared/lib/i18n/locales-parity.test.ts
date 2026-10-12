@@ -155,6 +155,12 @@ describe('locale parity (WU-6)', () => {
       // admin-jobs-refactor WU-3 (SPEC R-3): confirm subtitle NAMES the
       // company (SkillsEditorList OPEN-10 parity).
       'adminJobConfirmDeleteName',
+      // admin-jobs-refactor WU-6 (SPEC R-6): DataTable column headers.
+      'adminJobsTableCompany',
+      'adminJobsTablePosition',
+      'adminJobsTablePeriod',
+      'adminJobsTableFlags',
+      'adminJobsTableActions',
       'adminJobSaved',
       'adminJobDeleted',
       'adminJobPersistError',

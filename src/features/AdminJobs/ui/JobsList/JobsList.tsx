@@ -1,11 +1,15 @@
 // ============================================
-// JobsList — admin rows for the JOBS collection (WorkHistory CRUD WU-5)
+// JobsList — admin vitrina for the JOBS collection (admin-jobs-refactor WU-6)
 // ============================================
 //
-// Stage-1 CRUD (plan §9): sorted rows (company, position[lang], period,
-// current/featured badges, Edit/Delete), the empty state, and Delete via
-// the kit Modal confirm (§6, never window.confirm). The page owns the
-// open form — this list only fires callbacks (SkillsEditorList pattern).
+// Stage-1 CRUD list (plan §9) on the kit DataTable (SPEC R-6): columns
+// company / position[lang] / period / flags (current+featured badges) /
+// actions (Edit/Delete via kit Button), controlled sorting + pagination
+// (plan_kit_datatable rev.5 — page-size top-right, navigation below
+// centered, controls visible whenever rows exist). The header carries the
+// kit IconButton add (SkillsEditorList:232-238 header pattern); Delete goes
+// through the kit Modal confirm (§6, never window.confirm). The page owns
+// the open form — this list only fires callbacks.
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the next array is rebuilt from the
@@ -13,16 +17,24 @@
 //   R-2), then deleteJob is dispatched. Only the RENDER uses the
 //   date-sorted selector; persisting the sorted array would silently
 //   rewrite the stored order on every delete.
-// - persist failure → adminJobPersistError toast, record untouched.
+// - Sorting is CONTROLLED: a header click only emits `onSortChange`; a
+//   sort resets the page to 1 (Skills WU-5a — a sort the user cannot SEE
+//   reads as a broken button).
+// - persist failure → adminJobPersistError toast, record untouched, the
+//   confirm modal stays open for a retry (R-3).
 // - ALL copy is i18n (i18n-first); `period` renders as stored (A5).
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Plus } from 'lucide-react';
 import { Badge } from '@/shared/ui/Badge';
-import { Button } from '@/shared/ui/Button';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { DataTable } from '@/shared/ui/DataTable';
+import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,6 +43,13 @@ import { deleteJob } from '../../model/slices/jobsSlice';
 import { selectAllJobs, selectSortedJobs } from '../../model/selectors';
 import { persistJobs } from '../../model/services/storage';
 import styles from './JobsList.module.scss';
+
+/**
+ * Default rows per page + the kit `PageSizeGroup` options — mirror of
+ * SkillsEditorList (verdict OPEN-1/OPEN-5 of the Skills plan).
+ */
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
 
 export interface JobsListProps {
   className?: string;
@@ -61,6 +80,10 @@ export const JobsList: React.FC<JobsListProps> = ({
   const [deleting, setDeleting] = useState(false);
   // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
   const cancelRef = useRef<HTMLButtonElement>(null);
+  // Controlled DataTable state (kit A2): the container owns page/size/sort.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sort, setSort] = useState<SortState | null>(null);
 
   const closeModal = () => {
     setPending(null);
@@ -91,62 +114,107 @@ export const JobsList: React.FC<JobsListProps> = ({
   const getPosition = (job: Job): string =>
     (language === 'ru' ? job.position.ru : job.position.en) || job.position.en;
 
+  /** Columns of the vitrina (SPEC R-6): company / position / period / flags / actions. */
+  const columns: DataTableColumn<Job>[] = [
+    {
+      key: 'company',
+      header: t('adminJobsTableCompany'),
+      sortable: true,
+      sortValue: (job) => job.company,
+      render: (job) => (
+        <span className={styles.companyCell} data-testid={`job-row-${job.id}`}>
+          {/* A6: no heading elements inside cells — <strong> label. */}
+          <strong>{job.company}</strong>
+        </span>
+      ),
+    },
+    {
+      key: 'position',
+      header: t('adminJobsTablePosition'),
+      sortable: true,
+      sortValue: getPosition,
+      render: (job) => <span className={styles.position}>{getPosition(job)}</span>,
+    },
+    {
+      key: 'period',
+      header: t('adminJobsTablePeriod'),
+      sortable: true,
+      // Dates compare as values, not as their display strings (kit A3).
+      sortValue: (job) => job.startDate.getTime(),
+      render: (job) => <span className={styles.period}>{job.period}</span>,
+    },
+    {
+      key: 'flags',
+      header: t('adminJobsTableFlags'),
+      render: (job) => (
+        <div className={styles.badges}>
+          {job.current && (
+            <Badge variant="accent" size="sm">
+              {t('adminJobCurrent')}
+            </Badge>
+          )}
+          {job.featured && (
+            <Badge variant="outline" size="sm">
+              {t('adminJobFeatured')}
+            </Badge>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('adminJobsTableActions'),
+      render: (job) => (
+        <div className={styles.actions} data-testid={`job-actions-${job.id}`}>
+          <Button type="button" variant="outline" size="sm" onClick={() => onEditJob?.(job)}>
+            {t('adminEditJob')}
+          </Button>
+          <Button type="button" variant="danger" size="sm" onClick={() => setPending(job.id)}>
+            {t('adminJobDelete')}
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className={classNames(styles.root, className)} data-testid={testId}>
       <div className={styles.header}>
         <div className={styles.intro}>
           <Heading level={2}>{t('adminJobs')}</Heading>
         </div>
-        <Button type="button" variant="primary" size="sm" onClick={() => onAddJob?.()}>
-          {t('adminAddJob')}
-        </Button>
+        <IconButton
+          variant="primary"
+          size="md"
+          ariaLabel={t('adminAddJob')}
+          icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+          onClick={() => onAddJob?.()}
+        />
       </div>
 
-      {jobs.length === 0 ? (
-        <EmptyState title={t('adminJobsEmpty')} />
-      ) : (
-        <ul className={styles.list} aria-label={t('adminJobs')}>
-          {jobs.map((job) => (
-            <li key={job.id} className={styles.row} data-testid={`job-row-${job.id}`}>
-              <div className={styles.rowMain}>
-                <div className={styles.info}>
-                  <Heading level={3}>{job.company}</Heading>
-                  <span className={styles.position}>{getPosition(job)}</span>
-                  <span className={styles.period}>{job.period}</span>
-                  {job.current && (
-                    <Badge variant="accent" size="sm">
-                      {t('adminJobCurrent')}
-                    </Badge>
-                  )}
-                  {job.featured && (
-                    <Badge variant="outline" size="sm">
-                      {t('adminJobFeatured')}
-                    </Badge>
-                  )}
-                </div>
-                <div className={styles.actions} data-testid={`job-actions-${job.id}`}>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEditJob?.(job)}
-                  >
-                    {t('adminEditJob')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setPending(job.id)}
-                  >
-                    {t('adminJobDelete')}
-                  </Button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <DataTable<Job>
+        caption={t('adminJobs')}
+        columns={columns}
+        rows={jobs}
+        getKey={(job) => job.id}
+        page={page}
+        pageSize={pageSize}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onPageSizeChange={(next) => {
+          setPageSize(next);
+          // A new size re-windows everything — top of page 1 (SPEC A10).
+          setPage(1);
+        }}
+        onPageChange={setPage}
+        sort={sort}
+        onSortChange={(next) => {
+          setSort(next);
+          // A sort the user cannot SEE reads as a broken button:
+          // reset to the top of the new order (Skills WU-5a).
+          setPage(1);
+        }}
+        emptyState={<EmptyState title={t('adminJobsEmpty')} />}
+      />
 
       <Modal
         isOpen={pending !== null}
