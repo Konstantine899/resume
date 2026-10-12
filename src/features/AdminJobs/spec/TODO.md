@@ -11,12 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-4 — EmptyState (SPEC R-4)
-
-- [ ] `JobsList.tsx`: `Paragraph adminJobsEmpty` → kit `EmptyState
-      title={t('adminJobsEmpty')}`; удалить связанный SCSS, если есть.
-- [ ] Тест: пустой список рендерит EmptyState.
-
 ## WU-5 — Страница: Modal + тест (SPEC R-5)
 
 - [ ] `AdminJobsPage.tsx` — kit Modal вокруг `JobForm` (`isOpen={form!==null}`,

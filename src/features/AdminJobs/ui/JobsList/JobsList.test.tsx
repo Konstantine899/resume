@@ -149,11 +149,13 @@ describe('JobsList', () => {
     expect(screen.getAllByText('adminJobFeatured')).toHaveLength(1);
   });
 
-  it('renders the empty state instead of rows', () => {
+  it('renders the kit EmptyState instead of rows (R-4)', () => {
     holder.state.adminJobs = [];
     renderList();
 
-    expect(screen.getByText('adminJobsEmpty')).toBeInTheDocument();
+    const title = screen.getByText('adminJobsEmpty');
+    // EmptyState's title slot is a div (kit) — not the old bare <p> Paragraph.
+    expect(title.tagName).toBe('DIV');
     expect(screen.queryAllByRole('listitem')).toHaveLength(0);
   });
 

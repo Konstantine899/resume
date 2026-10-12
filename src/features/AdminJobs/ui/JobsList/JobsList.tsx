@@ -21,9 +21,9 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
-import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Job } from '@/entities/Job';
@@ -103,7 +103,7 @@ export const JobsList: React.FC<JobsListProps> = ({
       </div>
 
       {jobs.length === 0 ? (
-        <Paragraph theme="muted">{t('adminJobsEmpty')}</Paragraph>
+        <EmptyState title={t('adminJobsEmpty')} />
       ) : (
         <ul className={styles.list} aria-label={t('adminJobs')}>
           {jobs.map((job) => (
