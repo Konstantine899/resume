@@ -9,7 +9,10 @@
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the next array is rebuilt from the
-//   sorted snapshot, then deleteJob is dispatched — store === storage.
+//   INSERTION-ORDER snapshot (selectAllJobs — store === storage byte-for-byte,
+//   R-2), then deleteJob is dispatched. Only the RENDER uses the
+//   date-sorted selector; persisting the sorted array would silently
+//   rewrite the stored order on every delete.
 // - persist failure → adminJobPersistError toast, record untouched.
 // - ALL copy is i18n (i18n-first); `period` renders as stored (A5).
 
@@ -25,7 +28,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Job } from '@/entities/Job';
 import { deleteJob } from '../../model/slices/jobsSlice';
-import { selectSortedJobs } from '../../model/selectors';
+import { selectAllJobs, selectSortedJobs } from '../../model/selectors';
 import { persistJobs } from '../../model/services/storage';
 import styles from './JobsList.module.scss';
 
@@ -48,7 +51,9 @@ export const JobsList: React.FC<JobsListProps> = ({
   onJobDeleted,
 }) => {
   // Same-feature selector + dispatch — legal inside AdminJobs (§8).
+  // Render is date-sorted; the persist snapshot stays insertion-order (R-2).
   const jobs = useSelector(selectSortedJobs);
+  const allJobs = useSelector(selectAllJobs);
   const dispatch = useDispatch();
   const { t, language } = useLanguage();
   const { addToast } = useToast();
@@ -64,7 +69,9 @@ export const JobsList: React.FC<JobsListProps> = ({
   const handleConfirmDelete = () => {
     if (!pending) return;
     setDeleting(true);
-    const next = jobs.filter((job) => job.id !== pending);
+    // R-2: rebuild from the INSERTION-ORDER snapshot so storage keeps the
+    // store's byte-for-byte order; the sorted array above is render-only.
+    const next = allJobs.filter((job) => job.id !== pending);
     if (!persistJobs(next)) {
       addToast({ message: t('adminJobPersistError'), type: 'error' });
       closeModal();

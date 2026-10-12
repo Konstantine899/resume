@@ -11,13 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-2 — persist-снимок insertion-order (SPEC R-2, TDD)
-
-- [ ] RED: тест в `ui/JobsList/JobsList.test.tsx` — сортированный рендер ≠
-      порядку `selectAllJobs`; delete persist-ит в порядке `selectAllJobs`.
-- [ ] GREEN: `JobsList.tsx` — снимок для `persistJobs` из `selectAllJobs`
-      (рендер `selectSortedJobs` оставить); уточнить комментарий инварианта.
-
 ## WU-3 — Confirm-delete parity (SPEC R-3)
 
 - [ ] Локали: ключ `adminJobConfirmDeleteName` (en+ru, `{{company}}`); заголовок

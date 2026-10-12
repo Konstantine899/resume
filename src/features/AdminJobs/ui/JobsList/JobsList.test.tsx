@@ -96,6 +96,12 @@ const NEWER = makeJob({
   current: true,
   featured: true,
 });
+const MIDDLE = makeJob({
+  id: 'middle',
+  company: 'Mid Co',
+  startDate: new Date('2020-06-01'),
+  endDate: new Date('2020-12-01'),
+});
 
 const renderList = (props: Partial<React.ComponentProps<typeof JobsList>> = {}) => {
   const defaults = {
@@ -186,6 +192,27 @@ describe('JobsList', () => {
     expect(addToast).toHaveBeenCalledWith({ message: 'adminJobDeleted', type: 'success' });
     expect(onJobDeleted).toHaveBeenCalledWith('newer');
     expect(screen.queryByText('adminJobConfirmDelete')).not.toBeInTheDocument();
+  });
+
+  it('persists the deletion in selectAllJobs order, not the sorted render order (R-2)', async () => {
+    // Insertion order [older, newer, middle] ≠ sorted render [newer, middle, older].
+    holder.state.adminJobs = [OLDER, NEWER, MIDDLE];
+    renderList();
+
+    const rows = screen.getAllByRole('listitem');
+    expect(rows[0]).toHaveTextContent('New Co');
+    expect(rows[1]).toHaveTextContent('Mid Co');
+    expect(rows[2]).toHaveTextContent('Old Co');
+
+    // Delete the middle row: a sorted snapshot and an insertion-order
+    // snapshot agree on the COMPOSITION here but not on the ORDER.
+    fireEvent.click(within(rows[1] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    // Insertion order minus the deleted record — NOT the sorted [newer, older].
+    expect(persistSpy).toHaveBeenCalledWith([OLDER, NEWER]);
   });
 
   it('keeps the record and skips dispatch when persist fails (§3)', async () => {
