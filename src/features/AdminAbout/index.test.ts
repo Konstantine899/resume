@@ -26,7 +26,12 @@ const DEAD_EXPORTS = [
   'AboutContentRootState',
 ] as const;
 
-const LIVE_EXPORTS = ['createAboutSeed', 'persistAboutContent', 'removeAboutContent', 'AboutEditorForm'] as const;
+const LIVE_EXPORTS = [
+  'createAboutSeed',
+  'persistAboutContent',
+  'removeAboutContent',
+  'AboutEditorForm',
+] as const;
 
 describe('AdminAbout public API (SPEC R-4)', () => {
   it.each(DEAD_EXPORTS)('%s is no longer exported (zero barrel consumers)', (name) => {

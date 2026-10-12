@@ -189,7 +189,9 @@ describe('AboutEditorForm: reset confirm (R-1, kit Modal)', () => {
     const modal = await openConfirm();
 
     expect(confirmSpy).not.toHaveBeenCalled();
-    expect(within(modal).getByRole('heading', { level: 2, name: 'aboutReset' })).toBeInTheDocument();
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'aboutReset' })
+    ).toBeInTheDocument();
     // Opening is not acting: nothing removed or dispatched yet.
     expect(removeSpy).not.toHaveBeenCalled();
     expect(resetSpy).not.toHaveBeenCalled();

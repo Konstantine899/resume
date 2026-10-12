@@ -262,7 +262,9 @@ export const AboutEditorForm: React.FC<AboutEditorFormProps> = ({
         isOpen={isResetConfirmOpen}
         onClose={closeResetConfirm}
         title={t('aboutReset')}
-        subtitle={isResetConfirmOpen ? t('aboutResetConfirm', { name: values.fullName ?? '' }) : undefined}
+        subtitle={
+          isResetConfirmOpen ? t('aboutResetConfirm', { name: values.fullName ?? '' }) : undefined
+        }
         size="sm"
         initialFocusRef={cancelResetRef}
         footer={
