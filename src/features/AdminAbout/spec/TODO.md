@@ -10,18 +10,6 @@ vault `wiki/plan/plan_admin_about_refactor.md`. Правила: выполнен
 (не отмечается); пункт без критерия не ревьюивается. Вердикт владельца 2026-10-12:
 OPEN-1 = B (инлайн), OPEN-2 = A (срез мёртвых экспортов), OPEN-3 = A (axe PATHS).
 
-## WU-3 — Гигиена: axe PATHS + баррел (SPEC R-3/R-4)
-
-- [ ] `scripts/purge-axe-check.mjs:37` — PATHS += `'/admin/about'`;
-      axe-app прогнать, вскрытые нарушения починить.
-- [ ] Вырезать из `index.ts` 7 мёртвых экспортов
-      (`selectAboutContent`, `ABOUT_CONTENT_STORAGE_KEY`, `readAboutContent`,
-      `aboutContentReducer`, `resetToDefaults`, `updateAboutContent`,
-      `AboutContentRootState`); сохранить `AboutEditorForm`(+Props),
-      `createAboutSeed`, `persistAboutContent`, `removeAboutContent`;
-      `check:public-api` зелёный. Deep-import `storeReducers.ts:12` /
-      `HomePage.tsx:4` не трогать.
-
 ## WU-4 — Гейты эпика (SPEC R-6)
 
 - [ ] `npm run validate` в CPU-окне (<45%) зелёный.
