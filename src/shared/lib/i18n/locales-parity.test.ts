@@ -171,6 +171,13 @@ describe('locale parity (WU-6)', () => {
       // admin-mywork-refactor WU-4 (SPEC R-4): the add-affordance that
       // makes create mode reachable (the form modal lives on the page).
       'adminMyWorkAdd',
+      // admin-mywork-refactor WU-5 (SPEC R-5): DataTable vitrina headers.
+      'adminMyWorkTableTitle',
+      'adminMyWorkTableCategory',
+      'adminMyWorkTableStatus',
+      'adminMyWorkTableFeatured',
+      'adminMyWorkTableYear',
+      'adminMyWorkTableActions',
     ];
 
     for (const key of adminKeys) {

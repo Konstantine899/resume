@@ -10,20 +10,6 @@ vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполне�
 (не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
 владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
 
-## WU-5 — Витрина DataTable (SPEC R-5)
-
-- [ ] `MyWorkEditorList.tsx` → kit `DataTable`; колонки title /
-      category / status / featured / year / actions; сортировка сбрасывает
-      страницу (тест); `pageSizeOptions=[5,10,20]`; layout зеркалом Skills
-      (page-size сверху справа, навигация снизу по центру, контролы при
-      rows>0, range `paginationRange`); шапка витрины (h2+hint+actions,
-      паттерн SkillsEditorList:232-238).
-- [ ] Новые i18n-ключи заголовков колонок/кнопок шапки при необходимости
-      (`adminMyWorkTable*` и др., en+ru).
-- [ ] Тесты: row-disappears, порядок persist→dispatch (`calls` array),
-      переходы страниц, sort → page=1.
-- [ ] Гейт: axe `/admin/mywork` — 0 регрессий.
-
 ## WU-6 — Релокация подтверждений + гигиена баррела (SPEC R-6/R-7, OPEN-3/OPEN-4)
 
 - [ ] Удалить из `ProjectForm.tsx` две confirm-модалки и кнопки

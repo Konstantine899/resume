@@ -1,30 +1,42 @@
 // ============================================
-// MyWorkEditorList — admin project rows with Edit/Delete (WU-4)
+// MyWorkEditorList — admin project vitrina (admin-mywork-refactor WU-5)
 // ============================================
 //
-// Stage-1 CRUD (plan_projects_crud §10): one row per stored project —
-// title, featured/status Badges, Edit (page owns the open record) and
-// Delete through a kit Modal confirm (§6, NOT window.confirm).
+// Stage-1 CRUD list (plan §9) on the kit DataTable (SPEC R-5): columns
+// title / category / status / featured / year / actions, controlled
+// sorting + pagination (page-size 5|10|20), the range counter under the
+// table, and the header (h2+hint+IconButton add, the SkillsEditorList
+// pattern). Edit emits onEdit(id); Delete goes through a kit Modal
+// confirm (§6, NOT window.confirm). The page owns the open form — this
+// list only fires callbacks.
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the dispatched id and the persisted
-//   array come from the same `all` snapshot.
+//   array come from the same `projects` snapshot.
+// - Sorting is CONTROLLED: a header click only emits `onSortChange`; a
+//   sort resets the page to 1 (Skills WU-5a — a sort the user cannot
+//   SEE reads as a broken button).
 // - `deleting` gates the confirm Button (plan §6 ButtonLoader row): the
 //   stage-1 localStorage persist is synchronous so the spinner never
 //   paints — the state exists for the future API swap, not for show.
 // - ALL copy is i18n (i18n-first); status/featured badges show the enum
 //   values, exactly like the form's native selects.
 
-import type { ProjectStatus } from '@/entities/Project';
+import type { Project, ProjectStatus } from '@/entities/Project';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Plus } from 'lucide-react';
 import type { BadgeVariant } from '@/shared/ui/Badge';
 import { Badge } from '@/shared/ui/Badge';
-import { Button } from '@/shared/ui/Button';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { DataTable } from '@/shared/ui/DataTable';
+import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
@@ -39,6 +51,13 @@ const STATUS_VARIANTS: Record<ProjectStatus, BadgeVariant> = {
   maintenance: 'accent',
   archived: 'outline',
 };
+
+/**
+ * Default rows per page + the kit `PageSizeGroup` options — mirror of
+ * JobsList / SkillsEditorList.
+ */
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
 
 export interface MyWorkEditorListProps {
   className?: string;
@@ -67,23 +86,31 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   const [deleting, setDeleting] = useState(false);
   // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
   const cancelRef = useRef<HTMLButtonElement>(null);
+  // Controlled DataTable state (kit A2): the container owns page/size/sort.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sort, setSort] = useState<SortState | null>(null);
 
+  const closeModal = () => {
+    setPendingDeleteId(null);
+    setDeleting(false);
+  };
+
+  /** §3 order: persist → dispatch → toast → callback → close. */
   const handleConfirmDelete = () => {
     if (!pendingDeleteId) return;
-    const targetId = pendingDeleteId;
     setDeleting(true);
-    const next = projects.filter((project) => project.id !== targetId);
+    const next = projects.filter((project) => project.id !== pendingDeleteId);
     if (!persistProjects(next)) {
       // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
       addToast({ message: t('projectSaveError'), type: 'error' });
       setDeleting(false);
       return;
     }
-    dispatch(deleteProject(targetId));
+    dispatch(deleteProject(pendingDeleteId));
     addToast({ message: t('projectDeleted'), type: 'success' });
-    onDeleted?.(targetId);
-    setDeleting(false);
-    setPendingDeleteId(null);
+    onDeleted?.(pendingDeleteId);
+    closeModal();
   };
 
   const pendingProject =
@@ -91,60 +118,137 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
       ? undefined
       : projects.find((project) => project.id === pendingDeleteId);
 
+  /** Columns of the vitrina (SPEC R-5): title / category / status / featured / year / actions. */
+  const columns: DataTableColumn<Project>[] = [
+    {
+      key: 'title',
+      header: t('adminMyWorkTableTitle'),
+      sortable: true,
+      sortValue: (project) => project.title,
+      render: (project) => (
+        <span className={styles.titleCell} data-testid={`mywork-row-${project.id}`}>
+          {/* A6: no heading elements inside cells — <strong> label. */}
+          <strong>{project.title}</strong>
+        </span>
+      ),
+    },
+    {
+      key: 'category',
+      header: t('adminMyWorkTableCategory'),
+      sortable: true,
+      sortValue: (project) => project.category,
+      render: (project) => <span className={styles.category}>{project.category}</span>,
+    },
+    {
+      key: 'status',
+      header: t('adminMyWorkTableStatus'),
+      sortable: true,
+      sortValue: (project) => project.status,
+      render: (project) => (
+        <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
+          {project.status}
+        </Badge>
+      ),
+    },
+    {
+      key: 'featured',
+      header: t('adminMyWorkTableFeatured'),
+      render: (project) =>
+        project.featured ? (
+          <Badge variant="accent" size="sm">
+            {t('projectFieldFeatured')}
+          </Badge>
+        ) : null,
+    },
+    {
+      key: 'year',
+      header: t('adminMyWorkTableYear'),
+      sortable: true,
+      // Numbers compare as values, not as their display strings (kit A3).
+      // `?? 0`: `year` is optional on the entity — undefined sorts first.
+      sortValue: (project) => project.year ?? 0,
+      render: (project) => <span className={styles.year}>{project.year}</span>,
+    },
+    {
+      key: 'actions',
+      header: t('adminMyWorkTableActions'),
+      render: (project) => (
+        <div className={styles.actions} data-testid={`mywork-actions-${project.id}`}>
+          <Button type="button" variant="outline" size="sm" onClick={() => onEdit(project.id)}>
+            {t('projectEdit')}
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            onClick={() => setPendingDeleteId(project.id)}
+          >
+            {t('projectDelete')}
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  // Mirror of the kit's safePage so the range counter always agrees with
+  // the window DataTable actually renders (A10).
+  const totalPages = Math.max(1, Math.ceil(projects.length / pageSize));
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const start = (safePage - 1) * pageSize;
+  const rangeFrom = projects.length > 0 ? start + 1 : 0;
+  const rangeTo = Math.min(start + pageSize, projects.length);
+
   return (
     <div className={classNames(styles.root, className)} data-testid={testId}>
-      {/* WU-4 (R-4): temporary add-affordance above the content — WU-5
-          moves it into the vitrina header (h2+hint+IconButton, the
-          SkillsEditorList:232-238 pattern). Renders on empty lists too:
-          create mode is otherwise inaccessible. */}
-      <Button type="button" variant="outline" size="sm" onClick={() => onAdd?.()}>
-        {t('adminMyWorkAdd')}
-      </Button>
+      <div className={styles.header}>
+        <div className={styles.intro}>
+          <Heading level={2}>{t('adminMyWorkTitle')}</Heading>
+          <Paragraph theme="muted">{t('adminMyWorkHint')}</Paragraph>
+        </div>
+        <IconButton
+          variant="primary"
+          size="md"
+          ariaLabel={t('adminMyWorkAdd')}
+          icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+          onClick={() => onAdd?.()}
+        />
+      </div>
 
-      {projects.length === 0 ? (
-        // R-3: kit EmptyState (A2 — all copy comes from the consumer).
-        <EmptyState title={t('noProjectsYet')} />
-      ) : (
-        <ul className={styles.list} aria-label={t('myWork')}>
-          {projects.map((project) => (
-            <li key={project.id} className={styles.row}>
-              <div className={styles.info}>
-                <Heading level={3}>{project.title}</Heading>
-                {project.featured && (
-                  <Badge variant="accent" size="sm">
-                    {t('projectFieldFeatured')}
-                  </Badge>
-                )}
-                <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
-                  {project.status}
-                </Badge>
-              </div>
-              <div className={styles.actions}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(project.id)}
-                >
-                  {t('projectEdit')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  onClick={() => setPendingDeleteId(project.id)}
-                >
-                  {t('projectDelete')}
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <DataTable<Project>
+        caption={t('adminMyWorkTitle')}
+        columns={columns}
+        rows={projects}
+        getKey={(project) => project.id}
+        page={page}
+        pageSize={pageSize}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onPageSizeChange={(next) => {
+          setPageSize(next);
+          // A new size re-windows everything — top of page 1 (SPEC A10).
+          setPage(1);
+        }}
+        onPageChange={setPage}
+        sort={sort}
+        onSortChange={(next) => {
+          setSort(next);
+          // A sort the user cannot SEE reads as a broken button:
+          // reset to the top of the new order (Skills WU-5a).
+          setPage(1);
+        }}
+        emptyState={<EmptyState title={t('noProjectsYet')} />}
+      />
+
+      {projects.length > 0 && (
+        <div className={styles.footer}>
+          <span className={styles.range} aria-live="polite">
+            {t('paginationRange', { from: rangeFrom, to: rangeTo, total: projects.length })}
+          </span>
+        </div>
       )}
 
       <Modal
         isOpen={pendingDeleteId !== null}
-        onClose={() => setPendingDeleteId(null)}
+        onClose={closeModal}
         // R-2: title ≠ button label (the button stays projectDelete); the
         // subtitle NAMES the project (projectConfirmDeleteName, OPEN-10
         // parity with skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
@@ -156,12 +260,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
         initialFocusRef={cancelRef}
         footer={
           <>
-            <Button
-              ref={cancelRef}
-              type="button"
-              variant="outline"
-              onClick={() => setPendingDeleteId(null)}
-            >
+            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
               {t('projectCancel')}
             </Button>
             <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>

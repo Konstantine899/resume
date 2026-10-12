@@ -80,9 +80,11 @@ const editFirstProject = async () => {
 /** Remove the first row through the list's delete-confirm flow. */
 const deleteFirstRow = async () => {
   const edit = screen.getAllByRole('button', { name: 'projectEdit' })[0] as HTMLElement;
-  const row = edit.closest('li');
-  expect(row).not.toBeNull();
-  fireEvent.click(within(row as HTMLElement).getByRole('button', { name: 'projectDelete' }));
+  // WU-5 vitrina: Edit/Delete share the row's actions cell (WU-4's <li>
+  // is gone — the kit DataTable renders table rows).
+  const actions = edit.closest('[data-testid^="mywork-actions-"]');
+  expect(actions).not.toBeNull();
+  fireEvent.click(within(actions as HTMLElement).getByRole('button', { name: 'projectDelete' }));
   // With the form modal open there are TWO dialogs; the confirm one is
   // identified by its entity-naming subtitle (R-2).
   const dialogs = await screen.findAllByRole('dialog');
