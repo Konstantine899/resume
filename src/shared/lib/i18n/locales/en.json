@@ -96,6 +96,7 @@
   "contactSaved": "Saved",
   "contactSaveError": "Could not save",
   "contactResetConfirm": "Reset the Contact section to defaults? Your edits will be lost.",
+  "contactCancel": "Cancel",
   "contactEmailInvalid": "A valid email address is required.",
   "contactTextEmpty": "Every locale is required (up to 120 characters, 600 for the description).",
   "contactFormTextEmpty": "Every locale is required (up to 120 characters).",

@@ -9,8 +9,9 @@
 // Invariants:
 // - persist happens BEFORE dispatch (§4, R-7): a failed write must never
 //   leave the store ahead of storage; on failure the form keeps the values.
-// - Reset is destructive → confirm dialog first, then remove + dispatch +
-//   form.reset(seed).
+// - Reset is destructive → kit Modal confirm first (admin-contact-refactor
+//   R-1, never window.confirm), then remove + dispatch + form.reset(seed) —
+//   otherwise the fields would keep the dirty values.
 // - ALL copy is i18n (R-4): labels, validation messages and Toasts are
 //   key lookups, never literals.
 // - SOCIAL_LINKS is deliberately read-only here (decision B, §2): out of
@@ -32,9 +33,11 @@ import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
+import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectContactContent } from '../../model/selectors';
@@ -116,6 +119,14 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   // zero-warning lint (About lesson, resume-lazy-rhf-chunk era).
   const values = useWatch({ control });
 
+  // R-1 (admin-contact-refactor): the destructive confirm is a kit Modal —
+  // it holds focus on «Отмена» and closes on ESC/overlay, never a native
+  // window.confirm.
+  const [pendingReset, setPendingReset] = useState(false);
+  const cancelResetRef = useRef<HTMLButtonElement>(null);
+
+  const closeReset = () => setPendingReset(false);
+
   /** §4 order: persist → dispatch → toast → form → idle. */
   const handleSave = (values: ContactContent) => {
     if (!persistContactContent(values)) {
@@ -127,12 +138,22 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     reset(values); // pristine again → Save disabled (§9 saved → idle)
   };
 
-  /** §7: destructive reset → confirm → remove → dispatch → form ← seed. */
+  /** §7: destructive reset → confirm (open only) → handleConfirmReset. */
   const handleReset = () => {
-    if (!window.confirm(t('contactResetConfirm'))) return;
+    setPendingReset(true);
+  };
+
+  /**
+   * §7 order: remove → dispatch → form ← seed.
+   * `removeContactContent` is idempotent and never throws (storage.ts:52-58),
+   * so unlike Save there is NO persist-fail branch to guard here — the flow
+   * stays synchronous and no `deleting` state is introduced.
+   */
+  const handleConfirmReset = () => {
     removeContactContent();
     dispatch(resetToDefaults());
     reset(createContactSeed()); // without this the fields keep dirty values
+    closeReset();
   };
 
   return (
@@ -238,6 +259,30 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
           {t('contactReset')}
         </Button>
       </div>
+
+      {/* R-1: kit Modal confirm (§6, never window.confirm) — title/button
+          share `contactReset`, the subtitle IS the confirm copy (generic:
+          a single document needs no {{name}}), focus starts on «Отмена». */}
+      <Modal
+        isOpen={pendingReset}
+        onClose={closeReset}
+        title={t('contactReset')}
+        subtitle={pendingReset ? t('contactResetConfirm') : undefined}
+        size="sm"
+        initialFocusRef={cancelResetRef}
+        footer={
+          <>
+            <Button ref={cancelResetRef} type="button" variant="outline" onClick={closeReset}>
+              {t('contactCancel')}
+            </Button>
+            <Button type="button" variant="danger" onClick={handleConfirmReset}>
+              {t('contactReset')}
+            </Button>
+          </>
+        }
+      >
+        {null}
+      </Modal>
     </Form>
   );
 };

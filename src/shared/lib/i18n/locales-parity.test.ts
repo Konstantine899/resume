@@ -96,6 +96,8 @@ describe('locale parity (WU-6)', () => {
       'contactSaved',
       'contactSaveError',
       'contactResetConfirm',
+      // admin-contact-refactor WU-1 (SPEC R-1): the Modal's «Отмена» button.
+      'contactCancel',
       'contactEmailInvalid',
       'contactTextEmpty',
       'contactFormTextEmpty',
