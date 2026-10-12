@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: contact-refactor
 created: '2026-10-11'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/Contact (гигиена публичной vitrina-секции)
@@ -65,51 +66,51 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
 ## Требования
 
 ### R-1 — ARCH-1: тест в свою директорию
-- [ ] `ui/Contact.content.test.tsx` перемещён в
+- [x] `ui/Contact.content.test.tsx` перемещён в
       `ui/Contact/Contact.content.test.tsx` (git mv); импорт внутри поправлен
       (`./Contact/Contact` → `./Contact`).
-- [ ] На верхнем уровне `ui/` нет `.tsx`/`.scss` файлов.
-- [ ] `npm run validate` зелёный (тесты content-ветки в том числе).
+- [x] На верхнем уровне `ui/` нет `.tsx`/`.scss` файлов.
+- [x] `npm run validate` зелёный (тесты content-ветки в том числе).
 
 ### R-2 — Мёртвый код удалён
-- [ ] Интерфейс `SocialLink` удалён из `model/types/types.ts` (дубль
+- [x] Интерфейс `SocialLink` удалён из `model/types/types.ts` (дубль
       `entities/Developer/model/types/types.ts:23`, 0 использований).
-- [ ] `formRef` (`Contact.tsx:23,51`) удалён — `.current` нигде не читался.
-- [ ] Дублирующий `aria-required="true"` удалён с Textarea (`Contact.tsx:87`)
+- [x] `formRef` (`Contact.tsx:23,51`) удалён — `.current` нигде не читался.
+- [x] Дублирующий `aria-required="true"` удалён с Textarea (`Contact.tsx:87`)
       — kit Textarea уже рендерит нативный `required` (`Textarea.tsx:266`).
-- [ ] `npm run validate` зелёный; grep `SocialLink|formRef` внутри
+- [x] `npm run validate` зелёный; grep `SocialLink|formRef` внутри
       `src/features/Contact` пуст.
 
 ### R-3 — Мёртвые пропсы
-- [ ] `id`/`className` удалены из `ContactProps`
+- [x] `id`/`className` удалены из `ContactProps`
       (`model/types/types.ts:16-17`) — компонент деструктурирует только
       `content` (`Contact.tsx:22`), потребителей пропсов нет.
 
 ### R-4 — Баррел
-- [ ] из `index.ts` удалены экспорты без production-
+- [x] из `index.ts` удалены экспорты без production-
       потребителей: `useContactForm`, `CONTACT_EMAIL` (re-export из entities —
       AdminContact читает entities напрямую), `ContactFormData`, `FormStatus`;
       оставлен `Contact` (единственный импортируемый: `HomePage.tsx:18`).
-- [ ] `check:public-api` зелёный; ни один файл не импортирует удалённое из
+- [x] `check:public-api` зелёный; ни один файл не импортирует удалённое из
       `@/features/Contact`.
 
 ### R-5 — Известные ограничения (зафиксировать, не чинить)
-- [ ] Тост-only валидация формы (единый `contactFormRequired` на все zod-
+- [x] Тост-only валидация формы (единый `contactFormRequired` на все zod-
       ошибки, `useContactForm.ts:81-89`) — решение владельца Contact CRUD
       (R-4 плана); per-field ошибки — family-wide волна вне скоупа.
-- [ ] Миграция на RHF запрещена (main-чанк + DOM-требование `sendForm`).
-- [ ] Model-слой `entities/ContactContent` заморожен (дрейфа схем нет:
-      форма использует `ContactFormDataSchema` напрямую).
+- [x] Миграция на RHF запрещена (main-чанк + DOM-требование `sendForm`).
+- [x] Model-слой `entities/ContactContent` заморожен (дрейфа схем нет:
+      форма использует `ContactFormDataSchema` напрямую — проверено grep'ом).
 
 ### R-6 — Гейты эпика
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
-      coverage + public-api).
-- [ ] axe-app `/`: 0 регрессий против baseline.
-- [ ] Бандл-дельта worktree на merge-base в капе `performance-budget.json`
-      (737280); ожидаемая дельта ≤ 0 (только удаление кода, Contact в
-      main-чанке).
-- [ ] en/ru parity-тест зелёный (ключи не менялись).
-- [ ] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md) выжжен.
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
+      coverage + public-api) — 3502/3502, public-api 37/37.
+- [x] axe-app `/`: 0 регрессий против baseline (4 known).
+- [x] Бандл-дельта worktree на merge-base в капе `performance-budget.json`
+      (737280) — 733.5 KiB < 744 KiB; дельта ≈ 0 (только удаление кода,
+      Contact в main-чанке).
+- [x] en/ru parity-тест зелёный (ключи не менялись).
+- [x] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md) выжжен.
 
 ## Критерии приёмки (итог)
 
