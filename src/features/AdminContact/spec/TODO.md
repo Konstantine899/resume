@@ -10,15 +10,6 @@ spec: SPEC.md
 пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
 
-## WU-2 — Тест страницы (SPEC R-2)
-
-- [ ] Новый `pages/Admin/ui/AdminContactPage/AdminContactPage.test.tsx` по
-      харнесу `AdminSkillsPage.test.tsx:25-66` (реальный
-      `configureStore({reducer: storeReducers})`, моки только
-      storage/i18n/toast).
-- [ ] Smoke инлайн-компонента: форма рендерится, `data-testid="admin-contact"`,
-      email prefilled = `CONTACT_EMAIL`.
-
 ## WU-3 — Гигиена баррела (SPEC R-3)
 
 - [ ] `index.ts`: оставить только `ContactEditorForm`; удалить
