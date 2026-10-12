@@ -129,6 +129,9 @@ export const JobForm: React.FC<JobFormProps> = ({
     dispatch(addJob(record));
     addToast({ message: t('adminJobSaved'), type: 'success' });
     reset(emptyJobFormValues());
+    // A7 (admin-jobs-refactor): the page-owned modal closes on create Save;
+    // standalone usage without a page callback keeps the reset above.
+    onExitEdit?.();
   });
 
   const handleCancel = () => {
@@ -250,9 +253,7 @@ export const JobForm: React.FC<JobFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
-      <div className={styles.intro}>
-        <Heading level={2}>{t(job ? 'adminEditJob' : 'adminAddJob')}</Heading>
-      </div>
+      {/* No own h2 (A12): the page modal header owns the dialog name. */}
 
       <div className={styles.field}>
         <Input

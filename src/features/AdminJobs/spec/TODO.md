@@ -11,15 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-5 — Страница: Modal + тест (SPEC R-5)
-
-- [ ] `AdminJobsPage.tsx` — kit Modal вокруг `JobForm` (`isOpen={form!==null}`,
-      шапка `adminEditJob`/`adminAddJob`, ESC/overlay → `setForm(null)`);
-      удалить h2 внутри `JobForm.tsx` (A12).
-- [ ] Новый `pages/Admin/ui/AdminJobsPage/AdminJobsPage.test.tsx` (харнес
-      `AdminSkillsPage.test.tsx:25-66`): create-open, edit-open, stale-guard,
-      ESC-close, единственный диалог.
-
 ## WU-6 — Витрина DataTable (SPEC R-6)
 
 - [ ] `JobsList.tsx` → kit `DataTable`; колонки company /
