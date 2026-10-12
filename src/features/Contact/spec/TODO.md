@@ -10,13 +10,6 @@ vault `wiki/plan/plan_contact_refactor.md`, rev.1. Правила: выполн�
 УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12: OPEN-1=A, OPEN-2=A (рекомендации приняты без изменений).
 
-## WU-3 — Баррел (SPEC R-4)
-
-- [ ] Вырезать из `index.ts` экспорты `useContactForm`,
-      `CONTACT_EMAIL`, `ContactFormData`, `FormStatus` (оставить `Contact`);
-      до/после grep `from '@/features/Contact'` — только `Contact`.
-- [ ] Гейт: `check:public-api` зелёный.
-
 ## WU-4 — Гейты эпика (SPEC R-6)
 
 - [ ] `npm run validate` в CPU-окне (<45%) зелёный.
