@@ -60,14 +60,17 @@
   min-width: 0;
 }
 
-// Wrapping button row for block-level or tech-row actions (5 buttons fit on
+// Icon-button row for block-level or tech-row actions (rev.3): packed to
 
-// desktop, stack on narrow viewports).
+// the RIGHT edge of the block header / actions cell (verdict OPEN-1=r3);
+
+// stacks on narrow viewports.
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-2;
+  justify-content: flex-end;
 }
 
 // Range counter under the DataTable's pagination (kit Pagination pilot §7).
