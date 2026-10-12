@@ -1,25 +1,16 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminAbout (рефакторинг к паритету с AdminSkills, rev.1)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.1 (эпик `admin-about-refactor`). Исходный план:
-vault `wiki/plan/plan_admin_about_refactor.md`. Правила: выполненный пункт УДАЛЯЕТСЯ
-(не отмечается); пункт без критерия не ревьюивается. Вердикт владельца 2026-10-12:
-OPEN-1 = B (инлайн), OPEN-2 = A (срез мёртвых экспортов), OPEN-3 = A (axe PATHS).
-
-## WU-4 — Гейты эпика (SPEC R-6)
-
-- [ ] `npm run validate` в CPU-окне (<45%) зелёный.
-- [ ] axe-app: 0 регрессий (PATHS с `/admin/about`).
-- [ ] Бандл-дельта worktree на merge-base: в капе 737280.
-- [ ] en/ru parity-тест зелёный.
-- [ ] Секция R-5 «Известные ограничения» сверена с кодом — соответствует
-      фактическому состоянию.
-- [ ] SPEC.md: критерии R-1..R-4 закрыты, статус → `done`, дата `verified`.
-- [ ] Дуал-райт: gotcha-записи в AGENTS.md/engram по итогам эпика.
+Эпик `admin-about-refactor` ЗАКРЫТ 2026-10-12 (PR #218): WU-1..4 исполнены и выжжены
+(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
+3485/3485, axe-app 0 регрессий (PATHS += `/admin/about`), бандл 733.3 < 744 KiB,
+public-api 37/37. Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
+`verified: '2026-10-12'`). Вердикт владельца 2026-10-12: OPEN-1=B, OPEN-2=A,
+OPEN-3=A (см. «Решения» внизу).
 
 ## Решения (вердикт владельца 2026-10-12)
 

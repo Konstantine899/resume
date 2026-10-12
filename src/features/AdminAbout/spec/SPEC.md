@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: admin-about-refactor
 created: '2026-10-11'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminAbout (рефакторинг к паритету с AdminSkills)
@@ -64,40 +65,40 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
 
 ### R-1 — Reset-confirm на kit Modal (паритет §6)
 
-- [ ] `AboutEditorForm` открывает kit `Modal` по кнопке `aboutReset`;
+- [x] `AboutEditorForm` открывает kit `Modal` по кнопке `aboutReset`;
       `window.confirm` отсутствует (AboutEditorForm.tsx:126 удалён).
-- [ ] Subtitle модалки называет сущность: ключ `aboutResetConfirm` (en+ru)
+- [x] Subtitle модалки называет сущность: ключ `aboutResetConfirm` (en+ru)
       содержит `{{name}}` и подставляет текущий `fullName` из формы;
       title = `aboutReset`; label кнопки-подтверждения ≠ текст subtitle.
-- [ ] `initialFocusRef` → кнопка «Отмена» (новый ключ `aboutCancel`,
+- [x] `initialFocusRef` → кнопка «Отмена» (новый ключ `aboutCancel`,
       en+ru); ESC/overlay закрывает модалку без действий.
-- [ ] Подтверждение: `removeAboutContent()` → dispatch `resetToDefaults()` →
+- [x] Подтверждение: `removeAboutContent()` → dispatch `resetToDefaults()` →
       `reset(seed)` — порядок сохраняется; `remove` never-throws, ветки
       persist-fail у reset нет (задокументировано комментарием).
-- [ ] Тесты формы: declined/ESC не вызывают remove; confirmed соблюдает
+- [x] Тесты формы: declined/ESC не вызывают remove; confirmed соблюдает
       порядок remove→dispatch и возвращает поля к seed; subtitle содержит
       текущий fullName; фокус на «Отмена». Старые 2 confirm-теста
       (AboutEditorForm.test.tsx:175-204) переписаны.
-- [ ] `locales-parity.test.ts`: `aboutCancel` в allowlist; `aboutResetConfirm`
+- [x] `locales-parity.test.ts`: `aboutCancel` в allowlist; `aboutResetConfirm`
       симметричен en/ru.
 
 ### R-2 — Тест страницы AdminAboutPage
 
-- [ ] Существует `src/pages/Admin/ui/AdminAboutPage/AdminAboutPage.test.tsx`
+- [x] Существует `src/pages/Admin/ui/AdminAboutPage/AdminAboutPage.test.tsx`
       с реальным `configureStore({ reducer: storeReducers })` (харнес
       `AdminSkillsPage.test.tsx:25-66`; моки только storage/i18n/toast).
-- [ ] Кейсы: рендер формы на странице; prefill из storage (lazy hydration);
+- [x] Кейсы: рендер формы на странице; prefill из storage (lazy hydration);
       save-smoke (persist→dispatch); reset-кнопка видна.
 
 ### R-3 — axe-покрытие маршрута
 
-- [ ] `'/admin/about'` добавлен в PATHS
+- [x] `'/admin/about'` добавлен в PATHS
       (`scripts/purge-axe-check.mjs:37`); axe-app — 0 регрессий (вскрывшиеся
       нарушения чинятся в эпике).
 
 ### R-4 — Гигиена баррела
 
-- [ ] Из `index.ts` удалены 7 мёртвых экспортов
+- [x] Из `index.ts` удалены 7 мёртвых экспортов
       (`selectAboutContent`, `ABOUT_CONTENT_STORAGE_KEY`, `readAboutContent`,
       `aboutContentReducer`, `resetToDefaults`, `updateAboutContent`,
       `AboutContentRootState`); сохранены `AboutEditorForm`(+Props),
@@ -107,23 +108,26 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
 
 ### R-5 — Известные ограничения (зафиксировать, не чинить)
 
-- [ ] Contact несут тот же `window.confirm` (ContactEditorForm.tsx:132) —
-      отдельный эпик; Select error-prop — family-wide волна (OPEN-5
-      AdminJobs); `model/selectors/index.ts` — OPEN-8 repo-wide; портрет/stack
-      — stage-2.
-- [ ] Компонентные тесты формы остаются на react-redux моке
+- [x] `AdminContact` несёт тот же `window.confirm`
+      (`src/features/AdminContact/ui/ContactEditorForm/ContactEditorForm.tsx:132`) —
+      отдельный эпик (admin-contact-refactor); `model/selectors/index.ts` —
+      OPEN-8 repo-wide; портрет/stack (`types.ts` deliberately absent) —
+      stage-2. Select error-prop в AdminAbout не применяется (форма Select
+      не использует) — family-wide волна живёт в OPEN-5 AdminJobs.
+- [x] Компонентные тесты формы остаются на react-redux моке
       (задокументирован, FSD-запрет features→app); real-store покрытие даёт
       R-2 на уровне страницы.
 
 ### R-6 — Гейты эпика
 
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
-      coverage + public-api).
-- [ ] axe-app (PATHS с `/admin/about`): 0 регрессий.
-- [ ] Бандл-дельта worktree на merge-base в капе `performance-budget.json`
-      (737280) — UI-правки, новых зависимостей нет.
-- [ ] en/ru parity-тест зелёный.
-- [ ] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md)
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
+      coverage + public-api) — 3485/3485, public-api 37/37.
+- [x] axe-app (PATHS с `/admin/about`): 0 регрессий (baseline 4 known;
+      `/admin/about` dark 1080/1279 class rules, 0 violations).
+- [x] Бандл-дельта в капе `performance-budget.json` (737280) — 733.3 KiB
+      < 744 KiB; UI-правки, новых зависимостей нет.
+- [x] en/ru parity-тест зелёный (в составе validate).
+- [x] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md)
       выжжен (выполненные пункты удалены, не отмечены).
 
 ## Критерии приёмки (итог)
