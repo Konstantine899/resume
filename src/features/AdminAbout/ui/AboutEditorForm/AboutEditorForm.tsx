@@ -9,8 +9,9 @@
 // Invariants:
 // - persist happens BEFORE dispatch (§4, R-7): a failed write must never
 //   leave the store ahead of storage; on failure the form keeps the values.
-// - Reset is destructive → confirm dialog first, then remove + dispatch +
-//   form.reset(seed) — otherwise the fields would keep the dirty values.
+// - Reset is destructive → kit Modal confirm first (§6, never
+//   window.confirm), then remove + dispatch + form.reset(seed) —
+//   otherwise the fields would keep the dirty values.
 // - ALL copy is i18n (R-4): labels, validation messages and Toasts are
 //   key lookups, never literals.
 
@@ -25,9 +26,11 @@ import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
+import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAboutContent } from '../../model/selectors';
@@ -110,6 +113,13 @@ export const AboutEditorForm: React.FC<AboutEditorFormProps> = ({
   // repo ships the compiler with zero-warning lint.
   const values = useWatch({ control });
 
+  // R-1 (admin-about-refactor): the destructive confirm is a kit Modal —
+  // it names the entity, holds focus on «Отмена» and closes on ESC/overlay.
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const cancelResetRef = useRef<HTMLButtonElement>(null);
+
+  const closeResetConfirm = () => setIsResetConfirmOpen(false);
+
   /** §4 order: persist → dispatch → toast → form → idle. */
   const handleSave = (values: AboutContent) => {
     if (!persistAboutContent(values)) {
@@ -121,12 +131,21 @@ export const AboutEditorForm: React.FC<AboutEditorFormProps> = ({
     reset(values); // pristine again → Save disabled (§9 saved → idle)
   };
 
-  /** §7: destructive reset → confirm → remove → dispatch → form ← seed. */
+  /** §7: destructive reset → confirm (open only) → handleConfirmReset. */
   const handleReset = () => {
-    if (!window.confirm(t('aboutResetConfirm'))) return;
+    setIsResetConfirmOpen(true);
+  };
+
+  /**
+   * §7 order: remove → dispatch → form ← seed.
+   * `removeAboutContent` is idempotent and never throws (storage.ts), so
+   * unlike Save there is NO persist-fail branch to guard here.
+   */
+  const handleConfirmReset = () => {
     removeAboutContent();
     dispatch(resetToDefaults());
     reset(createAboutSeed()); // without this the fields keep dirty values
+    closeResetConfirm();
   };
 
   return (
@@ -235,6 +254,37 @@ export const AboutEditorForm: React.FC<AboutEditorFormProps> = ({
           {t('aboutReset')}
         </Button>
       </div>
+
+      {/* R-1: kit Modal confirm (§6, never window.confirm) — title/button
+          share `aboutReset`, the subtitle IS the confirm copy and names the
+          entity ({{name}} = current fullName); focus starts on «Отмена». */}
+      <Modal
+        isOpen={isResetConfirmOpen}
+        onClose={closeResetConfirm}
+        title={t('aboutReset')}
+        subtitle={
+          isResetConfirmOpen ? t('aboutResetConfirm', { name: values.fullName ?? '' }) : undefined
+        }
+        size="sm"
+        initialFocusRef={cancelResetRef}
+        footer={
+          <>
+            <Button
+              ref={cancelResetRef}
+              type="button"
+              variant="outline"
+              onClick={closeResetConfirm}
+            >
+              {t('aboutCancel')}
+            </Button>
+            <Button type="button" variant="danger" onClick={handleConfirmReset}>
+              {t('aboutReset')}
+            </Button>
+          </>
+        }
+      >
+        {null}
+      </Modal>
     </Form>
   );
 };

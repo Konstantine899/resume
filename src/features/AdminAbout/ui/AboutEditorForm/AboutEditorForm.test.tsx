@@ -4,11 +4,12 @@
 //
 // RED-first contract: form render, §7 validation via i18n keys (R-4, no
 // hardcoded messages), persist → dispatch order (R-7), Toast feedback and
-// the destructive-Reset confirm. Storage and action creators are spied at
-// the module boundary; the reducer itself stays real (spread actual) so the
-// store hydrates normally.
+// the destructive-Reset confirm — a kit Modal (admin-about-refactor R-1,
+// §6 «never window.confirm»), NOT a native dialog. Storage and action
+// creators are spied at the module boundary; the reducer itself stays real
+// (spread actual) so the store hydrates normally.
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AboutContent } from '@/entities/AboutContent';
 import { DEVELOPER_DATA, PROFILE_STACK } from '@/entities/Developer';
@@ -36,10 +37,12 @@ vi.mock('../../model/slices/aboutContentSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key (Nav.test pattern) — assertions target
-// raw i18n keys, so locale edits never flip the expectations.
+// raw i18n keys, so locale edits never flip the expectations. Known options
+// render as `${key}:${value}` (name — R-1 confirm subtitle names the entity).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { name?: string }) =>
+      options?.name !== undefined ? `${key}:${options.name}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -172,26 +175,93 @@ describe('AboutEditorForm: save (R-7 persist → dispatch)', () => {
   });
 });
 
-describe('AboutEditorForm: reset (§7 confirm → remove → dispatch)', () => {
-  it('does nothing when the confirm dialog is declined', () => {
+describe('AboutEditorForm: reset confirm (R-1, kit Modal)', () => {
+  /** Open the destructive confirm; returns the dialog element. */
+  const openConfirm = async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'aboutReset' }));
+    return screen.findByRole('dialog');
+  };
+
+  it('«aboutReset» opens a confirm Modal and never calls window.confirm', async () => {
     renderForm();
 
     fireEvent.change(fullNameInput(), { target: { value: 'Dirty Name' } });
-    fireEvent.click(screen.getByRole('button', { name: 'aboutReset' }));
+    const modal = await openConfirm();
 
-    expect(confirmSpy).toHaveBeenCalledWith('aboutResetConfirm');
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'aboutReset' })
+    ).toBeInTheDocument();
+    // Opening is not acting: nothing removed or dispatched yet.
+    expect(removeSpy).not.toHaveBeenCalled();
+    expect(resetSpy).not.toHaveBeenCalled();
+    expect(fullNameInput()).toHaveValue('Dirty Name');
+  });
+
+  it('subtitle names the current fullName ({{name}} interpolation)', async () => {
+    renderForm();
+
+    fireEvent.change(fullNameInput(), { target: { value: 'Dirty Name' } });
+    const modal = await openConfirm();
+
+    expect(within(modal).getByText('aboutResetConfirm:Dirty Name')).toBeInTheDocument();
+  });
+
+  it('moves focus to «Отмена» when the confirm opens (initialFocusRef)', async () => {
+    renderForm();
+
+    const modal = await openConfirm();
+    const cancel = within(modal).getByRole('button', { name: 'aboutCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+  });
+
+  it('ESC closes the confirm without any action', async () => {
+    renderForm();
+
+    fireEvent.change(fullNameInput(), { target: { value: 'Dirty Name' } });
+    await openConfirm();
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(removeSpy).not.toHaveBeenCalled();
+    expect(resetSpy).not.toHaveBeenCalled();
+    expect(fullNameInput()).toHaveValue('Dirty Name');
+  });
+
+  it('overlay pointer-down closes the confirm without any action', async () => {
+    renderForm();
+
+    await openConfirm();
+    const overlay = document.querySelector('[data-dark]');
+    // M14: assert existence instead of silently passing when null.
+    expect(overlay).not.toBeNull();
+    fireEvent.pointerDown(overlay as HTMLElement);
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(removeSpy).not.toHaveBeenCalled();
+    expect(resetSpy).not.toHaveBeenCalled();
+  });
+
+  it('«Отмена» declines: the dialog closes and nothing is removed or dispatched', async () => {
+    renderForm();
+
+    fireEvent.change(fullNameInput(), { target: { value: 'Dirty Name' } });
+    const modal = await openConfirm();
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutCancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(removeSpy).not.toHaveBeenCalled();
     expect(resetSpy).not.toHaveBeenCalled();
     // Form untouched.
     expect(fullNameInput()).toHaveValue('Dirty Name');
   });
 
-  it('removes storage, dispatches reset and resets the form to the seed on confirm', async () => {
+  it('confirm removes storage, dispatches reset and returns the fields to the seed', async () => {
     renderForm();
 
-    confirmSpy.mockReturnValueOnce(true);
     fireEvent.change(fullNameInput(), { target: { value: 'Dirty Name' } });
-    fireEvent.click(screen.getByRole('button', { name: 'aboutReset' }));
+    const modal = await openConfirm();
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutReset' }));
 
     await waitFor(() => expect(removeSpy).toHaveBeenCalledTimes(1));
     expect(resetSpy).toHaveBeenCalledTimes(1);
@@ -201,5 +271,6 @@ describe('AboutEditorForm: reset (§7 confirm → remove → dispatch)', () => {
     // Fields show the seed again, not the dirty values (§10 WU-3 reset note).
     await waitFor(() => expect(fullNameInput()).toHaveValue(DEVELOPER_DATA.fullName));
     expect(screen.getByRole('button', { name: 'aboutSave' })).toBeDisabled();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });

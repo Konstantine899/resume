@@ -78,6 +78,8 @@ describe('locale parity (WU-6)', () => {
       'aboutSaved',
       'aboutSaveError',
       'aboutResetConfirm',
+      // admin-about-refactor WU-1 (SPEC R-1): the Modal's «Отмена» button.
+      'aboutCancel',
       'aboutNameRequired',
       'aboutParagraphEmpty',
       'aboutStatRequired',
@@ -197,5 +199,14 @@ describe('locale parity (WU-6)', () => {
     // must not creep back into either locale.
     expect(en).not.toHaveProperty('adminJobPosition');
     expect(ru).not.toHaveProperty('adminJobPosition');
+  });
+
+  it('aboutResetConfirm interpolates {{name}} on both sides (admin-about-refactor WU-1)', () => {
+    // R-1: the confirm subtitle NAMES the entity — one-sided placeholders
+    // would ship a literal `{{name}}` in the other language. `?? ''` only
+    // guards the noUncheckedIndexedAccess index; a missing key collapses
+    // to '' and fails the containment assertion anyway.
+    expect(en.aboutResetConfirm ?? '').toContain('{{name}}');
+    expect(ru.aboutResetConfirm ?? '').toContain('{{name}}');
   });
 });
