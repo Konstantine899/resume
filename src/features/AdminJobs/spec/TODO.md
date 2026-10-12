@@ -11,14 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-8 — Гигиена (SPEC R-8)
-
-- [ ] Удалить ключ `adminJobPosition` из `en.json`/`ru.json` и из allowlist
-      `locales-parity.test.ts:124`; parity-тест зелёный.
-- [ ] Вырезать из `index.ts` мёртвые экспорты (`toggleCurrent`,
-      `applyJobToggle`, `resetToDefaults`, `removeJobs`, `selectJobById`,
-      `selectCurrentJob`); пересмотреть их тесты; `check:public-api` зелёный.
-
 ## WU-9 — Гейты эпика (SPEC R-10)
 
 - [ ] `npm run validate` в CPU-окне (<45%) зелёный.

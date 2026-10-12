@@ -198,7 +198,6 @@
   "adminJobErrUrl": "Link must be a valid absolute URL.",
   "adminJobErrEnum": "Choose a value from the list.",
   "adminJobCompany": "Company",
-  "adminJobPosition": "Position",
   "adminJobPositionEn": "Position (English)",
   "adminJobPositionRu": "Position (Russian)",
   "adminJobStartDate": "Start date",

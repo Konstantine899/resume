@@ -116,12 +116,13 @@ describe('locale parity (WU-6)', () => {
       'adminJobErrLocation',
       'adminJobErrUrl',
       'adminJobErrEnum',
-      // WU-5 form + list copy: the 20 remaining keys from the plan's WU-5
-      // list (the four admin basics shipped in WU-3) + adminJobPositionEn/
-      // Ru — the plan lists one adminJobPosition, but the form has two
-      // locale inputs (position.en / position.ru) and each needs its label.
+      // WU-5 form + list copy: the plan's WU-5 keys (the four admin basics
+      // shipped in WU-3) + adminJobPositionEn/Ru — the plan lists one
+      // adminJobPosition, but the form has two locale inputs
+      // (position.en / position.ru) and each needs its label, so the single
+      // label was never rendered and admin-jobs-refactor WU-8 (SPEC R-8)
+      // deleted it as dead copy.
       'adminJobCompany',
-      'adminJobPosition',
       'adminJobPositionEn',
       'adminJobPositionRu',
       'adminJobStartDate',
@@ -175,5 +176,13 @@ describe('locale parity (WU-6)', () => {
       expect((en[key] ?? '').trim(), `en ${key} empty`).not.toBe('');
       expect((ru[key] ?? '').trim(), `ru ${key} empty`).not.toBe('');
     }
+  });
+
+  it('the retired adminJobPosition key stays deleted (admin-jobs-refactor WU-8)', () => {
+    // The form renders two locale inputs labelled adminJobPositionEn/Ru —
+    // the single-label `adminJobPosition` had no consumer (SPEC R-8), so it
+    // must not creep back into either locale.
+    expect(en).not.toHaveProperty('adminJobPosition');
+    expect(ru).not.toHaveProperty('adminJobPosition');
   });
 });

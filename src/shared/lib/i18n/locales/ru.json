@@ -198,7 +198,6 @@
   "adminJobErrUrl": "Ссылка должна быть корректным абсолютным URL.",
   "adminJobErrEnum": "Выберите значение из списка.",
   "adminJobCompany": "Компания",
-  "adminJobPosition": "Должность",
   "adminJobPositionEn": "Должность (английский)",
   "adminJobPositionRu": "Должность (русский)",
   "adminJobStartDate": "Дата начала",
