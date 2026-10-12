@@ -24,7 +24,7 @@ import { Button } from '@/shared/ui/Button';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Job } from '@/entities/Job';
 import { deleteJob } from '../../model/slices/jobsSlice';
@@ -59,6 +59,8 @@ export const JobsList: React.FC<JobsListProps> = ({
   const { addToast } = useToast();
   const [pending, setPending] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   const closeModal = () => {
     setPending(null);
@@ -73,8 +75,9 @@ export const JobsList: React.FC<JobsListProps> = ({
     // store's byte-for-byte order; the sorted array above is render-only.
     const next = allJobs.filter((job) => job.id !== pending);
     if (!persistJobs(next)) {
+      // R-3 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
       addToast({ message: t('adminJobPersistError'), type: 'error' });
-      closeModal();
+      setDeleting(false);
       return;
     }
     dispatch(deleteJob(pending));
@@ -82,6 +85,8 @@ export const JobsList: React.FC<JobsListProps> = ({
     onJobDeleted?.(pending);
     closeModal();
   };
+
+  const pendingJob = pending === null ? undefined : allJobs.find((job) => job.id === pending);
 
   const getPosition = (job: Job): string =>
     (language === 'ru' ? job.position.ru : job.position.en) || job.position.en;
@@ -146,11 +151,18 @@ export const JobsList: React.FC<JobsListProps> = ({
       <Modal
         isOpen={pending !== null}
         onClose={closeModal}
-        title={t('adminJobDelete')}
+        // R-3: title ≠ button label (the button stays adminJobDelete); the
+        // subtitle NAMES the company (adminJobConfirmDeleteName, OPEN-10
+        // parity with skillsConfirmDelete={{name}}).
+        title={t('adminJobConfirmDelete')}
+        subtitle={
+          pendingJob ? t('adminJobConfirmDeleteName', { company: pendingJob.company }) : undefined
+        }
         size="sm"
+        initialFocusRef={cancelRef}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={closeModal}>
+            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
               {t('adminJobCancel')}
             </Button>
             <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
@@ -159,7 +171,7 @@ export const JobsList: React.FC<JobsListProps> = ({
           </>
         }
       >
-        <Paragraph>{t('adminJobConfirmDelete')}</Paragraph>
+        {null}
       </Modal>
     </div>
   );

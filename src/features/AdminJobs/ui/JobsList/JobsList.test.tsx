@@ -36,9 +36,12 @@ vi.mock('../../model/slices/jobsSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
+// The `company` option renders as `${key}:${company}` (SkillsEditorList
+// precedent) so the confirm subtitle can prove it NAMES the entity.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { company?: string }) =>
+      options?.company !== undefined ? `${key}:${options.company}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -213,6 +216,45 @@ describe('JobsList', () => {
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
     // Insertion order minus the deleted record — NOT the sorted [newer, older].
     expect(persistSpy).toHaveBeenCalledWith([OLDER, NEWER]);
+  });
+
+  it('persist failure keeps the confirm modal open for retry (R-3)', async () => {
+    persistSpy.mockReturnValue(false);
+    renderList();
+
+    const rows = screen.getAllByRole('listitem');
+    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'adminJobPersistError', type: 'error' })
+    );
+    // SkillsEditorList OPEN-9 parity: the modal does NOT close on persist
+    // failure — the user can retry the same delete.
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(within(modal).getByRole('button', { name: 'adminJobDelete' })).toBeEnabled();
+  });
+
+  it('confirm modal names the company in its subtitle (R-3)', async () => {
+    renderList();
+
+    const rows = screen.getAllByRole('listitem');
+    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByText('adminJobConfirmDeleteName:New Co')).toBeInTheDocument();
+  });
+
+  it('confirm modal focuses the Cancel button on open (R-3)', async () => {
+    renderList();
+
+    const rows = screen.getAllByRole('listitem');
+    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    const modal = await screen.findByRole('dialog');
+    const cancel = within(modal).getByRole('button', { name: 'adminJobCancel' });
+
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
   });
 
   it('keeps the record and skips dispatch when persist fails (§3)', async () => {

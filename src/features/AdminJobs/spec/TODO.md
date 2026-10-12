@@ -11,14 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-3 — Confirm-delete parity (SPEC R-3)
-
-- [ ] Локали: ключ `adminJobConfirmDeleteName` (en+ru, `{{company}}`); заголовок
-      модалки ≠ label кнопки.
-- [ ] `JobsList.tsx`: subtitle с именем компании, `initialFocusRef` → «Отмена».
-- [ ] Persist-failure: модалка остаётся открытой (`setDeleting(false); return;`).
-- [ ] Тесты: subtitle-текст, фокус на «Отмена», persist-fail не закрывает.
-
 ## WU-4 — EmptyState (SPEC R-4)
 
 - [ ] `JobsList.tsx`: `Paragraph adminJobsEmpty` → kit `EmptyState

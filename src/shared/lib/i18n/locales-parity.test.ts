@@ -152,6 +152,9 @@ describe('locale parity (WU-6)', () => {
       'adminJobCancel',
       'adminJobDelete',
       'adminJobConfirmDelete',
+      // admin-jobs-refactor WU-3 (SPEC R-3): confirm subtitle NAMES the
+      // company (SkillsEditorList OPEN-10 parity).
+      'adminJobConfirmDeleteName',
       'adminJobSaved',
       'adminJobDeleted',
       'adminJobPersistError',

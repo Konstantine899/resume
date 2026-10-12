@@ -218,6 +218,7 @@
   "adminJobCancel": "Cancel",
   "adminJobDelete": "Delete",
   "adminJobConfirmDelete": "Delete this position? This cannot be undone.",
+  "adminJobConfirmDeleteName": "Delete {{company}}?",
   "adminJobSaved": "Saved",
   "adminJobDeleted": "Deleted",
   "adminJobPersistError": "Could not save — browser storage write failed.",

@@ -218,6 +218,7 @@
   "adminJobCancel": "Отмена",
   "adminJobDelete": "Удалить",
   "adminJobConfirmDelete": "Удалить эту должность? Это действие нельзя отменить.",
+  "adminJobConfirmDeleteName": "Удалить {{company}}?",
   "adminJobSaved": "Сохранено",
   "adminJobDeleted": "Удалено",
   "adminJobPersistError": "Не удалось сохранить — ошибка записи в хранилище браузера.",
