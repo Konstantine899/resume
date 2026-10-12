@@ -10,13 +10,6 @@ vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполне�
 (не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
 владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
 
-## WU-3 — EmptyState (SPEC R-3)
-
-- [ ] `MyWorkEditorList.tsx`: `Paragraph noProjectsYet` → kit `EmptyState
-      title={t('noProjectsYet')}`; связанный SCSS пустого состояния удалить,
-      если есть.
-- [ ] Тест: пустой список рендерит EmptyState.
-
 ## WU-4 — Страница: Modal + тест (SPEC R-4)
 
 - [ ] `AdminMyWorkPage.tsx` — kit Modal вокруг `ProjectForm`

@@ -22,9 +22,9 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import type { BadgeVariant } from '@/shared/ui/Badge';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
-import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
@@ -91,7 +91,8 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   if (projects.length === 0) {
     return (
       <div className={classNames(styles.root, className)} data-testid={testId}>
-        <Paragraph theme="muted">{t('noProjectsYet')}</Paragraph>
+        {/* R-3: kit EmptyState (A2 — all copy comes from the consumer). */}
+        <EmptyState title={t('noProjectsYet')} />
       </div>
     );
   }

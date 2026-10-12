@@ -119,6 +119,19 @@ describe('MyWorkEditorList: render (§6 rows + badges)', () => {
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'projectEdit' })).not.toBeInTheDocument();
   });
+
+  it('renders the kit EmptyState for an empty list (R-3)', () => {
+    holder.state = { myWork: [] };
+    renderList();
+
+    const title = screen.getByText('noProjectsYet');
+    // EmptyState's title slot is a div (kit) — not the old bare <p> Paragraph.
+    expect(title.tagName).toBe('DIV');
+    // WU-5-compatible: assert the empty-state CONTENT, never row tags — the
+    // DataTable emptyState slot will render this same title later.
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+    expect(screen.queryAllByRole('button', { name: 'projectDelete' })).toHaveLength(0);
+  });
 });
 
 describe('MyWorkEditorList: edit (§6 onEdit wiring)', () => {
