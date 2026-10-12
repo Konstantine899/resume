@@ -1,6 +1,6 @@
 // ============================================
 
-// JobsList — admin row list layout (WorkHistory CRUD §9 WU-5)
+// JobsList — admin vitrina layout (WorkHistory CRUD §9, admin-jobs-refactor WU-6)
 
 // ============================================
 
@@ -9,6 +9,10 @@
 // tokens — no hardcoded values (plan §8). Row rhythm mirrors
 
 // SkillsEditorList so the admin area stays visually consistent.
+
+// The list itself is the kit DataTable (SPEC R-6); only header/cell chrome
+
+// lives here.
 
 @use '@/shared/styles/variables' as *;
 
@@ -32,37 +36,7 @@
   gap: $spacing-2;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.row {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-  padding: $spacing-3;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-}
-
-.rowMain {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-3;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-2;
-  align-items: center;
+.companyCell {
   min-width: 0;
 }
 
@@ -74,6 +48,12 @@
 .period {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
 }
 
 .actions {

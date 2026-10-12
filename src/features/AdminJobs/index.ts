@@ -12,29 +12,27 @@
 // precisely so this barrel (and the form/RHF code behind it) is
 // instantiated only by the lazy `/admin/jobs` route (lesson
 // resume-lazy-rhf-chunk).
+//
+// WU-8 (SPEC R-8): this barrel only carries what `src/` actually imports —
+// six dead re-exports (toggleCurrent, applyJobToggle, resetToDefaults,
+// removeJobs, selectJobById, selectCurrentJob) were dropped. The
+// implementations and their unit tests are untouched; `index.test.ts` pins
+// both halves of that contract.
 
 export {
   addJob,
-  applyJobToggle,
   applyJobUpdate,
   deleteJob,
   jobsReducer,
   makeJobRecord,
-  resetToDefaults,
-  toggleCurrent,
   updateJob,
 } from './model/slices/jobsSlice';
 export { createJobsSeed } from './model/services/seed';
-export {
-  selectAllJobs,
-  selectCurrentJob,
-  selectJobById,
-  selectSortedJobs,
-} from './model/selectors';
-export { JOBS_STORAGE_KEY, persistJobs, readJobs, removeJobs } from './model/services/storage';
+export { selectAllJobs, selectSortedJobs } from './model/selectors';
+export { JOBS_STORAGE_KEY, persistJobs, readJobs } from './model/services/storage';
 export type { JobsRootState } from './model/types/types';
 
 // WU-5: the editor UI — consumed by the lazy /admin/jobs page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
-export { JobForm } from './ui/JobForm';
-export { JobsList } from './ui/JobsList';
+export { JobForm } from './ui/JobForm/JobForm';
+export { JobsList } from './ui/JobsList/JobsList';

@@ -353,7 +353,13 @@
 
   --color-surface-primary: #292726;
   --color-surface-secondary: #1e1c1b;
-  --color-surface-tertiary: #343231;
+
+  // #343231 gave text-tertiary only 4.29:1 (AA fail) — it backs the Table
+
+  // zebra rows AND --color-surface-elevated (Toast/Tooltip); #2e2c2b lifts
+
+  // that pair to 4.67:1 while staying above surface-secondary.
+  --color-surface-tertiary: #2e2c2b;
   --color-surface-active: #4b4948;
   --color-surface-disabled: #292726;
 
@@ -369,7 +375,9 @@
 
   // WCAG AA fail; #9096a0 keeps the tertiary < secondary ladder and clears
 
-  // 4.5:1 on every dark surface (cards 5.0, header 5.7).
+  // 4.5:1 on every dark surface (cards 5.0, header 5.7, zebra 4.7 — the
+
+  // zebra pair drove the surface-tertiary value above).
   --color-text-tertiary: #9096a0;
   --color-text-quaternary: #4b5563;
   --color-text-inverse: #0f0f0f;

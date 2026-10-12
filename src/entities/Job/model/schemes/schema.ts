@@ -36,12 +36,18 @@ export const JobSchema = z.object({
   }),
   /** Display dup of the dates (A5) — recomputed by the reducer, never manual. */
   period: z.string().min(1),
+  // "start is not in the future" is a DELIBERATE form boundary, not an
+  // entity rule (admin-jobs-refactor SPEC R-7): that clock-dependent check
+  // validates admin UX input and lives in `jobFormSchema` (isFuture
+  // refine). This schema only guarantees a parseable instant.
   startDate: z.coerce.date(),
   /** `null` ⇔ open-ended (typically `current: true`); ZodNullable short-circuits null. */
   endDate: z.coerce.date().nullable(),
+  // Bullet cap mirrors jobFormSchema (`z.string().max(200)`) so the entity
+  // rejects what the admin form can never produce (SPEC R-7).
   description: z.object({
-    en: z.array(z.string()).min(1).max(6),
-    ru: z.array(z.string()).min(1).max(6),
+    en: z.array(z.string().max(200)).min(1).max(6),
+    ru: z.array(z.string().max(200)).min(1).max(6),
   }),
   technologies: z.array(z.string()).max(15),
   location: z.string().trim().min(2).max(80),
