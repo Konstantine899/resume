@@ -29,6 +29,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Badge } from '@/shared/ui/Badge';
 import { Button, IconButton } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { DataTable } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
@@ -291,8 +292,11 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           const rangeTo = Math.min(start + pageSize, techRows.length);
 
           return (
-            <section
+            <Card
               key={entry.category}
+              variant="default"
+              size="default"
+              hoverable={false}
               className={styles.block}
               data-testid={`skills-category-block-${entry.category}`}
             >
@@ -375,7 +379,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                   </span>
                 </div>
               )}
-            </section>
+            </Card>
           );
         })
       )}

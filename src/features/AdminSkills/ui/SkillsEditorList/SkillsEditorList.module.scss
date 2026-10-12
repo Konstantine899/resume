@@ -37,14 +37,17 @@
   gap: $spacing-2;
 }
 
-// One <section> per category (WU-1): header row (h3 + block actions), then
+// One kit Card per category (rev.3, verdict OPEN-2=r3): header row (h3 +
 
-// the category's own DataTable and range footer underneath.
+// block actions), then the category's DataTable + range footer. `height:
+
+// auto` overrides the card base mixin's fixed 220px.
 
 .block {
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
+  height: auto;
 }
 
 .blockHeader {
