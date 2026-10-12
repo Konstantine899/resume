@@ -10,13 +10,6 @@ spec: SPEC.md
 пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
 
-## WU-4 — axe: `/admin/contact` в PATHS (SPEC R-4)
-
-- [ ] `scripts/purge-axe-check.mjs:37`: PATHS += `'/admin/contact'`
-      (комментарий в стиле :34-36).
-- [ ] Прогон axe-app; при новых fingerprint'ах страницы — регенерация
-      baseline на чистом прогоне (`--update-baseline`).
-
 ## WU-5 — Гейты эпика (SPEC R-6)
 
 - [ ] `npm run validate` в CPU-окне (<45%) зелёный.
