@@ -10,21 +10,6 @@ vault `wiki/plan/plan_admin_about_refactor.md`. Правила: выполнен
 (не отмечается); пункт без критерия не ревьюивается. Вердикт владельца 2026-10-12:
 OPEN-1 = B (инлайн), OPEN-2 = A (срез мёртвых экспортов), OPEN-3 = A (axe PATHS).
 
-## WU-1 — Reset-confirm на kit Modal (SPEC R-1, TDD)
-
-- [ ] RED: переписать 2 confirm-теста (`AboutEditorForm.test.tsx:175-204`)
-      под Modal-кейсы + 3 новых: subtitle с `{{name}}` = текущий fullName,
-      фокус на «Отмена», ESC/overlay закрывает без действий.
-- [ ] GREEN: `AboutEditorForm.tsx` — состояние `isResetConfirmOpen`; кнопка
-      `aboutReset` открывает kit Modal (паттерн
-      `SkillsEditorList.tsx:360-383`: title `aboutReset`, subtitle
-      `aboutResetConfirm` с `{{name}}` из `values.fullName`, footer Отмена +
-      danger-Reset, `initialFocusRef`→Отмена); `window.confirm` (:126)
-      удалён; confirmed → `removeAboutContent` → dispatch → `reset(seed)`.
-- [ ] Локали: `aboutResetConfirm` (en+ru) получает `{{name}}`; новый ключ
-      `aboutCancel` (en+ru); allowlist `locales-parity.test.ts` пополнен
-      `aboutCancel`.
-
 ## WU-2 — Тест страницы (SPEC R-2)
 
 - [ ] Новый `src/pages/Admin/ui/AdminAboutPage/AdminAboutPage.test.tsx`
