@@ -32,9 +32,12 @@ vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
+// Interpolation is rendered as `key:value` so subtitle assertions can prove
+// the confirm NAMES the entity (Jobs/Skills `adminJobConfirmDeleteName` pattern).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { name?: string }) =>
+      options?.name !== undefined ? `${key}:${options.name}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -193,5 +196,56 @@ describe('MyWorkEditorList: delete (Modal confirm → persist → dispatch)', ()
     expect(deleteSpy).not.toHaveBeenCalled();
     expect(rows()).toHaveLength(seedProjects.length);
     expect(screen.getByText(target.title)).toBeInTheDocument();
+  });
+
+  // ---- admin-mywork-refactor WU-2 (SPEC R-2, confirm parity) ----
+
+  it('confirm modal names the project in its subtitle and a title ≠ button label (R-2)', async () => {
+    renderList();
+
+    fireEvent.click(
+      within(rows()[0] as HTMLElement).getByRole('button', { name: 'projectDelete' })
+    );
+    const modal = await screen.findByRole('dialog');
+
+    // R-2: the subtitle NAMES the entity — `projectConfirmDeleteName` + {{name}}.
+    expect(
+      within(modal).getByText(`projectConfirmDeleteName:${seedProjects[0]?.title ?? ''}`)
+    ).toBeInTheDocument();
+    // R-2: the modal title ≠ the confirm button label (projectDelete stays the label).
+    expect(within(modal).getByRole('heading', { level: 2 })).toHaveTextContent(
+      'projectDeleteConfirm'
+    );
+  });
+
+  it('confirm modal focuses the Cancel button on open (R-2)', async () => {
+    renderList();
+
+    fireEvent.click(
+      within(rows()[0] as HTMLElement).getByRole('button', { name: 'projectDelete' })
+    );
+    const modal = await screen.findByRole('dialog');
+    const cancel = within(modal).getByRole('button', { name: 'projectCancel' });
+
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+  });
+
+  it('persist failure keeps the confirm modal open for retry (R-2)', async () => {
+    persistSpy.mockReturnValue(false);
+    renderList();
+
+    fireEvent.click(
+      within(rows()[0] as HTMLElement).getByRole('button', { name: 'projectDelete' })
+    );
+    const modal = await screen.findByRole('dialog');
+    fireEvent.click(within(modal).getByRole('button', { name: 'projectDelete' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'projectSaveError', type: 'error' })
+    );
+    // Skills OPEN-9 parity: the modal does NOT close on persist failure —
+    // the user can retry the same delete.
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(within(modal).getByRole('button', { name: 'projectDelete' })).toBeEnabled();
   });
 });

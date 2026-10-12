@@ -25,7 +25,7 @@ import { Button } from '@/shared/ui/Button';
 import { Heading } from '@/shared/ui/Heading';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -62,6 +62,8 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   const { addToast } = useToast();
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   const handleConfirmDelete = () => {
     if (!pendingDeleteId) return;
@@ -69,9 +71,9 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
     setDeleting(true);
     const next = projects.filter((project) => project.id !== targetId);
     if (!persistProjects(next)) {
+      // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
       addToast({ message: t('projectSaveError'), type: 'error' });
       setDeleting(false);
-      setPendingDeleteId(null);
       return;
     }
     dispatch(deleteProject(targetId));
@@ -80,6 +82,11 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
     setDeleting(false);
     setPendingDeleteId(null);
   };
+
+  const pendingProject =
+    pendingDeleteId === null
+      ? undefined
+      : projects.find((project) => project.id === pendingDeleteId);
 
   if (projects.length === 0) {
     return (
@@ -125,11 +132,23 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
       <Modal
         isOpen={pendingDeleteId !== null}
         onClose={() => setPendingDeleteId(null)}
-        title={t('projectDelete')}
+        // R-2: title ≠ button label (the button stays projectDelete); the
+        // subtitle NAMES the project (projectConfirmDeleteName, OPEN-10
+        // parity with skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
+        title={t('projectDeleteConfirm')}
+        subtitle={
+          pendingProject ? t('projectConfirmDeleteName', { name: pendingProject.title }) : undefined
+        }
         size="sm"
+        initialFocusRef={cancelRef}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={() => setPendingDeleteId(null)}>
+            <Button
+              ref={cancelRef}
+              type="button"
+              variant="outline"
+              onClick={() => setPendingDeleteId(null)}
+            >
               {t('projectCancel')}
             </Button>
             <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
@@ -138,7 +157,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
           </>
         }
       >
-        <Paragraph>{t('projectDeleteConfirm')}</Paragraph>
+        {null}
       </Modal>
     </div>
   );

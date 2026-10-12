@@ -119,6 +119,7 @@
   "projectSaveError": "Не удалось сохранить",
   "projectDeleted": "Удалено",
   "projectDeleteConfirm": "Удалить этот проект? Это действие нельзя отменить.",
+  "projectConfirmDeleteName": "Удалить {{name}}?",
   "projectResetConfirm": "Сбросить секцию «Проекты» к значениям по умолчанию? Ваши правки будут потеряны.",
   "projectTitleRequired": "Название обязательно (2–100 символов).",
   "projectDescriptionEmpty": "Каждая локаль описания обязательна (до 600 символов).",

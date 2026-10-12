@@ -32,7 +32,7 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
@@ -92,6 +92,11 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const { t } = useLanguage();
   const { addToast } = useToast();
   const [confirmTarget, setConfirmTarget] = useState<'reset' | 'delete' | null>(null);
+  // admin-mywork-refactor WU-2 (R-2): gates the delete-confirm button and
+  // lets a persist failure keep the modal open for a retry (Skills parity).
+  const [deleting, setDeleting] = useState(false);
+  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
+  const cancelRef = useRef<HTMLButtonElement>(null);
   // rev.4: i18n key of the last save-to-directory failure (null = none).
   const [imageSaveErrorKey, setImageSaveErrorKey] = useState<string | null>(null);
 
@@ -190,14 +195,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   /** §7: delete → Modal confirm → persist without id → dispatch → exit. */
   const handleConfirmDelete = () => {
     if (!project) return;
+    setDeleting(true);
     const next = all.filter((item) => item.id !== project.id);
     if (!persistProjects(next)) {
+      // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
       addToast({ message: t('projectSaveError'), type: 'error' });
-      setConfirmTarget(null);
+      setDeleting(false);
       return;
     }
     dispatch(deleteProject(project.id));
     addToast({ message: t('projectDeleted'), type: 'success' });
+    setDeleting(false);
     setConfirmTarget(null);
     onExitEdit?.();
   };
@@ -450,20 +458,35 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       <Modal
         isOpen={confirmTarget === 'delete'}
         onClose={() => setConfirmTarget(null)}
-        title={t('projectDelete')}
+        // R-2: title ≠ button label (the button stays projectDelete); the
+        // subtitle NAMES the project (projectConfirmDeleteName, OPEN-10
+        // parity with skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
+        title={t('projectDeleteConfirm')}
+        subtitle={project ? t('projectConfirmDeleteName', { name: project.title }) : undefined}
         size="sm"
+        initialFocusRef={cancelRef}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget(null)}>
+            <Button
+              ref={cancelRef}
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmTarget(null)}
+            >
               {t('projectCancel')}
             </Button>
-            <Button type="button" variant="primary" onClick={handleConfirmDelete}>
+            <Button
+              type="button"
+              variant="primary"
+              loading={deleting}
+              onClick={handleConfirmDelete}
+            >
               {t('projectDelete')}
             </Button>
           </>
         }
       >
-        <Paragraph>{t('projectDeleteConfirm')}</Paragraph>
+        {null}
       </Modal>
     </Form>
   );

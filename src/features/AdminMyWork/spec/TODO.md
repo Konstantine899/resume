@@ -10,27 +10,6 @@ vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполне�
 (не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
 владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
 
-## WU-1 — ARCH-1 докрутка (SPEC R-1)
-
-- [ ] `git mv` `ui/lib/projectFormSchema.ts` → `ui/ProjectForm/lib/
-      projectFormSchema.ts` (прецедент `DatePicker/lib/isoDate.ts`, Jobs R-1).
-- [ ] Переписать импорты tsc-driven (TS2307 → фикс → повтор; без blanket-sed):
-      импорт внутри `ProjectForm.tsx`, баррел `index.ts` при необходимости.
-- [ ] Гейт: `npm run validate`; на верхнем уровне `ui/` нет `lib/` и
-      `.tsx`/`.scss`-файлов.
-
-## WU-2 — Confirm-parity: список + форма (SPEC R-2, TDD)
-
-- [ ] RED: тесты — subtitle называет сущность (title проекта); фокус после
-      открытия — на «Отмена»; persist-fail НЕ закрывает модалку — для
-      модалки списка И для form-delete.
-- [ ] Локали: ключ `projectConfirmDeleteName` (en+ru, `{{name}}`).
-- [ ] `MyWorkEditorList.tsx` и `ProjectForm.tsx`: subtitle с именем,
-      `initialFocusRef` → «Отмена», persist-fail: `setDeleting(false);
-      return;` (паттерн SkillsEditorList.tsx:124-128); title ≠ label
-      кнопки.
-- [ ] Тесты зелёные (3+ на список, ≥1 на form-delete).
-
 ## WU-3 — EmptyState (SPEC R-3)
 
 - [ ] `MyWorkEditorList.tsx`: `Paragraph noProjectsYet` → kit `EmptyState

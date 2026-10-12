@@ -165,6 +165,9 @@ describe('locale parity (WU-6)', () => {
       'adminJobSaved',
       'adminJobDeleted',
       'adminJobPersistError',
+      // admin-mywork-refactor WU-2 (SPEC R-2): confirm subtitle NAMES the
+      // project (adminJobConfirmDeleteName / skillsConfirmDelete parity).
+      'projectConfirmDeleteName',
     ];
 
     for (const key of adminKeys) {
