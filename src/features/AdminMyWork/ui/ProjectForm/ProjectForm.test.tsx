@@ -1,12 +1,14 @@
 // ============================================
-// ProjectForm tests (plan_projects_crud §10 WU-4, §7; rev.4 image flow)
+// ProjectForm tests (admin-mywork-refactor WU-6; rev.4 image flow)
 // ============================================
 //
 // RED-first contract: render in both modes, §7 validation mapped to i18n
 // keys (i18n-first — zod carries no messages), persist BEFORE dispatch
-// (§3), Toast feedback, and the Modal confirms for Reset/Delete (§6 —
-// Modal, not window.confirm). Storage and action creators are spied at
-// the module boundary; selectors run REAL against a seed-shaped state.
+// (§3), Toast feedback. WU-6 (SPEC R-6): the form is DATA-ONLY —
+// reset/delete and their confirms live in the vitrina (list rows +
+// header); this file no longer covers them. Storage and action creators
+// are spied at the module boundary; selectors run REAL against a
+// seed-shaped state.
 //
 // rev.4 (owner directive 2026-10-10): there is NO URL input — the image
 // value only ever comes from the FileUpload → save-to-directory flow, so
@@ -14,40 +16,35 @@
 // mocked imageDir service (path `/images/projects/<name>`).
 
 import { PROJECT_CATEGORIES, TECH_ICONS, type Project } from '@/entities/Project';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
 import { ProjectForm } from './ProjectForm';
 
-const { persistSpy, removeSpy, addSpy, updateSpy, deleteSpy, resetSpy, addToast, dirMocks } =
-  vi.hoisted(() => ({
-    persistSpy: vi.fn((_projects: unknown[]) => true),
-    removeSpy: vi.fn(),
-    addSpy: vi.fn((project: unknown) => ({ type: 'myWork/addProject', payload: project })),
-    updateSpy: vi.fn((payload: unknown) => ({ type: 'myWork/updateProject', payload })),
-    deleteSpy: vi.fn((id: string) => ({ type: 'myWork/deleteProject', payload: id })),
-    resetSpy: vi.fn(() => ({ type: 'myWork/resetToDefaults' })),
-    addToast: vi.fn(),
-    dirMocks: {
-      supported: vi.fn(() => true),
-      read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
-      pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
-      write: vi.fn(async () => undefined),
-      getSubdir: vi.fn(
-        async (_root: unknown, name: string) =>
-          ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-      ),
-      save: vi.fn(
-        async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-          `/images/${subdir}/${name}`
-      ),
-    },
-  }));
+const { persistSpy, addSpy, updateSpy, addToast, dirMocks } = vi.hoisted(() => ({
+  persistSpy: vi.fn((_projects: unknown[]) => true),
+  addSpy: vi.fn((project: unknown) => ({ type: 'myWork/addProject', payload: project })),
+  updateSpy: vi.fn((payload: unknown) => ({ type: 'myWork/updateProject', payload })),
+  addToast: vi.fn(),
+  dirMocks: {
+    supported: vi.fn(() => true),
+    read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
+    pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
+    write: vi.fn(async () => undefined),
+    getSubdir: vi.fn(
+      async (_root: unknown, name: string) =>
+        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
+    ),
+    save: vi.fn(
+      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
+        `/images/${subdir}/${name}`
+    ),
+  },
+}));
 
 vi.mock('../../model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/services/storage')>()),
   persistProjects: persistSpy,
-  removeProjects: removeSpy,
 }));
 
 vi.mock('@/shared/lib/imageDir', () => ({
@@ -63,14 +60,15 @@ vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/slices/myWorkSlice')>()),
   addProject: addSpy,
   updateProject: updateSpy,
-  deleteProject: deleteSpy,
-  resetToDefaults: resetSpy,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
+// Interpolation is rendered as `key:value` so the delete-confirm subtitle
+// can prove it NAMES the project (adminJobConfirmDeleteName pattern).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { name?: string }) =>
+      options?.name !== undefined ? `${key}:${options.name}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -202,9 +200,6 @@ describe('ProjectForm: render (WU-4)', () => {
   it('create mode: §7 fields, enum selects, tech toggles, Save disabled until dirty', () => {
     renderCreate();
 
-    expect(screen.getByRole('heading', { level: 2, name: 'adminMyWorkTitle' })).toBeInTheDocument();
-    expect(screen.getByText('adminMyWorkHint')).toBeInTheDocument();
-
     expect(titleInput()).toHaveValue('');
     expect(document.querySelectorAll('textarea')).toHaveLength(5); // desc×2, role×2, metrics
     // imageSubdir + category + status are kit Selects.
@@ -222,14 +217,15 @@ describe('ProjectForm: render (WU-4)', () => {
     expect(fileInput()).toBeInTheDocument();
     expect(screen.queryByLabelText('projectFieldImage')).not.toBeInTheDocument();
 
-    // §9 idle: Save disabled until dirty; Cancel/Delete are edit-only.
+    // §9 idle: Save disabled until dirty. WU-6 (R-6): the form is
+    // data-only — no Reset/Delete/Cancel in create mode.
     expect(saveButton()).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'projectReset' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'projectReset' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'projectDelete' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'projectCancel' })).not.toBeInTheDocument();
   });
 
-  it('edit mode: fields prefilled from the project, image path shown read-only, Cancel + Delete appear', () => {
+  it('edit mode: fields prefilled from the project, image path shown read-only, Cancel appears', () => {
     const project = seedProjects[0] as Project;
     renderEdit(project);
 
@@ -237,7 +233,9 @@ describe('ProjectForm: render (WU-4)', () => {
     // rev.4: the stored path renders as the current-value row, not an input.
     expect(screen.getByText(project.image)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'projectCancel' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'projectDelete' })).toBeInTheDocument();
+    // WU-6 (R-6): delete moved to the list rows — the form keeps Save/Cancel only.
+    expect(screen.queryByRole('button', { name: 'projectDelete' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'projectReset' })).not.toBeInTheDocument();
     // Pristine edit form → Save disabled (nothing changed yet).
     expect(saveButton()).toBeDisabled();
   });
@@ -444,75 +442,6 @@ describe('ProjectForm: edit save (§3, byte-identical patch)', () => {
 
     // Pristine again after save → Save disabled.
     await waitFor(() => expect(saveButton()).toBeDisabled());
-  });
-});
-
-describe('ProjectForm: reset (Modal confirm → remove → dispatch)', () => {
-  it('does nothing when the reset confirm is declined', async () => {
-    renderCreate();
-
-    fireEvent.click(screen.getByRole('button', { name: 'projectReset' }));
-    const dialog = await screen.findByRole('dialog');
-    fireEvent.click(within(dialog).getByRole('button', { name: 'projectCancel' }));
-
-    expect(removeSpy).not.toHaveBeenCalled();
-    expect(resetSpy).not.toHaveBeenCalled();
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-  });
-
-  it('removes storage, dispatches reset and blanks the form on confirm', async () => {
-    renderCreate();
-
-    fireEvent.change(titleInput(), { target: { value: 'Dirty Title' } });
-    fireEvent.click(screen.getByRole('button', { name: 'projectReset' }));
-    const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('projectResetConfirm')).toBeInTheDocument();
-
-    fireEvent.click(within(dialog).getByRole('button', { name: 'projectReset' }));
-
-    await waitFor(() => expect(removeSpy).toHaveBeenCalledTimes(1));
-    expect(resetSpy).toHaveBeenCalledTimes(1);
-    expect(removeSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
-      resetSpy.mock.invocationCallOrder[0] ?? Number.NaN
-    );
-    await waitFor(() => expect(titleInput()).toHaveValue(''));
-    expect(saveButton()).toBeDisabled();
-  });
-});
-
-describe('ProjectForm: delete (Modal confirm, edit mode)', () => {
-  it('persists the collection without the record BEFORE dispatching deleteProject', async () => {
-    const project = seedProjects[1] as Project;
-    const { onExitEdit } = renderEdit(project);
-
-    fireEvent.click(screen.getByRole('button', { name: 'projectDelete' }));
-    const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('projectDeleteConfirm')).toBeInTheDocument();
-
-    fireEvent.click(within(dialog).getByRole('button', { name: 'projectDelete' }));
-
-    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
-    expect(deleteSpy).toHaveBeenCalledWith(project.id);
-    expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
-      deleteSpy.mock.invocationCallOrder[0] ?? Number.NaN
-    );
-    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
-    expect(persisted).toHaveLength(seedProjects.length - 1);
-    expect(persisted.some((item) => item.id === project.id)).toBe(false);
-    expect(addToast).toHaveBeenCalledWith({ message: 'projectDeleted', type: 'success' });
-    expect(onExitEdit).toHaveBeenCalledTimes(1);
-  });
-
-  it('does nothing when the delete confirm is declined', async () => {
-    const project = seedProjects[1] as Project;
-    renderEdit(project);
-
-    fireEvent.click(screen.getByRole('button', { name: 'projectDelete' }));
-    const dialog = await screen.findByRole('dialog');
-    fireEvent.click(within(dialog).getByRole('button', { name: 'projectCancel' }));
-
-    expect(persistSpy).not.toHaveBeenCalled();
-    expect(deleteSpy).not.toHaveBeenCalled();
   });
 });
 

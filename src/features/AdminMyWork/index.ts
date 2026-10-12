@@ -7,34 +7,24 @@
 // vitrina) never touches it; the vitrina receives content as a prop from
 // HomePage (Design C).
 //
-// WU-2 ships the model only; the editor UI is exported from here in
-// WU-4 — and `storeReducers.ts` deep-imports `./model/slices/myWorkSlice`
-// precisely so this barrel (and the form/RHF code behind it) is
-// instantiated only by the lazy `/admin/mywork` route (lesson
-// resume-lazy-rhf-chunk).
+// admin-mywork-refactor WU-6 (SPEC R-7): the barrel keeps ONLY symbols
+// with a production consumer — `AdminMyWorkPage` (list, form, selector)
+// — plus `removeProjects`/`myWorkReducer`. `removeProjects` stays
+// because `fsd-imports/tests-public-api-only` forces HomePage.test to
+// consume it through the barrel (a cross-slice deep import from a test
+// is an ESLint error; AdminJobs has the same shape). The slice itself
+// is deep-imported by `storeReducers.ts` (resume-lazy-rhf-chunk: this
+// barrel — and the form/RHF code behind it — is instantiated only by
+// the lazy /admin/mywork route).
+//
+// `src/features/AdminMyWork/index.test.ts` pins the live set.
 
-export { selectAllProjects, selectFeaturedProjects, selectProjectById } from './model/selectors';
-export { createProjectsSeed } from './model/services/seed';
-export {
-  persistProjects,
-  PROJECTS_STORAGE_KEY,
-  readProjects,
-  removeProjects,
-} from './model/services/storage';
-export {
-  addProject,
-  deleteProject,
-  makeProjectRecord,
-  makeUpdatePatch,
-  myWorkReducer,
-  resetToDefaults,
-  updateProject,
-} from './model/slices/myWorkSlice';
+export { selectAllProjects } from './model/selectors';
+export { removeProjects } from './model/services/storage';
+export { myWorkReducer } from './model/slices/myWorkSlice';
 export type { MyWorkRootState, ProjectUpdatePatch } from './model/types/types';
 
-// WU-4: the editor UI — consumed by the lazy /admin/mywork page only
+// The editor UI — consumed by the lazy /admin/mywork page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
 export { MyWorkEditorList } from './ui/MyWorkEditorList/MyWorkEditorList';
-export type { MyWorkEditorListProps } from './ui/MyWorkEditorList/MyWorkEditorList';
 export { ProjectForm } from './ui/ProjectForm/ProjectForm';
-export type { ProjectFormProps } from './ui/ProjectForm/ProjectForm';

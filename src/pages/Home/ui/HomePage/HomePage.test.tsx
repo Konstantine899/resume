@@ -13,6 +13,10 @@ import {
   removeContactContent,
 } from '@/features/AdminContact';
 import { createJobsSeed, persistJobs } from '@/features/AdminJobs';
+// `removeProjects` stays a barrel export (WU-6 kept it — the vitrina
+// reset flow and this test are its consumers). The plan's deep-import
+// variant is illegal here: `fsd-imports/tests-public-api-only` rejects
+// cross-slice deep imports from tests (AdminJobs precedent above).
 import { removeProjects } from '@/features/AdminMyWork';
 import { persistSkills, removeSkills } from '@/features/AdminSkills';
 import { MyWork } from '@/features/MyWork';

@@ -1,5 +1,5 @@
 // ============================================
-// ProjectForm — admin create/edit form for one Project (WU-4)
+// ProjectForm — admin create/edit form for one Project (admin-mywork-refactor WU-6)
 // ============================================
 //
 // Stage-1 CRUD (plan_projects_crud §10): react-hook-form + zodResolver
@@ -10,8 +10,9 @@
 // - persist BEFORE dispatch (§3): record/patch built ONCE by
 //   makeProjectRecord/makeUpdatePatch, persisted array contains the SAME
 //   object that is dispatched — store === storage byte-for-byte.
-// - Reset and Delete are destructive → kit Modal confirm (§6), never
-//   window.confirm.
+// - WU-6 (SPEC R-6): this form is DATA-ONLY — no reset/delete, no
+//   confirms. Delete lives in the list rows, reset in the vitrina header
+//   (the page owns the modals).
 // - ALL copy is i18n (i18n-first): labels, validation keys, toasts.
 // - Edit vs create: the `project` prop switches the mode; the page owns
 //   the key-remount (Design C — this component stays the only place that
@@ -27,7 +28,6 @@ import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
-import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
@@ -44,22 +44,15 @@ import {
   saveImageToDir,
   writeImagesRootHandle,
 } from '@/shared/lib/imageDir';
-import { persistProjects, removeProjects } from '../../model/services/storage';
-import {
-  addProject,
-  deleteProject,
-  makeProjectRecord,
-  makeUpdatePatch,
-  resetToDefaults,
-  updateProject,
-} from '../../model/slices/myWorkSlice';
+import { persistProjects } from '../../model/services/storage';
+import { addProject, makeProjectRecord, makeUpdatePatch, updateProject } from '../../model/slices/myWorkSlice';
 import {
   ProjectFormSchema,
   emptyProjectFormValues,
   toProjectFormValues,
   type ProjectFormOutput,
   type ProjectFormValues,
-} from '../lib/projectFormSchema';
+} from './lib/projectFormSchema';
 import styles from './ProjectForm.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */
@@ -91,7 +84,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
-  const [confirmTarget, setConfirmTarget] = useState<'reset' | 'delete' | null>(null);
   // rev.4: i18n key of the last save-to-directory failure (null = none).
   const [imageSaveErrorKey, setImageSaveErrorKey] = useState<string | null>(null);
 
@@ -176,31 +168,11 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       reset(emptyProjectFormValues());
     }
     addToast({ message: t('projectSaved'), type: 'success' });
+    // A7 parity (JobForm.tsx): a successful Save closes the page-owned
+    // modal (the page key-remounts us with fresh defaults on the next
+    // open). The standalone form keeps no callback → no-op.
+    onExitEdit?.();
   });
-
-  /** §7: destructive reset → Modal confirm → remove → dispatch → blank. */
-  const handleConfirmReset = () => {
-    removeProjects();
-    dispatch(resetToDefaults());
-    setConfirmTarget(null);
-    reset(emptyProjectFormValues());
-    onExitEdit?.();
-  };
-
-  /** §7: delete → Modal confirm → persist without id → dispatch → exit. */
-  const handleConfirmDelete = () => {
-    if (!project) return;
-    const next = all.filter((item) => item.id !== project.id);
-    if (!persistProjects(next)) {
-      addToast({ message: t('projectSaveError'), type: 'error' });
-      setConfirmTarget(null);
-      return;
-    }
-    dispatch(deleteProject(project.id));
-    addToast({ message: t('projectDeleted'), type: 'success' });
-    setConfirmTarget(null);
-    onExitEdit?.();
-  };
 
   const handleCancel = () => {
     if (onExitEdit) onExitEdit();
@@ -214,11 +186,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
-      <div className={styles.intro}>
-        <Heading level={2}>{t('adminMyWorkTitle')}</Heading>
-        <Paragraph theme="muted">{t('adminMyWorkHint')}</Paragraph>
-      </div>
-
       <div className={styles.field}>
         <Input
           label={t('projectFieldTitle')}
@@ -413,58 +380,14 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         <Button type="submit" variant="primary" loading={isSubmitting} disabled={!isDirty}>
           {t('projectSave')}
         </Button>
-        <Button type="button" variant="outline" onClick={() => setConfirmTarget('reset')}>
-          {t('projectReset')}
-        </Button>
+        {/* WU-6 (R-6): reset/delete moved out — reset lives in the vitrina
+            header, delete in the list rows; the form keeps Save/Cancel. */}
         {project && (
-          <>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              {t('projectCancel')}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget('delete')}>
-              {t('projectDelete')}
-            </Button>
-          </>
+          <Button type="button" variant="outline" onClick={handleCancel}>
+            {t('projectCancel')}
+          </Button>
         )}
       </div>
-
-      <Modal
-        isOpen={confirmTarget === 'reset'}
-        onClose={() => setConfirmTarget(null)}
-        title={t('projectReset')}
-        size="sm"
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget(null)}>
-              {t('projectCancel')}
-            </Button>
-            <Button type="button" variant="primary" onClick={handleConfirmReset}>
-              {t('projectReset')}
-            </Button>
-          </>
-        }
-      >
-        <Paragraph>{t('projectResetConfirm')}</Paragraph>
-      </Modal>
-
-      <Modal
-        isOpen={confirmTarget === 'delete'}
-        onClose={() => setConfirmTarget(null)}
-        title={t('projectDelete')}
-        size="sm"
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget(null)}>
-              {t('projectCancel')}
-            </Button>
-            <Button type="button" variant="primary" onClick={handleConfirmDelete}>
-              {t('projectDelete')}
-            </Button>
-          </>
-        }
-      >
-        <Paragraph>{t('projectDeleteConfirm')}</Paragraph>
-      </Modal>
     </Form>
   );
 };
