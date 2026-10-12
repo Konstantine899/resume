@@ -14,13 +14,11 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { Textarea } from '@/shared/ui/Textarea';
 import { Mail } from 'lucide-react';
-import { useRef } from 'react';
 import { useContactForm } from '../../hooks/useContactForm';
 import type { ContactProps } from '../../model/types/types';
 import styles from './Contact.module.scss';
 
 export function Contact({ content }: ContactProps) {
-  const formRef = useRef<HTMLFormElement>(null);
   const { t, language } = useLanguage();
 
   // Fallback branch keeps rendering constants/t() — identical to the
@@ -48,7 +46,7 @@ export function Contact({ content }: ContactProps) {
           <AnimatedSection delay={200}>
             <div className={styles.formContainer}>
               {/* Браузерная валидация отключена (своя в хуке) */}
-              <Form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
+              <Form onSubmit={handleSubmit} className={styles.form}>
                 {/* Имя */}
                 <Input
                   type="text"
@@ -84,7 +82,6 @@ export function Contact({ content }: ContactProps) {
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   disabled={status === 'submitting'}
                   required
-                  aria-required="true"
                   variant="outline"
                   size="md"
                   resize="none"

@@ -9,7 +9,7 @@
 import type { ContactContent } from '@/entities/ContactContent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Contact } from './Contact/Contact';
+import { Contact } from './Contact';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
 
