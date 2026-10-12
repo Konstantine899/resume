@@ -59,7 +59,7 @@ import {
   toProjectFormValues,
   type ProjectFormOutput,
   type ProjectFormValues,
-} from '../lib/projectFormSchema';
+} from './lib/projectFormSchema';
 import styles from './ProjectForm.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */
