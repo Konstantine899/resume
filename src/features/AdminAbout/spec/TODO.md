@@ -10,13 +10,6 @@ vault `wiki/plan/plan_admin_about_refactor.md`. Правила: выполнен
 (не отмечается); пункт без критерия не ревьюивается. Вердикт владельца 2026-10-12:
 OPEN-1 = B (инлайн), OPEN-2 = A (срез мёртвых экспортов), OPEN-3 = A (axe PATHS).
 
-## WU-2 — Тест страницы (SPEC R-2)
-
-- [ ] Новый `src/pages/Admin/ui/AdminAboutPage/AdminAboutPage.test.tsx`
-      (харнес `AdminSkillsPage.test.tsx:25-66`: реальный
-      `configureStore({ reducer: storeReducers })`, моки storage/i18n/toast):
-      рендер формы, prefill из storage, save-smoke, reset-кнопка видна.
-
 ## WU-3 — Гигиена: axe PATHS + баррел (SPEC R-3/R-4)
 
 - [ ] `scripts/purge-axe-check.mjs:37` — PATHS += `'/admin/about'`;
