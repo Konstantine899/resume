@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: admin-jobs-refactor
 created: '2026-10-11'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminJobs (рефакторинг к паритету с AdminSkills)
@@ -11,6 +12,7 @@ created: '2026-10-11'
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 > Статус `approved` (вердикт владельца 2026-10-11: OPEN-1=A, OPEN-2=A, OPEN-3=B, OPEN-4=B).
 > rev.2 (2026-10-11): терминология «поле = строка = должность» (вердикт владельца) + R-6 значок `IconButton` в шапке витрины.
+> **done (2026-10-12)**: WU-1..9 исполнены, PR #216; гейты: validate 3431/3431, axe-stories 72/72, axe-app 0 регрессий, бандл 730.7 < 744 KiB. AA-фикс в ходе эпика: dark `--color-surface-tertiary` `#343231` → `#2e2c2b` (zebra/elevated 4.29:1 → 4.67:1 на `text-tertiary`).
 
 ## Цель
 
@@ -59,94 +61,94 @@ JobForm), `src/pages/Admin/ui/AdminJobsPage/**`,
 ## Требования
 
 ### R-1 — ARCH-1 layout
-- [ ] Существуют `ui/JobForm/` (внутри `JobForm.tsx`, `JobForm.module.scss`,
+- [x] Существуют `ui/JobForm/` (внутри `JobForm.tsx`, `JobForm.module.scss`,
       `JobForm.test.tsx`, `lib/jobFormSchema.{ts,test.ts}`) и `ui/JobsList/`
       (`JobsList.tsx`, `JobsList.module.scss`, `JobsList.test.tsx`).
-- [ ] В `src/features/AdminJobs/ui/` нет `.tsx`/`.scss` файлов на верхнем уровне.
-- [ ] `npm run validate` зелёный (public-api включительно); импорты резолвятся
+- [x] В `src/features/AdminJobs/ui/` нет `.tsx`/`.scss` файлов на верхнем уровне.
+- [x] `npm run validate` зелёный (public-api включительно); импорты резолвятся
       полными путями сегментов (прецедент `DatePicker/lib/isoDate.ts`).
 
 ### R-2 — persist-снимок в insertion-order (баг)
-- [ ] RED-тест доказывает: при `selectSortedJobs` ≠ порядку `selectAllJobs`
+- [x] RED-тест доказывает: при `selectSortedJobs` ≠ порядку `selectAllJobs`
       удаление persist-ит массив в порядке `selectAllJobs` (состав = исходный
       минус удалённый).
-- [ ] Снимок для `persistJobs` берётся из `selectAllJobs`; рендер остаётся на
+- [x] Снимок для `persistJobs` берётся из `selectAllJobs`; рендер остаётся на
       `selectSortedJobs`; комментарий инварианта уточнён.
 
 ### R-3 — Confirm-delete parity с Skills
-- [ ] Subtitle модалки удаления называет компанию: ключ
+- [x] Subtitle модалки удаления называет компанию: ключ
       `adminJobConfirmDeleteName` (en+ru, `{{company}}`); заголовок ≠ label
       кнопки.
-- [ ] `initialFocusRef` → кнопка «Отмена».
-- [ ] При неудачном `persistJobs` модалка остаётся открытой (повтор), тост
+- [x] `initialFocusRef` → кнопка «Отмена».
+- [x] При неудачном `persistJobs` модалка остаётся открытой (повтор), тост
       `adminJobPersistError` показан.
-- [ ] 3 новых теста зелёные: subtitle, фокус, persist-fail не закрывает.
+- [x] 3 новых теста зелёные: subtitle, фокус, persist-fail не закрывает.
 
 ### R-4 — Пустое состояние через kit EmptyState
-- [ ] Пустой список → kit `EmptyState` (public API) c
+- [x] Пустой список → kit `EmptyState` (public API) c
       `title={t('adminJobsEmpty')}`; голый Paragraph удалён; feature-SCSS
       пустого состояния нет (A2 у kit).
 
 ### R-5 — Форма в page-owned Modal / тест страницы
-- [ ] `AdminJobsPage` рендерит форму в kit `Modal`: `isOpen={form!==null}`,
+- [x] `AdminJobsPage` рендерит форму в kit `Modal`: `isOpen={form!==null}`,
       шапка `adminEditJob`/`adminAddJob`, ESC/overlay → `setForm(null)`;
       одновременно открыт не более одного диалога.
-- [ ] Внутренний `<Heading level={2}>` в `JobForm` удалён (A12
+- [x] Внутренний `<Heading level={2}>` в `JobForm` удалён (A12
       `aria-dialog-name`: имя диалога = шапка модалки).
-- [ ] Существует `AdminJobsPage.test.tsx` (реальный
+- [x] Существует `AdminJobsPage.test.tsx` (реальный
       `configureStore({reducer: storeReducers})`, моки только
       storage/i18n/toast — харнес `AdminSkillsPage.test.tsx:25-66`): create-
       open, edit-open, stale-record guard, ESC-close, единственный диалог.
 
 ### R-6 — Витрина на kit DataTable
-- [ ] `JobsList` использует kit `DataTable`: колонки company, position (en/ru),
+- [x] `JobsList` использует kit `DataTable`: колонки company, position (en/ru),
       period, badges (current/featured), actions Edit/Delete (kit Button).
-- [ ] Контролируемая сортировка: сортировка сбрасывает страницу на 1
+- [x] Контролируемая сортировка: сортировка сбрасывает страницу на 1
       (закреплено тестом; паттерн Skills WU-5a).
-- [ ] Page-size (5|10|20) и навигация видны при `rows > 0` (включая одну
+- [x] Page-size (5|10|20) и навигация видны при `rows > 0` (включая одну
       страницу); layout зеркалом Skills: page-size сверху справа, навигация
       снизу по центру.
-- [ ] Тесты: строка реально исчезает при delete; порядок persist→dispatch
+- [x] Тесты: строка реально исчезает при delete; порядок persist→dispatch
       сохранён (shared `calls` array); переходы страниц; sort → page=1.
-- [ ] В шапке витрины (блок header над таблицей, паттерн
+- [x] В шапке витрины (блок header над таблицей, паттерн
       `SkillsEditorList.tsx:232-238`) — kit `IconButton` с
       `aria-label={t('adminAddJob')}` вместо текстовой кнопки; клик вызывает
       `onAddJob` (create-модалка R-5). Дублирующая текстовая кнопка
       не сохраняется.
-- [ ] axe `/admin/jobs` — 0 регрессий (маршрут уже в PATHS).
+- [x] axe `/admin/jobs` — 0 регрессий (маршрут уже в PATHS).
 
 ### R-7 — Синхронизация лимитов entity-схемы
-- [ ] `entities/Job/model/schemes/schema.ts`: bullet в `description.{en,ru}`
+- [x] `entities/Job/model/schemes/schema.ts`: bullet в `description.{en,ru}`
       ограничен `max(200)` — зеркало `jobFormSchema.ts:59-61`.
-- [ ] Тест: 201-символьный bullet отклоняется `JobSchema.safeParse`.
-- [ ] Комментарий в schema.ts: «start не в будущем» осознанно формная
+- [x] Тест: 201-символьный bullet отклоняется `JobSchema.safeParse`.
+- [x] Комментарий в schema.ts: «start не в будущем» осознанно формная
       граница (валидация UX-ввода), не entity-правило.
 
 ### R-8 — Гигиена i18n и баррела
-- [ ] Ключ `adminJobPosition` удалён из `en.json`/`ru.json` и из allowlist
+- [x] Ключ `adminJobPosition` удалён из `en.json`/`ru.json` и из allowlist
       `locales-parity.test.ts:124`; parity-тест зелёный.
-- [ ] Из `index.ts` удалены экспорты без потребителей (`toggleCurrent`,
+- [x] Из `index.ts` удалены экспорты без потребителей (`toggleCurrent`,
       `applyJobToggle`, `resetToDefaults`, `removeJobs`, `selectJobById`,
       `selectCurrentJob`); `check:public-api` зелёный. Кнопка
       Reset-to-defaults НЕ добавляется.
 
 ### R-9 — Известные проблемы вне скоупа (зафиксировать, не чинить)
-- [ ] `formatJobPeriod` хардкодит `"Present"` (entities/Job/utils.ts:100) —
+- [x] `formatJobPeriod` хардкодит `"Present"` (entities/Job/lib/utils.ts) —
       отдельный entity-cleanup pass (вердикт OPEN-4=B).
-- [ ] Kit не имеет Checkbox/Switch и Chip/TagInput — нативный чекбокс-ряд и
+- [x] Kit не имеет Checkbox/Switch и Chip/TagInput — нативный чекбокс-ряд и
       ручной чип-редактор остаются до отдельного kit-плана.
-- [ ] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage deep-import),
+- [x] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage deep-import),
       не трогается этим эпиком; Select `error`-prop миграция — family-wide
       волна (OPEN-5).
 
 ### R-10 — Гейты эпика
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
       coverage + public-api).
-- [ ] `check:axe:stories` зелёный, если менялись сторисы (со `--build`).
-- [ ] axe-app `/admin/jobs`: 0 регрессий.
-- [ ] Бандл-дельта в капе `performance-budget.json` (737280) — замер worktree
+- [x] `check:axe:stories` зелёный, если менялись сторисы (со `--build`).
+- [x] axe-app `/admin/jobs`: 0 регрессий.
+- [x] Бандл-дельта в капе `performance-budget.json` (737280) — замер worktree
       на merge-base с `dev`.
-- [ ] Все критерии R-1..R-8 закрыты; [TODO.md](./TODO.md) выжжен (выполненные
+- [x] Все критерии R-1..R-8 закрыты; [TODO.md](./TODO.md) выжжен (выполненные
       пункты удалены, не отмечены).
 
 ## Критерии приёмки (итог)

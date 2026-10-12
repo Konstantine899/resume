@@ -1,21 +1,12 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminJobs (рефакторинг к паритету с AdminSkills, rev.2)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.2 (эпик `admin-jobs-refactor`). Исходный план:
-vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполненный пункт УДАЛЯЕТСЯ
-(не отмечается); пункт без критерия не ревьюивается. Вердикт владельца 2026-10-11:
-OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
-OPEN-4=B («Present» отдельным pass).
-
-## WU-9 — Гейты эпика (SPEC R-10)
-
-- [ ] `npm run validate` в CPU-окне (<45%) зелёный.
-- [ ] `npm run check:axe:stories` (со `--build`; сторисы опциональны).
-- [ ] axe-app `/admin/jobs`: 0 регрессий против baseline.
-- [ ] Бандл-дельта worktree на merge-base: в капе 737280.
-- [ ] SPEC.md: критерии R-1..R-8 закрыты, статус → `done`, дата `verified`.
-- [ ] Дуал-райт: gotcha-записи в AGENTS.md/engram по итогам эпика.
+Эпик `admin-jobs-refactor` ЗАКРЫТ 2026-10-12 (PR #216): WU-1..9 исполнены и выжжены
+(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
+3431/3431, `check:axe:stories` 72/72, axe-app 0 регрессий, бандл 730.7 < 744 KiB.
+Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`, `verified: '2026-10-12'`).
+Вердикт владельца 2026-10-11: OPEN-1=A, OPEN-2=A, OPEN-3=B, OPEN-4=B.
