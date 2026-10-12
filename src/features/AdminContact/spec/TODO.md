@@ -10,17 +10,6 @@ spec: SPEC.md
 пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
 
-## WU-3 — Гигиена баррела (SPEC R-3)
-
-- [ ] `index.ts`: оставить только `ContactEditorForm`; удалить
-      `CONTACT_CONTENT_STORAGE_KEY`, `readContactContent`, `resetToDefaults`,
-      `updateContactContent`, `ContactContentRootState`,
-      `selectContactContent`, `contactContentReducer`; освежить
-      NOTE-комментарий (:10-14).
-- [ ] `HomePage.test.tsx:11-14`: barrel → deep-import
-      `@/features/AdminContact/model/services/{seed,storage}`.
-- [ ] Гейт: `npm run validate` (public-api включительно).
-
 ## WU-4 — axe: `/admin/contact` в PATHS (SPEC R-4)
 
 - [ ] `scripts/purge-axe-check.mjs:37`: PATHS += `'/admin/contact'`

@@ -6,24 +6,25 @@
 // API — `features → features` is banned, so `features/Contact` never
 // touches it (the vitrina receives content as a prop from HomePage).
 //
-// WU-1 ships the model only; the editor form is exported from here in
-// WU-3 — and `storeReducers.ts` deep-imports `./model/slices/contactContentSlice`
-// precisely so this barrel (and the form/RHF code behind it) is
-// instantiated only by the lazy `/admin/contact` route (lesson
-// resume-lazy-rhf-chunk).
+// admin-contact-refactor WU-3 (SPEC R-3): the barrel keeps ONLY symbols
+// with a production consumer at the BARREL level:
+// - `ContactEditorForm` — `AdminContactPage` (the lazy /admin/contact route);
+// - `createContactSeed` / `persistContactContent` / `removeContactContent` —
+//   `HomePage.test` (`fsd-imports/tests-public-api-only` forces a test to
+//   consume a cross-slice symbol through the barrel, so these stay —
+//   AdminAbout/AdminMyWork index.ts carry the identical trio).
+// Seven dead re-exports are gone (selectContactContent,
+// CONTACT_CONTENT_STORAGE_KEY, readContactContent, contactContentReducer,
+// resetToDefaults, updateContactContent, ContactContentRootState) — their
+// IMPLEMENTATIONS stay put: `storeReducers.ts` deep-imports the slice and
+// `HomePage.tsx` deep-imports the selector (resume-lazy-rhf-chunk:
+// instantiating this barrel — and the RHF form behind it — in the main
+// chunk is forbidden), while the model's own unit tests import the modules
+// directly.
+//
+// `src/features/AdminContact/index.test.ts` pins the live set.
 
-export { selectContactContent } from './model/selectors';
 export { createContactSeed } from './model/services/seed';
-export {
-  CONTACT_CONTENT_STORAGE_KEY,
-  persistContactContent,
-  readContactContent,
-  removeContactContent,
-} from './model/services/storage';
-export {
-  contactContentReducer,
-  resetToDefaults,
-  updateContactContent,
-} from './model/slices/contactContentSlice';
-export type { ContactContentRootState } from './model/types/types';
+export { persistContactContent, removeContactContent } from './model/services/storage';
 export { ContactEditorForm } from './ui/ContactEditorForm/ContactEditorForm';
+export type { ContactEditorFormProps } from './ui/ContactEditorForm/ContactEditorForm';
