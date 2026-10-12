@@ -17,8 +17,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
 import { MyWorkEditorList } from './MyWorkEditorList';
 
-const { persistSpy, deleteSpy, calls, addToast, holder } = vi.hoisted(() => {
-  // Shared order log: the §3 contract is persist BEFORE dispatch.
+const { persistSpy, removeSpy, deleteSpy, resetSpy, calls, addToast, holder } = vi.hoisted(() => {
+  // Shared order log: the §3 contract is persist BEFORE dispatch; the
+  // WU-6 reset contract is remove → dispatch.
   const calls: string[] = [];
   return {
     calls,
@@ -26,9 +27,16 @@ const { persistSpy, deleteSpy, calls, addToast, holder } = vi.hoisted(() => {
       calls.push('persist');
       return true;
     }),
+    removeSpy: vi.fn(() => {
+      calls.push('remove');
+    }),
     deleteSpy: vi.fn((id: string) => {
       calls.push('dispatch');
       return { type: 'myWork/deleteProject', payload: id };
+    }),
+    resetSpy: vi.fn(() => {
+      calls.push('dispatch');
+      return { type: 'myWork/resetToDefaults' };
     }),
     addToast: vi.fn(),
     holder: { state: { myWork: [] as Project[] } },
@@ -38,11 +46,13 @@ const { persistSpy, deleteSpy, calls, addToast, holder } = vi.hoisted(() => {
 vi.mock('../../model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/services/storage')>()),
   persistProjects: persistSpy,
+  removeProjects: removeSpy,
 }));
 
 vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/slices/myWorkSlice')>()),
   deleteProject: deleteSpy,
+  resetToDefaults: resetSpy,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -370,5 +380,46 @@ describe('MyWorkEditorList: delete (Modal confirm → persist → dispatch)', ()
     // the user can retry the same delete.
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(within(modal).getByRole('button', { name: 'projectDelete' })).toBeEnabled();
+  });
+});
+
+describe('MyWorkEditorList: reset (header button → remove → dispatch, WU-6 R-6)', () => {
+  it('header reset control is the kit IconButton and opens the confirm', async () => {
+    renderList();
+
+    const reset = screen.getByRole('button', { name: 'projectReset' });
+    expect(reset).toHaveAttribute('data-testid', 'icon-button');
+    fireEvent.click(reset);
+
+    const modal = await screen.findByRole('dialog');
+    expect(within(modal).getByText('projectResetConfirm')).toBeInTheDocument();
+    // R-6: one shared Modal — the reset confirm reuses the delete chrome.
+    expect(within(modal).getByRole('heading', { level: 2 })).toHaveTextContent('projectReset');
+  });
+
+  it('does nothing when the reset confirm is declined', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByRole('button', { name: 'projectReset' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'projectCancel' }));
+
+    expect(calls).toEqual([]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('removes storage BEFORE dispatching resetToDefaults (order contract)', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByRole('button', { name: 'projectReset' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'projectReset' }));
+
+    await waitFor(() => expect(calls).toEqual(['remove', 'dispatch']));
+    expect(removeSpy).toHaveBeenCalledTimes(1);
+    expect(resetSpy).toHaveBeenCalledTimes(1);
+    // No toast on reset — the relocated form behaviour stays silent (R-6).
+    expect(addToast).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });

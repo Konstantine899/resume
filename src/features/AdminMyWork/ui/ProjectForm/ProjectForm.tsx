@@ -1,5 +1,5 @@
 // ============================================
-// ProjectForm — admin create/edit form for one Project (WU-4)
+// ProjectForm — admin create/edit form for one Project (admin-mywork-refactor WU-6)
 // ============================================
 //
 // Stage-1 CRUD (plan_projects_crud §10): react-hook-form + zodResolver
@@ -10,8 +10,9 @@
 // - persist BEFORE dispatch (§3): record/patch built ONCE by
 //   makeProjectRecord/makeUpdatePatch, persisted array contains the SAME
 //   object that is dispatched — store === storage byte-for-byte.
-// - Reset and Delete are destructive → kit Modal confirm (§6), never
-//   window.confirm.
+// - WU-6 (SPEC R-6): this form is DATA-ONLY — no reset/delete, no
+//   confirms. Delete lives in the list rows, reset in the vitrina header
+//   (the page owns the modals).
 // - ALL copy is i18n (i18n-first): labels, validation keys, toasts.
 // - Edit vs create: the `project` prop switches the mode; the page owns
 //   the key-remount (Design C — this component stays the only place that
@@ -27,12 +28,11 @@ import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
-import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
@@ -44,15 +44,8 @@ import {
   saveImageToDir,
   writeImagesRootHandle,
 } from '@/shared/lib/imageDir';
-import { persistProjects, removeProjects } from '../../model/services/storage';
-import {
-  addProject,
-  deleteProject,
-  makeProjectRecord,
-  makeUpdatePatch,
-  resetToDefaults,
-  updateProject,
-} from '../../model/slices/myWorkSlice';
+import { persistProjects } from '../../model/services/storage';
+import { addProject, makeProjectRecord, makeUpdatePatch, updateProject } from '../../model/slices/myWorkSlice';
 import {
   ProjectFormSchema,
   emptyProjectFormValues,
@@ -91,12 +84,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
-  const [confirmTarget, setConfirmTarget] = useState<'reset' | 'delete' | null>(null);
-  // admin-mywork-refactor WU-2 (R-2): gates the delete-confirm button and
-  // lets a persist failure keep the modal open for a retry (Skills parity).
-  const [deleting, setDeleting] = useState(false);
-  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
-  const cancelRef = useRef<HTMLButtonElement>(null);
   // rev.4: i18n key of the last save-to-directory failure (null = none).
   const [imageSaveErrorKey, setImageSaveErrorKey] = useState<string | null>(null);
 
@@ -186,33 +173,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
     // open). The standalone form keeps no callback → no-op.
     onExitEdit?.();
   });
-
-  /** §7: destructive reset → Modal confirm → remove → dispatch → blank. */
-  const handleConfirmReset = () => {
-    removeProjects();
-    dispatch(resetToDefaults());
-    setConfirmTarget(null);
-    reset(emptyProjectFormValues());
-    onExitEdit?.();
-  };
-
-  /** §7: delete → Modal confirm → persist without id → dispatch → exit. */
-  const handleConfirmDelete = () => {
-    if (!project) return;
-    setDeleting(true);
-    const next = all.filter((item) => item.id !== project.id);
-    if (!persistProjects(next)) {
-      // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
-      addToast({ message: t('projectSaveError'), type: 'error' });
-      setDeleting(false);
-      return;
-    }
-    dispatch(deleteProject(project.id));
-    addToast({ message: t('projectDeleted'), type: 'success' });
-    setDeleting(false);
-    setConfirmTarget(null);
-    onExitEdit?.();
-  };
 
   const handleCancel = () => {
     if (onExitEdit) onExitEdit();
@@ -420,73 +380,14 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         <Button type="submit" variant="primary" loading={isSubmitting} disabled={!isDirty}>
           {t('projectSave')}
         </Button>
-        <Button type="button" variant="outline" onClick={() => setConfirmTarget('reset')}>
-          {t('projectReset')}
-        </Button>
+        {/* WU-6 (R-6): reset/delete moved out — reset lives in the vitrina
+            header, delete in the list rows; the form keeps Save/Cancel. */}
         {project && (
-          <>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              {t('projectCancel')}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget('delete')}>
-              {t('projectDelete')}
-            </Button>
-          </>
+          <Button type="button" variant="outline" onClick={handleCancel}>
+            {t('projectCancel')}
+          </Button>
         )}
       </div>
-
-      <Modal
-        isOpen={confirmTarget === 'reset'}
-        onClose={() => setConfirmTarget(null)}
-        title={t('projectReset')}
-        size="sm"
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setConfirmTarget(null)}>
-              {t('projectCancel')}
-            </Button>
-            <Button type="button" variant="primary" onClick={handleConfirmReset}>
-              {t('projectReset')}
-            </Button>
-          </>
-        }
-      >
-        <Paragraph>{t('projectResetConfirm')}</Paragraph>
-      </Modal>
-
-      <Modal
-        isOpen={confirmTarget === 'delete'}
-        onClose={() => setConfirmTarget(null)}
-        // R-2: title ≠ button label (the button stays projectDelete); the
-        // subtitle NAMES the project (projectConfirmDeleteName, OPEN-10
-        // parity with skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
-        title={t('projectDeleteConfirm')}
-        subtitle={project ? t('projectConfirmDeleteName', { name: project.title }) : undefined}
-        size="sm"
-        initialFocusRef={cancelRef}
-        footer={
-          <>
-            <Button
-              ref={cancelRef}
-              type="button"
-              variant="outline"
-              onClick={() => setConfirmTarget(null)}
-            >
-              {t('projectCancel')}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              loading={deleting}
-              onClick={handleConfirmDelete}
-            >
-              {t('projectDelete')}
-            </Button>
-          </>
-        }
-      >
-        {null}
-      </Modal>
     </Form>
   );
 };

@@ -36,6 +36,11 @@
   gap: $spacing-2;
 }
 
+.headerActions {
+  display: flex;
+  gap: $spacing-2;
+}
+
 .titleCell {
   min-width: 0;
 }

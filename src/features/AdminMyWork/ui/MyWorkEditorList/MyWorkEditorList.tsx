@@ -16,7 +16,7 @@
 // - Sorting is CONTROLLED: a header click only emits `onSortChange`; a
 //   sort resets the page to 1 (Skills WU-5a — a sort the user cannot
 //   SEE reads as a broken button).
-// - `deleting` gates the confirm Button (plan §6 ButtonLoader row): the
+// - `confirming` gates the confirm Button (plan §6 ButtonLoader row): the
 //   stage-1 localStorage persist is synchronous so the spinner never
 //   paints — the state exists for the future API swap, not for show.
 // - ALL copy is i18n (i18n-first); status/featured badges show the enum
@@ -26,7 +26,7 @@ import type { Project, ProjectStatus } from '@/entities/Project';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Plus } from 'lucide-react';
+import { Plus, RotateCcw } from 'lucide-react';
 import type { BadgeVariant } from '@/shared/ui/Badge';
 import { Badge } from '@/shared/ui/Badge';
 import { Button, IconButton } from '@/shared/ui/Button';
@@ -40,8 +40,8 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
-import { persistProjects } from '../../model/services/storage';
-import { deleteProject } from '../../model/slices/myWorkSlice';
+import { persistProjects, removeProjects } from '../../model/services/storage';
+import { deleteProject, resetToDefaults } from '../../model/slices/myWorkSlice';
 import styles from './MyWorkEditorList.module.scss';
 
 /** Badge color per status enum value (raw value shown as the label). */
@@ -82,8 +82,12 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  // WU-6 (SPEC R-6): one shared confirm Modal for both destructive
+  // actions — delete-per-record (row button) and reset (header button).
+  const [pending, setPending] = useState<{ kind: 'delete'; id: string } | { kind: 'reset' } | null>(
+    null
+  );
+  const [confirming, setConfirming] = useState(false);
   // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
   const cancelRef = useRef<HTMLButtonElement>(null);
   // Controlled DataTable state (kit A2): the container owns page/size/sort.
@@ -92,31 +96,44 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   const [sort, setSort] = useState<SortState | null>(null);
 
   const closeModal = () => {
-    setPendingDeleteId(null);
-    setDeleting(false);
+    setPending(null);
+    setConfirming(false);
   };
 
   /** §3 order: persist → dispatch → toast → callback → close. */
-  const handleConfirmDelete = () => {
-    if (!pendingDeleteId) return;
-    setDeleting(true);
-    const next = projects.filter((project) => project.id !== pendingDeleteId);
+  const handleConfirmDelete = (id: string) => {
+    setConfirming(true);
+    const next = projects.filter((project) => project.id !== id);
     if (!persistProjects(next)) {
       // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
       addToast({ message: t('projectSaveError'), type: 'error' });
-      setDeleting(false);
+      setConfirming(false);
       return;
     }
-    dispatch(deleteProject(pendingDeleteId));
+    dispatch(deleteProject(id));
     addToast({ message: t('projectDeleted'), type: 'success' });
-    onDeleted?.(pendingDeleteId);
+    onDeleted?.(id);
     closeModal();
   };
 
+  /** WU-6 (R-6): reset relocated from the form — remove → dispatch. */
+  const handleConfirmReset = () => {
+    setConfirming(true);
+    removeProjects();
+    dispatch(resetToDefaults());
+    closeModal();
+  };
+
+  const handleConfirm = () => {
+    if (pending === null) return;
+    if (pending.kind === 'delete') handleConfirmDelete(pending.id);
+    else handleConfirmReset();
+  };
+
   const pendingProject =
-    pendingDeleteId === null
-      ? undefined
-      : projects.find((project) => project.id === pendingDeleteId);
+    pending?.kind === 'delete'
+      ? projects.find((project) => project.id === pending.id)
+      : undefined;
 
   /** Columns of the vitrina (SPEC R-5): title / category / status / featured / year / actions. */
   const columns: DataTableColumn<Project>[] = [
@@ -181,7 +198,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
             type="button"
             variant="danger"
             size="sm"
-            onClick={() => setPendingDeleteId(project.id)}
+            onClick={() => setPending({ kind: 'delete', id: project.id })}
           >
             {t('projectDelete')}
           </Button>
@@ -205,13 +222,24 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
           <Heading level={2}>{t('adminMyWorkTitle')}</Heading>
           <Paragraph theme="muted">{t('adminMyWorkHint')}</Paragraph>
         </div>
-        <IconButton
-          variant="primary"
-          size="md"
-          ariaLabel={t('adminMyWorkAdd')}
-          icon={<Icon name={Plus} size={20} color="inherit" decorative />}
-          onClick={() => onAdd?.()}
-        />
+        <div className={styles.headerActions}>
+          {/* WU-6 (R-6): destructive reset relocated from the form —
+              header button behind the SAME confirm Modal as delete. */}
+          <IconButton
+            variant="ghost"
+            size="md"
+            ariaLabel={t('projectReset')}
+            icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+            onClick={() => setPending({ kind: 'reset' })}
+          />
+          <IconButton
+            variant="primary"
+            size="md"
+            ariaLabel={t('adminMyWorkAdd')}
+            icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+            onClick={() => onAdd?.()}
+          />
+        </div>
       </div>
 
       <DataTable<Project>
@@ -247,14 +275,20 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
       )}
 
       <Modal
-        isOpen={pendingDeleteId !== null}
+        isOpen={pending !== null}
         onClose={closeModal}
-        // R-2: title ≠ button label (the button stays projectDelete); the
-        // subtitle NAMES the project (projectConfirmDeleteName, OPEN-10
-        // parity with skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
-        title={t('projectDeleteConfirm')}
+        // R-2: title ≠ button label for delete (the button stays
+        // projectDelete); the subtitle NAMES the project
+        // (projectConfirmDeleteName, OPEN-10 parity with
+        // skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
+        // Reset (WU-6): projectReset title + projectResetConfirm subtitle.
+        title={pending?.kind === 'reset' ? t('projectReset') : t('projectDeleteConfirm')}
         subtitle={
-          pendingProject ? t('projectConfirmDeleteName', { name: pendingProject.title }) : undefined
+          pendingProject
+            ? t('projectConfirmDeleteName', { name: pendingProject.title })
+            : pending?.kind === 'reset'
+              ? t('projectResetConfirm')
+              : undefined
         }
         size="sm"
         initialFocusRef={cancelRef}
@@ -263,8 +297,13 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
             <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
               {t('projectCancel')}
             </Button>
-            <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
-              {t('projectDelete')}
+            <Button
+              type="button"
+              variant={pending?.kind === 'reset' ? 'primary' : 'danger'}
+              loading={confirming}
+              onClick={handleConfirm}
+            >
+              {pending?.kind === 'reset' ? t('projectReset') : t('projectDelete')}
             </Button>
           </>
         }

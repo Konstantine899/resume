@@ -10,21 +10,6 @@ vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполне�
 (не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
 владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
 
-## WU-6 — Релокация подтверждений + гигиена баррела (SPEC R-6/R-7, OPEN-3/OPEN-4)
-
-- [ ] Удалить из `ProjectForm.tsx` две confirm-модалки и кнопки
-      reset/delete; reset переносится в шапку витрины с confirm-модалкой
-      (retry из WU-2); переписать затронутые ProjectForm.test (persist-
-      THEN-dispatch кейсы сохранить).
-- [ ] Вырезать из `index.ts` 12 мёртвых значений + 2 типа
-      (`selectFeaturedProjects`, `selectProjectById`, `createProjectsSeed`,
-      `PROJECTS_STORAGE_KEY`, `readProjects`, `persistProjects`,
-      `addProject`, `deleteProject`, `makeProjectRecord`,
-      `makeUpdatePatch`, `resetToDefaults`, `updateProject`,
-      `MyWorkEditorListProps`, `ProjectFormProps`); `HomePage.test.tsx:16`
-      → deep-import `@/features/AdminMyWork/model/services/storage`;
-      `check:public-api` зелёный.
-
 ## WU-7 — Гейты эпика (SPEC R-9)
 
 - [ ] `npm run validate` в CPU-окне (<45%) зелёный.
