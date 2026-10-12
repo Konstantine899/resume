@@ -1,25 +1,19 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminContact (паритет с gold standard админ-семьи, rev.1)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.1 (эпик `admin-contact-refactor`). Исходный
-план: vault `wiki/plan/plan_admin_contact_refactor.md`. Правила: выполненный
-пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
-владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
-
-## WU-5 — Гейты эпика (SPEC R-6)
-
-- [ ] `npm run validate` в CPU-окне (<45%) зелёный.
-- [ ] axe-app `/admin/contact`: 0 регрессий против обновлённого baseline.
-- [ ] Бандл-дельта worktree на merge-base: в капе 737280.
-- [ ] Секция R-5 «Известные проблемы вне скоупа» сверена с кодом —
-      соответствует фактическому состоянию.
-- [ ] SPEC.md: критерии R-1..R-4 закрыты, статус → `done`, дата `verified`.
-- [ ] Burn-down: TODO выжжен по шаблону `DataTable/spec/TODO.md`.
-- [ ] Дуал-райт: gotcha-записи в AGENTS.md/engram по итогам эпика.
+Эпик `admin-contact-refactor` ЗАКРЫТ 2026-10-12 (PR #219): WU-1..5 исполнены и выжжены
+(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
+3502/3502, axe-app 0 регрессий (PATHS += `/admin/contact`, baseline не менялся),
+бандл 733.5 < 744 KiB, public-api 37/37. Отклонение от плана: deep-import в
+`HomePage.test` запрещён `tests-public-api-only` — баррел сохранил трио
+seed/persist/remove (как AdminAbout/AdminMyWork), SPEC R-3 поправлен.
+Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
+`verified: '2026-10-12'`). Вердикт владельца 2026-10-12: OPEN-1=A, OPEN-2=B,
+OPEN-3=A, OPEN-4=B (см. «Решения» внизу).
 
 ## Решения (вердикт владельца 2026-10-12)
 

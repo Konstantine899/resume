@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: admin-contact-refactor
 created: '2026-10-11'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminContact (паритет с gold standard админ-семьи)
@@ -65,65 +66,74 @@ Model-слой (slice/storage/seed) и entity-контракт `ContactContent` 
 ## Требования
 
 ### R-1 — Reset-confirm через kit Modal
-- [ ] Кнопка «Сбросить» открывает kit `Modal`: title `t('contactReset')`,
+- [x] Кнопка «Сбросить» открывает kit `Modal`: title `t('contactReset')`,
       subtitle `t('contactResetConfirm')` (generic — единичному документу
       `{{name}}` не нужен, прецедент `skillsResetConfirm`), `children={null}`,
       footer: «Отмена» (outline) + «Сбросить» (danger).
-- [ ] `initialFocusRef` → кнопка «Отмена» (Modal model/types.ts:197).
-- [ ] `window.confirm` в форме отсутствует; подтверждение выполняет
+- [x] `initialFocusRef` → кнопка «Отмена» (Modal model/types.ts:197).
+- [x] `window.confirm` в форме отсутствует; подтверждение выполняет
       remove → dispatch `resetToDefaults` → `reset(createContactSeed())`
       (порядок сохранён); Cancel/ESC/overlay — закрывает без side-эффектов.
-- [ ] Новый i18n-ключ `contactCancel` (en+ru); en/ru parity-тест зелёный.
-- [ ] Комментарий в коде: ветки persist-fail нет —
+- [x] Новый i18n-ключ `contactCancel` (en+ru); en/ru parity-тест зелёный.
+- [x] Комментарий в коде: ветки persist-fail нет —
       `removeContactContent(): void`, never-throws (storage.ts:52-58);
       синхронный поток, `deleting`-state не вводится.
-- [ ] Тесты зелёные (переписанные :179-207 + новые): открытие без
+- [x] Тесты зелёные (переписанные :179-207 + новые): открытие без
       `window.confirm`; Cancel не трогает storage; подтверждение — порядок
       remove→dispatch по `invocationCallOrder` и form ← seed; фокус на
       «Отмена».
 
 ### R-2 — Тест страницы
-- [ ] Существует `AdminContactPage.test.tsx` с реальным
+- [x] Существует `AdminContactPage.test.tsx` с реальным
       `configureStore({reducer: storeReducers})`, моки только
       storage/i18n/toast (харнес `AdminSkillsPage.test.tsx:25-66`).
-- [ ] Smoke инлайн-компонента: форма рендерится,
+- [x] Smoke инлайн-компонента: форма рендерится,
       `data-testid="admin-contact"`, email prefilled = `CONTACT_EMAIL`
       (seed-гидрация через реальный slice); Modal-ассерты формы
       (ESC/overlay/«единственный диалог») не требуются.
 
 ### R-3 — Публичный API баррела
-- [ ] `index.ts` экспортирует только `ContactEditorForm`; удалены
-      `CONTACT_CONTENT_STORAGE_KEY`, `readContactContent`, `resetToDefaults`,
-      `updateContactContent`, `ContactContentRootState`, `selectContactContent`,
-      `contactContentReducer` (последние два потребляются deep-import'ами —
-      HomePage.tsx:7, storeReducers.ts:18 — и в барреле дублировались).
-- [ ] `HomePage.test.tsx` импортирует `createContactSeed`/
-      `persistContactContent`/`removeContactContent` deep-путями
-      `@/features/AdminContact/model/...` (страницы могут — FSD matrix).
-- [ ] `npm run validate` зелёный (`check:public-api` включительно).
+- [x] `index.ts` оставляет только символы с реальным баррел-потребителем:
+      `ContactEditorForm`(+Props) — lazy `/admin/contact`, и трио
+      `createContactSeed`/`persistContactContent`/`removeContactContent` —
+      `HomePage.test` (`fsd-imports/tests-public-api-only` требует, чтобы тест
+      брал кросс-слайсовые символы через баррел; идентичное трио держат
+      AdminAbout/AdminMyWork). Удалены 7 мёртвых: `CONTACT_CONTENT_STORAGE_KEY`,
+      `readContactContent`, `resetToDefaults`, `updateContactContent`,
+      `ContactContentRootState`, `selectContactContent`,
+      `contactContentReducer`; NOTE в `index.ts` переписан; guard
+      `index.test.ts` пинит live-набор.
+- [x] Deep-import в `HomePage.test.tsx` НЕВОЗМОЖЕН по правилу
+      `tests-public-api-only` (ESLint-пробой WU-3: 2 errors «bypassing its
+      public API») — исходное требование снято как ошибочное.
+- [x] `npm run validate` зелёный (`check:public-api` включительно) —
+      3502/3502, public-api 37/37.
 
 ### R-4 — axe: `/admin/contact` в PATHS
-- [ ] `scripts/purge-axe-check.mjs` PATHS содержит `'/admin/contact'`.
-- [ ] axe-app: 0 регрессий; новые fingerprint'ы страницы приняты регенерацией
+- [x] `scripts/purge-axe-check.mjs` PATHS содержит `'/admin/contact'`.
+- [x] axe-app: 0 регрессий; новые fingerprint'ы страницы приняты регенерацией
       baseline на чистом прогоне (`--update-baseline`); showcase-known
       нарушения не тронуты.
 
 ### R-5 — Известные проблемы вне скоупа (зафиксировать, не чинить)
-- [ ] Email в `ContactContentSchema` без max (schema.ts:28) при form
-      `maxLength=120` — зафиксировано как известная проблема; entity-схема
-      не меняется (заморожена).
-- [ ] `window.confirm` в `AboutEditorForm.tsx:126` — соседский эпик.
-- [ ] `model/selectors/index.ts` — OPEN-8 repo-wide, не трогается.
-- [ ] DataTable/EmptyState/пагинация — не применимы к единичному документу.
+- [x] Email в `ContactContentSchema` без max (`entities/ContactContent`:
+      `z.string().trim().pipe(z.email())`) при form `maxLength=120` —
+      зафиксировано как известная проблема; entity-схема не меняется
+      (заморожена, вердикт OPEN-4=B).
+- [x] ~~`window.confirm` в `AboutEditorForm.tsx:126`~~ — УСТАРЕЛО: починено
+      в эпике admin-about-refactor (PR #218, 2026-10-12).
+- [x] `model/selectors/index.ts` — OPEN-8 repo-wide, не трогается.
+- [x] DataTable/EmptyState/пагинация — не применимы к единичному документу.
 
 ### R-6 — Гейты эпика
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
-      coverage + public-api).
-- [ ] axe-app `/admin/contact`: маршрут в PATHS, 0 регрессий против
-      обновлённого baseline.
-- [ ] Бандл-дельта в капе `performance-budget.json` (737280) — замер worktree
-      на merge-base с `dev`.
-- [ ] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md) выжжен
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
+      coverage + public-api) — 3502/3502, public-api 37/37.
+- [x] axe-app `/admin/contact`: маршрут в PATHS, 0 регрессий; baseline
+      НЕ обновлялся — новых fingerprint-ключей не было (осталось 4 known,
+      `/admin/contact` light+dark чист).
+- [x] Бандл-дельта в капе `performance-budget.json` (737280) — 733.5 KiB
+      < 744 KiB; UI-правки, новых зависимостей нет.
+- [x] Все критерии R-1..R-4 закрыты; [TODO.md](./TODO.md) выжжен
       (выполненные пункты удалены, не отмечены).
 
 ## Критерии приёмки (итог)
