@@ -10,22 +10,6 @@ spec: SPEC.md
 пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
 владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
 
-## WU-1 — Reset-confirm → kit Modal (SPEC R-1)
-
-- [ ] RED: переписать 2 reset-теста `ContactEditorForm.test.tsx:179-207` +
-      2 новых — открытие модалки без `window.confirm`; Cancel не трогает
-      storage; подтверждение — порядок remove→dispatch (`invocationCallOrder`)
-      + form ← seed; фокус на «Отмена».
-- [ ] `ContactEditorForm.tsx`: `pendingReset`-state; kit `Modal` (title
-      `contactReset`, subtitle `contactResetConfirm`, `initialFocusRef`,
-      footer Отмена/Danger, `children={null}`); `handleReset` без
-      `window.confirm`; синхронный поток (без `deleting`); комментарий про
-      отсутствие persist-fail-ветки (`removeContactContent(): void`,
-      storage.ts:52-58).
-- [ ] Локали: + `contactCancel` (en+ru); parity-тест зелёный.
-- [ ] Открытая модалка не роняет ни один существующий save/validation-тест
-      (8 тестов формы остаются зелёными без правок, кроме двух reset).
-
 ## WU-2 — Тест страницы (SPEC R-2)
 
 - [ ] Новый `pages/Admin/ui/AdminContactPage/AdminContactPage.test.tsx` по

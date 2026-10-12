@@ -5,13 +5,16 @@
 // RED-first contract, mirroring AboutEditorForm: render + prefill from
 // the store, §7 validation mapped to i18n keys (R-4: no hardcoded
 // messages), persist → dispatch order (R-7), Toast feedback and the
-// destructive-Reset confirm. Storage and action creators are spied at
-// the module boundary; the reducer stays real (spread actual).
+// destructive-Reset confirm — a kit Modal (admin-contact-refactor R-1,
+// §6 «never window.confirm»), NOT a native dialog. Storage and action
+// creators are spied at the module boundary; the reducer stays real
+// (spread actual).
 
 import type { ContactContent } from '@/entities/ContactContent';
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CONTACT_CONTENT_STORAGE_KEY } from '../../model/services/storage';
 import { ContactEditorForm } from './ContactEditorForm';
 
 const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() => ({
@@ -175,33 +178,72 @@ describe('ContactEditorForm: save (R-7 persist → dispatch)', () => {
   });
 });
 
-describe('ContactEditorForm: reset (§7 confirm → remove → dispatch)', () => {
-  it('does nothing when the confirm dialog is declined', () => {
+describe('ContactEditorForm: reset confirm (R-1, kit Modal)', () => {
+  /** Open the destructive confirm; returns the dialog element. */
+  const openConfirm = async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'contactReset' }));
+    return screen.findByRole('dialog');
+  };
+
+  it('«contactReset» opens a confirm Modal and never calls window.confirm', async () => {
     renderForm();
 
     fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactReset' }));
+    const modal = await openConfirm();
 
-    expect(confirmSpy).toHaveBeenCalledWith('contactResetConfirm');
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'contactReset' })
+    ).toBeInTheDocument();
+    // Generic subtitle (single document — no {{name}} needed, SPEC R-1).
+    expect(within(modal).getByText('contactResetConfirm')).toBeInTheDocument();
+    // Opening is not acting: nothing removed or dispatched yet.
     expect(removeSpy).not.toHaveBeenCalled();
     expect(resetSpy).not.toHaveBeenCalled();
     expect(emailInput()).toHaveValue('dirty@example.com');
   });
 
-  it('removes storage, dispatches reset and resets the form to the seed on confirm', async () => {
+  it('«contactCancel» closes the confirm and never touches storage or the form', async () => {
     renderForm();
 
-    confirmSpy.mockReturnValueOnce(true);
+    localStorage.setItem(CONTACT_CONTENT_STORAGE_KEY, '{"v":1,"content":{}}');
     fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactReset' }));
+    const modal = await openConfirm();
+    fireEvent.click(within(modal).getByRole('button', { name: 'contactCancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(removeSpy).not.toHaveBeenCalled();
+    expect(resetSpy).not.toHaveBeenCalled();
+    // The stored document is still there («Cancel не трогает storage»).
+    expect(localStorage.getItem(CONTACT_CONTENT_STORAGE_KEY)).toBe('{"v":1,"content":{}}');
+    expect(emailInput()).toHaveValue('dirty@example.com');
+  });
+
+  it('moves focus to «Отмена» when the confirm opens (initialFocusRef)', async () => {
+    renderForm();
+
+    const modal = await openConfirm();
+    const cancel = within(modal).getByRole('button', { name: 'contactCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+  });
+
+  it('confirm removes storage, dispatches reset and returns the fields to the seed', async () => {
+    renderForm();
+
+    fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
+    const modal = await openConfirm();
+    fireEvent.click(within(modal).getByRole('button', { name: 'contactReset' }));
 
     await waitFor(() => expect(removeSpy).toHaveBeenCalledTimes(1));
     expect(resetSpy).toHaveBeenCalledTimes(1);
+    // Hard order: storage removal must run before the store changes.
+    // `?? NaN`: an impossible undefined would FAIL the comparison, not pass it.
     expect(removeSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
       resetSpy.mock.invocationCallOrder[0] ?? Number.NaN
     );
     // Fields show the seed again, not the dirty values.
     await waitFor(() => expect(emailInput()).toHaveValue(CONTACT_EMAIL));
     expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });
