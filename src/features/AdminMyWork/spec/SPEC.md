@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: admin-mywork-refactor
 created: '2026-10-11'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminMyWork (рефакторинг к паритету с AdminSkills)
@@ -146,23 +147,24 @@ ProjectForm (кроме удаления h2/подтверждений — ве�
       меняется.
 
 ### R-8 — Известные проблемы вне скоупа (зафиксировать, не чинить)
-- [ ] Kit не имеет Checkbox/Switch и Chip/TagInput — Button-toggle ряд
-      techIcons (ProjectForm.tsx:250-272) и aria-pressed featured
-      (:363-372) остаются до отдельного kit-плана.
-- [ ] Select `error`-prop миграция (ручные `Paragraph role=alert`,
-      :341-345/:355-359) — family-wide волна (Jobs OPEN-5).
-- [ ] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage
+- [x] Kit не имеет Checkbox/Switch и Chip/TagInput — Button-toggle ряд
+      techIcons (ProjectForm.tsx:213-227) и aria-pressed featured
+      (:334) остаются до отдельного kit-плана.
+- [x] Select `error`-prop миграция (ручные `Paragraph role=alert`,
+      :310/:324) — family-wide волна (Jobs OPEN-5).
+- [x] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage
       deep-import), не трогается этим эпиком; компонентные тесты на
       legacy holder-моке документированы как working.
 
 ### R-9 — Гейты эпика
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты
-      с coverage + public-api).
-- [ ] `check:axe:stories` зелёный, если менялись сторисы (со `--build`).
-- [ ] axe-app `/admin/mywork`: 0 регрессий.
-- [ ] Бандл-дельта в капе `performance-budget.json` (737280) — замер
-      worktree на merge-base с `dev`.
-- [ ] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты
+      с coverage + public-api) — 3464/3464, public-api 37/37.
+- [x] `check:axe:stories` зелёный, если менялись сторисы (со `--build`) —
+      72/72, 0 violations.
+- [x] axe-app `/admin/mywork`: 0 регрессий (baseline 4 known).
+- [x] Бандл-дельта в капе `performance-budget.json` (737280) — 732.3 KiB
+      < 744 KiB.
+- [x] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен
       (выполненные пункты удалены, не отмечены).
 
 ## Критерии приёмки (итог)

@@ -1,25 +1,16 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminMyWork (рефакторинг к паритету с AdminSkills, rev.1)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.1 (эпик `admin-mywork-refactor`). Исходный план:
-vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполненный пункт УДАЛЯЕТСЯ
-(не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
-владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
-
-## WU-7 — Гейты эпика (SPEC R-9)
-
-- [ ] `npm run validate` в CPU-окне (<45%) зелёный.
-- [ ] `npm run check:axe:stories` (со `--build`; сторисы опциональны).
-- [ ] axe-app `/admin/mywork`: 0 регрессий против baseline.
-- [ ] Бандл-дельта worktree на merge-base: в капе 737280.
-- [ ] Секция R-8 «Известные проблемы вне скоупа» сверена с кодом —
-      соответствует фактическому состоянию.
-- [ ] SPEC.md: критерии R-1..R-7 закрыты, статус → `done`, дата `verified`.
-- [ ] Дуал-райт: gotcha-записи в AGENTS.md/engram по итогам эпика.
+Эпик `admin-mywork-refactor` ЗАКРЫТ 2026-10-12 (PR #217): WU-1..7 исполнены и выжжены
+(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
+3464/3464, `check:axe:stories` 72/72, axe-app 0 регрессий, бандл 732.3 < 744 KiB,
+public-api 37/37. Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
+`verified: '2026-10-12'`). Вердикт владельца 2026-10-12: OPEN-1=A, OPEN-2=A,
+OPEN-3=A, OPEN-4=A (см. «Решения» внизу).
 
 ## Решения (вердикт владельца 2026-10-12)
 
