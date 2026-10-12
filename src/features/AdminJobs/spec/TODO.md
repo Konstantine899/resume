@@ -11,13 +11,6 @@ vault `wiki/plan/plan_admin_jobs_refactor.md`. Правила: выполнен�
 OPEN-1=A (модалка), OPEN-2=A (DataTable), OPEN-3=B (срез мёртвых экспортов),
 OPEN-4=B («Present» отдельным pass).
 
-## WU-7 — Лимиты entity-схемы (SPEC R-7)
-
-- [ ] `entities/Job/model/schemes/schema.ts`: `max(200)` на bullet в
-      `description.{en,ru}`; комментарий о формной границе «start не в
-      будущем».
-- [ ] Тест: 201-символьный bullet отклоняется `JobSchema.safeParse`.
-
 ## WU-8 — Гигиена (SPEC R-8)
 
 - [ ] Удалить ключ `adminJobPosition` из `en.json`/`ru.json` и из allowlist
