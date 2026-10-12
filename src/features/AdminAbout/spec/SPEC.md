@@ -63,6 +63,7 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
 ## Требования
 
 ### R-1 — Reset-confirm на kit Modal (паритет §6)
+
 - [ ] `AboutEditorForm` открывает kit `Modal` по кнопке `aboutReset`;
       `window.confirm` отсутствует (AboutEditorForm.tsx:126 удалён).
 - [ ] Subtitle модалки называет сущность: ключ `aboutResetConfirm` (en+ru)
@@ -81,6 +82,7 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
       симметричен en/ru.
 
 ### R-2 — Тест страницы AdminAboutPage
+
 - [ ] Существует `src/pages/Admin/ui/AdminAboutPage/AdminAboutPage.test.tsx`
       с реальным `configureStore({ reducer: storeReducers })` (харнес
       `AdminSkillsPage.test.tsx:25-66`; моки только storage/i18n/toast).
@@ -88,11 +90,13 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
       save-smoke (persist→dispatch); reset-кнопка видна.
 
 ### R-3 — axe-покрытие маршрута
+
 - [ ] `'/admin/about'` добавлен в PATHS
       (`scripts/purge-axe-check.mjs:37`); axe-app — 0 регрессий (вскрывшиеся
       нарушения чинятся в эпике).
 
 ### R-4 — Гигиена баррела
+
 - [ ] Из `index.ts` удалены 7 мёртвых экспортов
       (`selectAboutContent`, `ABOUT_CONTENT_STORAGE_KEY`, `readAboutContent`,
       `aboutContentReducer`, `resetToDefaults`, `updateAboutContent`,
@@ -102,6 +106,7 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
       deep-import `storeReducers.ts:12`/`HomePage.tsx:4` не тронуты.
 
 ### R-5 — Известные ограничения (зафиксировать, не чинить)
+
 - [ ] Contact несут тот же `window.confirm` (ContactEditorForm.tsx:132) —
       отдельный эпик; Select error-prop — family-wide волна (OPEN-5
       AdminJobs); `model/selectors/index.ts` — OPEN-8 repo-wide; портрет/stack
@@ -111,6 +116,7 @@ Save/валидации/RHF-петли, `<ul>` PROFILE_STACK (вне CRUD), ви
       R-2 на уровне страницы.
 
 ### R-6 — Гейты эпика
+
 - [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
       coverage + public-api).
 - [ ] axe-app (PATHS с `/admin/about`): 0 регрессий.
