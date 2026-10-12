@@ -1,0 +1,77 @@
+---
+status: approved
+spec: SPEC.md
+---
+
+# TODO — features/AdminContact (паритет с gold standard админ-семьи, rev.1)
+
+Компаньон к [SPEC.md](./SPEC.md) rev.1 (эпик `admin-contact-refactor`). Исходный
+план: vault `wiki/plan/plan_admin_contact_refactor.md`. Правила: выполненный
+пункт УДАЛЯЕТСЯ (не отмечается); пункт без критерия не ревьюивается. Вердикт
+владельца 2026-10-12 принят без изменений (см. раздел «Решения» внизу).
+
+## WU-1 — Reset-confirm → kit Modal (SPEC R-1)
+
+- [ ] RED: переписать 2 reset-теста `ContactEditorForm.test.tsx:179-207` +
+      2 новых — открытие модалки без `window.confirm`; Cancel не трогает
+      storage; подтверждение — порядок remove→dispatch (`invocationCallOrder`)
+      + form ← seed; фокус на «Отмена».
+- [ ] `ContactEditorForm.tsx`: `pendingReset`-state; kit `Modal` (title
+      `contactReset`, subtitle `contactResetConfirm`, `initialFocusRef`,
+      footer Отмена/Danger, `children={null}`); `handleReset` без
+      `window.confirm`; синхронный поток (без `deleting`); комментарий про
+      отсутствие persist-fail-ветки (`removeContactContent(): void`,
+      storage.ts:52-58).
+- [ ] Локали: + `contactCancel` (en+ru); parity-тест зелёный.
+- [ ] Открытая модалка не роняет ни один существующий save/validation-тест
+      (8 тестов формы остаются зелёными без правок, кроме двух reset).
+
+## WU-2 — Тест страницы (SPEC R-2)
+
+- [ ] Новый `pages/Admin/ui/AdminContactPage/AdminContactPage.test.tsx` по
+      харнесу `AdminSkillsPage.test.tsx:25-66` (реальный
+      `configureStore({reducer: storeReducers})`, моки только
+      storage/i18n/toast).
+- [ ] Smoke инлайн-компонента: форма рендерится, `data-testid="admin-contact"`,
+      email prefilled = `CONTACT_EMAIL`.
+
+## WU-3 — Гигиена баррела (SPEC R-3)
+
+- [ ] `index.ts`: оставить только `ContactEditorForm`; удалить
+      `CONTACT_CONTENT_STORAGE_KEY`, `readContactContent`, `resetToDefaults`,
+      `updateContactContent`, `ContactContentRootState`,
+      `selectContactContent`, `contactContentReducer`; освежить
+      NOTE-комментарий (:10-14).
+- [ ] `HomePage.test.tsx:11-14`: barrel → deep-import
+      `@/features/AdminContact/model/services/{seed,storage}`.
+- [ ] Гейт: `npm run validate` (public-api включительно).
+
+## WU-4 — axe: `/admin/contact` в PATHS (SPEC R-4)
+
+- [ ] `scripts/purge-axe-check.mjs:37`: PATHS += `'/admin/contact'`
+      (комментарий в стиле :34-36).
+- [ ] Прогон axe-app; при новых fingerprint'ах страницы — регенерация
+      baseline на чистом прогоне (`--update-baseline`).
+
+## WU-5 — Гейты эпика (SPEC R-6)
+
+- [ ] `npm run validate` в CPU-окне (<45%) зелёный.
+- [ ] axe-app `/admin/contact`: 0 регрессий против обновлённого baseline.
+- [ ] Бандл-дельта worktree на merge-base: в капе 737280.
+- [ ] Секция R-5 «Известные проблемы вне скоупа» сверена с кодом —
+      соответствует фактическому состоянию.
+- [ ] SPEC.md: критерии R-1..R-4 закрыты, статус → `done`, дата `verified`.
+- [ ] Burn-down: TODO выжжен по шаблону `DataTable/spec/TODO.md`.
+- [ ] Дуал-райт: gotcha-записи в AGENTS.md/engram по итогам эпика.
+
+## Решения (вердикт владельца 2026-10-12)
+
+Рекомендации агента приняты без изменений.
+
+- OPEN-1=A — reset-confirm через kit Modal вместо нативного `window.confirm`.
+- OPEN-2=B — форма остаётся инлайн на странице; тест страницы — smoke
+  инлайн-компонент (Modal-ассерты формы не требуются).
+- OPEN-3=A — публичный API баррела: остаётся только `ContactEditorForm`,
+  5 мёртвых экспортов + 2 deep-import-дубля вырезаются.
+- OPEN-4=B — email max length: зафиксировано как известная проблема,
+  entity-схема не меняется.
