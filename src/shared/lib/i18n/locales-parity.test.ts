@@ -168,6 +168,9 @@ describe('locale parity (WU-6)', () => {
       // admin-mywork-refactor WU-2 (SPEC R-2): confirm subtitle NAMES the
       // project (adminJobConfirmDeleteName / skillsConfirmDelete parity).
       'projectConfirmDeleteName',
+      // admin-mywork-refactor WU-4 (SPEC R-4): the add-affordance that
+      // makes create mode reachable (the form modal lives on the page).
+      'adminMyWorkAdd',
     ];
 
     for (const key of adminKeys) {

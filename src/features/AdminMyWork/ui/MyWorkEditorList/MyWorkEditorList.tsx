@@ -43,6 +43,8 @@ const STATUS_VARIANTS: Record<ProjectStatus, BadgeVariant> = {
 export interface MyWorkEditorListProps {
   className?: string;
   'data-testid'?: string;
+  /** The page opens its CREATE form (R-4 add-affordance). */
+  onAdd?: () => void;
   /** The page opens its edit form for this record. */
   onEdit: (id: string) => void;
   /** The page clears editingId when the open record is deleted. */
@@ -52,6 +54,7 @@ export interface MyWorkEditorListProps {
 export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   className = '',
   'data-testid': testId = 'mywork-editor-list',
+  onAdd,
   onEdit,
   onDeleted,
 }) => {
@@ -88,47 +91,56 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
       ? undefined
       : projects.find((project) => project.id === pendingDeleteId);
 
-  if (projects.length === 0) {
-    return (
-      <div className={classNames(styles.root, className)} data-testid={testId}>
-        {/* R-3: kit EmptyState (A2 — all copy comes from the consumer). */}
-        <EmptyState title={t('noProjectsYet')} />
-      </div>
-    );
-  }
-
   return (
     <div className={classNames(styles.root, className)} data-testid={testId}>
-      <ul className={styles.list} aria-label={t('myWork')}>
-        {projects.map((project) => (
-          <li key={project.id} className={styles.row}>
-            <div className={styles.info}>
-              <Heading level={3}>{project.title}</Heading>
-              {project.featured && (
-                <Badge variant="accent" size="sm">
-                  {t('projectFieldFeatured')}
+      {/* WU-4 (R-4): temporary add-affordance above the content — WU-5
+          moves it into the vitrina header (h2+hint+IconButton, the
+          SkillsEditorList:232-238 pattern). Renders on empty lists too:
+          create mode is otherwise inaccessible. */}
+      <Button type="button" variant="outline" size="sm" onClick={() => onAdd?.()}>
+        {t('adminMyWorkAdd')}
+      </Button>
+
+      {projects.length === 0 ? (
+        // R-3: kit EmptyState (A2 — all copy comes from the consumer).
+        <EmptyState title={t('noProjectsYet')} />
+      ) : (
+        <ul className={styles.list} aria-label={t('myWork')}>
+          {projects.map((project) => (
+            <li key={project.id} className={styles.row}>
+              <div className={styles.info}>
+                <Heading level={3}>{project.title}</Heading>
+                {project.featured && (
+                  <Badge variant="accent" size="sm">
+                    {t('projectFieldFeatured')}
+                  </Badge>
+                )}
+                <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
+                  {project.status}
                 </Badge>
-              )}
-              <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
-                {project.status}
-              </Badge>
-            </div>
-            <div className={styles.actions}>
-              <Button type="button" variant="outline" size="sm" onClick={() => onEdit(project.id)}>
-                {t('projectEdit')}
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => setPendingDeleteId(project.id)}
-              >
-                {t('projectDelete')}
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+              </div>
+              <div className={styles.actions}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(project.id)}
+                >
+                  {t('projectEdit')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setPendingDeleteId(project.id)}
+                >
+                  {t('projectDelete')}
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <Modal
         isOpen={pendingDeleteId !== null}

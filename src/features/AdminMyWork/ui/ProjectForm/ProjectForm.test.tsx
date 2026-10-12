@@ -205,9 +205,6 @@ describe('ProjectForm: render (WU-4)', () => {
   it('create mode: §7 fields, enum selects, tech toggles, Save disabled until dirty', () => {
     renderCreate();
 
-    expect(screen.getByRole('heading', { level: 2, name: 'adminMyWorkTitle' })).toBeInTheDocument();
-    expect(screen.getByText('adminMyWorkHint')).toBeInTheDocument();
-
     expect(titleInput()).toHaveValue('');
     expect(document.querySelectorAll('textarea')).toHaveLength(5); // desc×2, role×2, metrics
     // imageSubdir + category + status are kit Selects.

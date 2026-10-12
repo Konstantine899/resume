@@ -100,6 +100,7 @@
   "contactFormTextEmpty": "Каждая локаль обязательна (до 120 символов).",
   "adminMyWorkTitle": "Редактировать секцию «Проекты»",
   "adminMyWorkHint": "Изменения сохраняются в этот браузер и сразу появляются на главной странице.",
+  "adminMyWorkAdd": "Добавить проект",
   "projectFieldTitle": "Название",
   "projectFieldDescription": "Описание",
   "projectFieldTech": "Технологии",

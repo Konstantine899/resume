@@ -181,6 +181,10 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       reset(emptyProjectFormValues());
     }
     addToast({ message: t('projectSaved'), type: 'success' });
+    // A7 parity (JobForm.tsx): a successful Save closes the page-owned
+    // modal (the page key-remounts us with fresh defaults on the next
+    // open). The standalone form keeps no callback → no-op.
+    onExitEdit?.();
   });
 
   /** §7: destructive reset → Modal confirm → remove → dispatch → blank. */
@@ -222,11 +226,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
-      <div className={styles.intro}>
-        <Heading level={2}>{t('adminMyWorkTitle')}</Heading>
-        <Paragraph theme="muted">{t('adminMyWorkHint')}</Paragraph>
-      </div>
-
       <div className={styles.field}>
         <Input
           label={t('projectFieldTitle')}

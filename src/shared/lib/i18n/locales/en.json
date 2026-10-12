@@ -100,6 +100,7 @@
   "contactFormTextEmpty": "Every locale is required (up to 120 characters).",
   "adminMyWorkTitle": "Edit Projects section",
   "adminMyWorkHint": "Changes are saved to this browser and show up on the home page right away.",
+  "adminMyWorkAdd": "Add project",
   "projectFieldTitle": "Title",
   "projectFieldDescription": "Description",
   "projectFieldTech": "Technologies",

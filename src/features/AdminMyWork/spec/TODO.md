@@ -10,17 +10,6 @@ vault `wiki/plan/plan_admin_mywork_refactor.md`. Правила: выполне�
 (не отмечается); пункт без критерия не ревьюивается. Статус `approved` — вердикт
 владельца 2026-10-12 см. раздел «Решения (вердикт владельца 2026-10-12)» внизу.
 
-## WU-4 — Страница: Modal + тест (SPEC R-4)
-
-- [ ] `AdminMyWorkPage.tsx` — kit Modal вокруг `ProjectForm`
-      (`isOpen` от состояния create/edit, шапка `adminMyWorkTitle`, ESC/
-      overlay → закрытие, key-remount сохраняется); h2+hint удалить из
-      `ProjectForm.tsx` (A12) — переносятся в шапку витрины (WU-5);
-      добавить состояние «create открыт» + add-affordance «Добавить».
-- [ ] Новый `pages/Admin/ui/AdminMyWorkPage/AdminMyWorkPage.test.tsx`
-      (харнес `AdminSkillsPage.test.tsx:25-66`): create-open, edit-open,
-      stale-guard, ESC-close, единственный диалог (A12).
-
 ## WU-5 — Витрина DataTable (SPEC R-5)
 
 - [ ] `MyWorkEditorList.tsx` → kit `DataTable`; колонки title /
