@@ -158,6 +158,8 @@
   "skillsEditCategory": "Редактировать категорию",
   "skillsAddTechnology": "Добавить технологию",
   "skillsEditTechnology": "Редактировать технологию",
+  "skillsCollapseCategory": "Свернуть блок {{name}}",
+  "skillsExpandCategory": "Развернуть блок {{name}}",
   "skillsCategoryName": "Отображаемое название категории",
   "skillsCategoryType": "Ключ категории",
   "skillsTechnologyName": "Название технологии",

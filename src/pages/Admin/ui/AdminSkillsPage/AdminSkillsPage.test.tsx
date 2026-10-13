@@ -62,6 +62,11 @@ const renderPage = () => {
       <AdminSkillsPage />
     </Provider>
   );
+  // Owner directive 2026-10-13: cards are COLLAPSED by default — this
+  // page suite exercises forms/rows, so expand every block first.
+  screen
+    .getAllByRole('button', { name: /skillsExpandCategory/ })
+    .forEach((control) => fireEvent.click(control));
   return store;
 };
 

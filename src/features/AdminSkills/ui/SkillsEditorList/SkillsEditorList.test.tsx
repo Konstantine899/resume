@@ -148,7 +148,14 @@ const SEED: SkillCategoryData[] = [
   },
 ];
 
-const renderList = (props: Partial<React.ComponentProps<typeof SkillsEditorList>> = {}) => {
+// Owner directive 2026-10-13: cards are COLLAPSED by default. The legacy
+// suites below predate that rule, so `renderList` expands every block
+// after render (unless `{ expand: false }`); the rev.4 describe covers
+// the collapsed default explicitly.
+const renderList = (
+  props: Partial<React.ComponentProps<typeof SkillsEditorList>> = {},
+  { expand = true }: { expand?: boolean } = {}
+) => {
   const defaults = {
     onAddCategory: vi.fn(),
     onEditCategory: vi.fn(),
@@ -158,7 +165,13 @@ const renderList = (props: Partial<React.ComponentProps<typeof SkillsEditorList>
     onTechnologyDeleted: vi.fn(),
   };
   const merged = { ...defaults, ...props };
-  return { ...render(<SkillsEditorList {...merged} />), ...merged };
+  const utils = render(<SkillsEditorList {...merged} />);
+  if (expand) {
+    screen
+      .getAllByRole('button', { name: /skillsExpandCategory/ })
+      .forEach((control) => fireEvent.click(control));
+  }
+  return { ...utils, ...merged };
 };
 
 /** Buttons of one technology row (row actions, unchanged ids). */
@@ -686,6 +699,178 @@ describe('SkillsEditorList', () => {
       expect(block('devops').queryByRole('navigation')).toBeNull();
       // 3 real tech rows total — no placeholder row anywhere.
       expect(screen.getAllByTestId(/^skill-tech-row-/)).toHaveLength(3);
+    });
+  });
+
+  // ---- rev.4 collapse: cards collapse to a strip (epic skills-card-collapse) ----
+  describe('Category card collapse (rev.4)', () => {
+    it('renders every card COLLAPSED by default (owner directive 2026-10-13)', () => {
+      renderList({}, { expand: false });
+
+      // Captions + expand strips are the initial UI; no tables, no h3.
+      expect(screen.getByTestId('skills-category-caption-frontend')).toBeInTheDocument();
+      expect(screen.getByTestId('skills-category-caption-backend')).toBeInTheDocument();
+      expect(
+        block('frontend').getByRole('button', { name: 'skillsExpandCategory:Frontend' })
+      ).toBeInTheDocument();
+      expect(
+        block('backend').getByRole('button', { name: 'skillsExpandCategory:Backend' })
+      ).toBeInTheDocument();
+      expect(screen.queryAllByRole('table')).toHaveLength(0);
+      expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
+      // No collapse control while collapsed — only the strip.
+      expect(screen.queryByRole('button', { name: /skillsCollapseCategory/ })).toBeNull();
+    });
+
+    it('collapses a card: header/table/footer unmount, caption + strip with the expand control appear', () => {
+      renderList();
+
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsCollapseCategory:Frontend' })
+      );
+
+      // OPEN-3 r4 + A16: header, actions, table and footer are UNMOUNTED,
+      // not CSS-hidden (no focusable leftovers in a hidden tree).
+      expect(block('frontend').queryByRole('heading', { level: 3 })).toBeNull();
+      expect(screen.queryByRole('table', { name: 'Frontend' })).toBeNull();
+      expect(screen.queryByTestId('skill-category-actions-frontend')).toBeNull();
+      expect(screen.queryByTestId('skills-pagination-footer-frontend')).toBeNull();
+
+      // OPEN-2 r4 = B1: caption with the category name ABOVE the strip,
+      // OUTSIDE the Card (the collapsed card is only the strip).
+      const caption = screen.getByTestId('skills-category-caption-frontend');
+      expect(caption).toHaveTextContent('Frontend');
+      expect(block('frontend').queryByTestId('skills-category-caption-frontend')).toBeNull();
+
+      // The whole strip is the expand control (A17), Plus on its left.
+      expect(
+        block('frontend').getByRole('button', { name: 'skillsExpandCategory:Frontend' })
+      ).toBeInTheDocument();
+    });
+
+    it('expands from the strip: card restored (h3 + table + actions), caption gone', () => {
+      renderList();
+
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsCollapseCategory:Frontend' })
+      );
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsExpandCategory:Frontend' })
+      );
+
+      expect(screen.queryByTestId('skills-category-caption-frontend')).toBeNull();
+      expect(block('frontend').getByRole('heading', { level: 3 })).toHaveTextContent('Frontend');
+      expect(screen.getByRole('table', { name: 'Frontend' })).toBeInTheDocument();
+      expect(screen.getByTestId('skill-category-actions-frontend')).toBeInTheDocument();
+      // The collapse control is back for the next toggle.
+      expect(
+        block('frontend').getByRole('button', { name: 'skillsCollapseCategory:Frontend' })
+      ).toBeInTheDocument();
+      // Caption appears only for a collapsed card — Backend never gets one.
+      expect(screen.queryByTestId('skills-category-caption-backend')).toBeNull();
+    });
+
+    it('wires aria-expanded / aria-controls roundtrip on both controls', () => {
+      renderList();
+
+      const collapseControl = block('frontend').getByRole('button', {
+        name: 'skillsCollapseCategory:Frontend',
+      });
+      // SPEC rev.4: collapse control = aria-expanded="false" + aria-controls
+      // pointing at the content wrapper (the region it hides on click).
+      expect(collapseControl).toHaveAttribute('aria-expanded', 'false');
+      const controls = collapseControl.getAttribute('aria-controls');
+      expect(controls).toBeTruthy();
+      const content = document.getElementById(controls ?? '');
+      expect(content).toBeInTheDocument();
+      expect(content).toContainElement(screen.getByRole('table', { name: 'Frontend' }));
+
+      fireEvent.click(collapseControl);
+
+      // Content wrapper unmounted while collapsed; the strip announces
+      // aria-expanded="true" (no aria-controls: its target is unmounted and
+      // axe 4.13 flags a dangling idref next to aria-expanded="true").
+      expect(document.getElementById(controls ?? '')).toBeNull();
+      const strip = block('frontend').getByRole('button', {
+        name: 'skillsExpandCategory:Frontend',
+      });
+      expect(strip).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.click(strip);
+
+      // Roundtrip: the SAME stable id is back on the collapse control and
+      // resolves to the freshly mounted content wrapper again.
+      const restored = block('frontend').getByRole('button', {
+        name: 'skillsCollapseCategory:Frontend',
+      });
+      expect(restored).toHaveAttribute('aria-expanded', 'false');
+      expect(restored).toHaveAttribute('aria-controls', controls);
+      expect(document.getElementById(controls ?? '')).toBeInTheDocument();
+    });
+
+    it('keeps collapse state independent per category', () => {
+      renderList();
+
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsCollapseCategory:Frontend' })
+      );
+
+      // Frontend collapsed…
+      expect(screen.queryByTestId('skills-category-caption-frontend')).toBeInTheDocument();
+      expect(screen.queryByRole('table', { name: 'Frontend' })).toBeNull();
+
+      // …while Backend stays fully expanded (per-card state, no coupling).
+      expect(screen.queryByTestId('skills-category-caption-backend')).toBeNull();
+      expect(block('backend').getByRole('heading', { level: 3 })).toHaveTextContent('Backend');
+      expect(screen.getByRole('table', { name: 'Backend' })).toBeInTheDocument();
+      expect(
+        block('backend').getByRole('button', { name: 'skillsCollapseCategory:Backend' })
+      ).toBeInTheDocument();
+    });
+
+    it('resets page and sort of a block when it collapses (A16)', () => {
+      setRows([15, 3]);
+      renderList();
+
+      fireEvent.click(block('frontend').getByText('2'));
+      fireEvent.click(block('frontend').getByRole('button', { name: 'technologies' }));
+      expect(block('frontend').getAllByRole('columnheader')[0]).toHaveAttribute(
+        'aria-sort',
+        'ascending'
+      );
+
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsCollapseCategory:Category 1' })
+      );
+      fireEvent.click(
+        block('frontend').getByRole('button', { name: 'skillsExpandCategory:Category 1' })
+      );
+
+      // A16: the collapse/expand roundtrip starts over — page 1, default order.
+      expect(block('frontend').getByText('1')).toHaveAttribute('aria-current', 'page');
+      expect(block('frontend').getAllByRole('columnheader')[0]).not.toHaveAttribute('aria-sort');
+      expect(block('frontend').getByTestId('skill-tech-row-C1T1')).toBeInTheDocument();
+    });
+
+    it('collapse and strip controls reveal their tooltip on hover (rev.3 pattern)', async () => {
+      renderList();
+
+      const collapseControl = block('frontend').getByRole('button', {
+        name: 'skillsCollapseCategory:Frontend',
+      });
+      fireEvent.mouseEnter(collapseControl);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'skillsCollapseCategory:Frontend'
+      );
+      fireEvent.mouseLeave(collapseControl);
+      await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
+
+      fireEvent.click(collapseControl);
+      const strip = block('frontend').getByRole('button', {
+        name: 'skillsExpandCategory:Frontend',
+      });
+      fireEvent.mouseEnter(strip);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent('skillsExpandCategory:Frontend');
     });
   });
 });

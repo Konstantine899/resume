@@ -18,6 +18,16 @@
   gap: $spacing-3;
 }
 
+// Groups one category: optional caption (collapsed only, rev.4 OPEN-2=B1)
+
+// + its Card, so the caption hugs ITS strip while the root gap spaces cards.
+
+.categoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -65,6 +75,38 @@
   justify-content: space-between;
 }
 
+// Collapse control LEFT of the h3 (rev.4 OPEN-1=A): one flex group that
+
+// the space-between header keeps on the left, actions stay right.
+
+.headerMain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+  min-width: 0;
+}
+
+// The aria-controls region: DataTable + range footer. Unmounted when the
+
+// card collapses (rev.4 ARA roundtrip — the id must come back on expand).
+
+.blockContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// Collapsed-state caption: category name OUTSIDE the Card, above the strip
+
+// (rev.4 OPEN-2=B1) — muted label text per the SPEC contrast requirement.
+
+.caption {
+  padding-inline: $spacing-1;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
 // First cell: <strong> label (A6), keeps long names from stretching the cell.
 .nameCell {
   min-width: 0;
@@ -92,4 +134,18 @@
 .range {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+// Expand strip (rev.4 A17): kit IconButton fullWidth = the whole Card
+
+// body. Doubled class raises specificity (0,2,0) over the kit's
+
+// flex-center mixin (.button, 0,1,0) so the Plus icon parks at the LEFT
+
+// without fighting CSS-module load order.
+
+.strip.strip {
+  gap: $spacing-2;
+  justify-content: flex-start;
+  padding-inline: $spacing-3;
 }
