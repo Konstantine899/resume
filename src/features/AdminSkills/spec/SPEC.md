@@ -1,8 +1,7 @@
 ---
-status: done
-epic: skills-actions-polish
+status: approved
+epic: skills-card-collapse
 created: '2026-10-12'
-verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
@@ -10,7 +9,8 @@ verified: '2026-10-12'
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
 > Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки», done 2026-10-10, PR #205).
 > **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»), done 2026-10-11, PR #213.
-> **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), **done 2026-10-12, PR #221**; follow-up kit Tooltip combined-trigger — issue #222. §Критерии предыдущих эпиков сгорели вместе с их TODO; ниже — критерии нового эпика. Companion: [TODO.md](./TODO.md).
+> **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), done 2026-10-12, PR #221; follow-up kit Tooltip combined-trigger — issue #222.
+> **rev.4 (2026-10-12):** эпик `skills-card-collapse` — сворачивание карточек категорий: иконка сворачивания в верхнем левом углу, свёрнутое состояние = полоска с `+` слева, подпись названия над полоской (vault `wiki/plan/plan_skills_card_collapse.md`, вердикты OPEN-1..4 r4 = A/B1/A/A, auto-режим). Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
@@ -32,12 +32,14 @@ Section (data-testid="admin-skills")
 ├─ Шапка: Heading(h2) + Paragraph(hint) | IconButton «Добавить категорию» (Plus, md) | IconButton «Сбросить» (RotateCcw, md) — rev.3
 ├─ Блок категории × N (порядок из хранилища — вердикт OPEN-6), КАЖДЫЙ В КИТ Card (rev.3, вердикт OPEN-2):
 │   ├─ Card: variant=default, size="default", hoverable={false}, className=.block, height:auto (см. §Внешний вид)
-│   ├─ Heading(h3): categoryName + Badge с видимой plural-формой счётчика (вердикт OPEN-8, ключ skillsCategoryCount)
-│   ├─ Шапка блока (прижата вправо — rev.3): IconButton «Редактировать категорию» (Pencil) | IconButton «Добавить технологию» (Plus) | IconButton «Удалить» (Trash2) — каждый в kit Tooltip
-│   ├─ DataTable: caption = categoryName; колонки «Технология» (sortable) | «Действия» (иконки прижаты вправо — rev.3)
-│   │   ├─ верхняя строка DataTable: PageSizeGroup 5/10/20 (дефолт 5 — вердикт OPEN-1; рендерит kit, только при строках > 0)
-│   │   └─ пустая категория → EmptyState (ключ skillsCategoryEmpty — вердикт OPEN-7), без контролов
-│   └─ пагинация DataTable (локальное состояние блока — A4)
+│   ├─ Развёрнутое состояние (дефолт, rev.4):
+│   │   ├─ Шапка блока: IconButton «Свернуть» (глиф — OPEN-1 r4) СЛЕВА ОТ h3 | Heading(h3): categoryName + Badge | (прижато вправо) IconButton «Редактировать/Добавить/Удалить» — каждый в kit Tooltip
+│   │   ├─ DataTable: caption = categoryName; колонки «Технология» (sortable) | «Действия» (иконки вправо)
+│   │   │   ├─ верхняя строка DataTable: PageSizeGroup 5/10/20 (дефолт 5 — вердикт OPEN-1)
+│   │   │   └─ пустая категория → EmptyState (ключ skillsCategoryEmpty — вердикт OPEN-7)
+│   │   └─ пагинация DataTable (локальное состояние блока — A4)
+│   └─ Свёрнутое состояние (rev.4): подпись categoryName СНАРУЖИ карточки (OPEN-2 r4) + Card = полоска
+│       с IconButton «Развернуть» (Plus) СЛЕВА; действия/таблица скрыты (OPEN-3 r4)
 └─ Модалки: форма категории | форма технологии | подтверждение (tech/category/reset) — кнопки модалки остаются ТЕКСТОВЫМИ (rev.3)
 ```
 
@@ -93,6 +95,17 @@ Section (data-testid="admin-skills")
 - **Tooltip:** `position="top"` пиним явно; kit `autoAdjust` (types.ts:48-49) не отключать — правый край вьюпорта; **trigger = hover (дефолт kit)** — RED-тест закрепляет hover/unhover; focus-визуал НЕ открывает тултип (см. A14), имя кнопки на focus несёт `aria-label`.
 - **Тесты:** существующие `getByRole('button', { name: <ключ> })` переживают (ariaLabel = прежний ключ); добавляются тесты видимости тултипа по hover/unhover.
 
+### Сворачивание карточек (rev.4, эпик skills-card-collapse) — РЕШЕНО (вердикт 2026-10-12)
+
+Поведение (по запросу владельца 2026-10-12, вердикты OPEN-1..4 r4 закрыты — см. §Решено):
+
+- **Развёрнуто (дефолт):** в ЛЕВОМ ВЕРХНЕМ углу карточки (слева от h3 с categoryName) — IconButton «Свернуть» с иконкой `Minus` (OPEN-1 r4 = A); контент как сейчас.
+- **Свёрнуто:** подпись с categoryName НАД полоской, СНАРУЖИ карточки — карточка = только полоска (OPEN-2 r4 = B1, по буквам запроса); подпись ИСЧЕЗАЕТ при развороте; Card сворачивается в полоску; в левой части полоски — IconButton «Развернуть» с иконкой `Plus` (клик разворачивает). h3 в развёрнутой карточке остаётся.
+- **Состояние:** `Record<category, boolean>` (false = развёрнуто) в `SkillsEditorList`, per-карточка независимо; без persist (OPEN-4 r4 = A — память страницы, сброс при перезагрузке).
+- **Скрытие контента:** unmount (`null`), не CSS-hide — фокусируемые элементы не должны жить в скрытом дереве; локальные сортировка/страница блока при сворачивании сбрасываются (A16); действия блока скрыты (OPEN-3 r4 = A — «просто полоска»).
+- **Полоска:** вся строка — кнопка разворачивания (A17), `+`-иконка слева внутри неё; ARIA: collapse-кнопка `aria-expanded="false"` + `aria-controls` на контент-обёртку, полоска `aria-expanded="true"` (прецедент разметки — PopoverTrigger).
+- **Имена:** `t('skillsCollapseCategory', { name })` / `t('skillsExpandCategory', { name })` — aria-label + content тултипа (паттерн rev.3); подпись над полоской — сам `categoryName` (данные).
+
 ### Модальное окно формы (create/edit) — РЕШЕНО (вердикт 2026-10-10)
 
 > Вердикт владельца (OPEN-2: «переносить однозначно»): формы создания/редактирования переносятся в `Modal` (сегодня они инлайн под списком).
@@ -132,6 +145,7 @@ Section (data-testid="admin-skills")
 
 - Все строки — через `t()`; **переиспользовать существующие ключи**, где они уже есть: счётчик `skillsCategoryCount_one/_few/_many/_other` (обе локали, витрина `SkillItem.tsx:52`), `skillsDelete`/`skillsReset`. Новыми будут только: `skillsCategoryEmpty` (вердикт OPEN-7) + тексты подтверждения с именем сущности через interpolation `{{name}}` (вердикты OPEN-4 + OPEN-10) + подписи контролов/фильтра. Всё новое — в `en.json` + `ru.json`, паритет закреплён тестом; захардкоженных строк нет (критерий ниже).
 - **rev.3:** новых ключей НЕТ — ariaLabel IconButton и `content` Tooltip берут те же 7 ключей действий (`skillsAddCategory`, `skillsReset`, `skillsEditCategory`, `skillsAddTechnology`, `skillsDelete`, `skillsEditTechnology`); дифф локалей пуст, parity-тест не правится.
+- **rev.4:** 2 новых flat-ключа в `en.json` + `ru.json` (паритет закреплён существующим тестом): `skillsCollapseCategory` = «Свернуть блок {{name}}» / «Collapse {{name}} block»; `skillsExpandCategory` = «Развернуть блок {{name}}» / «Expand {{name}} block» — aria-label + тултип. Подпись над полоской — данные (`categoryName`), не ключ.
 
 ## Решено вердиктом владельца
 
@@ -156,17 +170,26 @@ Section (data-testid="admin-skills")
 | OPEN-3 (r3) | Все 7 кнопок действий → IconButton+Tooltip, включая header-кнопки (вариант A); новых i18n-ключей нет — существующие ключи становятся ariaLabel и текстом тултипа. |
 | OPEN-4 (r3) | Варианты кнопок сохраняются 1:1 (outline/primary/danger — вариант A), унификация до ghost отклонена.                                                              |
 
+**Вердикты rev.4 (эпик `skills-card-collapse`, владелец 2026-10-12, «Все утверждаю. Приступай к реализации»):**
+
+| #           | Решение (2026-10-12)                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| OPEN-1 (r4) | Глиф сворачивания — `Minus` (вариант A, симметрия с `+`).                                                            |
+| OPEN-2 (r4) | Подпись над полоской — СНАРУЖИ карточки (вариант B1, по буквам запроса: карточка = только полоска, надпись над ней). |
+| OPEN-3 (r4) | Действия блока в свёрнутом состоянии — скрыты (вариант A, «просто полоска»).                                         |
+| OPEN-4 (r4) | Без persist — состояние в памяти страницы (вариант A).                                                               |
+
 ## Требует уточнения (OPEN)
 
-Все OPEN rev.1 (OPEN-1…OPEN-10) закрыты вердиктами 2026-10-10 (см. §Решено); все OPEN rev.3 (OPEN-1..4 r3) закрыты вердиктами 2026-10-12 (см. §Решено, таблица rev.3). Новых вопросов нет.
+Все OPEN rev.1 (OPEN-1…OPEN-10) закрыты вердиктами 2026-10-10 (см. §Решено); все OPEN rev.3 (OPEN-1..4 r3) закрыты вердиктами 2026-10-12 (см. §Решено, таблица rev.3); все OPEN rev.4 (OPEN-1..4 r4) закрыты вердиктами 2026-10-12 (см. §Решено, таблица rev.4). Новых вопросов нет.
 
 ## Предположения (A)
 
-A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз · **A13 (rev.3)** outline-Badge в заголовке блока визуально не меняется внутри Card (цвет наследуется `--color-text`, совпадает; проверка light+dark в preview, при дрейфе — вложить селектор, kit не править — gotcha `resume-card-p-inherit`) · **A14 (rev.3, поправка 2026-10-12 после верификации kit)** kit `Tooltip` строго однорежимный: `TooltipTriggerType = 'hover' | 'focus' | 'click'` (types.ts:16), `handleFocus` gated на `activeTrigger === 'focus'` (useTooltip.ts:251-255) — комбинированного «hover+focus» НЕТ. Решение (владелец подтвердил 2026-10-12): **hover-only**, kit не правим (запрет эпика); клавиатурный доступ — через обязательный `aria-label` (SR объявляет имя при focus, WCAG покрыт). Визуальный тултип по focus — follow-up ишью на улучшение kit (combined trigger), вне этого эпика · **A15 (rev.3)** span-обёртка Tooltip (триггер по умолчанию `as='span'`) вокруг IconButton семантически и визуально нейтральна.
+A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз · A13 (rev.3) outline-Badge в заголовке блока визуально не меняется внутри Card (цвет наследуется `--color-text`, совпадает; проверка light+dark в preview, при дрейфе — вложить селектор, kit не править — gotcha `resume-card-p-inherit`) · A14 (rev.3, поправка 2026-10-12 после верификации kit)** kit `Tooltip` строго однорежимный: `TooltipTriggerType = 'hover' | 'focus' | 'click'` (types.ts:16), `handleFocus` gated на `activeTrigger === 'focus'` (useTooltip.ts:251-255) — комбинированного «hover+focus» НЕТ. Решение (владелец подтвердил 2026-10-12): **hover-only**, kit не правим (запрет эпика); клавиатурный доступ — через обязательный `aria-label` (SR объявляет имя при focus, WCAG покрыт). Визуальный тултип по focus — follow-up ишью на улучшение kit (combined trigger), вне этого эпика · A15 (rev.3) span-обёртка Tooltip (триггер по умолчанию `as='span'`) вокруг IconButton семантически и визуально нейтральна · **A16 (rev.4)** unmount контента при сворачивании допустим: локальные сортировка/страница блока сбрасываются (разворот → страница 1, сортировка по умолчанию) · **A17 (rev.4)** вся полоска — кнопка разворачивания (`+`-иконка слева внутри), не только иконка.
 
 ## Критерии приёмки
 
-> Критерии rev.1/rev.2 (блоки, модалки, сортировка, загрузка иконки) закрыты их эпиками (#205/#213) и сгорели вместе с их TODO; ниже — живой контракт и критерии rev.3 (эпик `skills-actions-polish`).
+> Критерии rev.1–rev.3 закрыты их эпиками (#205/#213/#221) и сгорели вместе с их TODO; ниже — живой контракт rev.4 (эпик `skills-card-collapse`, approved 2026-10-12). Секции «Структура»/«Кнопки и модалки»/«Таблицы»/«Качество» ниже — легаси-чеклисты rev.1, сохранены для навигации, не правятся в этом эпике.
 
 ### Структура
 
@@ -203,18 +226,20 @@ A1 модалки форм (вердикт OPEN-2) · A2 порядок из sto
 - [ ] `npm run validate` зелёный; `check:axe` — 0 регрессий на всех путях `PATHS` (`/`, `/admin`, `/admin/skills`, `/admin/jobs` — `scripts/purge-axe-check.mjs:36`); `check:bundle` в лимите (737280 B); `check:public-api` зелёный.
 - [ ] Критерии §Кнопки и модалки закреплены тестами страницы `AdminSkillsPage.test.tsx` (создаётся в рамках этой работы — его сегодня нет); существующие `SkillsEditorList.test` обновлены под per-category DOM; формы-тесты (SkillCategoryForm/TechnologyForm) не меняются — модалки заворачивает страница.
 
-### rev.3 — Иконки с подсказками, правый прижим, Card (эпик skills-actions-polish)
+### rev.4 — Сворачивание карточек категорий (эпик skills-card-collapse, approved 2026-10-12)
 
-Структура и поведение:
+Структура и поведение (вердикты OPEN-1..4 r4 закрыты — §Решено):
 
-- [ ] Все 7 кнопок действий — kit `IconButton`: 2 в шапке страницы (`Plus`/`RotateCcw`, md), 3 в шапке блока и 2 в колонке «Действия» (`Pencil`/`Plus`/`Trash2`, sm); текстовых Button-кнопок действий не осталось; кнопки модалки подтверждения — текстовые (не тронуты).
-- [ ] У каждой IconButton — `ariaLabel` на существующем i18n-ключе (тесты `getByRole('button', { name: <ключ> })` зелёные без правок имен).
-- [ ] Над каждой IconButton — kit `Tooltip`, содержимое = тот же i18n-ключ; тултип виден по hover (и скрывается по unhover); новых ключей в `en.json`/`ru.json` нет (parity-тест зелёный, диффа локалей нет).
-- [ ] Кнопки шапки блока и иконки в колонке «Действия» прижаты к правому краю (`justify-content: flex-end` / `margin-left: auto`).
-- [ ] Каждый категорийный блок обёрнут в kit `Card` (`variant` default, `size="default"`, `hoverable={false}`, `height: auto`); `data-testid="skills-category-block-*"` сохранён; заголовок страницы — вне карточек; при наведении на карточку нет hover-lift.
+- [ ] В развёрнутой карточке слева от h3 — IconButton «Свернуть» с иконкой `Minus` (OPEN-1 r4 = A); клик сворачивает карточку.
+- [ ] Свёрнутая карточка: подпись с categoryName СНАРУЖИ, над полоской (OPEN-2 r4 = B1), подпись ИСЧЕЗАЕТ при развороте; Card = полоска с IconButton «Развернуть» (`Plus`) слева; клик разворачивает.
+- [ ] В развёрнутом состоянии h3 с categoryName + Badge остаётся в карточке (требование владельца — не дублируется подписью).
+- [ ] Действия блока/таблица в свёрнутом состоянии скрыты (OPEN-3 r4 = A); контент скрыт unmount'ом (A16).
+- [ ] Состояние per-карточка независимое (`Record<category, boolean>`); без persist (OPEN-4 r4 = A).
+- [ ] ARIA: сворачивание `aria-expanded="false"` + `aria-controls`; полоска `aria-expanded="true"`; имена — `skillsCollapseCategory`/`skillsExpandCategory` с `{{name}}` (en+ru, паритет).
+- [ ] Прежние тесты rev.1–rev.3 зелёные без правок имен; новые RED-тесты: свернуть→подпись+полоска+таблица скрыта; развернуть→h3+таблица, подпись исчезла; независимость карточек.
 
-Качество rev.3:
+Качество rev.4:
 
-- [ ] Тултипы работают в light И dark (preview-сверка); outline-Badge в шапке блока внутри Card визуально не изменился (A13) либо дрейф устранён вложением селектора в потребителе.
-- [ ] `npm run validate` зелёный; `check:axe` — 0 регрессий (в т.ч. `/admin/skills` light+dark); `check:bundle` < 744 KiB (737280 B); `check:public-api` 37/37.
-- [ ] axe-stories НЕ применяется (сторис у AdminSkills нет — факт ревизии rev.3); визуальная проверка — dev preview.
+- [ ] Полоска/подпись/иконки — визуальная сверка light+dark (контраст подписи — label/muted поверхность); hover полоски читается.
+- [ ] `npm run validate` зелёный; `check:axe` — 0 регрессий (новая aria-expanded разметка на `/admin/skills`); `check:bundle` < 744 KiB (737280 B, дельта ≈ 0 — lazy-чанк AdminSkills); `check:public-api` 37/37.
+- [ ] axe-stories не применим (сторис у AdminSkills нет); визуальная проверка — dev preview.
