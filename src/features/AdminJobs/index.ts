@@ -36,3 +36,7 @@ export type { JobsRootState } from './model/types/types';
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
 export { JobForm } from './ui/JobForm/JobForm';
 export { JobsList } from './ui/JobsList/JobsList';
+// job-field-edit WU-2: the field-scoped modal form + its shared config.
+export { FieldEditForm } from './ui/FieldEditForm/FieldEditForm';
+export { EDIT_FIELD_LABEL_KEYS } from './ui/JobForm/lib/fieldSchemas';
+export type { EditField } from './ui/JobForm/lib/fieldSchemas';

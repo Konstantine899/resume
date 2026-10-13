@@ -45,12 +45,15 @@ import type { Job } from '@/entities/Job';
 import { applyJobUpdate, updateJob } from '../../model/slices/jobsSlice';
 import { selectAllJobs } from '../../model/selectors/selectors';
 import { persistJobs } from '../../model/services/storage';
+import type { EditField } from '../JobForm/lib/fieldSchemas';
 import styles from './JobCard.module.scss';
 
 /** One scalar record field: label (i18n key) → display value. */
 type FieldRow = {
   kind: 'field';
   key: string;
+  /** EditField key — the row Pencil's field-scoped target (job-field-edit). */
+  fieldKey: EditField;
   label: string;
   value: ReactNode;
 };
@@ -69,8 +72,10 @@ export interface JobCardProps {
   job: Job;
   className?: string;
   'data-testid'?: string;
-  /** The page opens its edit form for this record. */
+  /** The page opens its FULL edit form for this record (header Pencil). */
   onEditJob?: (job: Job) => void;
+  /** The page opens the field-scoped modal for this scalar row (job-field-edit). */
+  onEditField?: (job: Job, field: EditField) => void;
   /** The list closes its confirm flow / clears selection for this record. */
   onDeleteJob?: (id: string) => void;
 }
@@ -80,6 +85,7 @@ export const JobCard: React.FC<JobCardProps> = ({
   className = '',
   'data-testid': testId,
   onEditJob,
+  onEditField,
   onDeleteJob,
 }) => {
   // Same-feature selector + dispatch — legal inside AdminJobs (§8). The
@@ -148,16 +154,24 @@ export const JobCard: React.FC<JobCardProps> = ({
     {
       kind: 'field',
       key: 'position',
+      fieldKey: 'position',
       label: t('adminJobsTablePosition'),
       // JobsList getPosition parity: RU falls back to EN when empty.
       value: (language === 'ru' ? job.position.ru : job.position.en) || job.position.en,
     },
-    { kind: 'field', key: 'period', label: t('adminJobsTablePeriod'), value: job.period },
+    {
+      kind: 'field',
+      key: 'period',
+      fieldKey: 'period',
+      label: t('adminJobsTablePeriod'),
+      value: job.period,
+    },
   ];
   if (job.location !== '') {
     rows.push({
       kind: 'field',
       key: 'location',
+      fieldKey: 'location',
       label: t('adminJobLocation'),
       value: job.location,
     });
@@ -166,6 +180,7 @@ export const JobCard: React.FC<JobCardProps> = ({
     rows.push({
       kind: 'field',
       key: 'companyUrl',
+      fieldKey: 'companyUrl',
       label: t('adminJobCompanyUrl'),
       value: (
         <Link href={job.companyUrl} external>
@@ -178,6 +193,7 @@ export const JobCard: React.FC<JobCardProps> = ({
     rows.push({
       kind: 'field',
       key: 'technologies',
+      fieldKey: 'technologies',
       label: t('adminJobTechnologies'),
       value: job.technologies.join(', '),
     });
@@ -254,15 +270,24 @@ export const JobCard: React.FC<JobCardProps> = ({
       header: t('adminJobsTableActions'),
       render: (row) =>
         row.kind === 'field' ? (
-          <div className={styles.actions}>
-            <Tooltip content={t('adminEditJob')} position="top" showDelay={0}>
+          // Scope honesty (job-field-edit R-3 r4): the row Pencil opens the
+          // modal for THIS field only, and its label says so.
+          <div
+            className={styles.actions}
+            data-testid={`job-field-actions-${job.id}-${row.fieldKey}`}
+          >
+            <Tooltip
+              content={t('adminJobEditFieldTitle', { field: row.label })}
+              position="top"
+              showDelay={0}
+            >
               <IconButton
                 type="button"
                 variant="outline"
                 size="sm"
                 icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
-                ariaLabel={t('adminEditJob')}
-                onClick={() => onEditJob?.(job)}
+                ariaLabel={t('adminJobEditFieldTitle', { field: row.label })}
+                onClick={() => onEditField?.(job, row.fieldKey)}
               />
             </Tooltip>
           </div>

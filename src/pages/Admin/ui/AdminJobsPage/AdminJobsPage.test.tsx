@@ -30,11 +30,14 @@ vi.mock('@/features/AdminJobs/model/services/storage', async (importOriginal) =>
 }));
 
 // Identity t(): raw keys in assertions; known options render as
-// `${key}:${value}` (confirm subtitle `company`, Pagination `number`).
+// `${key}:${value}` (confirm subtitle `company`, Pagination `number`,
+// field-modal title `field` — job-field-edit R-3 r4).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { company?: string; number?: number }) => {
-      const parts = [options?.company, options?.number].filter((value) => value !== undefined);
+    t: (key: string, options?: { company?: string; number?: number; field?: string }) => {
+      const parts = [options?.company, options?.number, options?.field].filter(
+        (value) => value !== undefined
+      );
       return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
     },
     language: 'en',
@@ -81,6 +84,18 @@ const editJob = async (id: string) => {
   return openDialog();
 };
 
+/** Expand the card, then click a scalar-row Pencil → the FIELD modal. */
+const editField = async (id: string, fieldKey: string, labelKey: string) => {
+  const card = screen.getByTestId(`job-card-${id}`);
+  fireEvent.click(within(card).getByRole('button', { name: /^adminJobExpand/ }));
+  fireEvent.click(
+    within(screen.getByTestId(`job-field-actions-${id}-${fieldKey}`)).getByRole('button', {
+      name: `adminJobEditFieldTitle:${labelKey}`,
+    })
+  );
+  return openDialog();
+};
+
 /** §7-valid create record — JobForm.test fillValidForm mirror. */
 const fillValidForm = (modal: HTMLElement) => {
   fireEvent.change(within(modal).getByLabelText('adminJobPositionEn'), {
@@ -119,7 +134,9 @@ describe('AdminJobsPage (modal criteria, R-5)', () => {
 
     const modal = await openCreate();
 
-    expect(within(modal).getByRole('heading', { level: 2, name: 'adminAddJob' })).toBeInTheDocument();
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'adminAddJob' })
+    ).toBeInTheDocument();
     expect(within(modal).getByTestId('job-form')).toBeInTheDocument();
     // A12: the page renders a single dialog for its single `form` state.
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
@@ -130,20 +147,63 @@ describe('AdminJobsPage (modal criteria, R-5)', () => {
 
     const modal = await editJob('1');
 
-    expect(within(modal).getByRole('heading', { level: 2, name: 'adminEditJob' })).toBeInTheDocument();
-    expect(within(modal).getByLabelText('adminJobCompany')).toHaveValue(
-      'Tech Corp International'
-    );
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'adminEditJob' })
+    ).toBeInTheDocument();
+    expect(within(modal).getByTestId('job-form')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('adminJobCompany')).toHaveValue('Tech Corp International');
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  // ---- job-field-edit R-3 r4: field-scoped modals ------------------------
+
+  it('period row Pencil opens ONLY the period field modal with the field title', async () => {
+    renderPage();
+
+    const modal = await editField('1', 'period', 'adminJobsTablePeriod');
+
+    expect(
+      within(modal).getByRole('heading', {
+        level: 2,
+        name: 'adminJobEditFieldTitle:adminJobsTablePeriod',
+      })
+    ).toBeInTheDocument();
+    expect(within(modal).getByTestId('job-field-form')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('adminJobStartDate')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('adminJobEndDate')).toBeInTheDocument();
+    // Scope honesty: the full form's fields do NOT leak in.
+    expect(within(modal).queryByLabelText('adminJobCompany')).not.toBeInTheDocument();
+    expect(within(modal).queryByLabelText('adminJobLocation')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('location field modal saves ONE field, recomputes nothing else, closes', async () => {
+    const store = renderPage();
+    const before = jobsOf(store).find((job) => job.id === '1');
+    expect(before).toBeDefined();
+
+    const modal = await editField('1', 'location', 'adminJobLocation');
+    fireEvent.change(within(modal).getByLabelText('adminJobLocation'), {
+      target: { value: 'Berlin' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    const updated = jobsOf(store).find((job) => job.id === '1');
+    expect(updated?.location).toBe('Berlin');
+    expect(updated?.company).toBe(before?.company); // untouched
+    expect(updated?.position).toEqual(before?.position); // untouched
+    expect(updated?.description).toEqual(before?.description); // untouched
+    expect(persistSpy).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ location: 'Berlin' })])
+    );
   });
 
   it('stale-guard: deleting the record being edited closes the modal', async () => {
     const store = renderPage();
 
     const modal = await editJob('1');
-    expect(within(modal).getByLabelText('adminJobCompany')).toHaveValue(
-      'Tech Corp International'
-    );
+    expect(within(modal).getByLabelText('adminJobCompany')).toHaveValue('Tech Corp International');
 
     store.dispatch(deleteJob('1'));
 

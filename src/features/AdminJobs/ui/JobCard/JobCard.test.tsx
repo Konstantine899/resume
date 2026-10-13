@@ -37,8 +37,10 @@ vi.mock('../../model/services/storage', async (importOriginal) => ({
 // collapse aria-labels stay addressable).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { company?: string; number?: number }) => {
-      const parts = [options?.company, options?.number].filter((value) => value !== undefined);
+    t: (key: string, options?: { company?: string; number?: number; field?: string }) => {
+      const parts = [options?.company, options?.number, options?.field].filter(
+        (value) => value !== undefined
+      );
       return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
     },
     language: 'en',
@@ -99,7 +101,7 @@ const makeJob = (patch: Partial<Job> = {}): Job => ({
 const JOB = makeJob();
 
 const renderCard = (job: Job = JOB, props: Partial<React.ComponentProps<typeof JobCard>> = {}) => {
-  const defaults = { onEditJob: vi.fn(), onDeleteJob: vi.fn() };
+  const defaults = { onEditJob: vi.fn(), onEditField: vi.fn(), onDeleteJob: vi.fn() };
   const merged = { ...defaults, ...props };
   render(<JobCard job={job} {...merged} />);
   return merged;
@@ -210,19 +212,26 @@ describe('JobCard', () => {
 
   // ---- R-1/R-2: action callbacks ----
 
-  it('fires onEditJob from the header and row Pencil, onDeleteJob from the header Trash2', () => {
-    const { onEditJob, onDeleteJob } = renderCard();
+  it('fires onEditJob from the header, onEditField from scalar rows, onDeleteJob from Trash2', () => {
+    const { onEditJob, onEditField, onDeleteJob } = renderCard();
     expandCard();
 
     const headerActions = screen.getByTestId('job-card-actions-j1');
     fireEvent.click(within(headerActions).getByRole('button', { name: 'adminEditJob' }));
     expect(onEditJob).toHaveBeenCalledWith(JOB);
+    // Scope honesty (job-field-edit R-3 r4): the header Pencil is the ONLY
+    // trigger of the full-record form.
+    expect(onEditField).not.toHaveBeenCalled();
 
-    // Scalar-row Pencil (position row) → same edit callback.
+    // Scalar-row Pencil (position row) → field-scoped callback with its key.
     const positionRow = screen.getByText('Developer').closest('tr') as HTMLElement;
-    fireEvent.click(within(positionRow).getByRole('button', { name: 'adminEditJob' }));
-    expect(onEditJob).toHaveBeenCalledTimes(2);
-    expect(onEditJob).toHaveBeenLastCalledWith(JOB);
+    fireEvent.click(
+      within(positionRow).getByRole('button', {
+        name: 'adminJobEditFieldTitle:adminJobsTablePosition',
+      })
+    );
+    expect(onEditField).toHaveBeenCalledWith(JOB, 'position');
+    expect(onEditJob).toHaveBeenCalledTimes(1);
 
     fireEvent.click(within(headerActions).getByRole('button', { name: 'adminJobDelete' }));
     expect(onDeleteJob).toHaveBeenCalledWith('j1');

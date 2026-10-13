@@ -41,6 +41,7 @@ import type { Job } from '@/entities/Job';
 import { deleteJob } from '../../model/slices/jobsSlice';
 import { selectAllJobs, selectSortedJobs } from '../../model/selectors';
 import { persistJobs } from '../../model/services/storage';
+import type { EditField } from '../JobForm/lib/fieldSchemas';
 import { JobCard } from '../JobCard/JobCard';
 import styles from './JobsList.module.scss';
 
@@ -58,6 +59,8 @@ export interface JobsListProps {
   onAddJob?: () => void;
   /** The page opens its edit form for this record. */
   onEditJob?: (job: Job) => void;
+  /** The page opens the field-scoped modal for a scalar row (job-field-edit). */
+  onEditField?: (job: Job, field: EditField) => void;
   /** The page clears a selection whose record was just deleted. */
   onJobDeleted?: (id: string) => void;
 }
@@ -67,6 +70,7 @@ export const JobsList: React.FC<JobsListProps> = ({
   'data-testid': testId = 'admin-jobs-list',
   onAddJob,
   onEditJob,
+  onEditField,
   onJobDeleted,
 }) => {
   // Same-feature selector + dispatch — legal inside AdminJobs (§8).
@@ -164,6 +168,7 @@ export const JobsList: React.FC<JobsListProps> = ({
           key={job.id}
           job={job}
           onEditJob={onEditJob}
+          onEditField={onEditField}
           onDeleteJob={(id) => setPending(id)}
         />
       ))}
