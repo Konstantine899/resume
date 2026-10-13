@@ -245,6 +245,7 @@
   "adminJobConfirmDeleteName": "Удалить {{company}}?",
   "adminJobSaved": "Сохранено",
   "adminJobDeleted": "Удалено",
+  "adminJobEditFieldTitle": "Редактировать: {{field}}",
   "adminJobPersistError": "Не удалось сохранить — ошибка записи в хранилище браузера.",
   "getInTouch": "Наймите Меня",
   "email": "Email",
