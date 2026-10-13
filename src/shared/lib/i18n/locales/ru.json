@@ -200,7 +200,7 @@
   "adminJobsTablePeriod": "Период",
   "adminJobsTableFlags": "Признаки",
   "adminJobsTableActions": "Действия",
-  "adminJobsTableField": "Поле",
+  "adminJobsTableField": "Данные",
   "adminJobsTableValue": "Значение",
   "adminJobsSort": "Сортировка",
   "adminJobsSortRecent": "Сначала новые",
