@@ -69,8 +69,14 @@ const openCreate = async () => {
 };
 
 const editJob = async (id: string) => {
+  // Cards are COLLAPSED by default (jobs-detail-table R-1): expand first,
+  // then the header Pencil lives inside job-card-actions-<id>.
+  const card = screen.getByTestId(`job-card-${id}`);
+  fireEvent.click(within(card).getByRole('button', { name: /^adminJobExpand/ }));
   fireEvent.click(
-    within(screen.getByTestId(`job-actions-${id}`)).getByRole('button', { name: 'adminEditJob' })
+    within(screen.getByTestId(`job-card-actions-${id}`)).getByRole('button', {
+      name: 'adminEditJob',
+    })
   );
   return openDialog();
 };
