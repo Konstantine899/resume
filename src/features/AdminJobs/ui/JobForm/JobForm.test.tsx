@@ -279,6 +279,59 @@ describe('JobForm', () => {
     expect(within(enBlock).getAllByRole('textbox')).toHaveLength(1);
   });
 
+  // ---- WU-3: bullet editor kit restyle (SPEC R-6) -----------------------
+
+  it('carries kit Paragraph classes on the bullet input (R-6 asChild path)', () => {
+    render(<JobForm />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+    const input = within(enBlock).getAllByRole('textbox')[0] as HTMLElement;
+    expect(input).toHaveClass(/paragraph/);
+    expect(input).toHaveAttribute('data-size', 'xs');
+    expect(input).toHaveAttribute('data-theme', 'primary');
+    expect(input).toHaveAttribute('data-align', 'left');
+  });
+
+  it('exposes IconButtons per bullet with the R-6 disabled matrix', () => {
+    render(<JobForm />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+
+    // Single bullet: every action is disabled (↑ first, ↓ last, × length<=1).
+    const up = within(enBlock).getByRole('button', { name: 'adminJobBulletUp' });
+    const down = within(enBlock).getByRole('button', { name: 'adminJobBulletDown' });
+    const remove = within(enBlock).getByRole('button', { name: 'adminJobRemoveBullet' });
+    expect(up).toBeDisabled();
+    expect(down).toBeDisabled();
+    expect(remove).toBeDisabled();
+    expect(up).toHaveAttribute('data-testid', 'icon-button');
+
+    fireEvent.click(within(enBlock).getByRole('button', { name: 'adminJobAddBullet' }));
+    const ups = within(enBlock).getAllByRole('button', { name: 'adminJobBulletUp' });
+    const downs = within(enBlock).getAllByRole('button', { name: 'adminJobBulletDown' });
+    const removes = within(enBlock).getAllByRole('button', { name: 'adminJobRemoveBullet' });
+    expect(ups[0]).toBeDisabled();
+    expect(ups[1]).toBeEnabled();
+    expect(downs[0]).toBeEnabled();
+    expect(downs[1]).toBeDisabled();
+    expect(removes[0]).toBeEnabled();
+    expect(removes[1]).toBeEnabled();
+  });
+
+  it('moves a bullet up via the IconButtons without changing the wiring', () => {
+    render(<JobForm job={EXISTING} />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+
+    fireEvent.click(within(enBlock).getByRole('button', { name: 'adminJobAddBullet' }));
+    const inputs = within(enBlock).getAllByRole('textbox');
+    fireEvent.change(inputs[1] as HTMLElement, { target: { value: 'Second bullet' } });
+
+    const ups = within(enBlock).getAllByRole('button', { name: 'adminJobBulletUp' });
+    fireEvent.click(ups[1] as HTMLElement);
+
+    const after = within(enBlock).getAllByRole('textbox');
+    expect(after[0]).toHaveValue('Second bullet');
+    expect(after[1]).toHaveValue('Built things');
+  });
+
   it('supports the technologies chip editor (add + remove)', () => {
     render(<JobForm />);
 

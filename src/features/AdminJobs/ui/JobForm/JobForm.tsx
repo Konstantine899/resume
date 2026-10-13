@@ -25,14 +25,17 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
+import { ArrowDown, ArrowUp, X } from 'lucide-react';
+import { Button, IconButton } from '@/shared/ui/Button';
 import { DatePicker } from '@/shared/ui/DatePicker';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
 import { Label } from '@/shared/ui/Label';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import { EMPLOYMENT_TYPES, JOB_LEVELS, type Job } from '@/entities/Job';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
@@ -190,41 +193,49 @@ export const JobForm: React.FC<JobFormProps> = ({
         <Heading level={3}>{t(blockLabel)}</Heading>
         {list.map((text, index) => (
           <div className={styles.bulletRow} key={`${locale}-${index}`}>
-            <input
-              type="text"
-              className={styles.bulletInput}
-              maxLength={200}
-              aria-label={`${t(blockLabel)}-${index + 1}`}
-              value={text}
-              {...register(`description.${locale}.${index}`)}
-            />
-            <button
-              type="button"
-              className={styles.bulletIcon}
-              aria-label={t('adminJobBulletUp')}
-              disabled={index === 0}
-              onClick={() => moveBullet(locale, index, -1)}
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              className={styles.bulletIcon}
-              aria-label={t('adminJobBulletDown')}
-              disabled={index === list.length - 1}
-              onClick={() => moveBullet(locale, index, 1)}
-            >
-              ↓
-            </button>
-            <button
-              type="button"
-              className={styles.bulletIcon}
-              aria-label={t('adminJobRemoveBullet')}
-              disabled={list.length <= 1}
-              onClick={() => removeBullet(locale, index)}
-            >
-              ×
-            </button>
+            <Paragraph asChild size="xs" theme="primary" align="left">
+              <input
+                type="text"
+                className={styles.bulletInput}
+                maxLength={200}
+                aria-label={`${t(blockLabel)}-${index + 1}`}
+                value={text}
+                {...register(`description.${locale}.${index}`)}
+              />
+            </Paragraph>
+            <Tooltip content={t('adminJobBulletUp')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('adminJobBulletUp')}
+                disabled={index === 0}
+                icon={<Icon name={ArrowUp} size={20} color="inherit" decorative />}
+                onClick={() => moveBullet(locale, index, -1)}
+              />
+            </Tooltip>
+            <Tooltip content={t('adminJobBulletDown')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('adminJobBulletDown')}
+                disabled={index === list.length - 1}
+                icon={<Icon name={ArrowDown} size={20} color="inherit" decorative />}
+                onClick={() => moveBullet(locale, index, 1)}
+              />
+            </Tooltip>
+            <Tooltip content={t('adminJobRemoveBullet')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('adminJobRemoveBullet')}
+                disabled={list.length <= 1}
+                icon={<Icon name={X} size={20} color="inherit" decorative />}
+                onClick={() => removeBullet(locale, index)}
+              />
+            </Tooltip>
             {bulletMessage(errors.description?.[locale as 'en'] as unknown, index) && (
               <Paragraph asChild theme="error" size="s">
                 <span role="alert">
