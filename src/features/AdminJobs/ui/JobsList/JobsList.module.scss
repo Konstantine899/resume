@@ -1,18 +1,14 @@
 // ============================================
 
-// JobsList — admin vitrina layout (WorkHistory CRUD §9, admin-jobs-refactor WU-6)
+// JobsList — admin vitrina layout (jobs-detail-table WU-2)
 
 // ============================================
 
 // Layout only: spacing via the $spacing-* scale, colors come from inherited
 
-// tokens — no hardcoded values (plan §8). Row rhythm mirrors
+// tokens — no hardcoded values (plan §8). The list itself is one JobCard
 
-// SkillsEditorList so the admin area stays visually consistent.
-
-// The list itself is the kit DataTable (SPEC R-6); only header/cell chrome
-
-// lives here.
+// per record (SPEC R-5); only the header chrome lives here.
 
 @use '@/shared/styles/variables' as *;
 
@@ -36,27 +32,12 @@
   gap: $spacing-2;
 }
 
-.companyCell {
-  min-width: 0;
-}
+// Sort Select + add IconButton (SkillsEditorList .headerActions parity).
 
-.position {
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-}
+// flex-end: the button bottom-aligns with the select field, not its label.
 
-.period {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-2;
-}
-
-.actions {
+.headerActions {
   display: flex;
   gap: $spacing-2;
+  align-items: flex-end;
 }
