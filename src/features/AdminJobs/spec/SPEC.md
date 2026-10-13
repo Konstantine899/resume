@@ -1,162 +1,171 @@
 ---
-status: done
-epic: admin-jobs-refactor
-created: '2026-10-11'
-verified: '2026-10-12'
+status: approved
+epic: jobs-detail-table
+created: '2026-10-13'
+verified: ''
 ---
 
-# SPEC — features/AdminJobs (рефакторинг к паритету с AdminSkills)
+# SPEC — features/AdminJobs (карточки-записи, record detail table)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Исходный план: vault `wiki/plan/plan_admin_jobs_refactor.md`, rev.1 (draft, 2026-10-11). Companion: [TODO.md](./TODO.md).
+> Исходный план: vault `wiki/plan/plan_jobs_detail_table.md`, rev.1 (approved, 2026-10-13). Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
-> Статус `approved` (вердикт владельца 2026-10-11: OPEN-1=A, OPEN-2=A, OPEN-3=B, OPEN-4=B).
-> rev.2 (2026-10-11): терминология «поле = строка = должность» (вердикт владельца) + R-6 значок `IconButton` в шапке витрины.
-> **done (2026-10-12)**: WU-1..9 исполнены, PR #216; гейты: validate 3431/3431, axe-stories 72/72, axe-app 0 регрессий, бандл 730.7 < 744 KiB. AA-фикс в ходе эпика: dark `--color-surface-tertiary` `#343231` → `#2e2c2b` (zebra/elevated 4.29:1 → 4.67:1 на `text-tertiary`).
+> rev.3 (2026-10-13): вердикт владельца — вариант **A′** «record detail table»
+> (строки = поля записи; отклонены B «только параграфы» и C «одна строка по
+> колонкам»). Предыдущая rev.2 (epic `admin-jobs-refactor`, done, PR #216)
+> выгорает вместе со своим TODO; model-слой, R-2/R-3/R-5 паритеты и
+> `AdminJobsPage`-харнес остаются фундаментом и в этом эпике не меняются.
 
 ## Цель
 
-Привести `features/AdminJobs` к уровню отрефакторенного `AdminSkills`
-(план `plan_admin_panel_edit.md`, PR #205): ARCH-1 layout, kit DataTable в
-витрине, page-owned form-modal, confirm-modal с именем сущности и
-retry-поведением, kit EmptyState, синхронизация лимитов схемы, чистка
-мёртвого кода. Model-слой (slice/storage/seed) эталонный и не меняется.
+Заменить плоскую DataTable-витрину `/admin/jobs` карточками-должностями:
+каждое место работы = отдельная kit `Card` (collapse-логика зеркала
+`SkillsEditorList` rev.4, default collapsed), внутри — detail-таблица
+`[Данные | Значение | Действия]` со всеми данными `Card.workHistory`.
+Витрина получает inline-CRUD достижений (↑ ↓ Trash2, persist-THEN-dispatch);
+модалка `JobForm` оформляет параграфы kit `Paragraph`-классами.
 
-## Контекст (факты, проверено 2026-10-11)
+## Контекст (факты, проверено 2026-10-13)
 
-- Слой: `features/AdminJobs` (18 файлов, 2401 LOC, 72 теста), композиция
-  страницы — `src/pages/Admin/ui/AdminJobsPage`; данные — `entities/Job` +
-  слайс `adminJobs` + storage `resume.jobs` (persist-THEN-dispatch).
-- Сегодня: плоский `ui/` (единственный в админ-семье вне ARCH-1), витрина —
-  рукотворный `<ul>` (JobsList.tsx:96-136), пустое состояние — голый
-  Paragraph (:94), confirm-modal без subtitle/initialFocus, persist-failure
-  закрывает модалку (:70), форма инлайн под списком (AdminJobsPage.tsx:43),
-  страница без тестов. БАГ: delete persist-ит `selectSortedJobs` (:51,67) —
-  порядок в storage молча расходится со store.
-- Кит: `DataTable` (Table + Pagination + PageSizeGroup, контролируемая
-  сортировка — Skills-пилот WU-5c), `EmptyState`, `Modal` (subtitle,
-  initialFocusRef), `Badge`, `Button`, `Form`, `Input`, `Select`, `DatePicker`
-  (пилот WU-4 — не трогаем), `Heading`, `Paragraph`, `Toast`.
-- Gold standard сравнения — `features/AdminSkills` (SkillsEditorList,
-  AdminSkillsPage, AdminSkillsPage.test.tsx:25-66).
-- Терминология (вердикт владельца 2026-10-11): «поле» таблицы = строка =
-  одна должность (`JobRecord`); «заполненное поле» = добавленная должность.
-  CRUD поля — это CRUD должности (R-3, R-5); «заполнять постепенно» =
-  добавлять должности по мере необходимости через create-модалку. Отдельного
-  полевого CRUD (значки внутри ячеек, динамические колонки, частичные
-  записи) НЕ требуется.
+- Сегодня: `JobsList` — kit DataTable (колонки company/position/period/flags/
+  actions, текстовые кнопки Edit/Delete, контролируемая сортировка+пагинация);
+  в таблице НЕТ: location, companyUrl, description-параграфов, technologies.
+- `WorkHistoryCard` (main page) показывает: title, company+url, period,
+  periodBadge, location, achievements[], techStack.
+- `JobForm` уже имеет add/remove/up/down параграфов (`<input>` + текстовые
+  `↑↓×`); kit `Paragraph` поддерживает `asChild` (прецедент: error-span'ы).
+- Kit `Table` — public API `columns/rows/getKey/caption/emptyState`,
+  сам рендерит focusable scroll-region (axe A5 закрыт kit'ом).
+- Skills rev.4 — эталон collapse: caption снаружи Card, strip = whole-body
+  expand, `Minus` слева от h3, стабильный `contentId`, default collapsed.
+- `UpdateJobDto extends Partial<CreateJobDto>` — `description` проходит
+  `applyJobUpdate` штатно.
 
 ## Скоуп
 
-Меняются: `src/features/AdminJobs/**` (layout ui/, JobsList, импорты
-JobForm), `src/pages/Admin/ui/AdminJobsPage/**`,
-`src/entities/Job/model/schemes/schema.ts` (минимально — bullet max(200)),
-локали `en.json`/`ru.json` (ключи adminJob*).
+Меняются: `src/features/AdminJobs/ui/JobsList/**` (rewrite),
+`src/features/AdminJobs/ui/JobCard/**` (новый), `src/features/AdminJobs/ui/JobForm/**`
+(bullet-editor restyle), локали `en.json`/`ru.json`.
 
-НЕ меняются: `jobsSlice.ts`, `storage.ts`, `seed.ts` и их тесты; витрина
-`features/WorkHistory` и Design C; `storeReducers.ts` deep-import
-(resume-lazy-rhf-chunk); поведение JobForm (кроме удаления h2 — форма теперь
-в Modal, вердикт OPEN-1=A); публичные контракты kit-компонентов.
+НЕ меняются: `model/**` (slice/selectors/storage/seed), `AdminJobsPage`
+(wiring onAddJob/onEditJob/onJobDeleted), `entities/Job`, kit-компоненты,
+витрина `features/WorkHistory` (Design C), `storeReducers.ts`, feature barrel
+(JobCard — внутренний компонент, не экспортируется).
 
 ## Требования
 
-### R-1 — ARCH-1 layout
-- [x] Существуют `ui/JobForm/` (внутри `JobForm.tsx`, `JobForm.module.scss`,
-      `JobForm.test.tsx`, `lib/jobFormSchema.{ts,test.ts}`) и `ui/JobsList/`
-      (`JobsList.tsx`, `JobsList.module.scss`, `JobsList.test.tsx`).
-- [x] В `src/features/AdminJobs/ui/` нет `.tsx`/`.scss` файлов на верхнем уровне.
-- [x] `npm run validate` зелёный (public-api включительно); импорты резолвятся
-      полными путями сегментов (прецедент `DatePicker/lib/isoDate.ts`).
+### R-1 — Компонент JobCard (ARCH-1)
 
-### R-2 — persist-снимок в insertion-order (баг)
-- [x] RED-тест доказывает: при `selectSortedJobs` ≠ порядку `selectAllJobs`
-      удаление persist-ит массив в порядке `selectAllJobs` (состав = исходный
-      минус удалённый).
-- [x] Снимок для `persistJobs` берётся из `selectAllJobs`; рендер остаётся на
-      `selectSortedJobs`; комментарий инварианта уточнён.
+- [ ] Существует `ui/JobCard/` (`JobCard.tsx`, `JobCard.module.scss`,
+      `JobCard.test.tsx`); импорт из `JobsList` — относительный sibling.
+- [ ] Kit `Card` `variant="default" size="default" hoverable={false}`;
+      `.strip.strip` (даблинг класса, 0,2,0) — паритет Skills.
+- [ ] Collapse: default **collapsed**; caption СНАРУЖИ Card = компания;
+      strip = whole-body expand `IconButton` `Plus` +
+      `aria-expanded="true"` (quirk-паритет `SkillsEditorList.tsx:348`);
+      `Minus` слева от h3 с `aria-expanded="false"` +
+      `aria-controls={contentId}`; `contentId = job-card-content-${job.id}`.
+- [ ] Header: h3 компания + Badge current (accent) + Badge featured
+      (outline); справа `Pencil` → `onEditJob(job)` и `Trash2` →
+      `onDeleteJob(job.id)` (confirm-модалка уровня списка, R-5).
+- [ ] Тело (unmount при collapse) = kit `Table` с `caption`, `scope="col"`
+      (kit), БЕЗ собственного scroll-контейнера.
 
-### R-3 — Confirm-delete parity с Skills
-- [x] Subtitle модалки удаления называет компанию: ключ
-      `adminJobConfirmDeleteName` (en+ru, `{{company}}`); заголовок ≠ label
-      кнопки.
-- [x] `initialFocusRef` → кнопка «Отмена».
-- [x] При неудачном `persistJobs` модалка остаётся открытой (повтор), тост
-      `adminJobPersistError` показан.
-- [x] 3 новых теста зелёные: subtitle, фокус, persist-fail не закрывает.
+### R-2 — Detail-таблица (все данные workHistory-карточки)
 
-### R-4 — Пустое состояние через kit EmptyState
-- [x] Пустой список → kit `EmptyState` (public API) c
-      `title={t('adminJobsEmpty')}`; голый Paragraph удалён; feature-SCSS
-      пустого состояния нет (A2 у kit).
+- [ ] Колонки `[Данные | Значение | Действия]`: заголовки
+      `adminJobsTableField` / `adminJobsTableValue` / `adminJobsTableActions`
+      (два первых — новые ключи); колонка действий правый прижим
+      (`.actions`, паттерн Skills).
+- [ ] Строки-скаляры (label → key): Должность `adminJobsTablePosition`,
+      Период `adminJobsTablePeriod` (значение `job.period` как есть, A5),
+      Локация `adminJobLocation`, URL `adminJobCompanyUrl`
+      (kit `Link` external; строка рендерится ТОЛЬКО при наличии
+      `companyUrl`), Технологии `adminJobTechnologies` (чипы/Badge-список).
+      Действие скалярной строки: `Pencil` → `onEditJob(job)`.
+- [ ] Строки-параграфы (по одному на каждый элемент
+      `description[язык-интерфейса]`): значение — kit
+      `Paragraph asChild size="xs" theme="primary" align="left"` на текст
+      (классы `paragraph/xs/primary/left`); действия `↑ ↓ Trash2`.
+- [ ] Disabled: `↑` на первом параграфе, `↓` на последнем, `Trash2` при
+      `description[lang].length <= 1` (паритет `JobForm` ×).
+- [ ] Пустой массив параграфов → строки-достижения отсутствуют (без
+      заглушек); пустая строка URL отсутствует (honest data).
 
-### R-5 — Форма в page-owned Modal / тест страницы
-- [x] `AdminJobsPage` рендерит форму в kit `Modal`: `isOpen={form!==null}`,
-      шапка `adminEditJob`/`adminAddJob`, ESC/overlay → `setForm(null)`;
-      одновременно открыт не более одного диалога.
-- [x] Внутренний `<Heading level={2}>` в `JobForm` удалён (A12
-      `aria-dialog-name`: имя диалога = шапка модалки).
-- [x] Существует `AdminJobsPage.test.tsx` (реальный
-      `configureStore({reducer: storeReducers})`, моки только
-      storage/i18n/toast — харнес `AdminSkillsPage.test.tsx:25-66`): create-
-      open, edit-open, stale-record guard, ESC-close, единственный диалог.
+### R-3 — Inline-CRUD параграфов (persist-THEN-dispatch)
 
-### R-6 — Витрина на kit DataTable
-- [x] `JobsList` использует kit `DataTable`: колонки company, position (en/ru),
-      period, badges (current/featured), actions Edit/Delete (kit Button).
-- [x] Контролируемая сортировка: сортировка сбрасывает страницу на 1
-      (закреплено тестом; паттерн Skills WU-5a).
-- [x] Page-size (5|10|20) и навигация видны при `rows > 0` (включая одну
-      страницу); layout зеркалом Skills: page-size сверху справа, навигация
-      снизу по центру.
-- [x] Тесты: строка реально исчезает при delete; порядок persist→dispatch
-      сохранён (shared `calls` array); переходы страниц; sort → page=1.
-- [x] В шапке витрины (блок header над таблицей, паттерн
-      `SkillsEditorList.tsx:232-238`) — kit `IconButton` с
-      `aria-label={t('adminAddJob')}` вместо текстовой кнопки; клик вызывает
-      `onAddJob` (create-модалка R-5). Дублирующая текстовая кнопка
-      не сохраняется.
-- [x] axe `/admin/jobs` — 0 регрессий (маршрут уже в PATHS).
+- [ ] `moveBullet`/`removeBullet` в `JobCard`: снимок `selectAllJobs`
+      (insertion-order, R-2 прошлой rev) → `applyJobUpdate(job, { id,
+    description })` → `persistJobs(next)` → `dispatch(updateJob({ id,
+    description }))`; period пересчитывается из тех же дат (без сдвига).
+- [ ] Persist-fail: тост `adminJobPersistError`, store не тронут.
+- [ ] Подтверждения на удаление параграфа НЕТ (паритет inline-× в `JobForm`).
+- [ ] RED-тест порядка: `persistJobs` вызван ДО `dispatch` и с массивом,
+      где порядок параграфов изменён/удалён соответственно.
 
-### R-7 — Синхронизация лимитов entity-схемы
-- [x] `entities/Job/model/schemes/schema.ts`: bullet в `description.{en,ru}`
-      ограничен `max(200)` — зеркало `jobFormSchema.ts:59-61`.
-- [x] Тест: 201-символьный bullet отклоняется `JobSchema.safeParse`.
-- [x] Комментарий в schema.ts: «start не в будущем» осознанно формная
-      граница (валидация UX-ввода), не entity-правило.
+### R-4 — Сортировка списка (замена DataTable sort/page)
 
-### R-8 — Гигиена i18n и баррела
-- [x] Ключ `adminJobPosition` удалён из `en.json`/`ru.json` и из allowlist
-      `locales-parity.test.ts:124`; parity-тест зелёный.
-- [x] Из `index.ts` удалены экспорты без потребителей (`toggleCurrent`,
-      `applyJobToggle`, `resetToDefaults`, `removeJobs`, `selectJobById`,
-      `selectCurrentJob`); `check:public-api` зелёный. Кнопка
-      Reset-to-defaults НЕ добавляется.
+- [ ] Page-level kit `Select` в шапке: label `adminJobsSort`; варианты
+      `adminJobsSortRecent` (default — `selectSortedJobs`, date-desc),
+      `adminJobsSortCompany` (alpha по company),
+      `adminJobsSortPosition` (alpha по position[язык]).
+- [ ] Пагинация и `PageSizeGroup` удалены вместе с DataTable; карточки
+      рендерятся все (для ≤15 записей это осознанный выбор).
 
-### R-9 — Известные проблемы вне скоупа (зафиксировать, не чинить)
-- [x] `formatJobPeriod` хардкодит `"Present"` (entities/Job/lib/utils.ts) —
-      отдельный entity-cleanup pass (вердикт OPEN-4=B).
-- [x] Kit не имеет Checkbox/Switch и Chip/TagInput — нативный чекбокс-ряд и
-      ручной чип-редактор остаются до отдельного kit-плана.
-- [x] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage deep-import),
-      не трогается этим эпиком; Select `error`-prop миграция — family-wide
-      волна (OPEN-5).
+### R-5 — Список JobsList (rewrite)
 
-### R-10 — Гейты эпика
-- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
-      coverage + public-api).
-- [x] `check:axe:stories` зелёный, если менялись сторисы (со `--build`).
-- [x] axe-app `/admin/jobs`: 0 регрессий.
-- [x] Бандл-дельта в капе `performance-budget.json` (737280) — замер worktree
-      на merge-base с `dev`.
-- [x] Все критерии R-1..R-8 закрыты; [TODO.md](./TODO.md) выжжен (выполненные
-      пункты удалены, не отмечены).
+- [ ] Шапка: h2 `adminJobs` + правый блок (Select сортировки + `IconButton`
+      Plus → `onAddJob`) — паттерн `SkillsEditorList.tsx:232-238`.
+- [ ] Карточки в порядке текущей сортировки; `key = job.id`.
+- [ ] `EmptyState adminJobsEmpty` при пустом списке (паритет R-4 rev.2).
+- [ ] Confirm-modal удаления должности перенесён на Trash2 карточки:
+      subtitle `adminJobConfirmDeleteName {{company}}`,
+      `initialFocusRef` → «Отмена», persist-fail держит модалку открытой
+      (все инварианты R-3 rev.2 сохранены, тесты переносятся).
+
+### R-6 — Модалка JobForm: параграфы kit-оформлены
+
+- [ ] Строка параграфа: `<Paragraph asChild size="xs" theme="primary"
+    align="left">` на `<input>` — input несёт классы
+      `paragraph/xs/primary/left` (fallback при конфликте kit-контракта:
+      зеркальные декларации в `JobForm.module.scss` — решить по факту,
+      зафиксировать здесь).
+- [ ] Текстовые `↑↓×` → kit `IconButton` + lucide `ArrowUp/ArrowDown/X` +
+      `Tooltip` (`showDelay={0}`); aria-label = `adminJobBulletUp` /
+      `adminJobBulletDown` / `adminJobRemoveBullet` (ключи существуют).
+- [ ] Поведение add/remove/move, disabled-состояния и zod-валидация —
+      без изменений; существующие буллет-тесты зелёные.
+
+### R-7 — i18n
+
+- [ ] 8 новых ключей в ОБЕИХ локалей (flat, без точек):
+      `adminJobsTableField`, `adminJobsTableValue`, `adminJobsSort`,
+      `adminJobsSortRecent`, `adminJobsSortCompany`, `adminJobsSortPosition`,
+      `adminJobCollapse` (`{{company}}`), `adminJobExpand` (`{{company}}`).
+- [ ] `locales-parity.test.ts` зелёный БЕЗ правки (список `adminKeys` —
+      existence-гард, не exhaustive).
+
+### R-8 — Гейты эпика
+
+- [ ] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
+      coverage + public-api); запуск в CPU-окне <45%.
+- [ ] axe-app `/admin/jobs`: 0 регрессий (маршрут в PATHS, baseline без
+      новых fingerprint-ключей).
+- [ ] Бандл-дельта worktree на merge-base ≤ капа 737280 (ожидание —
+      отрицательная/нейтральная дельта: DataTable выпадает из витрины).
+- [ ] Превью light+dark: collapse/expand, ↑↓× в витрине, add/delete через
+      модалку, сортировка Select.
+- [ ] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен.
 
 ## Критерии приёмки (итог)
 
-Пользователь на `/admin/jobs` видит DataTable-витрину с сортировкой/пагинацией;
-значок добавления в шапке витрины открывает create-модалку; удаление
-подтверждается модалкой с названием компании, фокус на «Отмена», при ошибке
-сохранения модалка не закрывается; форма открывается в модальном окне,
-закрывается по ESC; пустой список — kit EmptyState; после удаления
-порядок в localStorage совпадает с порядком в store; `npm run validate` и axe
-зелёные.
+Пользователь на `/admin/jobs` видит список свёрнутых по умолчанию карточек
+(компания-подпись снаружи, strip с Plus); раскрытие показывает detail-таблицу
+со всеми данными должности (включая локацию, ссылку, технологии и
+достижения, которых не было в старой таблице); Pencil в строке/шапке
+открывает модальную форму; Trash2 в строке параграфа удаляет его
+(persist-THEN-dispatch), ↑↓ переставляют; Trash2 в шапке карточки
+удаляет должность через confirm-модалку с названием компании и фокусом на
+«Отмена»; модальная форма редактирует параграфы kit-оформленными строками
+с иконочными кнопками; Select в шапке сортирует список; пустой список —
+kit EmptyState; `npm run validate` и axe зелёные.
