@@ -1,14 +1,8 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminSkills (сворачивание карточек, rev.4)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.4 (эпик `skills-card-collapse`, **approved 2026-10-12** — вердикты OPEN-1..4 = A/B1/A/A). Auto-режим: WU и гейты автоматически, squash merge + удаление ветки — автоматически при зелёных проверках. Предыдущие эпик'и сгорели: `skills-actions-polish` (PR #221), `skills-icon-upload` (PR #213), `admin-panel-edit` (PR #205).
-
-- [ ] **Ветка и PR:** `feat/skills-card-collapse` от свежего `origin/dev`; DRAFT PR в `dev` сразу после первого коммита; conventional commits по WU.
-- [ ] **WU-1 (TDD):** RED — тесты: сворачивание (клик «Свернуть» → h3/таблица/footer скрыты, подпись + полоска с `+` видны), разворачивание (клик по полоске → карточка восстановлена, подпись исчезла), ARIA (`aria-expanded`/`aria-controls`), имена `t('skillsCollapseCategory'/'skillsExpandCategory', {name})`, независимость карточек. GREEN — `Record<category, boolean>` в `SkillsEditorList`, unmount контента (A16), полоска = кнопка (A17); новые ключи `en.json`/`ru.json` (parity).
-- [ ] **WU-2:** SCSS — полоска (поверхность, радиус, hover), `+` слева, подпись над полоской (label/muted), иконка сворачивания слева от h3; превью light+dark.
-- [ ] **Гейты:** `npm run validate` (CPU<45%), `npm run check:axe` (0 регрессий), `npm run build` + `npm run check:bundle` (< 744 KiB), `npm run check:public-api` (37/37); preview-сверка свернуть/развернуть light+dark.
-- [ ] **Burn-down:** SPEC → `status: done` + `verified`; этот TODO — закрывающая заметка (паттерн #205/#213/#221); AGENTS.md gotcha + vault `memory.md`; `gh pr ready` → checks watch → squash `--delete-branch` → fetch/prune.
+**Закрыт (2026-10-13):** все WU выполнены; PR #223 SQUASH-MERGED в `dev` (`c350d0d`, «feat(admin-skills): collapse/expand category cards (#223)»), 8/8 CI-checks зелёные, ветка удалена. Вердикты OPEN-1..4 r4 = A (`Minus`)/B1 (подпись снаружи)/A (действия скрыты)/A (без persist) + директива владельца 2026-10-13: **все карточки свёрнуты по умолчанию**. Гейты: validate 3513/3513, axe 0 регрессий, bundle 737.0 < 744 KiB, public-api 37/37; preview-сверка light+dark (свёрнуты по умолчанию, `+` слева, подпись muted над полоской, разворот восстанавливает h3+таблицу). Пара SPEC/TODO переведена в `done` этим burn-down PR'ом (`docs/skills-card-collapse-burn`).

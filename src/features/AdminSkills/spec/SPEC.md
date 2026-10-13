@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: skills-card-collapse
 created: '2026-10-12'
+verified: '2026-10-13'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
@@ -10,7 +11,7 @@ created: '2026-10-12'
 > Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки», done 2026-10-10, PR #205).
 > **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»), done 2026-10-11, PR #213.
 > **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), done 2026-10-12, PR #221; follow-up kit Tooltip combined-trigger — issue #222.
-> **rev.4 (2026-10-12):** эпик `skills-card-collapse` — сворачивание карточек категорий: иконка сворачивания в верхнем левом углу, свёрнутое состояние = полоска с `+` слева, подпись названия над полоской (vault `wiki/plan/plan_skills_card_collapse.md`, вердикты OPEN-1..4 r4 = A/B1/A/A, auto-режим). Companion: [TODO.md](./TODO.md).
+> **rev.4 (2026-10-13):** эпик `skills-card-collapse` — сворачивание карточек категорий (vault `wiki/plan/plan_skills_card_collapse.md`, вердикты OPEN-1..4 r4 = A/B1/A/A + директива владельца 2026-10-13 «все свёрнуты по умолчанию», auto-режим), **done 2026-10-13, PR #223** (squash `c350d0d`). §Критерии предыдущих эпиков сгорели вместе с их TODO. Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
