@@ -1,13 +1,16 @@
 // ============================================
-// JobsList tests (WorkHistory CRUD — plan §12 WU-5, §3, §6)
+// JobsList tests (jobs-detail-table WU-2, SPEC R-4/R-5)
 // ============================================
 //
-// RED-first contract: sorted rows (company, position[lang], period, the
-// current/featured badges), the empty state, Edit/Add callbacks for the
-// page-owned form, and Delete through a kit Modal confirm with persist
-// BEFORE dispatch (§3) + Toast feedback (§10). The react-redux store is a
-// mutable holder whose dispatched action REALLY removes the row, so "the
-// row disappears" is a true assertion, not a mocked one.
+// RED-first contract: one collapsed JobCard per record in the current sort
+// order (recent default = selectSortedJobs date-desc; company/position via
+// the header kit Select), the kit EmptyState on an empty list, Add/Edit
+// callbacks for the page-owned form, and Delete through the card's header
+// Trash2 → kit Modal confirm with persist BEFORE dispatch (§3) + Toast
+// feedback. The react-redux store is a mutable holder whose dispatched
+// action REALLY removes the record, so "the card disappears" is a true
+// assertion, not a mocked one. Pagination/PageSizeGroup/sort-column tests
+// are gone BY DESIGN — the DataTable left with WU-2.
 
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,7 +40,8 @@ vi.mock('../../model/slices/jobsSlice', async (importOriginal) => ({
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
 // The `company`/`number` options render as `${key}:${values}` (confirm
-// subtitle names the entity; Pagination aria-labels stay addressable).
+// subtitle names the entity; JobCard expand/collapse labels stay
+// addressable).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string, options?: { company?: string; number?: number }) => {
@@ -104,6 +108,7 @@ const NEWER = makeJob({
 const MIDDLE = makeJob({
   id: 'middle',
   company: 'Mid Co',
+  position: { en: 'Architect', ru: 'Архитектор' },
   startDate: new Date('2020-06-01'),
   endDate: new Date('2020-12-01'),
 });
@@ -119,12 +124,24 @@ const renderList = (props: Partial<React.ComponentProps<typeof JobsList>> = {}) 
   return merged;
 };
 
-/**
- * Body rows of the kit Table (the first `row` is the header). The vitrina
- * swap (WU-6) replaced `<li role="listitem">` rows with table rows — role
- * semantics move with the markup (Skills parity, design B).
- */
-const dataRows = (): HTMLElement[] => screen.getAllByRole('row').slice(1);
+/** Company captions in DOM order — every job renders as a collapsed card. */
+const captions = (): Array<string | null> =>
+  screen.queryAllByTestId(/^job-card-caption-/).map((el) => el.textContent);
+
+const changeSort = (value: string) =>
+  fireEvent.change(screen.getByTestId('admin-jobs-sort'), { target: { value } });
+
+/** Collapsed by default — expand the card so its header actions exist. */
+const expandCard = (company: string) =>
+  fireEvent.click(screen.getByRole('button', { name: `adminJobExpand:${company}` }));
+
+/** Header Trash2 of an EXPANDED card → opens the list-level confirm modal. */
+const openConfirmFromCard = (id: string) =>
+  fireEvent.click(
+    within(screen.getByTestId(`job-card-actions-${id}`)).getByRole('button', {
+      name: 'adminJobDelete',
+    })
+  );
 
 /** N distinct jobs: insertion order p1..pN, dates ascending. */
 const makeJobs = (count: number): Job[] =>
@@ -141,53 +158,103 @@ describe('JobsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     persistSpy.mockReturnValue(true);
-    holder.state.adminJobs = [OLDER, NEWER];
+    holder.state.adminJobs = [OLDER, NEWER, MIDDLE];
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders rows newest-first with company, position[lang] and period', () => {
+  // ---- R-5: cards + header ----
+
+  it('renders one collapsed card per job in selectSortedJobs (date-desc) order', () => {
     renderList();
 
-    const rows = dataRows();
-    expect(rows).toHaveLength(2);
-    expect(rows[0]).toHaveTextContent('New Co');
-    expect(rows[0]).toHaveTextContent('Lead Developer');
-    expect(rows[0]).toHaveTextContent('2022 — Present');
-    expect(rows[1]).toHaveTextContent('Old Co');
+    // Recent default: NEWER (2022) → MIDDLE (2020-06) → OLDER (2018).
+    expect(captions()).toEqual(['New Co', 'Mid Co', 'Old Co']);
     expect(screen.getByRole('heading', { level: 2, name: 'adminJobs' })).toBeInTheDocument();
+    // Collapsed by default — no detail tables in the document.
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('shows the current/featured badges only when the flag is true', () => {
+  it('renders ALL cards — pagination is gone with the DataTable (R-4)', () => {
+    holder.state.adminJobs = makeJobs(7);
     renderList();
 
-    expect(screen.getByText('adminJobCurrent')).toBeInTheDocument();
-    expect(screen.getByText('adminJobFeatured')).toBeInTheDocument();
-    expect(screen.getAllByText('adminJobCurrent')).toHaveLength(1);
-    expect(screen.getAllByText('adminJobFeatured')).toHaveLength(1);
+    // 7 > the old DEFAULT_PAGE_SIZE (5): every record is visible, no window.
+    expect(captions()).toHaveLength(7);
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
   });
 
-  it('renders the kit EmptyState instead of rows (R-4)', () => {
+  it('header add control is the kit IconButton and fires onAddJob', () => {
+    const { onAddJob } = renderList();
+
+    const add = screen.getByRole('button', { name: 'adminAddJob' });
+    // The text button is gone — the kit icon-only button carries the name.
+    expect(add).toHaveAttribute('data-testid', 'icon-button');
+
+    fireEvent.click(add);
+    expect(onAddJob).toHaveBeenCalledTimes(1);
+  });
+
+  it('expanded card Pencil fires onEditJob with the record', () => {
+    const { onEditJob } = renderList();
+
+    expandCard('New Co');
+    fireEvent.click(
+      within(screen.getByTestId('job-card-actions-newer')).getByRole('button', {
+        name: 'adminEditJob',
+      })
+    );
+    expect(onEditJob).toHaveBeenCalledWith(NEWER);
+  });
+
+  // ---- R-4: sort Select ----
+
+  it('sort Select defaults to recent; company/position reorder the cards', () => {
+    renderList();
+
+    const select = screen.getByTestId('admin-jobs-sort');
+    expect(select).toHaveValue('recent');
+    expect(captions()).toEqual(['New Co', 'Mid Co', 'Old Co']);
+
+    // Alpha by company: Mid < New < Old.
+    changeSort('company');
+    expect(captions()).toEqual(['Mid Co', 'New Co', 'Old Co']);
+
+    // Alpha by position[lang='en']: Architect (Mid) < Developer (Old) < Lead (New).
+    changeSort('position');
+    expect(captions()).toEqual(['Mid Co', 'Old Co', 'New Co']);
+
+    // Back to the selector order.
+    changeSort('recent');
+    expect(captions()).toEqual(['New Co', 'Mid Co', 'Old Co']);
+  });
+
+  // ---- R-5: EmptyState ----
+
+  it('renders the kit EmptyState instead of cards (R-5)', () => {
     holder.state.adminJobs = [];
     renderList();
 
     const title = screen.getByText('adminJobsEmpty');
-    // EmptyState's title slot is a div (kit) — not the old bare <p> Paragraph.
+    // EmptyState's title slot is a div (kit).
     expect(title.tagName).toBe('DIV');
-    // The slot renders as a tbody row — count DATA rows (testids), not rows.
-    expect(screen.queryAllByTestId(/^job-row-/)).toHaveLength(0);
+    expect(captions()).toHaveLength(0);
   });
 
-  it('wires Add/Edit callbacks for the page-owned form', () => {
-    const { onAddJob, onEditJob } = renderList();
+  // ---- R-5: confirm-modal delete parity (rev.2 tests, card Trash2) ----
 
-    fireEvent.click(screen.getByRole('button', { name: 'adminAddJob' }));
-    expect(onAddJob).toHaveBeenCalledTimes(1);
+  it('confirm modal names the company in its subtitle and focuses Cancel (R-3)', async () => {
+    renderList();
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'adminEditJob' })[0] as HTMLElement);
-    expect(onEditJob).toHaveBeenCalledWith(NEWER);
+    expandCard('New Co');
+    openConfirmFromCard('newer');
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByText('adminJobConfirmDeleteName:New Co')).toBeInTheDocument();
+    const cancel = within(modal).getByRole('button', { name: 'adminJobCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
   });
 
   it('deletes through the Modal confirm: persist → dispatch → toast → callback', async () => {
@@ -202,37 +269,33 @@ describe('JobsList', () => {
     });
     const { onJobDeleted } = renderList();
 
-    // §6: kit Modal confirm, not window.confirm.
-    const rows = dataRows();
-    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    expandCard('New Co');
+    openConfirmFromCard('newer');
     const modal = await screen.findByRole('dialog');
-    expect(within(modal).getByText('adminJobConfirmDelete')).toBeInTheDocument();
 
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
 
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
     expect(calls).toEqual(['persist', 'dispatch']);
-    expect(persistSpy).toHaveBeenCalledWith([OLDER]);
+    // Insertion order [OLDER, NEWER, MIDDLE] minus the deleted record.
+    expect(persistSpy).toHaveBeenCalledWith([OLDER, MIDDLE]);
     expect(deleteJobSpy).toHaveBeenCalledWith('newer');
-    expect(holder.state.adminJobs.map((job) => job.id)).toEqual(['older']);
+    expect(holder.state.adminJobs.map((job) => job.id)).toEqual(['older', 'middle']);
     expect(addToast).toHaveBeenCalledWith({ message: 'adminJobDeleted', type: 'success' });
     expect(onJobDeleted).toHaveBeenCalledWith('newer');
     expect(screen.queryByText('adminJobConfirmDelete')).not.toBeInTheDocument();
   });
 
   it('persists the deletion in selectAllJobs order, not the sorted render order (R-2)', async () => {
-    // Insertion order [older, newer, middle] ≠ sorted render [newer, middle, older].
-    holder.state.adminJobs = [OLDER, NEWER, MIDDLE];
+    // Insertion order [older, newer, middle] ≠ recent render [newer, middle, older].
     renderList();
 
-    const rows = dataRows();
-    expect(rows[0]).toHaveTextContent('New Co');
-    expect(rows[1]).toHaveTextContent('Mid Co');
-    expect(rows[2]).toHaveTextContent('Old Co');
+    expect(captions()).toEqual(['New Co', 'Mid Co', 'Old Co']);
 
-    // Delete the middle row: a sorted snapshot and an insertion-order
+    // Delete the visually-middle card: a sorted snapshot and an insertion-
     // snapshot agree on the COMPOSITION here but not on the ORDER.
-    fireEvent.click(within(rows[1] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    expandCard('Mid Co');
+    openConfirmFromCard('middle');
     const modal = await screen.findByRole('dialog');
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
 
@@ -243,10 +306,10 @@ describe('JobsList', () => {
 
   it('persist failure keeps the confirm modal open for retry (R-3)', async () => {
     persistSpy.mockReturnValue(false);
-    renderList();
+    const { onJobDeleted } = renderList();
 
-    const rows = dataRows();
-    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
+    expandCard('New Co');
+    openConfirmFromCard('newer');
     const modal = await screen.findByRole('dialog');
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
 
@@ -257,118 +320,26 @@ describe('JobsList', () => {
     // failure — the user can retry the same delete.
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(within(modal).getByRole('button', { name: 'adminJobDelete' })).toBeEnabled();
-  });
-
-  it('confirm modal names the company in its subtitle (R-3)', async () => {
-    renderList();
-
-    const rows = dataRows();
-    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
-    const modal = await screen.findByRole('dialog');
-
-    expect(within(modal).getByText('adminJobConfirmDeleteName:New Co')).toBeInTheDocument();
-  });
-
-  it('confirm modal focuses the Cancel button on open (R-3)', async () => {
-    renderList();
-
-    const rows = dataRows();
-    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
-    const modal = await screen.findByRole('dialog');
-    const cancel = within(modal).getByRole('button', { name: 'adminJobCancel' });
-
-    await waitFor(() => expect(document.activeElement).toBe(cancel));
-  });
-
-  it('keeps the record and skips dispatch when persist fails (§3)', async () => {
-    persistSpy.mockReturnValue(false);
-    const { onJobDeleted } = renderList();
-
-    const rows = dataRows();
-    fireEvent.click(within(rows[0] as HTMLElement).getByRole('button', { name: 'adminJobDelete' }));
-    const modal = await screen.findByRole('dialog');
-    fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
-
-    await waitFor(() =>
-      expect(addToast).toHaveBeenCalledWith({ message: 'adminJobPersistError', type: 'error' })
-    );
+    // §3: no dispatch, no callback, record untouched — the card is still
+    // expanded (its caption is unmounted while expanded, so assert the
+    // Card testid, not the caption).
     expect(deleteJobSpy).not.toHaveBeenCalled();
-    expect(holder.state.adminJobs).toHaveLength(2);
+    expect(holder.state.adminJobs).toHaveLength(3);
     expect(onJobDeleted).not.toHaveBeenCalled();
-    expect(screen.getByText('New Co')).toBeInTheDocument();
+    expect(screen.getByTestId('job-card-newer')).toBeInTheDocument();
   });
 
-  // ---- kit DataTable vitrina (admin-jobs-refactor WU-6, SPEC R-6) ----
-
-  it('header add control is the kit IconButton and fires onAddJob', () => {
-    const { onAddJob } = renderList();
-
-    const add = screen.getByRole('button', { name: 'adminAddJob' });
-    // R-6: the text button is gone — the kit icon-only button carries the name.
-    expect(add).toHaveAttribute('data-testid', 'icon-button');
-
-    fireEvent.click(add);
-    expect(onAddJob).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows size group + navigation whenever rows exist, even on one page (A5)', () => {
-    renderList(); // 2 rows ≤ default size 5
-
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
-    const sizes = screen.getByRole('group', { name: 'perPageLabel' });
-    expect(within(sizes).getByRole('button', { name: '5' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    );
-  });
-
-  it('paginates: page 2 shows the remaining rows (kit Pagination)', () => {
-    holder.state.adminJobs = makeJobs(7);
+  it('the deleted card actually disappears from the list', async () => {
     renderList();
 
-    // Sorted render (selectSortedJobs): p7..p1 — page 1 holds p7..p3.
-    expect(dataRows()).toHaveLength(5);
-    expect(screen.getByRole('button', { name: 'paginationPage:2' })).toBeInTheDocument();
+    expect(captions()).toContain('New Co');
 
-    fireEvent.click(screen.getByText('2'));
-
-    expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-    expect(dataRows()).toHaveLength(2);
-    expect(screen.queryByTestId('job-row-p7')).toBeNull();
-    expect(screen.getByTestId('job-row-p2')).toBeInTheDocument();
-    expect(screen.getByTestId('job-row-p1')).toBeInTheDocument();
-  });
-
-  it('sorting resets the page to 1 (Skills WU-5a pattern)', () => {
-    holder.state.adminJobs = makeJobs(7);
-    renderList();
-
-    fireEvent.click(screen.getByText('2'));
-    expect(screen.getByText('2')).toHaveAttribute('aria-current', 'page');
-    expect(screen.queryByTestId('job-row-p7')).toBeNull();
-
-    fireEvent.click(screen.getByRole('button', { name: 'adminJobsTableCompany' }));
-
-    // The user sees the TOP of the freshly sorted order, never a stale window.
-    expect(screen.getByText('1')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'ascending');
-    expect(screen.getByTestId('job-row-p1')).toBeInTheDocument();
-  });
-
-  it('the deleted row actually disappears from the table', async () => {
-    renderList();
-
-    expect(screen.getByTestId('job-row-newer')).toBeInTheDocument();
-
-    fireEvent.click(
-      within(screen.getByTestId('job-actions-newer')).getByRole('button', {
-        name: 'adminJobDelete',
-      })
-    );
+    expandCard('New Co');
+    openConfirmFromCard('newer');
     const modal = await screen.findByRole('dialog');
     fireEvent.click(within(modal).getByRole('button', { name: 'adminJobDelete' }));
 
-    await waitFor(() => expect(screen.queryByTestId('job-row-newer')).not.toBeInTheDocument());
-    expect(dataRows()).toHaveLength(1);
+    await waitFor(() => expect(captions()).not.toContain('New Co'));
+    expect(captions()).toEqual(['Mid Co', 'Old Co']);
   });
 });
