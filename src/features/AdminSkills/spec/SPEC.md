@@ -1,16 +1,16 @@
 ---
 status: done
-epic: skills-icon-upload
-issue: 213
-created: '2026-10-10'
-verified: '2026-10-11'
+epic: skills-actions-polish
+created: '2026-10-12'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
 > Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки», done 2026-10-10, PR #205).
-> **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»). §Критерии предыдущего эпика сгорели вместе с TODO #205; ниже — контракт нового эпика. Companion: [TODO.md](./TODO.md).
+> **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»), done 2026-10-11, PR #213.
+> **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), **done 2026-10-12, PR #221**; follow-up kit Tooltip combined-trigger — issue #222. §Критерии предыдущих эпиков сгорели вместе с их TODO; ниже — критерии нового эпика. Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
@@ -20,7 +20,7 @@ verified: '2026-10-11'
 ## Контекст
 
 - Слой: `features/AdminSkills` (список + формы), композиция страницы — `src/pages/Admin/ui/AdminSkillsPage`; данные — `src/entities/Skill` + слайс `adminSkills` + storage `persistSkills` (persist-THEN-dispatch).
-- Кит: `DataTable` (сортировка/пагинация контролируемые, `emptyState`-слот, **нет header-слота**), `Modal` (controlled, ESC/оверлей), `Select` (уже в обеих формах), `Badge`, `EmptyState`, `Heading`, `Form`, `Input`, `Textarea`, `Button`, `Toast`.
+- Кит: `DataTable` (сортировка/пагинация контролируемые, `emptyState`-слот, **нет header-слота**), `Modal` (controlled, ESC/оверлей), `Select` (уже в обеих формах), `Badge`, `EmptyState`, `Heading`, `Form`, `Input`, `Textarea`, `Button`, `Toast`; rev.3 дополнительно: `IconButton` (обязательный `ariaLabel`), `Tooltip` (`content`, 12 placements, `autoAdjust`), `Card` (`hoverable`, `size`), `Icon`-обёртка + `lucide-react`.
 - Сегодняшнее состояние (факт): одна ПЛОСКАЯ DataTable на весь список (строки = технологии + placeholder пустых категорий), формы рендерятся ИНЛАЙН под списком, кнопка «Добавить технологию» — в строке первой категории в окне, фильтров нет, `PAGE_SIZE = 12`, удаление категории каскадное без отдельного предупреждения.
 - Модель данных (факт): у `Technology` нет числовых полей-счётчиков (`name`, `iconSvg`, `invertInDark?`, `iconFilter?`).
 
@@ -29,15 +29,16 @@ verified: '2026-10-11'
 ```
 Section (data-testid="admin-skills")
 ├─ ErrorBoundary
-├─ Шапка: Heading(h2) + Paragraph(hint) | Button «Добавить категорию» | Button «Сбросить»
-├─ Блок категории × N (порядок из хранилища — вердикт OPEN-6):
+├─ Шапка: Heading(h2) + Paragraph(hint) | IconButton «Добавить категорию» (Plus, md) | IconButton «Сбросить» (RotateCcw, md) — rev.3
+├─ Блок категории × N (порядок из хранилища — вердикт OPEN-6), КАЖДЫЙ В КИТ Card (rev.3, вердикт OPEN-2):
+│   ├─ Card: variant=default, size="default", hoverable={false}, className=.block, height:auto (см. §Внешний вид)
 │   ├─ Heading(h3): categoryName + Badge с видимой plural-формой счётчика (вердикт OPEN-8, ключ skillsCategoryCount)
-│   ├─ Шапка блока: Button «Добавить технологию» (вердикт OPEN-3)
-│   ├─ DataTable: caption = categoryName; колонки «Технология» (sortable) | «Действия»
+│   ├─ Шапка блока (прижата вправо — rev.3): IconButton «Редактировать категорию» (Pencil) | IconButton «Добавить технологию» (Plus) | IconButton «Удалить» (Trash2) — каждый в kit Tooltip
+│   ├─ DataTable: caption = categoryName; колонки «Технология» (sortable) | «Действия» (иконки прижаты вправо — rev.3)
 │   │   ├─ верхняя строка DataTable: PageSizeGroup 5/10/20 (дефолт 5 — вердикт OPEN-1; рендерит kit, только при строках > 0)
 │   │   └─ пустая категория → EmptyState (ключ skillsCategoryEmpty — вердикт OPEN-7), без контролов
 │   └─ пагинация DataTable (локальное состояние блока — A4)
-└─ Модалки: форма категории | форма технологии | подтверждение (tech/category/reset)
+└─ Модалки: форма категории | форма технологии | подтверждение (tech/category/reset) — кнопки модалки остаются ТЕКСТОВЫМИ (rev.3)
 ```
 
 > Плейсмент (факт): «шапка таблицы» = строка блока категории НАД `DataTable` (header-слота у DataTable нет); сам `PageSizeGroup` рендерится `DataTable` первой строкой над телом (пропсы от контейнера блока) и гасится при 0 строк (`DataTable.tsx:150–151`).
@@ -79,6 +80,19 @@ Section (data-testid="admin-skills")
 | «Редактировать категорию» (`skillsEditCategory`)    | действия блока категории               | Открыть модалку `SkillCategoryForm` в edit-режиме (существующая кнопка, семантика сохраняется).                                                       |
 | «Удалить» (`skillsDelete`)                          | колонка «Действия» (строка/блок)       | Открыть confirm-модалку (см. ниже).                                                                                                                   |
 
+### Внешний вид действий (rev.3, эпик skills-actions-polish) — РЕШЕНО (вердикт 2026-10-12)
+
+Все 7 кнопок действий из таблицы выше конвертируются из текстовых kit `Button` в kit `IconButton` с kit `Tooltip`; кнопки МОДАЛКИ подтверждения («Отмена»/«Удалить») остаются текстовыми.
+
+- **Композиция:** `<Tooltip content={t(key)} position="top"><IconButton icon={<Icon name={…} size={20} color="inherit" decorative />} ariaLabel={t(key)} variant/size как у текущих Button} … /></Tooltip>`; `ariaLabel` и тултип — ОДИН И ТОТ ЖЕ существующий i18n-ключ (новых ключей нет — вердикт OPEN-3=A плана).
+- **Иконки (lucide-react):** `Plus` — добавить категорию/технологию; `RotateCcw` — сброс; `Pencil` — редактирование; `Trash2` — удаление. Паттерн — `MyWorkEditorList.tsx:228-241` (kit `Icon`-обёртка, `inferIconSize` доресайзивает).
+- **Размеры:** строки и шапки блоков — `size="sm"` (32×32, ≥24px WCAG 2.5.8 — подтверждено `IconButton.module.scss:65-73`); шапка страницы — `size="md"` (40×40), как header MyWork.
+- **Варианты:** сохраняются 1:1 от текущих кнопок (outline/primary/danger — вердикт OPEN-4=A); `variant="danger"` — семантический алиас kit (primary + colorScheme danger, `resolveButtonAppearance.ts`), руками не переписывать.
+- **Правый прижим (вердикт OPEN-1=A):** шапка блока — `justify-content: flex-end`; ячейка «Действия» — `margin-left: auto`/`flex-end` через класс `.actions` в `SkillsEditorList.module.scss`. DataTable колонки `align` не имеют — CSS на потребителе, kit не правится (вердикт OPEN-3 плана). Соседние списки (MyWork/Jobs) прижима не имеют — Skills первый, их не трогаем.
+- **Card-границы блока (вердикт OPEN-2=A):** `<section>` категории → kit `Card` `variant` default + `size="default"` (padding 16px) + `hoverable={false}` (гасит hover-lift `Card.module.scss:17-21` через `.noHover`) + `className={styles.block}` с `height: auto` (базовый миксин фиксирует 220px — `_card-mixins.scss:4`); `data-testid="skills-category-block-*"` пробрасывается restProps'ом. Заголовок страницы (h2+hint+header-иконки) остаётся СНАРУЖИ карточек. Админ-прецедент — `StatCard.tsx:22`.
+- **Tooltip:** `position="top"` пиним явно; kit `autoAdjust` (types.ts:48-49) не отключать — правый край вьюпорта; **trigger = hover (дефолт kit)** — RED-тест закрепляет hover/unhover; focus-визуал НЕ открывает тултип (см. A14), имя кнопки на focus несёт `aria-label`.
+- **Тесты:** существующие `getByRole('button', { name: <ключ> })` переживают (ariaLabel = прежний ключ); добавляются тесты видимости тултипа по hover/unhover.
+
 ### Модальное окно формы (create/edit) — РЕШЕНО (вердикт 2026-10-10)
 
 > Вердикт владельца (OPEN-2: «переносить однозначно»): формы создания/редактирования переносятся в `Modal` (сегодня они инлайн под списком).
@@ -117,6 +131,7 @@ Section (data-testid="admin-skills")
 ### i18n
 
 - Все строки — через `t()`; **переиспользовать существующие ключи**, где они уже есть: счётчик `skillsCategoryCount_one/_few/_many/_other` (обе локали, витрина `SkillItem.tsx:52`), `skillsDelete`/`skillsReset`. Новыми будут только: `skillsCategoryEmpty` (вердикт OPEN-7) + тексты подтверждения с именем сущности через interpolation `{{name}}` (вердикты OPEN-4 + OPEN-10) + подписи контролов/фильтра. Всё новое — в `en.json` + `ru.json`, паритет закреплён тестом; захардкоженных строк нет (критерий ниже).
+- **rev.3:** новых ключей НЕТ — ariaLabel IconButton и `content` Tooltip берут те же 7 ключей действий (`skillsAddCategory`, `skillsReset`, `skillsEditCategory`, `skillsAddTechnology`, `skillsDelete`, `skillsEditTechnology`); дифф локалей пуст, parity-тест не правится.
 
 ## Решено вердиктом владельца
 
@@ -132,17 +147,26 @@ Section (data-testid="admin-skills")
 | OPEN-9          | Confirm при ошибке storage: модалка **остаётся открытой** (вердикт: «унифицируем»), единообразно с формой; тост `skillsPersistError`.                                                                                 |
 | OPEN-10         | Текст подтверждения называет сущность («Удалить React?»; категория — текст OPEN-4 с количеством), кнопка остаётся «Удалить» (вердикт: «Вариант А»).                                                                   |
 
+**Вердикты rev.3 (эпик `skills-actions-polish`, владелец 2026-10-12, нумерация своя):**
+
+| #           | Решение (2026-10-12)                                                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OPEN-1 (r3) | Правый прижим действий — CSS на `.actions` потребителя, без правки kit DataTable (вариант A).                                                                     |
+| OPEN-2 (r3) | Card на КАЖДЫЙ категорийный блок (вариант A): default-variant + `size="default"` + `hoverable={false}` + `height: auto`; заголовок страницы — снаружи карточек.   |
+| OPEN-3 (r3) | Все 7 кнопок действий → IconButton+Tooltip, включая header-кнопки (вариант A); новых i18n-ключей нет — существующие ключи становятся ariaLabel и текстом тултипа. |
+| OPEN-4 (r3) | Варианты кнопок сохраняются 1:1 (outline/primary/danger — вариант A), унификация до ghost отклонена.                                                              |
+
 ## Требует уточнения (OPEN)
 
-Все OPEN (OPEN-1…OPEN-10) закрыты вердиктами владельца 2026-10-10 (см. §Решено); новых вопросов нет.
+Все OPEN rev.1 (OPEN-1…OPEN-10) закрыты вердиктами 2026-10-10 (см. §Решено); все OPEN rev.3 (OPEN-1..4 r3) закрыты вердиктами 2026-10-12 (см. §Решено, таблица rev.3). Новых вопросов нет.
 
 ## Предположения (A)
 
-A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз.
+A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз · **A13 (rev.3)** outline-Badge в заголовке блока визуально не меняется внутри Card (цвет наследуется `--color-text`, совпадает; проверка light+dark в preview, при дрейфе — вложить селектор, kit не править — gotcha `resume-card-p-inherit`) · **A14 (rev.3, поправка 2026-10-12 после верификации kit)** kit `Tooltip` строго однорежимный: `TooltipTriggerType = 'hover' | 'focus' | 'click'` (types.ts:16), `handleFocus` gated на `activeTrigger === 'focus'` (useTooltip.ts:251-255) — комбинированного «hover+focus» НЕТ. Решение (владелец подтвердил 2026-10-12): **hover-only**, kit не правим (запрет эпика); клавиатурный доступ — через обязательный `aria-label` (SR объявляет имя при focus, WCAG покрыт). Визуальный тултип по focus — follow-up ишью на улучшение kit (combined trigger), вне этого эпика · **A15 (rev.3)** span-обёртка Tooltip (триггер по умолчанию `as='span'`) вокруг IconButton семантически и визуально нейтральна.
 
 ## Критерии приёмки
 
-> Все OPEN (OPEN-1…OPEN-10) закрыты вердиктами 2026-10-10; условных (отложенных) критериев не осталось.
+> Критерии rev.1/rev.2 (блоки, модалки, сортировка, загрузка иконки) закрыты их эпиками (#205/#213) и сгорели вместе с их TODO; ниже — живой контракт и критерии rev.3 (эпик `skills-actions-polish`).
 
 ### Структура
 
@@ -178,3 +202,19 @@ A1 модалки форм (вердикт OPEN-2) · A2 порядок из sto
 - [ ] Все строки блока — i18n-ключи en+ru (паритет-тест зелёный); захардкоженных строк нет.
 - [ ] `npm run validate` зелёный; `check:axe` — 0 регрессий на всех путях `PATHS` (`/`, `/admin`, `/admin/skills`, `/admin/jobs` — `scripts/purge-axe-check.mjs:36`); `check:bundle` в лимите (737280 B); `check:public-api` зелёный.
 - [ ] Критерии §Кнопки и модалки закреплены тестами страницы `AdminSkillsPage.test.tsx` (создаётся в рамках этой работы — его сегодня нет); существующие `SkillsEditorList.test` обновлены под per-category DOM; формы-тесты (SkillCategoryForm/TechnologyForm) не меняются — модалки заворачивает страница.
+
+### rev.3 — Иконки с подсказками, правый прижим, Card (эпик skills-actions-polish)
+
+Структура и поведение:
+
+- [ ] Все 7 кнопок действий — kit `IconButton`: 2 в шапке страницы (`Plus`/`RotateCcw`, md), 3 в шапке блока и 2 в колонке «Действия» (`Pencil`/`Plus`/`Trash2`, sm); текстовых Button-кнопок действий не осталось; кнопки модалки подтверждения — текстовые (не тронуты).
+- [ ] У каждой IconButton — `ariaLabel` на существующем i18n-ключе (тесты `getByRole('button', { name: <ключ> })` зелёные без правок имен).
+- [ ] Над каждой IconButton — kit `Tooltip`, содержимое = тот же i18n-ключ; тултип виден по hover (и скрывается по unhover); новых ключей в `en.json`/`ru.json` нет (parity-тест зелёный, диффа локалей нет).
+- [ ] Кнопки шапки блока и иконки в колонке «Действия» прижаты к правому краю (`justify-content: flex-end` / `margin-left: auto`).
+- [ ] Каждый категорийный блок обёрнут в kit `Card` (`variant` default, `size="default"`, `hoverable={false}`, `height: auto`); `data-testid="skills-category-block-*"` сохранён; заголовок страницы — вне карточек; при наведении на карточку нет hover-lift.
+
+Качество rev.3:
+
+- [ ] Тултипы работают в light И dark (preview-сверка); outline-Badge в шапке блока внутри Card визуально не изменился (A13) либо дрейф устранён вложением селектора в потребителе.
+- [ ] `npm run validate` зелёный; `check:axe` — 0 регрессий (в т.ч. `/admin/skills` light+dark); `check:bundle` < 744 KiB (737280 B); `check:public-api` 37/37.
+- [ ] axe-stories НЕ применяется (сторис у AdminSkills нет — факт ревизии rev.3); визуальная проверка — dev preview.

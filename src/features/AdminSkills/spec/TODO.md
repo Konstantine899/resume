@@ -3,10 +3,10 @@ status: done
 spec: SPEC.md
 ---
 
-# TODO — features/AdminSkills (загрузка иконки, rev.2)
+# TODO — features/AdminSkills (действия-иконки, rev.3)
 
-Компаньон к [SPEC.md](./SPEC.md) rev.2 (эпик `skills-icon-upload`). Все рабочие единицы сгорены
-(WU-0 вердикты, WU-1 raw-SVG passthrough в kit FileUpload, WU-2 контракт `iconSvg` формы,
-WU-3 замена Select на FileUpload, WU-4 гейты, WU-5 git flow + burn-down) — эпик закрыт
-2026-10-11, PR #213, squash `363baf8`, ветка `feat/skills-icon-upload` удалена.
-Предыдущий эпик `admin-panel-edit` сгорел ранее (PR #205, 2026-10-10).
+> **Закрыто 2026-10-12**: эпик `skills-actions-polish` выполнен в auto-режиме, squash **PR #221** (`6806cc4` WU-1 → `7143135` WU-2 → `e86196f` правка заголовка колонки по итогам превью-ревизии). Контракт закрыт: SPEC rev.3 `status: done`, `verified: '2026-10-12'`.
+>
+> Гейты: validate 3506/3506, axe-app 0 регрессий (baseline 4), bundle 744 KiB cap зелёный, public-api 37/37; превью light+dark — 6 Card-блоков, тултипы hover, «Действия» справа.
+>
+> Отклонение по ходу: kit Tooltip оказался строго однорежимным (hover|focus|click) — владелец утвердил hover-only (SPEC A14), keyboard-доступ через aria-label; follow-up: issue #222 (combined trigger). Партнёр-файлы: SPEC.md, vault `wiki/plan/plan_skills_actions_polish.md`.

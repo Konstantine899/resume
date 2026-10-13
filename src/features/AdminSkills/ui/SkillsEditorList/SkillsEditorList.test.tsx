@@ -267,6 +267,66 @@ describe('SkillsEditorList', () => {
     expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'React');
   });
 
+  // ---- rev.3 icon actions: hover tooltips (SPEC A14 — hover-only kit) ----
+  describe('Action tooltips (rev.3)', () => {
+    /**
+     * Hover shows the tooltip with the SAME i18n key the button uses as
+     * aria-label; unhover hides it again (A14: kit Tooltip is hover-only).
+     */
+    const expectHoverTooltip = async (button: HTMLElement, key: string) => {
+      fireEvent.mouseEnter(button);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(key);
+      fireEvent.mouseLeave(button);
+      await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
+    };
+
+    it('page header icon buttons (add category, reset) reveal their tooltip on hover', async () => {
+      renderList();
+
+      await expectHoverTooltip(
+        screen.getByRole('button', { name: 'skillsAddCategory' }),
+        'skillsAddCategory'
+      );
+      await expectHoverTooltip(screen.getByRole('button', { name: 'skillsReset' }), 'skillsReset');
+    });
+
+    it('block header icon buttons (edit, add technology, delete) reveal their tooltip on hover', async () => {
+      renderList();
+
+      const actions = categoryActions('frontend');
+      await expectHoverTooltip(
+        actions.getByRole('button', { name: 'skillsEditCategory' }),
+        'skillsEditCategory'
+      );
+      await expectHoverTooltip(
+        actions.getByRole('button', { name: 'skillsAddTechnology' }),
+        'skillsAddTechnology'
+      );
+      await expectHoverTooltip(
+        actions.getByRole('button', { name: 'skillsDelete' }),
+        'skillsDelete'
+      );
+    });
+
+    it('row icon buttons (edit technology, delete) reveal their tooltip on hover', async () => {
+      renderList();
+
+      const row = techActions('React');
+      await expectHoverTooltip(
+        row.getByRole('button', { name: 'skillsEditTechnology' }),
+        'skillsEditTechnology'
+      );
+      await expectHoverTooltip(row.getByRole('button', { name: 'skillsDelete' }), 'skillsDelete');
+    });
+
+    it('focus does NOT open the visual tooltip (A14: hover-only, name via aria-label)', () => {
+      renderList();
+
+      fireEvent.focus(screen.getByRole('button', { name: 'skillsAddCategory' }));
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+  });
+
   // WU-4: pin the placement map after WU-5 — section header / block header / row column.
   it('places every action per the placement map (section / block header / row column)', () => {
     renderList();
@@ -278,15 +338,16 @@ describe('SkillsEditorList', () => {
     expect(within(section).getByRole('button', { name: 'skillsReset' })).toBeInTheDocument();
 
     // Block header (OPEN-3): exactly Edit category / Add technology / Delete category.
+    // rev.3: icon buttons carry no text — the map pins their aria-labels.
     const blockButtons = categoryActions('frontend')
       .getAllByRole('button')
-      .map((button) => button.textContent);
+      .map((button) => button.getAttribute('aria-label'));
     expect(blockButtons).toEqual(['skillsEditCategory', 'skillsAddTechnology', 'skillsDelete']);
 
     // Row actions column: ONLY that technology's Edit + Delete (SPEC) — no add.
     const rowButtons = techActions('React')
       .getAllByRole('button')
-      .map((button) => button.textContent);
+      .map((button) => button.getAttribute('aria-label'));
     expect(rowButtons).toEqual(['skillsEditTechnology', 'skillsDelete']);
   });
 

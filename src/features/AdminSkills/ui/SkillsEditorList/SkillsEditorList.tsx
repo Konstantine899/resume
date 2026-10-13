@@ -26,13 +26,17 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Badge } from '@/shared/ui/Badge';
-import { Button } from '@/shared/ui/Button';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { DataTable } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SkillCategoryData } from '@/entities/Skill';
@@ -200,28 +204,32 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       header: t('skillsTableActions'),
       render: (row) => (
         <div className={styles.actions} data-testid={`skill-tech-actions-${row.techName}`}>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
-          >
-            {t('skillsEditTechnology')}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            size="sm"
-            onClick={() =>
-              setPending({
-                kind: 'technology',
-                categoryId: row.entry.category,
-                techName: row.techName,
-              })
-            }
-          >
-            {t('skillsDelete')}
-          </Button>
+          <Tooltip content={t('skillsEditTechnology')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="sm"
+              icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsEditTechnology')}
+              onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
+            />
+          </Tooltip>
+          <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="danger"
+              size="sm"
+              icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsDelete')}
+              onClick={() =>
+                setPending({
+                  kind: 'technology',
+                  categoryId: row.entry.category,
+                  techName: row.techName,
+                })
+              }
+            />
+          </Tooltip>
         </div>
       ),
     },
@@ -235,17 +243,26 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           <Paragraph theme="muted">{t('adminSkillsHint')}</Paragraph>
         </div>
         <div className={styles.headerActions}>
-          <Button type="button" variant="primary" size="sm" onClick={() => onAddCategory?.()}>
-            {t('skillsAddCategory')}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setPending({ kind: 'reset' })}
-          >
-            {t('skillsReset')}
-          </Button>
+          <Tooltip content={t('skillsAddCategory')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="primary"
+              size="md"
+              icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsAddCategory')}
+              onClick={() => onAddCategory?.()}
+            />
+          </Tooltip>
+          <Tooltip content={t('skillsReset')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="md"
+              icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsReset')}
+              onClick={() => setPending({ kind: 'reset' })}
+            />
+          </Tooltip>
         </div>
       </div>
 
@@ -275,8 +292,11 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           const rangeTo = Math.min(start + pageSize, techRows.length);
 
           return (
-            <section
+            <Card
               key={entry.category}
+              variant="default"
+              size="default"
+              hoverable={false}
               className={styles.block}
               data-testid={`skills-category-block-${entry.category}`}
             >
@@ -291,30 +311,36 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                   className={styles.actions}
                   data-testid={`skill-category-actions-${entry.category}`}
                 >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEditCategory?.(entry)}
-                  >
-                    {t('skillsEditCategory')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onAddTechnology?.(entry.category)}
-                  >
-                    {t('skillsAddTechnology')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
-                  >
-                    {t('skillsDelete')}
-                  </Button>
+                  <Tooltip content={t('skillsEditCategory')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                      ariaLabel={t('skillsEditCategory')}
+                      onClick={() => onEditCategory?.(entry)}
+                    />
+                  </Tooltip>
+                  <Tooltip content={t('skillsAddTechnology')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                      ariaLabel={t('skillsAddTechnology')}
+                      onClick={() => onAddTechnology?.(entry.category)}
+                    />
+                  </Tooltip>
+                  <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                      ariaLabel={t('skillsDelete')}
+                      onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
+                    />
+                  </Tooltip>
                 </div>
               </div>
 
@@ -353,7 +379,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                   </span>
                 </div>
               )}
-            </section>
+            </Card>
           );
         })
       )}
