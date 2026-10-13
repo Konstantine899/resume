@@ -299,7 +299,8 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           const rangeFrom = techRows.length > 0 ? start + 1 : 0;
           const rangeTo = Math.min(start + pageSize, techRows.length);
 
-          const isCollapsed = collapsed[entry.category] ?? false;
+          // Owner directive 2026-10-13: cards are COLLAPSED by default.
+          const isCollapsed = collapsed[entry.category] ?? true;
           // Stable per-category id: aria-controls resolves before AND after
           // the unmount/remount roundtrip (rev.4 ARA test).
           const contentId = `skills-category-content-${entry.category}`;

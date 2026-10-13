@@ -148,7 +148,14 @@ const SEED: SkillCategoryData[] = [
   },
 ];
 
-const renderList = (props: Partial<React.ComponentProps<typeof SkillsEditorList>> = {}) => {
+// Owner directive 2026-10-13: cards are COLLAPSED by default. The legacy
+// suites below predate that rule, so `renderList` expands every block
+// after render (unless `{ expand: false }`); the rev.4 describe covers
+// the collapsed default explicitly.
+const renderList = (
+  props: Partial<React.ComponentProps<typeof SkillsEditorList>> = {},
+  { expand = true }: { expand?: boolean } = {}
+) => {
   const defaults = {
     onAddCategory: vi.fn(),
     onEditCategory: vi.fn(),
@@ -158,7 +165,13 @@ const renderList = (props: Partial<React.ComponentProps<typeof SkillsEditorList>
     onTechnologyDeleted: vi.fn(),
   };
   const merged = { ...defaults, ...props };
-  return { ...render(<SkillsEditorList {...merged} />), ...merged };
+  const utils = render(<SkillsEditorList {...merged} />);
+  if (expand) {
+    screen
+      .getAllByRole('button', { name: /skillsExpandCategory/ })
+      .forEach((control) => fireEvent.click(control));
+  }
+  return { ...utils, ...merged };
 };
 
 /** Buttons of one technology row (row actions, unchanged ids). */
@@ -691,6 +704,24 @@ describe('SkillsEditorList', () => {
 
   // ---- rev.4 collapse: cards collapse to a strip (epic skills-card-collapse) ----
   describe('Category card collapse (rev.4)', () => {
+    it('renders every card COLLAPSED by default (owner directive 2026-10-13)', () => {
+      renderList({}, { expand: false });
+
+      // Captions + expand strips are the initial UI; no tables, no h3.
+      expect(screen.getByTestId('skills-category-caption-frontend')).toBeInTheDocument();
+      expect(screen.getByTestId('skills-category-caption-backend')).toBeInTheDocument();
+      expect(
+        block('frontend').getByRole('button', { name: 'skillsExpandCategory:Frontend' })
+      ).toBeInTheDocument();
+      expect(
+        block('backend').getByRole('button', { name: 'skillsExpandCategory:Backend' })
+      ).toBeInTheDocument();
+      expect(screen.queryAllByRole('table')).toHaveLength(0);
+      expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
+      // No collapse control while collapsed — only the strip.
+      expect(screen.queryByRole('button', { name: /skillsCollapseCategory/ })).toBeNull();
+    });
+
     it('collapses a card: header/table/footer unmount, caption + strip with the expand control appear', () => {
       renderList();
 
@@ -839,9 +870,7 @@ describe('SkillsEditorList', () => {
         name: 'skillsExpandCategory:Frontend',
       });
       fireEvent.mouseEnter(strip);
-      expect(await screen.findByRole('tooltip')).toHaveTextContent(
-        'skillsExpandCategory:Frontend'
-      );
+      expect(await screen.findByRole('tooltip')).toHaveTextContent('skillsExpandCategory:Frontend');
     });
   });
 });
