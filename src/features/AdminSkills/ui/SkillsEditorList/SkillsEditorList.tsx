@@ -22,11 +22,17 @@
 //   `onSortChange` to that block's table; page and sort state are keyed
 //   by category (A4), and a sort resets only its own table to page 1.
 // - A6: no heading elements inside cells — first cell is <strong>.
+//
+// rev.4 (epic skills-card-collapse): every card is collapsible. A
+// collapse IconButton (Minus) sits LEFT of the h3; collapsing unmounts
+// the header/table/footer branch and renders a caption (category name)
+// OUTSIDE the Card, above a strip card whose whole body is the expand
+// button (Plus). Collapse state is per category, default expanded (A15).
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { Minus, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Badge } from '@/shared/ui/Badge';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
@@ -111,6 +117,8 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   const [pages, setPages] = useState<Record<string, number>>({});
   const [sorts, setSorts] = useState<Record<string, SortState | null>>({});
   const [sizes, setSizes] = useState<Record<string, number>>({});
+  // A15: per-category collapse, absent/false = expanded; NO persistence.
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const closeModal = () => {
     setPending(null);
@@ -291,95 +299,164 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           const rangeFrom = techRows.length > 0 ? start + 1 : 0;
           const rangeTo = Math.min(start + pageSize, techRows.length);
 
+          const isCollapsed = collapsed[entry.category] ?? false;
+          // Stable per-category id: aria-controls resolves before AND after
+          // the unmount/remount roundtrip (rev.4 ARA test).
+          const contentId = `skills-category-content-${entry.category}`;
+          const collapseLabel = t('skillsCollapseCategory', { name: entry.categoryName });
+          const expandLabel = t('skillsExpandCategory', { name: entry.categoryName });
+
+          const collapseBlock = () => {
+            setCollapsed((prev) => ({ ...prev, [entry.category]: true }));
+            // A16: sort/page of the block reset WITH the collapse — the parent
+            // holds them across the unmount, so clearing is explicit (size stays).
+            setSorts((prev) => ({ ...prev, [entry.category]: null }));
+            setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+          };
+          const expandBlock = () => setCollapsed((prev) => ({ ...prev, [entry.category]: false }));
+
           return (
-            <Card
-              key={entry.category}
-              variant="default"
-              size="default"
-              hoverable={false}
-              className={styles.block}
-              data-testid={`skills-category-block-${entry.category}`}
-            >
-              <div className={styles.blockHeader}>
-                <Heading level={3}>
-                  {entry.categoryName}{' '}
-                  <Badge variant="outline" size="sm">
-                    {t('skillsCategoryCount', { count: entry.technologies.length })}
-                  </Badge>
-                </Heading>
+            <div className={styles.categoryGroup} key={entry.category}>
+              {isCollapsed && (
+                // OPEN-2 r4 = B1: caption OUTSIDE the Card, above the strip.
                 <div
-                  className={styles.actions}
-                  data-testid={`skill-category-actions-${entry.category}`}
+                  className={styles.caption}
+                  data-testid={`skills-category-caption-${entry.category}`}
                 >
-                  <Tooltip content={t('skillsEditCategory')} position="top" showDelay={0}>
-                    <IconButton
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
-                      ariaLabel={t('skillsEditCategory')}
-                      onClick={() => onEditCategory?.(entry)}
-                    />
-                  </Tooltip>
-                  <Tooltip content={t('skillsAddTechnology')} position="top" showDelay={0}>
-                    <IconButton
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
-                      ariaLabel={t('skillsAddTechnology')}
-                      onClick={() => onAddTechnology?.(entry.category)}
-                    />
-                  </Tooltip>
-                  <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
-                    <IconButton
-                      type="button"
-                      variant="danger"
-                      size="sm"
-                      icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
-                      ariaLabel={t('skillsDelete')}
-                      onClick={() => setPending({ kind: 'category', categoryId: entry.category })}
-                    />
-                  </Tooltip>
-                </div>
-              </div>
-
-              <DataTable<TechRow>
-                caption={entry.categoryName}
-                columns={makeColumns()}
-                rows={techRows}
-                getKey={(row) => row.id}
-                page={pages[entry.category] ?? 1}
-                pageSize={pageSize}
-                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                onPageSizeChange={(next) => {
-                  setSizes((prev) => ({ ...prev, [entry.category]: next }));
-                  // A new size re-windows everything — top of page 1 of the
-                  // new order (SPEC A4/WU-3; A10 has no empty page either).
-                  setPages((prev) => ({ ...prev, [entry.category]: 1 }));
-                }}
-                onPageChange={(next) => setPages((prev) => ({ ...prev, [entry.category]: next }))}
-                sort={sorts[entry.category] ?? null}
-                onSortChange={(next) => {
-                  setSorts((prev) => ({ ...prev, [entry.category]: next }));
-                  // A sort the user cannot SEE reads as a broken button:
-                  // reset only THIS table to the top of the new order (A9).
-                  setPages((prev) => ({ ...prev, [entry.category]: 1 }));
-                }}
-                emptyState={<EmptyState title={t('skillsCategoryEmpty')} compact />}
-              />
-
-              {techRows.length > 0 && (
-                <div
-                  className={styles.footer}
-                  data-testid={`skills-pagination-footer-${entry.category}`}
-                >
-                  <span className={styles.range} aria-live="polite">
-                    {t('paginationRange', { from: rangeFrom, to: rangeTo, total: techRows.length })}
-                  </span>
+                  {entry.categoryName}
                 </div>
               )}
-            </Card>
+              <Card
+                variant="default"
+                size="default"
+                hoverable={false}
+                className={styles.block}
+                data-testid={`skills-category-block-${entry.category}`}
+              >
+                {isCollapsed ? (
+                  // A17: the whole Card body is the expand button (Plus left).
+                  <Tooltip content={expandLabel} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="md"
+                      fullWidth
+                      className={styles.strip}
+                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                      ariaLabel={expandLabel}
+                      aria-expanded="true"
+                      onClick={expandBlock}
+                    />
+                  </Tooltip>
+                ) : (
+                  <>
+                    <div className={styles.blockHeader}>
+                      <div className={styles.headerMain}>
+                        <Tooltip content={collapseLabel} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Minus} size={20} color="inherit" decorative />}
+                            ariaLabel={collapseLabel}
+                            aria-expanded="false"
+                            aria-controls={contentId}
+                            onClick={collapseBlock}
+                          />
+                        </Tooltip>
+                        <Heading level={3}>
+                          {entry.categoryName}{' '}
+                          <Badge variant="outline" size="sm">
+                            {t('skillsCategoryCount', { count: entry.technologies.length })}
+                          </Badge>
+                        </Heading>
+                      </div>
+                      <div
+                        className={styles.actions}
+                        data-testid={`skill-category-actions-${entry.category}`}
+                      >
+                        <Tooltip content={t('skillsEditCategory')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsEditCategory')}
+                            onClick={() => onEditCategory?.(entry)}
+                          />
+                        </Tooltip>
+                        <Tooltip content={t('skillsAddTechnology')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsAddTechnology')}
+                            onClick={() => onAddTechnology?.(entry.category)}
+                          />
+                        </Tooltip>
+                        <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsDelete')}
+                            onClick={() =>
+                              setPending({ kind: 'category', categoryId: entry.category })
+                            }
+                          />
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    <div className={styles.blockContent} id={contentId}>
+                      <DataTable<TechRow>
+                        caption={entry.categoryName}
+                        columns={makeColumns()}
+                        rows={techRows}
+                        getKey={(row) => row.id}
+                        page={pages[entry.category] ?? 1}
+                        pageSize={pageSize}
+                        pageSizeOptions={PAGE_SIZE_OPTIONS}
+                        onPageSizeChange={(next) => {
+                          setSizes((prev) => ({ ...prev, [entry.category]: next }));
+                          // A new size re-windows everything — top of page 1 of the
+                          // new order (SPEC A4/WU-3; A10 has no empty page either).
+                          setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                        }}
+                        onPageChange={(next) =>
+                          setPages((prev) => ({ ...prev, [entry.category]: next }))
+                        }
+                        sort={sorts[entry.category] ?? null}
+                        onSortChange={(next) => {
+                          setSorts((prev) => ({ ...prev, [entry.category]: next }));
+                          // A sort the user cannot SEE reads as a broken button:
+                          // reset only THIS table to the top of the new order (A9).
+                          setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                        }}
+                        emptyState={<EmptyState title={t('skillsCategoryEmpty')} compact />}
+                      />
+
+                      {techRows.length > 0 && (
+                        <div
+                          className={styles.footer}
+                          data-testid={`skills-pagination-footer-${entry.category}`}
+                        >
+                          <span className={styles.range} aria-live="polite">
+                            {t('paginationRange', {
+                              from: rangeFrom,
+                              to: rangeTo,
+                              total: techRows.length,
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </Card>
+            </div>
           );
         })
       )}

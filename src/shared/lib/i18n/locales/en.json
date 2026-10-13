@@ -158,6 +158,8 @@
   "skillsEditCategory": "Edit category",
   "skillsAddTechnology": "Add technology",
   "skillsEditTechnology": "Edit technology",
+  "skillsCollapseCategory": "Collapse {{name}} block",
+  "skillsExpandCategory": "Expand {{name}} block",
   "skillsCategoryName": "Category display name",
   "skillsCategoryType": "Category key",
   "skillsTechnologyName": "Technology name",
