@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: skills-actions-polish
 created: '2026-10-12'
+verified: '2026-10-12'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
@@ -9,7 +10,7 @@ created: '2026-10-12'
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
 > Исходный план: vault `wiki/plan/plan_admin_panel_edit.md`, rev.3 (фаза 1 — блок «Навыки», done 2026-10-10, PR #205).
 > **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»), done 2026-10-11, PR #213.
-> **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим). §Критерии предыдущих эпиков сгорели вместе с их TODO; ниже — критерии нового эпика. Companion: [TODO.md](./TODO.md).
+> **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), **done 2026-10-12, PR #221**; follow-up kit Tooltip combined-trigger — issue #222. §Критерии предыдущих эпиков сгорели вместе с их TODO; ниже — критерии нового эпика. Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
