@@ -222,6 +222,8 @@
   "adminJobPositionRu": "Должность (русский)",
   "adminJobStartDate": "Дата начала",
   "adminJobEndDate": "Дата окончания",
+  "adminJobStatus": "Статус записи",
+  "adminJobStatusNone": "Обычная запись",
   "adminJobCurrent": "Всё ещё работаю здесь",
   "adminJobDescription": "Описание",
   "adminJobTechnologies": "Технологии",
