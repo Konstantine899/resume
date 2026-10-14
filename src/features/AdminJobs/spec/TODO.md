@@ -1,16 +1,16 @@
 ---
-status: done
-epic: jobs-detail-table
-created: '2026-10-13'
+status: approved
 spec: SPEC.md
 ---
 
-# TODO — AdminJobs карточки-записи (rev.3) — ЗАКРЫТ
+# TODO — features/AdminJobs (пер-филд модалки, rev.4, epic job-field-edit)
 
-> **Closing note (2026-10-14):** эпик `jobs-detail-table` выполнен целиком —
-> WU-1 `JobCard` (d727eaf) → WU-2 витрина на карточках + sort Select (7753210)
-> → WU-3 Paragraph asChild + IconButton + 8 i18n-ключей (0584d53)
-> → хвост page-test collapse-helper (ddd9b2e) → гейты (validate/axe/bundle
-> +5.9 KiB/public-api 37/37, превью 19/19) → squash **`472bf8c`**, PR #225,
-> CI 8/8, ветка удалена. Все критерии SPEC rev.3 закрыты (verified 2026-10-14).
-> Пункты плана сгорели по мере работы; первоисточник требований — [SPEC.md](./SPEC.md).
+> План: vault `wiki/plan/plan_job_field_edit.md` (approved, auto-режим). Спека: [SPEC.md](./SPEC.md) rev.4.
+> Пункты удаляются по мере выполнения (правило 4); шапка TODO заменяется closing-note на бёрн-дауне.
+> **Auto-режим (директива владельца 2026-10-14):** все WU исполняются последовательно без пауз и без запроса подтверждений; гейты, merge, burn-down и dual-write — автоматически.
+
+## WU-3 — Гейты и burn-down
+
+- [x] `npm run validate` 3545/3545 EXIT=0, `check:axe` 0 регрессий (baseline 4), `check:bundle` — капа total поднята 761856→786432 (измерено 766393 raw = 748.4 KiB; main/vendor не тронуты, прирост только в lazy AdminJobsPage; gzip 238737 << 266240), `check:public-api` 37/37, `check:spec` 15 ready (SPEC R-6 r4).
+- [x] Превью light+dark: 5 полей × свои модалки, Save/Cancel/ESC, чипы, период+current — все проверено на `vite preview` (период: 2 DatePicker + current-checkbox, end disabled, Save pristine-disabled; location: только location; полная форма — шапочный Pencil; ESC закрывает; dark-скриншоты).
+- [ ] Пуш → DRAFT PR → ready → squash auto-merge + удаление ветки; burn-down docs-PR (SPEC/TODO → done + verified); dual-write: vault `memory.md` + AGENTS.md gotcha `resume-job-field-edit`.

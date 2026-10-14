@@ -1,8 +1,8 @@
 ---
-status: done
-epic: jobs-detail-table
-created: '2026-10-13'
-verified: '2026-10-14'
+status: approved
+epic: job-field-edit
+created: '2026-10-14'
+verified: ''
 ---
 
 # SPEC — features/AdminJobs (карточки-записи, record detail table)
@@ -21,6 +21,17 @@ verified: '2026-10-14'
 > (дельта +5.9 KiB от merge-base `7636814`), public-api 37/37, превью 19/19
 > (collapse/expand, ↑↓× + persistence после reload, сортировка, CRUD-цикл,
 > Paragraph-классы на bullet-input: 12px/primary/left, dark contrast ≥4.5:1).
+> **rev.4 (2026-10-14):** эпик `job-field-edit` — пер-филд модальные окна
+> (баг-репорт: все scalar-Pencil открывают одну полную модалку — misleading
+> affordance; research 2026 inline-vs-modal; вердикт владельца 2026-10-14:
+> **полевая модалка**, варианты B «true inline» и A «просто убрать Pencils»
+> отклонены). План: vault `wiki/plan/plan_job_field_edit.md` (approved,
+> auto-режим). §Требования R-1..R-8 rev.3 сгорели вместе с TODO (#225/#226);
+> сохранены ниже для навигации. Живой контракт — §Требования rev.4.
+> **Auto-режим (директива владельца 2026-10-14):** WU-1→WU-2→WU-3
+> исполняются последовательно БЕЗ пауз и БЕЗ запроса подтверждений; гейты,
+> squash auto-merge + удаление ветки, burn-down docs-PR и dual-write —
+> автоматически; делегирование саб-агентам — по усмотрению оркестратора.
 
 ## Цель
 
@@ -58,7 +69,11 @@ verified: '2026-10-14'
 витрина `features/WorkHistory` (Design C), `storeReducers.ts`, feature barrel
 (JobCard — внутренний компонент, не экспортируется).
 
-## Требования
+## Требования (rev.3 — epic jobs-detail-table, закрыты; легаси-навигация)
+
+> Критерии R-1..R-8 ниже исполнены 2026-10-14 (PR #225/#226) и сгорели
+> вместе со своим TODO; секции сохранены как описание ЖИВОЙ витрины
+> (карточки-записи), на которую надстраивается rev.4.
 
 ### R-1 — Компонент JobCard (ARCH-1)
 
@@ -102,8 +117,8 @@ verified: '2026-10-14'
 
 - [x] `moveBullet`/`removeBullet` в `JobCard`: снимок `selectAllJobs`
       (insertion-order, R-2 прошлой rev) → `applyJobUpdate(job, { id,
-  description })` → `persistJobs(next)` → `dispatch(updateJob({ id,
-  description }))`; period пересчитывается из тех же дат (без сдвига).
+description })` → `persistJobs(next)` → `dispatch(updateJob({ id,
+description }))`; period пересчитывается из тех же дат (без сдвига).
 - [x] Persist-fail: тост `adminJobPersistError`, store не тронут.
 - [x] Подтверждения на удаление параграфа НЕТ (паритет inline-× в `JobForm`).
 - [x] RED-тест порядка: `persistJobs` вызван ДО `dispatch` и с массивом,
@@ -132,7 +147,7 @@ verified: '2026-10-14'
 ### R-6 — Модалка JobForm: параграфы kit-оформлены
 
 - [x] Строка параграфа: `<Paragraph asChild size="xs" theme="primary"
-    align="left">` на `<input>` — input несёт классы
+  align="left">` на `<input>` — input несёт классы
       `paragraph/xs/primary/left` (путь asChild ПОДТВЕРЖДЁН: kit-контракт
       принимает single-element child, превью: 12px / `--color-text` / left;
       fallback-SCSS не понадобился; `.bulletInput` остался chrome-only,
@@ -164,15 +179,86 @@ verified: '2026-10-14'
       модалку, сортировка Select.
 - [x] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен.
 
-## Критерии приёмки (итог)
+## Требования rev.4 (epic job-field-edit, approved 2026-10-14)
 
-Пользователь на `/admin/jobs` видит список свёрнутых по умолчанию карточек
-(компания-подпись снаружи, strip с Plus); раскрытие показывает detail-таблицу
-со всеми данными должности (включая локацию, ссылку, технологии и
-достижения, которых не было в старой таблице); Pencil в строке/шапке
-открывает модальную форму; Trash2 в строке параграфа удаляет его
-(persist-THEN-dispatch), ↑↓ переставляют; Trash2 в шапке карточки
-удаляет должность через confirm-модалку с названием компании и фокусом на
-«Отмена»; модальная форма редактирует параграфы kit-оформленными строками
-с иконочными кнопками; Select в шапке сортирует список; пустой список —
-kit EmptyState; `npm run validate` и axe зелёные.
+Диагноз: scalar-строки detail-таблицы (R-2 rev.3) несут `Pencil`, который
+открывает полную `JobForm` — misleading affordance (одна карточка = до 6
+идентичных кнопок → одна модалка). Вердикт владельца 2026-10-14: полевая
+модалка; инварианты R-3 (bullets persist-THEN-dispatch), R-5 (confirm
+удаления), R-4 (сортировка) и Design C остаются фундаментом.
+
+### R-1 (r4) — Общий lib-слой схем (условие D2)
+
+- [ ] Zod-срезы полей (position en+ru, даты period, location, companyUrl,
+      technologies + их message-ключи) вынесены из `jobFormSchema` в
+      переиспользуемый модуль; `jobFormSchema` пересобирается из срезов —
+      существующие тесты `jobFormSchema.test` и `JobForm.test` зелёные БЕЗ
+      правок (рефактор без поведенческого диффа).
+- [ ] `FieldEditForm` импортирует срезы ТОЛЬКО из этого модуля (нет второго
+      источника min/max/сообщений).
+- [ ] Маппинг поле→label-ключ в одном месте: `position→adminJobsTablePosition`,
+      `period→adminJobsTablePeriod`, `location→adminJobLocation`,
+      `companyUrl→adminJobCompanyUrl`, `technologies→adminJobTechnologies`.
+
+### R-2 (r4) — Компонент FieldEditForm (ARCH-1)
+
+- [ ] `ui/FieldEditForm/` (`FieldEditForm.tsx`, `.module.scss`, `.test.tsx`);
+      проп `field: 'position' | 'period' | 'location' | 'companyUrl' |
+    'technologies'` + `job` + `onExitEdit`.
+- [ ] Инпуты по полям: position = `Input` en+ru; period = kit `DatePicker`
+      ×2 + чекбокс «текущая» (end-инпут гасится при current — паритет
+      JobForm через `setValue`); location = `Input`; companyUrl = `Input`;
+      technologies = чип-редактор JobForm-паритета (add/remove).
+- [ ] RHF + per-field zod-схема из общего lib (R-1 r4); ошибки —
+      `role="alert"`; Save disabled без `isDirty` (паритет JobForm).
+- [ ] Save: persist-THEN-dispatch ОДНОГО поля (D7): снапшот `selectAllJobs`
+      → `applyJobUpdate(job, partial)` → `persistJobs(next)` →
+      `dispatch(updateJob({ id, ...partial }))`; успех → тост
+      `adminJobSaved` → закрытие; persist-fail → тост
+      `adminJobPersistError`, модалка открыта, стор не тронут.
+
+### R-3 (r4) — Wiring страницы
+
+- [ ] `JobCard`: `Pencil` скалярной строки → `onEditField(job, fieldKey)`;
+      заголовочный `Pencil` → `onEditJob(job)` (без изменений).
+- [ ] `JobsList` пробрасывает `onEditField` (проп-паритет с `onEditJob`).
+- [ ] `AdminJobsPage`: state `{ job?, field? } | { job } | {} | null`; одна
+      открытая модалка за раз (D8); контент: `FieldEditForm`
+      (key=`${job.id}-${field}`) ИЛИ `JobForm` (key=`job.id` — Design C
+      стейл-guard сохранён); title модалки: поле →
+      `t('adminJobEditFieldTitle', { field: t(labelKey) })`, полная форма →
+      `adminEditJob`/`adminAddJob` (прежние).
+
+### R-4 (r4) — i18n
+
+- [ ] Новый flat-ключ `adminJobEditFieldTitle` в ОБЕИХ локалях: «Редактировать:
+      {{field}}» / «Edit: {{field}}»; паритет-тест зелёный; захардкоженных
+      строк нет.
+
+### R-5 (r4) — Не регрессирует
+
+- [ ] Bullets ↑↓× в витрине и буллет-редактор полной формы — без изменений.
+- [ ] Create и полный edit записи — прежняя `JobForm` (key-parity).
+- [ ] Confirm-модалка удаления, сортировка, EmptyState — без изменений.
+
+### R-6 (r4) — Гейты
+
+- [ ] `npm run validate` зелёный; `check:axe` 0 регрессий (light+dark,
+      `/admin/jobs` в PATHS); `check:bundle` ≤ 737280; `check:public-api`
+      37/37; `check:spec`.
+- [ ] Превью light+dark: каждый Pencil строки → СВОЯ модалка (5 полей),
+      Save/Cancel/ESC, чипы technologies, период+current.
+- [ ] `AdminJobsPage.test`: пер-полевой prefill (в модалке поля — только его
+      инпуты), заголовок «Редактировать: …», шапочный Pencil — полная
+      форма; хелпер раскрывает карточку первой (`resume-jobs-detail-table`).
+
+## Критерии приёмки (итог rev.4)
+
+Пользователь на `/admin/jobs` видит карточки-записи (rev.3, без изменений);
+`Pencil` строки «Период» открывает модалку ТОЛЬКО с датами и чекбоксом
+«текущая», «Локации» — только с локацией, «Технологии» — с чип-редактором;
+заголовок модалки называет поле («Редактировать: …»); Save правит ровно
+одно поле (persist-THEN-dispatch, тост `adminJobSaved`), ошибка storage
+держит модалку открытой; заголовочный `Pencil` карточки по-прежнему
+открывает полную форму на всю запись; bullets ↑↓×, confirm удаления и
+сортировка не изменились; `npm run validate` и axe зелёные.

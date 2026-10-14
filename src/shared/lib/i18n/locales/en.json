@@ -245,6 +245,7 @@
   "adminJobConfirmDeleteName": "Delete {{company}}?",
   "adminJobSaved": "Saved",
   "adminJobDeleted": "Deleted",
+  "adminJobEditFieldTitle": "Edit: {{field}}",
   "adminJobPersistError": "Could not save — browser storage write failed.",
   "getInTouch": "Hire Me",
   "email": "Email",

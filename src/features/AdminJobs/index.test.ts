@@ -38,6 +38,9 @@ const LIVE_EXPORTS = [
   'readJobs',
   'JobForm',
   'JobsList',
+  // job-field-edit WU-2
+  'FieldEditForm',
+  'EDIT_FIELD_LABEL_KEYS',
 ] as const;
 
 const LOCALES_DIR = resolve(__dirname, '../../shared/lib/i18n/locales');

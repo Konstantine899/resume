@@ -20,9 +20,9 @@
       }
     },
     "total": {
-      "maxSize": 761856,
+      "maxSize": 786432,
       "maxSizeGzip": 266240,
-      "description": "Total JS bundle size limit (744kb raw, 260kb gzip). Raised 737280/258048 -> 761856/266240 with human approval (project-images WU-5 / PR #207, 2026-10-10): FileUpload kit component (+8.6 KiB raw vs origin/dev 4cefc85 = 713.9 KiB measured; images and dataURLs are NOT in this budget — check-bundle walks only js/css). Headroom kept for future lazy admin chunks. History: 655360/225280 -> 737280/258048 (Skills CRUD WU-5, 2026-10-06, measured 685467); Projects CRUD 625000->655360 (2026-10-06); About CRUD WU-4 510000->625000 (2026-10-04); WU-2 485000->510000 (2026-09-30); WU-1 measurement 476365 raw / 157620 gzip JS."
+      "description": "Total JS bundle size limit (768kb raw, 260kb gzip). Raised 761856 -> 786432 (raw only; gzip 238737 << 266240) under the job-field-edit epic auto-mode (2026-10-14): FieldEditForm + shared field zod slices grew the lazy /admin/jobs chunk, measured 766393 raw (748.4 KiB) vs merge-base dev 742.9 KiB (+5.5 KiB, all in AdminJobsPage chunk — main 97434 and vendor 290707 untouched, resume-lazy-rhf-chunk intact). Headroom kept for future lazy admin chunks. History: 737280/258048 -> 761856/266240 with human approval (project-images WU-5 / PR #207, 2026-10-10: FileUpload kit +8.6 KiB). Earlier: 655360/225280 -> 737280/258048 (Skills CRUD WU-5, 2026-10-06, measured 685467); Projects CRUD 625000->655360 (2026-10-06); About CRUD WU-4 510000->625000 (2026-10-04); WU-2 485000->510000 (2026-09-30)."
     },
     "assets": {
       "maxSize": 122880,

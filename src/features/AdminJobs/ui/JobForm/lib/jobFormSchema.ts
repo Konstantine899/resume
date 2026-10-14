@@ -4,8 +4,10 @@
 //
 // The §7 validation table as one zod schema; every message IS the i18n key
 // (i18n-first — the component maps errors.*.message straight through t()).
-// Cross-field rules (current ⇄ endDate, endDate ≥ startDate) live in one
-// superRefine; the output is DTO-ready:
+// Cross-field rules (current ⇄ endDate, endDate ≥ startDate) live in
+// `periodCrossRules`; the per-field slices are SHARED with the field-scoped
+// FieldEditForm via ./fieldSchemas (job-field-edit D2 — single source of
+// truth, this file only COMPOSES them). The output is DTO-ready:
 // - startDate: string ('YYYY-MM-DD') → Date;
 // - endDate: '' → null while current, a real Date otherwise (the reducer
 //   re-syncs anyway, A6 — this keeps makeJobRecord/applyJobUpdate honest);
@@ -22,16 +24,17 @@ import {
   type Job,
   type JobLevel,
 } from '@/entities/Job';
-
-/** Day-precision bounds: `2022-02-30` style overflow still parses in JS — accepted. */
-const isDateInput = (value: string): boolean =>
-  /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
-
-const isFuture = (value: string): boolean => {
-  const now = new Date();
-  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-  return new Date(value).getTime() > endOfToday.getTime();
-};
+import {
+  companyUrlField,
+  currentField,
+  endDateField,
+  locationField,
+  periodCrossRules,
+  positionField,
+  startDateField,
+  technologiesField,
+  toDateInput,
+} from './fieldSchemas';
 
 const employmentTypeEnum = z.enum(EMPLOYMENT_TYPES as [EmploymentType, ...EmploymentType[]], {
   message: 'adminJobErrEnum',
@@ -41,19 +44,10 @@ const levelEnum = z.enum(JOB_LEVELS as [JobLevel, ...JobLevel[]], { message: 'ad
 export const jobFormSchema = z
   .object({
     company: z.string().trim().min(2, 'adminJobErrCompany').max(80, 'adminJobErrCompany'),
-    position: z.object({
-      en: z.string().trim().min(3, 'adminJobErrPosition').max(100, 'adminJobErrPosition'),
-      ru: z.string().trim().min(3, 'adminJobErrPosition').max(100, 'adminJobErrPosition'),
-    }),
-    startDate: z
-      .string()
-      .refine((value) => isDateInput(value) && !isFuture(value), {
-        message: 'adminJobErrStartDate',
-      })
-      .transform((value) => new Date(value)),
-    /** Cross-field rules in superRefine below — required ⇔ !current. */
-    endDate: z.string(),
-    current: z.boolean(),
+    position: positionField,
+    startDate: startDateField,
+    endDate: endDateField,
+    current: currentField,
     description: z.object({
       en: z
         .array(z.string().max(200, 'adminJobErrDescription'))
@@ -64,44 +58,14 @@ export const jobFormSchema = z
         .min(1, 'adminJobErrDescription')
         .max(6, 'adminJobErrDescription'),
     }),
-    technologies: z
-      .array(z.string())
-      .max(15, 'adminJobErrTechnologies')
-      .refine((values) => new Set(values).size === values.length, {
-        message: 'adminJobErrTechnologies',
-      }),
-    location: z.string().trim().min(2, 'adminJobErrLocation').max(80, 'adminJobErrLocation'),
+    technologies: technologiesField,
+    location: locationField,
     employmentType: employmentTypeEnum,
     level: levelEnum,
-    companyUrl: z
-      .string()
-      .trim()
-      .refine(
-        (value) => {
-          if (value === '') return true;
-          if (!value.startsWith('https://')) return false;
-          try {
-            new URL(value);
-            return true;
-          } catch {
-            return false;
-          }
-        },
-        { message: 'adminJobErrUrl' }
-      )
-      .transform((value) => (value === '' ? undefined : value)),
+    companyUrl: companyUrlField,
     featured: z.boolean(),
   })
-  .superRefine((values, ctx) => {
-    // current ⇒ endDate ignored entirely (A6: the reducer nulls it).
-    if (values.current) return;
-    const fail = () =>
-      ctx.addIssue({ code: 'custom', path: ['endDate'], message: 'adminJobErrEndDate' });
-    if (values.endDate === '' || !isDateInput(values.endDate)) return fail();
-    // Object-level checks run only after every child parsed, so
-    // values.startDate is already a valid Date here (no lying compare).
-    if (new Date(values.endDate).getTime() < values.startDate.getTime()) return fail();
-  })
+  .superRefine(periodCrossRules)
   .transform((values) => ({
     ...values,
     endDate: values.current ? null : new Date(values.endDate),
@@ -129,13 +93,6 @@ export const emptyJobFormValues = (): JobFormValues => ({
   companyUrl: '',
   featured: false,
 });
-
-/** 'YYYY-MM-DD' in LOCAL time — toISOString would shift by the UTC offset. */
-const toDateInput = (date: Date): string => {
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getDate()}`.padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-};
 
 /** Record → form values (edit-mode defaults; '' for absent/optional fields). */
 export const toJobFormValues = (job: Job): JobFormValues => ({
