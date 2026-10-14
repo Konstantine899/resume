@@ -203,6 +203,8 @@
   "adminJobs": "Опыт работы",
   "adminAddJob": "Добавить должность",
   "adminEditJob": "Редактировать должность",
+  "adminAddProject": "Добавить проект",
+  "adminEditProject": "Редактировать проект",
   "adminJobsEmpty": "Должностей пока нет — добавьте первую.",
   "adminJobsTableCompany": "Компания",
   "adminJobsTablePosition": "Должность",

@@ -203,6 +203,8 @@
   "adminJobs": "Work History",
   "adminAddJob": "Add position",
   "adminEditJob": "Edit position",
+  "adminAddProject": "Add project",
+  "adminEditProject": "Edit project",
   "adminJobsEmpty": "No positions yet — add the first one.",
   "adminJobsTableCompany": "Company",
   "adminJobsTablePosition": "Position",
