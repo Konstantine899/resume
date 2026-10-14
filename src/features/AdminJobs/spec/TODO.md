@@ -1,20 +1,22 @@
 ---
-status: done
+status: draft
+epic: modal-content-scroll
+created: '2026-10-14'
+verified: '2026-10-14'
 spec: SPEC.md
 ---
 
-# TODO — features/AdminJobs (селект статуса записи, rev.5, epic job-status-select)
+# TODO — modal-content-scroll
 
-**Закрыт (2026-10-14):** все WU выполнены и выжжены (выполненные пункты
-удаляются — правило эпика); PR #230 SQUASH-MERGED в `dev` (`e359872`,
-«feat(admin-jobs): JobForm status select (job-status-select) (#230)»), 8/8
-CI-checks зелёные, ветка удалена. Вердикт владельца 2026-10-14 — **вариант A**:
-один kit Select «Статус записи» (3 опции `''`/`'current'`/`'featured'`),
-взаимоисключение флагов в пределах записи, prefill «оба → `'current'`»,
-submit-нормализация в `handleSave`. Гейты: validate зелёный (public-api
-37/37), axe-app 0 регрессий (baseline 4), бандл 748.6 < 768 KiB (Δ ~0.2 KiB
-от merge-base), check:spec ready; превью light+dark (3 опции, A6-цикл
-туда-обратно, prefill 4 типов записей, нормализация «оба» проверена в живом
-UI). Пара SPEC/TODO переведена в `done` этим burn-down коммитом
-(`docs/job-status-select-burn`). Контракт и критерии —
-[SPEC.md](./SPEC.md) (`done`, `verified: '2026-10-14'`).
+План по WU: `wiki/plan/plan_modal_content_scroll.md` §5. Критерии — в `SPEC.md`.
+
+- [ ] WU-1: `.modal` (ModalRoot.module.scss) `+ display: flex; flex-direction: column`;
+  `.content` (ModalContent.module.scss) `+ min-height: 0` (парой, обязательны обе);
+  stylelint --fix + ручная проверка `//`-комментариев; опц. story «TallContent».
+- [ ] WU-1 (проба): превью/headed — JobForm выше панели → скролл внутри панели,
+  header на месте, последний чип достижим; короткая модалка без полосы; ≤640px ок.
+- [ ] WU-2: `npm run validate` (CPU <45 %), `check:axe` — 0 регрессий,
+  `check:bundle` — в бюджете; PR в `dev`, CI зелёный.
+- [ ] WU-3: после merge — SPEC/TODO → `status: done`; dual-write (vault `memory.md`
+  + `memory/index.md` + AGENTS-гетч: flex-scroll паттерн `flex:1 + min-height:0`);
+  burn-down-коммит (прецедент `docs/*-todo-burn`).

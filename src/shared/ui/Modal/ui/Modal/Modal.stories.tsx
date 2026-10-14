@@ -726,6 +726,26 @@ export const LongContent: Story = {
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText(/Content paragraph 30\./)).toBeInTheDocument();
+
+    // #234: tall content must SCROLL INSIDE the panel (flex chain
+    // `.modal` (flex-column, max-height 90vh) → `.content` (flex:1,
+    // min-height:0, overflow-y:auto)) instead of being clipped.
+    const firstParagraph = within(dialog).getByText(/Content paragraph 1\./);
+    let scrollEl = firstParagraph.parentElement?.parentElement ?? null;
+    for (let hop = 0; hop < 5 && scrollEl; hop += 1) {
+      if (getComputedStyle(scrollEl).overflowY === 'auto') break;
+      scrollEl = scrollEl.parentElement;
+    }
+    expect(scrollEl).not.toBeNull();
+    const styles = getComputedStyle(scrollEl as Element);
+    expect(styles.overflowY).toBe('auto');
+    expect((scrollEl as HTMLElement).scrollHeight).toBeGreaterThan(
+      (scrollEl as HTMLElement).clientHeight
+    );
+    // Scrolling to the end reveals the last paragraph's container.
+    (scrollEl as HTMLElement).scrollTop = (scrollEl as HTMLElement).scrollHeight;
+    expect((scrollEl as HTMLElement).scrollTop).toBeGreaterThan(0);
+
     await userEvent.keyboard('{Escape}');
     await expect(dialog).not.toBeInTheDocument();
   },
