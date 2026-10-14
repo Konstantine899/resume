@@ -56,17 +56,6 @@
   }
 }
 
-.checkRow {
-  display: flex;
-  gap: $spacing-2;
-  align-items: center;
-
-  label {
-    font-size: var(--text-base);
-    color: var(--color-text-primary);
-  }
-}
-
 .editorSection {
   display: flex;
   flex-direction: column;

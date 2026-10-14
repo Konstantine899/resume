@@ -134,11 +134,10 @@ describe('JobForm', () => {
       'adminJobCompanyUrl',
       'adminJobStartDate',
       'adminJobEndDate',
-      'adminJobCurrent',
+      'adminJobStatus',
       'adminJobLocation',
       'adminJobEmploymentType',
       'adminJobLevel',
-      'adminJobFeatured',
       'adminJobTechnologies',
     ]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
@@ -161,12 +160,14 @@ describe('JobForm', () => {
     expect(persistSpy).not.toHaveBeenCalled();
   });
 
-  it('disables endDate while current is checked (A6)', () => {
+  it('disables endDate while the status select is current (A6)', () => {
     render(<JobForm />);
     const endDate = screen.getByLabelText('adminJobEndDate');
     expect(endDate).toBeEnabled();
 
-    fireEvent.click(screen.getByLabelText('adminJobCurrent'));
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'current' },
+    });
     expect(endDate).toBeDisabled();
   });
 
@@ -177,12 +178,14 @@ describe('JobForm', () => {
     expect(screen.getAllByRole('button', { name: 'calendarOpen' })).toHaveLength(2);
   });
 
-  it('disables the endDate calendar trigger while current is checked (A6)', () => {
+  it('disables the endDate calendar trigger while the status select is current (A6)', () => {
     render(<JobForm />);
     const triggers = screen.getAllByRole('button', { name: 'calendarOpen' });
     expect(triggers[1]).toBeEnabled();
 
-    fireEvent.click(screen.getByLabelText('adminJobCurrent'));
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'current' },
+    });
     expect(triggers[1]).toBeDisabled();
   });
 
@@ -204,6 +207,104 @@ describe('JobForm', () => {
     for (const cell of cells) {
       expect(cell).toHaveAttribute('aria-disabled', 'true');
     }
+  });
+
+  // ---- rev.5: status select (job-status-select, variant A) ---------------
+
+  it('renders the status select with three options and no checkboxes (R-1)', () => {
+    render(<JobForm />);
+
+    const select = screen.getByLabelText('adminJobStatus');
+    const options = within(select).getAllByRole('option');
+    expect(options.map((option) => option.textContent)).toEqual([
+      'adminJobStatusNone',
+      'adminJobCurrent',
+      'adminJobFeatured',
+    ]);
+    expect(select).toHaveValue(''); // create default = standard entry (R-2)
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+  });
+
+  it('maps the status select onto dates and dirty state (R-1)', () => {
+    render(<JobForm />);
+    const select = screen.getByLabelText('adminJobStatus');
+    const endDate = screen.getByLabelText('adminJobEndDate');
+    const save = screen.getByRole('button', { name: 'adminJobSave' });
+
+    expect(endDate).toBeEnabled();
+    expect(save).toBeDisabled(); // pristine
+
+    // 'featured' — a label flag only: dates stay editable, form goes dirty.
+    fireEvent.change(select, { target: { value: 'featured' } });
+    expect(select).toHaveValue('featured');
+    expect(endDate).toBeEnabled();
+    expect(save).toBeEnabled();
+
+    // 'current' (A6): endDate cleared + disabled via toggleCurrent parity.
+    fireEvent.change(select, { target: { value: 'current' } });
+    expect(endDate).toBeDisabled();
+    expect(endDate).toHaveValue('');
+
+    // Back to '' — both flags off, dates editable again.
+    fireEvent.change(select, { target: { value: '' } });
+    expect(select).toHaveValue('');
+    expect(endDate).toBeEnabled();
+  });
+
+  const PREFILL_CASES: {
+    name: string;
+    flags: { current: boolean; featured: boolean };
+    expected: string;
+  }[] = [
+    { name: 'standard', flags: { current: false, featured: false }, expected: '' },
+    { name: 'current', flags: { current: true, featured: false }, expected: 'current' },
+    { name: 'featured', flags: { current: false, featured: true }, expected: 'featured' },
+    // Variant A: the functional flag wins the display…
+    { name: 'both flags', flags: { current: true, featured: true }, expected: 'current' },
+  ];
+
+  for (const { name, flags, expected } of PREFILL_CASES) {
+    it(`prefills the status select for a ${name} record (R-2)`, () => {
+      render(<JobForm job={{ ...EXISTING, ...flags }} />);
+      expect(screen.getByLabelText('adminJobStatus')).toHaveValue(expected);
+    });
+  }
+
+  it('persists the selected status flags on create (R-1)', async () => {
+    render(<JobForm />);
+    fillValidForm();
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'featured' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    const created = persisted[1];
+    expect(created?.featured).toBe(true);
+    expect(created?.current).toBe(false);
+  });
+
+  it('normalizes a both-flags record to current-only on save (R-2)', async () => {
+    const onExitEdit = vi.fn();
+    render(
+      <JobForm job={{ ...EXISTING, current: true, featured: true }} onExitEdit={onExitEdit} />
+    );
+    // Variant A: the select shows 'current'; Save must drop `featured`, so
+    // the displayed state and the persisted record can never diverge.
+    expect(screen.getByLabelText('adminJobStatus')).toHaveValue('current');
+
+    fireEvent.change(screen.getByLabelText('adminJobLocation'), {
+      target: { value: 'Berlin' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]?.current).toBe(true);
+    expect(persisted[0]?.featured).toBe(false);
+    expect(onExitEdit).toHaveBeenCalledTimes(1);
   });
 
   it('creates: persist FIRST, then dispatch, toast, reset', async () => {

@@ -8,8 +8,14 @@
 // Field notes:
 // - period is NEVER an input (A5/R-3): the reducer recomputes it from the
 //   dates + current flag on save (makeJobRecord / applyJobUpdate).
-// - current ⇄ endDate (A6): checking "still working here" disables the end
-//   date input and clears it; with current=false the schema requires it.
+// - status (rev.5, variant A): ONE select maps onto the current/featured
+//   flags — '' = standard, 'current' = still working here, 'featured' =
+//   label only; mutually exclusive WITHIN a record. The select value is
+//   derived from the booleans (single RHF truth), and handleSave
+//   normalizes the flags from it so display and persistence never diverge.
+// - current ⇄ endDate (A6): picking 'current' disables the end date input
+//   and clears it; with current=false the schema requires it. The date is
+//   NOT restored when leaving 'current' (parity with the old checkbox).
 // - description: a per-locale bullet editor (add / remove / reorder) — a
 //   textarea cannot round-trip the string[] shape (R-6).
 // - technologies: a chip editor capped at 15 unique entries (§7).
@@ -107,7 +113,15 @@ export const JobForm: React.FC<JobFormProps> = ({
     error?.message ? t(error.message) : undefined;
 
   /** §3 order: persist → dispatch → toast → pristine form / exit. */
-  const handleSave = handleSubmit((data) => {
+  const handleSave = handleSubmit((raw) => {
+    // R-2 submit rule: the status select is the visible truth — a
+    // both-flags record prefilled as 'current' must NOT save featured=true.
+    const status = raw.current ? 'current' : raw.featured ? 'featured' : '';
+    const data: JobFormOutput = {
+      ...raw,
+      current: status === 'current',
+      featured: status === 'featured',
+    };
     const { current, ...dto } = data;
     if (job) {
       const next = jobs.map((entry) =>
@@ -146,6 +160,22 @@ export const JobForm: React.FC<JobFormProps> = ({
     setValue('current', checked, { shouldDirty: true });
     // A6: current ⇒ endDate null — clear the disabled input's value too.
     if (checked) setValue('endDate', '', { shouldDirty: true });
+  };
+
+  // rev.5 (variant A): derived select value — the booleans are the only
+  // RHF state, the select is their display mapping.
+  const statusValue = values.current ? 'current' : values.featured ? 'featured' : '';
+
+  const handleStatusChange = (value: string) => {
+    if (value === 'current') {
+      toggleCurrent(true); // A6 parity: clears + disables endDate
+      setValue('featured', false, { shouldDirty: true });
+      return;
+    }
+    setValue('current', false, { shouldDirty: true });
+    setValue('featured', value === 'featured', { shouldDirty: true });
+    // '' / 'featured' leave endDate untouched (checkbox parity — a cleared
+    // date is not restored; SPEC R-6).
   };
 
   const bullets = (locale: 'en' | 'ru'): string[] => values.description?.[locale] ?? [''];
@@ -347,15 +377,18 @@ export const JobForm: React.FC<JobFormProps> = ({
         </div>
       </div>
 
-      <div className={styles.checkRow}>
-        <input
-          id="job-form-current"
-          type="checkbox"
-          checked={values.current ?? false}
-          {...register('current')}
-          onChange={(event) => toggleCurrent(event.target.checked)}
+      <div className={styles.field}>
+        <Select
+          id="job-form-status"
+          label={t('adminJobStatus')}
+          options={[
+            { value: '', label: t('adminJobStatusNone') },
+            { value: 'current', label: t('adminJobCurrent') },
+            { value: 'featured', label: t('adminJobFeatured') },
+          ]}
+          value={statusValue}
+          onChange={handleStatusChange}
         />
-        <label htmlFor="job-form-current">{t('adminJobCurrent')}</label>
       </div>
 
       <div className={styles.editorSection}>
@@ -442,16 +475,6 @@ export const JobForm: React.FC<JobFormProps> = ({
             </Paragraph>
           )}
         </div>
-      </div>
-
-      <div className={styles.checkRow}>
-        <input
-          id="job-form-featured"
-          type="checkbox"
-          checked={values.featured ?? false}
-          {...register('featured')}
-        />
-        <label htmlFor="job-form-featured">{t('adminJobFeatured')}</label>
       </div>
 
       <div className={styles.actions}>
