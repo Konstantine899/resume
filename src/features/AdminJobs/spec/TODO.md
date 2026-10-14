@@ -12,5 +12,5 @@ spec: SPEC.md
 ## WU-3 — Гейты и burn-down
 
 - [x] `npm run validate` 3545/3545 EXIT=0, `check:axe` 0 регрессий (baseline 4), `check:bundle` — капа total поднята 761856→786432 (измерено 766393 raw = 748.4 KiB; main/vendor не тронуты, прирост только в lazy AdminJobsPage; gzip 238737 << 266240), `check:public-api` 37/37, `check:spec` 15 ready (SPEC R-6 r4).
-- [ ] Превью light+dark: 5 полей × свои модалки, Save/Cancel/ESC, чипы, период+current.
+- [x] Превью light+dark: 5 полей × свои модалки, Save/Cancel/ESC, чипы, период+current — все проверено на `vite preview` (период: 2 DatePicker + current-checkbox, end disabled, Save pristine-disabled; location: только location; полная форма — шапочный Pencil; ESC закрывает; dark-скриншоты).
 - [ ] Пуш → DRAFT PR → ready → squash auto-merge + удаление ветки; burn-down docs-PR (SPEC/TODO → done + verified); dual-write: vault `memory.md` + AGENTS.md gotcha `resume-job-field-edit`.
