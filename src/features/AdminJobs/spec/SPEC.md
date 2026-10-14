@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: job-status-select
 created: '2026-10-14'
+verified: '2026-10-14'
 ---
 
 # SPEC — features/AdminJobs (карточки-записи, record detail table)
@@ -56,6 +57,13 @@ created: '2026-10-14'
 > `wiki/plan/plan_job_status_select.md` (draft, auto-режим предложен).
 > §Требования rev.4 исполнены (PR #227/#228) — легаси-навигация; живой
 > контракт — §Требования rev.5.
+> **done (2026-10-14):** WU-1..4 исполнены, squash `e359872`, PR #230, CI 8/8.
+> Гейты: validate зелёный (public-api 37/37), axe-app 0 регрессий (baseline 4),
+> бандл 748.6 < 768 KiB (Δ ~0.2 KiB от merge-base — kit Select уже в чанке
+> формы), check:spec ready, превью light+dark (3 опции, A6-цикл туда-обратно,
+> prefill 4 типов записей «оба → current», submit-нормализация проверена в
+> живом UI: после Save бейдж featured исчезает). Требования R-1..R-7 (r5)
+> исполнены; burn-down этим docs-коммитом (`docs/job-status-select-burn`).
 
 ## Цель
 
@@ -276,7 +284,7 @@ align="left">` на `<input>` — input несёт классы
       инпуты), заголовок «Редактировать: …», шапочный Pencil — полная
       форма; хелпер раскрывает карточку первой (`resume-jobs-detail-table`).
 
-## Требования rev.5 (epic job-status-select, approved 2026-10-14)
+## Требования rev.5 (epic job-status-select, done 2026-10-14 — легаси-навигация)
 
 Контекст: в `JobForm` два независимых чекбокса (`#job-form-current`,
 `#job-form-featured`) управляют разными по уровню абстракции флагами —
@@ -286,7 +294,7 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-1 (r5) — Селект в JobForm (замена двух чекбоксов)
 
-- [ ] kit `Select` `id="job-form-status"`, label `adminJobStatus`, три
+- [x] kit `Select` `id="job-form-status"`, label `adminJobStatus`, три
       опции: `''` → `adminJobStatusNone`, `'current'` → `adminJobCurrent`,
       `'featured'` → `adminJobFeatured`; размещение — на месте бывшего
       current-чекбокса (сразу после блока дат, обёртка `.field` — паритет
@@ -294,17 +302,17 @@ align="left">` на `<input>` — input несёт классы
       `.checkRow` убрать из `JobForm.module.scss` (последние два
       использования — строки 350/447; `.checkRow` в `FieldEditForm.module.scss`
       — свой, не трогать).
-- [ ] Пустая опция = ОБЫЧНАЯ option `value: ''` в `options` (НЕ
+- [x] Пустая опция = ОБЫЧНАЯ option `value: ''` в `options` (НЕ
       `placeholder`-проп: placeholder семантически «ничего не выбрано», а
       пусто — валидное состояние). Kit поддерживает `value=""` —
       верифицировано по коду (`Select.tsx:76` рендерит option с пустым
       значением); React-`key=''` допустим.
-- [ ] Маппинг при выборе: `''` → `{current:false, featured:false}`;
+- [x] Маппинг при выборе: `''` → `{current:false, featured:false}`;
       `'current'` → `toggleCurrent(true)`-паритет (`current=true`,
       `endDate=''` + DatePicker disabled — A6); `'featured'` →
       `current=false, featured=true`, `endDate` не трогаем; все `setValue`
       — с `{shouldDirty: true}` (Save disabled без isDirty).
-- [ ] Значение селекта — производное от булево (`values.current ?
+- [x] Значение селекта — производное от булево (`values.current ?
 'current' : values.featured ? 'featured' : ''`), строго
       контролируемый `value`/`onChange` (паттерн Select'ов формы,
       `JobForm.tsx:411-444`); форма хранит только boolean — дубля поля в
@@ -312,59 +320,59 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-2 (r5) — Prefill и submit-нормализация (вариант A закрыт на обоих путях)
 
-- [ ] Правило отображения: `current && !featured` → `'current'`;
+- [x] Правило отображения: `current && !featured` → `'current'`;
       `featured && !current` → `'featured'`; **оба true → `'current'`**
       (производное значение, приоритет функционального флага); иначе → `''`.
-- [ ] **Submit-нормализация** (`handleSave`, `JobForm.tsx:110`): перед
+- [x] **Submit-нормализация** (`handleSave`, `JobForm.tsx:110`): перед
       persist флаги берутся из производного значения селекта —
       `current = (status === 'current')`, `featured = (status ===
 'featured')`. Без этого запись «оба» сохранялась бы как «оба» при
       нетронутом селекте (отображение врало бы). Гарантия: отображаемое =
       сохраняемому; «оба» после Save → только current.
-- [ ] Zod-схема и тип формы **БЕЗ изменений**: `current`/`featured`
+- [x] Zod-схема и тип формы **БЕЗ изменений**: `current`/`featured`
       остаются boolean в `jobFormSchema` (альтернатива «поле `status` в
       схеме» отклонена — лишний дифф); селект — UI-маппинг через
       `setValue`; `jobFormSchema.test` зелёный без правок.
-- [ ] Create-дефолт: селект `''` = `{current:false, featured:false}` —
+- [x] Create-дефолт: селект `''` = `{current:false, featured:false}` —
       паритет `emptyJobFormValues`.
 
 ### R-3 (r5) — Per-record семантика (несколько компаний)
 
-- [ ] Селект действует в пределах одной записи: сохранение 2+ записей с
+- [x] Селект действует в пределах одной записи: сохранение 2+ записей с
       `'current'` возможно, эксклюзивности между записями НЕТ (как
       сегодня); период «Present» у каждой current-записи.
 
 ### R-4 (r5) — FieldEditForm не трогаем
 
-- [ ] Чекбокс «текущая» в поле Period (`FieldEditForm`) остаётся —
+- [x] Чекбокс «текущая» в поле Period (`FieldEditForm`) остаётся —
       field-scoped про даты, A6-паритет; в скоупе ревизии только `JobForm`.
 
 ### R-5 (r5) — i18n
 
-- [ ] 2 новых flat-ключа в ОБЕИХ локалях: `adminJobStatus`
+- [x] 2 новых flat-ключа в ОБЕИХ локалях: `adminJobStatus`
       («Статус записи» / «Record status»), `adminJobStatusNone`
       («Обычная запись» / «Standard entry»); `adminJobCurrent` /
       `adminJobFeatured` переиспользуются без изменений.
-- [ ] `locales-parity.test.ts` зелёный БЕЗ правки; захардкоженных строк в
+- [x] `locales-parity.test.ts` зелёный БЕЗ правки; захардкоженных строк в
       компоненте нет.
 
 ### R-6 (r5) — Не регрессирует (инвентарь верифицирован по коду 2026-10-14)
 
-- [ ] Бейджи `JobCard` (accent по `current`, outline по `featured`) — без
+- [x] Бейджи `JobCard` (accent по `current`, outline по `featured`) — без
       изменений; «Present» в периоде, confirm-удаление, сортировка,
       инлайн-CRUD параграфов — без изменений.
-- [ ] `FieldEditForm`/пер-филд модалки rev.4 и чекбокс Period — без
+- [x] `FieldEditForm`/пер-филд модалки rev.4 и чекбокс Period — без
       изменений (R-4 r5): 3 теста `FieldEditForm.test` на
       `getByLabelText('adminJobCurrent')` (строки 113/180/226) зелёные
       БЕЗ правок.
-- [ ] `locales-parity.test.ts` (adminKeys-гард), `AdminJobsPage.test`
+- [x] `locales-parity.test.ts` (adminKeys-гард), `AdminJobsPage.test`
       (0 упоминаний current/featured), `jobFormSchema.test`,
       `JobCard.test` — зелёные БЕЗ правок.
-- [ ] **Паритет, который НЕ чиним:** дата окончания не восстанавливается
+- [x] **Паритет, который НЕ чиним:** дата окончания не восстанавливается
       после переключения `'current'` → (`'featured'`|`''`) — то же
       поведение, что у чекбокса (очистка в момент включения A6); не
       трактовать как регрессию.
-- [ ] Ожидаемый red→green — ровно 3 теста `JobForm.test.tsx`: лейбл-список
+- [x] Ожидаемый red→green — ровно 3 теста `JobForm.test.tsx`: лейбл-список
       (:127, `getByLabelText('adminJobCurrent')`/`('adminJobFeatured')` →
       `adminJobStatus` + assert опций), A6-click (:164), A6-calendar
       (:180) — переписать на `fireEvent.change(select,
@@ -373,13 +381,13 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-7 (r5) — Гейты
 
-- [ ] `npm run validate` зелёный (TDD: RED-тесты написаны ДО
+- [x] `npm run validate` зелёный (TDD: RED-тесты написаны ДО
       реализации; 3 переписываемых теста `JobForm.test` — ожидаемый
       red→green, R-6); `check:spec` (pass-set включает `approved`).
-- [ ] `check:axe` 0 регрессий (light+dark, `/admin/jobs` в PATHS, baseline
+- [x] `check:axe` 0 регрессий (light+dark, `/admin/jobs` в PATHS, baseline
       без изменений); бандл-дельта worktree ≤ капа 786432 (ожидание Δ 0 —
       kit Select уже в чанке формы); `check:public-api` 37/37.
-- [ ] Превью light+dark: все 3 опции, A6-переходы туда-обратно, edit
+- [x] Превью light+dark: все 3 опции, A6-переходы туда-обратно, edit
       записей 4 типов (ни одного / current / featured / оба → показ
       `'current'`).
 
