@@ -1,8 +1,7 @@
 ---
-status: done
-epic: job-field-edit
+status: approved
+epic: job-status-select
 created: '2026-10-14'
-verified: '2026-10-14'
 ---
 
 # SPEC — features/AdminJobs (карточки-записи, record detail table)
@@ -33,13 +32,30 @@ verified: '2026-10-14'
 > squash auto-merge + удаление ветки, burn-down docs-PR и dual-write —
 > автоматически; делегирование саб-агентам — по усмотрению оркестратора.
 > **done (2026-10-14):** WU-1..3 исполнены, squash `e3a62b6`, PR #227, CI 2/2
->
-> - dev-раны. Гейты: validate 3545/3545, axe-app 0 регрессий (baseline 4),
->   бандл 748.4 KiB — total-капа поднята 761856→786432 (auto-режим; main 97 KiB
->   и vendor 290 KiB не тронуты, прирост только в lazy AdminJobsPage 40.3 KiB;
->   gzip 233 KiB << 260), public-api 37/37, check:spec 15 ready, превью
->   light+dark (период: 2 DatePicker + current-checkbox A6, end disabled;
->   location-only; полная форма шапочным Pencil; ESC закрывает).
+> dev-раны. Гейты: validate 3545/3545, axe-app 0 регрессий (baseline 4),
+> бандл 748.4 KiB — total-капа поднята 761856→786432 (auto-режим; main 97 KiB
+> и vendor 290 KiB не тронуты, прирост только в lazy AdminJobsPage 40.3 KiB;
+> gzip 233 KiB << 260), public-api 37/37, check:spec 15 ready, превью
+> light+dark (период: 2 DatePicker + current-checkbox A6, end disabled;
+> location-only; полная форма шапочным Pencil; ESC закрывает).
+> **rev.5 (2026-10-14):** эпик `job-status-select` — два чекбокса (current/
+> featured) в `JobForm` → один kit `Select` «Статус записи» с тремя опциями
+> (`''` / `'current'` / `'featured'`); пустая опция — полноценный выбираемый
+> элемент (валидное состояние «обычная запись»), не disabled-placeholder.
+> Исследование утверждено владельцем 2026-10-14 («Отлично! меня все
+> устраивает»): факты кода (`getFeaturedJobs` без потребителя — витрине
+> уходят все записи через `selectSortedJobs`; фикстура `JobsList.test` с
+> обоими флагами; A6 через `toggleCurrent`) + источники (GOV.UK Select
+> «last resort», retrieved 2026-10-14; NN/g 2026-07-17; MDN 2026-10-08).
+> Вердикт развилки — **вариант A**: взаимоисключение флагов в пределах
+> записи, prefill «оба → `'current'`» (featured сбрасывается при следующем
+> Save); отклонены B (4-я опция «оба») и C (селект + чекбокс). Трактовка
+> «Избранная запись» = метка/продвижение (vitrina-эффект НЕ в скоупе).
+> Режим сознательного отклонения: 3 опции → radio по гайдам, но модалка +
+> паритет существующих Select'ов формы + директива владельца. План: vault
+> `wiki/plan/plan_job_status_select.md` (draft, auto-режим предложен).
+> §Требования rev.4 исполнены (PR #227/#228) — легаси-навигация; живой
+> контракт — §Требования rev.5.
 
 ## Цель
 
@@ -187,7 +203,7 @@ align="left">` на `<input>` — input несёт классы
       модалку, сортировка Select.
 - [x] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен.
 
-## Требования rev.4 (epic job-field-edit, approved 2026-10-14)
+## Требования rev.4 (epic job-field-edit, done 2026-10-14 — легаси-навигация)
 
 Диагноз: scalar-строки detail-таблицы (R-2 rev.3) несут `Pencil`, который
 открывает полную `JobForm` — misleading affordance (одна карточка = до 6
@@ -197,29 +213,29 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-1 (r4) — Общий lib-слой схем (условие D2)
 
-- [ ] Zod-срезы полей (position en+ru, даты period, location, companyUrl,
+- [x] Zod-срезы полей (position en+ru, даты period, location, companyUrl,
       technologies + их message-ключи) вынесены из `jobFormSchema` в
       переиспользуемый модуль; `jobFormSchema` пересобирается из срезов —
       существующие тесты `jobFormSchema.test` и `JobForm.test` зелёные БЕЗ
       правок (рефактор без поведенческого диффа).
-- [ ] `FieldEditForm` импортирует срезы ТОЛЬКО из этого модуля (нет второго
+- [x] `FieldEditForm` импортирует срезы ТОЛЬКО из этого модуля (нет второго
       источника min/max/сообщений).
-- [ ] Маппинг поле→label-ключ в одном месте: `position→adminJobsTablePosition`,
+- [x] Маппинг поле→label-ключ в одном месте: `position→adminJobsTablePosition`,
       `period→adminJobsTablePeriod`, `location→adminJobLocation`,
       `companyUrl→adminJobCompanyUrl`, `technologies→adminJobTechnologies`.
 
 ### R-2 (r4) — Компонент FieldEditForm (ARCH-1)
 
-- [ ] `ui/FieldEditForm/` (`FieldEditForm.tsx`, `.module.scss`, `.test.tsx`);
+- [x] `ui/FieldEditForm/` (`FieldEditForm.tsx`, `.module.scss`, `.test.tsx`);
       проп `field: 'position' | 'period' | 'location' | 'companyUrl' |
-  'technologies'` + `job` + `onExitEdit`.
-- [ ] Инпуты по полям: position = `Input` en+ru; period = kit `DatePicker`
+'technologies'` + `job` + `onExitEdit`.
+- [x] Инпуты по полям: position = `Input` en+ru; period = kit `DatePicker`
       ×2 + чекбокс «текущая» (end-инпут гасится при current — паритет
       JobForm через `setValue`); location = `Input`; companyUrl = `Input`;
       technologies = чип-редактор JobForm-паритета (add/remove).
-- [ ] RHF + per-field zod-схема из общего lib (R-1 r4); ошибки —
+- [x] RHF + per-field zod-схема из общего lib (R-1 r4); ошибки —
       `role="alert"`; Save disabled без `isDirty` (паритет JobForm).
-- [ ] Save: persist-THEN-dispatch ОДНОГО поля (D7): снапшот `selectAllJobs`
+- [x] Save: persist-THEN-dispatch ОДНОГО поля (D7): снапшот `selectAllJobs`
       → `applyJobUpdate(job, partial)` → `persistJobs(next)` →
       `dispatch(updateJob({ id, ...partial }))`; успех → тост
       `adminJobSaved` → закрытие; persist-fail → тост
@@ -227,10 +243,10 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-3 (r4) — Wiring страницы
 
-- [ ] `JobCard`: `Pencil` скалярной строки → `onEditField(job, fieldKey)`;
+- [x] `JobCard`: `Pencil` скалярной строки → `onEditField(job, fieldKey)`;
       заголовочный `Pencil` → `onEditJob(job)` (без изменений).
-- [ ] `JobsList` пробрасывает `onEditField` (проп-паритет с `onEditJob`).
-- [ ] `AdminJobsPage`: state `{ job?, field? } | { job } | {} | null`; одна
+- [x] `JobsList` пробрасывает `onEditField` (проп-паритет с `onEditJob`).
+- [x] `AdminJobsPage`: state `{ job?, field? } | { job } | {} | null`; одна
       открытая модалка за раз (D8); контент: `FieldEditForm`
       (key=`${job.id}-${field}`) ИЛИ `JobForm` (key=`job.id` — Design C
       стейл-guard сохранён); title модалки: поле →
@@ -239,28 +255,147 @@ align="left">` на `<input>` — input несёт классы
 
 ### R-4 (r4) — i18n
 
-- [ ] Новый flat-ключ `adminJobEditFieldTitle` в ОБЕИХ локалях: «Редактировать:
+- [x] Новый flat-ключ `adminJobEditFieldTitle` в ОБЕИХ локалях: «Редактировать:
       {{field}}» / «Edit: {{field}}»; паритет-тест зелёный; захардкоженных
       строк нет.
 
 ### R-5 (r4) — Не регрессирует
 
-- [ ] Bullets ↑↓× в витрине и буллет-редактор полной формы — без изменений.
-- [ ] Create и полный edit записи — прежняя `JobForm` (key-parity).
-- [ ] Confirm-модалка удаления, сортировка, EmptyState — без изменений.
+- [x] Bullets ↑↓× в витрине и буллет-редактор полной формы — без изменений.
+- [x] Create и полный edit записи — прежняя `JobForm` (key-parity).
+- [x] Confirm-модалка удаления, сортировка, EmptyState — без изменений.
 
 ### R-6 (r4) — Гейты
 
-- [ ] `npm run validate` зелёный; `check:axe` 0 регрессий (light+dark,
+- [x] `npm run validate` зелёный; `check:axe` 0 регрессий (light+dark,
       `/admin/jobs` в PATHS); `check:bundle` ≤ 737280; `check:public-api`
       37/37; `check:spec`.
-- [ ] Превью light+dark: каждый Pencil строки → СВОЯ модалка (5 полей),
+- [x] Превью light+dark: каждый Pencil строки → СВОЯ модалка (5 полей),
       Save/Cancel/ESC, чипы technologies, период+current.
-- [ ] `AdminJobsPage.test`: пер-полевой prefill (в модалке поля — только его
+- [x] `AdminJobsPage.test`: пер-полевой prefill (в модалке поля — только его
       инпуты), заголовок «Редактировать: …», шапочный Pencil — полная
       форма; хелпер раскрывает карточку первой (`resume-jobs-detail-table`).
 
-## Критерии приёмки (итог rev.4)
+## Требования rev.5 (epic job-status-select, approved 2026-10-14)
+
+Контекст: в `JobForm` два независимых чекбокса (`#job-form-current`,
+`#job-form-featured`) управляют разными по уровню абстракции флагами —
+сроком (A6) и меткой. Вердикт владельца 2026-10-14 — **вариант A**: один
+селект, взаимоисключение в пределах записи. `FieldEditForm`, бейджи
+`JobCard` и model-слой остаются фундаментом и не меняются.
+
+### R-1 (r5) — Селект в JobForm (замена двух чекбоксов)
+
+- [ ] kit `Select` `id="job-form-status"`, label `adminJobStatus`, три
+      опции: `''` → `adminJobStatusNone`, `'current'` → `adminJobCurrent`,
+      `'featured'` → `adminJobFeatured`; размещение — на месте бывшего
+      current-чекбокса (сразу после блока дат, обёртка `.field` — паритет
+      остальных Select'ов формы); оба чекбокса удалены; мёртвый
+      `.checkRow` убрать из `JobForm.module.scss` (последние два
+      использования — строки 350/447; `.checkRow` в `FieldEditForm.module.scss`
+      — свой, не трогать).
+- [ ] Пустая опция = ОБЫЧНАЯ option `value: ''` в `options` (НЕ
+      `placeholder`-проп: placeholder семантически «ничего не выбрано», а
+      пусто — валидное состояние). Kit поддерживает `value=""` —
+      верифицировано по коду (`Select.tsx:76` рендерит option с пустым
+      значением); React-`key=''` допустим.
+- [ ] Маппинг при выборе: `''` → `{current:false, featured:false}`;
+      `'current'` → `toggleCurrent(true)`-паритет (`current=true`,
+      `endDate=''` + DatePicker disabled — A6); `'featured'` →
+      `current=false, featured=true`, `endDate` не трогаем; все `setValue`
+      — с `{shouldDirty: true}` (Save disabled без isDirty).
+- [ ] Значение селекта — производное от булево (`values.current ?
+'current' : values.featured ? 'featured' : ''`), строго
+      контролируемый `value`/`onChange` (паттерн Select'ов формы,
+      `JobForm.tsx:411-444`); форма хранит только boolean — дубля поля в
+      RHF нет.
+
+### R-2 (r5) — Prefill и submit-нормализация (вариант A закрыт на обоих путях)
+
+- [ ] Правило отображения: `current && !featured` → `'current'`;
+      `featured && !current` → `'featured'`; **оба true → `'current'`**
+      (производное значение, приоритет функционального флага); иначе → `''`.
+- [ ] **Submit-нормализация** (`handleSave`, `JobForm.tsx:110`): перед
+      persist флаги берутся из производного значения селекта —
+      `current = (status === 'current')`, `featured = (status ===
+'featured')`. Без этого запись «оба» сохранялась бы как «оба» при
+      нетронутом селекте (отображение врало бы). Гарантия: отображаемое =
+      сохраняемому; «оба» после Save → только current.
+- [ ] Zod-схема и тип формы **БЕЗ изменений**: `current`/`featured`
+      остаются boolean в `jobFormSchema` (альтернатива «поле `status` в
+      схеме» отклонена — лишний дифф); селект — UI-маппинг через
+      `setValue`; `jobFormSchema.test` зелёный без правок.
+- [ ] Create-дефолт: селект `''` = `{current:false, featured:false}` —
+      паритет `emptyJobFormValues`.
+
+### R-3 (r5) — Per-record семантика (несколько компаний)
+
+- [ ] Селект действует в пределах одной записи: сохранение 2+ записей с
+      `'current'` возможно, эксклюзивности между записями НЕТ (как
+      сегодня); период «Present» у каждой current-записи.
+
+### R-4 (r5) — FieldEditForm не трогаем
+
+- [ ] Чекбокс «текущая» в поле Period (`FieldEditForm`) остаётся —
+      field-scoped про даты, A6-паритет; в скоупе ревизии только `JobForm`.
+
+### R-5 (r5) — i18n
+
+- [ ] 2 новых flat-ключа в ОБЕИХ локалях: `adminJobStatus`
+      («Статус записи» / «Record status»), `adminJobStatusNone`
+      («Обычная запись» / «Standard entry»); `adminJobCurrent` /
+      `adminJobFeatured` переиспользуются без изменений.
+- [ ] `locales-parity.test.ts` зелёный БЕЗ правки; захардкоженных строк в
+      компоненте нет.
+
+### R-6 (r5) — Не регрессирует (инвентарь верифицирован по коду 2026-10-14)
+
+- [ ] Бейджи `JobCard` (accent по `current`, outline по `featured`) — без
+      изменений; «Present» в периоде, confirm-удаление, сортировка,
+      инлайн-CRUD параграфов — без изменений.
+- [ ] `FieldEditForm`/пер-филд модалки rev.4 и чекбокс Period — без
+      изменений (R-4 r5): 3 теста `FieldEditForm.test` на
+      `getByLabelText('adminJobCurrent')` (строки 113/180/226) зелёные
+      БЕЗ правок.
+- [ ] `locales-parity.test.ts` (adminKeys-гард), `AdminJobsPage.test`
+      (0 упоминаний current/featured), `jobFormSchema.test`,
+      `JobCard.test` — зелёные БЕЗ правок.
+- [ ] **Паритет, который НЕ чиним:** дата окончания не восстанавливается
+      после переключения `'current'` → (`'featured'`|`''`) — то же
+      поведение, что у чекбокса (очистка в момент включения A6); не
+      трактовать как регрессию.
+- [ ] Ожидаемый red→green — ровно 3 теста `JobForm.test.tsx`: лейбл-список
+      (:127, `getByLabelText('adminJobCurrent')`/`('adminJobFeatured')` →
+      `adminJobStatus` + assert опций), A6-click (:164), A6-calendar
+      (:180) — переписать на `fireEvent.change(select,
+{target:{value:'current'}})`; тестов на `#job-form-current`/
+      `#job-form-featured` id в репо НЕТ (проверено grep).
+
+### R-7 (r5) — Гейты
+
+- [ ] `npm run validate` зелёный (TDD: RED-тесты написаны ДО
+      реализации; 3 переписываемых теста `JobForm.test` — ожидаемый
+      red→green, R-6); `check:spec` (pass-set включает `approved`).
+- [ ] `check:axe` 0 регрессий (light+dark, `/admin/jobs` в PATHS, baseline
+      без изменений); бандл-дельта worktree ≤ капа 786432 (ожидание Δ 0 —
+      kit Select уже в чанке формы); `check:public-api` 37/37.
+- [ ] Превью light+dark: все 3 опции, A6-переходы туда-обратно, edit
+      записей 4 типов (ни одного / current / featured / оба → показ
+      `'current'`).
+
+## Критерии приёмки (итог rev.5)
+
+Пользователь в модалке добавления/редактирования записи видит ОДИН селект
+«Статус записи» вместо двух чекбоксов: пусто = обычная запись (endDate
+редактируем), «Всё ещё работаю здесь» = current (endDate очищен и
+disabled), «Избранная запись» = featured (только метка). При открытии
+существующей записи с обоими флагами селект показывает «Всё ещё работаю
+здесь», и после Save запись становится только current. Несколько записей
+одновременно в статусе current допустимы. Поле Period в пер-филд модалке,
+бейджи карточек и весь CRUD-контракт rev.3/rev.4 не изменились;
+`npm run validate`, axe и бандл-гейт зелёные.
+
+## Критерии приёмки (итог rev.4, done 2026-10-14)
 
 Пользователь на `/admin/jobs` видит карточки-записи (rev.3, без изменений);
 `Pencil` строки «Период» открывает модалку ТОЛЬКО с датами и чекбоксом
