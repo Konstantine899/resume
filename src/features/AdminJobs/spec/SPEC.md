@@ -1,8 +1,8 @@
 ---
-status: approved
+status: done
 epic: job-field-edit
 created: '2026-10-14'
-verified: ''
+verified: '2026-10-14'
 ---
 
 # SPEC — features/AdminJobs (карточки-записи, record detail table)
@@ -32,6 +32,14 @@ verified: ''
 > исполняются последовательно БЕЗ пауз и БЕЗ запроса подтверждений; гейты,
 > squash auto-merge + удаление ветки, burn-down docs-PR и dual-write —
 > автоматически; делегирование саб-агентам — по усмотрению оркестратора.
+> **done (2026-10-14):** WU-1..3 исполнены, squash `e3a62b6`, PR #227, CI 2/2
+>
+> - dev-раны. Гейты: validate 3545/3545, axe-app 0 регрессий (baseline 4),
+>   бандл 748.4 KiB — total-капа поднята 761856→786432 (auto-режим; main 97 KiB
+>   и vendor 290 KiB не тронуты, прирост только в lazy AdminJobsPage 40.3 KiB;
+>   gzip 233 KiB << 260), public-api 37/37, check:spec 15 ready, превью
+>   light+dark (период: 2 DatePicker + current-checkbox A6, end disabled;
+>   location-only; полная форма шапочным Pencil; ESC закрывает).
 
 ## Цель
 
@@ -147,7 +155,7 @@ description }))`; period пересчитывается из тех же дат 
 ### R-6 — Модалка JobForm: параграфы kit-оформлены
 
 - [x] Строка параграфа: `<Paragraph asChild size="xs" theme="primary"
-  align="left">` на `<input>` — input несёт классы
+align="left">` на `<input>` — input несёт классы
       `paragraph/xs/primary/left` (путь asChild ПОДТВЕРЖДЁН: kit-контракт
       принимает single-element child, превью: 12px / `--color-text` / left;
       fallback-SCSS не понадобился; `.bulletInput` остался chrome-only,
@@ -204,7 +212,7 @@ description }))`; period пересчитывается из тех же дат 
 
 - [ ] `ui/FieldEditForm/` (`FieldEditForm.tsx`, `.module.scss`, `.test.tsx`);
       проп `field: 'position' | 'period' | 'location' | 'companyUrl' |
-    'technologies'` + `job` + `onExitEdit`.
+  'technologies'` + `job` + `onExitEdit`.
 - [ ] Инпуты по полям: position = `Input` en+ru; period = kit `DatePicker`
       ×2 + чекбокс «текущая» (end-инпут гасится при current — паритет
       JobForm через `setValue`); location = `Input`; companyUrl = `Input`;
