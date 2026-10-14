@@ -1,0 +1,109 @@
+// ============================================
+
+// ProjectCard — one collapsible project record + detail table (mywork-detail-table WU-1)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens — no hardcoded values. Chrome mirrors JobCard.module.scss
+
+// (.root / .block / .blockHeader / .headerMain / .blockContent / .caption /
+
+// .actions / doubled .strip).
+
+@use '@/shared/styles/variables' as *;
+
+// Groups the collapsed caption + its Card so the caption hugs ITS strip;
+
+// consumers space cards through the passed `className`.
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+// One kit Card per project: header row (collapse + h3 + actions), then the
+
+// detail Table. `height: auto` overrides the card base mixin's fixed 220px.
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  height: auto;
+
+  // Actions column header follows its cells: the "Действия" label sits
+
+  // flush right (Skills OPEN-1=r3 parity).
+
+  table th:last-child {
+    text-align: right;
+  }
+}
+
+.blockHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Collapse control LEFT of the h3 (Skills rev.4 OPEN-1=A parity): one flex
+
+// group that the space-between header keeps on the left, actions stay right.
+
+.headerMain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+  min-width: 0;
+}
+
+// The aria-controls region: the kit Table. Unmounted when the card
+
+// collapses (ARA roundtrip — the id must come back on expand).
+
+.blockContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// Collapsed-state caption: title OUTSIDE the Card, above the strip
+
+// (Skills rev.4 OPEN-2=B1 parity) — muted label text.
+
+.caption {
+  padding-inline: $spacing-1;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+// Icon-button row for the block header: packed to the RIGHT edge
+
+// (Skills OPEN-1=r3 parity); stacks on narrow viewports.
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}
+
+// Expand strip: kit IconButton fullWidth = the whole Card body. Doubled
+
+// class raises specificity (0,2,0) over the kit's flex-center mixin
+
+// (.button, 0,1,0) so the Plus icon parks at the LEFT without fighting
+
+// CSS-module load order (Skills precedent).
+
+.strip.strip {
+  gap: $spacing-2;
+  justify-content: flex-start;
+  padding-inline: $spacing-3;
+}

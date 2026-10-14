@@ -9,11 +9,16 @@ spec: SPEC.md
 OPEN-1=A′ (карточки-проекты), OPEN-2=A (collapsed default), OPEN-3=B
 (field-edit НЕ портируем), OPEN-4=A (заголовки модалки
 adminAddProject/adminEditProject), OPEN-5=A (sort storage/title/category/
-year). Auto-режим плана vault `wiki/plan/plan_mywork_detail_table.md`
-rev.1. Выполненные пункты УДАЛЯЮТСЯ, не отмечаются (правило эпика).
-Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
+year). План vault `wiki/plan/plan_mywork_detail_table.md` rev.1.
+**Режим исполнения: AUTO** (директива владельца 2026-10-14): все WU,
+гейты, merge и burn-down выполняются автоматически, без пофазных
+подтверждений; вмешательство владельца — только при нештатной ситуации
+(ошибка гейта, неоднозначность). Выполненные пункты УДАЛЯЮТСЯ, не
+отмечаются (правило эпика). Burn-down — отдельным docs-PR (паттерн
+#214/#228/#236).
 
 ## WU-1 — ProjectCard (TDD)
+
 - [ ] RED-тесты `ProjectCard.test.tsx`: collapsed default; expand/
       collapse roundtrip со стабильным `aria-controls`; Pencil →
       `onEdit(project)`; Trash2 → `onDelete(id)`; honest-data строки
@@ -26,7 +31,7 @@ Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
       (`.strip.strip`), expanded header (Minus + h3 + Badge status
       `STATUS_VARIANTS` переезжает сюда + featured + Pencil/Trash2
       IconButtons + Tooltip), detail kit Table `[Данные | Значение |
-      Действия]` (labels — существующие `projectField*`; technologies
+    Действия]` (labels — существующие `projectField*`; technologies
       через запятую; колонка Действия пустая у полей — field-edit
       отклонён).
 - [ ] i18n в этом WU: `adminMyWorkExpand`/`adminMyWorkCollapse`
@@ -34,6 +39,7 @@ Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
       (en+ru).
 
 ## WU-2 — MyWorkEditorList rewrite
+
 - [ ] Header + sort Select (`storage` default | `title` | `category` |
       `year` desc `?? 0`, `useMemo`-копия над `selectAllProjects`) +
       reset/add IconButtons; i18n sort-ключей (5, en+ru).
@@ -47,6 +53,7 @@ Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
       «delete при включённой сортировке persist-ит insertion-order».
 
 ## WU-3 — Страница
+
 - [ ] `AdminMyWorkPage.tsx`: title модалки `adminAddProject` /
       `adminEditProject` (OPEN-4=A); i18n +2 ключа.
 - [ ] `AdminMyWorkPage.test.tsx`: expand-first хелпер
@@ -55,6 +62,7 @@ Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
       «Добавить на пустом списке» остаются зелёными.
 
 ## WU-4 — Гейты
+
 - [ ] `npm run validate` зелёный (public-api включительно); флэйки
       CPU — реран файлов в изоляции (шаблон resume-jobs-detail-table).
 - [ ] axe-app `/admin/mywork`: 0 регрессий.
@@ -65,6 +73,7 @@ Burn-down — отдельным docs-PR (паттерн #214/#228/#236).
       план→done.
 
 ## Известные проблемы (вне скоупа, не чинить)
+
 - [ ] FieldEditForm-паритет (per-field модалки) — отклонён в этом
       эпике как «лишнее» (OPEN-3); при запросе владельца — отдельный
       эпик.

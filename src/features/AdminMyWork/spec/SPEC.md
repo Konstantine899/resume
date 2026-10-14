@@ -10,6 +10,7 @@ created: '2026-10-14'
 > План: vault `wiki/plan/plan_mywork_detail_table.md`, rev.1 (2026-10-14). Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 > Статус `approved` — вердикт владельца 2026-10-14: OPEN-1=A′ (карточки-проекты), OPEN-2=A (collapsed default), OPEN-3=B (field-edit не переносим), OPEN-4=A (заголовки модалки), OPEN-5=A (sort: storage/title/category/year).
+> **Режим исполнения: AUTO** (директива владельца 2026-10-14): все WU, гейты, merge и burn-down выполняются автоматически, без пофазных подтверждений; вмешательство владельца — только при нештатной ситуации (ошибка гейта, неоднозначность).
 
 ## История (предыдущий эпик — содержание сохранено, тексты в git)
 
@@ -86,6 +87,7 @@ axe-PATHS; `performance-budget.json`.
 ## Требования
 
 ### R-1 — ProjectCard (новый компонент, TDD)
+
 - [ ] `ui/ProjectCard/ProjectCard.{tsx,module.scss,test.tsx}` по образцу
       JobCard: collapsed default (caption `project.title` снаружи,
       strip `Plus` fullWidth `.strip.strip`), expanded (Minus +
@@ -104,6 +106,7 @@ axe-PATHS; `performance-budget.json`.
       строки (нет link-row при `link: null` и т.п.), Badge featured.
 
 ### R-2 — MyWorkEditorList rewrite (JobsList-паритет)
+
 - [ ] Header: h2+hint + sort Select (`storage` default | `title` |
       `category` | `year` desc `?? 0`) + reset IconButton + add
       IconButton; сортировка = `useMemo`-копия над `selectAllProjects`
@@ -120,6 +123,7 @@ axe-PATHS; `performance-budget.json`.
       persist→dispatch — shared `calls`.
 
 ### R-3 — Страница (минимальный diff)
+
 - [ ] (OPEN-4=A) Модалка: title `adminAddProject` / `adminEditProject`
       по режиму; `adminMyWorkTitle` остаётся на шапке витрины.
 - [ ] `AdminMyWorkPage.test.tsx`: expand-first хелпер (имя
@@ -128,6 +132,7 @@ axe-PATHS; `performance-budget.json`.
       «Добавить на пустом списке» остаются зелёными.
 
 ### R-4 — i18n
+
 - [ ] +11 ключей en+ru (flat): adminMyWorkSort, adminMyWorkSortStorage,
       adminMyWorkSortTitle, adminMyWorkSortCategory, adminMyWorkSortYear,
       adminMyWorkExpand (`{{title}}`), adminMyWorkCollapse (`{{title}}`),
@@ -138,6 +143,7 @@ axe-PATHS; `performance-budget.json`.
       (вымирания ключей нет).
 
 ### R-5 — Гейты эпика
+
 - [ ] `npm run validate` зелёный (type-check + lint + lint:styles +
       тесты + coverage + public-api); флэйки CPU — рераном файлов в
       изоляции, НЕ бампом timeout.
@@ -147,6 +153,7 @@ axe-PATHS; `performance-budget.json`.
       headed desktop+mobile (collapse/expand, sort, confirm, форма).
 
 ### R-6 — Не переносим (зафиксированный отказ, паритет-таблица плана §0)
+
 - [x] FieldEditForm / per-field модалки — отклонены как «лишнее»
       (OPEN-3=B дефолт рекомендации); при вердикте «портировать» —
       отдельный эпик ПОСЛЕ этого.
