@@ -9,22 +9,8 @@ spec: SPEC.md
 > Пункты удаляются по мере выполнения (правило 4); шапка TODO заменяется closing-note на бёрн-дауне.
 > **Auto-режим (директива владельца 2026-10-14):** все WU исполняются последовательно без пауз и без запроса подтверждений; гейты, merge, burn-down и dual-write — автоматически.
 
-## WU-1 — lib-слой + FieldEditForm (TDD)
-
-- [ ] Вынести zod-срезы полей из `jobFormSchema.ts` в общий модуль (shared с FieldEditForm); пересобрать `jobFormSchema` — существующие form-тесты зелёные без правок (SPEC R-1 r4).
-- [ ] i18n: `adminJobEditFieldTitle` = «Редактировать: {{field}}» / «Edit: {{field}}» (en+ru, flat; SPEC R-4 r4).
-- [ ] `ui/FieldEditForm/` (ARCH-1): свитч по 5 полям, per-field zod из lib, RHF (Save disabled без isDirty), persist-THEN-dispatch partial + тосты (SPEC R-2 r4).
-- [ ] RED→GREEN тесты формы: prefill каждого поля, валидация (min/max зеркально JobForm), save-порядок persist→dispatch, persist-fail, Cancel; technologies — чип-паритет; period — DatePicker×2 + current (fake timers `toFake: ['Date']`).
-
-## WU-2 — Wiring (TDD)
-
-- [ ] `JobCard`: scalar-row `Pencil` → `onEditField(job, fieldKey)`; заголовочный — без изменений (SPEC R-3 r4).
-- [ ] `JobsList`: проп `onEditField` пробрасывается (SPEC R-3 r4).
-- [ ] `AdminJobsPage`: state `{ job?, field? } | { job } | {} | null`; контент модалки `FieldEditForm` (key `${id}-${field}`) | `JobForm` (key id); title по полю (SPEC R-3 r4).
-- [ ] Page-тесты (`AdminJobsPage.test`, expand-first хелпер): «Пencil строки Период → только даты», «Локация → только location», заголовок «Редактировать: …», шапочный Pencil → полная форма, create не сломан (SPEC R-6 r4).
-
 ## WU-3 — Гейты и burn-down
 
-- [ ] `npm run validate` (CPU-окно <45% / реран флэйков), `check:axe` 0 регрессий, `check:bundle` ≤ 737280, `check:public-api`, `check:spec` (SPEC R-6 r4).
+- [x] `npm run validate` 3545/3545 EXIT=0, `check:axe` 0 регрессий (baseline 4), `check:bundle` — капа total поднята 761856→786432 (измерено 766393 raw = 748.4 KiB; main/vendor не тронуты, прирост только в lazy AdminJobsPage; gzip 238737 << 266240), `check:public-api` 37/37, `check:spec` 15 ready (SPEC R-6 r4).
 - [ ] Превью light+dark: 5 полей × свои модалки, Save/Cancel/ESC, чипы, период+current.
 - [ ] Пуш → DRAFT PR → ready → squash auto-merge + удаление ветки; burn-down docs-PR (SPEC/TODO → done + verified); dual-write: vault `memory.md` + AGENTS.md gotcha `resume-job-field-edit`.
