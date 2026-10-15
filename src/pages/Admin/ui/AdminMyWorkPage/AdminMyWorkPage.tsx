@@ -94,9 +94,7 @@ export const AdminMyWorkPage: React.FC = () => {
         <MyWorkEditorList
           onAdd={() => setForm({})}
           onEdit={(id) => setForm({ projectId: id })}
-          onEditField={(project, editField) =>
-            setForm({ projectId: project.id, field: editField })
-          }
+          onEditField={(project, editField) => setForm({ projectId: project.id, field: editField })}
           onDeleted={(id) => setForm((current) => (current?.projectId === id ? null : current))}
         />
         <Modal
@@ -110,6 +108,11 @@ export const AdminMyWorkPage: React.FC = () => {
               ? t('adminMyWorkEditFieldTitle', { field: t(fieldLabelKey(field)) })
               : t(projectId !== undefined ? 'adminEditProject' : 'adminAddProject')
           }
+          // mywork-parity-polish WU-6 (issue #252, Skills parity): the
+          // subtitle NAMES the edited project (raw string like
+          // AdminSkillsPage formSubtitle). Create mode → record is
+          // undefined → no subtitle.
+          subtitle={record?.title}
         >
           {formElement}
         </Modal>

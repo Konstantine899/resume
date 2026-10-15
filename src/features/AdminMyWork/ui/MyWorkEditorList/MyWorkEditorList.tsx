@@ -184,16 +184,16 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
           {/* Destructive reset relocated from the form — header button
               behind the SAME confirm Modal as delete. R-A2 (issue #242):
               hover tooltip (A14 — kit Tooltip is hover-only). */}
-          <Tooltip content={t('projectReset')} position="bottom" showDelay={0}>
+          <Tooltip content={t('projectReset')} position="top" showDelay={0}>
             <IconButton
-              variant="ghost"
+              variant="outline"
               size="md"
               ariaLabel={t('projectReset')}
               icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
               onClick={() => setPending({ kind: 'reset' })}
             />
           </Tooltip>
-          <Tooltip content={t('adminMyWorkAdd')} position="bottom" showDelay={0}>
+          <Tooltip content={t('adminMyWorkAdd')} position="top" showDelay={0}>
             <IconButton
               variant="primary"
               size="md"

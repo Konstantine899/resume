@@ -175,12 +175,10 @@ describe('locale parity (WU-6)', () => {
       // admin-mywork-refactor WU-4 (SPEC R-4): the add-affordance that
       // makes create mode reachable (the form modal lives on the page).
       'adminMyWorkAdd',
-      // admin-mywork-refactor WU-5 (SPEC R-5): DataTable vitrina headers.
-      'adminMyWorkTableTitle',
-      'adminMyWorkTableCategory',
-      'adminMyWorkTableStatus',
-      'adminMyWorkTableFeatured',
-      'adminMyWorkTableYear',
+      // admin-mywork-refactor WU-5 (SPEC R-5): the detail table the
+      // ProjectCard renders (field | value | actions) — the old DataTable
+      // vitrina headers (Title/Category/Status/Featured/Year) died with
+      // the vitrina (mywork-parity-polish WU-4, issue #252).
       'adminMyWorkTableActions',
     ];
 
