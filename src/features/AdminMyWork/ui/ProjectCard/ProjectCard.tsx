@@ -300,53 +300,49 @@ export function ProjectCard({
             >
               <IconButton
                 type="button"
-                aria-label={t('adminMyWorkEditFieldTitle', {
+                ariaLabel={t('adminMyWorkEditFieldTitle', {
                   field: isMetric ? t('projectFieldMetrics') : row.label,
                 })}
                 variant="ghost"
                 size="sm"
+                icon={<Icon name={Pencil} size={16} color="inherit" decorative />}
                 onClick={() => onEditField?.(project, fieldKey)}
-              >
-                <Pencil size={16} />
-              </IconButton>
+              />
             </Tooltip>
             {isMetric ? (
               <>
                 <Tooltip content={t('adminMyWorkMetricUp')} position="top" showDelay={0}>
                   <IconButton
                     type="button"
-                    aria-label={t('adminMyWorkMetricUp')}
+                    ariaLabel={t('adminMyWorkMetricUp')}
                     variant="ghost"
                     size="sm"
                     disabled={metricIndex === 0}
+                    icon={<Icon name={ArrowUp} size={16} color="inherit" decorative />}
                     onClick={() => moveMetric(metricIndex, -1)}
-                  >
-                    <ArrowUp size={16} />
-                  </IconButton>
+                  />
                 </Tooltip>
                 <Tooltip content={t('adminMyWorkMetricDown')} position="top" showDelay={0}>
                   <IconButton
                     type="button"
-                    aria-label={t('adminMyWorkMetricDown')}
+                    ariaLabel={t('adminMyWorkMetricDown')}
                     variant="ghost"
                     size="sm"
                     disabled={metricIndex === metricCount - 1}
+                    icon={<Icon name={ArrowDown} size={16} color="inherit" decorative />}
                     onClick={() => moveMetric(metricIndex, 1)}
-                  >
-                    <ArrowDown size={16} />
-                  </IconButton>
+                  />
                 </Tooltip>
                 <Tooltip content={t('adminMyWorkRemoveMetric')} position="top" showDelay={0}>
                   <IconButton
                     type="button"
-                    aria-label={t('adminMyWorkRemoveMetric')}
+                    ariaLabel={t('adminMyWorkRemoveMetric')}
                     variant="ghost"
                     size="sm"
                     disabled={metricCount <= 1}
+                    icon={<Icon name={Trash2} size={16} color="inherit" decorative />}
                     onClick={() => removeMetric(metricIndex)}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
+                  />
                 </Tooltip>
               </>
             ) : (
@@ -354,13 +350,12 @@ export function ProjectCard({
                 <Tooltip content={t('adminMyWorkClearField')} position="top" showDelay={0}>
                   <IconButton
                     type="button"
-                    aria-label={t('adminMyWorkClearField')}
+                    ariaLabel={t('adminMyWorkClearField')}
                     variant="ghost"
                     size="sm"
+                    icon={<Icon name={Trash2} size={16} color="inherit" decorative />}
                     onClick={() => clearField(fieldKey)}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
+                  />
                 </Tooltip>
               )
             )}
