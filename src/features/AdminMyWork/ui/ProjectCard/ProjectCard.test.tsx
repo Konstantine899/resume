@@ -280,7 +280,7 @@ describe('ProjectCard', () => {
   // ---- data-testid contract (page-test harness) ----
 
   it('accepts a root test id pass-through', () => {
-    renderCard(PROJECT, { testId: 'my-root' });
+    renderCard(PROJECT, { 'data-testid': 'my-root' });
 
     expect(screen.getByTestId('my-root')).toBeInTheDocument();
   });

@@ -110,8 +110,8 @@ export interface ProjectCardProps {
   /** Rev.3: opens the FIELD-scoped modal for this row key (page-owned). */
   onEditField?: (project: Project, field: EditProjectField) => void;
   className?: string;
-  /** Root test id — MyWorkEditorList passes `project-card-${project.id}`. */
-  testId?: string;
+  /** Root test id (JobCard convention) — MyWorkEditorList passes `project-card-${project.id}`. */
+  'data-testid'?: string;
 }
 
 export function ProjectCard({
@@ -120,7 +120,7 @@ export function ProjectCard({
   onDelete,
   onEditField,
   className,
-  testId,
+  'data-testid': testId,
 }: ProjectCardProps): React.JSX.Element {
   const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -328,9 +328,9 @@ export function ProjectCard({
                 ariaLabel={t('adminMyWorkEditFieldTitle', {
                   field: isMetric ? t('projectFieldMetrics') : row.label,
                 })}
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                icon={<Icon name={Pencil} size={16} color="inherit" decorative />}
+                icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
                 onClick={() => onEditField?.(project, fieldKey)}
               />
             </Tooltip>
@@ -340,10 +340,10 @@ export function ProjectCard({
                   <IconButton
                     type="button"
                     ariaLabel={t('adminMyWorkMetricUp')}
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     disabled={metricIndex === 0}
-                    icon={<Icon name={ArrowUp} size={16} color="inherit" decorative />}
+                    icon={<Icon name={ArrowUp} size={20} color="inherit" decorative />}
                     onClick={() => moveMetric(metricIndex, -1)}
                   />
                 </Tooltip>
@@ -351,10 +351,10 @@ export function ProjectCard({
                   <IconButton
                     type="button"
                     ariaLabel={t('adminMyWorkMetricDown')}
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     disabled={metricIndex === metricCount - 1}
-                    icon={<Icon name={ArrowDown} size={16} color="inherit" decorative />}
+                    icon={<Icon name={ArrowDown} size={20} color="inherit" decorative />}
                     onClick={() => moveMetric(metricIndex, 1)}
                   />
                 </Tooltip>
@@ -362,9 +362,9 @@ export function ProjectCard({
                   <IconButton
                     type="button"
                     ariaLabel={t('adminMyWorkRemoveMetric')}
-                    variant="ghost"
+                    variant="danger"
                     size="sm"
-                    icon={<Icon name={Trash2} size={16} color="inherit" decorative />}
+                    icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                     onClick={() => removeMetric(metricIndex)}
                   />
                 </Tooltip>
@@ -375,9 +375,9 @@ export function ProjectCard({
                   <IconButton
                     type="button"
                     ariaLabel={t('adminMyWorkClearField')}
-                    variant="ghost"
+                    variant="danger"
                     size="sm"
-                    icon={<Icon name={Trash2} size={16} color="inherit" decorative />}
+                    icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                     onClick={() => clearField(fieldKey)}
                   />
                 </Tooltip>

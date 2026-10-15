@@ -13,7 +13,6 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-4;
 }
 
 .field {
@@ -30,5 +29,6 @@
 
 .actions {
   display: flex;
-  gap: $spacing-2;
+  flex-wrap: wrap;
+  gap: $spacing-3;
 }

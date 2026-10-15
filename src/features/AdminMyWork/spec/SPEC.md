@@ -1,81 +1,80 @@
 ---
 status: done
-epic: every-row-clear
-issue: 249
-created: '2026-10-15'
-verified: '2026-10-15'
+epic: mywork-parity-polish
+issue: 252
+created: '2026-10-16'
+verified: '2026-10-16'
 ---
 
-# SPEC — features/AdminMyWork (every-row-clear, rev.4, issue #249)
+# SPEC — features/AdminMyWork (mywork-parity-polish, issue #252)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> План: vault `wiki/plan/plan_mywork_detail_table.md`, аменда rev.4 (2026-10-15). Предыдущая пара (эпик `mywork-field-actions`, rev.3, done, PR #246) перезаписана — история в git (`git log -- src/features/AdminMyWork/spec/`).
+> План: vault `wiki/plan/plan_mywork_parity_polish.md`, rev.1. Предыдущая пара (эпик `every-row-clear`, rev.4, done, PR #250) перезаписана — история в git (`git log -- src/features/AdminMyWork/spec/`).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
-> **Режим исполнения: AUTO** (директива владельца; аменда rev.4 выполнена тем же режимом).
+> **Режим исполнения: AUTO** (директива владельца).
 
 ## Контекст и цель
 
-Директива владельца (2026-10-15): «кнопка Trash2 удаления на КАЖДОЙ строке detail-таблицы `/admin/mywork` с соответствующим ей функционалом. Строго выполни!». Рев.3 оставлял clear только на year/link/role/featured (контракт запрещал пустые title/category/status/description/techIcons/image), а строке image вообще не было действий (R-B1). Рев.4 снимает эти ограничения.
-
-Итог: 10 скалярных строк карточки проекта несут Pencil (полевая правка) + Trash2 (очистка до контрактного пустого значения). Очищенная строка исчезает из таблицы (honest-data, R-4). Метрики: последняя тоже удалима (`metrics` optional).
+Паритет-аудит `src/features/AdminMyWork` против gold-стандартов `src/features/AdminJobs` (#216..#227) и `src/features/AdminSkills` (#205) нашёл 7 отклонений. Эпик их выравнивает; поведение (CRUD, persist-THEN-dispatch, honest-data) НЕ меняется — только конвенции kit-компонентов, ритм SCSS, мёртвые i18n-ключи, проп-имена и шапка модалки.
 
 ## Требования
 
-### R-1 Контракт ослаблен (entities/Project, обратно совместимо)
+### R-1 Кит-варианты IconButton в ProjectCard (паритет JobCard)
 
-- `title`: `''` ИЛИ 2–100 после trim (непустой 1-символьный — по-прежнему отклоняется).
-- `description.en/ru`: ≤600, пустая строка допустима.
-- `techIcons`: 0..n (пустой массив допустим; ключи по-прежнему из `TECH_ICONS`).
-- `category`/`status`: optional (enum-значения по-прежнему строгие).
-- `image`: union получает `z.literal('')` — это значение CLEAR.
+- [x] Строковый Pencil: `variant="ghost"` → `variant="outline"`, иконка 16px → 20px.
+- [x] Метрики ↑/↓: ghost → outline, 16px → 20px.
+- [x] Trash2 удаления метрики: ghost → `variant="danger"`, 16px → 20px.
+- [x] Trash2 очистки поля (clear): ghost → danger, 16px → 20px.
+- [x] Критерий: в `ProjectCard.tsx` не осталось ни одного `variant="ghost"` и ни одного `size={16}`; шапочные/strip-кнопки (outline/danger, 20px) не менялись.
 
-Ослабление только расширяет множество валидных записей: seed `PROJECTS` и envelope `{v:1}` валидны без миграций.
+### R-2 Шапка MyWorkEditorList (паритет SkillsEditorList)
 
-- [x] Критерий: `schema.test.ts` — 30/30, включая «fully cleared record» и «accepts missing category/status».
+- [x] Tooltip «сбросить»: `position="bottom"` → `position="top"`.
+- [x] Кнопка сброса: `variant="ghost"` → `variant="outline"` (size="md" остаётся).
+- [x] Tooltip «добавить»: `position="bottom"` → `position="top"`.
 
-### R-2 Строки detail-таблицы
+### R-3 Ритм SCSS
 
-- [x] Каждая из 10 скалярных строк (title, category, status, description, role, techIcons, image, year, link, featured) несёт clear Trash2 с aria-label `adminMyWorkClearField`.
-- [x] Image-строка получила Pencil (`onEditField(project, 'image')`) — R-B1 отменён; поле-модалка = text Input пути (паритет link).
-- [x] title/category/status — conditional-push: при пустом значении строка исчезает из таблицы.
-- [x] Значения CLEAR: `title:''`, `category:undefined`, `status:undefined`, `description:{en:'',ru:''}`, `techIcons:[]`, `image:''` (year/link/role/featured — как rev.3).
+- [x] `MyWorkEditorList.module.scss` `.headerActions`: удалён `flex-wrap: wrap;` (gap/align-items сохранены).
+- [x] `FieldEditForm.module.scss` `.form`: удалён `gap: $spacing-4;` — вертикальный ритм даёт kit `Form gap="lg"` (24px), паритет с `ProjectForm`.
+- [x] `FieldEditForm.module.scss` `.actions`: добавлен `flex-wrap: wrap;`, `gap: $spacing-2` → `$spacing-3`.
+- [x] Критерий: `npm run lint:styles` 0; пустых `//`-комментариев не осталось (`scss/comment-no-empty`).
 
-### R-3 Порядок persist (§3, без изменений)
+### R-4 Мёртвые i18n-ключи удалены
 
-- [x] Критерий: клик clear → `persistProjects(next)` ДО `dispatch(updateProject)`; при fail persist — store не тронут + тост `projectSaveError`.
+- [x] Из `en.json` И `ru.json` удалены 5 ключей DataTable-витрины, умершей вместе с ней: `adminMyWorkTableTitle`, `adminMyWorkTableCategory`, `adminMyWorkTableStatus`, `adminMyWorkTableFeatured`, `adminMyWorkTableYear`.
+- [x] Живые ключи detail-таблицы сохранены: `adminMyWorkTableField`, `adminMyWorkTableValue`, `adminMyWorkTableActions`.
+- [x] `locales-parity.test.ts`: те же 5 записей убраны из allowlist; комментарий актуализирован.
+- [x] Критерий: grep по пяти ключам вне `locales-parity.test.ts` пуст; parity-тест зелёный (key-сети en/ru идентичны).
 
-### R-4 Метрики
+### R-5 data-testid-конвенция (паритет JobCard)
 
-- [x] Trash2 последней метрики НЕ disabled; `removeMetric` при пустоте ставит `metrics: undefined`.
-- [x] ↑↓-края по-прежнему disabled.
+- [x] `ProjectCardProps.testId` → `'data-testid'?: string`, деструктуризация `'data-testid': testId` — как в `JobCard.tsx`; DOM-атрибут на корневом div работает как раньше.
+- [x] Потребитель (`ProjectCard.test.tsx`) передаёт `{ 'data-testid': 'my-root' }`.
 
-### R-5 Шапка
+### R-6 Subtitle модалки формы (паритет AdminSkillsPage)
 
-- [x] Status-badge в шапке omitted при `status: undefined` (guard).
+- [x] `AdminMyWorkPage`: Modal формы получает `subtitle={record?.title}` — в режиме правки подзаголовок называет проект (raw-строка, как `formSubtitle` в `AdminSkillsPage`), в create-режиме `record === undefined` → subtitle отсутствует.
+- [x] Критерий: в модалке правки заголовок `adminEditProject` + подзаголовок с названием проекта; в create — только `adminAddProject`.
 
-### R-6 Поле-модалка image
+### R-7 Пара spec
 
-- [x] `ScalarEditField += 'image'`; `fieldEditSchemas.image` делегирует в `ProjectFormSchema.shape.image`; кейс в `FieldEditForm` — Input с error-ключом `projectImageInvalid`.
+- [x] `spec/SPEC.md` + `spec/TODO.md` перезаписаны эпиком `mywork-parity-polish` (issue #252).
 
-### R-7 Форма (SSOT, паритет)
+## Решения / Отклонения
 
-- [x] Полная `ProjectForm` наследует ослабление через `.pipe()`-делегирование: пустой title/без image/пустые techIcons сабмитятся.
-- [x] `create`-дефолты не менялись (`emptyProjectFormValues`: category 'other', status 'completed').
-- [x] Критерий: ProjectForm-тесты перевёрнуты — «accepts empty title», «accepts NO image», «accepts empty techIcons».
-
-### R-8 Сортировка
-
-- [x] `MyWorkEditorList` category-sort: `(a.category ?? '').localeCompare(b.category ?? '')`.
+- **Метрики ProjectForm остаются одним Textarea** (одна метрика на строку, `splitMetricLines`) — осознанное решение. Альтернатива «bullet-строки как в JobForm» (построчные ↑↓/удаление внутри формы) отложена в отдельный эпик — вне скоупа этого.
+- **`AdminJobs/spec/SPEC.md` сейчас перезаписан эпиком modal-content-scroll (#235)** — живой Jobs-spec (пара карточек #225/#227) в git-истории; восстановление вынесено в follow-up issue, вне скоупа.
+- **`.field` gap оставлен как есть** (`$spacing-2` в `FieldEditForm.module.scss`) — no-op: правка ничего не даёт и ломает паритет с ProjectForm, поэтому не трогаем.
+- Поведение CRUD не менялось: persist-THEN-dispatch (§3), honest-data (R-4 про optional-строки), disabled-края ↑↓ и все i18n-строки остались как были.
 
 ## Известные ограничения (осознанные)
 
-- Полная форма при редактировании записи без category/status показывает дефолты ('other'/'completed') в селектах — сохранение без правок материализует дефолт. Это поведение create-дефолтов, не регрессия.
-- Vitrina (shared ProjectCard) уже guard'ит пустые title/description/techIcons/image — отдельных правок не потребовалось.
-- Запись можно сохранить БЕЗ title/category/status/description/techIcons/image — витрина honest-data покажет карточку без этих строк. Вердикт владельца при плане rev.4.
+- kit Tooltip остаётся hover-only (A14, follow-up #222) — клавиатурная доступность держится на `aria-label`, тултип по focus не появится.
+- Кнопки строк detail-таблицы остаются единственный способ перестановки метрик (DnD отклонён владельцем, см. resume-jobcard-bullets-as-is).
 
-## Гейты (2026-10-15)
+## Гейты (2026-10-16)
 
-- tsc 0; eslint 0; stylelint 0; check:public-api 37/37; check:spec 15.
-- axe-app: 0 регрессий (baseline 4 known; `/admin/mywork` light+dark чист).
-- Бандл: 762.1 < 768 KiB (cap из #227).
-- Юнит: schema 30/30, ProjectCard 32/32, fieldSchemas/storage/ProjectForm 51/51, AdminMyWork 149/149, MyWork 11/11, AdminMyWorkPage 10/10, AppRouter+Card 106/106 (CPU-флейки зелёные в изоляции).
+- tsc 0; eslint 0; stylelint 0; prettier 0 на тронутых файлах; check:public-api 37/37; check:spec.
+- Юнит: AdminMyWork (ProjectCard/MyWorkEditorList/FieldEditForm/ProjectForm), locales-parity, AdminMyWorkPage — зелёные.
+- Бандл: без изменений капов; `check:bundle` проходит.

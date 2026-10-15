@@ -1,18 +1,20 @@
 ---
 status: done
 spec: SPEC.md
-issue: 249
-verified: '2026-10-15'
+issue: 252
+verified: '2026-10-16'
 ---
 
-# TODO — features/AdminMyWork (every-row-clear, rev.4, issue #249)
+# TODO — features/AdminMyWork (mywork-parity-polish, issue #252)
 
-Закрыто 2026-10-15: PR #250 (Closes #249). Пункты WU-1..5 сгорели:
+Закрыто 2026-10-16: PR (Closes #252). Пункты WU-1..7 сгорели:
 
-1. Контракт rev.4 (schema.ts + types.ts, TDD RED 6 → GREEN 30/30) — `b0065fd`.
-2. ProjectCard: CLEARABLE 10 скаляров, conditional-push title/category/status, image Pencil+clear, снят disabled последней метрики (RED 9 → GREEN 32/32) — `1baaeee`.
-3. Guard'ы: сортировка category `?? ''`, status-badge omitted — в том же коммите.
-4. Форма: `fieldSchemas` image-slice + `FieldEditForm` image-кейс; тесты ProjectForm/storage/fieldSchemas перевёрнуты (51/51).
-5. Гейты: tsc/eslint/stylelint 0, public-api 37/37, check:spec 15, axe 0 регрессий, бандл 762.1 < 768, превью-смоук по договорённости — в CI/локально (флейки по CPU реранами в изоляции).
+1. ProjectCard kit-варианты: строковый Pencil и метрики ↑↓ — outline, Trash2 (метрика + clear) — danger, иконки 16px → 20px (паритет JobCard).
+2. MyWorkEditorList шапка: тултипы сброса/добавления `bottom` → `top`, кнопка сброса ghost → outline.
+3. SCSS-ритм: `.headerActions` без `flex-wrap`; `FieldEditForm` `.form` без gap (kit Form gap="lg"), `.actions` — `flex-wrap` + gap `$spacing-3`.
+4. i18n: удалены 5 мёртвых ключей `adminMyWorkTable{Title,Category,Status,Featured,Year}` (en+ru) и их записи в allowlist parity-теста.
+5. ProjectCard: `testId` → `'data-testid'` (конвенция JobCard), тест обновлён.
+6. AdminMyWorkPage: Modal формы получает `subtitle={record?.title}` в режиме правки (паритет AdminSkillsPage), create — без subtitle.
+7. Пара spec перезаписана эпиком `mywork-parity-polish`.
 
-Предыдущая пара (эпик `mywork-field-actions`, rev.3, PR #246) перезаписана — история в git.
+Предыдущая пара (эпик `every-row-clear`, rev.4, PR #250) перезаписана — история в git.
