@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: mywork-row-actions
 created: '2026-10-14'
 verified: '2026-10-15'
@@ -187,31 +187,31 @@ header-е списка — только ariaLabel).
 
 ### R-A1 — Действия на каждой строке (ProjectCard)
 
-- [ ] Collapsed-caption несёт Pencil sm + Trash2 sm (Tooltip
+- [x] Collapsed-caption несёт Pencil sm + Trash2 sm (Tooltip
       `showDelay={0}`, контент = `projectEdit`/`projectDelete`; клики =
       `onEdit(project)` / `onDelete(id)` — та же семантика, что в
       развёрнутой шапке).
-- [ ] Expanded-шапка без изменений (actions уже там; дубль не рендерить —
+- [x] Expanded-шапка без изменений (actions уже там; дубль не рендерить —
       caption размонтируется при expand, пересечения нет).
-- [ ] Новых i18n-ключей 0.
+- [x] Новых i18n-ключей 0.
 
 ### R-A2 — Тултипы всех действий
 
-- [ ] `MyWorkEditorList`: reset (`projectReset`) и add (`adminMyWorkAdd`)
+- [x] `MyWorkEditorList`: reset (`projectReset`) и add (`adminMyWorkAdd`)
       IconButton обёрнуты в `<Tooltip content={ariaLabel-строка}>`
       (hover показывает подсказку; паттерн skills-actions-polish #221).
-- [ ] Все IconButton действий в витрине (caption/шапка карточки,
+- [x] Все IconButton действий в витрине (caption/шапка карточки,
       header списка) имеют Tooltip — hover-тесты в RED-фазе.
 
 ### R-A3 — Page-test: collapsed-Pencil → prefilled-модалка
 
-- [ ] Тест: свёрнутая строка → клик Pencil → модалка `adminEditProject`
+- [x] Тест: свёрнутая строка → клик Pencil → модалка `adminEditProject`
       с prefilled title первой записи (store-aware харнес).
-- [ ] Харнес упрощается: expand-first для edit/delete-кликов больше не
+- [x] Харнес упрощается: expand-first для edit/delete-кликов больше не
       нужен (кнопки видны всегда); expand-покрытие detail-таблицы
       остаётся отдельным тестом.
 
 ### R-A4 — Гейты аменды
 
-- [ ] validate зелёный; axe `/admin/mywork` 0 регрессий; бандл в капе
+- [x] validate зелёный; axe `/admin/mywork` 0 регрессий; бандл в капе
       786432; burn-down пары + плана rev.2.
