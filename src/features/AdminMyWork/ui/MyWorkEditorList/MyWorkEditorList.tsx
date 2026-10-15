@@ -41,9 +41,11 @@ import { Tooltip } from '@/shared/ui/Tooltip';
 import React, { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
+import type { Project } from '@/entities/Project';
 import { selectAllProjects } from '../../model/selectors';
 import { persistProjects, removeProjects } from '../../model/services/storage';
 import { deleteProject, resetToDefaults } from '../../model/slices/myWorkSlice';
+import type { EditProjectField } from '../ProjectForm/lib/fieldSchemas';
 import { ProjectCard } from '../ProjectCard/ProjectCard';
 import styles from './MyWorkEditorList.module.scss';
 
@@ -57,6 +59,8 @@ export interface MyWorkEditorListProps {
   onAdd?: () => void;
   /** The page opens its edit form for this record id. */
   onEdit: (id: string) => void;
+  /** Rev.3: the page opens the FIELD-scoped modal for this record+row. */
+  onEditField?: (project: Project, field: EditProjectField) => void;
   /** The page clears editingId when the open record is deleted. */
   onDeleted?: (id: string) => void;
 }
@@ -66,6 +70,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   'data-testid': testId = 'mywork-editor-list',
   onAdd,
   onEdit,
+  onEditField,
   onDeleted,
 }) => {
   // Same-feature selector + dispatch — legal inside AdminMyWork (§8).
@@ -205,6 +210,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
           key={project.id}
           project={project}
           onEdit={(record) => onEdit(record.id)}
+          onEditField={onEditField}
           onDelete={(id) => setPending({ kind: 'delete', id })}
         />
       ))}

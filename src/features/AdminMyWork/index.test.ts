@@ -39,6 +39,7 @@ const LIVE_EXPORTS = [
   'selectAllProjects',
   'removeProjects',
   'myWorkReducer',
+  'FieldEditForm',
   'MyWorkEditorList',
   'ProjectForm',
 ] as const;

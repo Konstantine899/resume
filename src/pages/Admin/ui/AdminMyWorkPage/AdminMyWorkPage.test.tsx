@@ -35,11 +35,15 @@ vi.mock('@/features/AdminMyWork/model/services/storage', async (importOriginal) 
 
 // Identity t(): raw keys in assertions; known options render as
 // `${key}:${value}` (confirm subtitle `name`, card expand/collapse
-// `title` — needed to address ONE collapsed card by its caption).
+// `title`, rev.3 field-modal title `field` — needed to address ONE
+// collapsed card by its caption and the field dialog by its name).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { name?: string; number?: number; title?: string }) => {
-      const parts = [options?.name, options?.number, options?.title].filter(
+    t: (
+      key: string,
+      options?: { name?: string; number?: number; title?: string; field?: string }
+    ) => {
+      const parts = [options?.name, options?.number, options?.title, options?.field].filter(
         (value) => value !== undefined
       );
       return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
@@ -235,5 +239,73 @@ describe('AdminMyWorkPage (modal criteria, R-4)', () => {
     expect(overlay).not.toBeNull();
     fireEvent.pointerDown(overlay as HTMLElement);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  // ---- rev.3 (mywork-field-actions): field-scoped modal ----
+
+  /** Expand the first card, then click the row Pencil for `rowKey`. */
+  const openFieldEdit = async (rowKey: string) => {
+    const id = firstCardId();
+    // The strip's aria-label carries the project TITLE (not the id).
+    const caption = document.querySelector(`[data-testid="project-card-caption-${id}"]`);
+    const title = caption?.textContent?.trim();
+    expect(title).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: `adminMyWorkExpand:${title}` }));
+    // The caption unmounted; address the row actions by their stable testid.
+    const cell = await screen.findByTestId(`project-field-actions-${id}-${rowKey}`);
+    fireEvent.click(within(cell).getByRole('button', { name: /^adminMyWorkEditFieldTitle:/ }));
+    return openDialog();
+  };
+
+  it('row Pencil opens the field-scoped modal (FieldEditForm, field-named title)', async () => {
+    const store = renderPage();
+    const first = projectsOf(store)[0];
+    if (!first) throw new Error('seed must contain at least one project');
+
+    const modal = await openFieldEdit('title');
+
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: /^adminMyWorkEditFieldTitle:/ })
+    ).toBeInTheDocument();
+    // FieldEditForm — the ONE-field input, not the full ProjectForm.
+    expect(within(modal).getByTestId('project-field-form')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('projectFieldTitle')).toHaveValue(first.title);
+    expect(within(modal).queryByLabelText('projectFieldLink')).toBeNull();
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('field Save persists a one-field partial and closes the modal', async () => {
+    const store = renderPage();
+    const first = projectsOf(store)[0];
+    if (!first) throw new Error('seed must contain at least one project');
+
+    const modal = await openFieldEdit('title');
+    fireEvent.change(within(modal).getByLabelText('projectFieldTitle'), {
+      target: { value: 'Renamed Shop' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'projectSave' }));
+
+    await waitFor(() => expect(screen.queryAllByRole('dialog')).toHaveLength(0));
+    const updated = projectsOf(store).find((p) => p.id === first.id);
+    expect(updated?.title).toBe('Renamed Shop');
+    // Siblings untouched — the patch touched ONLY the edited field.
+    expect(updated?.year).toBe(first.year);
+    expect(updated?.link).toBe(first.link);
+    expect(persistSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('stale-guard: deleting the record being field-edited closes the modal', async () => {
+    const store = renderPage();
+    const first = projectsOf(store)[0];
+    if (!first) throw new Error('seed must contain at least one project');
+
+    await openFieldEdit('title');
+    expect(screen.getByTestId('project-field-form')).toBeInTheDocument();
+
+    // The record disappears "elsewhere" while the field modal is open.
+    await deleteFirstRow();
+
+    await waitFor(() => expect(projectsOf(store).some((p) => p.id === first.id)).toBe(false));
+    expect(screen.queryAllByRole('dialog')).toHaveLength(0);
   });
 });

@@ -13,13 +13,25 @@
 // (A8) and a successful Save (A7 — ProjectForm calls `onExitEdit`) close
 // via `closeForm`.
 //
+// Rev.3 (mywork-field-actions WU-6): the SAME modal hosts the
+// field-scoped FieldEditForm when `form.field` is set (row Pencil) —
+// title = adminMyWorkEditFieldTitle with the field's label. The form is
+// keyed by `projectId-field` so switching fields remounts it with fresh
+// defaults (Design C key-remount).
+//
 // Design C key-remount: the form is keyed by its record
 // (`key={projectId ?? 'create'}`), so Edit ↔ create remounts it with
 // fresh defaultValues instead of patching RHF state in place. Stale-guard:
 // a record deleted elsewhere closes the modal instead of rendering stale
 // values into the inputs (AdminJobsPage parity).
 
-import { MyWorkEditorList, ProjectForm, selectAllProjects } from '@/features/AdminMyWork';
+import {
+  FieldEditForm,
+  MyWorkEditorList,
+  ProjectForm,
+  selectAllProjects,
+  type EditProjectField,
+} from '@/features/AdminMyWork';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { Modal } from '@/shared/ui/Modal';
@@ -27,8 +39,27 @@ import { Section } from '@/shared/ui/Section';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-/** Null = closed; `{}` = create; `{ projectId }` = edit that record. */
-type MyWorkFormState = { projectId?: string } | null;
+/**
+ * Null = closed; `{}` = create; `{ projectId }` = full-form edit;
+ * `{ projectId, field }` = rev.3 field-scoped edit (row Pencil).
+ */
+type MyWorkFormState = { projectId?: string; field?: EditProjectField } | null;
+
+/** Row key → the projectField* label key (modal title rides the i18n map). */
+const FIELD_LABEL_KEYS: Record<string, string> = {
+  title: 'projectFieldTitle',
+  category: 'projectFieldCategory',
+  status: 'projectFieldStatus',
+  featured: 'projectFieldFeatured',
+  year: 'projectFieldYear',
+  link: 'projectFieldLink',
+  description: 'projectFieldDescription',
+  role: 'projectFieldRole',
+  techIcons: 'projectFieldTechIcons',
+};
+
+const fieldLabelKey = (field: EditProjectField): string =>
+  field.startsWith('metric-') ? 'projectFieldMetrics' : (FIELD_LABEL_KEYS[field] ?? field);
 
 export const AdminMyWorkPage: React.FC = () => {
   const projects = useSelector(selectAllProjects);
@@ -36,6 +67,7 @@ export const AdminMyWorkPage: React.FC = () => {
   const [form, setForm] = useState<MyWorkFormState>(null);
 
   const projectId = form?.projectId;
+  const field = form?.field;
   const record = projectId ? projects.find((entry) => entry.id === projectId) : undefined;
   // A record deleted elsewhere closes the modal instead of rendering
   // stale values into the inputs — never fall back to create mode.
@@ -44,7 +76,16 @@ export const AdminMyWorkPage: React.FC = () => {
   const closeForm = () => setForm(null);
 
   const formElement = open ? (
-    <ProjectForm key={projectId ?? 'create'} project={record} onExitEdit={closeForm} />
+    field !== undefined && record !== undefined ? (
+      <FieldEditForm
+        key={`${projectId}-${field}`}
+        project={record}
+        field={field}
+        onExitEdit={closeForm}
+      />
+    ) : (
+      <ProjectForm key={projectId ?? 'create'} project={record} onExitEdit={closeForm} />
+    )
   ) : null;
 
   return (
@@ -53,14 +94,22 @@ export const AdminMyWorkPage: React.FC = () => {
         <MyWorkEditorList
           onAdd={() => setForm({})}
           onEdit={(id) => setForm({ projectId: id })}
+          onEditField={(project, editField) =>
+            setForm({ projectId: project.id, field: editField })
+          }
           onDeleted={(id) => setForm((current) => (current?.projectId === id ? null : current))}
         />
         <Modal
           isOpen={open}
           onClose={closeForm}
           // mywork-detail-table R-2 (OPEN-4=A, Jobs parity): the dialog
-          // NAME tells the mode — create ≠ edit ≠ the list h2.
-          title={t(projectId !== undefined ? 'adminEditProject' : 'adminAddProject')}
+          // NAME tells the mode — create ≠ edit ≠ the list h2. Rev.3:
+          // field edit names the field (adminMyWorkEditFieldTitle).
+          title={
+            field !== undefined
+              ? t('adminMyWorkEditFieldTitle', { field: t(fieldLabelKey(field)) })
+              : t(projectId !== undefined ? 'adminEditProject' : 'adminAddProject')
+          }
         >
           {formElement}
         </Modal>
