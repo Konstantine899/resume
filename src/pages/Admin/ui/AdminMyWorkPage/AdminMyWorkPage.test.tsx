@@ -34,11 +34,14 @@ vi.mock('@/features/AdminMyWork/model/services/storage', async (importOriginal) 
 }));
 
 // Identity t(): raw keys in assertions; known options render as
-// `${key}:${value}` (confirm subtitle `name`, Pagination `number`).
+// `${key}:${value}` (confirm subtitle `name`, card expand/collapse
+// `title` — needed to address ONE collapsed card by its caption).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { name?: string; number?: number }) => {
-      const parts = [options?.name, options?.number].filter((value) => value !== undefined);
+    t: (key: string, options?: { name?: string; number?: number; title?: string }) => {
+      const parts = [options?.name, options?.number, options?.title].filter(
+        (value) => value !== undefined
+      );
       return parts.length > 0 ? `${key}:${parts.join(':')}` : key;
     },
     language: 'en',
@@ -72,19 +75,60 @@ const openCreate = async () => {
   return openDialog();
 };
 
+/**
+ * mywork-detail-table gotcha (jobs-detail-table #225 parity): the cards
+ * are COLLAPSED by default, so the header actions do not exist until the
+ * card is expanded — expand FIRST, then click. Tolerant: an already
+ * expanded card (stale-guard reuses the edit helper) has no expand
+ * button — skip instead of throwing.
+ */
+const expandCard = (title: string) => {
+  const expand = screen.queryByRole('button', { name: `adminMyWorkExpand:${title}` });
+  if (expand !== null) fireEvent.click(expand);
+};
+
+/**
+ * The FIRST card's record id — read from the card-root testid, which
+ * exists in BOTH collapsed and expanded state. NEVER from the caption
+ * (an expanded card unmounts it — the caption-based lookup silently
+ * slid to the NEXT record and deleted the wrong one in the stale-guard).
+ */
+const firstCardId = (): string => {
+  const roots = document.querySelectorAll('[data-testid^="project-card-"]');
+  for (const el of Array.from(roots)) {
+    const id = el.getAttribute('data-testid') ?? '';
+    if (id.includes('caption') || id.includes('actions')) continue;
+    return id.replace(/^project-card-/, '');
+  }
+  throw new Error('expected at least one project card');
+};
+
+/** Visible caption of the first card — null when that card is expanded. */
+const firstCaptionTitle = (): string | null =>
+  document.querySelector('[data-testid^="project-card-caption-"]')?.textContent ?? null;
+
 const editFirstProject = async () => {
-  fireEvent.click(screen.getAllByRole('button', { name: 'projectEdit' })[0] as HTMLElement);
+  const id = firstCardId();
+  const title = firstCaptionTitle();
+  if (title !== null) expandCard(title);
+  fireEvent.click(
+    within(screen.getByTestId(`project-card-actions-${id}`)).getByRole('button', {
+      name: 'projectEdit',
+    })
+  );
   return openDialog();
 };
 
-/** Remove the first row through the list's delete-confirm flow. */
+/** Remove the first card through the list's delete-confirm flow. */
 const deleteFirstRow = async () => {
-  const edit = screen.getAllByRole('button', { name: 'projectEdit' })[0] as HTMLElement;
-  // WU-5 vitrina: Edit/Delete share the row's actions cell (WU-4's <li>
-  // is gone — the kit DataTable renders table rows).
-  const actions = edit.closest('[data-testid^="mywork-actions-"]');
-  expect(actions).not.toBeNull();
-  fireEvent.click(within(actions as HTMLElement).getByRole('button', { name: 'projectDelete' }));
+  const id = firstCardId();
+  const title = firstCaptionTitle();
+  if (title !== null) expandCard(title);
+  fireEvent.click(
+    within(screen.getByTestId(`project-card-actions-${id}`)).getByRole('button', {
+      name: 'projectDelete',
+    })
+  );
   // With the form modal open there are TWO dialogs; the confirm one is
   // identified by its entity-naming subtitle (R-2).
   const dialogs = await screen.findAllByRole('dialog');
@@ -93,7 +137,12 @@ const deleteFirstRow = async () => {
   );
   expect(confirm).toBeDefined();
   fireEvent.click(within(confirm as HTMLElement).getByRole('button', { name: 'projectDelete' }));
-  await waitFor(() => expect(screen.queryAllByRole('dialog')).toHaveLength(0));
+  // Confirm closes; the form closes too when the deleted record is the
+  // one being edited (stale-guard) — wait for the CONFIRM specifically
+  // so a surviving form dialog does not hang this helper.
+  await waitFor(() =>
+    expect(within(document.body).queryByText('projectDeleteConfirm')).not.toBeInTheDocument()
+  );
 };
 
 describe('AdminMyWorkPage (modal criteria, R-4)', () => {
@@ -112,8 +161,9 @@ describe('AdminMyWorkPage (modal criteria, R-4)', () => {
 
     const modal = await openCreate();
 
+    // R-2 (OPEN-4=A): create mode names the dialog adminAddProject.
     expect(
-      within(modal).getByRole('heading', { level: 2, name: 'adminMyWorkTitle' })
+      within(modal).getByRole('heading', { level: 2, name: 'adminAddProject' })
     ).toBeInTheDocument();
     expect(within(modal).getByTestId('project-form')).toBeInTheDocument();
     // A12: the page renders a single dialog for its single `form` state.
@@ -140,8 +190,9 @@ describe('AdminMyWorkPage (modal criteria, R-4)', () => {
 
     const modal = await editFirstProject();
 
+    // R-2 (OPEN-4=A): edit mode names the dialog adminEditProject.
     expect(
-      within(modal).getByRole('heading', { level: 2, name: 'adminMyWorkTitle' })
+      within(modal).getByRole('heading', { level: 2, name: 'adminEditProject' })
     ).toBeInTheDocument();
     expect(within(modal).getByLabelText('projectFieldTitle')).toHaveValue(first.title);
     expect(screen.getAllByRole('dialog')).toHaveLength(1);

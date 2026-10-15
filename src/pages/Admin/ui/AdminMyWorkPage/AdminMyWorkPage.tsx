@@ -55,7 +55,13 @@ export const AdminMyWorkPage: React.FC = () => {
           onEdit={(id) => setForm({ projectId: id })}
           onDeleted={(id) => setForm((current) => (current?.projectId === id ? null : current))}
         />
-        <Modal isOpen={open} onClose={closeForm} title={t('adminMyWorkTitle')}>
+        <Modal
+          isOpen={open}
+          onClose={closeForm}
+          // mywork-detail-table R-2 (OPEN-4=A, Jobs parity): the dialog
+          // NAME tells the mode — create ≠ edit ≠ the list h2.
+          title={t(projectId !== undefined ? 'adminEditProject' : 'adminAddProject')}
+        >
           {formElement}
         </Modal>
       </ErrorBoundary>
