@@ -95,7 +95,8 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
       return [...allProjects].sort((a, b) => a.title.localeCompare(b.title));
     }
     if (sortMode === 'category') {
-      return [...allProjects].sort((a, b) => a.category.localeCompare(b.category));
+      // `?? ''`: category is optional (rev.4) — cleared records sort as empty.
+      return [...allProjects].sort((a, b) => (a.category ?? '').localeCompare(b.category ?? ''));
     }
     if (sortMode === 'year') {
       return [...allProjects].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));

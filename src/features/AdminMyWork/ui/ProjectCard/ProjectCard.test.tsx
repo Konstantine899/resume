@@ -40,8 +40,7 @@ const { holder, dispatched, persistMock, addToastMock } = vi.hoisted(() => ({
 
 vi.mock('react-redux', () => ({
   useDispatch: () => (action: { type: string; payload: unknown }) => dispatched.push(action),
-  useSelector: (selector: (state: unknown) => unknown) =>
-    selector({ myWork: holder.projects }),
+  useSelector: (selector: (state: unknown) => unknown) => selector({ myWork: holder.projects }),
 }));
 
 vi.mock('../../model/services/storage', () => ({
@@ -327,31 +326,139 @@ describe('ProjectCard field actions (rev.3)', () => {
     expect(onEditField).toHaveBeenCalledWith(PROJECT, 'year');
   });
 
-  it('the image row renders NO actions at all (R-B1 exception)', () => {
-    renderCard();
+  // ---- rev.4 (every-row clear): the R-B1 image exception is GONE —
+  // '' is now a contract value, so the image row carries Pencil + Trash2. ----
+
+  it('the image row NOW carries a Pencil and clear (rev.4 — R-B1 reversed)', () => {
+    const onEditField = vi.fn();
+    renderCard(PROJECT, { onEditField });
     expandCard();
 
-    expect(actionsCell('image')).toBeNull();
+    const cell = actionsCell('image');
+    expect(cell).not.toBeNull();
+    const pencil = within(cell as HTMLElement).getByRole('button', {
+      name: 'adminMyWorkEditFieldTitle:projectFieldImage',
+    });
+    fireEvent.click(pencil);
+    expect(onEditField).toHaveBeenCalledWith(PROJECT, 'image');
+    expect(
+      within(cell as HTMLElement).getByRole('button', { name: 'adminMyWorkClearField' })
+    ).toBeInTheDocument();
   });
 
-  it('clear (Trash2) appears only on contract-clearable rows', () => {
+  it('clear (Trash2) appears on EVERY scalar row (rev.4)', () => {
     renderCard();
     expandCard();
 
-    // All editable rows carry actions (9 scalars incl. title etc.); the
-    // CLEAR button specifically must exist on year/link/role/featured only.
-    for (const rowKey of ['year', 'link', 'role', 'featured']) {
+    for (const rowKey of [
+      'title',
+      'category',
+      'status',
+      'featured',
+      'year',
+      'link',
+      'description',
+      'role',
+      'techIcons',
+      'image',
+    ]) {
       const cell = actionsCell(rowKey);
+      expect(cell).not.toBeNull();
       expect(
         within(cell as HTMLElement).getByRole('button', { name: 'adminMyWorkClearField' })
       ).toBeInTheDocument();
     }
-    for (const rowKey of ['title', 'category', 'status', 'description', 'techIcons']) {
-      const cell = actionsCell(rowKey);
-      expect(
-        within(cell as HTMLElement).queryByRole('button', { name: 'adminMyWorkClearField' })
-      ).toBeNull();
-    }
+  });
+
+  it('clearing title persists { title: "" } FIRST, then dispatches the same patch (§3)', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('title') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+
+    expect(persistMock).toHaveBeenCalledTimes(1);
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]?.title).toBe('');
+    expect(dispatched).toHaveLength(1);
+    const payload = dispatched[0]?.payload as { id: string; patch: { title: string } };
+    expect(payload.id).toBe('p1');
+    expect(payload.patch.title).toBe('');
+  });
+
+  it('clearing category persists { category: undefined } (key present, value gone)', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('category') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]).toHaveProperty('category', undefined);
+    const payload = dispatched[0]?.payload as { patch: { category?: string } };
+    expect(payload.patch).toHaveProperty('category', undefined);
+  });
+
+  it('clearing image persists { image: "" } (rev.4 — "" is in the schema union)', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('image') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]?.image).toBe('');
+  });
+
+  it('clearing description persists both locales empty; techIcons persists []', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('description') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+    const payload = dispatched[0]?.payload as {
+      patch: { description: { en: string; ru: string } };
+    };
+    expect(payload.patch.description).toEqual({ en: '', ru: '' });
+
+    fireEvent.click(
+      within(actionsCell('techIcons') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+    const techPayload = dispatched[1]?.payload as { patch: { techIcons: string[] } };
+    expect(techPayload.patch.techIcons).toEqual([]);
+  });
+
+  it('honest-data: cleared title/category/status rows vanish from the table', () => {
+    holder.projects = [{ ...PROJECT, title: '', category: undefined, status: undefined }];
+    renderCard({ ...PROJECT, title: '', category: undefined, status: undefined });
+    expandCard('');
+
+    expect(screen.queryByText('projectFieldTitle')).toBeNull();
+    expect(screen.queryByText('projectFieldCategory')).toBeNull();
+    expect(screen.queryByText('projectFieldStatus')).toBeNull();
+    // The rest of the rows survive.
+    expect(screen.getByText('projectFieldYear')).toBeInTheDocument();
+  });
+
+  it('header status badge is omitted when status is cleared', () => {
+    renderCard(makeProject({ status: undefined }));
+    expandCard();
+
+    expect(within(screen.getByRole('heading', { level: 3 })).queryByText('completed')).toBeNull();
   });
 
   it('clearing link persists { link: null } FIRST, then dispatches the same patch (§3)', () => {
@@ -403,16 +510,20 @@ describe('ProjectCard field actions (rev.3)', () => {
     expect(within(second).getByRole('button', { name: 'adminMyWorkMetricDown' })).toBeDisabled();
   });
 
-  it('a single metric disables remove', () => {
+  it('a single metric CAN be removed (rev.4 — metrics is optional)', () => {
     holder.projects = [{ ...PROJECT, metrics: ['Only'] }];
     renderCard({ ...PROJECT, metrics: ['Only'] });
     expandCard();
 
-    expect(
-      within(metricActionsCell(0) as HTMLElement).getByRole('button', {
-        name: 'adminMyWorkRemoveMetric',
-      })
-    ).toBeDisabled();
+    const remove = within(metricActionsCell(0) as HTMLElement).getByRole('button', {
+      name: 'adminMyWorkRemoveMetric',
+    });
+    expect(remove).toBeEnabled();
+    fireEvent.click(remove);
+
+    // Last metric removed → metrics becomes undefined (removeMetric parity).
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]).toHaveProperty('metrics', undefined);
   });
 
   it('metric pencil opens the field modal with the indexed key', () => {
@@ -458,7 +569,7 @@ describe('ProjectCard field actions (rev.3)', () => {
     expect(persisted[0]?.metrics).toEqual(['p95 120ms']);
   });
 
-  it('the last remaining metric cannot be removed (remove stays disabled)', () => {
+  it('the last remaining metric CAN be removed (rev.4 — persists metrics: undefined)', () => {
     holder.projects = [{ ...PROJECT, metrics: ['Only'] }];
     renderCard({ ...PROJECT, metrics: ['Only'] });
     expandCard();
@@ -469,8 +580,7 @@ describe('ProjectCard field actions (rev.3)', () => {
       })
     );
 
-    // Disabled button: no persist, no dispatch.
-    expect(persistMock).not.toHaveBeenCalled();
-    expect(dispatched).toHaveLength(0);
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]).toHaveProperty('metrics', undefined);
   });
 });

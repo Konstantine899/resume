@@ -33,9 +33,11 @@ export type ScalarEditField =
   | 'link'
   | 'description'
   | 'role'
-  | 'techIcons';
+  | 'techIcons'
+  /** rev.4: image joined the scalar set — '' is now a valid union value. */
+  | 'image';
 
-/** Every editable row key of the detail table (image has NO actions — R-B1). */
+/** Every editable row key of the detail table (rev.4: image included). */
 export type EditProjectField = ScalarEditField | `metric-${number}`;
 
 /** Parse the dynamic metric row key; NaN-guarded (never trust the union). */
@@ -46,11 +48,7 @@ export const metricIndexOf = (field: EditProjectField): number => {
 
 /** One metric line: same UX rule as the full form's blank-line dropping. */
 export const metricFieldSchema = z.object({
-  metric: z
-    .string()
-    .trim()
-    .min(1, 'projectMetricInvalid')
-    .max(40, 'projectMetricInvalid'),
+  metric: z.string().trim().min(1, 'projectMetricInvalid').max(40, 'projectMetricInvalid'),
 });
 
 // ---- field-modal schemas (one field at a time, all delegating) ----
@@ -65,13 +63,12 @@ export const fieldEditSchemas = {
   description: z.object({ description: ProjectFormSchema.shape.description }),
   role: z.object({ role: ProjectFormSchema.shape.role }),
   techIcons: z.object({ techIcons: ProjectFormSchema.shape.techIcons }),
+  image: z.object({ image: ProjectFormSchema.shape.image }),
 } as const;
 
 /** Resolver schema for ANY row key (scalar record or metric slice). */
 export const schemaFor = (field: EditProjectField) =>
-  field.startsWith('metric-')
-    ? metricFieldSchema
-    : fieldEditSchemas[field as ScalarEditField];
+  field.startsWith('metric-') ? metricFieldSchema : fieldEditSchemas[field as ScalarEditField];
 
 /** Input-side form state; only the ACTIVE field's keys are actually used. */
 export type FieldFormValues = {
@@ -84,6 +81,7 @@ export type FieldFormValues = {
   description?: { en: string; ru: string };
   role?: { en: string; ru: string };
   techIcons?: string[];
+  image?: string;
   metric?: string;
 };
 
@@ -108,6 +106,8 @@ export const defaultValuesFor = (field: EditProjectField, project: Project): Fie
       return { role: project.role ? { ...project.role } : { en: '', ru: '' } };
     case 'techIcons':
       return { techIcons: [...project.techIcons] };
+    case 'image':
+      return { image: project.image };
     default:
       return { metric: project.metrics?.[metricIndexOf(field)] ?? '' };
   }
@@ -124,6 +124,7 @@ export type FieldFormOutput =
   | { description: { en: string; ru: string } }
   | { role: { en: string; ru: string } | undefined }
   | { techIcons: string[] }
+  | { image: string }
   | { metric: string };
 
 /** Resolver output → ONE-field partial (the record rides only for metrics). */
@@ -151,6 +152,8 @@ export const toUpdateDto = (
       return { role: (data as { role: { en: string; ru: string } | undefined }).role };
     case 'techIcons':
       return { techIcons: (data as { techIcons: string[] }).techIcons };
+    case 'image':
+      return { image: (data as { image: string }).image };
     default: {
       const current = project.metrics ?? [];
       const next = [...current];
