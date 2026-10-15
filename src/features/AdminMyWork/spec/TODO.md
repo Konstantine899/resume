@@ -31,7 +31,7 @@ year). План vault `wiki/plan/plan_mywork_detail_table.md` rev.1.
       (`.strip.strip`), expanded header (Minus + h3 + Badge status
       `STATUS_VARIANTS` переезжает сюда + featured + Pencil/Trash2
       IconButtons + Tooltip), detail kit Table `[Данные | Значение |
-    Действия]` (labels — существующие `projectField*`; technologies
+Действия]` (labels — существующие `projectField*`; technologies
       через запятую; колонка Действия пустая у полей — field-edit
       отклонён).
 - [ ] i18n в этом WU: `adminMyWorkExpand`/`adminMyWorkCollapse`

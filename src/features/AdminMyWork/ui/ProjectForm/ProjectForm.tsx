@@ -45,7 +45,12 @@ import {
   writeImagesRootHandle,
 } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
-import { addProject, makeProjectRecord, makeUpdatePatch, updateProject } from '../../model/slices/myWorkSlice';
+import {
+  addProject,
+  makeProjectRecord,
+  makeUpdatePatch,
+  updateProject,
+} from '../../model/slices/myWorkSlice';
 import {
   ProjectFormSchema,
   emptyProjectFormValues,
