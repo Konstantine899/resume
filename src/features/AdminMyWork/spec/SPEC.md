@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: mywork-field-actions
 created: '2026-10-14'
 verified: '2026-10-15'
@@ -91,68 +91,71 @@ axe-PATHS; `performance-budget.json`.
 
 ### R-1 — ProjectCard (новый компонент, TDD)
 
-- [ ] `ui/ProjectCard/ProjectCard.{tsx,module.scss,test.tsx}` по образцу
+- [x] `ui/ProjectCard/ProjectCard.{tsx,module.scss,test.tsx}` по образцу
       JobCard: collapsed default (caption `project.title` снаружи,
       strip `Plus` fullWidth `.strip.strip`), expanded (Minus +
       `aria-expanded="false"` + `aria-controls` стабильный
       `mywork-project-content-${id}`, h3 + Badge status/featured,
       Pencil/Trash2 IconButtons с Tooltip `showDelay={0}`).
-- [ ] Detail kit Table `[Данные | Значение | Действия]`: labels —
+- [x] Detail kit Table `[Данные | Значение | Действия]`: labels —
       существующие `projectField*`; строки honest-data (link/image/
       role/metrics/year только при наличии); technologies через запятую.
-- [ ] Quirk-паритет: strip несёт `aria-expanded="true"` (не чинить,
+- [x] Quirk-паритет: strip несёт `aria-expanded="true"` (не чинить,
       как JobCard.tsx:326).
-- [ ] Инвариант: карточка НЕ пишет в store/хранилище (в отличие от
+- [x] Инвариант: карточка НЕ пишет в store/хранилище (в отличие от
       JobCard с inline bullet-CRUD — у нас его нет, см. §Не переносим).
-- [ ] Тесты RED→GREEN: collapsed default, expand/collapse roundtrip
+      **Устарело с rev.3:** метрики/очистка теперь диспатчат ИЗ карточки
+      (§Аменда rev.3, R-B2/R-B4 — паритет JobCard); инвариант отменён
+      амендой. Актуальный инвариант — R-B4 (persist-THEN-dispatch).
+- [x] Тесты RED→GREEN: collapsed default, expand/collapse roundtrip
       (stable aria-controls), onEdit/onDelete callbacks, honest-data
       строки (нет link-row при `link: null` и т.п.), Badge featured.
 
 ### R-2 — MyWorkEditorList rewrite (JobsList-паритет)
 
-- [ ] Header: h2+hint + sort Select (`storage` default | `title` |
+- [x] Header: h2+hint + sort Select (`storage` default | `title` |
       `category` | `year` desc `?? 0`) + reset IconButton + add
       IconButton; сортировка = `useMemo`-копия над `selectAllProjects`
       (store/array не мутируется).
-- [ ] Инвариант persist-THEN-dispatch из INSERTION-ORDER снимка
+- [x] Инвариант persist-THEN-dispatch из INSERTION-ORDER снимка
       `selectAllProjects` сохранён байт-в-байт; тест «delete при
       включённой сортировке persist-ит insertion-order».
-- [ ] Список = EmptyState (пусто) + карточки; DataTable/PageSizeGroup/
+- [x] Список = EmptyState (пусто) + карточки; DataTable/PageSizeGroup/
       Pagination/range-counter и `STATUS_VARIANTS`/`PAGE_SIZE_OPTIONS`
       удалены из файла.
-- [ ] Confirm-modal (delete `projectConfirmDeleteName` + reset) —
+- [x] Confirm-modal (delete `projectConfirmDeleteName` + reset) —
       логика без изменений (subtitle/focus/persist-fail-retry).
-- [ ] Лист-тесты переписаны с сохранением смысла 18 its; порядок
+- [x] Лист-тесты переписаны с сохранением смысла 18 its; порядок
       persist→dispatch — shared `calls`.
 
 ### R-3 — Страница (минимальный diff)
 
-- [ ] (OPEN-4=A) Модалка: title `adminAddProject` / `adminEditProject`
+- [x] (OPEN-4=A) Модалка: title `adminAddProject` / `adminEditProject`
       по режиму; `adminMyWorkTitle` остаётся на шапке витрины.
-- [ ] `AdminMyWorkPage.test.tsx`: expand-first хелпер (имя
+- [x] `AdminMyWorkPage.test.tsx`: expand-first хелпер (имя
       `/^adminMyWorkExpand/` под identity t-mock) до клика
       `project-card-actions-${id}`; stale-guard/ESC/overlay/A12 и
       «Добавить на пустом списке» остаются зелёными.
 
 ### R-4 — i18n
 
-- [ ] +11 ключей en+ru (flat): adminMyWorkSort, adminMyWorkSortStorage,
+- [x] +11 ключей en+ru (flat): adminMyWorkSort, adminMyWorkSortStorage,
       adminMyWorkSortTitle, adminMyWorkSortCategory, adminMyWorkSortYear,
       adminMyWorkExpand (`{{title}}`), adminMyWorkCollapse (`{{title}}`),
       adminMyWorkTableField, adminMyWorkTableValue, adminAddProject,
       adminEditProject.
-- [ ] Parity-тест зелёный без правок; старые adminMyWorkTableTitle/
+- [x] Parity-тест зелёный без правок; старые adminMyWorkTableTitle/
       Category/Status/Featured/Year живут как labels detail-строк
       (вымирания ключей нет).
 
 ### R-5 — Гейты эпика
 
-- [ ] `npm run validate` зелёный (type-check + lint + lint:styles +
+- [x] `npm run validate` зелёный (type-check + lint + lint:styles +
       тесты + coverage + public-api); флэйки CPU — рераном файлов в
       изоляции, НЕ бампом timeout.
-- [ ] axe-app `/admin/mywork`: 0 регрессий (маршрут в PATHS).
-- [ ] `check:public-api` зелёный (состав баррела не меняется).
-- [ ] Бандл-дельта worktree на merge-base в капе 786432; превью
+- [x] axe-app `/admin/mywork`: 0 регрессий (маршрут в PATHS).
+- [x] `check:public-api` зелёный (состав баррела не меняется).
+- [x] Бандл-дельта worktree на merge-base в капе 786432; превью
       headed desktop+mobile (collapse/expand, sort, confirm, форма).
 
 ### R-6 — Не переносим (зафиксированный отказ, паритет-таблица плана §0)
@@ -226,13 +229,13 @@ header-е списка — только ariaLabel).
 
 ### R-B1 — Действия в колонке «Действия» detail-таблицы (ProjectCard)
 
-- [ ] Каждая строка `FieldRow` несёт Pencil sm (outline) →
+- [x] Каждая строка `FieldRow` несёт Pencil sm (outline) →
       `onEditField(project, rowKey)`; testid
       `project-field-actions-${project.id}-${row.key}` (паритет
       `job-field-actions-*`).
-- [ ] Тултип/aria-label: `adminMyWorkEditFieldTitle {{field}}` (label =
+- [x] Тултип/aria-label: `adminMyWorkEditFieldTitle {{field}}` (label =
       уже существующий `projectField*`-ключ строки).
-- [ ] **Исключения строка `image` и `techIcons`-очистка:** у строки
+- [x] **Исключения строка `image` и `techIcons`-очистка:** у строки
       `image` НЕТ действий вовсе (правка — только полная форма:
       FileUpload-пайплайн не дублируем; очистка до `''` невалидна по
       `imageSchema` — см. R-B3). Задокументированное честное
@@ -240,79 +243,79 @@ header-е списка — только ariaLabel).
 
 ### R-B2 — Метрики: ↑↓ + удаление (паритет bullets Jobs)
 
-- [ ] Строки `metric-N`: Pencil (редактирует текст этой метрики) +
+- [x] Строки `metric-N`: Pencil (редактирует текст этой метрики) +
       ArrowUp/ArrowDown (disabled на крайних) + Trash2 (disabled при
       единственной метрике) — семантика `renderBulletActions` JobCard.
-- [ ] Тултипы: `adminMyWorkMetricUp` / `adminMyWorkMetricDown` /
+- [x] Тултипы: `adminMyWorkMetricUp` / `adminMyWorkMetricDown` /
       `adminMyWorkRemoveMetric`.
-- [ ] Действие метрик — ВНУТРИ ProjectCard через redux+persist
+- [x] Действие метрик — ВНУТРИ ProjectCard через redux+persist
       (паритет JobCard: `moveBullet`/`removeBullet` живут в карточке).
 
 ### R-B3 — Очистка скалярного поля (Trash2)
 
-- [ ] Trash2 на скалярных строках, где очистка валидна КОНТРАКТОМ
+- [x] Trash2 на скалярных строках, где очистка валидна КОНТРАКТОМ
       `ProjectSchema` (правка rev.3 mid-эпик: невалидная очистка сломала
       бы `readProjects → safeParse` → seed-fallback = потеря данных):
       `year` → undefined, `link` → null, `role` → undefined,
       `featured` → false.
-- [ ] **Скрыт** (не disabled, а не рендерится): обязательные
+- [x] **Скрыт** (не disabled, а не рендерится): обязательные
       `title`/`category`/`status`; `description`/`techIcons`/`image` —
       min(1)-контракт не позволяет пустое значение (TechIcons можно
       только заменить состав через Pencil; description — только правкой
       обеих локали; image — через полную форму).
-- [ ] Тултип/aria-label: `adminMyWorkClearField`.
-- [ ] Без confirm-модалки (паритет инлайн-буллетов Jobs: малый радиус
+- [x] Тултип/aria-label: `adminMyWorkClearField`.
+- [x] Без confirm-модалки (паритет инлайн-буллетов Jobs: малый радиус
       поражения, отмена через повторное редактирование).
 
 ### R-B4 — Пайплайн сохранения (persist-THEN-dispatch, §3)
 
-- [ ] Все действия (очистка, move/remove метрики) и FieldEditForm:
+- [x] Все действия (очистка, move/remove метрики) и FieldEditForm:
       снимок `selectAllProjects` → merge `{...item, ...patch}` (+ штамп
       `updatedAt: new Date().toISOString()`) → `persistProjects(next)`
       → dispatch `updateProject({ id, patch })`.
-- [ ] persist-fail → тост `projectSaveError`, dispatch НЕ выполняется.
+- [x] persist-fail → тост `projectSaveError`, dispatch НЕ выполняется.
 
 ### R-B5 — FieldEditForm (паритет FieldEditForm AdminJobs)
 
-- [ ] `ui/FieldEditForm/FieldEditForm.tsx`: рендерит ТОЛЬКО инпуты
+- [x] `ui/FieldEditForm/FieldEditForm.tsx`: рендерит ТОЛЬКО инпуты
       активного поля: title (Input), category/status (Select), featured
       (checkbox-toggle как в ProjectForm), year (Input number-строка),
       link (Input), description/role (2 Textarea EN/RU), techIcons
       (chip-пи커 как в ProjectForm), metric-N (Input).
-- [ ] Валидация — общие слайсы `ui/ProjectForm/lib/fieldSchemas.ts`
+- [x] Валидация — общие слайсы `ui/ProjectForm/lib/fieldSchemas.ts`
       (второго источника истины нет — паритет D2 Jobs).
-- [ ] Save disabled пока pristine; persist-fail тост + модалка открыта;
+- [x] Save disabled пока pristine; persist-fail тост + модалка открыта;
       Save → persist → dispatch → тост `projectSaved` → `onExitEdit`.
-- [ ] Без h2 — имя диалога несёт страница (A12-parity).
+- [x] Без h2 — имя диалога несёт страница (A12-parity).
 
 ### R-B6 — Wiring (страница + список)
 
-- [ ] `fieldSchemas.ts`: union `EditProjectField` (scalar-ключи +
+- [x] `fieldSchemas.ts`: union `EditProjectField` (scalar-ключи +
       `metric-${number}`), `fieldEditSchemas`, `defaultValuesFor`,
       `toUpdateDto` → `Omit<ProjectUpdatePatch, 'id'>`.
-- [ ] `AdminMyWorkPage`: состояние формы `{ projectId?, field? }`;
+- [x] `AdminMyWorkPage`: состояние формы `{ projectId?, field? }`;
       field ≠ undefined → FieldEditForm `key="${id}-${field}"`;
       title модалки `adminMyWorkEditFieldTitle {{field}}` (карта
       label-ключей — паритет `EDIT_FIELD_LABEL_KEYS` AdminJobsPage);
       stale-guard как у полной формы.
-- [ ] `MyWorkEditorList` пробрасывает `onEditField` в ProjectCard.
+- [x] `MyWorkEditorList` пробрасывает `onEditField` в ProjectCard.
 
 ### R-B7 — i18n (flat, en+ru)
 
-- [ ] Ключи: `adminMyWorkEditFieldTitle`, `adminMyWorkClearField`,
+- [x] Ключи: `adminMyWorkEditFieldTitle`, `adminMyWorkClearField`,
       `adminMyWorkMetricUp`, `adminMyWorkMetricDown`,
       `adminMyWorkRemoveMetric` — в ОБЕИХ локали (parity-тест не
       редактируется: он сверяет множество ключей).
-- [ ] Опции category/status — raw-value лейблы, как в ProjectForm (0
+- [x] Опции category/status — raw-value лейблы, как в ProjectForm (0
       новых ключей).
 
 ### Критерии приёмки rev.3
 
-- [ ] RED→GREEN: fieldSchemas, ProjectCard-действия, FieldEditForm,
+- [x] RED→GREEN: fieldSchemas, ProjectCard-действия, FieldEditForm,
       page-wiring тесты; легаси-тесты не переписываются (только
       добавляются/адаптируются под новые пропсы).
-- [ ] Гейты: validate зелёный; axe `/admin/mywork` 0 регрессий;
+- [x] Гейты: validate зелёный; axe `/admin/mywork` 0 регрессий;
       бандл в капе 786432; превью-смоук (Pencil → prefilled-модалка
       поля, очистка link, move/remove метрики).
-- [ ] Burn-down: SPEC/TODO → done + closing note; план rev.3 → done;
+- [x] Burn-down: SPEC/TODO → done + closing note; план rev.3 → done;
       dual-write vault `memory.md` + AGENTS.md-готча при наличии.
