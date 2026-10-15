@@ -11,11 +11,12 @@
 //   derived via `.omit()` from `ProjectSchema`, so form fields and record
 //   fields can NEVER drift apart.
 //
-// Limits come straight from the plan's validation table (§7): title 2–100
-// after trim; description locale ≤600; ≥1 techIcon key from TECH_ICONS;
-// link = null | absolute https:// | internal `/…`; image = internal `/…`
-// (single slash) | absolute http(s):// | base64 `data:image/…` ≤512K chars
-// (superset union, plan project-images rev.3);
+// Limits come straight from the plan's validation table (§7), relaxed by
+// mywork-detail-table rev.4 (every-row clear): title '' or 2–100 after trim;
+// description locale ≤600 (empty allowed); techIcons 0..n from TECH_ICONS;
+// category/status optional; link = null | absolute https:// | internal `/…`;
+// image = '' (clear) | internal `/…` | absolute http(s):// | base64
+// `data:image/…` ≤512K chars (superset union, plan project-images rev.3);
 // role requires BOTH locales when present; metric ≤40; year 2000…2100.
 // Messages are NOT set here — the form maps failures to i18n keys (i18n-first).
 
@@ -57,6 +58,8 @@ const linkSchema = z.union([
 const DATA_IMAGE_MAX_CHARS = 512_000;
 
 const imageSchema = z.union([
+  /** '' = the CLEAR value (every-row Trash2, rev.4). */
+  z.literal(''),
   z
     .string()
     .min(2)
@@ -79,16 +82,21 @@ const imageSchema = z.union([
 
 export const ProjectSchema = z.object({
   id: z.string().min(1),
-  title: z.string().trim().min(2).max(100),
+  /** '' = cleared (rev.4); a NON-empty title is still 2–100 after trim. */
+  title: z
+    .string()
+    .trim()
+    .max(100)
+    .refine((value) => value === '' || value.length >= 2),
   description: z.object({
-    en: z.string().min(1).max(600),
-    ru: z.string().min(1).max(600),
+    en: z.string().max(600),
+    ru: z.string().max(600),
   }),
-  techIcons: z.array(z.enum(TECH_ICON_KEYS)).min(1),
+  techIcons: z.array(z.enum(TECH_ICON_KEYS)),
   link: linkSchema,
   image: imageSchema,
-  category: categoryEnum,
-  status: statusEnum,
+  category: categoryEnum.optional(),
+  status: statusEnum.optional(),
   featured: z.boolean(),
   role: z
     .object({

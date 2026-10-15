@@ -28,8 +28,10 @@ export interface Project {
   techIcons: string[];
   link: string | null;
   image: string;
-  category: ProjectCategory;
-  status: ProjectStatus;
+  /** rev.4: optional — the every-row clear can remove a project's category. */
+  category?: ProjectCategory;
+  /** rev.4: optional — the every-row clear can remove a project's status. */
+  status?: ProjectStatus;
   featured: boolean;
   /**
    * The role actually held on the project, localized (recruiter audit P1).
