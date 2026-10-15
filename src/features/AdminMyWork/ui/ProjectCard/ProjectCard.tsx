@@ -74,14 +74,31 @@ type FieldRow = {
   metricIndex?: number;
 };
 
-/** Scalars whose empty value stays INSIDE the ProjectSchema contract (R-B3). */
-const CLEARABLE_FIELDS = new Set<EditProjectField>(['year', 'link', 'role', 'featured']);
+/** Rev.4: every scalar row is clearable — ''/undefined/[]/false/null. */
+const CLEARABLE_FIELDS = new Set<EditProjectField>([
+  'title',
+  'category',
+  'status',
+  'featured',
+  'year',
+  'link',
+  'description',
+  'role',
+  'techIcons',
+  'image',
+]);
 
 const CLEAR_VALUES: Record<string, unknown> = {
+  title: '',
+  category: undefined,
+  status: undefined,
+  featured: false,
   year: undefined,
   link: null,
+  description: { en: '', ru: '' },
   role: undefined,
-  featured: false,
+  techIcons: [],
+  image: '',
 };
 
 export interface ProjectCardProps {
@@ -153,27 +170,34 @@ export function ProjectCard({
 
   // Honest data (SPEC R-4): optional rows only when present. Both
   // description locales render (A3); empty strings are skipped.
-  // Rev.3: every row except `image` carries its editable fieldKey.
-  const rows: FieldRow[] = [
-    {
+  // Rev.3: every row carries its editable fieldKey (rev.4: image too).
+  // Rev.4: title/category/status joined the conditional set — a cleared
+  // row disappears from the table (honest data, same as year/link).
+  const rows: FieldRow[] = [];
+  if (project.title !== '') {
+    rows.push({
       key: 'title',
       label: t('projectFieldTitle'),
       value: project.title,
       fieldKey: 'title',
-    },
-    {
+    });
+  }
+  if (project.category !== undefined) {
+    rows.push({
       key: 'category',
       label: t('projectFieldCategory'),
       value: project.category,
       fieldKey: 'category',
-    },
-    {
+    });
+  }
+  if (project.status !== undefined) {
+    rows.push({
       key: 'status',
       label: t('projectFieldStatus'),
       value: project.status,
       fieldKey: 'status',
-    },
-  ];
+    });
+  }
   if (project.featured) {
     rows.push({
       key: 'featured',
@@ -251,13 +275,14 @@ export function ProjectCard({
       metricIndex: index,
     });
   });
-  // Image row: NO editable key — the schema union has no empty variant
-  // (R-B1), so no field-scoped edit is offered.
+  // Image row: rev.4 — '' is now in the schema union (R-B1 reversed),
+  // so the row carries Pencil (path input) + clear like every scalar.
   if (project.image !== '') {
     rows.push({
       key: 'image',
       label: t('projectFieldImage'),
       value: project.image,
+      fieldKey: 'image',
     });
   }
 
@@ -339,7 +364,6 @@ export function ProjectCard({
                     ariaLabel={t('adminMyWorkRemoveMetric')}
                     variant="ghost"
                     size="sm"
-                    disabled={metricCount <= 1}
                     icon={<Icon name={Trash2} size={16} color="inherit" decorative />}
                     onClick={() => removeMetric(metricIndex)}
                   />
@@ -435,9 +459,11 @@ export function ProjectCard({
                 </Tooltip>
                 <Heading level={3}>
                   {project.title}
-                  <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
-                    {project.status}
-                  </Badge>
+                  {project.status && (
+                    <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
+                      {project.status}
+                    </Badge>
+                  )}
                   {project.featured && (
                     <Badge variant="accent" size="sm">
                       {t('projectFieldFeatured')}

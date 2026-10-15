@@ -1,35 +1,18 @@
 ---
 status: done
 spec: SPEC.md
+issue: 249
 verified: '2026-10-15'
 ---
 
-# TODO — features/AdminMyWork (аменда mywork-field-actions, issue #245, rev.3)
+# TODO — features/AdminMyWork (every-row-clear, rev.4, issue #249)
 
-Закрыто 2026-10-15: squash `e9f2696`, PR #246 (Closes #245), CI 8/8;
-validate 3609/3609, axe 0 регрессий (`/admin/mywork` чист light+dark),
-бандл 762.1 < 768 KiB, public-api 37/37, превью-смоук (Pencil строки →
-prefilled-модалка `Редактировать: Название` + pristine-disabled Save +
-Save→dispatch→тост; очистка link → строка исчезла по R-4 honest-data;
-3 метрики: ↑ средней поменяла порядок, Trash2 удалила, крайние ↑↓
-disabled, одиночная метрика — все действия disabled). Пункты WU-1..7
-сгорели: (1) документация rev.3 (SPEC R-B1..R-B7 + vault), (2)
-fieldSchemas 16/16, (3) i18n 5 ключей en+ru, (4) ProjectCard-действия
-26/26, (5) FieldEditForm 8/8, (6) wiring + page-tests 10/10, (7) гейты.
+Закрыто 2026-10-15: PR #250 (Closes #249). Пункты WU-1..5 сгорели:
 
-Побочные фиксы, найденные эпиком (pre-existing, не в скоупе rev.3 изначально):
-`projectFieldImage` и `projectFieldTechIcons` отсутствовали в ОБЕИХ
-локали (raw-ключи в detail-таблице — второй и третий инстансы класса
-`resume-shared-key`-бага семейства i18n); `javascript:`-фикстура
-fieldSchemas-теста нарушала `no-script-url` (сплит конкатенацией,
-семантика reject сохранена).
+1. Контракт rev.4 (schema.ts + types.ts, TDD RED 6 → GREEN 30/30) — `b0065fd`.
+2. ProjectCard: CLEARABLE 10 скаляров, conditional-push title/category/status, image Pencil+clear, снят disabled последней метрики (RED 9 → GREEN 32/32) — `1baaeee`.
+3. Guard'ы: сортировка category `?? ''`, status-badge omitted — в том же коммите.
+4. Форма: `fieldSchemas` image-slice + `FieldEditForm` image-кейс; тесты ProjectForm/storage/fieldSchemas перевёрнуты (51/51).
+5. Гейты: tsc/eslint/stylelint 0, public-api 37/37, check:spec 15, axe 0 регрессий, бандл 762.1 < 768, превью-смоук по договорённости — в CI/локально (флейки по CPU реранами в изоляции).
 
-Контракт выполнен: `SPEC.md` (status: done, §Аменда rev.3 R-B1..R-B7,
-инвариант R-1 аннотирован как отменённый амендой) и план
-`wiki/plan/plan_mywork_detail_table.md` §Аменда rev.3.
-
-## Известные проблемы (вне скоупа, не чинить)
-
-- [ ] Кит не имеет Checkbox/Switch/Chip — Button-toggle techIcons и
-      aria-pressed featured в ProjectForm и FieldEditForm остаются.
-- [ ] `model/selectors/index.ts` — OPEN-8 repo-wide, не трогается.
+Предыдущая пара (эпик `mywork-field-actions`, rev.3, PR #246) перезаписана — история в git.

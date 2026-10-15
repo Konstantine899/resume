@@ -222,9 +222,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 <Textarea
                   label={`${t('projectFieldDescription')} · ${locale.toUpperCase()}`}
                   value={values.description?.[locale] ?? ''}
-                  error={
-                    errors.description?.[locale] ? t('projectDescriptionEmpty') : undefined
-                  }
+                  error={errors.description?.[locale] ? t('projectDescriptionEmpty') : undefined}
                   maxLength={600}
                   rows={4}
                   {...register(`description.${locale}`)}
@@ -241,9 +239,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 <Textarea
                   label={`${t('projectFieldRole')} · ${locale.toUpperCase()}`}
                   value={values.role?.[locale] ?? ''}
-                  error={
-                    errors.role?.[locale] ? t('projectRoleLocaleRequired') : undefined
-                  }
+                  error={errors.role?.[locale] ? t('projectRoleLocaleRequired') : undefined}
                   rows={2}
                   {...register(`role.${locale}`)}
                 />
@@ -276,6 +272,19 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 <span role="alert">{t('projectTechRequired')}</span>
               </Paragraph>
             )}
+          </div>
+        );
+      case 'image':
+        return (
+          <div className={styles.field}>
+            <Input
+              label={t('projectFieldImage')}
+              error={errors.image ? t('projectImageInvalid') : undefined}
+              value={values.image ?? ''}
+              placeholder="/images/…  or  https://…"
+              fullWidth
+              {...register('image')}
+            />
           </div>
         );
       default:

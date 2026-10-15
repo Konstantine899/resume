@@ -79,19 +79,20 @@ describe('fieldEditSchemas — scalar slices delegate to the shared schema', () 
     expect(set.success && set.data).toEqual({ role: { en: 'Lead', ru: 'Тимлид' } });
   });
 
-  it('description: BOTH locales required (contract min 1, full-form parity)', () => {
+  it('description: empty locale is a valid edit (rev.4 — clear parity)', () => {
     expect(
-      fieldEditSchemas.description.safeParse({ description: { en: 'Shop', ru: 'Магазин' } })
-        .success
+      fieldEditSchemas.description.safeParse({ description: { en: 'Shop', ru: 'Магазин' } }).success
     ).toBe(true);
+    // rev.4: a single empty locale is the CLEAR value, not a violation.
     expect(
       fieldEditSchemas.description.safeParse({ description: { en: 'Shop', ru: '' } }).success
-    ).toBe(false);
+    ).toBe(true);
   });
 
-  it('techIcons: enum keys, min 1 (clearing the list is NOT a valid edit)', () => {
+  it('techIcons: enum keys enforced, empty array is a valid edit (rev.4)', () => {
     expect(fieldEditSchemas.techIcons.safeParse({ techIcons: ['react'] }).success).toBe(true);
-    expect(fieldEditSchemas.techIcons.safeParse({ techIcons: [] }).success).toBe(false);
+    // rev.4: clearing the list is now a valid edit (metrics optional parity).
+    expect(fieldEditSchemas.techIcons.safeParse({ techIcons: [] }).success).toBe(true);
     expect(fieldEditSchemas.techIcons.safeParse({ techIcons: ['nope'] }).success).toBe(false);
   });
 });

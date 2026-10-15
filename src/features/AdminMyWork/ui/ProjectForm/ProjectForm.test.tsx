@@ -242,23 +242,37 @@ describe('ProjectForm: render (WU-4)', () => {
 });
 
 describe('ProjectForm: validation (§7, i18n-first)', () => {
-  it('blocks an empty title and maps the error to projectTitleRequired', async () => {
+  it('blocks a 1-char title and maps the error to projectTitleRequired (rev.4 keeps min 2 for NON-empty)', async () => {
     renderCreate();
 
     // Make the form dirty FIRST (Save is disabled until dirty, §9), then
     // break ONLY the title — exactly one alert so findByRole stays single.
     await fillMinimalValid();
-    fireEvent.change(titleInput(), { target: { value: '' } });
+    fireEvent.change(titleInput(), { target: { value: 'x' } });
     fireEvent.click(saveButton());
 
     expect(await screen.findByRole('alert')).toHaveTextContent('projectTitleRequired');
     expect(persistSpy).not.toHaveBeenCalled();
   });
 
-  it('maps a missing image to projectImageInvalid (no upload yet)', async () => {
+  it('accepts an empty title as a valid create (rev.4 — "" is the CLEAR value)', async () => {
     renderCreate();
 
-    // Everything valid EXCEPT the image — a single alert stays unique.
+    await fillMinimalValid();
+    fireEvent.change(titleInput(), { target: { value: '' } });
+    fireEvent.click(saveButton());
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.title).toBe('');
+    expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
+  });
+
+  it('accepts a create with NO image (rev.4 — "" is in the union)', async () => {
+    renderCreate();
+
+    // Everything valid EXCEPT the image — since rev.4 that is a legal record.
     fireEvent.change(titleInput(), { target: { value: 'Test Project' } });
     fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
       target: { value: 'English description' },
@@ -271,11 +285,14 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     );
     fireEvent.click(saveButton());
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('projectImageInvalid');
-    expect(persistSpy).not.toHaveBeenCalled();
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.image).toBe('');
+    expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
   });
 
-  it('blocks submit while techIcons is empty (projectTechRequired)', async () => {
+  it('accepts a create while techIcons is empty (rev.4 — [] is valid)', async () => {
     renderCreate();
 
     fireEvent.change(titleInput(), { target: { value: 'No tech yet' } });
@@ -288,8 +305,10 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     });
     fireEvent.click(saveButton());
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('projectTechRequired');
-    expect(persistSpy).not.toHaveBeenCalled();
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.techIcons).toEqual([]);
   });
 
   it('rejects a category outside the enum (projectEnumInvalid)', async () => {
@@ -452,7 +471,8 @@ describe('ProjectForm: edit save (§3, byte-identical patch)', () => {
 describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
   it('writes the file into the project directory, stores the path and revalidates (OPEN-7)', async () => {
     renderCreate();
-    // Surface the image error through Save first (§7 pattern — single alert).
+    // rev.4: no Save-first alert dance — '' is a valid image now, so we
+    // fill everything, upload, and assert the PATH reaches the record.
     fireEvent.change(titleInput(), { target: { value: 'Test Project' } });
     fireEvent.change(screen.getByLabelText('projectFieldDescription · EN'), {
       target: { value: 'English description' },
@@ -463,14 +483,11 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
     fireEvent.click(
       screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
     );
-    fireEvent.click(saveButton());
-    expect(await screen.findByRole('alert')).toHaveTextContent('projectImageInvalid');
-    expect(persistSpy).not.toHaveBeenCalled();
 
     await uploadImageFile();
 
     // OPEN-7: setValue(..., { shouldDirty: true, shouldValidate: true })
-    // re-runs zod — the returned path passes the union and the error clears.
+    // runs zod — the returned path passes the union.
     expect(await screen.findByText('/images/projects/photo.webp')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 

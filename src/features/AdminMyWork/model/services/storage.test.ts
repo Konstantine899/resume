@@ -11,9 +11,11 @@ import { PROJECTS_STORAGE_KEY, persistProjects, readProjects, removeProjects } f
 
 const VALID: Project[] = createProjectsSeed();
 
+// title '' is VALID since rev.4 (every-row clear) — 1-char non-empty is
+// the truly-invalid record shape.
 const INVALID_RECORD: Project = {
   id: 'broken',
-  title: '',
+  title: 'x',
   description: { en: 'Description.', ru: 'Описание.' },
   techIcons: ['react'],
   link: null,
