@@ -134,6 +134,7 @@
   "projectFieldMetrics": "Metrics",
   "projectFieldYear": "Year",
   "projectFieldImage": "Image",
+  "projectFieldTechIcons": "Technologies",
   "projectSave": "Save",
   "projectEdit": "Edit",
   "projectReset": "Reset",
