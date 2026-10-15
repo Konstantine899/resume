@@ -1,0 +1,34 @@
+// ============================================
+
+// FieldEditForm — one-field modal layout (mywork-field-actions WU-5)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens — no hardcoded values.
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-2;
+}

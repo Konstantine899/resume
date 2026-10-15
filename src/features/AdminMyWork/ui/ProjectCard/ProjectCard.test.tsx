@@ -34,7 +34,7 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
 const { holder, dispatched, persistMock, addToastMock } = vi.hoisted(() => ({
   holder: { projects: [] as Project[] },
   dispatched: [] as Array<{ type: string; payload: unknown }>,
-  persistMock: vi.fn(() => true),
+  persistMock: vi.fn((_projects: Project[]) => true),
   addToastMock: vi.fn(),
 }));
 
@@ -45,7 +45,7 @@ vi.mock('react-redux', () => ({
 }));
 
 vi.mock('../../model/services/storage', () => ({
-  persistProjects: (projects: unknown[]) => persistMock(projects),
+  persistProjects: (projects: Project[]) => persistMock(projects),
 }));
 
 vi.mock('@/shared/lib/contexts/ToastContext', () => ({
@@ -365,11 +365,11 @@ describe('ProjectCard field actions (rev.3)', () => {
     );
 
     expect(persistMock).toHaveBeenCalledTimes(1);
-    const persisted = persistMock.mock.calls[0][0] as Project[];
-    expect(persisted[0].link).toBeNull();
-    expect(typeof persisted[0].updatedAt).toBe('string');
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]?.link).toBeNull();
+    expect(typeof persisted[0]?.updatedAt).toBe('string');
     expect(dispatched).toHaveLength(1);
-    const payload = dispatched[0].payload as { id: string; patch: { link: null } };
+    const payload = dispatched[0]?.payload as { id: string; patch: { link: null } };
     expect(payload.id).toBe('p1');
     expect(payload.patch.link).toBeNull();
   });
@@ -438,9 +438,9 @@ describe('ProjectCard field actions (rev.3)', () => {
       })
     );
 
-    const persisted = persistMock.mock.calls[0][0] as Project[];
-    expect(persisted[0].metrics).toEqual(['p95 120ms', '1M+ users']);
-    const payload = dispatched[0].payload as { patch: { metrics: string[] } };
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]?.metrics).toEqual(['p95 120ms', '1M+ users']);
+    const payload = dispatched[0]?.payload as { patch: { metrics: string[] } };
     expect(payload.patch.metrics).toEqual(['p95 120ms', '1M+ users']);
   });
 
@@ -454,8 +454,8 @@ describe('ProjectCard field actions (rev.3)', () => {
       })
     );
 
-    const persisted = persistMock.mock.calls[0][0] as Project[];
-    expect(persisted[0].metrics).toEqual(['p95 120ms']);
+    const persisted = persistMock.mock.calls[0]?.[0] as Project[];
+    expect(persisted[0]?.metrics).toEqual(['p95 120ms']);
   });
 
   it('the last remaining metric cannot be removed (remove stays disabled)', () => {
