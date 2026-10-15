@@ -23,10 +23,12 @@ vault `wiki/plan/plan_mywork_detail_table.md` §Аменда rev.3.
       правится: сверяет множество ключей).
 - [ ] **WU-4 ProjectCard-действия TDD** — колонка `actions`:
       Pencil каждая строка (`project-field-actions-${id}-${row.key}`,
-      `onEditField`), image — без Pencil; metric-N: Pencil+↑↓+Trash2
-      (disabled-паритет bullets), redux+persist внутри карточки; скаляры:
-      Trash2-очистка (year/link/description/role/techIcons/image/featured),
-      скрыт на title/category/status; persist-THEN-dispatch §3.
+      `onEditField`), кроме `image` (без действий вовсе); metric-N:
+      Pencil+↑↓+Trash2 (disabled-паритет bullets), redux+persist внутри
+      карточки; скаляры: Trash2-очистка валидных контрактом полей
+      (year/link/role/featured), скрыт на title/category/status и на
+      description/techIcons/image (min(1)-контракт, mid-эпик-ревизия
+      SPEC R-B3); persist-THEN-dispatch §3.
 - [ ] **WU-5 FieldEditForm TDD** — `ui/FieldEditForm/FieldEditForm.tsx`:
       инпуты активного поля (Input/Select/Textarea/chips/checkbox),
       resolver из fieldSchemas, Save disabled pristine, persist-fail тост

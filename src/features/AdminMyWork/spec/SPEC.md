@@ -232,10 +232,11 @@ header-е списка — только ariaLabel).
       `job-field-actions-*`).
 - [ ] Тултип/aria-label: `adminMyWorkEditFieldTitle {{field}}` (label =
       уже существующий `projectField*`-ключ строки).
-- [ ] **Исключение `image`:** Pencil отсутствует — правка изображения
-      остаётся в полной форме (FileUpload-пайплайн не дублируем);
-      строка image несёт только очистку (R-B3). Задокументированное
-      честное скоуп-искривление.
+- [ ] **Исключения строка `image` и `techIcons`-очистка:** у строки
+      `image` НЕТ действий вовсе (правка — только полная форма:
+      FileUpload-пайплайн не дублируем; очистка до `''` невалидна по
+      `imageSchema` — см. R-B3). Задокументированное честное
+      скоуп-искривление.
 
 ### R-B2 — Метрики: ↑↓ + удаление (паритет bullets Jobs)
 
@@ -249,12 +250,16 @@ header-е списка — только ariaLabel).
 
 ### R-B3 — Очистка скалярного поля (Trash2)
 
-- [ ] Trash2 на скалярных строках, где очистка валидна схемой:
-      `year` → undefined, `link` → null, `description` → обе локали `''`,
-      `role` → undefined, `techIcons` → `[]`, `image` → `''`,
+- [ ] Trash2 на скалярных строках, где очистка валидна КОНТРАКТОМ
+      `ProjectSchema` (правка rev.3 mid-эпик: невалидная очистка сломала
+      бы `readProjects → safeParse` → seed-fallback = потеря данных):
+      `year` → undefined, `link` → null, `role` → undefined,
       `featured` → false.
-- [ ] **Скрыт** на обязательных строках `title`/`category`/`status`
-      (очистка невалидна — кнопка не рендерится, не disabled).
+- [ ] **Скрыт** (не disabled, а не рендерится): обязательные
+      `title`/`category`/`status`; `description`/`techIcons`/`image` —
+      min(1)-контракт не позволяет пустое значение (TechIcons можно
+      только заменить состав через Pencil; description — только правкой
+      обеих локали; image — через полную форму).
 - [ ] Тултип/aria-label: `adminMyWorkClearField`.
 - [ ] Без confirm-модалки (паритет инлайн-буллетов Jobs: малый радиус
       поражения, отмена через повторное редактирование).
