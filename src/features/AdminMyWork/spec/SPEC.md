@@ -1,6 +1,6 @@
 ---
-status: done
-epic: mywork-row-actions
+status: approved
+epic: mywork-field-actions
 created: '2026-10-14'
 verified: '2026-10-15'
 ---
@@ -13,6 +13,7 @@ verified: '2026-10-15'
 > Статус `approved` — вердикт владельца 2026-10-14: OPEN-1=A′ (карточки-проекты), OPEN-2=A (collapsed default), OPEN-3=B (field-edit не переносим), OPEN-4=A (заголовки модалки), OPEN-5=A (sort: storage/title/category/year).
 > **Режим исполнения: AUTO** (директива владельца 2026-10-14): все WU, гейты, merge и burn-down выполняются автоматически, без пофазных подтверждений; вмешательство владельца — только при нештатной ситуации (ошибка гейта, неоднозначность).
 > **Аменда rev.2 (`mywork-row-actions`, 2026-10-15, AUTO):** эпик rev.1 закрыт (PR #240, squash `d8896a2`, verified 2026-10-15); пара переоткрыта по требованию владельца — см. §Аменда rev.2. Всё из rev.1 остаётся в силе.
+> **Аменда rev.3 (`mywork-field-actions`, 2026-10-15, AUTO, issue #245):** вердикт владельца 2026-10-14 через question-tool — кнопки ✏️/🗑️ в detail-таблице карточки. **Отменяет OPEN-3=B** rev.1/rev.2 (field-edit теперь портируем, паритет AdminJobs #227). См. §Аменда rev.3.
 
 ## История (предыдущий эпик — содержание сохранено, тексты в git)
 
@@ -215,3 +216,98 @@ header-е списка — только ariaLabel).
 
 - [x] validate зелёный; axe `/admin/mywork` 0 регрессий; бандл в капе
       786432; burn-down пары + плана rev.2.
+
+## Аменда rev.3 — `mywork-field-actions` (issue #245, 2026-10-15)
+
+Владелец (question-tool, 2026-10-14): «кнопки редактировать/удалять — **на
+каждой строке detail-таблицы** в карточке» (колонка `[Данные | Значение |
+Действия]`, сейчас пустая). Это **отменяет OPEN-3=B** rev.1/rev.2: field-edit
+портируем, эталон — AdminJobs #227 (`job-field-edit`). Режим AUTO.
+
+### R-B1 — Действия в колонке «Действия» detail-таблицы (ProjectCard)
+
+- [ ] Каждая строка `FieldRow` несёт Pencil sm (outline) →
+      `onEditField(project, rowKey)`; testid
+      `project-field-actions-${project.id}-${row.key}` (паритет
+      `job-field-actions-*`).
+- [ ] Тултип/aria-label: `adminMyWorkEditFieldTitle {{field}}` (label =
+      уже существующий `projectField*`-ключ строки).
+- [ ] **Исключение `image`:** Pencil отсутствует — правка изображения
+      остаётся в полной форме (FileUpload-пайплайн не дублируем);
+      строка image несёт только очистку (R-B3). Задокументированное
+      честное скоуп-искривление.
+
+### R-B2 — Метрики: ↑↓ + удаление (паритет bullets Jobs)
+
+- [ ] Строки `metric-N`: Pencil (редактирует текст этой метрики) +
+      ArrowUp/ArrowDown (disabled на крайних) + Trash2 (disabled при
+      единственной метрике) — семантика `renderBulletActions` JobCard.
+- [ ] Тултипы: `adminMyWorkMetricUp` / `adminMyWorkMetricDown` /
+      `adminMyWorkRemoveMetric`.
+- [ ] Действие метрик — ВНУТРИ ProjectCard через redux+persist
+      (паритет JobCard: `moveBullet`/`removeBullet` живут в карточке).
+
+### R-B3 — Очистка скалярного поля (Trash2)
+
+- [ ] Trash2 на скалярных строках, где очистка валидна схемой:
+      `year` → undefined, `link` → null, `description` → обе локали `''`,
+      `role` → undefined, `techIcons` → `[]`, `image` → `''`,
+      `featured` → false.
+- [ ] **Скрыт** на обязательных строках `title`/`category`/`status`
+      (очистка невалидна — кнопка не рендерится, не disabled).
+- [ ] Тултип/aria-label: `adminMyWorkClearField`.
+- [ ] Без confirm-модалки (паритет инлайн-буллетов Jobs: малый радиус
+      поражения, отмена через повторное редактирование).
+
+### R-B4 — Пайплайн сохранения (persist-THEN-dispatch, §3)
+
+- [ ] Все действия (очистка, move/remove метрики) и FieldEditForm:
+      снимок `selectAllProjects` → merge `{...item, ...patch}` (+ штамп
+      `updatedAt: new Date().toISOString()`) → `persistProjects(next)`
+      → dispatch `updateProject({ id, patch })`.
+- [ ] persist-fail → тост `projectSaveError`, dispatch НЕ выполняется.
+
+### R-B5 — FieldEditForm (паритет FieldEditForm AdminJobs)
+
+- [ ] `ui/FieldEditForm/FieldEditForm.tsx`: рендерит ТОЛЬКО инпуты
+      активного поля: title (Input), category/status (Select), featured
+      (checkbox-toggle как в ProjectForm), year (Input number-строка),
+      link (Input), description/role (2 Textarea EN/RU), techIcons
+      (chip-пи커 как в ProjectForm), metric-N (Input).
+- [ ] Валидация — общие слайсы `ui/ProjectForm/lib/fieldSchemas.ts`
+      (второго источника истины нет — паритет D2 Jobs).
+- [ ] Save disabled пока pristine; persist-fail тост + модалка открыта;
+      Save → persist → dispatch → тост `projectSaved` → `onExitEdit`.
+- [ ] Без h2 — имя диалога несёт страница (A12-parity).
+
+### R-B6 — Wiring (страница + список)
+
+- [ ] `fieldSchemas.ts`: union `EditProjectField` (scalar-ключи +
+      `metric-${number}`), `fieldEditSchemas`, `defaultValuesFor`,
+      `toUpdateDto` → `Omit<ProjectUpdatePatch, 'id'>`.
+- [ ] `AdminMyWorkPage`: состояние формы `{ projectId?, field? }`;
+      field ≠ undefined → FieldEditForm `key="${id}-${field}"`;
+      title модалки `adminMyWorkEditFieldTitle {{field}}` (карта
+      label-ключей — паритет `EDIT_FIELD_LABEL_KEYS` AdminJobsPage);
+      stale-guard как у полной формы.
+- [ ] `MyWorkEditorList` пробрасывает `onEditField` в ProjectCard.
+
+### R-B7 — i18n (flat, en+ru)
+
+- [ ] Ключи: `adminMyWorkEditFieldTitle`, `adminMyWorkClearField`,
+      `adminMyWorkMetricUp`, `adminMyWorkMetricDown`,
+      `adminMyWorkRemoveMetric` — в ОБЕИХ локали (parity-тест не
+      редактируется: он сверяет множество ключей).
+- [ ] Опции category/status — raw-value лейблы, как в ProjectForm (0
+      новых ключей).
+
+### Критерии приёмки rev.3
+
+- [ ] RED→GREEN: fieldSchemas, ProjectCard-действия, FieldEditForm,
+      page-wiring тесты; легаси-тесты не переписываются (только
+      добавляются/адаптируются под новые пропсы).
+- [ ] Гейты: validate зелёный; axe `/admin/mywork` 0 регрессий;
+      бандл в капе 786432; превью-смоук (Pencil → prefilled-модалка
+      поля, очистка link, move/remove метрики).
+- [ ] Burn-down: SPEC/TODO → done + closing note; план rev.3 → done;
+      dual-write vault `memory.md` + AGENTS.md-готча при наличии.
