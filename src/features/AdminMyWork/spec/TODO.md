@@ -10,18 +10,19 @@ verified: '2026-10-15'
 карточки (отменяет OPEN-3=B; паритет AdminJobs #227). AUTO-режим. План:
 vault `wiki/plan/plan_mywork_detail_table.md` §Аменда rev.3.
 
-- [ ] **WU-1 Документация rev.3** — SPEC §Аменда rev.3 (R-B1..R-B7) +
+- [x] **WU-1 Документация rev.3** — SPEC §Аменда rev.3 (R-B1..R-B7) +
       этот TODO + vault-план §Аменда rev.3.
-- [ ] **WU-2 fieldSchemas TDD** — `ui/ProjectForm/lib/fieldSchemas.ts`:
+- [x] **WU-2 fieldSchemas TDD** — `ui/ProjectForm/lib/fieldSchemas.ts`:
       `EditProjectField` (scalar + `metric-${number}`), per-field zod-слайсы
       через делегирование к `ProjectFormDataSchema`/`ProjectFormSchema`
       (`.pipe`-паритет), `defaultValuesFor`, `toUpdateDto` →
       `Omit<ProjectUpdatePatch, 'id'>`. RED-тесты → GREEN.
-- [ ] **WU-3 i18n** — 5 flat-ключей en+ru: `adminMyWorkEditFieldTitle`,
+- [x] **WU-3 i18n** — 5 flat-ключей en+ru: `adminMyWorkEditFieldTitle`,
       `adminMyWorkClearField`, `adminMyWorkMetricUp`,
       `adminMyWorkMetricDown`, `adminMyWorkRemoveMetric` (parity-тест не
-      правится: сверяет множество ключей).
-- [ ] **WU-4 ProjectCard-действия TDD** — колонка `actions`:
+      правится: сверяет множество ключей). Плюс фикс pre-existing:
+      `projectFieldImage` добавлен в обе локали.
+- [x] **WU-4 ProjectCard-действия TDD** — колонка `actions`:
       Pencil каждая строка (`project-field-actions-${id}-${row.key}`,
       `onEditField`), кроме `image` (без действий вовсе); metric-N:
       Pencil+↑↓+Trash2 (disabled-паритет bullets), redux+persist внутри
@@ -29,19 +30,21 @@ vault `wiki/plan/plan_mywork_detail_table.md` §Аменда rev.3.
       (year/link/role/featured), скрыт на title/category/status и на
       description/techIcons/image (min(1)-контракт, mid-эпик-ревизия
       SPEC R-B3); persist-THEN-dispatch §3.
-- [ ] **WU-5 FieldEditForm TDD** — `ui/FieldEditForm/FieldEditForm.tsx`:
-      инпуты активного поля (Input/Select/Textarea/chips/checkbox),
+- [x] **WU-5 FieldEditForm TDD** — `ui/FieldEditForm/FieldEditForm.tsx`:
+      инпуты активного поля (Input/Select/Textarea/chips/toggle),
       resolver из fieldSchemas, Save disabled pristine, persist-fail тост
       + модалка открыта, Save → persist → dispatch → тост → onExitEdit,
       без h2 (имя диалога у страницы).
-- [ ] **WU-6 Wiring + page-tests** — `AdminMyWorkPage`: форма
+- [x] **WU-6 Wiring + page-tests** — `AdminMyWorkPage`: форма
       `{ projectId?, field? }`, FieldEditForm `key="${id}-${field}"`,
       title `adminMyWorkEditFieldTitle` (карта label-ключей), stale-guard;
       `MyWorkEditorList` пробрасывает `onEditField`; page-test
       (prefilled-модалка по Pencil строки) + адаптация харнеса.
-- [ ] **WU-7 Гейты** — validate (CPU-окно <45%), axe `/admin/mywork`
+- [x] **WU-7 Гейты** — validate (CPU-окно <45%), axe `/admin/mywork`
       0 регрессий, бандл в капе 786432, превью-смоук (Pencil →
       prefilled-модалка поля, очистка link, ↑↓/Trash2 метрик), public-api.
+      Превью-смоук нашёл + зафиксировал pre-existing баг: ключ
+      `projectFieldTechIcons` отсутствовал в обеих локалях.
 - [ ] **WU-8 Merge + burn-down** — PR `--base dev`, CI green, squash auto,
       burn-down-док (SPEC/TODO → done + closing note), план rev.3 → done,
       dual-write vault `memory.md` + AGENTS.md-готча при наличии.
