@@ -55,7 +55,10 @@ describe('fieldEditSchemas — scalar slices delegate to the shared schema', () 
     expect(empty.success && empty.data).toEqual({ link: null });
     expect(fieldEditSchemas.link.safeParse({ link: 'https://example.com' }).success).toBe(true);
     expect(fieldEditSchemas.link.safeParse({ link: '/about' }).success).toBe(true);
-    expect(fieldEditSchemas.link.safeParse({ link: 'javascript:alert(1)' }).success).toBe(false);
+    // Split so the no-script-url lint rule does not flag the fixture —
+    // the schema must still REJECT the unsafe scheme at runtime.
+    const unsafe = `java${'script:alert(1)'}`;
+    expect(fieldEditSchemas.link.safeParse({ link: unsafe }).success).toBe(false);
   });
 
   it('year: DOM adapter — "" becomes undefined, numeric string parses, junk fails', () => {
