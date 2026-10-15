@@ -26,5 +26,9 @@ export type { MyWorkRootState, ProjectUpdatePatch } from './model/types/types';
 
 // The editor UI — consumed by the lazy /admin/mywork page only
 // (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
+export { FieldEditForm } from './ui/FieldEditForm/FieldEditForm';
 export { MyWorkEditorList } from './ui/MyWorkEditorList/MyWorkEditorList';
 export { ProjectForm } from './ui/ProjectForm/ProjectForm';
+// Type-only — the page keys its modal state on the row key union
+// (rev.3 field edit); erased at compile time, no runtime cost.
+export type { EditProjectField } from './ui/ProjectForm/lib/fieldSchemas';
