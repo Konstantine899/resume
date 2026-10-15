@@ -117,6 +117,25 @@ describe('Image Component', () => {
       const container = screen.getByRole('img').closest('figure');
       expect(container?.className).toMatch(/variantThumbnail/);
     });
+
+    it('applies transparent variant (class + data attribute, zero radius)', () => {
+      renderImage({ variant: 'transparent' });
+      const container = screen.getByRole('img').closest('figure') as HTMLElement;
+      expect(container.className).toMatch(/variantTransparent/);
+      expect(container).toHaveAttribute('data-variant', 'transparent');
+      // IMAGE_VARIANT_RADIUS.transparent === '0' applied via inline style (jsdom normalizes to '0px')
+      expect(container.style.borderRadius).toMatch(/^0(px)?$/);
+    });
+
+    // Presence-only: jsdom does not load CSS-module styles, so the actual
+    // transparent styling is guarded by src/shared/styles/__tests__/image-transparent-variant.test.ts
+    it('applies variantTransparent and loading classes while keeping the placeholder element (presence only)', () => {
+      renderImage({ variant: 'transparent', forceLoading: true });
+      const container = screen.getByRole('img').closest('figure') as HTMLElement;
+      expect(container.className).toMatch(/variantTransparent/);
+      expect(container.className).toMatch(/loading/);
+      expect(container.querySelector('[class*="placeholder"]')).toBeInTheDocument();
+    });
   });
 
   describe('Sizes', () => {

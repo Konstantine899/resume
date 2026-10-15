@@ -196,7 +196,7 @@ describe('icon-adoption: Nav widget size guards', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'navMenuLabel' });
     const links = within(dialog).getAllByRole('link');
-    expect(links).toHaveLength(NAV_ITEMS.length + 1); // 6 sections + 🔐 AdminLink
+    expect(links).toHaveLength(NAV_ITEMS.length + 3); // 6 sections + 3 social links
 
     const item = links[0] as HTMLElement;
     expect(item).toHaveAttribute('role', 'link');
@@ -275,7 +275,7 @@ describe('icon-adoption: data maps are not mutated across renders', () => {
   it('NAV_ITEMS exposes stable icon references across a Nav render', () => {
     const before = NAV_ITEMS.map((item) => item.icon);
 
-    expect(NAV_ITEMS).toHaveLength(6);
+    expect(NAV_ITEMS).toHaveLength(5);
     NAV_ITEMS.forEach((item) => expect(item.icon).toBeDefined());
 
     // Rendering Nav must not mutate the shared data map (single source).

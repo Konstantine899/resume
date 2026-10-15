@@ -1,5 +1,5 @@
-import { JOBS } from '../constants';
-import type { EmploymentType, Job, JobFilters, JobLevel } from '../types';
+import { JOBS } from '../model/constants/constants';
+import type { EmploymentType, Job, JobFilters, JobLevel } from '../model/types/types';
 
 /**
  * Filter jobs by level
@@ -37,7 +37,9 @@ export const searchJobs = (jobs: Job[], query: string, language: 'en' | 'ru' = '
   return jobs.filter(
     (job) =>
       job.company.toLowerCase().includes(lowerQuery) ||
-      job.position.toLowerCase().includes(lowerQuery) ||
+      // Position is localized (en/ru) — match either language.
+      job.position.en.toLowerCase().includes(lowerQuery) ||
+      job.position.ru.toLowerCase().includes(lowerQuery) ||
       job.description[language].some((desc) => desc.toLowerCase().includes(lowerQuery))
   );
 };
@@ -77,4 +79,25 @@ export const getAllJobs = (): Job[] => JOBS;
  */
 export const sortJobsByDate = (jobs: Job[]): Job[] => {
   return [...jobs].sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+};
+
+/**
+ * Display-string dup of the date range (plan_workhistory_crud A5/§6) —
+ * `period` is NEVER entered by hand: the reducer recomputes it from these
+ * three inputs on every date/flag change. Em-dash, exactly like the seed.
+ *
+ * A null endDate renders as an open range regardless of the `current` flag:
+ * there is no honest end date to show, and the admin form forbids saving
+ * `current: false` without one (§7) — no dates are ever invented.
+ */
+export const formatJobPeriod = (
+  startDate: Date,
+  endDate: Date | null,
+  current: boolean
+): string => {
+  const startYear = startDate.getFullYear();
+  if (current || endDate === null) {
+    return `${startYear} — Present`;
+  }
+  return `${startYear} — ${endDate.getFullYear()}`;
 };

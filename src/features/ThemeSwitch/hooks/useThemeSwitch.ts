@@ -1,5 +1,5 @@
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
-import type { UseThemeSwitchReturn } from '../model/types';
+import type { UseThemeSwitchReturn } from '../model/types/types';
 
 /**
  * ThemeSwitch Feature Hook

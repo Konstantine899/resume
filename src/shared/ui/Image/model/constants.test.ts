@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { VALIDATION_MESSAGES } from './constants';
+import { IMAGE_VARIANTS, IMAGE_VARIANT_RADIUS, VALIDATION_MESSAGES } from './constants';
+
+describe('Image variant constants', () => {
+  it('registers the transparent variant with zero border-radius', () => {
+    expect(IMAGE_VARIANTS).toContain('transparent');
+    expect(IMAGE_VARIANT_RADIUS.transparent).toBe('0');
+  });
+
+  it('keeps a radius entry for every registered variant', () => {
+    for (const variant of IMAGE_VARIANTS) {
+      expect(IMAGE_VARIANT_RADIUS[variant]).toBeDefined();
+    }
+  });
+});
 
 describe('Image VALIDATION_MESSAGES', () => {
   it('builds dynamic messages that include the offending value', () => {

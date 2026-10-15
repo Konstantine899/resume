@@ -1,0 +1,67 @@
+// ============================================
+
+// MyWork Feature - SCSS Module
+
+// ============================================
+
+@use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
+@use '@/shared/ui/Section/model/section-mixins' as *;
+
+// ============================================
+
+// SECTION TITLE
+
+// ============================================
+
+.title {
+  @include section-title;
+
+  margin-bottom: $spacing-8;
+
+  @include sm {
+    margin-bottom: $spacing-10;
+  }
+
+  @include md {
+    margin-bottom: $spacing-12;
+  }
+}
+
+// ============================================
+
+// EMPTY STATE
+
+// ============================================
+
+.emptyState {
+  padding: $spacing-12;
+  color: var(--foreground-muted);
+  text-align: center;
+
+  @include text-lg;
+}
+
+// ============================================
+
+// PAGE SIZE ROW (top-right, above the grid)
+
+// ============================================
+
+.sizeRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-6;
+}
+
+// ============================================
+
+// PAGINATION ROW (bottom, centered)
+
+// ============================================
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-6;
+}

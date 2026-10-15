@@ -1,0 +1,12 @@
+{
+  "layers": ["app", "shared", "entities", "features", "widgets", "pages"],
+  "generatorLayers": ["entities", "features", "pages", "widgets"],
+  "allowedImports": {
+    "app": ["shared"],
+    "pages": ["app", "pages", "widgets", "features", "entities", "shared"],
+    "widgets": ["app", "pages", "features", "entities", "shared"],
+    "features": ["entities", "shared"],
+    "entities": ["shared"],
+    "shared": ["shared"]
+  }
+}

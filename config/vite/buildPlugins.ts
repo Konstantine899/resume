@@ -31,13 +31,24 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
       isDev,
     }),
 
-    // 3. Копирование статических файлов (locales)
-    // Копируем из src/locales в public/locales
+    // 3. Копирование статических файлов (locales + project images)
+    // Копируем из src/locales в public/locales и project-изображения
+    // из src/shared/assets/images/projects в public/images/projects
+    // (дев: через middleware, билд: через writeBundle — план project-images WU-2).
     viteStaticCopy({
       targets: [
         {
           src: paths.locales,
           dest: paths.buildLocales,
+        },
+        {
+          src: paths.imagesProjects,
+          dest: paths.buildImagesProjects,
+          // Directory src preserves the full matched dir tree in dest
+          // (public/images/projects/src/shared/...). stripBase flattens it
+          // back to one level so the seed path /images/projects/x.webp
+          // resolves both in build and (via fileMap) in the dev server.
+          rename: { stripBase: true },
         },
       ],
     }),

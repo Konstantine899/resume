@@ -1,0 +1,42 @@
+// ============================================
+// AdminJobs (WorkHistory CRUD admin side) — Public API
+// ============================================
+//
+// NOTE (FSD): only `pages` and this feature itself may import this API —
+// `features → features` is banned, so `features/WorkHistory` (the vitrina)
+// never touches it; the vitrina receives content as a prop from HomePage
+// (Design C).
+//
+// WU-2 ships the model only; the editor UI is exported from here in
+// WU-5 — and `storeReducers.ts` deep-imports `./model/slices/jobsSlice`
+// precisely so this barrel (and the form/RHF code behind it) is
+// instantiated only by the lazy `/admin/jobs` route (lesson
+// resume-lazy-rhf-chunk).
+//
+// WU-8 (SPEC R-8): this barrel only carries what `src/` actually imports —
+// six dead re-exports (toggleCurrent, applyJobToggle, resetToDefaults,
+// removeJobs, selectJobById, selectCurrentJob) were dropped. The
+// implementations and their unit tests are untouched; `index.test.ts` pins
+// both halves of that contract.
+
+export {
+  addJob,
+  applyJobUpdate,
+  deleteJob,
+  jobsReducer,
+  makeJobRecord,
+  updateJob,
+} from './model/slices/jobsSlice';
+export { createJobsSeed } from './model/services/seed';
+export { selectAllJobs, selectSortedJobs } from './model/selectors';
+export { JOBS_STORAGE_KEY, persistJobs, readJobs } from './model/services/storage';
+export type { JobsRootState } from './model/types/types';
+
+// WU-5: the editor UI — consumed by the lazy /admin/jobs page only
+// (resume-lazy-rhf-chunk: RHF must never reach the showcase bundle).
+export { JobForm } from './ui/JobForm/JobForm';
+export { JobsList } from './ui/JobsList/JobsList';
+// job-field-edit WU-2: the field-scoped modal form + its shared config.
+export { FieldEditForm } from './ui/FieldEditForm/FieldEditForm';
+export { EDIT_FIELD_LABEL_KEYS } from './ui/JobForm/lib/fieldSchemas';
+export type { EditField } from './ui/JobForm/lib/fieldSchemas';

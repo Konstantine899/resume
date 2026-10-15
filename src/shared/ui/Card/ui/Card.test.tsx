@@ -225,6 +225,29 @@ describe('Card', () => {
       expect(link).toHaveClass(projectCardStyles.link ?? '');
     });
 
+    it('renders ProjectCard with role, year, and metrics (recruiter audit P1)', () => {
+      render(
+        <ProjectCard
+          title="Test Project"
+          description="Description"
+          techIcons={[]}
+          role="Full-Stack Developer"
+          year={2023}
+          metrics={['1M+ users']}
+        />
+      );
+      expect(screen.getByText('Full-Stack Developer')).toBeInTheDocument();
+      expect(screen.getByText('2023')).toBeInTheDocument();
+      expect(screen.getByText('1M+ users')).toBeInTheDocument();
+    });
+
+    it('omits the meta line and metrics when no real data is provided', () => {
+      render(<ProjectCard title="Bare Project" description="Description" techIcons={[]} />);
+      expect(screen.getByText('Bare Project')).toBeInTheDocument();
+      // No invented year/role/metrics chips.
+      expect(screen.queryByText('·')).not.toBeInTheDocument();
+    });
+
     it('renders WorkHistoryCard', () => {
       render(
         <WorkHistoryCard
@@ -236,6 +259,22 @@ describe('Card', () => {
       );
       expect(screen.getByText('Developer')).toBeInTheDocument();
       expect(screen.getByText('Test Company')).toBeInTheDocument();
+      // No companyUrl → plain text, never a link to a made-up domain.
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    });
+
+    it('renders the company name as an external link when companyUrl is provided', () => {
+      render(
+        <WorkHistoryCard
+          title="Developer"
+          company="Real Company"
+          companyUrl="https://real-company.example"
+          achievements={['Achievement 1']}
+        />
+      );
+      const link = screen.getByRole('link', { name: 'Real Company' });
+      expect(link).toHaveAttribute('href', 'https://real-company.example');
+      expect(link).toHaveAttribute('target', '_blank');
     });
 
     it('renders ContactCard', () => {

@@ -1,0 +1,54 @@
+// src/shared/ui/DatePicker/ui/DatePicker/DatePicker.module.scss
+
+// ============================================
+
+// DatePicker Component — Input + calendar trigger row (WU-2)
+
+// Layout only: the kit Input owns the field chrome; this module owns the
+
+// input/trigger row rhythm. All values come from design tokens.
+
+// ============================================
+
+.datePicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-1);
+  align-items: flex-end;
+}
+
+// The trigger mirrors the kit Input height rhythm; 24×24 target-size floor
+
+// (WCAG 2.2 SC 2.5.8).
+.trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: var(--space-1-5);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+}

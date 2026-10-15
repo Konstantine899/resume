@@ -11,6 +11,7 @@ import { CardBody } from '../CardBody';
 import { CardHeader } from '../CardHeader';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
+import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Divider } from '@/shared/ui/Divider';
 import { MapPin } from 'lucide-react';
@@ -44,6 +45,7 @@ import cardStyles from '../Card.module.scss';
 const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
   title,
   company,
+  companyUrl,
   period,
   periodBadge,
   location,
@@ -62,7 +64,20 @@ const WorkHistoryCardComponent: React.FC<WorkHistoryCardProps> = ({
             </Heading>
             {company && (
               <Paragraph as="span" weight="semibold" className={styles.company}>
-                {company}
+                {companyUrl ? (
+                  <Link
+                    href={companyUrl}
+                    external
+                    showExternalIcon={false}
+                    variant="text-primary"
+                    size="sm"
+                    className={styles.companyLink}
+                  >
+                    {company}
+                  </Link>
+                ) : (
+                  company
+                )}
               </Paragraph>
             )}
           </div>

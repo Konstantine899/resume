@@ -15,37 +15,19 @@
 const fs = require('fs');
 const path = require('path');
 
-// FSD layer hierarchy: higher number = higher layer
-const LAYER_ORDER = {
-  app: 7,
-  pages: 6,
-  widgets: 5,
-  features: 4,
-  entities: 3,
-  shared: 2,
-};
+// Single source of truth for FSD layers: scripts/fsd-layers.json (SSOT).
+// ⚠️ The require depth MUST be '../../' from .opencode/eslint/: '../../../'
+// resolves above the repo root → MODULE_NOT_FOUND → ESLint fails to load and
+// the whole `npm run lint` goes red. Never keep layer lists local —
+// invariant: scripts/__tests__/fsd-layers.test.ts.
+const FSD = require('../../scripts/fsd-layers.json');
 
-// Layer names for error messages
-const LAYER_NAMES = {
-  app: 'app',
-  pages: 'pages',
-  widgets: 'widgets',
-  features: 'features',
-  entities: 'entities',
-  shared: 'shared',
-};
+// All FSD layer names, SSOT order (used to build every layer regex below).
+const LAYERS = FSD.layers;
 
-// Allowed imports per source layer.
+// Allowed imports per source layer — straight from the SSOT.
 // FSD: a layer imports from itself and all layers below it (never from above).
-// Matches docs/specs/fsd-architecture.md (pages compose features, widgets consume features).
-const ALLOWED_IMPORTS = {
-  app: ['shared'],
-  pages: ['app', 'pages', 'widgets', 'features', 'entities', 'shared'],
-  widgets: ['app', 'pages', 'features', 'entities', 'shared'],
-  features: ['entities', 'shared'],
-  entities: ['shared'],
-  shared: ['shared'],
-};
+const ALLOWED_IMPORTS = FSD.allowedImports;
 
 /**
  * Extract the FSD layer from a file path
@@ -53,7 +35,7 @@ const ALLOWED_IMPORTS = {
 function getLayerFromPath(filePath) {
   if (!filePath) return null;
   const normalized = filePath.replace(/\\/g, '/');
-  const match = normalized.match(/\/(app|pages|widgets|features|entities|shared)\//);
+  const match = normalized.match(new RegExp(`/(${LAYERS.join('|')})/`));
   return match ? match[1] : null;
 }
 
@@ -62,7 +44,7 @@ function getLayerFromPath(filePath) {
  */
 function getLayerFromImport(source) {
   if (!source) return null;
-  const match = source.match(/^@\/(app|pages|widgets|features|entities|shared)(\/|$)/);
+  const match = source.match(new RegExp(`^@/(${LAYERS.join('|')})(/|$)`));
   return match ? match[1] : null;
 }
 
@@ -126,7 +108,8 @@ module.exports = {
           description: 'Validate FSD layer dependency rules',
         },
         messages: {
-          violation: 'FSD layer violation: "{{sourceLayer}}" cannot import from "{{targetLayer}}". Allowed: {{allowed}}',
+          violation:
+            'FSD layer violation: "{{sourceLayer}}" cannot import from "{{targetLayer}}". Allowed: {{allowed}}',
         },
         schema: [],
       },
@@ -151,11 +134,12 @@ module.exports = {
               node,
               messageId: 'violation',
               data: {
-                sourceLayer: LAYER_NAMES[sourceLayer] || sourceLayer,
-                targetLayer: LAYER_NAMES[targetLayer] || targetLayer,
-                allowed: allowed.length > 0
-                  ? allowed.map((l) => LAYER_NAMES[l] || l).join(', ')
-                  : 'none (shared cannot import from other layers)',
+                sourceLayer,
+                targetLayer,
+                allowed:
+                  allowed.length > 0
+                    ? allowed.join(', ')
+                    : 'none (shared cannot import from other layers)',
               },
             });
           },
@@ -200,7 +184,7 @@ module.exports = {
             if (!source || source.startsWith('.')) return;
 
             // Check if import bypasses public API
-            const match = source.match(/^@\/(app|pages|widgets|features|entities|shared)\/([^/]+)\/(.+)/);
+            const match = source.match(new RegExp(`^@/(${LAYERS.join('|')})/([^/]+)/(.+)`));
             if (!match) return;
 
             const [, layer, slice, rest] = match;
@@ -229,14 +213,19 @@ module.exports = {
 
             // For other layers: importing into internal folders is a violation
             // But first check disallow patterns for deep imports
-            if (disallowPatterns.some((p) => {
-              const escaped = p.replace(/\*\*/g, '(.+)?').replace(/\*/g, '[^/]+').replace(/\//g, '\\/');
-              try {
-                return new RegExp(escaped).test(source);
-              } catch {
-                return false;
-              }
-            })) {
+            if (
+              disallowPatterns.some((p) => {
+                const escaped = p
+                  .replace(/\*\*/g, '(.+)?')
+                  .replace(/\*/g, '[^/]+')
+                  .replace(/\//g, '\\/');
+                try {
+                  return new RegExp(escaped).test(source);
+                } catch {
+                  return false;
+                }
+              })
+            ) {
               context.report({
                 node,
                 messageId: 'violation',
@@ -355,7 +344,8 @@ module.exports = {
           description: 'Detect circular imports between FSD layers',
         },
         messages: {
-          violation: 'Potential circular dependency detected: "{{source}}" creates a cycle with "{{filePath}}"',
+          violation:
+            'Potential circular dependency detected: "{{source}}" creates a cycle with "{{filePath}}"',
         },
         schema: [],
       },

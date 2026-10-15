@@ -1,5 +1,5 @@
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import type { UseLanguageSwitchReturn } from '../model/types';
+import type { UseLanguageSwitchReturn } from '../model/types/types';
 
 /**
  * LanguageSwitch Feature Hook

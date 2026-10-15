@@ -5,7 +5,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { Moon, Sun } from 'lucide-react';
 import React from 'react';
 import { useThemeSwitch } from '../hooks/useThemeSwitch';
-import type { ThemeSwitchProps } from '../model/types';
+import type { ThemeSwitchProps } from '../model/types/types';
 import styles from './ThemeSwitch.module.scss';
 
 export interface ThemeSwitchComponentProps {

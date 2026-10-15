@@ -2,4 +2,4 @@
 // Home Page - Public API
 // ============================================
 
-export { HomePage } from './HomePage';
+export { HomePage } from './ui/HomePage/HomePage';

@@ -13,4 +13,4 @@ export type {
   NavControlsProps,
   NavItem,
   NavProps,
-} from './model/types';
+} from './model/types/types';

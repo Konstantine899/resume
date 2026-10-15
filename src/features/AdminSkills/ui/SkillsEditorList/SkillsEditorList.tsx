@@ -1,0 +1,490 @@
+// ============================================
+// SkillsEditorList — per-category blocks (plan_admin_panel_edit rev.3, WU-1)
+// ============================================
+//
+// One DataTable per category (OPEN-6: block order = storage order): the
+// block header carries the h3 (category name + plural count Badge —
+// verdict OPEN-8, existing key `skillsCategoryCount`) and the block-level
+// actions (Edit category / Add technology — verdict OPEN-3 / Delete
+// category); the table below lists that category's technologies with row
+// actions. An empty category renders EmptyState `skillsCategoryEmpty`
+// (verdict OPEN-7) instead of a placeholder row; an empty STORE renders
+// the section-level `skillsListEmpty`.
+//
+// Invariants:
+// - persist BEFORE dispatch (§3): the next array is rebuilt from the
+//   `all` snapshot, then the action is dispatched — store === storage.
+// - Reset removes the storage key instead of persisting (§5), then
+//   dispatches resetToDefaults.
+// - Delete callbacks let the page close a form whose record vanished.
+// - ALL copy is i18n (i18n-first); counts render via the plural key.
+// - Sorting is CONTROLLED and PER TABLE (A9): clicks only emit
+//   `onSortChange` to that block's table; page and sort state are keyed
+//   by category (A4), and a sort resets only its own table to page 1.
+// - A6: no heading elements inside cells — first cell is <strong>.
+//
+// rev.4 (epic skills-card-collapse): every card is collapsible. A
+// collapse IconButton (Minus) sits LEFT of the h3; collapsing unmounts
+// the header/table/footer branch and renders a caption (category name)
+// OUTSIDE the Card, above a strip card whose whole body is the expand
+// button (Plus). Collapse state is per category, default expanded (A15).
+
+import { useToast } from '@/shared/lib/contexts/ToastContext';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { classNames } from '@/shared/lib/utils/classNames';
+import { Minus, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { Badge } from '@/shared/ui/Badge';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
+import { DataTable } from '@/shared/ui/DataTable';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
+import { Modal } from '@/shared/ui/Modal';
+import { Paragraph } from '@/shared/ui/Paragraph';
+import { Tooltip } from '@/shared/ui/Tooltip';
+import React, { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { SkillCategoryData } from '@/entities/Skill';
+import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
+import { selectAllSkillsData } from '../../model/selectors/selectors';
+import { persistSkills, removeSkills } from '../../model/services/storage';
+import {
+  deleteSkillCategory,
+  deleteTechnology,
+  resetToDefaults,
+} from '../../model/slices/skillsSlice';
+import styles from './SkillsEditorList.module.scss';
+
+/**
+ * Default rows per page + the kit `PageSizeGroup` options — verdict
+ * OPEN-1/OPEN-5 (2026-10-10): 5 / 10 / 20, default 5 (not 12).
+ */
+const DEFAULT_PAGE_SIZE = 5;
+const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
+
+/** One row of a single-category table. */
+type TechRow = {
+  id: string;
+  techName: string;
+  entry: SkillCategoryData;
+};
+
+/** One pending destructive action behind the shared Modal confirm. */
+type PendingDelete =
+  | { kind: 'category'; categoryId: string }
+  | { kind: 'technology'; categoryId: string; techName: string }
+  | { kind: 'reset' }
+  | null;
+
+export interface SkillsEditorListProps {
+  className?: string;
+  'data-testid'?: string;
+  /** The page opens its create form. */
+  onAddCategory?: () => void;
+  /** The page opens its edit form for this category record. */
+  onEditCategory?: (category: SkillCategoryData) => void;
+  /** The page opens its create form inside this category. */
+  onAddTechnology?: (categoryId: string) => void;
+  /** The page opens its edit form for this technology. */
+  onEditTechnology?: (categoryId: string, techName: string) => void;
+  /** The page clears a category selection when the record is deleted. */
+  onCategoryDeleted?: (categoryId: string) => void;
+  /** The page clears a technology selection when the record is deleted. */
+  onTechnologyDeleted?: (categoryId: string, techName: string) => void;
+}
+
+export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
+  className = '',
+  'data-testid': testId = 'skills-editor-list',
+  onAddCategory,
+  onEditCategory,
+  onAddTechnology,
+  onEditTechnology,
+  onCategoryDeleted,
+  onTechnologyDeleted,
+}) => {
+  // Same-feature selector + dispatch — legal inside AdminSkills (§8).
+  const all = useSelector(selectAllSkillsData);
+  const dispatch = useDispatch();
+  const { t } = useLanguage();
+  const { addToast } = useToast();
+  const [pending, setPending] = useState<PendingDelete>(null);
+  const [deleting, setDeleting] = useState(false);
+  // Destructive-confirm pattern (SPEC §6): focus lands on «Отмена» after open.
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  // A4: page, sort and page SIZE are PER TABLE, keyed by category.
+  const [pages, setPages] = useState<Record<string, number>>({});
+  const [sorts, setSorts] = useState<Record<string, SortState | null>>({});
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  // A15: per-category collapse, absent/false = expanded; NO persistence.
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  const closeModal = () => {
+    setPending(null);
+    setDeleting(false);
+  };
+
+  /** §3 order: persist → dispatch → toast → callback → close. */
+  const handleConfirmDelete = () => {
+    if (!pending) return;
+    setDeleting(true);
+
+    if (pending.kind === 'category') {
+      const { categoryId } = pending;
+      const next = all.filter((entry) => entry.category !== categoryId);
+      if (!persistSkills(next)) {
+        // OPEN-9: failure keeps the modal OPEN for a retry (unified with the forms).
+        addToast({ message: t('skillsPersistError'), type: 'error' });
+        setDeleting(false);
+        return;
+      }
+      dispatch(deleteSkillCategory(categoryId));
+      addToast({ message: t('skillsDeleted'), type: 'success' });
+      onCategoryDeleted?.(categoryId);
+      closeModal();
+      return;
+    }
+
+    if (pending.kind === 'technology') {
+      const { categoryId, techName } = pending;
+      const next = all.map((entry) =>
+        entry.category === categoryId
+          ? { ...entry, technologies: entry.technologies.filter((tech) => tech.name !== techName) }
+          : entry
+      );
+      if (!persistSkills(next)) {
+        // OPEN-9: failure keeps the modal OPEN for a retry (unified with the forms).
+        addToast({ message: t('skillsPersistError'), type: 'error' });
+        setDeleting(false);
+        return;
+      }
+      dispatch(deleteTechnology({ categoryId, techName }));
+      addToast({ message: t('skillsDeleted'), type: 'success' });
+      onTechnologyDeleted?.(categoryId, techName);
+      closeModal();
+      return;
+    }
+
+    // reset: remove the key (§5), never persist the seed back.
+    removeSkills();
+    dispatch(resetToDefaults());
+    closeModal();
+  };
+
+  const confirmLabel = pending?.kind === 'reset' ? t('skillsReset') : t('skillsDelete');
+  /**
+   * Confirm copy NAMES the entity (OPEN-10 «Вариант А»): «Удалить React?».
+   * Category adds scale per OPEN-4 — technologies go together, count only
+   * when N > 0 (без количества для пустой категории). Rendered through the
+   * modal `subtitle` so kit `aria-describedby` links it to the dialog.
+   */
+  let confirmBody = '';
+  if (pending?.kind === 'reset') {
+    confirmBody = t('skillsResetConfirm');
+  } else if (pending?.kind === 'technology') {
+    confirmBody = t('skillsConfirmDelete', { name: pending.techName });
+  } else if (pending?.kind === 'category') {
+    const entry = all.find((item) => item.category === pending.categoryId);
+    const name = entry?.categoryName ?? pending.categoryId;
+    const count = entry?.technologies.length ?? 0;
+    confirmBody =
+      count > 0
+        ? t('skillsConfirmDeleteCategory', { name, count })
+        : t('skillsConfirmDeleteCategory', { name });
+  }
+
+  /** Columns of ONE category table: the shared tech pair (no category column). */
+  const makeColumns = (): DataTableColumn<TechRow>[] => [
+    {
+      key: 'tech',
+      header: t('technologies'),
+      sortable: true,
+      sortValue: (row) => row.techName,
+      render: (row) => (
+        <span className={styles.nameCell} data-testid={`skill-tech-row-${row.techName}`}>
+          <strong>{row.techName}</strong>
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('skillsTableActions'),
+      render: (row) => (
+        <div className={styles.actions} data-testid={`skill-tech-actions-${row.techName}`}>
+          <Tooltip content={t('skillsEditTechnology')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="sm"
+              icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsEditTechnology')}
+              onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
+            />
+          </Tooltip>
+          <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="danger"
+              size="sm"
+              icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsDelete')}
+              onClick={() =>
+                setPending({
+                  kind: 'technology',
+                  categoryId: row.entry.category,
+                  techName: row.techName,
+                })
+              }
+            />
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className={classNames(styles.root, className)} data-testid={testId}>
+      <div className={styles.header}>
+        <div className={styles.intro}>
+          <Heading level={2}>{t('adminSkillsTitle')}</Heading>
+          <Paragraph theme="muted">{t('adminSkillsHint')}</Paragraph>
+        </div>
+        <div className={styles.headerActions}>
+          <Tooltip content={t('skillsAddCategory')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="primary"
+              size="md"
+              icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsAddCategory')}
+              onClick={() => onAddCategory?.()}
+            />
+          </Tooltip>
+          <Tooltip content={t('skillsReset')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="md"
+              icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+              ariaLabel={t('skillsReset')}
+              onClick={() => setPending({ kind: 'reset' })}
+            />
+          </Tooltip>
+        </div>
+      </div>
+
+      {all.length === 0 ? (
+        // Section-level empty: no categories at all (skillsListEmpty).
+        <EmptyState title={t('skillsListEmpty')} />
+      ) : (
+        // Storage order (OPEN-6) — selectAllSkillsData keeps it.
+        all.map((entry) => {
+          // A9: the kit owns sorting (sortValue on the column) and the
+          // pagination window (A10 clamp) — this block only supplies the
+          // CONTROLLED sort/page state, keyed by category (A4).
+          const techRows: TechRow[] = entry.technologies.map((tech) => ({
+            id: `${entry.category}::${tech.name}`,
+            techName: tech.name,
+            entry,
+          }));
+
+          const pageSize = sizes[entry.category] ?? DEFAULT_PAGE_SIZE;
+          const totalPages = Math.max(1, Math.ceil(techRows.length / pageSize));
+          // Mirror of the kit's safePage so the range counter always agrees
+          // with the window DataTable actually renders (A10).
+          const safePage = Math.min(Math.max(pages[entry.category] ?? 1, 1), totalPages);
+          const start = (safePage - 1) * pageSize;
+
+          const rangeFrom = techRows.length > 0 ? start + 1 : 0;
+          const rangeTo = Math.min(start + pageSize, techRows.length);
+
+          // Owner directive 2026-10-13: cards are COLLAPSED by default.
+          const isCollapsed = collapsed[entry.category] ?? true;
+          // Stable per-category id: aria-controls resolves before AND after
+          // the unmount/remount roundtrip (rev.4 ARA test).
+          const contentId = `skills-category-content-${entry.category}`;
+          const collapseLabel = t('skillsCollapseCategory', { name: entry.categoryName });
+          const expandLabel = t('skillsExpandCategory', { name: entry.categoryName });
+
+          const collapseBlock = () => {
+            setCollapsed((prev) => ({ ...prev, [entry.category]: true }));
+            // A16: sort/page of the block reset WITH the collapse — the parent
+            // holds them across the unmount, so clearing is explicit (size stays).
+            setSorts((prev) => ({ ...prev, [entry.category]: null }));
+            setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+          };
+          const expandBlock = () => setCollapsed((prev) => ({ ...prev, [entry.category]: false }));
+
+          return (
+            <div className={styles.categoryGroup} key={entry.category}>
+              {isCollapsed && (
+                // OPEN-2 r4 = B1: caption OUTSIDE the Card, above the strip.
+                <div
+                  className={styles.caption}
+                  data-testid={`skills-category-caption-${entry.category}`}
+                >
+                  {entry.categoryName}
+                </div>
+              )}
+              <Card
+                variant="default"
+                size="default"
+                hoverable={false}
+                className={styles.block}
+                data-testid={`skills-category-block-${entry.category}`}
+              >
+                {isCollapsed ? (
+                  // A17: the whole Card body is the expand button (Plus left).
+                  <Tooltip content={expandLabel} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="md"
+                      fullWidth
+                      className={styles.strip}
+                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                      ariaLabel={expandLabel}
+                      aria-expanded="true"
+                      onClick={expandBlock}
+                    />
+                  </Tooltip>
+                ) : (
+                  <>
+                    <div className={styles.blockHeader}>
+                      <div className={styles.headerMain}>
+                        <Tooltip content={collapseLabel} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Minus} size={20} color="inherit" decorative />}
+                            ariaLabel={collapseLabel}
+                            aria-expanded="false"
+                            aria-controls={contentId}
+                            onClick={collapseBlock}
+                          />
+                        </Tooltip>
+                        <Heading level={3}>
+                          {entry.categoryName}{' '}
+                          <Badge variant="outline" size="sm">
+                            {t('skillsCategoryCount', { count: entry.technologies.length })}
+                          </Badge>
+                        </Heading>
+                      </div>
+                      <div
+                        className={styles.actions}
+                        data-testid={`skill-category-actions-${entry.category}`}
+                      >
+                        <Tooltip content={t('skillsEditCategory')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsEditCategory')}
+                            onClick={() => onEditCategory?.(entry)}
+                          />
+                        </Tooltip>
+                        <Tooltip content={t('skillsAddTechnology')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsAddTechnology')}
+                            onClick={() => onAddTechnology?.(entry.category)}
+                          />
+                        </Tooltip>
+                        <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                            ariaLabel={t('skillsDelete')}
+                            onClick={() =>
+                              setPending({ kind: 'category', categoryId: entry.category })
+                            }
+                          />
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    <div className={styles.blockContent} id={contentId}>
+                      <DataTable<TechRow>
+                        caption={entry.categoryName}
+                        columns={makeColumns()}
+                        rows={techRows}
+                        getKey={(row) => row.id}
+                        page={pages[entry.category] ?? 1}
+                        pageSize={pageSize}
+                        pageSizeOptions={PAGE_SIZE_OPTIONS}
+                        onPageSizeChange={(next) => {
+                          setSizes((prev) => ({ ...prev, [entry.category]: next }));
+                          // A new size re-windows everything — top of page 1 of the
+                          // new order (SPEC A4/WU-3; A10 has no empty page either).
+                          setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                        }}
+                        onPageChange={(next) =>
+                          setPages((prev) => ({ ...prev, [entry.category]: next }))
+                        }
+                        sort={sorts[entry.category] ?? null}
+                        onSortChange={(next) => {
+                          setSorts((prev) => ({ ...prev, [entry.category]: next }));
+                          // A sort the user cannot SEE reads as a broken button:
+                          // reset only THIS table to the top of the new order (A9).
+                          setPages((prev) => ({ ...prev, [entry.category]: 1 }));
+                        }}
+                        emptyState={<EmptyState title={t('skillsCategoryEmpty')} compact />}
+                      />
+
+                      {techRows.length > 0 && (
+                        <div
+                          className={styles.footer}
+                          data-testid={`skills-pagination-footer-${entry.category}`}
+                        >
+                          <span className={styles.range} aria-live="polite">
+                            {t('paginationRange', {
+                              from: rangeFrom,
+                              to: rangeTo,
+                              total: techRows.length,
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </Card>
+            </div>
+          );
+        })
+      )}
+
+      <Modal
+        isOpen={pending !== null}
+        onClose={closeModal}
+        title={confirmLabel}
+        // The confirm copy IS the subtitle (visible + aria-describedby).
+        subtitle={pending ? confirmBody : undefined}
+        size="sm"
+        initialFocusRef={cancelRef}
+        footer={
+          <>
+            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
+              {t('skillsCancel')}
+            </Button>
+            <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
+              {confirmLabel}
+            </Button>
+          </>
+        }
+      >
+        {null}
+      </Modal>
+    </div>
+  );
+};
+
+SkillsEditorList.displayName = 'SkillsEditorList';

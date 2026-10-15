@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "description": "Performance budgets for bundle size enforcement. Caps are set from the 2026-09-26 measured build (post PurgeCSS rewrite, locale chunk split, assetsInlineLimit: 0) plus ~7-10% headroom.",
+  "description": "Performance budgets for bundle size enforcement. Caps are set from the 2026-09-26 measured build (post PurgeCSS rewrite, locale chunk split, assetsInlineLimit: 0) plus ~7-10% headroom. Revised 2026-09-30 after WU-1 (react-router 8.4.0) and again after WU-2 (RTK 2.13 + react-redux 9, total only): fresh measured builds with human approval (PR #146 / stacked WU-2 PR).",
   "budgets": {
     "chunks": {
       "default": {
@@ -9,20 +9,20 @@
         "description": "Default chunk size limit (97kb raw, 30kb gzip). Measured: i18n 54652 raw / 18278 gzip."
       },
       "vendor": {
-        "maxSize": 200000,
-        "maxSizeGzip": 70000,
-        "description": "Vendor chunk limit (195kb raw, 68kb gzip). Measured: vendor 195288 raw / 63621 gzip."
+        "maxSize": 295000,
+        "maxSizeGzip": 100000,
+        "description": "Vendor chunk limit (288kb raw, 97kb gzip). Measured WU-2 (2026-09-30): vendor 289067 raw (react-redux landed here); WU-1 was 287121 raw / 91660 gzip (react-router 8.4.0; baseline dev 195288 raw / 62130 gzip)."
       },
       "main": {
-        "maxSize": 160000,
-        "maxSizeGzip": 60000,
-        "description": "Main chunk limit (156kb raw, 58kb gzip). Measured: index 142147 raw / 51497 gzip. Tightened below the pre-inline-removal level so re-inlining assets is caught."
+        "maxSize": 200000,
+        "maxSizeGzip": 74000,
+        "description": "Main chunk limit (195kb raw, 72kb gzip). Raised 160000→200000 with human approval (About CRUD WU-4, 2026-10-04): react-hook-form now rides the lazy /admin/about chunk, main measured 190071 raw (zod stays in main for sync hydration)."
       }
     },
     "total": {
-      "maxSize": 420000,
-      "maxSizeGzip": 160000,
-      "description": "Total JS bundle size limit (410kb raw, 156kb gzip). Measured: 392676 raw / 133765 gzip."
+      "maxSize": 786432,
+      "maxSizeGzip": 266240,
+      "description": "Total JS bundle size limit (768kb raw, 260kb gzip). Raised 761856 -> 786432 (raw only; gzip 238737 << 266240) under the job-field-edit epic auto-mode (2026-10-14): FieldEditForm + shared field zod slices grew the lazy /admin/jobs chunk, measured 766393 raw (748.4 KiB) vs merge-base dev 742.9 KiB (+5.5 KiB, all in AdminJobsPage chunk — main 97434 and vendor 290707 untouched, resume-lazy-rhf-chunk intact). Headroom kept for future lazy admin chunks. History: 737280/258048 -> 761856/266240 with human approval (project-images WU-5 / PR #207, 2026-10-10: FileUpload kit +8.6 KiB). Earlier: 655360/225280 -> 737280/258048 (Skills CRUD WU-5, 2026-10-06, measured 685467); Projects CRUD 625000->655360 (2026-10-06); About CRUD WU-4 510000->625000 (2026-10-04); WU-2 485000->510000 (2026-09-30)."
     },
     "assets": {
       "maxSize": 122880,

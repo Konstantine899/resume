@@ -1,0 +1,31 @@
+// ============================================
+
+// SkillCategoryForm — admin category form layout (Skills CRUD §7 WU-5)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens inside the shared inputs — no hardcoded values (plan §8).
+
+// Same structure as ProjectForm.module.scss (form/field/actions) minus the
+
+// intro — the modal header owns the title (WU-5).
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

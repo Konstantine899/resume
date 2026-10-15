@@ -38,6 +38,9 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   link,
   builtUsingLabel = 'Создано с помощью',
   linkLabel = 'Ссылка',
+  role,
+  metrics,
+  year,
   className = '',
   onClick,
 }) => {
@@ -69,10 +72,30 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
 
       <div className={styles.content}>
         {title && <h3 className={styles.title}>{title}</h3>}
+        {(role || year !== undefined) && (
+          <p className={styles.meta}>
+            {role && <span className={styles.role}>{role}</span>}
+            {role && year !== undefined && (
+              <span className={styles.metaDivider} aria-hidden="true">
+                ·
+              </span>
+            )}
+            {year !== undefined && <span className={styles.year}>{year}</span>}
+          </p>
+        )}
         {description && (
           <Paragraph lineClamp={3} theme="muted">
             {description}
           </Paragraph>
+        )}
+        {metrics && metrics.length > 0 && (
+          <div className={styles.metrics}>
+            {metrics.map((metric) => (
+              <span key={metric} className={styles.metric}>
+                {metric}
+              </span>
+            ))}
+          </div>
         )}
         {techIcons && techIcons.length > 0 && (
           <div className={styles.techSection}>

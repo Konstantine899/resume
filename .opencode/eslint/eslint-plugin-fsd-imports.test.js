@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import plugin from './eslint-plugin-fsd-imports.js';
+import plugin from './eslint-plugin-fsd-imports.cjs';
 
 const tester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
@@ -19,7 +19,7 @@ describe('eslint-plugin-fsd-imports / tests-public-api-only', () => {
     valid: [
       // Non-test file: rule does not apply
       {
-        code: `import { getNavItems } from '@/widgets/Sidebar/model/constants';`,
+        code: `import { getNavItems } from '@/widgets/Nav/model/constants';`,
         filename: 'src/pages/Home/ui/HomePage.tsx',
       },
       // Test importing its own slice internals (co-located unit)
@@ -32,8 +32,9 @@ describe('eslint-plugin-fsd-imports / tests-public-api-only', () => {
         filename: 'src/features/About/ui/About.test.tsx',
       },
       // Test importing another slice through its public API
+      // (fixture: real slice @/widgets/Nav — Sidebar does not exist in this repo)
       {
-        code: `import { Sidebar } from '@/widgets/Sidebar';
+        code: `import { Nav } from '@/widgets/Nav';
 import { ThemeSwitch } from '@/features/ThemeSwitch';`,
         filename: 'src/pages/Home/ui/HomePage.test.tsx',
       },
@@ -62,7 +63,7 @@ import { ModalCloseButton } from '@/shared/ui/Modal';`,
     invalid: [
       // Test deep-importing another widget's model
       {
-        code: `import { getNavItems } from '@/widgets/Sidebar/model/constants';`,
+        code: `import { getNavItems } from '@/widgets/Nav/model/constants';`,
         filename: 'src/pages/Home/ui/HomePage.test.tsx',
         errors: [{ messageId: 'violation' }],
       },

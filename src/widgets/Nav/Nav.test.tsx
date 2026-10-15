@@ -2,7 +2,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { StoreProvider } from '@/app/providers';
+import { SOCIAL_LINKS } from '@/entities/Developer';
 import { HomePage } from '@/pages/Home';
+import { storeReducers } from '@/storeReducers';
 import { ADMIN_HREF, CTA_HREF, NAV_ITEMS } from './model/constants';
 import { Nav } from './index';
 import styles from './Nav.module.scss';
@@ -20,12 +23,11 @@ vi.mock('@/features/ThemeSwitch/hooks/useThemeSwitch', () => ({
 // Heavy composed sections are out of scope — we exercise the Nav integration only.
 vi.mock('@/features/About', () => ({ About: () => null }));
 vi.mock('@/features/Contact', () => ({ Contact: () => null }));
-vi.mock('@/features/Hero', () => ({ Hero: () => null }));
 vi.mock('@/features/MyWork', () => ({ MyWork: () => null }));
 vi.mock('@/features/Skills', () => ({ Skills: () => null }));
 vi.mock('@/features/WorkHistory', () => ({ WorkHistory: () => null }));
 
-const EXPECTED_ANCHORS = ['#home', '#work', '#experience', '#about', '#skills', '#contact'];
+const EXPECTED_ANCHORS = ['#about', '#skills', '#work', '#experience', '#contact'];
 
 describe('Nav: sticky top bar scaffold (T1)', () => {
   afterEach(() => {
@@ -49,23 +51,20 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(scss).toMatch(/position:\s*sticky/);
     expect(scss).toContain('var(--z-nav)');
 
-    const theme = readFileSync(
-      resolve(__dirname, '../../shared/styles/globals/_theme.scss'),
-      'utf8'
-    );
+    const theme = readFileSync(resolve(__dirname, '../../app/styles/globals/_theme.scss'), 'utf8');
     expect(theme).toMatch(/--z-nav:\s*2000/);
   });
 
-  it('renders exactly the 6 section anchors from NAV_ITEMS', () => {
+  it('renders exactly the 5 section anchors from NAV_ITEMS', () => {
     render(<Nav />);
 
     const nav = screen.getByRole('navigation');
     // Section anchors live in the <ul> — the right-side controls (T5 CTA +
-    // AdminLink) render additional links outside the list (decision R5).
+    // social links) render additional links outside the list (decision R5).
     const sectionList = within(nav).getByRole('list');
     const links = within(sectionList).getAllByRole('link');
 
-    expect(links).toHaveLength(6);
+    expect(links).toHaveLength(5);
     expect(links.map((link) => link.getAttribute('href'))).toEqual(EXPECTED_ANCHORS);
     NAV_ITEMS.forEach((item, index) => {
       expect(links[index]).toHaveAttribute('href', item.href);
@@ -75,8 +74,8 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
   });
 
   it('exposes the placeholder constants for later tasks (T4/T5)', () => {
-    expect(NAV_ITEMS).toHaveLength(6);
-    expect(ADMIN_HREF).toBe('#/admin');
+    expect(NAV_ITEMS).toHaveLength(5);
+    expect(ADMIN_HREF).toBe('/admin');
     expect(CTA_HREF).toBe('#contact');
   });
 
@@ -88,20 +87,35 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(within(controls).getByTestId('theme-switch')).toBeInTheDocument();
   });
 
-  it('renders CTA then AdminLink after the switches inside nav-controls (T5, R5)', () => {
+  it('renders CTA then the social profile links after the switches inside nav-controls (T5, R5)', () => {
     render(<Nav />);
 
     const controls = screen.getByTestId('nav-controls');
     const links = within(controls).getAllByRole('link');
 
-    // Right-side order (decision R5): [🌍🎨 switches][📄 CTA][🔐 AdminLink].
-    expect(links.map((link) => link.getAttribute('href'))).toEqual([CTA_HREF, ADMIN_HREF]);
+    // Right-side order (decision R5, extended): [🌍🎨 switches][📄 CTA][socials][🔐 admin].
+    // The 🔐 AdminLink is the desktop admin entry (wired back deliberately).
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      CTA_HREF,
+      ...SOCIAL_LINKS.map((link) => link.href),
+      ADMIN_HREF,
+    ]);
 
     // Switches precede the CTA in document order.
     const switches = within(controls).getByTestId('nav-controls-switches');
     expect(
       switches.compareDocumentPosition(links[0] as Node) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('renders the AdminLink as the last link of the desktop controls (admin entry)', () => {
+    render(<Nav />);
+
+    const controls = screen.getByTestId('nav-controls');
+    const adminLink = within(controls).getByTestId('nav-admin-link');
+    expect(adminLink).toHaveAttribute('href', ADMIN_HREF);
+    // Identity i18n mock → the key itself carries the accessible name.
+    expect(adminLink).toHaveAccessibleName('navAdmin');
   });
 
   it('invokes onNavigation with the section href when a link is activated', () => {
@@ -111,7 +125,7 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     const links = within(screen.getByRole('navigation')).getAllByRole('link');
     fireEvent.click(links[0] as HTMLElement);
 
-    expect(onNavigation).toHaveBeenCalledWith('#home');
+    expect(onNavigation).toHaveBeenCalledWith(NAV_ITEMS[0]?.href);
   });
 
   it('marks the active section link with aria-current="page" (Sidebar convention)', () => {
@@ -122,7 +136,7 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     // Initial active section is the first NAV_ITEMS anchor.
     expect(links[0]).toHaveAttribute('aria-current', 'page');
     expect(links[1]).not.toHaveAttribute('aria-current');
-    expect(links[5]).not.toHaveAttribute('aria-current');
+    expect(links[links.length - 1]).not.toHaveAttribute('aria-current');
   });
 
   it('moves aria-current immediately when a section link is clicked (T2 hook)', () => {
@@ -130,14 +144,16 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     render(<Nav onNavigation={onNavigation} />);
 
     const links = within(screen.getByRole('navigation')).getAllByRole('link');
-    const aboutLink = links.find((link) => link.getAttribute('href') === '#about');
-    expect(aboutLink).toBeDefined();
+    // Click a section that is NOT the first one, so the "previous active link
+    // loses the marker" assertion stays meaningful (About now leads the nav).
+    const skillsLink = links.find((link) => link.getAttribute('href') === '#skills');
+    expect(skillsLink).toBeDefined();
 
-    fireEvent.click(aboutLink as HTMLElement);
+    fireEvent.click(skillsLink as HTMLElement);
 
-    expect(aboutLink).toHaveAttribute('aria-current', 'page');
+    expect(skillsLink).toHaveAttribute('aria-current', 'page');
     expect(links[0]).not.toHaveAttribute('aria-current');
-    expect(onNavigation).toHaveBeenCalledWith('#about');
+    expect(onNavigation).toHaveBeenCalledWith(skillsLink?.getAttribute('href'));
   });
 
   it('does NOT render its own skip link (decision R6)', () => {
@@ -179,11 +195,12 @@ describe('Nav: burger + MobileMenu wiring (T6, R9/R11)', () => {
     // R9: Nav's own <nav> stays the ONLY navigation landmark, panel included.
     expect(screen.getAllByRole('navigation')).toHaveLength(1);
 
-    // Panel content (R4): sections + 🌍🎨 + 🔐 — CTA excluded.
+    // Panel content (R4): sections + 🌍🎨 + socials — CTA excluded, 🔐 gone.
     expect(within(dialog).getByRole('list')).toBeInTheDocument();
     expect(within(dialog).getByTestId('language-switch')).toBeInTheDocument();
     expect(within(dialog).getByTestId('theme-switch')).toBeInTheDocument();
-    expect(within(dialog).getByTestId('nav-admin-link')).toBeInTheDocument();
+    expect(within(dialog).getByTestId('nav-social-links')).toBeInTheDocument();
+    expect(within(dialog).queryByTestId('nav-admin-link')).toBeNull();
     expect(within(dialog).queryByTestId('nav-cta')).toBeNull();
     expect(within(dialog).queryByTestId('nav-cta-mobile')).toBeNull();
 
@@ -227,7 +244,12 @@ describe('Nav: renders within HomePage', () => {
   });
 
   it('renders the sticky Nav before <main> with exactly one skip link', () => {
-    render(<HomePage />);
+    // HomePage reads the AboutContent slice (WU-2) — needs the store.
+    render(
+      <StoreProvider reducers={storeReducers}>
+        <HomePage />
+      </StoreProvider>
+    );
 
     const header = screen.getByRole('banner');
     const main = screen.getByRole('main');
@@ -238,11 +260,11 @@ describe('Nav: renders within HomePage', () => {
     // R6/T6: exactly one skip link, kept in HomePage — Nav adds no duplicate.
     expect(screen.getAllByRole('link', { name: /skip to main content/i })).toHaveLength(1);
 
-    // The 6 section anchors are rendered inside the Nav bar's <ul>
-    // (the right-side CTA/AdminLink links from T5 sit outside the list).
+    // The 5 section anchors are rendered inside the Nav bar's <ul>
+    // (the right-side CTA/social links from T5 sit outside the list).
     const sectionList = within(header).getByRole('list');
     const navLinks = within(sectionList).getAllByRole('link');
-    expect(navLinks).toHaveLength(6);
+    expect(navLinks).toHaveLength(5);
     expect(navLinks.map((link) => link.getAttribute('href'))).toEqual(EXPECTED_ANCHORS);
 
     // Main content structure is untouched.

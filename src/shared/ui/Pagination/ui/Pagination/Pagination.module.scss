@@ -1,0 +1,63 @@
+// src/shared/ui/Pagination/ui/Pagination/Pagination.module.scss
+
+// ============================================
+
+// Pagination Component — page navigation row (plan_kit_pagination WU-1)
+
+// Layout only: kit Button owns the button chrome; this module owns row
+
+// rhythm, the active-page state and the 24×24 target-size floor
+
+// (PAGINATION_CONSTANTS.MIN_TAP_TARGET_PX, WCAG 2.2 SC 2.5.8).
+
+// ============================================
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+// Kit Button declares no min-width/min-height of its own — the target-size
+
+// floor therefore lives here instead of forking button styles.
+.edgeButton,
+.pageButton {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.current {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+
+  // Mirrors the kit Button `xs` footprint (2px 8px padding, 14px text).
+  padding: var(--space-0-5) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background: var(--color-accent-subtle);
+  border-radius: var(--radius-button);
+}
+
+.ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  color: var(--color-text-muted);
+  user-select: none;
+}

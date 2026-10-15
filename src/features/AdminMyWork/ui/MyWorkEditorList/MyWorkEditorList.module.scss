@@ -1,0 +1,44 @@
+// ============================================
+
+// MyWorkEditorList — admin project vitrina (mywork-detail-table WU-2)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens — no hardcoded values. Rhythm mirrors JobsList so the admin area
+
+// stays visually consistent. The list itself is a stack of ProjectCard
+
+// components — spacing between cards comes from the .root gap (the card
+
+// groups its own caption + Card internally).
+
+@use '@/shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: flex-end;
+}

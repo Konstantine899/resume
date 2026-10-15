@@ -3,8 +3,9 @@
 // RED tests for Phase 2, T6: manualChunks must (a) emit an explicit "i18n" chunk
 // for the bundled locale JSON, (b) stop emitting a "forms" chunk nobody builds
 // against, and (c) keep node_modules/react-hit packages inside "vendor" exactly
-// as they are today (react-hook-form already lands in vendor via the substring
-// match — tightening that rule would push main.js over the budget cap).
+// as they are today — EXCEPT react-hook-form, which follows the lazy
+// /admin/about editor into its own route chunk (About CRUD WU-4: the form
+// left main, so RHF no longer needs the vendor substring match).
 import { describe, expect, it } from 'vitest';
 
 import { buildViteConfig, resolveManualChunk } from '../buildViteConfig.ts';
@@ -14,6 +15,8 @@ const paths: BuildPath = {
   src: '/repo/src',
   locales: '/repo/src/shared/lib/i18n/locales',
   buildLocales: '/repo/public/locales',
+  imagesProjects: '/repo/src/shared/assets/images/projects',
+  buildImagesProjects: '/repo/public/images/projects',
   app: '/repo/src/app',
   pages: '/repo/src/pages',
   entities: '/repo/src/entities',
@@ -59,14 +62,17 @@ describe('resolveManualChunk', () => {
     );
   });
 
-  it('keeps react-related packages in vendor, including react-hook-form', () => {
+  it('keeps react-related packages in vendor', () => {
     expect(resolveManualChunk('/repo/node_modules/react/index.js')).toBe('vendor');
     expect(resolveManualChunk('/repo/node_modules/react-dom/index.js')).toBe('vendor');
     expect(resolveManualChunk('/repo/node_modules/scheduler/index.js')).toBe('vendor');
-    expect(resolveManualChunk('/repo/node_modules/react-hook-form/dist/index.cjs.js')).toBe(
-      'vendor'
-    );
     expect(resolveManualChunk('/repo/node_modules/react-i18next/index.js')).toBe('vendor');
+  });
+
+  it('leaves react-hook-form to its importer (lazy /admin/about chunk, not vendor)', () => {
+    expect(
+      resolveManualChunk('/repo/node_modules/react-hook-form/dist/index.cjs.js')
+    ).toBeUndefined();
   });
 
   it('leaves unrelated dependencies to Rollup', () => {

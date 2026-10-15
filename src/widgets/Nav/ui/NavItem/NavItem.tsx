@@ -6,7 +6,7 @@ import { classNames } from '@/shared/lib/utils';
 import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
 import React from 'react';
-import type { NavItem as NavItemModel, NavItemVariant } from '../../model/types';
+import type { NavItem as NavItemModel, NavItemVariant } from '../../model/types/types';
 import styles from './NavItem.module.scss';
 
 export interface NavItemProps {

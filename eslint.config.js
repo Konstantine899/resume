@@ -111,6 +111,20 @@ export default tseslint.config(
       ],
     },
   },
+  // Redux Toolkit reducer convention: createSlice reducers mutate the immer
+  // draft (`state`) they receive — that is the prescribed RTK API, not a
+  // param-reassign smell. Allow only the conventional `state`/`draft` param
+  // names, and only in reducer-shaped files (slices) and tests that define
+  // probe slices; every other `no-param-reassign` strictness stays as-is.
+  {
+    files: ['src/**/*Slice*.ts', 'src/**/*.test.{ts,tsx}'],
+    rules: {
+      'no-param-reassign': [
+        'error',
+        { props: true, ignorePropertyModificationsFor: ['state', 'draft'] },
+      ],
+    },
+  },
   storybook.configs["flat/recommended"],
   // Prettier — must be LAST to override formatting rules
   prettierConfig,

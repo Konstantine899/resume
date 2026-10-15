@@ -1,0 +1,151 @@
+// ============================================
+
+// SkillsEditorList — per-category blocks (plan_admin_panel_edit rev.3, WU-1)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens — no hardcoded values (plan §8). One block per category: h3 with a
+
+// count Badge + block-level actions, then that category's DataTable.
+
+@use '@/shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// Groups one category: optional caption (collapsed only, rev.4 OPEN-2=B1)
+
+// + its Card, so the caption hugs ITS strip while the root gap spaces cards.
+
+.categoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.headerActions {
+  display: flex;
+  gap: $spacing-2;
+}
+
+// One kit Card per category (rev.3, verdict OPEN-2=r3): header row (h3 +
+
+// block actions), then the category's DataTable + range footer. `height:
+
+// auto` overrides the card base mixin's fixed 220px.
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  height: auto;
+
+  // Actions column header follows its cells: the "Действия" label sits
+
+  // flush right above the right-aligned icons (verdict OPEN-1=r3).
+  table th:last-child {
+    text-align: right;
+  }
+}
+
+.blockHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Collapse control LEFT of the h3 (rev.4 OPEN-1=A): one flex group that
+
+// the space-between header keeps on the left, actions stay right.
+
+.headerMain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+  min-width: 0;
+}
+
+// The aria-controls region: DataTable + range footer. Unmounted when the
+
+// card collapses (rev.4 ARA roundtrip — the id must come back on expand).
+
+.blockContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+// Collapsed-state caption: category name OUTSIDE the Card, above the strip
+
+// (rev.4 OPEN-2=B1) — muted label text per the SPEC contrast requirement.
+
+.caption {
+  padding-inline: $spacing-1;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+// First cell: <strong> label (A6), keeps long names from stretching the cell.
+.nameCell {
+  min-width: 0;
+}
+
+// Icon-button row for block-level or tech-row actions (rev.3): packed to
+
+// the RIGHT edge of the block header / actions cell (verdict OPEN-1=r3);
+
+// stacks on narrow viewports.
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}
+
+// Range counter under the DataTable's pagination (kit Pagination pilot §7).
+.footer {
+  display: flex;
+  justify-content: center;
+}
+
+.range {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+// Expand strip (rev.4 A17): kit IconButton fullWidth = the whole Card
+
+// body. Doubled class raises specificity (0,2,0) over the kit's
+
+// flex-center mixin (.button, 0,1,0) so the Plus icon parks at the LEFT
+
+// without fighting CSS-module load order.
+
+.strip.strip {
+  gap: $spacing-2;
+  justify-content: flex-start;
+  padding-inline: $spacing-3;
+}

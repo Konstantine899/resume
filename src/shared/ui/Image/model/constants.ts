@@ -9,6 +9,7 @@ export const IMAGE_VARIANTS: readonly ImageVariant[] = [
   'rounded',
   'circular',
   'thumbnail',
+  'transparent',
 ] as const;
 
 /**
@@ -70,6 +71,7 @@ export const IMAGE_VARIANT_RADIUS: Record<ImageVariant, string> = {
   rounded: '12px',
   circular: '50%',
   thumbnail: '8px',
+  transparent: '0',
 } as const;
 
 /**

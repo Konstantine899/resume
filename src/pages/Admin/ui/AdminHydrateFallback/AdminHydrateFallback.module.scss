@@ -1,0 +1,20 @@
+// ============================================
+
+// Admin hydration fallback — centered splash while /admin lazy-loads
+
+// ============================================
+
+// Token-only (plan WU-3 criteria): a bare flash frame with no colors of its
+
+// own beyond the theme custom properties.
+
+@use '@/shared/styles/variables' as *;
+
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: var(--background);
+}

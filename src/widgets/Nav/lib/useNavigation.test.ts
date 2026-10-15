@@ -35,6 +35,13 @@ class MockIntersectionObserver {
 /** Section ids the hook MUST derive from NAV_ITEMS (decision R8). */
 const SECTION_IDS = NAV_ITEMS.map((item) => sectionIdFromHref(item.href));
 
+/**
+ * The default active section is the FIRST nav entry. Derived from NAV_ITEMS
+ * on purpose: pinning a literal here would silently break every time a
+ * section is added, removed or reordered.
+ */
+const FIRST_SECTION = SECTION_IDS[0];
+
 const setWindowWidth = (width: number): void => {
   Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: width });
 };
@@ -73,8 +80,7 @@ describe('useNavigation: active section tracking (R8)', () => {
   it('starts on the first section of NAV_ITEMS', () => {
     const { result } = renderHook(() => useNavigation());
 
-    expect(result.current.activeSection).toBe('home');
-    expect(SECTION_IDS[0] ?? null).toBe('home');
+    expect(result.current.activeSection).toBe(FIRST_SECTION);
   });
 
   it('observes exactly the section ids derived from NAV_ITEMS (single source)', () => {
@@ -102,17 +108,17 @@ describe('useNavigation: active section tracking (R8)', () => {
   it('prefers the topmost section when several intersect at once', () => {
     const { result } = renderHook(() => useNavigation());
     const observer = MockIntersectionObserver.instances[0];
-    const homeSection = sections.find((el) => el.id === 'home');
+    const topmostSection = sections.find((el) => el.id === FIRST_SECTION);
     const workSection = sections.find((el) => el.id === 'work');
 
     act(() => {
       observer?.trigger([
         { target: workSection, isIntersecting: true },
-        { target: homeSection, isIntersecting: true },
+        { target: topmostSection, isIntersecting: true },
       ]);
     });
 
-    expect(result.current.activeSection).toBe('home');
+    expect(result.current.activeSection).toBe(FIRST_SECTION);
   });
 
   it('keeps the last active section when no section intersects anymore', () => {
@@ -156,7 +162,7 @@ describe('useNavigation: active section tracking (R8)', () => {
       window.dispatchEvent(new Event('hashchange'));
     });
 
-    expect(result.current.activeSection).toBe('home');
+    expect(result.current.activeSection).toBe(FIRST_SECTION);
 
     // Restore inside act() — a late native hashchange then reads '' and is ignored.
     act(() => {
@@ -207,7 +213,7 @@ describe('useNavigation: onNavClick', () => {
     act(() => result.current.onNavClick('#/admin'));
 
     expect(onNavigation).toHaveBeenCalledWith('#/admin');
-    expect(result.current.activeSection).toBe('home');
+    expect(result.current.activeSection).toBe(FIRST_SECTION);
   });
 
   it('activates every NAV_ITEMS section through onNavClick (sweep, R8)', () => {

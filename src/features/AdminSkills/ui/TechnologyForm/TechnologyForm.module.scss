@@ -1,0 +1,63 @@
+// ============================================
+
+// TechnologyForm — admin technology form layout (Skills CRUD §7 WU-5)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens inside the shared inputs — no hardcoded values (plan §8).
+
+// Same structure as ProjectForm.module.scss + a checkbox row; no intro —
+
+// the modal header owns the title and the categoryId subtitle (WU-5).
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+// rev.2: edit-mode preview of the CURRENT stored icon above the uploader.
+.iconPreviewRow {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.iconPreview {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+// invertInDark: native checkbox + label (the kit has no toggle).
+.checkRow {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--color-accent);
+  }
+
+  label {
+    cursor: pointer;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

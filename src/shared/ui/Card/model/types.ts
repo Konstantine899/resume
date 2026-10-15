@@ -82,6 +82,12 @@ export interface ProjectCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
   link?: string | null;
   linkLabel?: string;
   builtUsingLabel?: string;
+  /** Localized role line under the title (recruiter audit P1). */
+  role?: string;
+  /** Outcome metric chips — rendered only when non-empty, never invented. */
+  metrics?: string[];
+  /** Project year chip — rendered only when set. */
+  year?: number;
   onClick?: () => void;
 }
 
@@ -91,6 +97,8 @@ export interface ProjectCardProps extends Omit<CardOwnProps, 'variant' | 'size' 
 export interface WorkHistoryCardProps extends Omit<CardOwnProps, 'variant' | 'size' | 'radius'> {
   title: string;
   company?: string;
+  /** Verified company website — when set, the company name renders as an external link. */
+  companyUrl?: string;
   period?: string;
   periodBadge?: string;
   location?: string;

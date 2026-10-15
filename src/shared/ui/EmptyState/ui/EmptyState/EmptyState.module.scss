@@ -1,0 +1,38 @@
+// src/shared/ui/EmptyState/ui/EmptyState/EmptyState.module.scss
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+}
+
+.alignCenter {
+  align-items: center;
+  text-align: center;
+}
+
+.alignLeft {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.compact {
+  gap: var(--space-1);
+  padding: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.description {
+  margin: 0;
+}
+
+.action {
+  margin-top: var(--space-1);
+}

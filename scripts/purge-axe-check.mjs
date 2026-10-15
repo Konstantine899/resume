@@ -32,6 +32,20 @@ const MIN_CLASS_RULES = 500;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const THEMES = ['light', 'dark'];
 
+/** Pages scanned per theme (WU-6: the admin shell joins; WU-7: the skills
+ * page; project-images WU-5: /admin/mywork — the FileUpload pilot page;
+ * admin-about-refactor WU-3: /admin/about; admin-contact-refactor WU-4:
+ * /admin/contact). */
+const PATHS = [
+  '/',
+  '/admin',
+  '/admin/skills',
+  '/admin/jobs',
+  '/admin/mywork',
+  '/admin/about',
+  '/admin/contact',
+];
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -63,7 +77,21 @@ function startStaticServer() {
       const body = await readFile(filePath);
       res.writeHead(200, { 'content-type': MIME[extname(filePath)] ?? 'application/octet-stream' });
       res.end(body);
-    } catch {
+    } catch (error) {
+      // SPA fallback (WU-6): client-side routes like /admin have no file on
+      // disk — without this the gate would scan a 404 body. Extensionless
+      // paths only, so a missing .js/.css still 404s loudly.
+      const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+      if (error?.code === 'ENOENT' && !extname(pathname)) {
+        try {
+          const html = await readFile(join(DIST, 'index.html'));
+          res.writeHead(200, { 'content-type': MIME['.html'] });
+          res.end(html);
+          return;
+        } catch {
+          // fall through to 404
+        }
+      }
       res.writeHead(404).end('not found');
     }
   });
@@ -107,72 +135,114 @@ async function main() {
   const report = [];
   let failed = false;
 
+  // WU-6: the admin shell is scanned too — the showcase alone would never
+  // see AdminLayout regressions. Since the gate removal (plan rev.
+  // 2026-10-02) /admin renders the shell unconditionally — no auth seed.
   for (const theme of THEMES) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     // ThemeContext reads localStorage on mount — seed it before the app boots.
     await context.addInitScript((value) => window.localStorage.setItem('theme', value), theme);
-    await page.goto(baseURL, { waitUntil: 'networkidle' });
-    await page.waitForSelector('#root > *', { timeout: 15_000 });
-    await page.waitForFunction((value) => document.documentElement.dataset.theme === value, theme, {
-      timeout: 5_000,
-    });
-    await page.addScriptTag({ content: axeSource });
 
-    const metrics = await page.evaluate(() => {
-      let classRules = 0;
-      let totalRules = 0;
-
-      const visit = (rules) => {
-        for (const rule of rules) {
-          totalRules += 1;
-          if (rule.selectorText && /\.[A-Za-z_]/.test(rule.selectorText)) classRules += 1;
-          if (rule.cssRules) visit(rule.cssRules);
-        }
+    for (const path of PATHS) {
+      // Review fix (spec WU-2): the showcase must never fetch lazy admin
+      // page chunks — track JS requests per visit, fail on `/`.
+      const adminChunks = [];
+      const trackAdminChunk = (request) => {
+        const file = request.url().split('/').pop() ?? '';
+        if (file.endsWith('.js') && /(admin|dashboard)/i.test(file)) adminChunks.push(file);
       };
+      page.on('request', trackAdminChunk);
 
-      for (const sheet of Array.from(document.styleSheets)) {
-        let rules;
-        try {
-          rules = sheet.cssRules;
-        } catch {
-          continue;
+      await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle' });
+      await page.waitForSelector('#root > *', { timeout: 15_000 });
+      await page.waitForFunction(
+        (value) => document.documentElement.dataset.theme === value,
+        theme,
+        { timeout: 5_000 }
+      );
+      // Settle transient motion state: AnimatedSection sets aria-hidden
+      // while its entrance animation runs (SR4, ~900ms). axe would race
+      // that window — the baseline only ever captures settled-state
+      // violations, so scan after the animations finish. Best-effort: a
+      // STUCK aria-hidden still surfaces below as a real violation.
+      await page
+        .waitForFunction(
+          () =>
+            document.querySelectorAll('[data-testid="animated-section"][aria-hidden]').length === 0,
+          { timeout: 5_000 }
+        )
+        .catch(() =>
+          console.log(`  (note: animated sections still aria-hidden after 5s — ${path})`)
+        );
+      await page.addScriptTag({ content: axeSource });
+
+      const metrics = await page.evaluate(() => {
+        let classRules = 0;
+        let totalRules = 0;
+
+        const visit = (rules) => {
+          for (const rule of rules) {
+            totalRules += 1;
+            if (rule.selectorText && /\.[A-Za-z_]/.test(rule.selectorText)) classRules += 1;
+            if (rule.cssRules) visit(rule.cssRules);
+          }
+        };
+
+        for (const sheet of Array.from(document.styleSheets)) {
+          let rules;
+          try {
+            rules = sheet.cssRules;
+          } catch {
+            continue;
+          }
+          if (rules) visit(rules);
         }
-        if (rules) visit(rules);
+
+        return { classRules, totalRules };
+      });
+
+      const results = await page.evaluate(
+        (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
+        AXE_TAGS
+      );
+      const violations = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        help: v.help,
+        nodes: v.nodes.length,
+        targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')),
+      }));
+
+      report.push({ theme, path, metrics, violations });
+
+      console.log(
+        `\n[${theme} ${path}] class rules: ${metrics.classRules} / total rules: ${metrics.totalRules} ` +
+          `(axe violations: ${violations.length})`
+      );
+      for (const v of violations) {
+        console.log(`  - ${v.id} (${v.impact}) x${v.nodes}: ${v.targets.join(' | ')}`);
       }
 
-      return { classRules, totalRules };
-    });
+      // CSS-integrity gate stays on `/` — the global stylesheet is fully
+      // loaded there; /admin only ADDS lazy admin CSS on top.
+      if (path === '/' && metrics.classRules < MIN_CLASS_RULES) {
+        console.error(
+          `  ✗ CSS integrity failed: ${metrics.classRules} class rules < ${MIN_CLASS_RULES} — ` +
+            'the stylesheet was over-purged.'
+        );
+        failed = true;
+      }
 
-    const results = await page.evaluate(
-      (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
-      AXE_TAGS
-    );
-    const violations = results.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.length,
-      targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')),
-    }));
-
-    report.push({ theme, metrics, violations });
-
-    console.log(
-      `\n[${theme}] class rules: ${metrics.classRules} / total rules: ${metrics.totalRules} ` +
-        `(axe violations: ${violations.length})`
-    );
-    for (const v of violations) {
-      console.log(`  - ${v.id} (${v.impact}) x${v.nodes}: ${v.targets.join(' | ')}`);
-    }
-
-    if (metrics.classRules < MIN_CLASS_RULES) {
-      console.error(
-        `  ✗ CSS integrity failed: ${metrics.classRules} class rules < ${MIN_CLASS_RULES} — ` +
-          'the stylesheet was over-purged.'
-      );
-      failed = true;
+      // Lazy-admin-chunk gate: `/` must not request any admin/dashboard JS.
+      if (path === '/' && adminChunks.length > 0) {
+        console.error(`  ✗ admin page chunks loaded on /: ${adminChunks.join(', ')}`);
+        failed = true;
+      } else if (path !== '/') {
+        console.log(`  admin chunks loaded (expected here): ${adminChunks.join(', ') || 'none'}`);
+      }
+      page.off('request', trackAdminChunk);
     }
 
     await context.close();
@@ -206,7 +276,7 @@ async function main() {
       for (const v of entry.violations) {
         if (!known.has(`${entry.theme}|${fingerprint(v)}`)) {
           console.error(
-            `\n✗ NEW ${entry.theme} violation: ${v.id} (${v.impact}) — ${v.targets.join(' | ')}`
+            `\n✗ NEW ${entry.theme} violation on ${entry.path}: ${v.id} (${v.impact}) — ${v.targets.join(' | ')}`
           );
           failed = true;
         }
