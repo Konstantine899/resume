@@ -215,6 +215,34 @@ describe('MyWorkEditorList: cards + header (R-1/R-5)', () => {
     );
     expect(onEdit).toHaveBeenCalledWith('1');
   });
+
+  it('collapsed card Pencil fires onEdit with the record id (R-A1)', () => {
+    const { onEdit } = renderList();
+
+    fireEvent.click(
+      within(screen.getByTestId('project-card-actions-1')).getByRole('button', {
+        name: 'projectEdit',
+      })
+    );
+    expect(onEdit).toHaveBeenCalledWith('1');
+  });
+
+  it('header reset + add buttons reveal their tooltip on hover (R-A2)', async () => {
+    renderList();
+
+    const expectHoverTooltip = async (button: HTMLElement, key: string) => {
+      fireEvent.mouseEnter(button);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(key);
+      fireEvent.mouseLeave(button);
+      await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
+    };
+
+    await expectHoverTooltip(screen.getByRole('button', { name: 'projectReset' }), 'projectReset');
+    await expectHoverTooltip(
+      screen.getByRole('button', { name: 'adminMyWorkAdd' }),
+      'adminMyWorkAdd'
+    );
+  });
 });
 
 describe('MyWorkEditorList: sort Select (R-1 D3)', () => {

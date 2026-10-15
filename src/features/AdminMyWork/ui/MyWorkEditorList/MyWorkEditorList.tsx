@@ -37,6 +37,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import React, { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
@@ -175,21 +176,26 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
             }}
           />
           {/* Destructive reset relocated from the form — header button
-              behind the SAME confirm Modal as delete. */}
-          <IconButton
-            variant="ghost"
-            size="md"
-            ariaLabel={t('projectReset')}
-            icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
-            onClick={() => setPending({ kind: 'reset' })}
-          />
-          <IconButton
-            variant="primary"
-            size="md"
-            ariaLabel={t('adminMyWorkAdd')}
-            icon={<Icon name={Plus} size={20} color="inherit" decorative />}
-            onClick={() => onAdd?.()}
-          />
+              behind the SAME confirm Modal as delete. R-A2 (issue #242):
+              hover tooltip (A14 — kit Tooltip is hover-only). */}
+          <Tooltip content={t('projectReset')} position="bottom" showDelay={0}>
+            <IconButton
+              variant="ghost"
+              size="md"
+              ariaLabel={t('projectReset')}
+              icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+              onClick={() => setPending({ kind: 'reset' })}
+            />
+          </Tooltip>
+          <Tooltip content={t('adminMyWorkAdd')} position="bottom" showDelay={0}>
+            <IconButton
+              variant="primary"
+              size="md"
+              ariaLabel={t('adminMyWorkAdd')}
+              icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+              onClick={() => onAdd?.()}
+            />
+          </Tooltip>
         </div>
       </div>
 
