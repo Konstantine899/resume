@@ -75,12 +75,26 @@
 
 // Collapsed-state caption: title OUTSIDE the Card, above the strip
 
-// (Skills rev.4 OPEN-2=B1 parity) — muted label text.
+// (Skills rev.4 OPEN-2=B1 parity) — muted label text. R-A1 (issue #242):
+
+// caption carries the row-level actions on the right (flex row).
 
 .caption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+  justify-content: space-between;
   padding-inline: $spacing-1;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+.captionTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // Icon-button row for the block header: packed to the RIGHT edge

@@ -205,7 +205,31 @@ export function ProjectCard({
     <div className={classNames(styles.root, className)} data-testid={testId}>
       {isCollapsed && (
         <div className={styles.caption} data-testid={`project-card-caption-${project.id}`}>
-          {project.title}
+          <span className={styles.captionTitle}>{project.title}</span>
+          {/* R-A1 (issue #242): every row carries edit/delete — the
+              collapsed caption mirrors the expanded header actions. */}
+          <span className={styles.actions} data-testid={`project-card-actions-${project.id}`}>
+            <Tooltip content={t('projectEdit')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                ariaLabel={t('projectEdit')}
+                onClick={() => onEdit?.(project)}
+              />
+            </Tooltip>
+            <Tooltip content={t('projectDelete')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="danger"
+                size="sm"
+                icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                ariaLabel={t('projectDelete')}
+                onClick={() => onDelete?.(project.id)}
+              />
+            </Tooltip>
+          </span>
         </div>
       )}
       <Card
