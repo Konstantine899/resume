@@ -1,36 +1,40 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
-verified: '2026-10-15'
 ---
 
-# TODO — features/AdminMyWork (карточки-проекты, mywork-detail-table)
+# TODO — features/AdminMyWork (аменда mywork-row-actions, issue #242)
 
-Закрыто 2026-10-15: squash `d8896a2`, PR #240 (Closes #238), CI 8/8;
-validate 3564/3564, axe 0 регрессий (light+dark, `/admin/mywork` чист),
-бандл 751.9 < 768 KiB (дельта +3.3 к merge-base), превью desktop+mobile.
-Вердикт владельца 2026-10-14: OPEN-1=A′ (карточки-записи), OPEN-2=A
-(collapsed default), OPEN-3=B (field-edit отклонён), OPEN-4=A (заголовки
-модалки adminAddProject/adminEditProject), OPEN-5=A (sort
-storage/title/category/year). Пункты WU-1..3 сгорели (ProjectCard,
-MyWorkEditorList sort+vitirna, страница), WU-4 = гейты — контракт
-выполнен, см. `SPEC.md` (status: done) и план
-`wiki/plan/plan_mywork_detail_table.md`. Оставался только burn-down.
+Эпик-аменда rev.2 (AUTO): действия на каждой строке витрины + тултипы.
+Предыдущий эпик `mywork-detail-table` закрыт (PR #240, squash `d8896a2`;
+записи сгорели, см. git-историю файла). Контракт: `SPEC.md` §Аменда
+rev.2 (R-A1..R-A4). План: vault `plan_mywork_detail_table.md` §Аменда rev.2.
 
-## История инцидента (процесс, не код)
+- [ ] **WU-1 — ProjectCard: caption-actions + тултипы (TDD)**
+      R-A1: свёрнутый caption несёт Pencil sm + Trash2 sm (Tooltip
+      `projectEdit`/`projectDelete`, клики = onEdit(project)/onDelete(id)).
+      RED: collapsed-строка содержит кнопки, клики бьют в callbacks, hover
+      показывает подсказки. Expanded-шапка не меняется. i18n 0 новых.
 
-PR #239 (тот же контент) ошибочно смержился в `main`: base PR стал
-дефолтной веткой репо (`main`), diff захватил 114 коммитов dev (515
-файлов). Восстановление: эпик по правильному пути влит в dev через PR #240;
-main возвращается revert-PR по инструкции владельца. Готча — в AGENTS.md
-(`resume-pr-base-dev-default-main`).
+- [ ] **WU-2 — MyWorkEditorList: тултипы header-кнопок (TDD)**
+      R-A2: reset (`projectReset`) и add (`adminMyWorkAdd`) оборачиваются
+      в `<Tooltip>`; RED: hover показывает подсказку; существующие
+      ariaLabel-тесты не трогаются.
+
+- [ ] **WU-3 — Page-test: collapsed-Pencil → prefilled-модалка**
+      R-A3: новый тест (свёрнутая строка → Pencil → модалка
+      `adminEditProject` с prefilled title первой записи); харнес
+      edit/delete без expand-first (expand-покрытие detail-таблицы —
+      отдельный тест остаётся).
+
+- [ ] **WU-4 — Гейты + burn-down**
+      R-A4: validate зелёный; axe `/admin/mywork` 0 регрессий; бандл-дельта
+      в капе; burn-down пары (SPEC/TODO → done) + плана rev.2; PR → dev.
 
 ## Известные проблемы (вне скоупа, не чинить)
 
-- [ ] FieldEditForm-паритет (per-field модалки) — отклонён в этом
-      эпике как «лишнее» (OPEN-3); при запросе владельца — отдельный
-      эпик.
+- [ ] FieldEditForm-паритет (per-field модалки) — отклонён rev.1 (OPEN-3);
+      при запросе владельца — отдельный эпик.
 - [ ] Кит не имеет Checkbox/Switch/Chip — Button-toggle techIcons и
-      aria-pressed featured в ProjectForm остаются (R-8 предыдущего
-      эпика, действует).
+      aria-pressed featured в ProjectForm остаются.
 - [ ] `model/selectors/index.ts` — OPEN-8 repo-wide, не трогается.

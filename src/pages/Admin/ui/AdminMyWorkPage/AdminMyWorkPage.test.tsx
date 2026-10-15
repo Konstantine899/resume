@@ -76,18 +76,6 @@ const openCreate = async () => {
 };
 
 /**
- * mywork-detail-table gotcha (jobs-detail-table #225 parity): the cards
- * are COLLAPSED by default, so the header actions do not exist until the
- * card is expanded — expand FIRST, then click. Tolerant: an already
- * expanded card (stale-guard reuses the edit helper) has no expand
- * button — skip instead of throwing.
- */
-const expandCard = (title: string) => {
-  const expand = screen.queryByRole('button', { name: `adminMyWorkExpand:${title}` });
-  if (expand !== null) fireEvent.click(expand);
-};
-
-/**
  * The FIRST card's record id — read from the card-root testid, which
  * exists in BOTH collapsed and expanded state. NEVER from the caption
  * (an expanded card unmounts it — the caption-based lookup silently
@@ -103,14 +91,15 @@ const firstCardId = (): string => {
   throw new Error('expected at least one project card');
 };
 
-/** Visible caption of the first card — null when that card is expanded. */
-const firstCaptionTitle = (): string | null =>
-  document.querySelector('[data-testid^="project-card-caption-"]')?.textContent ?? null;
-
+/**
+ * R-A1/R-A3 (issue #242): the collapsed caption NOW carries the
+ * edit/delete actions — no expand-first dance is needed anymore. The
+ * per-record `project-card-actions-${id}` testid exists in both states
+ * (caption when collapsed, header when expanded), so a single lookup
+ * covers every card regardless of expansion.
+ */
 const editFirstProject = async () => {
   const id = firstCardId();
-  const title = firstCaptionTitle();
-  if (title !== null) expandCard(title);
   fireEvent.click(
     within(screen.getByTestId(`project-card-actions-${id}`)).getByRole('button', {
       name: 'projectEdit',
@@ -122,8 +111,6 @@ const editFirstProject = async () => {
 /** Remove the first card through the list's delete-confirm flow. */
 const deleteFirstRow = async () => {
   const id = firstCardId();
-  const title = firstCaptionTitle();
-  if (title !== null) expandCard(title);
   fireEvent.click(
     within(screen.getByTestId(`project-card-actions-${id}`)).getByRole('button', {
       name: 'projectDelete',
@@ -196,6 +183,24 @@ describe('AdminMyWorkPage (modal criteria, R-4)', () => {
     ).toBeInTheDocument();
     expect(within(modal).getByLabelText('projectFieldTitle')).toHaveValue(first.title);
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('R-A3: Pencil on a STILL-COLLAPSED row opens the prefilled modal (no expand)', async () => {
+    const store = renderPage();
+    const first = projectsOf(store)[0];
+    if (!first) throw new Error('seed must contain at least one project');
+
+    // The row is collapsed — no detail table in the document yet.
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+    const modal = await editFirstProject();
+
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'adminEditProject' })
+    ).toBeInTheDocument();
+    expect(within(modal).getByLabelText('projectFieldTitle')).toHaveValue(first.title);
+    // The action did NOT expand the card — it only opened the modal.
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   it('stale-guard: deleting the record being edited closes the modal', async () => {

@@ -10,7 +10,7 @@
 // mocks: ProjectCard never dispatches (persist-THEN-dispatch lives in
 // MyWorkEditorList, R-3).
 
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { Project } from '@/entities/Project';
 import { ProjectCard } from './ProjectCard';
@@ -141,6 +141,38 @@ describe('ProjectCard', () => {
     expandCard();
 
     expect(screen.getByTestId(`project-card-actions-${PROJECT.id}`)).toBeInTheDocument();
+  });
+
+  // ---- R-A1: row-level actions on the COLLAPSED caption (issue #242) ----
+
+  it('shows edit + delete buttons on the collapsed caption (every row carries actions)', () => {
+    renderCard();
+
+    // Collapsed: no expand needed — the actions live beside the caption.
+    expect(screen.getByRole('button', { name: 'projectEdit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'projectDelete' })).toBeInTheDocument();
+  });
+
+  it('invokes onEdit/onDelete from the collapsed caption without expanding', () => {
+    const { onEdit, onDelete } = renderCard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'projectEdit' }));
+    expect(onEdit).toHaveBeenCalledWith(PROJECT);
+
+    fireEvent.click(screen.getByRole('button', { name: 'projectDelete' }));
+    expect(onDelete).toHaveBeenCalledWith(PROJECT.id);
+    // The card stayed collapsed (no table leak from an action click).
+    expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  it('reveals action tooltips on hover (A14: kit Tooltip is hover-only)', async () => {
+    renderCard();
+
+    const edit = screen.getByRole('button', { name: 'projectEdit' });
+    fireEvent.mouseEnter(edit);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('projectEdit');
+    fireEvent.mouseLeave(edit);
+    await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
   });
 
   // ---- R-4: honest data (field rows) ----

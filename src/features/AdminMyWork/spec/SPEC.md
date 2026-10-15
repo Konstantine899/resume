@@ -1,17 +1,18 @@
 ---
-status: done
-epic: mywork-detail-table
+status: approved
+epic: mywork-row-actions
 created: '2026-10-14'
 verified: '2026-10-15'
 ---
 
-# SPEC — features/AdminMyWork (карточки-проекты, mywork-detail-table)
+# SPEC — features/AdminMyWork (карточки-проекты, mywork-detail-table + аменда mywork-row-actions)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> План: vault `wiki/plan/plan_mywork_detail_table.md`, rev.1 (2026-10-14). Companion: [TODO.md](./TODO.md).
+> План: vault `wiki/plan/plan_mywork_detail_table.md`, rev.1 (2026-10-14) + **rev.2 аменда (2026-10-15, issue #242)**. Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 > Статус `approved` — вердикт владельца 2026-10-14: OPEN-1=A′ (карточки-проекты), OPEN-2=A (collapsed default), OPEN-3=B (field-edit не переносим), OPEN-4=A (заголовки модалки), OPEN-5=A (sort: storage/title/category/year).
 > **Режим исполнения: AUTO** (директива владельца 2026-10-14): все WU, гейты, merge и burn-down выполняются автоматически, без пофазных подтверждений; вмешательство владельца — только при нештатной ситуации (ошибка гейта, неоднозначность).
+> **Аменда rev.2 (`mywork-row-actions`, 2026-10-15, AUTO):** эпик rev.1 закрыт (PR #240, squash `d8896a2`, verified 2026-10-15); пара переоткрыта по требованию владельца — см. §Аменда rev.2. Всё из rev.1 остаётся в силе.
 
 ## История (предыдущий эпик — содержание сохранено, тексты в git)
 
@@ -174,3 +175,43 @@ persist модалка не закрывается; reset — в шапке по
 перестраивает порядок карточек и НЕ искажает порядок в localStorage;
 пустой список — EmptyState; «Добавить» доступна на пустом списке;
 `npm run validate`, axe и бандл-кап зелёные.
+
+## Аменда rev.2 — `mywork-row-actions` (issue #242, 2026-10-15)
+
+Триггер — ревизия владельца vitрины после merge #240:
+(1) Pencil/Trash2 видны только после раскрытия карточки — свёрнутая
+строка не даёт править/удалить; (2) клик Pencil должен открывать модалку
+содержимого ЭТОЙ записи (паритет expanded-состояния, нужен тест из
+collapsed); (3) не все IconButton имеют hover-подсказку (reset/add в
+header-е списка — только ariaLabel).
+
+### R-A1 — Действия на каждой строке (ProjectCard)
+
+- [ ] Collapsed-caption несёт Pencil sm + Trash2 sm (Tooltip
+      `showDelay={0}`, контент = `projectEdit`/`projectDelete`; клики =
+      `onEdit(project)` / `onDelete(id)` — та же семантика, что в
+      развёрнутой шапке).
+- [ ] Expanded-шапка без изменений (actions уже там; дубль не рендерить —
+      caption размонтируется при expand, пересечения нет).
+- [ ] Новых i18n-ключей 0.
+
+### R-A2 — Тултипы всех действий
+
+- [ ] `MyWorkEditorList`: reset (`projectReset`) и add (`adminMyWorkAdd`)
+      IconButton обёрнуты в `<Tooltip content={ariaLabel-строка}>`
+      (hover показывает подсказку; паттерн skills-actions-polish #221).
+- [ ] Все IconButton действий в витрине (caption/шапка карточки,
+      header списка) имеют Tooltip — hover-тесты в RED-фазе.
+
+### R-A3 — Page-test: collapsed-Pencil → prefilled-модалка
+
+- [ ] Тест: свёрнутая строка → клик Pencil → модалка `adminEditProject`
+      с prefilled title первой записи (store-aware харнес).
+- [ ] Харнес упрощается: expand-first для edit/delete-кликов больше не
+      нужен (кнопки видны всегда); expand-покрытие detail-таблицы
+      остаётся отдельным тестом.
+
+### R-A4 — Гейты аменды
+
+- [ ] validate зелёный; axe `/admin/mywork` 0 регрессий; бандл в капе
+      786432; burn-down пары + плана rev.2.
