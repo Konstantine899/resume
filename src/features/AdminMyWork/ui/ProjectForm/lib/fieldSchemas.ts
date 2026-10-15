@@ -20,7 +20,7 @@
 import { z } from 'zod';
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
-import type { ProjectUpdatePatch } from '../../model/types/types';
+import type { ProjectUpdatePatch } from '../../../model/types/types';
 import { ProjectFormSchema } from './projectFormSchema';
 
 /** Scalar field keys — the static half of the detail-table rows. */
@@ -69,7 +69,9 @@ export const fieldEditSchemas = {
 
 /** Resolver schema for ANY row key (scalar record or metric slice). */
 export const schemaFor = (field: EditProjectField) =>
-  field.startsWith('metric-') ? metricFieldSchema : fieldEditSchemas[field];
+  field.startsWith('metric-')
+    ? metricFieldSchema
+    : fieldEditSchemas[field as ScalarEditField];
 
 /** Input-side form state; only the ACTIVE field's keys are actually used. */
 export type FieldFormValues = {
