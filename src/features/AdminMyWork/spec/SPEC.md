@@ -1,7 +1,8 @@
 ---
-status: approved
+status: done
 epic: mywork-detail-table
 created: '2026-10-14'
+verified: '2026-10-15'
 ---
 
 # SPEC — features/AdminMyWork (карточки-проекты, mywork-detail-table)
