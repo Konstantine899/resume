@@ -11,22 +11,45 @@
 // MyWorkEditorList, R-3).
 
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project } from '@/entities/Project';
 import { ProjectCard } from './ProjectCard';
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
-// The `title` option renders as `${key}:${title}` (expand/collapse
+// Rendered options as `${key}:${value}` (expand/collapse/field-tooltip
 // aria-labels stay addressable).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string, options?: { title?: string }) =>
-      options?.title !== undefined ? `${key}:${options.title}` : key,
+    t: (key: string, options?: Record<string, string>) =>
+      options ? `${key}:${Object.values(options)[0]}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
     isTransitioning: false,
   }),
+}));
+
+// Redux/persist/toast seam for the field-action handlers (rev.3 WU-4) —
+// JobCard parity: the card dispatches metric/clear actions itself.
+const { holder, dispatched, persistMock, addToastMock } = vi.hoisted(() => ({
+  holder: { projects: [] as Project[] },
+  dispatched: [] as Array<{ type: string; payload: unknown }>,
+  persistMock: vi.fn(() => true),
+  addToastMock: vi.fn(),
+}));
+
+vi.mock('react-redux', () => ({
+  useDispatch: () => (action: { type: string; payload: unknown }) => dispatched.push(action),
+  useSelector: (selector: (state: unknown) => unknown) =>
+    selector({ myWork: holder.projects }),
+}));
+
+vi.mock('../../model/services/storage', () => ({
+  persistProjects: (projects: unknown[]) => persistMock(projects),
+}));
+
+vi.mock('@/shared/lib/contexts/ToastContext', () => ({
+  useToast: () => ({ addToast: addToastMock }),
 }));
 
 const makeProject = (patch: Partial<Project> = {}): Project => ({
@@ -261,5 +284,193 @@ describe('ProjectCard', () => {
     renderCard(PROJECT, { testId: 'my-root' });
 
     expect(screen.getByTestId('my-root')).toBeInTheDocument();
+  });
+});
+
+// ---- rev.3 (mywork-field-actions): per-row actions in the detail table ----
+
+describe('ProjectCard field actions (rev.3)', () => {
+  beforeEach(() => {
+    holder.projects = [PROJECT];
+    dispatched.length = 0;
+    persistMock.mockClear();
+    persistMock.mockImplementation(() => true);
+    addToastMock.mockClear();
+  });
+
+  const actionsCell = (rowKey: string) =>
+    document.querySelector(`[data-testid="project-field-actions-p1-${rowKey}"]`);
+
+  const metricActionsCell = (index: number) =>
+    document.querySelector(`[data-testid="project-metric-actions-p1-${index}"]`);
+
+  it('scalar rows carry a Pencil wired to onEditField with the row key', () => {
+    const onEditField = vi.fn();
+    renderCard(PROJECT, { onEditField });
+    expandCard();
+
+    const cell = actionsCell('title');
+    expect(cell).not.toBeNull();
+    const pencil = within(cell as HTMLElement).getByRole('button', {
+      name: 'adminMyWorkEditFieldTitle:projectFieldTitle',
+    });
+    fireEvent.click(pencil);
+    expect(onEditField).toHaveBeenCalledWith(PROJECT, 'title');
+
+    const yearCell = actionsCell('year');
+    expect(yearCell).not.toBeNull();
+    fireEvent.click(
+      within(yearCell as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkEditFieldTitle:projectFieldYear',
+      })
+    );
+    expect(onEditField).toHaveBeenCalledWith(PROJECT, 'year');
+  });
+
+  it('the image row renders NO actions at all (R-B1 exception)', () => {
+    renderCard();
+    expandCard();
+
+    expect(actionsCell('image')).toBeNull();
+  });
+
+  it('clear (Trash2) appears only on contract-clearable rows', () => {
+    renderCard();
+    expandCard();
+
+    // All editable rows carry actions (9 scalars incl. title etc.); the
+    // CLEAR button specifically must exist on year/link/role/featured only.
+    for (const rowKey of ['year', 'link', 'role', 'featured']) {
+      const cell = actionsCell(rowKey);
+      expect(
+        within(cell as HTMLElement).getByRole('button', { name: 'adminMyWorkClearField' })
+      ).toBeInTheDocument();
+    }
+    for (const rowKey of ['title', 'category', 'status', 'description', 'techIcons']) {
+      const cell = actionsCell(rowKey);
+      expect(
+        within(cell as HTMLElement).queryByRole('button', { name: 'adminMyWorkClearField' })
+      ).toBeNull();
+    }
+  });
+
+  it('clearing link persists { link: null } FIRST, then dispatches the same patch (§3)', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('link') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+
+    expect(persistMock).toHaveBeenCalledTimes(1);
+    const persisted = persistMock.mock.calls[0][0] as Project[];
+    expect(persisted[0].link).toBeNull();
+    expect(typeof persisted[0].updatedAt).toBe('string');
+    expect(dispatched).toHaveLength(1);
+    const payload = dispatched[0].payload as { id: string; patch: { link: null } };
+    expect(payload.id).toBe('p1');
+    expect(payload.patch.link).toBeNull();
+  });
+
+  it('persist failure keeps the store untouched and toasts projectSaveError', () => {
+    persistMock.mockImplementation(() => false);
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(actionsCell('year') as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkClearField',
+      })
+    );
+
+    expect(dispatched).toHaveLength(0);
+    expect(addToastMock).toHaveBeenCalledWith({
+      message: 'projectSaveError',
+      type: 'error',
+    });
+  });
+
+  it('metric rows: up/down disabled at the edges', () => {
+    renderCard();
+    expandCard();
+
+    const first = metricActionsCell(0) as HTMLElement;
+    const second = metricActionsCell(1) as HTMLElement;
+    expect(within(first).getByRole('button', { name: 'adminMyWorkMetricUp' })).toBeDisabled();
+    expect(within(first).getByRole('button', { name: 'adminMyWorkMetricDown' })).toBeEnabled();
+    expect(within(second).getByRole('button', { name: 'adminMyWorkMetricDown' })).toBeDisabled();
+  });
+
+  it('a single metric disables remove', () => {
+    holder.projects = [{ ...PROJECT, metrics: ['Only'] }];
+    renderCard({ ...PROJECT, metrics: ['Only'] });
+    expandCard();
+
+    expect(
+      within(metricActionsCell(0) as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkRemoveMetric',
+      })
+    ).toBeDisabled();
+  });
+
+  it('metric pencil opens the field modal with the indexed key', () => {
+    const onEditField = vi.fn();
+    renderCard(PROJECT, { onEditField });
+    expandCard();
+
+    fireEvent.click(
+      within(metricActionsCell(1) as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkEditFieldTitle:projectFieldMetrics',
+      })
+    );
+    expect(onEditField).toHaveBeenCalledWith(PROJECT, 'metric-1');
+  });
+
+  it('move metric down swaps entries through the persist pipeline', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(metricActionsCell(0) as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkMetricDown',
+      })
+    );
+
+    const persisted = persistMock.mock.calls[0][0] as Project[];
+    expect(persisted[0].metrics).toEqual(['p95 120ms', '1M+ users']);
+    const payload = dispatched[0].payload as { patch: { metrics: string[] } };
+    expect(payload.patch.metrics).toEqual(['p95 120ms', '1M+ users']);
+  });
+
+  it('remove metric drops the entry', () => {
+    renderCard();
+    expandCard();
+
+    fireEvent.click(
+      within(metricActionsCell(0) as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkRemoveMetric',
+      })
+    );
+
+    const persisted = persistMock.mock.calls[0][0] as Project[];
+    expect(persisted[0].metrics).toEqual(['p95 120ms']);
+  });
+
+  it('the last remaining metric cannot be removed (remove stays disabled)', () => {
+    holder.projects = [{ ...PROJECT, metrics: ['Only'] }];
+    renderCard({ ...PROJECT, metrics: ['Only'] });
+    expandCard();
+
+    fireEvent.click(
+      within(metricActionsCell(0) as HTMLElement).getByRole('button', {
+        name: 'adminMyWorkRemoveMetric',
+      })
+    );
+
+    // Disabled button: no persist, no dispatch.
+    expect(persistMock).not.toHaveBeenCalled();
+    expect(dispatched).toHaveLength(0);
   });
 });
