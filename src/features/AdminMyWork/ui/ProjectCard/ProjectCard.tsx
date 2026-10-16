@@ -309,7 +309,7 @@ export function ProjectCard({
         const metricCount = project.metrics?.length ?? 0;
         return (
           <span
-            className={styles.actions}
+            className={styles.cellActions}
             data-testid={
               isMetric
                 ? `project-metric-actions-${project.id}-${metricIndex}`

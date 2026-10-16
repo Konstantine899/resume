@@ -211,7 +211,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       key: 'actions',
       header: t('skillsTableActions'),
       render: (row) => (
-        <div className={styles.actions} data-testid={`skill-tech-actions-${row.techName}`}>
+        <div className={styles.cellActions} data-testid={`skill-tech-actions-${row.techName}`}>
           <Tooltip content={t('skillsEditTechnology')} position="top" showDelay={0}>
             <IconButton
               type="button"
