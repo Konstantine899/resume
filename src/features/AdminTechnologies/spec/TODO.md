@@ -11,16 +11,6 @@ spec: SPEC.md
 > Сгорает по мере работы: пункт выполнен → удаляется (AGENTS.md, Spec-driven features).
 > Контракт — [SPEC.md](./SPEC.md). Язык: русский (правило владельца).
 
-## WU-3 — features/AdminTechnologies (TDD)
-
-- [ ] `ui/TechnologyForm/` — форма (RHF + zodResolver фабрики, key/iconUrl/invertInDark
-      kit Select) + SCSS + тесты.
-- [ ] `ui/TechnologiesList/` — витрина (DataTable PAGE_SIZE=12, .cellActions nowrap,
-      EmptyState, confirm-модалка с guard D6 через проп `usedKeys`) + SCSS + тесты
-      (в т.ч. поведение guard).
-- [ ] Баррел `index.ts` — только то, что нужно странице (не инстанцировать RHF-форму
-      в главном чанке — `resume-lazy-rhf-chunk`).
-
 ## WU-4 — Страница, маршрут, сайдбар, i18n
 
 - [ ] `pages/Admin/ui/AdminTechnologiesPage/` + тест (page-owned modal state:
