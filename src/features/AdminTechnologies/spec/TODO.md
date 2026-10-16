@@ -11,29 +11,6 @@ spec: SPEC.md
 > Сгорает по мере работы: пункт выполнен → удаляется (AGENTS.md, Spec-driven features).
 > Контракт — [SPEC.md](./SPEC.md). Язык: русский (правило владельца).
 
-## WU-0 — Каркас
-
-- [ ] Issue #258 создан; ветка `feat/258-technologies-crud` от `origin/dev`;
-      DRAFT PR открыт (`--base dev`).
-- [ ] `spec/SPEC.md` (status `draft` → `approved` перед WU-1) + `spec/TODO.md`
-      созданы и добавлены в git (проверить `git status`, негация `.gitignore`).
-
-## WU-1 — entities/Technology (TDD RED → GREEN)
-
-- [ ] `model/types/types.ts` — `Technology { key, url, invertInDark? }` (TechIcon-парity).
-- [ ] `model/schemes/schema.ts` + `schema.test.ts` — record + envelope `{v:1, technologies}`.
-- [ ] `model/constants/constants.ts` — сид из 14 записей TECH_ICONS (дословно).
-- [ ] `model/services/storage.ts` + тест — ключ `technologies`,
-      read → null при любой нечитаемости, persist возвращает boolean (стиль AdminMyWork).
-- [ ] `model/slices/technologiesSlice.ts` + тест — add/update/remove;
-      ленивая гидрация `state ?? readTechnologies() ?? seedTechnologies()` (D5).
-- [ ] `model/selectors/selectors.ts` — `selectAllTechnologies` /
-      `selectTechnologyKeys` с seed-fallback (D4), не бросают.
-- [ ] `lib/utils.ts` `resolveTechIcons(keys): TechIcon[]` + тест
-      (defensive skip + warn; localStorage → seed) — тесты из `entities/Project/lib/utils.test.ts`.
-- [ ] Корневой `index.ts` — именованные экспорты (публичный API сущности).
-- [ ] `storeReducers.ts` += `technologies: technologiesReducer` (глубокий импорт).
-
 ## WU-2 — Перевод entities/Project и потребителей (D2/D3)
 
 - [ ] `ProjectSchema.techIcons` → `z.array(z.string()).max(20)`; убрать
