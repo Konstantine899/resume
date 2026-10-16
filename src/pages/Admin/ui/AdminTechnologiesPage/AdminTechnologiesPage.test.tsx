@@ -21,14 +21,39 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { storeReducers } from '@/storeReducers';
 import { AdminTechnologiesPage } from './AdminTechnologiesPage';
 
-const { persistSpy, addToast } = vi.hoisted(() => ({
+const { persistSpy, addToast, dirMocks } = vi.hoisted(() => ({
   persistSpy: vi.fn((_data: unknown[]) => true),
   addToast: vi.fn(),
+  dirMocks: {
+    supported: vi.fn(() => true),
+    read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
+    pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
+    write: vi.fn(async () => undefined),
+    getSubdir: vi.fn(
+      async (_root: unknown, name: string) =>
+        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
+    ),
+    save: vi.fn(
+      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
+        `/images/${subdir}/${name}`
+    ),
+  },
 }));
 
 vi.mock('@/entities/Technology/model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/entities/Technology/model/services/storage')>()),
   persistTechnologies: persistSpy,
+}));
+
+// tech-icon-upload A1: the form uploads icons through the shared imageDir
+// service — mocked here so page-level flows never touch the filesystem.
+vi.mock('@/shared/lib/imageDir', () => ({
+  isDirectoryPickerSupported: dirMocks.supported,
+  readImagesRootHandle: dirMocks.read,
+  pickImagesRoot: dirMocks.pick,
+  writeImagesRootHandle: dirMocks.write,
+  getOrCreateSubdir: dirMocks.getSubdir,
+  saveImageToDir: dirMocks.save,
 }));
 
 // Identity t(): raw keys in assertions; known options render as
@@ -67,16 +92,39 @@ const catalogOf = (store: Store): TechState => store.getState().technologies;
 const openDialog = async () => screen.findByRole('dialog');
 
 const keyInput = () => screen.getByLabelText('adminTechKeyLabel');
-const urlInput = () => screen.getByLabelText('adminTechIconUrlLabel');
+const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
+
+/** Drive the raw-SVG FileUpload pipeline against the mocked imageDir. */
+const uploadSvg = async (fileName = 'tech-logo.svg') => {
+  fireEvent.change(fileInput(), {
+    target: { files: [new File(['<svg/>'], fileName, { type: 'image/svg+xml' })] },
+  });
+  await screen.findByText('adminTechIconUploadSelected');
+};
 
 beforeEach(() => {
   localStorage.clear();
   persistSpy.mockClear();
   addToast.mockClear();
+  // URL.createObjectURL is missing in jsdom — patch the REAL URL class
+  // (Object.create(URL) breaks `new URL()` inside zod v4 — ProjectForm gotcha).
+  vi.stubGlobal(
+    'URL',
+    class extends URL {
+      static createObjectURL = vi.fn(() => 'blob:preview');
+      static revokeObjectURL = vi.fn();
+    }
+  );
+  dirMocks.supported.mockReturnValue(true);
+  dirMocks.read.mockResolvedValue(null);
+  dirMocks.save.mockImplementation(
+    async (_root: unknown, _blob: Blob, name: string, subdir: string) => `/images/${subdir}/${name}`
+  );
 });
 
 afterEach(() => {
   localStorage.clear();
+  vi.unstubAllGlobals();
 });
 
 describe('AdminTechnologiesPage — rendering', () => {
@@ -110,16 +158,17 @@ describe('AdminTechnologiesPage — form modal (A7/A8/A12)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'adminTechnologiesAdd' }));
     await openDialog();
 
+    await uploadSvg('svelte.svg');
     fireEvent.change(keyInput(), { target: { value: 'svelte' } });
-    fireEvent.change(urlInput(), {
-      target: { value: 'https://cdn.example.com/svelte.svg' },
-    });
     fireEvent.click(screen.getByRole('button', { name: 'adminTechSave' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
     expect(catalogOf(store).some((tech) => tech.key === 'svelte')).toBe(true);
+    expect(catalogOf(store).find((tech) => tech.key === 'svelte')?.url).toBe(
+      '/images/technologies/svelte.svg'
+    );
     expect(persistSpy).toHaveBeenCalledTimes(1);
     expect(addToast).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'adminTechSaved', type: 'success' })
@@ -177,27 +226,26 @@ describe('AdminTechnologiesPage — edit mode (D7)', () => {
     const dialog = await openDialog();
 
     expect(keyInput()).toBeDisabled();
-    expect(urlInput()).toHaveAttribute('value');
+    // tech-icon-upload: no URL input anymore — the icon block is a FileUpload.
+    expect(within(dialog).getByTestId('technology-form')).toBeInTheDocument();
     expect(within(dialog).getByText('adminTechFormSubtitle:react')).toBeInTheDocument();
   });
 
-  it('edit Save stays keyed by the ORIGINAL key (D7)', async () => {
+  it('edit Save with a new upload replaces the url, keyed by the ORIGINAL key (D7)', async () => {
     const store = renderPage();
     fireEvent.click(
       screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement
     );
     await openDialog();
 
-    fireEvent.change(urlInput(), {
-      target: { value: 'https://cdn.example.com/react-new.svg' },
-    });
+    await uploadSvg('react-19.svg');
     fireEvent.click(screen.getByRole('button', { name: 'adminTechSave' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
     const react = catalogOf(store).find((tech) => tech.key === 'react');
-    expect(react?.url).toBe('https://cdn.example.com/react-new.svg');
+    expect(react?.url).toBe('/images/technologies/react-19.svg');
     // No duplicate record was created under a new key.
     expect(catalogOf(store).filter((tech) => tech.key === 'react')).toHaveLength(1);
   });

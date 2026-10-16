@@ -1,9 +1,10 @@
 // ============================================
 // makeTechnologyFormSchema — RHF adapter for the technology form (WU-3)
+// + tech-icon-upload (issue #261, WU-1)
 // ============================================
 //
 // technologies-crud SPEC / D2 layering: field rules delegate to the
-// SHARED entity contract (`TechnologySchema`) — single source of truth;
+// SHARED entity contract where the types align — single source of truth;
 // cross-record rules (uniqueness, edit-mode key immutability) live HERE.
 //
 // - `key`: slug per the entity contract; UNIQUE in create mode
@@ -11,7 +12,13 @@
 //   `value === originalKey`, `adminTechKeyInvalid`). The disabled Input
 //   alone is NOT a guarantee: jsdom and console tampering can still
 //   change a disabled field's value, so the schema rejects the change.
-// - `iconUrl`: absolute https:// URL per the entity contract.
+// - `iconUrl` (tech-icon-upload A1): the URL Input is GONE — the value is
+//   a PROVISIONAL marker (the picked file's name, set by onFileSelect) or
+//   the record's stored url (edit-mode default). Create REQUIRES a file
+//   (non-empty → `adminTechIconRequired`); edit accepts any string — the
+//   REAL `/images/technologies/<name>` path is resolved from the pending
+//   FileUploadSelection at save time, and the keep-current semantics
+//   (url unchanged without a new file) live in the component.
 // - `invertInDark`: boolean (kit Select maps 'true'/'false' strings).
 //
 // Every refine carries its i18n key as the message — the form maps
@@ -37,11 +44,14 @@ export const makeTechnologyFormSchema = (
         (value) => (mode === 'edit' ? value === originalKey : !existingKeys.includes(value)),
         { message: mode === 'edit' ? 'adminTechKeyInvalid' : 'adminTechKeyExists' }
       ),
+    // A1: create needs a picked file; edit keeps the stored url until a
+    // replacement is chosen (the marker never reaches the record — the
+    // component resolves the real path or falls back to the record).
     iconUrl: z
       .string()
       .trim()
-      .refine((value) => TechnologySchema.shape.url.safeParse(value).success, {
-        message: 'adminTechUrlInvalid',
+      .refine((value) => (mode === 'edit' ? true : value !== ''), {
+        message: 'adminTechIconRequired',
       }),
     invertInDark: z.boolean(),
   });

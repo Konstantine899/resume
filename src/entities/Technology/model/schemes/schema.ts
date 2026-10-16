@@ -5,9 +5,10 @@
 // Two schemas, one source of truth:
 // - `TechnologySchema` — the catalog record: normalizes what is read from
 //   localStorage and validates what is persisted. Field rules (slug key,
-//   https URL) live HERE; cross-record rules (uniqueness, edit-mode key
-//   immutability) belong to the feature-level form factory (D2 layering:
-//   entities never know about each other).
+//   https URL OR internal /images/... path — tech-icon-upload A3) live
+//   HERE; cross-record rules (uniqueness, edit-mode key immutability)
+//   belong to the feature-level form factory (D2 layering: entities never
+//   know about each other).
 // - `TechnologiesEnvelopeSchema` — reads the envelope `{ v: 1, technologies }`;
 //   `v` is a migration guard, unknown versions fall back to the seed.
 //
@@ -20,14 +21,26 @@ import type { Technology } from '../types/types';
 /** Slug: lowercase letters, digits, hyphens — no leading/trailing hyphen. */
 const KEY_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * Internal `/images/...` path written by the admin FileUpload flow
+ * (tech-icon-upload A3): letters, digits, dots, underscores, hyphens and
+ * nested slashes — NO spaces. `saveImageToDir` produces exactly this shape.
+ */
+const INTERNAL_IMAGES_PATH_REGEX = /^\/images\/[A-Za-z0-9._\-/]+$/;
+
 export const TechnologySchema = z.object({
   key: z.string().regex(KEY_SLUG_REGEX),
   /**
-   * Absolute https:// URL only — `http://` is rejected (mixed content on an
-   * https page; same posture as Project's linkSchema, and the seed URLs
-   * are all https so hydration never silently rejects stored data).
+   * Union (tech-icon-upload A3): absolute https:// URL (the legacy shape —
+   * `http://` is rejected, mixed content on an https page; same posture as
+   * Project's linkSchema) OR an internal `/images/...` path from the admin
+   * upload flow. The seed URLs are all https so hydration never silently
+   * rejects stored data.
    */
-  url: z.url().refine((value) => value.startsWith('https://')),
+  url: z.union([
+    z.url().refine((value) => value.startsWith('https://')),
+    z.string().regex(INTERNAL_IMAGES_PATH_REGEX),
+  ]),
   invertInDark: z.boolean().optional(),
 });
 

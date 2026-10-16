@@ -60,6 +60,28 @@ describe('TechnologySchema', () => {
     expect(TechnologySchema.safeParse({ ...VALID, url: `java${'script:'}alert(1)` }).success).toBe(
       false
     );
+    expect(
+      TechnologySchema.safeParse({ ...VALID, url: 'data:image/png;base64,AAAA' }).success
+    ).toBe(false);
+  });
+
+  // tech-icon-upload A3: the admin form uploads icons into the shared
+  // images directory — the stored url may be an internal /images/... path.
+  it('accepts an internal /images/... path (tech-icon-upload A3)', () => {
+    expect(
+      TechnologySchema.safeParse({ ...VALID, url: '/images/technologies/react-logo.svg' }).success
+    ).toBe(true);
+    expect(
+      TechnologySchema.safeParse({ ...VALID, url: '/images/technologies/sub/logo_2.svg' }).success
+    ).toBe(true);
+  });
+
+  it('rejects internal paths with spaces or outside /images/', () => {
+    expect(
+      TechnologySchema.safeParse({ ...VALID, url: '/images/technologies/my logo.svg' }).success
+    ).toBe(false);
+    expect(TechnologySchema.safeParse({ ...VALID, url: '/uploads/react.svg' }).success).toBe(false);
+    expect(TechnologySchema.safeParse({ ...VALID, url: '/images/' }).success).toBe(false);
   });
 
   it('rejects a non-boolean invertInDark', () => {
