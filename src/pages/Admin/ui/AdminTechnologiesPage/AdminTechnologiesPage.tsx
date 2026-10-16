@@ -69,13 +69,14 @@ export const AdminTechnologiesPage: React.FC = () => {
   // A vanished record closes the form instead of rendering a stale editor.
   const formOpen = form !== null && (form.mode === 'create' || record !== undefined);
 
-  const formElement = formOpen && form !== null ? (
-    <TechnologyForm
-      key={form.mode === 'edit' ? form.key : 'create'}
-      technology={form.mode === 'edit' ? record : undefined}
-      onExitEdit={closeForm}
-    />
-  ) : null;
+  const formElement =
+    formOpen && form !== null ? (
+      <TechnologyForm
+        key={form.mode === 'edit' ? form.key : 'create'}
+        technology={form.mode === 'edit' ? record : undefined}
+        onExitEdit={closeForm}
+      />
+    ) : null;
 
   return (
     <Section size="md" data-testid="admin-technologies">
@@ -85,9 +86,7 @@ export const AdminTechnologiesPage: React.FC = () => {
           onAddTechnology={() => setForm({ mode: 'create' })}
           onEditTechnology={(key) => setForm({ mode: 'edit', key })}
           onTechnologyDeleted={(key) =>
-            setForm((current) =>
-              current?.mode === 'edit' && current.key === key ? null : current
-            )
+            setForm((current) => (current?.mode === 'edit' && current.key === key ? null : current))
           }
         />
         <Modal isOpen={formOpen} onClose={closeForm} title={formTitle} subtitle={formSubtitle}>

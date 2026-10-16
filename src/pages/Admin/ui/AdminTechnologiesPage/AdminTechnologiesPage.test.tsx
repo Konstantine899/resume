@@ -159,7 +159,9 @@ describe('AdminTechnologiesPage — form modal (A7/A8/A12)', () => {
 
     // jsdom ignores overlays — target the FIRST row's Edit (seed order
     // starts at `react`) so the query stays unambiguous.
-    fireEvent.click(screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement
+    );
     await waitFor(() => {
       expect(screen.getAllByRole('dialog')).toHaveLength(1);
     });
@@ -169,19 +171,21 @@ describe('AdminTechnologiesPage — form modal (A7/A8/A12)', () => {
 describe('AdminTechnologiesPage — edit mode (D7)', () => {
   it('Edit prefills the record, DISABLES the key and subtitles the modal with it', async () => {
     renderPage();
-    fireEvent.click(screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement
+    );
     const dialog = await openDialog();
 
     expect(keyInput()).toBeDisabled();
     expect(urlInput()).toHaveAttribute('value');
-    expect(
-      within(dialog).getByText('adminTechFormSubtitle:react')
-    ).toBeInTheDocument();
+    expect(within(dialog).getByText('adminTechFormSubtitle:react')).toBeInTheDocument();
   });
 
   it('edit Save stays keyed by the ORIGINAL key (D7)', async () => {
     const store = renderPage();
-    fireEvent.click(screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'adminTechnologiesEdit' })[0] as HTMLElement
+    );
     await openDialog();
 
     fireEvent.change(urlInput(), {
@@ -205,7 +209,9 @@ describe('AdminTechnologiesPage — D6 usedKeys wiring', () => {
     const before = catalogOf(store);
 
     // `react` is referenced by seed projects' techIcons.
-    fireEvent.click(screen.getAllByRole('button', { name: 'adminTechnologiesDelete' })[0] as HTMLElement);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'adminTechnologiesDelete' })[0] as HTMLElement
+    );
     const confirm = await openDialog();
     fireEvent.click(within(confirm).getByRole('button', { name: 'adminTechnologiesDelete' }));
 
@@ -221,9 +227,7 @@ describe('AdminTechnologiesPage — D6 usedKeys wiring', () => {
     const store = renderPage();
     // `python` is NOT referenced by any seed project's techIcons.
     const pythonRow = screen.getByTestId('tech-actions-python');
-    fireEvent.click(
-      within(pythonRow).getByRole('button', { name: 'adminTechnologiesDelete' })
-    );
+    fireEvent.click(within(pythonRow).getByRole('button', { name: 'adminTechnologiesDelete' }));
     const confirm = await openDialog();
     fireEvent.click(within(confirm).getByRole('button', { name: 'adminTechnologiesDelete' }));
 
