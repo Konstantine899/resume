@@ -13,7 +13,9 @@
 //
 // Limits come straight from the plan's validation table (§7), relaxed by
 // mywork-detail-table rev.4 (every-row clear): title '' or 2–100 after trim;
-// description locale ≤600 (empty allowed); techIcons 0..n from TECH_ICONS;
+// description locale ≤600 (empty allowed); techIcons 0..20 arbitrary string
+// keys — membership in the live catalog is checked at FEATURE level
+// (technologies-crud D2: entities never import entities);
 // category/status optional; link = null | absolute https:// | internal `/…`;
 // image = '' (clear) | internal `/…` | absolute http(s):// | base64
 // `data:image/…` ≤512K chars (superset union, plan project-images rev.3);
@@ -22,11 +24,8 @@
 
 import { z } from 'zod';
 
-import { PROJECT_CATEGORIES, PROJECT_STATUSES, TECH_ICONS } from '../constants/constants';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '../constants/constants';
 import type { Project, ProjectCategory, ProjectStatus } from '../types/types';
-
-/** Runtime enum over the TECH_ICONS dictionary keys — single source (A3). */
-const TECH_ICON_KEYS = Object.keys(TECH_ICONS) as [string, ...string[]];
 
 /** Runtime enums from the SAME constants the admin selects render (A5). */
 const categoryEnum = z.enum(PROJECT_CATEGORIES as [ProjectCategory, ...ProjectCategory[]]);
@@ -92,7 +91,7 @@ export const ProjectSchema = z.object({
     en: z.string().max(600),
     ru: z.string().max(600),
   }),
-  techIcons: z.array(z.enum(TECH_ICON_KEYS)),
+  techIcons: z.array(z.string()).max(20),
   link: linkSchema,
   image: imageSchema,
   category: categoryEnum.optional(),

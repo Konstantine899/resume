@@ -13,15 +13,15 @@
 // projectFormSchema): the FieldEditForm maps errors to t(...) exactly
 // like the full form.
 //
-// metric-N rows are NOT a scalar member of fieldEditSchemas — the index
-// is dynamic, so `metricFieldSchema` + `toUpdateDto` handle the splice
+// metric-N rows are NOT a scalar member of the field-schema record — the
+// index is dynamic, so `metricFieldSchema` + `toUpdateDto` handle the splice
 // against the record's existing metrics array.
 
 import { z } from 'zod';
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
 import type { ProjectUpdatePatch } from '../../../model/types/types';
-import { ProjectFormSchema } from './projectFormSchema';
+import { makeTechIconsFieldSchema, ProjectFormSchema } from './projectFormSchema';
 
 /** Scalar field keys — the static half of the detail-table rows. */
 export type ScalarEditField =
@@ -53,22 +53,31 @@ export const metricFieldSchema = z.object({
 
 // ---- field-modal schemas (one field at a time, all delegating) ----
 
-export const fieldEditSchemas = {
-  title: z.object({ title: ProjectFormSchema.shape.title }),
-  category: z.object({ category: ProjectFormSchema.shape.category }),
-  status: z.object({ status: ProjectFormSchema.shape.status }),
-  featured: z.object({ featured: ProjectFormSchema.shape.featured }),
-  year: z.object({ year: ProjectFormSchema.shape.year }),
-  link: z.object({ link: ProjectFormSchema.shape.link }),
-  description: z.object({ description: ProjectFormSchema.shape.description }),
-  role: z.object({ role: ProjectFormSchema.shape.role }),
-  techIcons: z.object({ techIcons: ProjectFormSchema.shape.techIcons }),
-  image: z.object({ image: ProjectFormSchema.shape.image }),
-} as const;
+/**
+ * The full per-field schema record (technologies-crud D2): a FACTORY —
+ * techIcons is the ONE slice that needs the live catalog's `validKeys`
+ * (membership moved down from the deleted TECH_ICONS enum). Every other
+ * slice still delegates via `ProjectFormSchema.shape.*`.
+ */
+export const makeFieldEditSchemas = (validKeys: readonly string[]) =>
+  ({
+    title: z.object({ title: ProjectFormSchema.shape.title }),
+    category: z.object({ category: ProjectFormSchema.shape.category }),
+    status: z.object({ status: ProjectFormSchema.shape.status }),
+    featured: z.object({ featured: ProjectFormSchema.shape.featured }),
+    year: z.object({ year: ProjectFormSchema.shape.year }),
+    link: z.object({ link: ProjectFormSchema.shape.link }),
+    description: z.object({ description: ProjectFormSchema.shape.description }),
+    role: z.object({ role: ProjectFormSchema.shape.role }),
+    techIcons: z.object({ techIcons: makeTechIconsFieldSchema(validKeys) }),
+    image: z.object({ image: ProjectFormSchema.shape.image }),
+  }) as const;
 
 /** Resolver schema for ANY row key (scalar record or metric slice). */
-export const schemaFor = (field: EditProjectField) =>
-  field.startsWith('metric-') ? metricFieldSchema : fieldEditSchemas[field as ScalarEditField];
+export const schemaFor = (field: EditProjectField, validKeys: readonly string[]) =>
+  field.startsWith('metric-')
+    ? metricFieldSchema
+    : makeFieldEditSchemas(validKeys)[field as ScalarEditField];
 
 /** Input-side form state; only the ACTIVE field's keys are actually used. */
 export type FieldFormValues = {

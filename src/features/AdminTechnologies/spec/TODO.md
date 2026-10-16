@@ -11,22 +11,6 @@ spec: SPEC.md
 > Сгорает по мере работы: пункт выполнен → удаляется (AGENTS.md, Spec-driven features).
 > Контракт — [SPEC.md](./SPEC.md). Язык: русский (правило владельца).
 
-## WU-2 — Перевод entities/Project и потребителей (D2/D3)
-
-- [ ] `ProjectSchema.techIcons` → `z.array(z.string()).max(20)`; убрать
-      `TECH_ICONS`/`TECH_ICON_KEYS` из schema.ts; тест `schema.test.ts:87` ПЕРЕПИСАН
-      (принимает произвольную строку, отклоняет >20 и не-строки).
-- [ ] Удалить `TECH_ICONS` из `constants.ts` (+ баррел `entities/Project/index.ts`,
-      устаревшие комментарии в `types.ts`); `constants.test.ts` не ссылается на него.
-- [ ] `resolveTechIcons` удалён из `entities/Project/lib/utils.ts` (+ тесты перенесены);
-      баррел обновлён.
-- [ ] `features/MyWork/ui/MyWork/MyWork.tsx:101` — импорт `resolveTechIcons` из
-      `@/entities/Technology`.
-- [ ] `projectFormSchema.ts` → фабрика `makeProjectFormSchema(validKeys)` (`.refine`);
-      `fieldSchemas.ts` — techIcons-слайс через фабрику; тесты membership обновлены.
-- [ ] `ProjectForm.tsx:115` и `FieldEditForm.tsx:114` —
-      `useSelector(selectTechnologyKeys)` вместо `Object.keys(TECH_ICONS)`.
-
 ## WU-3 — features/AdminTechnologies (TDD)
 
 - [ ] `ui/TechnologyForm/` — форма (RHF + zodResolver фабрики, key/iconUrl/invertInDark

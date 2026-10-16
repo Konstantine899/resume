@@ -15,7 +15,8 @@
 // every test that needs a valid image drives the file input against a
 // mocked imageDir service (path `/images/projects/<name>`).
 
-import { PROJECT_CATEGORIES, TECH_ICONS, type Project } from '@/entities/Project';
+import { PROJECT_CATEGORIES, type Project } from '@/entities/Project';
+import { TECHNOLOGIES_SEED } from '@/entities/Technology';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
@@ -140,7 +141,7 @@ const fillMinimalValid = async () => {
   });
   // techIcons: pick the first toggle (create mode starts empty).
   fireEvent.click(
-    screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
+    screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
   );
 };
 
@@ -209,9 +210,9 @@ describe('ProjectForm: render (WU-4)', () => {
       PROJECT_CATEGORIES
     );
 
-    // One toggle per TECH_ICONS key — the dictionary IS the option list.
+    // One toggle per catalog key — the seed mirrors the live store (D4 fallback).
     const toggles = screen.getByRole('group', { name: 'projectFieldTech' });
-    expect(toggles.querySelectorAll('button')).toHaveLength(Object.keys(TECH_ICONS).length);
+    expect(toggles.querySelectorAll('button')).toHaveLength(TECHNOLOGIES_SEED.length);
 
     // rev.4: the image control is the file picker — no URL input exists.
     expect(fileInput()).toBeInTheDocument();
@@ -281,7 +282,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
       target: { value: 'Описание' },
     });
     fireEvent.click(
-      screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
+      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
     );
     fireEvent.click(saveButton());
 
@@ -481,7 +482,7 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
       target: { value: 'Описание' },
     });
     fireEvent.click(
-      screen.getAllByRole('button', { name: Object.keys(TECH_ICONS)[0] })[0] as HTMLElement
+      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
     );
 
     await uploadImageFile();

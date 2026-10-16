@@ -21,9 +21,11 @@ export interface Project {
     ru: string;
   };
   /**
-   * A3: stored as KEYS only ('react' | 'nextjs' | …) — the TECH_ICONS
-   * dictionary lives in constants.ts and is never serialized to the store.
-   * Resolve to TechIcon objects at render time via `resolveTechIcons`.
+   * A3: stored as KEYS only ('react' | 'nextjs' | …) — the icon catalog
+   * lives in `entities/Technology` (moved there by technologies-crud D3)
+   * and is never serialized into projects.
+   * Resolve to TechIcon objects at render time via `resolveTechIcons`
+   * (also exported from `entities/Technology`).
    */
   techIcons: string[];
   link: string | null;

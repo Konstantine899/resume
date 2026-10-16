@@ -33,11 +33,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   PROJECT_CATEGORIES,
   PROJECT_STATUSES,
-  TECH_ICONS,
   type Project,
   type ProjectCategory,
   type ProjectStatus,
 } from '@/entities/Project';
+import { selectTechnologyKeys } from '@/entities/Technology';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -72,6 +72,10 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   'data-testid': testId = 'project-field-form',
 }) => {
   const projects = useSelector(selectAllProjects);
+  // Live catalog keys (technologies-crud D2/D4): the techIcons toggles and
+  // the membership rule in `schemaFor` both read the store — seed fallback
+  // when the slice is absent (bare tests / Storybook).
+  const techKeys = useSelector(selectTechnologyKeys);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -83,7 +87,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
     setValue,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<FieldFormValues, unknown, FieldFormOutput>({
-    resolver: zodResolver(schemaFor(field)) as unknown as Resolver<
+    resolver: zodResolver(schemaFor(field, techKeys)) as unknown as Resolver<
       FieldFormValues,
       unknown,
       FieldFormOutput
@@ -111,7 +115,6 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
 
   const handleCancel = () => onExitEdit?.();
 
-  const techKeys = Object.keys(TECH_ICONS);
   const toggleTech = (key: string) => {
     const current = values.techIcons ?? [];
     const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];

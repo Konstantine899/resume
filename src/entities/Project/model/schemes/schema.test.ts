@@ -84,10 +84,21 @@ describe('ProjectSchema', () => {
     expect(ProjectSchema.safeParse({ ...VALID, techIcons: [] }).success).toBe(true);
   });
 
-  it('rejects a techIcons key outside TECH_ICONS', () => {
-    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', 'cobol'] }).success).toBe(
-      false
+  it('accepts an arbitrary techIcons key (membership lives at the feature level, D2)', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', 'cobol'] }).success).toBe(true);
+  });
+
+  it('rejects more than 20 techIcons', () => {
+    const tooMany = Array.from({ length: 21 }, (_unused, index) => `t${index}`);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: tooMany }).success).toBe(false);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: tooMany.slice(0, 20) }).success).toBe(
+      true
     );
+  });
+
+  it('rejects non-string techIcons members', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: [42] }).success).toBe(false);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', null] }).success).toBe(false);
   });
 
   it('accepts an internal link and null, rejects http:// and bare paths', () => {
@@ -217,9 +228,13 @@ describe('ProjectFormDataSchema', () => {
   it('applies the same field rules as ProjectSchema', () => {
     // title '' is VALID since rev.4 — 1-char non-empty still rejects.
     expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, title: 'x' }).success).toBe(false);
-    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: ['cobol'] }).success).toBe(
+    // techIcons: membership moved to the feature level (D2) — the record
+    // contract still enforces the 0..20 bound and string-only members.
+    const tooMany = Array.from({ length: 21 }, (_unused, index) => `t${index}`);
+    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: tooMany }).success).toBe(
       false
     );
+    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: [42] }).success).toBe(false);
   });
 });
 

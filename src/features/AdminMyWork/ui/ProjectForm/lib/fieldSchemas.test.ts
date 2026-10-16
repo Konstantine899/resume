@@ -10,11 +10,15 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@/entities/Project';
 import {
   defaultValuesFor,
-  fieldEditSchemas,
+  makeFieldEditSchemas,
   metricFieldSchema,
   toUpdateDto,
   type EditProjectField,
 } from './fieldSchemas';
+
+// D2: the record is a FACTORY — techIcons membership needs the catalog keys.
+const VALID_KEYS = ['react', 'nextjs'] as const;
+const fieldEditSchemas = makeFieldEditSchemas(VALID_KEYS);
 
 const baseProject: Project = {
   id: 'p1',
@@ -89,11 +93,17 @@ describe('fieldEditSchemas — scalar slices delegate to the shared schema', () 
     ).toBe(true);
   });
 
-  it('techIcons: enum keys enforced, empty array is a valid edit (rev.4)', () => {
+  it('techIcons: catalog membership enforced (D2), empty array is a valid edit (rev.4)', () => {
     expect(fieldEditSchemas.techIcons.safeParse({ techIcons: ['react'] }).success).toBe(true);
     // rev.4: clearing the list is now a valid edit (metrics optional parity).
     expect(fieldEditSchemas.techIcons.safeParse({ techIcons: [] }).success).toBe(true);
+    // D2: membership against validKeys, not the deleted TECH_ICONS enum.
     expect(fieldEditSchemas.techIcons.safeParse({ techIcons: ['nope'] }).success).toBe(false);
+    // The issue lands on the techIcons path so the form alert keeps working.
+    const failed = fieldEditSchemas.techIcons.safeParse({ techIcons: ['nope'] });
+    if (!failed.success) {
+      expect(failed.error.issues[0]?.path).toEqual(['techIcons']);
+    }
   });
 });
 
