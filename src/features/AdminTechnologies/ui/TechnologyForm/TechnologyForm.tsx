@@ -186,6 +186,10 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     if (onExitEdit) onExitEdit();
   };
 
+  // WU-2 / A2: edit-mode preview of the CURRENT stored icon — the
+  // FileUpload preview shows only the just-picked file.
+  const currentIconUrl = technology ? technology.url : undefined;
+
   // Messages ARE i18n keys (see technologyFormSchema.ts) — t() echoes
   // unknown strings, so this mapping is total. RHF types `message` as
   // optional; every refine here sets one, the fallback is defensive.
@@ -213,6 +217,14 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       </div>
 
       <div className={styles.field}>
+        {currentIconUrl && (
+          <div className={styles.iconPreviewRow}>
+            <img className={styles.iconPreview} src={currentIconUrl} alt="" />
+            <Paragraph asChild theme="muted" size="s">
+              <span>{t('adminTechIconCurrent')}</span>
+            </Paragraph>
+          </div>
+        )}
         <FileUpload
           label={t('adminTechIconUploadLabel')}
           texts={{

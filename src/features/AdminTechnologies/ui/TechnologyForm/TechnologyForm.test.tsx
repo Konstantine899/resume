@@ -316,6 +316,27 @@ describe('TechnologyForm', () => {
     expect(invertSelect()).toHaveValue('true');
   });
 
+  it('edit mode: previews the CURRENT stored icon above the uploader (A2)', () => {
+    render(
+      <TechnologyForm
+        technology={{
+          key: 'react',
+          url: '/images/technologies/react-19.svg',
+        }}
+      />
+    );
+
+    const preview = screen.getByAltText('');
+    expect(preview).toHaveAttribute('src', '/images/technologies/react-19.svg');
+    expect(screen.getByText('adminTechIconCurrent')).toBeInTheDocument();
+  });
+
+  it('create mode: shows NO current-icon preview', () => {
+    render(<TechnologyForm />);
+
+    expect(screen.queryByText('adminTechIconCurrent')).not.toBeInTheDocument();
+  });
+
   it('edit mode: a forced key change is rejected by the schema — nothing persists', async () => {
     render(
       <TechnologyForm technology={{ key: 'react', url: 'https://cdn.example.com/react.svg' }} />
