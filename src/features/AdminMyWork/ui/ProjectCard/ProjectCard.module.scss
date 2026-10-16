@@ -108,6 +108,20 @@
   justify-content: flex-end;
 }
 
+// Action buttons INSIDE a table cell: NEVER wrap — a wrapping flex reports
+
+// min-content = one button, so the auto table layout squeezes the column and
+
+// the buttons stack vertically (owner report 2026-10-16). nowrap pins
+
+// min-content to the whole row; the Table .region scrolls on overflow.
+.cellActions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}
+
 // Expand strip: kit IconButton fullWidth = the whole Card body. Doubled
 
 // class raises specificity (0,2,0) over the kit's flex-center mixin

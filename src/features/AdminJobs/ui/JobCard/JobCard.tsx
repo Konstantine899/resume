@@ -203,7 +203,7 @@ export const JobCard: React.FC<JobCardProps> = ({
   });
 
   const renderBulletActions = (row: BulletRow) => (
-    <div className={styles.actions} data-testid={`job-bullet-actions-${job.id}-${row.index}`}>
+    <div className={styles.cellActions} data-testid={`job-bullet-actions-${job.id}-${row.index}`}>
       <Tooltip content={t('adminJobBulletUp')} position="top" showDelay={0}>
         <IconButton
           type="button"
@@ -273,7 +273,7 @@ export const JobCard: React.FC<JobCardProps> = ({
           // Scope honesty (job-field-edit R-3 r4): the row Pencil opens the
           // modal for THIS field only, and its label says so.
           <div
-            className={styles.actions}
+            className={styles.cellActions}
             data-testid={`job-field-actions-${job.id}-${row.fieldKey}`}
           >
             <Tooltip
