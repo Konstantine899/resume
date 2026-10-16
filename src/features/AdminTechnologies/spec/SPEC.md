@@ -1,5 +1,5 @@
 ---
-status: draft
+status: approved
 epic: technologies-crud
 issue: 258
 created: '2026-10-16'
