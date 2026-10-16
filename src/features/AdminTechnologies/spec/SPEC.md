@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: tech-icon-upload
 issue: 261
 created: '2026-10-16'
@@ -144,3 +144,11 @@ maxBlobBytes?, disabled?, className?}`; `FileUploadSelection = {blob, name}`
   axe-stories `--build`, URL-stub через `class extends URL`),
   `resume-project-images-amend` (zod extend strip, `gh pr ready` перед merge),
   `resume-pr-base-dev-default-main` (PR всегда `--base dev`).
+
+## Итог
+
+Эпик доставлен без девиаций в PR #262: контракт A1/A2/A3/A5/A7 исполнен как
+написано. Гейты: `npm run validate` 3707/3707 (один CPU-флейк в
+`AdminSkillsPage.test.tsx` — зелёный в изоляции), `check:spec` 16, бандл
+777.7 < 784 KiB (капы НЕ тронуты), `check:axe` — 0 регрессий (baseline 4).
+Checklist сгорел по мере работы.
