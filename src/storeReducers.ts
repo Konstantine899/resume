@@ -12,6 +12,10 @@
 import { aboutContentReducer } from '@/features/AdminAbout/model/slices/aboutContentSlice';
 import { adminAuthReducer } from '@/features/AdminAuth';
 import { adminDashboardReducer } from '@/features/AdminDashboard';
+// Deep import, NOT the barrel (technologies-crud SPEC D1): the entity's
+// public API is consumed by features; the composition root takes the
+// reducer directly.
+import { technologiesReducer } from '@/entities/Technology/model/slices/technologiesSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminContact's
 // public API will export the editor form (RHF) in WU-3 — instantiating the
 // barrel here would pull it into the main chunk.
@@ -37,4 +41,5 @@ export const storeReducers = {
   adminSkills: skillsReducer,
   contactContent: contactContentReducer,
   myWork: myWorkReducer,
+  technologies: technologiesReducer,
 };

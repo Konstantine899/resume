@@ -1,0 +1,65 @@
+// ============================================
+
+// TechnologiesList — vitrina layout (technologies-crud WU-3)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens. `.cellActions` is nowrap and used ONLY for cell renders — the
+
+// header wrapper stays on `.headerActions` (PR #256: a wrapped flex row
+
+// inside a td collapses the column to one button per line).
+
+@use '@/shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.header {
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.keyCell {
+  display: inline-flex;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+// dark-theme invert parity with SkillItem .invertInDark
+
+.iconInvert {
+  [data-theme='dark'] & {
+    filter: invert(1) brightness(1.5);
+  }
+}
+
+.cellActions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}

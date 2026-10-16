@@ -61,6 +61,25 @@ export const ProjectFormSchema = ProjectFormDataSchema.extend({
     .pipe(ProjectFormDataSchema.shape.role),
 });
 
+/**
+ * Membership-checked techIcons field (technologies-crud D2): the ONLY rule
+ * that needs the live catalog. The check rides the ARRAY schema, so inside
+ * any object wrapper the issue path stays ['techIcons'] and the forms'
+ * existing `errors.techIcons` alert keeps rendering.
+ */
+export const makeTechIconsFieldSchema = (validKeys: readonly string[]) =>
+  ProjectFormSchema.shape.techIcons.refine((keys) => keys.every((key) => validKeys.includes(key)), {
+    message: 'projectTechRequired',
+  });
+
+/**
+ * The full form schema WITH catalog membership (D2): `validKeys` comes from
+ * `selectTechnologyKeys` at render time — the deleted TECH_ICONS enum can no
+ * longer enforce it from entities (sibling entities never import each other).
+ */
+export const makeProjectFormSchema = (validKeys: readonly string[]) =>
+  ProjectFormSchema.extend({ techIcons: makeTechIconsFieldSchema(validKeys) });
+
 /** Raw DOM values the form works with (RHF `useForm<T>` input type). */
 export type ProjectFormValues = z.input<typeof ProjectFormSchema> & {
   /**

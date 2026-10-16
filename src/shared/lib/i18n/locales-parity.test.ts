@@ -180,6 +180,34 @@ describe('locale parity (WU-6)', () => {
       // vitrina headers (Title/Category/Status/Featured/Year) died with
       // the vitrina (mywork-parity-polish WU-4, issue #252).
       'adminMyWorkTableActions',
+      // Technologies CRUD (#258, SPEC §i18n) — all 26 keys (nav label
+      // included, per the adminNav* pattern noted above).
+      'adminNavTechnologies',
+      'adminTechnologiesTitle',
+      'adminTechnologiesHint',
+      'adminTechnologiesAdd',
+      'adminTechnologiesEmpty',
+      'adminTechnologiesEdit',
+      'adminTechnologiesDelete',
+      'adminTechKeyLabel',
+      'adminTechIconUrlLabel',
+      'adminTechInvertLabel',
+      'adminTechInvertYes',
+      'adminTechInvertNo',
+      'adminTechKeyInvalid',
+      'adminTechKeyExists',
+      'adminTechUrlInvalid',
+      'adminTechSave',
+      'adminTechCancel',
+      'adminTechConfirmDelete',
+      'adminTechDeleteInUse',
+      'adminTechFormSubtitle',
+      'adminTechSaved',
+      'adminTechDeleted',
+      'adminTechPersistError',
+      'adminTechTableIcon',
+      'adminTechTableKey',
+      'adminTechTableActions',
     ];
 
     for (const key of adminKeys) {
