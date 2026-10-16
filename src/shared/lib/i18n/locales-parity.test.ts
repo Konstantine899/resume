@@ -180,8 +180,8 @@ describe('locale parity (WU-6)', () => {
       // vitrina headers (Title/Category/Status/Featured/Year) died with
       // the vitrina (mywork-parity-polish WU-4, issue #252).
       'adminMyWorkTableActions',
-      // Technologies CRUD (#258, SPEC §i18n) — all 26 keys (nav label
-      // included, per the adminNav* pattern noted above).
+      // Technologies CRUD (#258, SPEC §i18n) — nav label included, per the
+      // adminNav* pattern noted above.
       'adminNavTechnologies',
       'adminTechnologiesTitle',
       'adminTechnologiesHint',
@@ -190,13 +190,11 @@ describe('locale parity (WU-6)', () => {
       'adminTechnologiesEdit',
       'adminTechnologiesDelete',
       'adminTechKeyLabel',
-      'adminTechIconUrlLabel',
       'adminTechInvertLabel',
       'adminTechInvertYes',
       'adminTechInvertNo',
       'adminTechKeyInvalid',
       'adminTechKeyExists',
-      'adminTechUrlInvalid',
       'adminTechSave',
       'adminTechCancel',
       'adminTechConfirmDelete',
@@ -208,6 +206,21 @@ describe('locale parity (WU-6)', () => {
       'adminTechTableIcon',
       'adminTechTableKey',
       'adminTechTableActions',
+      // tech-icon-upload (#261, A1/A5) — the FileUpload label + texts, the
+      // two flow errors, the create-required error and the preview caption.
+      // The URL-input copy (adminTechIconUrlLabel / adminTechUrlInvalid)
+      // died with the Input — see the retired-keys test below.
+      'adminTechIconUploadLabel',
+      'adminTechIconUploadButton',
+      'adminTechIconUploadHint',
+      'adminTechIconUploadNotImage',
+      'adminTechIconUploadTooLarge',
+      'adminTechIconUploadUndecodable',
+      'adminTechIconUploadSelected',
+      'adminTechIconUploadUnsupported',
+      'adminTechIconUploadSaveError',
+      'adminTechIconRequired',
+      'adminTechIconCurrent',
     ];
 
     for (const key of adminKeys) {
@@ -227,6 +240,15 @@ describe('locale parity (WU-6)', () => {
     // must not creep back into either locale.
     expect(en).not.toHaveProperty('adminJobPosition');
     expect(ru).not.toHaveProperty('adminJobPosition');
+  });
+
+  it('the retired URL-input keys stay deleted (tech-icon-upload A5)', () => {
+    // The iconUrl Input is gone — its label and the https-validation copy
+    // have no consumer anymore and must not creep back into either locale.
+    expect(en).not.toHaveProperty('adminTechIconUrlLabel');
+    expect(ru).not.toHaveProperty('adminTechIconUrlLabel');
+    expect(en).not.toHaveProperty('adminTechUrlInvalid');
+    expect(ru).not.toHaveProperty('adminTechUrlInvalid');
   });
 
   it('aboutResetConfirm interpolates {{name}} on both sides (admin-about-refactor WU-1)', () => {
