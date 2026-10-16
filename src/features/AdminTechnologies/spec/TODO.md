@@ -11,15 +11,6 @@ spec: SPEC.md
 > Сгорает по мере работы: пункт выполнен → удаляется (AGENTS.md, Spec-driven features).
 > Контракт — [SPEC.md](./SPEC.md). Язык: русский (правило владельца).
 
-## WU-4 — Страница, маршрут, сайдбар, i18n
-
-- [ ] `pages/Admin/ui/AdminTechnologiesPage/` + тест (page-owned modal state:
-      create/edit/delete/guard/ESC/единственный диалог; харнес AdminSkillsPage).
-- [ ] `routerConfig.tsx` — lazy-ребёнок `technologies`; `AppRouter.test.tsx` 7 → 8.
-- [ ] `AdminLayout.tsx` — `<Link> adminNavTechnologies` + assertion в `AdminLayout.test.tsx`.
-- [ ] i18n-ключи в `en.json` + `ru.json` (плоские); parity-тест зелёный.
-- [ ] `usedKeys`-винiring (D6): страница строит из `selectAllProjects`.
-
 ## WU-5 — Гейты (по порядку)
 
 - [ ] prettier-check по тронутым файлам; `npm run validate`.

@@ -111,6 +111,11 @@ describe('AdminLayout (WU-3: header, sidebar, outlet)', () => {
     expect(backLink).toHaveTextContent('adminBackToSite');
 
     expect(screen.getByRole('navigation', { name: 'adminNavLabel' })).toBeInTheDocument();
+    // #258: the technologies catalog link joins the sidebar.
+    expect(screen.getByRole('link', { name: 'adminNavTechnologies' })).toHaveAttribute(
+      'href',
+      '/admin/technologies'
+    );
     expect(screen.getByTestId('admin-stub')).toBeInTheDocument();
     // Both switches are reused in the header (reuse-first: features, not forks).
     expect(screen.getByTestId('language-switch')).toBeInTheDocument();
