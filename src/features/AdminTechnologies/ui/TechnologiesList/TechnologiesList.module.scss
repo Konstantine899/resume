@@ -22,9 +22,9 @@
 
 .header {
   display: flex;
+  gap: $spacing-3;
   align-items: flex-start;
   justify-content: space-between;
-  gap: $spacing-3;
 }
 
 .intro {
