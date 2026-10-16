@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: technologies-crud
 issue: 258
 created: '2026-10-16'
@@ -210,3 +210,8 @@ Section (data-testid="admin-technologies")
 - Уроки: `resume-lazy-rhf-chunk`, `resume-rtk-lazy-hydration`,
   `resume-fsd-cross-slice` (D2 — membership на уровне фичи), `resume-table-cell-actions-row`
   (`.cellActions` nowrap), `resume-pr-base-dev-default-main` (PR всегда `--base dev`).
+
+## Итог
+
+Доставлено без девиаций: контракт D1–D7 исполнен как написано, эпик закрыт
+PR #259 (squash `4b3ff39`, verified 2026-10-16).
