@@ -1,11 +1,22 @@
 // ============================================
 // TechnologyForm — create/edit a catalog record (technologies-crud WU-3)
+// + tech-icon-upload (issue #261, WU-1/WU-2)
 // ============================================
 //
 // Gold standard: features/AdminSkills/ui/TechnologyForm (RHF + zodResolver,
 // persist BEFORE dispatch, Toast feedback, exit-edit on success). The page
 // OWNS the modal (A12) — this form has NO h2/intro: the modal header is
 // the dialog's accessible name (aria-dialog-name).
+//
+// tech-icon-upload A1: the iconUrl URL Input is GONE — the icon only comes
+// from the kit FileUpload. onFileSelect keeps the pending
+// `FileUploadSelection` in component state and marks the RHF field dirty
+// with the file NAME as a provisional marker (`setValue('iconUrl', name,
+// {shouldDirty: true})` — Save enables); the REAL `/images/technologies/
+// <name>` path is resolved in the async `handleSave` against the shared
+// images directory (pick-root flow, ProjectForm/Skills pattern). A failed
+// write toasts and keeps the form open; edit with no new file KEEPS the
+// stored url (keep-current); create requires a file.
 //
 // D7 (key immutability in edit): the key Input is DISABLED and the edit
 // schema re-checks `value === originalKey` — the update is always keyed
@@ -16,13 +27,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
+import {
+  getOrCreateSubdir,
+  isDirectoryPickerSupported,
+  pickImagesRoot,
+  readImagesRootHandle,
+  saveImageToDir,
+  writeImagesRootHandle,
+} from '@/shared/lib/imageDir';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -40,6 +61,11 @@ import {
 } from './lib/technologyFormSchema';
 import type { TechnologyFormValues } from './lib/technologyFormSchema';
 import styles from './TechnologyForm.module.scss';
+
+/** SVG byte cap for the icon upload (~50 KB — Skills rev.2 parity). */
+const ICON_MAX_BYTES = 50_000;
+/** Fixed subdir under the remembered images root. */
+const ICON_SUBDIR = 'technologies';
 
 export interface TechnologyFormProps {
   className?: string;
@@ -81,15 +107,54 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   // (the ProjectForm pattern; watch() is React Compiler-incompatible).
   const values = useWatch({ control });
 
+  // A1: the picked file waits here until Save — `handleSave` writes it into
+  // the shared images directory and stores the returned path.
+  const [pendingFile, setPendingFile] = useState<FileUploadSelection | null>(null);
+
+  const handleFileSelect = useCallback(
+    (selection: FileUploadSelection) => {
+      setPendingFile(selection);
+      // Provisional marker (the file name) — only marks the form dirty so
+      // Save enables; the real path is resolved in handleSave.
+      setValue('iconUrl', selection.name, { shouldDirty: true });
+    },
+    [setValue]
+  );
+
   const invertOptions: SelectOption[] = [
     { value: 'false', label: t('adminTechInvertNo') },
     { value: 'true', label: t('adminTechInvertYes') },
   ];
 
-  /** §3 order: persist → dispatch → toast → exit. */
-  const handleSave = handleSubmit((data) => {
+  // §3 order: persist → dispatch → toast → exit. A1: an async submit — a
+  // pending selection is written to disk FIRST; a failed write toasts and
+  // keeps the form open (nothing persists).
+  const handleSave = handleSubmit(async (data) => {
+    let url = data.iconUrl;
+    if (pendingFile) {
+      if (!isDirectoryPickerSupported()) {
+        addToast({ message: t('adminTechIconUploadUnsupported'), type: 'error' });
+        return; // form keeps the pending file; store unchanged
+      }
+      try {
+        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
+        await writeImagesRootHandle(root); // best-effort remember
+        await getOrCreateSubdir(root, ICON_SUBDIR);
+        url = await saveImageToDir(root, pendingFile.blob, pendingFile.name, ICON_SUBDIR);
+      } catch (error) {
+        // The user dismissed the picker — no alarm, no persist.
+        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        addToast({ message: t('adminTechIconUploadSaveError'), type: 'error' });
+        return; // form keeps the values for a retry (§7)
+      }
+    } else if (technology) {
+      // Keep-current: the provisional marker (or any form value) must not
+      // overwrite the stored url when no NEW file was picked.
+      url = technology.url;
+    }
+
     if (technology) {
-      const patch = { url: data.iconUrl, invertInDark: data.invertInDark };
+      const patch = { url, invertInDark: data.invertInDark };
       const next = catalog.map((tech) =>
         tech.key === technology.key ? { ...tech, ...patch } : tech
       );
@@ -105,7 +170,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     }
     const record: Technology = {
       key: data.key,
-      url: data.iconUrl,
+      url,
       invertInDark: data.invertInDark,
     };
     if (!persistTechnologies([...catalog, record])) {
@@ -121,11 +186,17 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     if (onExitEdit) onExitEdit();
   };
 
+  // WU-2 / A2: edit-mode preview of the CURRENT stored icon — the
+  // FileUpload preview shows only the just-picked file.
+  const currentIconUrl = technology ? technology.url : undefined;
+
   // Messages ARE i18n keys (see technologyFormSchema.ts) — t() echoes
   // unknown strings, so this mapping is total. RHF types `message` as
   // optional; every refine here sets one, the fallback is defensive.
   const keyError = errors.key ? t(errors.key.message ?? 'adminTechKeyInvalid') : undefined;
-  const urlError = errors.iconUrl ? t(errors.iconUrl.message ?? 'adminTechUrlInvalid') : undefined;
+  const iconError = errors.iconUrl
+    ? t(errors.iconUrl.message ?? 'adminTechIconRequired')
+    : undefined;
 
   return (
     <Form
@@ -146,13 +217,32 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       </div>
 
       <div className={styles.field}>
-        <Input
-          label={t('adminTechIconUrlLabel')}
-          error={urlError}
-          value={values.iconUrl ?? ''}
-          fullWidth
-          {...register('iconUrl')}
+        {currentIconUrl && (
+          <div className={styles.iconPreviewRow}>
+            <img className={styles.iconPreview} src={currentIconUrl} alt="" />
+            <Paragraph asChild theme="muted" size="s">
+              <span>{t('adminTechIconCurrent')}</span>
+            </Paragraph>
+          </div>
+        )}
+        <FileUpload
+          label={t('adminTechIconUploadLabel')}
+          texts={{
+            button: t('adminTechIconUploadButton'),
+            hint: t('adminTechIconUploadHint'),
+            notImage: t('adminTechIconUploadNotImage'),
+            tooLarge: t('adminTechIconUploadTooLarge'),
+            undecodable: t('adminTechIconUploadUndecodable'),
+            selected: t('adminTechIconUploadSelected'),
+          }}
+          onFileSelect={handleFileSelect}
+          maxBlobBytes={ICON_MAX_BYTES}
         />
+        {iconError && (
+          <Paragraph asChild theme="error" size="s">
+            <span role="alert">{iconError}</span>
+          </Paragraph>
+        )}
       </div>
 
       <div className={styles.field}>

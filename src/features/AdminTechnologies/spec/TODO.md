@@ -1,18 +1,18 @@
 ---
 status: done
-epic: technologies-crud
-issue: 258
+epic: tech-icon-upload
+issue: 261
 created: '2026-10-16'
 spec: SPEC.md
 ---
 
-# TODO — features/AdminTechnologies (админ-каталог технологий)
+# TODO — features/AdminTechnologies (загрузка иконки файла)
 
 > Закрыто: [SPEC.md](./SPEC.md) статус `done`. Язык: русский (правило владельца).
 
 ## Итог
 
-Все WU эпика `technologies-crud` влиты в PR #259 (squash `4b3ff39`): CI 8/8,
-`npm run validate` 3699/3699, `check:axe` — 0 регрессий, бандл 775.2 < 784 KiB
-(поднятая капа `total.maxSize` 786432→802816 — единственный разрешённый подъём).
-Checklist сгорел по мере работы.
+Все WU эпика `tech-icon-upload` влиты в PR #262: контракт A1/A2/A3/A5/A7
+исполнен; гейты зелёные (validate 3707/3707, check:spec 16, бандл
+777.7 < 784 KiB без подъёма капов, axe — 0 регрессий). Checklist сгорел
+по мере работы.

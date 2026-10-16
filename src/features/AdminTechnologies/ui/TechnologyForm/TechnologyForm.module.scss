@@ -8,9 +8,9 @@
 
 // tokens inside the shared inputs — no hardcoded values. Same structure
 
-// as AdminSkills TechnologyForm.module.scss minus the icon-preview/upload
+// as AdminSkills TechnologyForm.module.scss (icon-preview + upload rows —
 
-// rows (the catalog stores a plain https URL).
+// tech-icon-upload A1/A2).
 
 // NOTE: no `gap` on `.form` — the kit Form `gap="lg"` prop owns it
 
@@ -26,6 +26,22 @@
 .field {
   display: flex;
   flex-direction: column;
+}
+
+// tech-icon-upload WU-2 (A2): edit-mode preview of the CURRENT stored
+
+// icon above the uploader (Skills rev.2 parity).
+
+.iconPreviewRow {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.iconPreview {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .actions {
