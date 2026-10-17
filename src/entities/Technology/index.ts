@@ -16,7 +16,6 @@ export {
   TECHNOLOGIES_STORAGE_KEY,
   persistTechnologies,
   readTechnologies,
-  removeTechnologies,
 } from './model/services/storage';
 
 // Slice actions — the reducer itself is injected deep in storeReducers (D1)
