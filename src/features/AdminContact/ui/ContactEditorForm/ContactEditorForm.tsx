@@ -40,7 +40,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectContactContent } from '../../model/selectors';
+import { selectContactContent } from '../../model/selectors/selectors';
 import { createContactSeed } from '../../model/services/seed';
 import { persistContactContent, removeContactContent } from '../../model/services/storage';
 import { resetToDefaults, updateContactContent } from '../../model/slices/contactContentSlice';
