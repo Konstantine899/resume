@@ -4,7 +4,8 @@
 //
 // RED-first contract (gold standard: SkillsEditorList + plan D6):
 // - flat rows from the store, windowed by the container (technologies-
-//   pagination: sizes 5/10/20, default 20 — MyWork pilot rule);
+//   pagination: sizes 5/10/20, default 5 — owner directive 2026-10-17;
+//   MyWork pilot rule);
 // - row actions: Pencil → onEditTechnology(key), Trash2 → confirm modal
 //   whose subtitle NAMES the key (OPEN-10 parity);
 // - D6 guard: a key in `usedKeys` (any project references it) CANNOT be
@@ -257,11 +258,12 @@ describe('TechnologiesList', () => {
   });
 
   // ---- technologies-pagination epic (owner directive 2026-10-16) --------
+  // ---- REVISED: owner directive 2026-10-17 -----------------------------
   //
   // Container contract (MyWork pilot rule): the LIST owns {page, pageSize}
-  // (sizes 5/10/20, default 20), windows the rows as a render-time
+  // (sizes 5/10/20, DEFAULT 5), windows the rows as a render-time
   // derivation (no setState-in-effect) and renders the kit PageSizeGroup
-  // + kit Pagination ABOVE the table, under the «Add» header.
+  // ABOVE the table and the kit Pagination BELOW it.
 
   const catalogOf14: Technology[] = Array.from({ length: 14 }, (_, index) => ({
     key: `tech-${index + 1}`,
@@ -279,15 +281,18 @@ describe('TechnologiesList', () => {
       holder.state.technologies = [...catalogOf14];
     });
 
-    it('shows ALL 14 records at the default size 20 (single page)', () => {
+    it('shows exactly 5 rows at the default size 5 (3 pages 5+5+4)', () => {
       render(<TechnologiesList />);
 
-      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(14);
-      expect(within(sizeGroup()).getByRole('button', { name: '20' })).toHaveAttribute(
+      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(5);
+      expect(screen.getByTestId('tech-row-tech-1')).toBeInTheDocument();
+      expect(screen.getByTestId('tech-row-tech-5')).toBeInTheDocument();
+      expect(screen.queryByTestId('tech-row-tech-6')).not.toBeInTheDocument();
+      expect(within(sizeGroup()).getByRole('button', { name: '5' })).toHaveAttribute(
         'aria-pressed',
         'true'
       );
-      expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
+      expect(within(pagination()).getByLabelText('paginationNext')).toBeEnabled();
     });
 
     it('offers 5/10/20 sizes; picking 5 windows the rows across pages 2/3', () => {
@@ -311,6 +316,15 @@ describe('TechnologiesList', () => {
       expect(screen.getByTestId('tech-row-tech-11')).toBeInTheDocument();
       expect(screen.getByTestId('tech-row-tech-14')).toBeInTheDocument();
       expect(screen.queryByTestId('tech-row-tech-10')).not.toBeInTheDocument();
+
+      // Size 20 keeps the full-catalog coverage on a single page.
+      fireEvent.click(within(group).getByRole('button', { name: '20' }));
+      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(14);
+      expect(within(group).getByRole('button', { name: '20' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
     });
 
     it('switching the page size resets the window to page 1', () => {
@@ -354,13 +368,13 @@ describe('TechnologiesList', () => {
       expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
     });
 
-    it('renders the size group AND the pagination ABOVE the table', () => {
+    it('renders the size group ABOVE the table and the pagination BELOW it', () => {
       render(<TechnologiesList />);
 
-      // DOM order: page-size control → Pagination → table (FOLLOWING bit).
+      // DOM order: page-size control → table → Pagination (FOLLOWING bit).
       const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
-      expect(sizeGroup().compareDocumentPosition(pagination()) & FOLLOWING).toBe(FOLLOWING);
-      expect(pagination().compareDocumentPosition(table()) & FOLLOWING).toBe(FOLLOWING);
+      expect(sizeGroup().compareDocumentPosition(table()) & FOLLOWING).toBe(FOLLOWING);
+      expect(table().compareDocumentPosition(pagination()) & FOLLOWING).toBe(FOLLOWING);
     });
 
     it('keeps the key-column sort toggle (asc → desc → none, aria-sort marked)', () => {
@@ -375,10 +389,16 @@ describe('TechnologiesList', () => {
       const sortButton = within(table()).getByRole('button', { name: 'adminTechTableKey' });
       fireEvent.click(sortButton);
       // localeCompare order — NOT insertion order (tech-1 < tech-10 < …).
+      // Default size 5 windows page 1, so the assertion pins the visible
+      // window instead of the whole catalog.
       expect(header()).toHaveAttribute('aria-sort', 'ascending');
-      expect(rowKeys().indexOf('tech-row-tech-10')).toBeLessThan(
-        rowKeys().indexOf('tech-row-tech-2')
-      );
+      expect(rowKeys()).toEqual([
+        'tech-row-tech-1',
+        'tech-row-tech-10',
+        'tech-row-tech-11',
+        'tech-row-tech-12',
+        'tech-row-tech-13',
+      ]);
 
       fireEvent.click(sortButton);
       expect(header()).toHaveAttribute('aria-sort', 'descending');

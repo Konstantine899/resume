@@ -1,8 +1,8 @@
 ---
-status: done
-epic: technologies-pagination
-issue: 268
-created: '2026-10-16'
+status: approved
+epic: technologies-pagination-default-5
+issue: 271
+created: '2026-10-17'
 verified: '2026-10-17'
 spec: 1
 ---
@@ -11,31 +11,108 @@ spec: 1
 
 > Единственная истина для этого эпика (spec-driven workflow: AGENTS.md, раздел
 > Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Текущий эпик: issue #268 (директива владельца 2026-10-16: пагинация
-> витрины). Исторические эпики пары: #261 (tech-icon-upload), #258
+> Текущий эпик: issue #271 (директива владельца 2026-10-17: размер 5 по
+> умолчанию + нумерация страниц под таблицей). Исторические эпики пары: #268
+> (technologies-pagination), #261 (tech-icon-upload), #258
 > (technologies-crud) — их решения ниже сохранены как контекст, история в git.
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 > Companion: [TODO.md](./TODO.md).
 
+## Эпик technologies-pagination-default-5 (issue #271)
+
+### Требование (директива владельца 2026-10-17, verbatim intent)
+
+1. **Размер страницы по умолчанию = 5** (сейчас 20) для таблицы
+   `/admin/technologies`.
+2. **Блок нумерации страниц `‹ 1 2 3 ›` (kit `Pagination`) рендерится НИЖЕ
+   таблицы.** Контрол размера страницы (`PageSizeGroup`) остаётся ВЫШЕ
+   таблицы. Владелец явно выбрал «весь блок навигации ниже» — НЕ разделять
+   стрелки от номеров.
+
+### Решения
+
+- **R1** — `DEFAULT_PAGE_SIZE = 5` (комментарий в `TechnologiesList.tsx`
+  цитирует директиву 2026-10-17); опции размера остаются `[5, 10, 20]`.
+- **R2** — DOM-порядок: `PageSizeGroup` выше → таблица → `Pagination` ниже
+  (оба блока внутри того же фрагмента, под шапкой «Add»). Прямая ревизия
+  решения #268 «оба контрола выше» — старое решение в разделе #268 ниже
+  помечено. Новый бокс `.paginationRow` (flex, `justify-content: center`,
+  БЕЗ margin — `.root` — flex-колонка с `gap: $spacing-4`); `.controls`
+  остался только с `PageSizeGroup` (правый прижим, паритет kit DataTable
+  `.sizeRow`).
+- **R3** — kit-компоненты (`src/shared/**`) БЕЗ изменений — и `Pagination`,
+  и `PageSizeGroup` используются как есть.
+- **R4** — i18n: **0 новых ключей** (переиспользуются `perPageLabel` +
+  `pagination*`; дифф `en.json`/`ru.json` пуст).
+- **R5** — тесты: контракт размера 5 закреплён TDD (5 строк, `5` включён
+  `aria-pressed`, `paginationNext` включён); покрытие размера 20 сохранено
+  в расширенном size-тесте; тест DOM-порядка инвертирован под новый
+  контракт; `AdminTechnologiesPage.test.tsx` получает хелпер `showAllRows()`
+  (клик `20` в группе `perPageLabel`) для любого ключа сида вне первых пяти.
+
+### Контракт пагинации (наблюдаемое поведение, rev. #271)
+
+- 14 записей (сид) при default **5** → **3 страницы 5+5+4**, страница 1 =
+  react/nextjs/typescript/javascript/tailwind, «следующая» включена.
+- Выбор 20 → все 14 на одной странице, «следующая» disabled.
+- DOM-порядок: page-size → таблица → Pagination (нумерация целиком ниже).
+- Выбор размера страницы → окно на странице 1.
+- Удаление последней строки на последней странице → кламп рендером (без эффекта).
+- Сортировка по ключу (asc → desc → none) сохранена; `aria-sort` на `<th>`.
+
+### Критерии готовности (эпик #271)
+
+- [ ] Ветка `feat/271-technologies-pagination-default-5` от `origin/dev`;
+      DRAFT PR с `--base dev`.
+- [ ] `TechnologiesList`: `DEFAULT_PAGE_SIZE = 5`; `PageSizeGroup` в
+      `.controls` (выше таблицы), `Pagination` в `.paginationRow` (ниже);
+      kit без правок.
+- [ ] Тесты `TechnologiesList.test.tsx`: default 5 → ровно 5 строк,
+      `5` `aria-pressed`, `paginationNext` enabled; size 20 → все 14
+      (покрытие сохранено); DOM-порядок size → table → pagination;
+      сортировка/кламп зелёные.
+- [ ] `AdminTechnologiesPage.test.tsx` зелёный: каждый тест, трогающий ключ
+      сида вне первых пяти, вызывает `showAllRows()` (помощник-критерий
+      взамен старого «зелёный без правок (сид 14 ≤ 20)»).
+- [ ] i18n: 0 новых ключей; `locales-parity.test` зелёный.
+- [ ] Гейты: `npm run validate` → `npm run build` + `npm run check:bundle`
+      (капы НЕ трогать) → `npm run check:axe` (0 регрессий; baseline 4).
+- [ ] PR `--base dev`, `Closes #271`; НЕ мержить без инструкции владельца
+      (issue закрывается вручную — `Closes` в `dev` не работает).
+
+### Вне скоупа (эпик #271)
+
+- kit `Pagination` / `PageSizeGroup` / `Table` / `DataTable` — без изменений;
+- разделение навигации (стрелки сверху, номера снизу) — ОТКЛОНЕНО владелецем
+  явно;
+- другие страницы, URL-синк, сортировка-расширения — нет.
+
 ## Эпик technologies-pagination (issue #268)
+
+> **РЕВИЗИЯ #271 (2026-10-17):** default 20 → **5**; размещение «оба
+> контрола выше таблицы» → «`PageSizeGroup` выше, `Pagination` ниже».
+> Формулировки этого раздела отредактированы, чтобы НЕ противоречить коду;
+> исходная директива #268 сохранена в git.
 
 ### Требование (директива владельца, verbatim intent)
 
 Пагинация таблицы каталога на `/admin/technologies`: контролы РАЗМЕЩАЮТСЯ
 ВЫШЕ таблицы, ПОД кнопкой «Add technology» (т.е. в list-области под шапкой
 страницы). Опции размера страницы: **5, 10, 20** элементов. Размер по
-умолчанию: **20**.
+умолчанию: **20** _(при поставке #268; ревизия #271 → **5**)_.
 
 ### Решения
 
 - **P1** — `TechnologiesList` становится pagination-контейнером (зеркало
-  `features/MyWork` пилота): локальный стейт `{page, pageSize}` (default 20),
+  `features/MyWork` пилота): локальный стейт `{page, pageSize}` (default 5 —
+  ревизия #271; при #268 было 20),
   нарезка строк — render-time вывод (`safePage = min(max(page,1), totalPages)`),
   БЕЗ setState-in-effect (react-hooks v7);
-- **P2** — kit `PageSizeGroup` (sizes `[5, 10, 20]`) + kit `Pagination`
-  рендерятся ВЫШЕ таблицы, под шапкой (DOM-порядок: page-size → Pagination →
-  таблица); kit `DataTable` НЕ используется: его `Pagination` рендерится
-  ПОД таблицей безусловно, а владелец разместил оба контрола выше. Таблица —
+- **P2** — kit `PageSizeGroup` (sizes `[5, 10, 20]`) рендерится ВЫШЕ таблицы,
+  kit `Pagination` — ПОД ней (DOM-порядок: page-size → таблица → Pagination;
+  ревизия #271 — #268 размещал оба контрола выше); kit `DataTable`
+  НЕ используется: его `Pagination` рендерится ПОД таблицей безусловно, а
+  контейнеру нужен собственный порядок. Таблица —
   kit `Table`; sort-декорация (bare-button заголовок, `aria-sort`,
   `null → asc → desc → null`, сортировка ДО нарезки, сброс страницы при
   сортировке) перенесена из DataTable WU-5 в контейнер без изменений
@@ -51,28 +128,35 @@ spec: 1
 
 ### Контракт пагинации (наблюдаемое поведение)
 
-- 14 записей (сид) при default 20 → все 14 на странице 1, «следующая» disabled.
-- Выбор 5 → 5 строк; страницы 2/3 несут остальные 9 (5 + 5 + 4).
+- 14 записей (сид) при default **5** → 3 страницы 5+5+4, страница 1 =
+  первые 5 строк _(ревизия #271; #268: все 14 при default 20 — остаётся
+  проверкой при выборе размера 20)_.
 - Выбор размера страницы → окно на странице 1.
 - Удаление последней строки на последней странице → окно выводится в диапазон
   рендером (без эффекта).
-- Контролы выше таблицы (DOM-порядок: page-size → Pagination → таблица).
+- DOM-порядок: page-size → таблица → Pagination _(ревизия #271; #268:
+  page-size → Pagination → таблица)_.
 - Сортировка по ключу (asc → desc → none) сохранена; `aria-sort` на `<th>`.
 
-### Критерии готовности (эпик #268)
+### Критерии готовности (эпик #268, сгорели — история; формулировки rev. #271)
 
 - [ ] Ветка `feat/technologies-pagination` от `origin/dev`; DRAFT PR с `--base dev`.
-- [ ] `TechnologiesList` — контейнер: `{page, pageSize}` default 20,
-      `safePage` render-time, kit `PageSizeGroup` + kit `Pagination` выше
-      kit `Table`; `DataTable` из файла убран; kit без правок.
-- [ ] Тесты `TechnologiesList.test.tsx` (TDD): 14 при default 20 → все видны;
-      размер 5 → окно 5; опции 5/10/20; смена размера → страница 1; удаление
-      на последней странице → кламп; DOM-порядок; сортировка сохранена.
-- [ ] `AdminTechnologiesPage.test.tsx` — зелёный без правок (сид 14 ≤ 20).
+- [ ] `TechnologiesList` — контейнер: `{page, pageSize}` default 5
+      _(ревизия #271)_, `safePage` render-time, kit `PageSizeGroup` выше
+      kit `Table`, kit `Pagination` ниже _(ревизия #271)_; `DataTable` из
+      файла убран; kit без правок.
+- [ ] Тесты `TechnologiesList.test.tsx` (TDD): default 5 → ровно 5 строк
+      _(ревизия #271; #268: 14 при default 20 → все видны)_; размер 5 →
+      окно 5; опции 5/10/20; смена размера → страница 1; удаление
+      на последней странице → кламп; DOM-порядок _(ревизия #271)_;
+      сортировка сохранена.
+- [ ] `AdminTechnologiesPage.test.tsx` — зелёный: тесты на ключи вне первых
+      пяти зовут хелпер `showAllRows()` _(критерий #268 «зелёный без правок
+      (сид 14 ≤ 20)» устарел с default 5 — переписан под хелпер, ревизия #271)_.
 - [ ] i18n: 0 новых ключей (`perPageLabel`/`pagination*` уже в en+ru),
       `locales-parity.test` зелёный.
 - [ ] Гейты: prettier (тронутые файлы) → `npx vitest run src/features/
-    AdminTechnologies src/pages/Admin` → `npm run validate` →
+AdminTechnologies src/pages/Admin` → `npm run validate` →
       `npm run check:spec` → `npm run build` + `npm run check:bundle`
       (капы НЕ трогать) → `npm run check:axe` (0 регрессий; PATHS содержит
       `/admin/technologies`).

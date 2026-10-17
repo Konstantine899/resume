@@ -43,11 +43,13 @@
   display: inline-flex;
 }
 
-// technologies-pagination: both kit controls ABOVE the table (owner
+// technologies-pagination REVISED (owner directive 2026-10-17): only the
 
-// directive) — size group right-aligned, pagination to its left (approved
+// size group lives here — right-aligned above the table (parity with the
 
-// MyWork arrangement rotated into one row).
+// kit DataTable `.sizeRow`); the pagination block moved to
+
+// `.paginationRow` BELOW the table.
 
 .controls {
   display: flex;
@@ -55,6 +57,17 @@
   gap: $spacing-3;
   align-items: center;
   justify-content: flex-end;
+}
+
+// Whole nav block (numbers + arrows) below the table (owner directive
+
+// 2026-10-17). No margin — `.root` is a flex column with gap
+
+// $spacing-4.
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
 }
 
 // Sort toggle inside <th> — ported verbatim from the kit DataTable
