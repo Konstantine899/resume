@@ -4,7 +4,7 @@
 import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
 // Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
 // barrel exports the RHF editor form and must stay lazy-only.
-import { selectContactContent } from '@/features/AdminContact/model/selectors';
+import { selectContactContent } from '@/features/AdminContact/model/selectors/selectors';
 // WorkHistory CRUD WU-4: same Design C pattern — pages reads the adminJobs
 // slice, WorkHistory stays store-free and receives the sorted list as a prop.
 import { selectSortedJobs } from '@/features/AdminJobs/model/selectors';

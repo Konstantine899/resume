@@ -8,7 +8,7 @@ import type { ContactContent } from '@/entities/ContactContent';
 import { storeReducers } from '@/storeReducers';
 import { resetToDefaults, updateContactContent } from './contactContentSlice';
 import { createContactSeed } from '../services/seed';
-import { selectContactContent } from '../selectors';
+import { selectContactContent } from '../selectors/selectors';
 import { CONTACT_CONTENT_STORAGE_KEY, persistContactContent } from '../services/storage';
 
 const SEED = createContactSeed();
