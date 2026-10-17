@@ -17,8 +17,8 @@ import { adminDashboardReducer } from '@/features/AdminDashboard';
 // reducer directly.
 import { technologiesReducer } from '@/entities/Technology/model/slices/technologiesSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminContact's
-// public API will export the editor form (RHF) in WU-3 — instantiating the
-// barrel here would pull it into the main chunk.
+// public API exports the editor form (RHF, epic admin-contact-crud) —
+// instantiating the barrel here would pull it into the main chunk.
 import { contactContentReducer } from '@/features/AdminContact/model/slices/contactContentSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminJobs'
 // public API will export the editor form (RHF) in WU-5 — instantiating the
