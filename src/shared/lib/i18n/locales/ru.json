@@ -108,7 +108,7 @@
   "adminTechInvertLabel": "Инвертировать цвета в тёмной теме",
   "adminTechInvertYes": "Инвертировать",
   "adminTechInvertNo": "Оставить как есть",
-  "adminTechKeyInvalid": "Используйте строчный слаг (буквы, цифры, «-»/«_») и не меняйте ключ при редактировании.",
+  "adminTechKeyInvalid": "Используйте строчный слаг (строчные буквы, цифры и «-») и не меняйте ключ при редактировании.",
   "adminTechKeyExists": "Такой ключ уже занят.",
   "adminTechSave": "Сохранить",
   "adminTechCancel": "Отмена",
