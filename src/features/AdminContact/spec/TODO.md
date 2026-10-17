@@ -13,14 +13,14 @@ spec: SPEC.md
 > План: vault `plan_admin_contact_migration.md` rev.4 §8. Режим: auto.
 
 - [ ] WU-1 — RED: тесты-семантика таблиц в `ContactEditorForm.test.tsx`
-      (R-1/R-2/R-3): `getByRole('table', {name: 'adminFieldTexts'|'adminFieldFormTexts'|
-      'adminContactSocials'})`, columnheaders `['adminContactTableField','EN','RU']`
-      и `['adminContactSocialName','adminContactSocialUrl']`, rows = N+1,
+      (R-1/R-2/R-3): таблицы по ролям с caption `adminFieldTexts`,
+      `adminFieldFormTexts`, `adminContactSocials`; columnheaders
+      `['adminContactTableField','EN','RU']` и
+      `['adminContactSocialName','adminContactSocialUrl']`, rows = N+1,
       socials-ссылки по роли `link`, testid `contact-form-socials` отсутствует;
       существующие 12 тестов не правятся (зелёные — пин через aria-label, C2)
 - [ ] WU-2 — GREEN: `ContactEditorForm` → kit `Table` ×3 (тексты, formTexts,
-      соцссылки), `aria-label` вместо `label`, удаление `.localeRow`/`.socialList`/`.field`
-      + комментарий про layout-обёртки в SCSS; удалить import `Badge`, добавить `Table`/`Link`
+      соцссылки), `aria-label` вместо `label`, удаление `.localeRow`/`.socialList`/`.field` + комментарий про layout-обёртки в SCSS; удалить import `Badge`, добавить `Table`/`Link`
 - [ ] WU-3 — i18n: 4 ключа en+ru (`adminContactTableField`, `adminContactSocials`,
       `adminContactSocialName`, `adminContactSocialUrl`) — R-5, parity-тест не править
 - [ ] WU-4 — гейты R-6: validate, точечные vitest (форма + AdminContactPage + HomePage),

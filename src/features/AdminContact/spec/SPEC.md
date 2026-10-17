@@ -87,12 +87,12 @@ kit `Table`; мёртвые и дублированные layout-фрагмен�
 
 - 4 новых flat-ключа ×2 локали (en+ru):
 
-| Ключ | en | ru |
-|------|----|----|
-| `adminContactTableField` | Field | Поле |
-| `adminContactSocials` | Social links | Социальные сети |
-| `adminContactSocialName` | Name | Название |
-| `adminContactSocialUrl` | URL | Ссылка |
+| Ключ                     | en           | ru              |
+| ------------------------ | ------------ | --------------- |
+| `adminContactTableField` | Field        | Поле            |
+| `adminContactSocials`    | Social links | Социальные сети |
+| `adminContactSocialName` | Name         | Название        |
+| `adminContactSocialUrl`  | URL          | Ссылка          |
 
 - `locales-parity.test` НЕ правится (hardcoded `adminKeys`-список не
   редактируется — прецедент pagination/skills).

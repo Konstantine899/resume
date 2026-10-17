@@ -262,7 +262,9 @@ describe('ContactEditorForm: kit tables (contact-kit-max, R-1/R-2/R-3)', () => {
 
     const table = screen.getByRole('table', { name: 'adminFieldTexts' });
     expect(
-      within(table).getAllByRole('columnheader').map((cell) => cell.textContent)
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent)
     ).toEqual(['adminContactTableField', 'EN', 'RU']);
     // 1 header row + one row per TEXT_KEYS entry.
     expect(within(table).getAllByRole('row')).toHaveLength(11);
@@ -292,7 +294,9 @@ describe('ContactEditorForm: kit tables (contact-kit-max, R-1/R-2/R-3)', () => {
 
     const table = screen.getByRole('table', { name: 'adminContactSocials' });
     expect(
-      within(table).getAllByRole('columnheader').map((cell) => cell.textContent)
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent)
     ).toEqual(['adminContactSocialName', 'adminContactSocialUrl']);
     expect(within(table).getAllByRole('row')).toHaveLength(SOCIAL_LINKS.length + 1);
     const first = SOCIAL_LINKS[0] as SocialLink;
