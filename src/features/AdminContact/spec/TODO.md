@@ -1,22 +1,16 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 ---
 
 # TODO — features/AdminContact (эпик admin-contact-migration, rev.1)
 
-Контракт и критерии — [SPEC.md](./SPEC.md). План: vault
-`wiki/plan/plan_admin_contact_migration.md` rev.2, решения D1–D7 от
-2026-10-17, режим **auto**. Выполненные пункты УДАЛЯЮТСЯ (правило эпика).
-
-Сожжено до этой ревизии (эпик в процессе, история в git):
-WU-0 (план → auto + §5.1), WU-1 (R1 комментарии), WU-2 (R2-α barrel),
-WU-3 (D6 в SPEC), WU-4 (гейты: validate EXIT 0, vitest 66/66,
-бандл 779.3 < 784, axe 0 регрессий, CI 8/8).
-
-## WU-5 — выдача
-
-- [ ] DRAFT PR #277 (`--base dev`) → ready, CI зелёный.
-- [ ] Merge (auto при зелёных чеках) + удаление ветки.
-- [ ] `gh issue close 276` (Closes #N в не-default-ветку не работает).
-- [ ] Burn-down: `status: done` в паре + плане; dual-write vault + AGENTS.md.
+Эпик `admin-contact-migration` ЗАКРЫТ 2026-10-17: WU-0..5 исполнены и выжжены
+(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run
+validate` EXIT 0 (public-api 37/37), точечный vitest 66/66, бандл
+779.3 < 784 KiB, axe 0 регрессий (baseline 4), CI PR 8/8. Трек A плана
+rev.2 (R1 комментарии, R2-α barrel, D6-фиксация в SPEC) выполнен; трек B
+(RTK Query) отложен до backend-API-спецификации (решение D1, §5.1 плана).
+Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
+`verified: '2026-10-17'`). Merge: squash `e1d5ef3` (PR #277), issue #276
+закрыт вручную.
