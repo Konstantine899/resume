@@ -1,20 +1,17 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
-issue: 252
-verified: '2026-10-16'
+issue: 273
+verified: '2026-10-17'
 ---
 
-# TODO — features/AdminMyWork (mywork-parity-polish, issue #252)
+# TODO — features/AdminMyWork (mywork-field-image-fileupload, issue #273)
 
-Закрыто 2026-10-16: PR (Closes #252). Пункты WU-1..7 сгорели:
+Эпик `mywork-field-image-fileupload` (директива владельца 2026-10-17). Пункты WU-1..4 сгорели в этом PR (Closes #273):
 
-1. ProjectCard kit-варианты: строковый Pencil и метрики ↑↓ — outline, Trash2 (метрика + clear) — danger, иконки 16px → 20px (паритет JobCard).
-2. MyWorkEditorList шапка: тултипы сброса/добавления `bottom` → `top`, кнопка сброса ghost → outline.
-3. SCSS-ритм: `.headerActions` без `flex-wrap`; `FieldEditForm` `.form` без gap (kit Form gap="lg"), `.actions` — `flex-wrap` + gap `$spacing-3`.
-4. i18n: удалены 5 мёртвых ключей `adminMyWorkTable{Title,Category,Status,Featured,Year}` (en+ru) и их записи в allowlist parity-теста.
-5. ProjectCard: `testId` → `'data-testid'` (конвенция JobCard), тест обновлён.
-6. AdminMyWorkPage: Modal формы получает `subtitle={record?.title}` в режиме правки (паритет AdminSkillsPage), create — без subtitle.
-7. Пара spec перезаписана эпиком `mywork-parity-polish`.
+1. TDD: тесты image-поля (`FieldEditForm.test.tsx`) — red → green: FileUpload вместо текстового Input, save-on-selection с `subdir:'projects'`, unsupported/write-failure держат модалку открытой, AbortError тихо, Save disabled пока pristine.
+2. `FieldEditForm.tsx`: `case 'image':` → kit `FileUpload` + `handleImageFile` (async `saveUploadedImage`, `setValue('image', path, {shouldDirty, shouldValidate})`), `imageSaveErrorKey`-станок, превью текущего значения (паритет ProjectForm).
+3. `FieldEditForm.module.scss`: добавлены `imageCurrent`/`imageCurrentPreview`/`imageCurrentPath` (превью текущего пути, паритет ProjectForm).
+4. Пара spec перезаписана эпиком `mywork-field-image-fileupload` (issue #273).
 
-Предыдущая пара (эпик `every-row-clear`, rev.4, PR #250) перезаписана — история в git.
+Предыдущая пара (эпик `mywork-parity-polish`, rev.1, PR #253) перезаписана — история в git.

@@ -30,13 +30,10 @@
 // - ARA roundtrip: aria-controls ONLY on the collapse button (the
 //   content div is unmounted when collapsed — dangling idref fails axe).
 
-import { useLanguage } from '@/shared/lib/i18n/hooks';
+import type { Project, ProjectStatus } from '@/entities/Project';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { ArrowDown, ArrowUp, Minus, Pencil, Plus, Trash2 } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import type { BadgeVariant } from '@/shared/ui/Badge';
 import { Badge } from '@/shared/ui/Badge';
 import { IconButton } from '@/shared/ui/Button';
@@ -44,13 +41,16 @@ import { Card } from '@/shared/ui/Card';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Link } from '@/shared/ui/Link';
+import type { Column } from '@/shared/ui/Table';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import type { Column } from '@/shared/ui/Table';
-import type { Project, ProjectStatus } from '@/entities/Project';
-import { updateProject } from '../../model/slices/myWorkSlice';
+import { ArrowDown, ArrowUp, Minus, Pencil, Plus, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
+import { updateProject } from '../../model/slices/myWorkSlice';
 import type { ProjectUpdatePatch } from '../../model/types/types';
 import type { EditProjectField } from '../ProjectForm/lib/fieldSchemas';
 import styles from './ProjectCard.module.scss';
@@ -223,7 +223,7 @@ export function ProjectCard({
       key: 'link',
       label: t('projectFieldLink'),
       value: (
-        <Link href={project.link} external>
+        <Link href={project.link} variant="ghost" external>
           {project.link}
         </Link>
       ),

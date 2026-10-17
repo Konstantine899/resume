@@ -20,13 +20,14 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,6 +39,7 @@ import {
   type ProjectStatus,
 } from '@/entities/Project';
 import { selectTechnologyKeys } from '@/entities/Technology';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -79,6 +81,8 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
+  // Issue #273: i18n key of the last save-to-directory failure (null = none).
+  const [imageSaveErrorKey, setImageSaveErrorKey] = useState<string | null>(null);
 
   const {
     register,
@@ -120,6 +124,33 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
     const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
     setValue('techIcons', next, { shouldDirty: true });
   };
+
+  // Issue #273 (ProjectForm parity): the image is picked via kit FileUpload
+  // and WRITTEN into the fixed `projects` subdirectory of the shared images
+  // root — the field value becomes the returned `/images/projects/<name>`
+  // path (a one-field modal has no room for the imageSubdir Select).
+  const handleImageFile = useCallback(
+    async (file: FileUploadSelection) => {
+      setImageSaveErrorKey(null);
+      if (!isDirectoryPickerSupported()) {
+        setImageSaveErrorKey('projectFileUploadUnsupported');
+        return;
+      }
+      try {
+        const path = await saveUploadedImage({
+          blob: file.blob,
+          name: file.name,
+          subdir: 'projects',
+        });
+        setValue('image', path, { shouldDirty: true, shouldValidate: true });
+      } catch (error) {
+        // The user dismissed the picker — no alarm, no value change.
+        if (isAbortError(error)) return;
+        setImageSaveErrorKey('projectFileUploadSaveError');
+      }
+    },
+    [setValue]
+  );
 
   const renderFields = () => {
     switch (field) {
@@ -280,14 +311,38 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
       case 'image':
         return (
           <div className={styles.field}>
-            <Input
-              label={t('projectFieldImage')}
-              error={errors.image ? t('projectImageInvalid') : undefined}
-              value={values.image ?? ''}
-              placeholder="/images/…  or  https://…"
-              fullWidth
-              {...register('image')}
+            {/* Issue #273 (ProjectForm parity): no manual URL/path field — the
+                file is written into the fixed `projects` subdirectory of the
+                shared images root and the field stores the returned
+                /images/projects/<name> path. */}
+            <FileUpload
+              label={t('projectFileUploadLabel')}
+              texts={{
+                button: t('projectFileUploadButton'),
+                hint: t('projectFileUploadHint'),
+                notImage: t('projectFileUploadNotImage'),
+                tooLarge: t('projectFileUploadTooLarge'),
+                undecodable: t('projectFileUploadUndecodable'),
+                selected: t('projectFileUploadSelected'),
+              }}
+              onFileSelect={handleImageFile}
             />
+            {imageSaveErrorKey ? (
+              <Paragraph asChild theme="error" size="s">
+                <span role="alert">{t(imageSaveErrorKey)}</span>
+              </Paragraph>
+            ) : null}
+            {errors.image ? (
+              <Paragraph asChild theme="error" size="s">
+                <span role="alert">{t('projectImageInvalid')}</span>
+              </Paragraph>
+            ) : null}
+            {values.image ? (
+              <div className={styles.imageCurrent}>
+                <img src={values.image} alt="" className={styles.imageCurrentPreview} />
+                <span className={styles.imageCurrentPath}>{values.image}</span>
+              </div>
+            ) : null}
           </div>
         );
       default:

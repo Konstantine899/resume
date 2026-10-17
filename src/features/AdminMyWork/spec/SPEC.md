@@ -1,80 +1,74 @@
 ---
-status: done
-epic: mywork-parity-polish
-issue: 252
-created: '2026-10-16'
-verified: '2026-10-16'
+status: approved
+epic: mywork-field-image-fileupload
+issue: 273
+created: '2026-10-17'
+verified: '2026-10-17'
 ---
 
-# SPEC — features/AdminMyWork (mywork-parity-polish, issue #252)
+# SPEC — features/AdminMyWork (mywork-field-image-fileupload, issue #273)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> План: vault `wiki/plan/plan_mywork_parity_polish.md`, rev.1. Предыдущая пара (эпик `every-row-clear`, rev.4, done, PR #250) перезаписана — история в git (`git log -- src/features/AdminMyWork/spec/`).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
+> Предыдущая пара (эпик `mywork-parity-polish`, rev.1, done, PR #253) перезаписана — история в git (`git log -- src/features/AdminMyWork/spec/`).
 > **Режим исполнения: AUTO** (директива владельца).
 
 ## Контекст и цель
 
-Паритет-аудит `src/features/AdminMyWork` против gold-стандартов `src/features/AdminJobs` (#216..#227) и `src/features/AdminSkills` (#205) нашёл 7 отклонений. Эпик их выравнивает; поведение (CRUD, persist-THEN-dispatch, honest-data) НЕ меняется — только конвенции kit-компонентов, ритм SCSS, мёртвые i18n-ключи, проп-имена и шапка модалки.
+Директива владельца (2026-10-17): «Загрузка изображений должна быть через компонент `src/shared/ui/FileUpload`.»
+
+Аудит `src` показал, что каждая загрузка изображений уже идёт через kit `FileUpload`, КРОМЕ ОДНОГО места: `src/features/AdminMyWork/ui/FieldEditForm/FieldEditForm.tsx`, ветка `case 'image':`. Она рисовала kit `Input` (текстовое поле с `placeholder="/images/…  or  https://…"` и `{...register('image')}`) — это field-scoped модалка, открываемая по ✏️ на строке `image` detail-таблицы `/admin/mywork`. Эпик заменяет этот текстовый инпут на kit `FileUpload`, повторяя поток `ProjectForm` (save-on-selection).
 
 ## Требования
 
-### R-1 Кит-варианты IconButton в ProjectCard (паритет JobCard)
+### R-1 Текстовый Input изображения удалён, вместо него kit `FileUpload`
 
-- [x] Строковый Pencil: `variant="ghost"` → `variant="outline"`, иконка 16px → 20px.
-- [x] Метрики ↑/↓: ghost → outline, 16px → 20px.
-- [x] Trash2 удаления метрики: ghost → `variant="danger"`, 16px → 20px.
-- [x] Trash2 очистки поля (clear): ghost → danger, 16px → 20px.
-- [x] Критерий: в `ProjectCard.tsx` не осталось ни одного `variant="ghost"` и ни одного `size={16}`; шапочные/strip-кнопки (outline/danger, 20px) не менялись.
+- [ ] Ветка `case 'image':` `FieldEditForm.tsx` больше не рендерит `Input` с `placeholder="/images/…"` и `{...register('image')}`.
+- [ ] Вместо неё рендерится kit `FileUpload` (паритет `ProjectForm`): `label`/`texts` из той же i18n-семьи `projectFileUpload*`.
+- [ ] Критерий: в модалке поля `image` присутствует `input[type="file"]`; `getByLabelText('projectFieldImage')` → null.
 
-### R-2 Шапка MyWorkEditorList (паритет SkillsEditorList)
+### R-2 Save-on-selection через saveUploadedImage (паритет ProjectForm)
 
-- [x] Tooltip «сбросить»: `position="bottom"` → `position="top"`.
-- [x] Кнопка сброса: `variant="ghost"` → `variant="outline"` (size="md" остаётся).
-- [x] Tooltip «добавить»: `position="bottom"` → `position="top"`.
+- [ ] `handleImageFile` async: `saveUploadedImage({ blob, name, subdir: 'projects' })` → `setValue('image', path, { shouldDirty: true, shouldValidate: true })`.
+- [ ] `subdir` ФИКСИРОВАН `'projects'` — модалка одного поля НЕ получает Select `imageSubdir` (нет места, вне скоупа).
+- [ ] Критерий: выбор файла пишет `/images/projects/<name>` и включает Save (форма становится dirty); при Save значение доходит до записи.
 
-### R-3 Ритм SCSS
+### R-3 Ошибки: unsupported / write-failure держат модалку открытой, AbortError — тихо
 
-- [x] `MyWorkEditorList.module.scss` `.headerActions`: удалён `flex-wrap: wrap;` (gap/align-items сохранены).
-- [x] `FieldEditForm.module.scss` `.form`: удалён `gap: $spacing-4;` — вертикальный ритм даёт kit `Form gap="lg"` (24px), паритет с `ProjectForm`.
-- [x] `FieldEditForm.module.scss` `.actions`: добавлен `flex-wrap: wrap;`, `gap: $spacing-2` → `$spacing-3`.
-- [x] Критерий: `npm run lint:styles` 0; пустых `//`-комментариев не осталось (`scss/comment-no-empty`).
+- [ ] `isDirectoryPickerSupported()` false → in-modal `role="alert"` `projectFileUploadUnsupported`, модалка открыта, Save disabled.
+- [ ] Ошибка записи → `role="alert"` `projectFileUploadSaveError`, модалка открыта, Save disabled.
+- [ ] `isAbortError(...)` → тихо (пользователь отменил picker), без значения и без тревоги.
 
-### R-4 Мёртвые i18n-ключи удалены
+### R-4 Save-конвейер и i18n не меняются
 
-- [x] Из `en.json` И `ru.json` удалены 5 ключей DataTable-витрины, умершей вместе с ней: `adminMyWorkTableTitle`, `adminMyWorkTableCategory`, `adminMyWorkTableStatus`, `adminMyWorkTableFeatured`, `adminMyWorkTableYear`.
-- [x] Живые ключи detail-таблицы сохранены: `adminMyWorkTableField`, `adminMyWorkTableValue`, `adminMyWorkTableActions`.
-- [x] `locales-parity.test.ts`: те же 5 записей убраны из allowlist; комментарий актуализирован.
-- [x] Критерий: grep по пяти ключам вне `locales-parity.test.ts` пуст; parity-тест зелёный (key-сети en/ru идентичны).
+- [ ] Существующий Save-конвейер без изменений: `handleSubmit` → `toUpdateDto` → `persistProjects` → `dispatch(updateProject)` → toast → `onExitEdit()`.
+- [ ] 0 новых i18n-ключей — используются только существующие `projectFileUploadLabel/Button/Hint/NotImage/TooLarge/Undecodable/Selected`, `projectFileUploadUnsupported`, `projectFileUploadSaveError`, `projectImageInvalid` (diff `en.json`/`ru.json` пуст).
+- [ ] kit (`src/shared/**`) и `entities/**` не тронуты.
 
-### R-5 data-testid-конвенция (паритет JobCard)
+### R-5 Превью текущего изображения (паритет ProjectForm)
 
-- [x] `ProjectCardProps.testId` → `'data-testid'?: string`, деструктуризация `'data-testid': testId` — как в `JobCard.tsx`; DOM-атрибут на корневом div работает как раньше.
-- [x] Потребитель (`ProjectCard.test.tsx`) передаёт `{ 'data-testid': 'my-root' }`.
+- [ ] Как в `ProjectForm`: при непустом `values.image` рендерится строка с превью `<img>` + путь; запись с `https://…` сохраняет значение, `FileUpload` просто ждёт новый выбор.
+- [ ] Кнопки очистки в модалке НЕТ (очистка — Trash2 строки, эпик every-row-clear — не трогаем).
 
-### R-6 Subtitle модалки формы (паритет AdminSkillsPage)
+### R-6 Пара spec
 
-- [x] `AdminMyWorkPage`: Modal формы получает `subtitle={record?.title}` — в режиме правки подзаголовок называет проект (raw-строка, как `formSubtitle` в `AdminSkillsPage`), в create-режиме `record === undefined` → subtitle отсутствует.
-- [x] Критерий: в модалке правки заголовок `adminEditProject` + подзаголовок с названием проекта; в create — только `adminAddProject`.
-
-### R-7 Пара spec
-
-- [x] `spec/SPEC.md` + `spec/TODO.md` перезаписаны эпиком `mywork-parity-polish` (issue #252).
+- [ ] `spec/SPEC.md` + `spec/TODO.md` перезаписаны эпиком `mywork-field-image-fileupload` (issue #273).
 
 ## Решения / Отклонения
 
-- **Метрики ProjectForm остаются одним Textarea** (одна метрика на строку, `splitMetricLines`) — осознанное решение. Альтернатива «bullet-строки как в JobForm» (построчные ↑↓/удаление внутри формы) отложена в отдельный эпик — вне скоупа этого.
-- **`AdminJobs/spec/SPEC.md` сейчас перезаписан эпиком modal-content-scroll (#235)** — живой Jobs-spec (пара карточек #225/#227) в git-истории; восстановление вынесено в follow-up issue, вне скоупа.
-- **`.field` gap оставлен как есть** (`$spacing-2` в `FieldEditForm.module.scss`) — no-op: правка ничего не даёт и ломает паритет с ProjectForm, поэтому не трогаем.
-- Поведение CRUD не менялось: persist-THEN-dispatch (§3), honest-data (R-4 про optional-строки), disabled-края ↑↓ и все i18n-строки остались как были.
+- **Подкаталог фиксирован `'projects'`** — модалка одного поля слишком мала для Select `imageSubdir`; альтернатива «добавить выбор подкаталога» отклонена (вне скоупа).
+- **Очистка изображения НЕ в модалке** — это Trash2 строки detail-таблицы (эпик every-row-clear, #250), не трогаем.
+- **Превью текущего значения добавлено** (паритет `ProjectForm`, `imageCurrent*`-классы в `FieldEditForm.module.scss`) — чтобы перед заменой было видно, какое изображение стоит сейчас. Классов-мёртвых не появилось (`.field`/`.toggles`/`.actions` по-прежнему используются).
+- **`subdir`-селект и `imageSubdir`-поле формы не заводим** — форма-модалка работает только со скаляром `image`; контракт зода/типов не менялся.
 
 ## Известные ограничения (осознанные)
 
-- kit Tooltip остаётся hover-only (A14, follow-up #222) — клавиатурная доступность держится на `aria-label`, тултип по focus не появится.
-- Кнопки строк detail-таблицы остаются единственный способ перестановки метрик (DnD отклонён владельцем, см. resume-jobcard-bullets-as-is).
+- Кит `FileUpload` не различает «текущее https-изображение» и «пусто» — модалка просто показывает текущее значение строкой и ждёт новый файл.
+- Выбор корневой директории (`pickImagesRoot`) и её память в IndexedDB — на стороне общего `shared/lib/imageDir`, здесь только контракт `(blob, name, subdir)`.
 
-## Гейты (2026-10-16)
+## Гейты (2026-10-17)
 
-- tsc 0; eslint 0; stylelint 0; prettier 0 на тронутых файлах; check:public-api 37/37; check:spec.
-- Юнит: AdminMyWork (ProjectCard/MyWorkEditorList/FieldEditForm/ProjectForm), locales-parity, AdminMyWorkPage — зелёные.
-- Бандл: без изменений капов; `check:bundle` проходит.
+- `npm run validate` (type-check + lint + lint:styles + unit + coverage + check:public-api) — зелёный.
+- `npm run build` + `npm run check:bundle` (кап `total.maxSize` 802816).
+- `npm run check:axe` — 0 регрессий (baseline 4 known).
+- diff `src/shared/lib/i18n/locales/en.json` + `ru.json` пуст (0 новых ключей).
