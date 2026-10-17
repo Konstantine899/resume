@@ -20,7 +20,7 @@
 
 import { z } from 'zod';
 
-import { TechnologySchema, type Technology } from '@/entities/Skill';
+import { TechnologySchema, type SkillTechnology } from '@/entities/Skill';
 
 export const makeTechnologyFormSchema = (
   existingNames: readonly string[],
@@ -66,7 +66,7 @@ export const emptyTechnologyFormValues = (): TechnologyFormValues => ({
  * `iconSvg` maps to '' — the stored record (key or path) is kept until the
  * user uploads a replacement (rev.2 contract).
  */
-export const toTechnologyFormValues = (technology: Technology): TechnologyFormValues => ({
+export const toTechnologyFormValues = (technology: SkillTechnology): TechnologyFormValues => ({
   name: technology.name,
   iconSvg: '',
   iconFilter: technology.iconFilter ?? '',

@@ -27,14 +27,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import {
-  getOrCreateSubdir,
-  isDirectoryPickerSupported,
-  pickImagesRoot,
-  readImagesRootHandle,
-  saveImageToDir,
-  writeImagesRootHandle,
-} from '@/shared/lib/imageDir';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
@@ -137,13 +130,14 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         return; // form keeps the pending file; store unchanged
       }
       try {
-        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-        await writeImagesRootHandle(root); // best-effort remember
-        await getOrCreateSubdir(root, ICON_SUBDIR);
-        url = await saveImageToDir(root, pendingFile.blob, pendingFile.name, ICON_SUBDIR);
+        url = await saveUploadedImage({
+          blob: pendingFile.blob,
+          name: pendingFile.name,
+          subdir: ICON_SUBDIR,
+        });
       } catch (error) {
         // The user dismissed the picker — no alarm, no persist.
-        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        if (isAbortError(error)) return;
         addToast({ message: t('adminTechIconUploadSaveError'), type: 'error' });
         return; // form keeps the values for a retry (§7)
       }

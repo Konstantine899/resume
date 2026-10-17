@@ -37,16 +37,9 @@ const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted
   },
   dirMocks: {
     supported: vi.fn(() => true),
-    read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
-    pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
-    write: vi.fn(async () => undefined),
-    getSubdir: vi.fn(
-      async (_root: unknown, name: string) =>
-        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-    ),
     save: vi.fn(
-      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-        `/images/${subdir}/${name}`
+      async (params: { blob: Blob; name: string; subdir: string }) =>
+        `/images/${params.subdir}/${params.name}`
     ),
   },
 }));
@@ -62,13 +55,10 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
   updateTechnology: updateSpy,
 }));
 
-vi.mock('@/shared/lib/imageDir', () => ({
+vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
   isDirectoryPickerSupported: dirMocks.supported,
-  readImagesRootHandle: dirMocks.read,
-  pickImagesRoot: dirMocks.pick,
-  writeImagesRootHandle: dirMocks.write,
-  getOrCreateSubdir: dirMocks.getSubdir,
-  saveImageToDir: dirMocks.save,
+  saveUploadedImage: dirMocks.save,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -137,19 +127,9 @@ describe('TechnologyForm', () => {
     );
     // imageDir defaults — some tests override per-case.
     dirMocks.supported.mockReturnValue(true);
-    dirMocks.read.mockResolvedValue(null);
-    dirMocks.pick.mockResolvedValue({
-      kind: 'directory',
-      name: 'images',
-    } as FileSystemDirectoryHandle);
-    dirMocks.write.mockResolvedValue(undefined);
-    dirMocks.getSubdir.mockImplementation(
-      async (_root: unknown, name: string) =>
-        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-    );
     dirMocks.save.mockImplementation(
-      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-        `/images/${subdir}/${name}`
+      async (params: { blob: Blob; name: string; subdir: string }) =>
+        `/images/${params.subdir}/${params.name}`
     );
   });
 
@@ -242,12 +222,8 @@ describe('TechnologyForm', () => {
       }),
     });
     // The subdir is always `skills` — the plan contract.
-    expect(dirMocks.getSubdir).toHaveBeenCalledWith(expect.anything(), 'skills');
     expect(dirMocks.save).toHaveBeenLastCalledWith(
-      expect.anything(),
-      expect.any(Blob),
-      'vue-logo.svg',
-      'skills'
+      expect.objectContaining({ name: 'vue-logo.svg', subdir: 'skills' })
     );
   });
 
@@ -369,14 +345,14 @@ describe('TechnologyForm', () => {
   });
 
   it('swallows AbortError from the picker silently (user cancelled)', async () => {
-    dirMocks.pick.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
+    dirMocks.save.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
 
     render(<TechnologyForm categoryId="frontend" />);
     fireEvent.change(fileInput(), {
       target: { files: [new File(['<svg/>'], 'x.svg', { type: 'image/svg+xml' })] },
     });
 
-    await waitFor(() => expect(dirMocks.pick).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('skillsIconUploadSaveError')).not.toBeInTheDocument();
     expect(screen.queryByText('skillsIconUploadUnsupported')).not.toBeInTheDocument();
   });

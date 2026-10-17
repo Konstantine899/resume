@@ -39,16 +39,9 @@ const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted
   },
   dirMocks: {
     supported: vi.fn(() => true),
-    read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
-    pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
-    write: vi.fn(async () => undefined),
-    getSubdir: vi.fn(
-      async (_root: unknown, name: string) =>
-        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-    ),
     save: vi.fn(
-      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-        `/images/${subdir}/${name}`
+      async (params: { blob: Blob; name: string; subdir: string }) =>
+        `/images/${params.subdir}/${params.name}`
     ),
   },
 }));
@@ -60,13 +53,10 @@ vi.mock('@/entities/Technology', async (importOriginal) => ({
   updateTechnology: updateSpy,
 }));
 
-vi.mock('@/shared/lib/imageDir', () => ({
+vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
   isDirectoryPickerSupported: dirMocks.supported,
-  readImagesRootHandle: dirMocks.read,
-  pickImagesRoot: dirMocks.pick,
-  writeImagesRootHandle: dirMocks.write,
-  getOrCreateSubdir: dirMocks.getSubdir,
-  saveImageToDir: dirMocks.save,
+  saveUploadedImage: dirMocks.save,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -134,19 +124,9 @@ describe('TechnologyForm', () => {
     );
     // imageDir defaults — some tests override per-case.
     dirMocks.supported.mockReturnValue(true);
-    dirMocks.read.mockResolvedValue(null);
-    dirMocks.pick.mockResolvedValue({
-      kind: 'directory',
-      name: 'images',
-    } as FileSystemDirectoryHandle);
-    dirMocks.write.mockResolvedValue(undefined);
-    dirMocks.getSubdir.mockImplementation(
-      async (_root: unknown, name: string) =>
-        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-    );
     dirMocks.save.mockImplementation(
-      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-        `/images/${subdir}/${name}`
+      async (params: { blob: Blob; name: string; subdir: string }) =>
+        `/images/${params.subdir}/${params.name}`
     );
   });
 
@@ -220,10 +200,7 @@ describe('TechnologyForm', () => {
     );
     expect(calls).toEqual(['persist', 'dispatch']);
     expect(dirMocks.save).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.any(Blob),
-      'vue-logo.svg',
-      'technologies'
+      expect.objectContaining({ name: 'vue-logo.svg', subdir: 'technologies' })
     );
     expect(persistSpy).toHaveBeenCalledWith(
       expect.arrayContaining([

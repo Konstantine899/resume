@@ -1,18 +1,14 @@
-// Storage tests (technologies-crud SPEC D1/D5: envelope read/persist/remove,
+// Storage tests (technologies-crud SPEC D1/D5: envelope read/persist,
 // duplicate-key guard). The persist→dispatch ORDER is enforced at the call
 // site (admin feature, WU-3); here we pin the storage half: never throw,
-// never write invalid data.
+// never write invalid data. (`removeTechnologies` was deleted as dead API —
+// review finding #3, PR for issue #266.)
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { seedTechnologies } from '../constants/constants';
 import type { Technology } from '../types/types';
-import {
-  TECHNOLOGIES_STORAGE_KEY,
-  persistTechnologies,
-  readTechnologies,
-  removeTechnologies,
-} from './storage';
+import { TECHNOLOGIES_STORAGE_KEY, persistTechnologies, readTechnologies } from './storage';
 
 const VALID: Technology[] = seedTechnologies();
 
@@ -98,24 +94,5 @@ describe('persistTechnologies', () => {
       throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
     });
     expect(persistTechnologies(VALID)).toBe(false);
-  });
-});
-
-describe('removeTechnologies', () => {
-  it('clears the key', () => {
-    persistTechnologies(VALID);
-    removeTechnologies();
-    expect(localStorage.getItem(TECHNOLOGIES_STORAGE_KEY)).toBeNull();
-  });
-
-  it('is idempotent on an empty store', () => {
-    expect(() => removeTechnologies()).not.toThrow();
-  });
-
-  it('never throws when removeItem fails', () => {
-    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
-      throw new Error('SecurityError');
-    });
-    expect(() => removeTechnologies()).not.toThrow();
   });
 });

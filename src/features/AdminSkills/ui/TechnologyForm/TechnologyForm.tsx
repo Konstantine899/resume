@@ -28,15 +28,8 @@
 //   `subtitle`; a SUCCESSFUL Save (create or edit) closes through
 //   `onExitEdit`.
 
-import { resolveIconSvg, type SkillCategoryData, type Technology } from '@/entities/Skill';
-import {
-  getOrCreateSubdir,
-  isDirectoryPickerSupported,
-  pickImagesRoot,
-  readImagesRootHandle,
-  saveImageToDir,
-  writeImagesRootHandle,
-} from '@/shared/lib/imageDir';
+import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -73,7 +66,7 @@ export interface TechnologyFormProps {
   /** The category this technology belongs to (create + edit). */
   categoryId: string;
   /** Edit mode: record being edited. Absent = create mode. */
-  technology?: Technology;
+  technology?: SkillTechnology;
   /** Close signal: edit exit AND successful create-save (WU-5/A7) — the page clears its selection (key-remounts us). */
   onExitEdit?: () => void;
 }
@@ -136,14 +129,15 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         return;
       }
       try {
-        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-        await writeImagesRootHandle(root); // best-effort remember
-        await getOrCreateSubdir(root, ICON_SUBDIR);
-        const path = await saveImageToDir(root, file.blob, file.name, ICON_SUBDIR);
+        const path = await saveUploadedImage({
+          blob: file.blob,
+          name: file.name,
+          subdir: ICON_SUBDIR,
+        });
         setValue('iconSvg', path, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         // The user dismissed the picker — no alarm, no value change.
-        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        if (isAbortError(error)) return;
         setIconSaveErrorKey('skillsIconUploadSaveError');
       }
     },
@@ -180,7 +174,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       onExitEdit?.();
       return;
     }
-    const record: Technology = {
+    const record: SkillTechnology = {
       name: data.name,
       iconSvg: data.iconSvg,
       iconFilter: data.iconFilter,

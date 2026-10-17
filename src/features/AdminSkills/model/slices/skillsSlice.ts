@@ -18,7 +18,7 @@
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { SkillCategoryData, Technology } from '@/entities/Skill';
+import type { SkillCategoryData, SkillTechnology } from '@/entities/Skill';
 import { readSkills, skillsSeed } from '../services/storage';
 
 const skillsSlice = createSlice({
@@ -30,7 +30,10 @@ const skillsSlice = createSlice({
     addSkillCategory(state, action: PayloadAction<SkillCategoryData>) {
       state.push(action.payload);
     },
-    addTechnology(state, action: PayloadAction<{ categoryId: string; technology: Technology }>) {
+    addTechnology(
+      state,
+      action: PayloadAction<{ categoryId: string; technology: SkillTechnology }>
+    ) {
       const category = state.find((entry) => entry.category === action.payload.categoryId);
       if (category) category.technologies.push(action.payload.technology);
     },
@@ -43,7 +46,11 @@ const skillsSlice = createSlice({
     },
     updateTechnology(
       state,
-      action: PayloadAction<{ categoryId: string; techName: string; patch: Partial<Technology> }>
+      action: PayloadAction<{
+        categoryId: string;
+        techName: string;
+        patch: Partial<SkillTechnology>;
+      }>
     ) {
       const category = state.find((entry) => entry.category === action.payload.categoryId);
       const technology = category?.technologies.find(

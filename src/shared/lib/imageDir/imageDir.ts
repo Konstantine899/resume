@@ -145,6 +145,55 @@ export async function saveImageToDir(
   return `/images/${subdir}/${name}`;
 }
 
+/**
+ * Typed failure of {@link saveUploadedImage}: the ROOT/subdir write could
+ * NOT be completed (permission denied, quota, missing API). Copy stays in
+ * the consuming feature — this error carries a machine-readable `reason`
+ * and a dev-facing message only. An AbortError (user dismissed the picker)
+ * is NEVER wrapped: it is rethrown untouched so callers keep their
+ * silent-return branch.
+ */
+export class ImageUploadError extends Error {
+  readonly reason = 'write-failed' as const;
+
+  constructor(subdir: string, name: string) {
+    super(`Failed to save "${name}" into "/images/${subdir}/"`);
+    this.name = 'ImageUploadError';
+  }
+}
+
+/** True for the FSAP picker-dismissal signal (`DOMException` named AbortError). */
+export const isAbortError = (error: unknown): boolean =>
+  (error as { name?: string } | null)?.name === 'AbortError';
+
+/**
+ * The shared icon-upload save flow (review finding #1): remember-or-pick
+ * the ROOT images directory, best-effort remember it in IndexedDB, then
+ * write `blob` into `subdir` and return the public `/images/<subdir>/<name>`
+ * PATH the form should store. One implementation replaces the copy-paste
+ * in ProjectForm / AdminSkills TechnologyForm / AdminTechnologies
+ * TechnologyForm (features→shared is legal; features→features is not).
+ *
+ * Note: the explicit `getOrCreateSubdir` step of the old copy-paste is
+ * gone — `saveImageToDir` already creates-or-opens the subdir itself
+ * (identical FS call sequence, one less line to keep in sync).
+ */
+export const saveUploadedImage = async (params: {
+  blob: Blob;
+  name: string;
+  subdir: string;
+}): Promise<string> => {
+  const { blob, name, subdir } = params;
+  try {
+    const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
+    await writeImagesRootHandle(root); // best-effort remember
+    return await saveImageToDir(root, blob, name, subdir);
+  } catch (error) {
+    if (isAbortError(error)) throw error; // caller: silent return
+    throw new ImageUploadError(subdir, name);
+  }
+};
+
 /** Best-effort removal of the obsolete pre-amend key. Never throws. */
 async function clearLegacyProjectsDirKey(): Promise<void> {
   if (typeof indexedDB === 'undefined') return;

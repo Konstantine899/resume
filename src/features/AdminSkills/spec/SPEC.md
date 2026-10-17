@@ -2,7 +2,7 @@
 status: done
 epic: skills-card-collapse
 created: '2026-10-12'
-verified: '2026-10-13'
+verified: '2026-10-17'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
@@ -23,7 +23,7 @@ verified: '2026-10-13'
 - Слой: `features/AdminSkills` (список + формы), композиция страницы — `src/pages/Admin/ui/AdminSkillsPage`; данные — `src/entities/Skill` + слайс `adminSkills` + storage `persistSkills` (persist-THEN-dispatch).
 - Кит: `DataTable` (сортировка/пагинация контролируемые, `emptyState`-слот, **нет header-слота**), `Modal` (controlled, ESC/оверлей), `Select` (уже в обеих формах), `Badge`, `EmptyState`, `Heading`, `Form`, `Input`, `Textarea`, `Button`, `Toast`; rev.3 дополнительно: `IconButton` (обязательный `ariaLabel`), `Tooltip` (`content`, 12 placements, `autoAdjust`), `Card` (`hoverable`, `size`), `Icon`-обёртка + `lucide-react`.
 - Сегодняшнее состояние (факт): одна ПЛОСКАЯ DataTable на весь список (строки = технологии + placeholder пустых категорий), формы рендерятся ИНЛАЙН под списком, кнопка «Добавить технологию» — в строке первой категории в окне, фильтров нет, `PAGE_SIZE = 12`, удаление категории каскадное без отдельного предупреждения.
-- Модель данных (факт): у `Technology` нет числовых полей-счётчиков (`name`, `iconSvg`, `invertInDark?`, `iconFilter?`).
+- Модель данных (факт): у `SkillTechnology` (ранее `Technology` — переименован при ревью #266) нет числовых полей-счётчиков (`name`, `iconSvg`, `invertInDark?`, `iconFilter?`).
 
 ## Структура интерфейса (целевая)
 
@@ -71,7 +71,7 @@ Section (data-testid="admin-skills")
 
 - **Вердикт владельца:** «фильтрация по 5, 10, 20» → интерпретация A: контрол = выбор количества элементов на странице, опции ровно **5 / 10 / 20**.
 - Реализация: kit `PageSizeGroup` рендерится `DataTable` первой строкой каждой таблицы (пропсы от контейнера блока; `pageSizeOptions = [5, 10, 20]`, `onPageSizeChange`); kit гасит контрол при 0 строк; смена размера действует на СВОЮ таблицу и сбрасывает её страницу на 1. Размер по умолчанию — **5** (вердикт владельца 2026-10-10).
-- Интерпретация B (пороговый фильтр по числовому признаку) отклонена как не имеющая данных (у `Technology` нет числовых полей).
+- Интерпретация B (пороговый фильтр по числовому признаку) отклонена как не имеющая данных (у `SkillTechnology` нет числовых полей).
 
 ### Кнопки
 

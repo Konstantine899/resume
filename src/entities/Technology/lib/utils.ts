@@ -7,7 +7,7 @@
 // admin edits surface without a rebuild. Unknown keys are skipped with a
 // defensive console.warn, exactly like the old TECH_ICONS implementation.
 
-import type { TechIcon } from '@/shared/ui/Card/model/types';
+import type { TechIcon } from '@/shared/ui/Card';
 
 import { seedTechnologies } from '../model/constants/constants';
 import { readTechnologies } from '../model/services/storage';

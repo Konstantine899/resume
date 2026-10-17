@@ -59,12 +59,3 @@ export const persistTechnologies = (technologies: Technology[]): boolean => {
     return false;
   }
 };
-
-/** Drop the stored catalog (Delete-all path). Idempotent, never throws. */
-export const removeTechnologies = (): void => {
-  try {
-    localStorage.removeItem(TECHNOLOGIES_STORAGE_KEY);
-  } catch {
-    // Storage unavailable — the in-memory slice still works this session.
-  }
-};

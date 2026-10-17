@@ -26,16 +26,9 @@ const { persistSpy, addToast, dirMocks } = vi.hoisted(() => ({
   addToast: vi.fn(),
   dirMocks: {
     supported: vi.fn(() => true),
-    read: vi.fn(async () => null as FileSystemDirectoryHandle | null),
-    pick: vi.fn(async () => ({ kind: 'directory', name: 'images' }) as FileSystemDirectoryHandle),
-    write: vi.fn(async () => undefined),
-    getSubdir: vi.fn(
-      async (_root: unknown, name: string) =>
-        ({ kind: 'directory', name }) as FileSystemDirectoryHandle
-    ),
     save: vi.fn(
-      async (_root: unknown, _blob: Blob, name: string, subdir: string) =>
-        `/images/${subdir}/${name}`
+      async (params: { blob: Blob; name: string; subdir: string }) =>
+        `/images/${params.subdir}/${params.name}`
     ),
   },
 }));
@@ -47,13 +40,10 @@ vi.mock('@/entities/Technology/model/services/storage', async (importOriginal) =
 
 // tech-icon-upload A1: the form uploads icons through the shared imageDir
 // service — mocked here so page-level flows never touch the filesystem.
-vi.mock('@/shared/lib/imageDir', () => ({
+vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
   isDirectoryPickerSupported: dirMocks.supported,
-  readImagesRootHandle: dirMocks.read,
-  pickImagesRoot: dirMocks.pick,
-  writeImagesRootHandle: dirMocks.write,
-  getOrCreateSubdir: dirMocks.getSubdir,
-  saveImageToDir: dirMocks.save,
+  saveUploadedImage: dirMocks.save,
 }));
 
 // Identity t(): raw keys in assertions; known options render as
@@ -116,9 +106,9 @@ beforeEach(() => {
     }
   );
   dirMocks.supported.mockReturnValue(true);
-  dirMocks.read.mockResolvedValue(null);
   dirMocks.save.mockImplementation(
-    async (_root: unknown, _blob: Blob, name: string, subdir: string) => `/images/${subdir}/${name}`
+    async (params: { blob: Blob; name: string; subdir: string }) =>
+      `/images/${params.subdir}/${params.name}`
   );
 });
 

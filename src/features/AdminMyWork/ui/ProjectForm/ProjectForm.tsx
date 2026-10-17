@@ -39,14 +39,7 @@ import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors';
-import {
-  getOrCreateSubdir,
-  isDirectoryPickerSupported,
-  pickImagesRoot,
-  readImagesRootHandle,
-  saveImageToDir,
-  writeImagesRootHandle,
-} from '@/shared/lib/imageDir';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
 import {
   addProject,
@@ -142,15 +135,12 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         return;
       }
       try {
-        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-        await writeImagesRootHandle(root); // best-effort remember
         const subdir = values.imageSubdir || 'projects';
-        await getOrCreateSubdir(root, subdir); // create-or-select under root
-        const path = await saveImageToDir(root, file.blob, file.name, subdir);
+        const path = await saveUploadedImage({ blob: file.blob, name: file.name, subdir });
         setValue('image', path, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         // The user dismissed the picker — no alarm, no value change.
-        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        if (isAbortError(error)) return;
         setImageSaveErrorKey('projectFileUploadSaveError');
       }
     },

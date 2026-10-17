@@ -9,11 +9,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   IMAGES_ROOT_KEY,
+  ImageUploadError,
   getOrCreateSubdir,
+  isAbortError,
   isDirectoryPickerSupported,
   pickImagesRoot,
   readImagesRootHandle,
   saveImageToDir,
+  saveUploadedImage,
   writeImagesRootHandle,
 } from './imageDir';
 
@@ -109,5 +112,78 @@ describe('imageDir: saveImageToDir', () => {
     await expect(
       saveImageToDir(root, new Blob(['x']), 'photo.webp', 'projects')
     ).rejects.toMatchObject({ name: 'NotAllowedError' });
+  });
+});
+
+// ============================================
+// saveUploadedImage — the shared icon-upload flow (review finding #1)
+// ============================================
+//
+// The composed pick/remember/write sequence all three forms used to
+// copy-paste. jsdom has no IndexedDB (read → null → picker path) and no
+// showDirectoryPicker — the picker is stubbed per test, the write runs
+// against fake handles.
+
+/** Fake FSAP root whose directory chain writes through to spies. */
+function makeWritableRoot(write: (blob: Blob) => unknown) {
+  const close = vi.fn(async () => undefined);
+  const getFileHandle = vi.fn(async () => ({
+    createWritable: vi.fn(async () => ({
+      write: vi.fn(async (blob: Blob) => write(blob)),
+      close,
+    })),
+  }));
+  const getDirectoryHandle = vi.fn(async () => ({ getFileHandle }));
+  return { getDirectoryHandle } as unknown as FileSystemDirectoryHandle;
+}
+
+describe('imageDir: saveUploadedImage', () => {
+  it('picks the root, writes the blob and returns /images/<subdir>/<name>', async () => {
+    const written: Blob[] = [];
+    const root = makeWritableRoot((blob) => written.push(blob));
+    vi.stubGlobal('window', { showDirectoryPicker: vi.fn(async () => root) });
+    const blob = new Blob(['<svg/>'], { type: 'image/svg+xml' });
+
+    await expect(saveUploadedImage({ blob, name: 'logo.svg', subdir: 'skills' })).resolves.toBe(
+      '/images/skills/logo.svg'
+    );
+    expect(written).toEqual([blob]);
+  });
+
+  it('rethrows AbortError untouched (the caller keeps its silent-return branch)', async () => {
+    const abort = new DOMException('cancelled', 'AbortError');
+    vi.stubGlobal('window', { showDirectoryPicker: vi.fn(async () => Promise.reject(abort)) });
+
+    await expect(
+      saveUploadedImage({ blob: new Blob(['x']), name: 'x.svg', subdir: 'skills' })
+    ).rejects.toBe(abort);
+    expect(isAbortError(abort)).toBe(true);
+  });
+
+  it('wraps a write failure in ImageUploadError (never mistakable for an abort)', async () => {
+    const root = {
+      getDirectoryHandle: vi.fn(async () => {
+        throw new DOMException('denied', 'NotAllowedError');
+      }),
+    } as unknown as FileSystemDirectoryHandle;
+    vi.stubGlobal('window', { showDirectoryPicker: vi.fn(async () => root) });
+
+    const failure = await saveUploadedImage({
+      blob: new Blob(['x']),
+      name: 'x.svg',
+      subdir: 'technologies',
+    }).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    expect(failure).toBeInstanceOf(ImageUploadError);
+    expect(isAbortError(failure)).toBe(false);
+  });
+
+  it('isAbortError recognizes only the AbortError name', () => {
+    expect(isAbortError(new DOMException('x', 'AbortError'))).toBe(true);
+    expect(isAbortError(new Error('x'))).toBe(false);
+    expect(isAbortError(null)).toBe(false);
   });
 });
