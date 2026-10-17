@@ -118,11 +118,19 @@ Model-слой (slice/storage/seed) и entity-контракт `ContactContent` 
 ### R-5 — Известные проблемы вне скоупа (зафиксировать, не чинить)
 - [x] Email в `ContactContentSchema` без max (`entities/ContactContent`:
       `z.string().trim().pipe(z.email())`) при form `maxLength=120` —
-      зафиксировано как известная проблема; entity-схема не меняется
-      (заморожена, вердикт OPEN-4=B).
+      **решение владельца D6 = R3-γ (2026-10-17)**: лимит держится ТОЛЬКО
+      на уровне формы, entity-контракт остаётся открытым; схема валидирует
+      и запись, и чтение, поэтому `.max(120)` молча затёр бы уже
+      сохранённый документ с длинным email (seed-fallback) — осознанно
+      не вводится. Было: известная проблема / OPEN-4=B.
 - [x] ~~`window.confirm` в `AboutEditorForm.tsx:126`~~ — УСТАРЕЛО: починено
       в эпике admin-about-refactor (PR #218, 2026-10-12).
-- [x] `model/selectors/index.ts` — OPEN-8 repo-wide, не трогается.
+- [x] ~~`model/selectors/index.ts` — OPEN-8 repo-wide, не трогается~~ —
+      УСТАРЕЛО: barrel удалён решением D5=R2-α (2026-10-17), потребители
+      (`ContactEditorForm.tsx`, `HomePage.tsx`) переведены на явный путь
+      `model/selectors/selectors`; `HomePage` остался deep-импортом
+      (lazy-инвариант resume-lazy-rhf-chunk). Остаток OPEN-8 в сиблингах
+      (AdminMyWork/AdminJobs) — вне скоупа (D7).
 - [x] DataTable/EmptyState/пагинация — не применимы к единичному документу.
 
 ### R-6 — Гейты эпика
