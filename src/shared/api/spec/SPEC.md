@@ -1,8 +1,9 @@
 ---
-status: approved
+status: done
 epic: rtk-query-stub
 issue: 279
 created: '2026-10-17'
+verified: '2026-10-17'
 spec: SPEC.md
 ---
 
