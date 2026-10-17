@@ -92,6 +92,16 @@ const uploadSvg = async (fileName = 'tech-logo.svg') => {
   await screen.findByText('adminTechIconUploadSelected');
 };
 
+/**
+ * Default page size is 5 (owner directive 2026-10-17) — page 1 shows only
+ * react/nextjs/typescript/javascript/tailwind. Any assertion on a seed key
+ * beyond the first five must widen the window to 20 first.
+ */
+const showAllRows = () => {
+  const group = screen.getByRole('group', { name: 'perPageLabel' });
+  fireEvent.click(within(group).getByRole('button', { name: '20' }));
+};
+
 beforeEach(() => {
   localStorage.clear();
   persistSpy.mockClear();
@@ -120,10 +130,13 @@ afterEach(() => {
 describe('AdminTechnologiesPage — rendering', () => {
   it('renders the seed catalog rows (14 entries)', () => {
     renderPage();
-    // The seed ships 14 technologies; each row carries its key testid.
+    // Default size 5 shows the first five rows only — widen to 20 to see
+    // the WHOLE 14-entry seed; each row carries its key testid.
+    showAllRows();
     for (const key of ['react', 'nextjs', 'python', 'postgresql']) {
       expect(screen.getByTestId(`tech-row-${key}`)).toBeInTheDocument();
     }
+    expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(14);
   });
 
   it('shows the EmptyState only when the catalog is empty', () => {
@@ -263,7 +276,9 @@ describe('AdminTechnologiesPage — D6 usedKeys wiring', () => {
 
   it('deleting a FREE key succeeds — persist, row gone, modal closed', async () => {
     const store = renderPage();
-    // `python` is NOT referenced by any seed project's techIcons.
+    // `python` is NOT referenced by any seed project's techIcons — but it
+    // sits at position 10, off the default 5-row page, so widen first.
+    showAllRows();
     const pythonRow = screen.getByTestId('tech-actions-python');
     fireEvent.click(within(pythonRow).getByRole('button', { name: 'adminTechnologiesDelete' }));
     const confirm = await openDialog();

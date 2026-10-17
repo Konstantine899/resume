@@ -8,16 +8,17 @@
 // (PR #256).
 //
 // Pagination container (technologies-pagination, owner directive
-// 2026-10-16): the LIST owns {page, pageSize} (sizes 5/10/20, default
-// 20), windows the rows as a render-time derivation (MyWork pilot rule
-// — no setState-in-effect) and renders the kit PageSizeGroup + kit
-// Pagination ABOVE the table, under the «Add» header. The kit
-// DataTable cannot serve here: its Pagination sits BELOW the table
-// unconditionally, while the owner placed BOTH controls above
-// (size → nav → table DOM order). Table = kit Table; the sort toggle
-// (asc → desc → none cycle, aria-sort, sort BEFORE windowing, sort
-// resets the page) is preserved verbatim from the DataTable WU-5
-// decoration.
+// 2026-10-16, REVISED 2026-10-17): the LIST owns {page, pageSize}
+// (sizes 5/10/20, DEFAULT 5), windows the rows as a render-time
+// derivation (MyWork pilot rule — no setState-in-effect) and renders
+// the kit PageSizeGroup ABOVE the table and the kit Pagination BELOW
+// it, both under the «Add» header (owner directive 2026-10-17
+// revises the 2026-10-16 «both controls above» directive: new DOM
+// order = size group → table → pagination). The kit DataTable still
+// cannot serve here: it owns neither split placement nor the default
+// size. Table = kit Table; the sort toggle (asc → desc → none cycle,
+// aria-sort, sort BEFORE windowing, sort resets the page) is
+// preserved verbatim from the DataTable WU-5 decoration.
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the next array is rebuilt from the
@@ -56,9 +57,9 @@ import {
 } from '@/entities/Technology';
 import styles from './TechnologiesList.module.scss';
 
-/** Owner directive (technologies-pagination): sizes 5/10/20, default 20. */
+/** Sizes 5/10/20, default 5 — owner directive 2026-10-17. */
 const PAGE_SIZES = [5, 10, 20] as const;
-const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 5;
 
 /**
  * Next step of the sort cycle for the SAME key: `null → asc → desc → null`
@@ -253,14 +254,13 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
         <EmptyState title={t('adminTechnologiesEmpty')} />
       ) : (
         <>
-          {/* Owner directive (technologies-pagination): BOTH controls sit
-              ABOVE the table, under the «Add» header — size group first,
-              then the pagination row. Controls never disappear on
-              interaction (2026-10-09 directive); an empty catalog renders
-              the EmptyState above instead. */}
+          {/* Owner directive 2026-10-17 (revises 2026-10-16 «both above»):
+              the size group sits ABOVE the table, the pagination block
+              BELOW it — DOM order size → table → pagination. Controls
+              never disappear on interaction (2026-10-09 directive); an
+              empty catalog renders the EmptyState above instead. */}
           <div className={styles.controls}>
             <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
-            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
           </div>
           <Table<(typeof catalog)[number]>
             caption={t('adminTechnologiesTitle')}
@@ -268,6 +268,11 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
             rows={windowRows}
             getKey={(row) => row.key}
           />
+          {/* Whole nav block below the table (numbers + arrows together —
+              owner chose NOT to split them). */}
+          <div className={styles.paginationRow}>
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+          </div>
         </>
       )}
 
