@@ -1,101 +1,117 @@
 ---
-status: done
-epic: admin-contact-migration
-issue: 276
+status: approved
+epic: contact-kit-max
+issue: 282
 created: '2026-10-17'
-verified: '2026-10-17'
 spec: SPEC.md
 ---
 
-# SPEC — features/AdminContact (трек A плана миграции rev.2)
+# SPEC — features/AdminContact (эпик contact-kit-max, Трек C плана rev.4)
 
-> Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел
-> Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Исходный план: vault `wiki/plan/plan_admin_contact_migration.md`, rev.2
-> (approved, 2026-10-17). Companion: [TODO.md](./TODO.md).
-> Язык: русский (правило владельца). Все user-facing строки в коде —
-> i18n-ключи en+ru.
-> Режим исполнения: **auto** (владелец, 2026-10-17).
+> Единственная истина для этого блока (spec-driven workflow: AGENTS.md,
+> раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
+> Исходный план: vault `wiki/plan/plan_admin_contact_migration.md`, rev.4,
+> §8 «Трек C — максимизация kit-компонентов» (directives владельца
+> 2026-10-17: «ui kit компоненты должны максимально использоваться;
+> минимальное использование не переиспользуемого кода»).
+> Companion: [TODO.md](./TODO.md). Язык: русский (правило владельца).
+> Режим исполнения: **auto**.
 
 ## Цель
 
-Привести `features/AdminContact` к соглашениям соседних CRUD-фич **без
-изменения поведения и данных** (трек A плана rev.2). Это: (R1) устаревшие
-будуще-временные комментарии о барреле → факт; (R2-α) удаление остатка
-OPEN-8/ARCH-1 `model/selectors/index.ts`; (D6=R3-γ) фиксация в SPEC
-решения «email-капитал живёт только в форме».
+Табличные данные `ContactEditorForm` переходят с ручной сетки/flex-списка на
+kit `Table`; мёртвые и дублированные layout-фрагменты удаляются. Поведение
+формы, контракты C1–C7 (localStorage, seed, persist → dispatch, публичное
+трио, синхронная витрина) и все 12 существующих тестов остаются без изменений.
 
-**Трек B (RTK Query + localStorage) НЕ в скоупе** — D1 = только A; в репо
-нет API-инфраструктуры (§0.3 плана: 0 совпадений `createApi|fetchBaseQuery|
-injectEndpoints`), этап B0 не начат. Трек B отложен до появления
-спецификации backend-API.
+## Не в области (решения зафиксированы)
 
-## Решения владельца D1–D7 (2026-10-17, план §5.1)
-
-| #     | Решение                                                               | Выбор                                                                                                   |
-| ----- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| D1    | Цель миграции                                                         | только трек A                                                                                           |
-| D2/D3 | RTK Query режим / конверт `{v:1}`                                     | не применимо (D1)                                                                                       |
-| D4    | R1 устаревшие комментарии                                             | да, точечно: блок AdminContact в `storeReducers.ts` + `HomePage.tsx`; сиблинг-блоки :23-33 не трогаются |
-| D5    | R2 barrel `model/selectors/index.ts`                                  | R2-α: удалить в AdminContact, потребители на явный путь                                                 |
-| D6    | R3 email-max в entity-схеме                                           | R3-γ: код не меняется, капитал 120 остаётся в инпуте                                                    |
-| D7    | чужая работа (витрина `features/Contact`, swap-комментарии сиблингов) | отложено, не трогается                                                                                  |
-
-## Контракты сохранения (C1–C7, план §1 — заморожены)
-
-Любое нарушение любого из них требует отдельного согласования.
-
-- **C1** Ключ localStorage `resume.contact.content`
-  (`model/services/storage.ts`).
-- **C2** Full-replace обновления документа: `updateContactContent`
-  возвращает payload целиком, без merge.
-- **C3** Seed из локалей: `createContactSeed()` из `en.json`/`ru.json`
-  (drift-proof), email — из `entities/ContactContent`.
-- **C4** Nav-ключ `contact` не редактируется (split-brain гард).
-- **C5** Публичное трио `createContactSeed` / `persistContactContent` /
-  `removeContactContent` остаётся на барреле (`index.ts`) — его потребляет
-  `HomePage.test` (`fsd-imports/tests-public-api-only`).
-- **C6** Синхронное чтение витриной: `HomePage` → `useSelector(
-selectContactContent)` → `<Contact content={...}>`; витрина store-free.
-- **C7** Контракт `persist → dispatch`: persist ПЕРЕД dispatch; при `false`
-  — error-тост, стор нетронут; reset = `remove → dispatch → form.reset`.
+- Витрина `features/Contact` — аудит чистый (12 kit-импортов, ручной
+  интерактивной разметки нет), не меняется.
+- `AdminContactPage` — чистая (ErrorBoundary + Section + форма), не меняется.
+- `.localeRow` в AdminAbout/AdminMyWork — их эпики закрыты, перенос на
+  kit Table = follow-up (план §9 п.5), отдельным эпиком.
+- Новые kit-компоненты (Stack/Cluster) не создаются — не спекулировать.
+- `features/Contact` витрина и swap-комментарии сиблингов не трогаются (§8.2 C5).
 
 ## Требования
 
-- **R-1 (R1, D4)** — комментарии `storeReducers.ts` (блок AdminContact) и
-  `HomePage.tsx` описывают настоящее: баррели ЭКСПОРТИРУЮТ RHF-формы
-  (эпики завершены), deep-import нужен для lazy-чанка (resume-lazy-rhf-chunk).
-  Сиблинг-блоки AdminJobs/AdminMyWork/AdminSkills НЕ трогаются (D7).
-- **R-2 (R2-α, D5)** — `model/selectors/index.ts` удалён; все потребители
-  (включая тесты с относительными путями) импортируют
-  `model/selectors/selectors` напрямую. `HomePage.tsx` — deep-импорт через
-  alias (`@/features/AdminContact/model/selectors/selectors`), НЕ баррель
-  фичи (C6/lazy-инвариант).
-- **R-3 (D6, R3-γ)** — entity-схема `ContactContentSchema.email` БЕЗ max
-  (ОСОЗНАННО: схема валидирует и запись, и чтение — `.max(120)` молча
-  затёр бы сохранённый документ → seed-fallback). Капитал 120 — только
-  `maxLength` инпута формы. Решение зафиксировано в этом файле.
-- **R-4** — гейты §7 зелёные: `npm run validate`, точечный vitest
-  AdminContact + AdminContactPage + HomePage, `check:axe` (маршрут
-  `/admin/contact` в PATHS), `check:bundle` (RHF не в основном чанке).
+### R-1 — Матрица текстов → kit Table
 
-## Известные проблемы вне скоупа (зафиксировано, не чинится)
+- Обе группы рендерятся kit `Table` (`@/shared/ui/Table`), а НЕ `DataTable`
+  (нет сортировки/пагинации — матрица полей; решение C1):
+  - группа `TEXT_KEYS` (10 ключей): caption = `t('adminFieldTexts')`;
+  - группа `FORM_TEXT_KEYS` (4 ключа): caption = `t('adminFieldFormTexts')`.
+- Колонки обеих таблиц: `[поле | EN | RU]` — первый заголовок
+  `t('adminContactTableField')`, остальные `EN`/`RU` (коды локалей —
+  литералы, языконейтральны).
+- Первая ячейка строки = `t(key)` (видимый row-label).
+- `contactDescription` — kit `Textarea` в ячейках (`rows={4}`, maxLength 600),
+  остальные — kit `Input` (maxLength 120, `fullWidth`); RHF-пути
+  (`texts.<key>.<locale>`, `formTexts.<key>.<locale>`) не меняются.
+- Наблюдаемый исход: ровно две `<table>` под group-заголовками; в каждой
+  `rows = N + 1` (1 header + 10 / 4); всего `input` = 27, `textarea` = 2
+  (счётчики существующего теста переживают миграцию).
 
-- Русские комментарии витрины `features/Contact` (R4 плана) — отложено (D7).
-- Swap-комментарии «will export» сиблингов в `storeReducers.ts:23-33` —
-  отложено (D7).
-- OPEN-8: `model/selectors/index.ts` barrel остаётся в AdminMyWork и
-  AdminJobs — синхронное удаление (R2-β) не выбиралось.
-- Email в `ContactContentSchema` без max при form `maxLength=120` —
-  решение D6=R3-γ: принятое ограничение, кап только в форме.
-- Трек B (RTK Query) — отложен до backend-API-спецификации (B0), план
-  rev.2 остаётся контрактом C1–C7 для будущего эпика.
+### R-2 — Доступность ячеек (решение C2)
 
-## Гейты
+- Видимая подпись `` `${t(key)} · LOCALE` `` переносится из `label` в
+  `aria-label` **с той же строкой**.
+- Наблюдаемый исход: `getByLabelText('responseTimeHint · EN')` находит поле —
+  существующие 12 тестов формы проходят БЕЗ правок; label-in-name соблюдается
+  (aria-label содержит видимый текст строки `t(key)` из row-ячейки).
+- Видимый контекст поля: row-ячейка `t(key)` + column header `EN`/`RU`.
 
-- `npm run validate` — EXIT 0, public-api 37/37.
-- `npx vitest run src/features/AdminContact src/pages/Admin/ui/AdminContactPage
-src/pages/Home/ui/HomePage` — 66/66.
-- `npm run check:axe` — 0 регрессий (baseline 4 known).
-- `npm run check:bundle` — 779.3 < 784 KiB.
-- CI: 8/8 чеков PR.
+### R-3 — Превью соцссылок → kit Table
+
+- `ul/li` + `Badge` (`.socialList`) заменяются kit `Table`:
+  caption = `t('adminContactSocials')`; колонки
+  `[t('adminContactSocialName') | t('adminContactSocialUrl')]`;
+  значения `SOCIAL_LINKS[i].name` | `.href`; URL рендерится kit `Link` (external).
+- Наблюдаемый исход: одна таблица, `rows = SOCIAL_LINKS.length + 1`;
+  `data-testid="contact-form-socials"` удалён (в тестах нигде не
+  использовался — проверено grep'ом); ссылки достижимы по роли `link`.
+
+### R-4 — Удаление ручного layout-кода
+
+- Из `ContactEditorForm.module.scss` удаляются: `.localeRow`,
+  `.socialList`, `.field` (мёртвый wrapper: `flex-col` без gap вокруг одного
+  Input — email становится прямым ребёнком `Form`).
+- Остаются `.intro`, `.group`, `.actions` — осознанные layout-обёртки
+  (<5 строк, kit не экспортирует Stack/Cluster) — закрепляются комментарием
+  в SCSS.
+- Наблюдаемый исход: grep `.localeRow|.socialList|.field` в паре файлов
+  компонента пуст; stylelint чистый.
+
+### R-5 — i18n (решение C3)
+
+- 4 новых flat-ключа ×2 локали (en+ru):
+
+| Ключ                     | en           | ru              |
+| ------------------------ | ------------ | --------------- |
+| `adminContactTableField` | Field        | Поле            |
+| `adminContactSocials`    | Social links | Социальные сети |
+| `adminContactSocialName` | Name         | Название        |
+| `adminContactSocialUrl`  | URL          | Ссылка          |
+
+- `locales-parity.test` НЕ правится (hardcoded `adminKeys`-список не
+  редактируется — прецедент pagination/skills).
+- Наблюдаемый исход: обе локали содержат все 4 ключа; parity-тест зелёный.
+
+### R-6 — Гейты
+
+- `npm run validate` (type-check + lint + lint:styles + vitest + public-api);
+- точечные: `npx vitest run src/features/AdminContact src/pages/Admin/ui/AdminContactPage src/pages/Home`;
+- `npm run check:axe` (`/admin/contact` в PATHS) — 0 регрессий к baseline;
+- `npm run check:bundle` (RHF остаётся на lazy-чанке — resume-lazy-rhf-chunk);
+- `npm run check:spec`;
+- preview smoke (light+dark): на `/admin/contact` нет сырых i18n-ключей
+  (gotcha resume-mywork-field-actions: identity t-mock скрывает raw-ключи в тестах).
+
+## Известные ограничения (осознанные)
+
+- **Мобильный UX (C4)**: kit `Table` даёт горизонтальный scroll region
+  (`tabIndex=0`, axe-clean) вместо стекинга `localeRow` на узких экранах.
+- Ошибки валидации kit `Input` (`role=alert`) рендерятся внутри `td` ячейки.
+- Остаток hand-rolled-кода: `.intro`/`.group`/`.actions` (3 блока <5 строк)
+  — осознанно, kit не имеет Stack/Cluster; извлечение в kit = отдельный эпик.

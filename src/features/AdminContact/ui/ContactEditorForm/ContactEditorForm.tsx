@@ -15,7 +15,11 @@
 // - ALL copy is i18n (R-4): labels, validation messages and Toasts are
 //   key lookups, never literals.
 // - SOCIAL_LINKS is deliberately read-only here (decision B, §2): out of
-//   CRUD scope, previewed as badges like About's PROFILE_STACK.
+//   CRUD scope, previewed as a Name|URL kit Table (contact-kit-max R-3).
+// - The locale-pair matrices render as kit Table (contact-kit-max R-1);
+//   the per-input accessible name «${t(key)} · LOCALE» moved from a visible
+//   label to aria-label with the SAME string (C2 — the whole test suite
+//   pins it via getByLabelText and passes untouched).
 
 import {
   ContactContentSchema,
@@ -28,13 +32,14 @@ import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import type { Language } from '@/shared/lib/i18n/types';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Input } from '@/shared/ui/Input';
+import { Link } from '@/shared/ui/Link';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Table } from '@/shared/ui/Table';
 import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
@@ -70,6 +75,18 @@ const FORM_TEXT_KEYS: readonly FormTextKey[] = [
   'contactFormError',
   'contactFormConfigError',
 ];
+
+/** Row shapes for the three kit Tables (contact-kit-max R-1/R-3). */
+type TextRow = { key: TextKey };
+type FormTextRow = { key: FormTextKey };
+interface SocialRow {
+  name: string;
+  href: string;
+}
+
+const TEXT_ROWS: TextRow[] = TEXT_KEYS.map((key) => ({ key }));
+const FORM_TEXT_ROWS: FormTextRow[] = FORM_TEXT_KEYS.map((key) => ({ key }));
+const SOCIAL_ROWS: SocialRow[] = SOCIAL_LINKS.map(({ name, href }) => ({ name, href }));
 
 type Locale = Language;
 
@@ -168,88 +185,121 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
         <Paragraph theme="muted">{t('adminContactHint')}</Paragraph>
       </div>
 
-      <div className={styles.field}>
-        <Input
-          label={t('adminFieldEmail')}
-          error={errors.email ? t('contactEmailInvalid') : undefined}
-          value={values.email ?? ''}
-          type="email"
-          maxLength={120}
-          autoComplete="email"
-          fullWidth
-          {...register('email')}
+      <Input
+        label={t('adminFieldEmail')}
+        error={errors.email ? t('contactEmailInvalid') : undefined}
+        value={values.email ?? ''}
+        type="email"
+        maxLength={120}
+        autoComplete="email"
+        fullWidth
+        {...register('email')}
+      />
+
+      <div className={styles.group}>
+        <Heading level={3}>{t('adminFieldTexts')}</Heading>
+        <Table
+          caption={t('adminFieldTexts')}
+          rows={TEXT_ROWS}
+          getKey={(row) => row.key}
+          columns={[
+            {
+              key: 'field',
+              header: t('adminContactTableField'),
+              render: (row) => t(row.key),
+              width: '12rem',
+            },
+            ...LOCALES.map((locale) => ({
+              key: locale,
+              header: locale.toUpperCase(),
+              render: (row: TextRow) =>
+                row.key === 'contactDescription' ? (
+                  <Textarea
+                    aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
+                    value={values.texts?.[row.key]?.[locale] ?? ''}
+                    error={
+                      hasLocaleError(errors.texts?.[row.key], locale)
+                        ? t('contactTextEmpty')
+                        : undefined
+                    }
+                    maxLength={600}
+                    rows={4}
+                    {...register(textPath(row.key, locale))}
+                  />
+                ) : (
+                  <Input
+                    aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
+                    value={values.texts?.[row.key]?.[locale] ?? ''}
+                    error={
+                      hasLocaleError(errors.texts?.[row.key], locale)
+                        ? t('contactTextEmpty')
+                        : undefined
+                    }
+                    maxLength={120}
+                    fullWidth
+                    {...register(textPath(row.key, locale))}
+                  />
+                ),
+            })),
+          ]}
         />
       </div>
 
       <div className={styles.group}>
-        <Heading level={3}>{t('adminFieldTexts')}</Heading>
-        {TEXT_KEYS.map((key) => (
-          <div className={styles.localeRow} key={key}>
-            {LOCALES.map((locale) =>
-              key === 'contactDescription' ? (
-                <Textarea
-                  key={locale}
-                  label={`${t(key)} · ${locale.toUpperCase()}`}
-                  value={values.texts?.[key]?.[locale] ?? ''}
-                  error={
-                    hasLocaleError(errors.texts?.[key], locale) ? t('contactTextEmpty') : undefined
-                  }
-                  maxLength={600}
-                  rows={4}
-                  {...register(textPath(key, locale))}
-                />
-              ) : (
+        <Heading level={3}>{t('adminFieldFormTexts')}</Heading>
+        <Table
+          caption={t('adminFieldFormTexts')}
+          rows={FORM_TEXT_ROWS}
+          getKey={(row) => row.key}
+          columns={[
+            {
+              key: 'field',
+              header: t('adminContactTableField'),
+              render: (row) => t(row.key),
+              width: '12rem',
+            },
+            ...LOCALES.map((locale) => ({
+              key: locale,
+              header: locale.toUpperCase(),
+              render: (row: FormTextRow) => (
                 <Input
-                  key={locale}
-                  label={`${t(key)} · ${locale.toUpperCase()}`}
-                  value={values.texts?.[key]?.[locale] ?? ''}
+                  aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
+                  value={values.formTexts?.[row.key]?.[locale] ?? ''}
                   error={
-                    hasLocaleError(errors.texts?.[key], locale) ? t('contactTextEmpty') : undefined
+                    hasLocaleError(errors.formTexts?.[row.key], locale)
+                      ? t('contactFormTextEmpty')
+                      : undefined
                   }
                   maxLength={120}
                   fullWidth
-                  {...register(textPath(key, locale))}
+                  {...register(formTextPath(row.key, locale))}
                 />
-              )
-            )}
-          </div>
-        ))}
+              ),
+            })),
+          ]}
+        />
       </div>
 
-      <div className={styles.group}>
-        <Heading level={3}>{t('adminFieldFormTexts')}</Heading>
-        {FORM_TEXT_KEYS.map((key) => (
-          <div className={styles.localeRow} key={key}>
-            {LOCALES.map((locale) => (
-              <Input
-                key={locale}
-                label={`${t(key)} · ${locale.toUpperCase()}`}
-                value={values.formTexts?.[key]?.[locale] ?? ''}
-                error={
-                  hasLocaleError(errors.formTexts?.[key], locale)
-                    ? t('contactFormTextEmpty')
-                    : undefined
-                }
-                maxLength={120}
-                fullWidth
-                {...register(formTextPath(key, locale))}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* Read-only social preview — SOCIAL_LINKS is shared with the
-          vitrina and deliberately OUT of CRUD scope (§2 decision B). */}
-      <ul className={styles.socialList} data-testid="contact-form-socials">
-        {SOCIAL_LINKS.map((link) => (
-          <li key={link.name}>
-            <Badge variant="outline" size="sm">
-              {link.name}
-            </Badge>
-          </li>
-        ))}
-      </ul>
+      {/* Read-only social preview — SOCIAL_LINKS is shared with the vitrina
+          and deliberately OUT of CRUD scope (§2 decision B); contact-kit-max
+          renders it as a Name|URL kit Table instead of a hand-rolled list. */}
+      <Table
+        caption={t('adminContactSocials')}
+        rows={SOCIAL_ROWS}
+        getKey={(row) => row.name}
+        columns={[
+          { key: 'name', header: t('adminContactSocialName'), render: (row) => row.name },
+          {
+            key: 'url',
+            header: t('adminContactSocialUrl'),
+            render: (row) => (
+              <Link href={row.href} external showExternalIcon={false}>
+                {row.href}
+              </Link>
+            ),
+          },
+        ]}
+      />
 
       <div className={styles.actions}>
         <Button type="submit" variant="primary" loading={isSubmitting} disabled={!isDirty}>
