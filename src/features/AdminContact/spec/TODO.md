@@ -1,28 +1,22 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
 ---
 
-# TODO — features/AdminContact (паритет с gold standard админ-семьи, rev.1)
+# TODO — features/AdminContact (эпик admin-contact-migration, rev.1)
 
-Эпик `admin-contact-refactor` ЗАКРЫТ 2026-10-12 (PR #219): WU-1..5 исполнены и выжжены
-(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
-3502/3502, axe-app 0 регрессий (PATHS += `/admin/contact`, baseline не менялся),
-бандл 733.5 < 744 KiB, public-api 37/37. Отклонение от плана: deep-import в
-`HomePage.test` запрещён `tests-public-api-only` — баррел сохранил трио
-seed/persist/remove (как AdminAbout/AdminMyWork), SPEC R-3 поправлен.
-Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
-`verified: '2026-10-12'`). Вердикт владельца 2026-10-12: OPEN-1=A, OPEN-2=B,
-OPEN-3=A, OPEN-4=B (см. «Решения» внизу).
+Контракт и критерии — [SPEC.md](./SPEC.md). План: vault
+`wiki/plan/plan_admin_contact_migration.md` rev.2, решения D1–D7 от
+2026-10-17, режим **auto**. Выполненные пункты УДАЛЯЮТСЯ (правило эпика).
 
-## Решения (вердикт владельца 2026-10-12)
+Сожжено до этой ревизии (эпик в процессе, история в git):
+WU-0 (план → auto + §5.1), WU-1 (R1 комментарии), WU-2 (R2-α barrel),
+WU-3 (D6 в SPEC), WU-4 (гейты: validate EXIT 0, vitest 66/66,
+бандл 779.3 < 784, axe 0 регрессий, CI 8/8).
 
-Рекомендации агента приняты без изменений.
+## WU-5 — выдача
 
-- OPEN-1=A — reset-confirm через kit Modal вместо нативного `window.confirm`.
-- OPEN-2=B — форма остаётся инлайн на странице; тест страницы — smoke
-  инлайн-компонент (Modal-ассерты формы не требуются).
-- OPEN-3=A — публичный API баррела: остаётся только `ContactEditorForm`,
-  5 мёртвых экспортов + 2 deep-import-дубля вырезаются.
-- OPEN-4=B — email max length: зафиксировано как известная проблема,
-  entity-схема не меняется.
+- [ ] DRAFT PR #277 (`--base dev`) → ready, CI зелёный.
+- [ ] Merge (auto при зелёных чеках) + удаление ветки.
+- [ ] `gh issue close 276` (Closes #N в не-default-ветку не работает).
+- [ ] Burn-down: `status: done` в паре + плане; dual-write vault + AGENTS.md.
