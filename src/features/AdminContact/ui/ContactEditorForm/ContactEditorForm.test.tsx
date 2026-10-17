@@ -12,6 +12,8 @@
 
 import type { ContactContent } from '@/entities/ContactContent';
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
+import type { SocialLink } from '@/entities/Developer';
+import { SOCIAL_LINKS } from '@/entities/Developer';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CONTACT_CONTENT_STORAGE_KEY } from '../../model/services/storage';
@@ -72,7 +74,9 @@ const renderForm = () => render(<ContactEditorForm />);
 
 const emailInput = () => screen.getByLabelText('adminFieldEmail');
 
-// The texts group renders `label · EN/RU` per key (About pattern).
+// Every locale input exposes `key · EN/RU` as its accessible name — a
+// visible label before contact-kit-max (C2), an aria-label after it; the
+// string is identical either way, which is what pins the whole suite.
 const textInput = (key: string, locale: 'EN' | 'RU') => screen.getByLabelText(`${key} · ${locale}`);
 
 beforeEach(() => {
@@ -245,5 +249,55 @@ describe('ContactEditorForm: reset confirm (R-1, kit Modal)', () => {
     await waitFor(() => expect(emailInput()).toHaveValue(CONTACT_EMAIL));
     expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled();
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+});
+
+// contact-kit-max (issue #282, plan rev.4 §8): the locale-pair grids are
+// tabular data — they render as kit Table (R-1), the accessible name moves
+// to aria-label with the SAME string (R-2/C2), the social preview becomes a
+// Name|URL table (R-3). The 12 suites above pass UNTOUCHED.
+describe('ContactEditorForm: kit tables (contact-kit-max, R-1/R-2/R-3)', () => {
+  it('renders the texts group as one kit Table with [Field|EN|RU] headers and 10 data rows', () => {
+    renderForm();
+
+    const table = screen.getByRole('table', { name: 'adminFieldTexts' });
+    expect(
+      within(table).getAllByRole('columnheader').map((cell) => cell.textContent)
+    ).toEqual(['adminContactTableField', 'EN', 'RU']);
+    // 1 header row + one row per TEXT_KEYS entry.
+    expect(within(table).getAllByRole('row')).toHaveLength(11);
+    // The first cell of each row is the visible translated field name.
+    expect(within(table).getByText('responseTimeHint')).toBeInTheDocument();
+  });
+
+  it('renders the formTexts group as one kit Table with 4 data rows', () => {
+    renderForm();
+
+    const table = screen.getByRole('table', { name: 'adminFieldFormTexts' });
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
+    expect(within(table).getAllByRole('row')).toHaveLength(5);
+  });
+
+  it('keeps the «key · LOCALE» accessible name on every locale input (C2)', () => {
+    renderForm();
+
+    // getByLabelText matches aria-label — the existing suite pins these too.
+    expect(screen.getByLabelText('responseTimeHint · EN')).toBeInTheDocument();
+    expect(screen.getByLabelText('contactFormSent · RU')).toBeInTheDocument();
+    expect(screen.getByLabelText('contactDescription · RU')).toBeInTheDocument();
+  });
+
+  it('renders the social links preview as a Name|URL kit Table with real links', () => {
+    renderForm();
+
+    const table = screen.getByRole('table', { name: 'adminContactSocials' });
+    expect(
+      within(table).getAllByRole('columnheader').map((cell) => cell.textContent)
+    ).toEqual(['adminContactSocialName', 'adminContactSocialUrl']);
+    expect(within(table).getAllByRole('row')).toHaveLength(SOCIAL_LINKS.length + 1);
+    const first = SOCIAL_LINKS[0] as SocialLink;
+    expect(within(table).getByRole('link', { name: first.href })).toBeInTheDocument();
+    // The hand-rolled badge list is gone (its testid is referenced nowhere).
+    expect(screen.queryByTestId('contact-form-socials')).not.toBeInTheDocument();
   });
 });
