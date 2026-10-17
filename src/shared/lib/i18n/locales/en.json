@@ -108,7 +108,7 @@
   "adminTechInvertLabel": "Invert colors for dark theme",
   "adminTechInvertYes": "Invert",
   "adminTechInvertNo": "Keep as is",
-  "adminTechKeyInvalid": "Use a lowercase slug (letters, digits, «-»/«_») and keep the key unchanged when editing.",
+  "adminTechKeyInvalid": "Use a lowercase slug (lowercase letters, digits, and «-») and keep the key unchanged when editing.",
   "adminTechKeyExists": "This key is already taken.",
   "adminTechSave": "Save",
   "adminTechCancel": "Cancel",
