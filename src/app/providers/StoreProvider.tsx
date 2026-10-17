@@ -9,10 +9,11 @@
 // render would rebuild the store (the map is a useMemo dependency).
 
 import { configureStore } from '@reduxjs/toolkit';
-import type { ReducersMapObject } from '@reduxjs/toolkit';
+import type { Middleware, ReducersMapObject } from '@reduxjs/toolkit';
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
+import { apiSlice } from '@/shared/api';
 
 type StoreProviderProps = {
   children: ReactNode;
@@ -24,7 +25,22 @@ type StoreProviderProps = {
 };
 
 export const StoreProvider = ({ children, reducers }: StoreProviderProps) => {
-  const store = useMemo(() => configureStore({ reducer: reducers }), [reducers]);
+  // RTK Query stub (migration plan rev.3 §3.7): apiSlice middleware is part
+  // of the store from day one, so the real-server swap needs no wiring.
+  // The injected ReducersMapObject is intentionally generic (FSD: the api
+  // reducer rides the map from the composition root), so TS cannot see the
+  // `api` state key when typing the middleware — the `Middleware` cast is a
+  // TYPE-only widening, the runtime wiring is exact (reducer + middleware
+  // pair, both from apiSlice).
+  const store = useMemo(
+    () =>
+      configureStore({
+        reducer: reducers,
+        middleware: (getDefaultMiddleware) =>
+          getDefaultMiddleware().concat(apiSlice.middleware as Middleware),
+      }),
+    [reducers],
+  );
 
   return <Provider store={store}>{children}</Provider>;
 };

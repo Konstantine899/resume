@@ -16,6 +16,10 @@ import { adminDashboardReducer } from '@/features/AdminDashboard';
 // public API is consumed by features; the composition root takes the
 // reducer directly.
 import { technologiesReducer } from '@/entities/Technology/model/slices/technologiesSlice';
+// RTK Query stub (migration plan rev.3 §3.7): api-slice reducer lives here,
+// in the root map — the middleware is wired in StoreProvider. Endpoints are
+// NOT consumed by the UI yet (contracts C6/C7 untouched).
+import { apiSlice } from '@/shared/api';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminContact's
 // public API exports the editor form (RHF, epic admin-contact-crud) —
 // instantiating the barrel here would pull it into the main chunk.
@@ -39,6 +43,7 @@ export const storeReducers = {
   adminDashboard: adminDashboardReducer,
   adminJobs: jobsReducer,
   adminSkills: skillsReducer,
+  api: apiSlice.reducer,
   contactContent: contactContentReducer,
   myWork: myWorkReducer,
   technologies: technologiesReducer,
