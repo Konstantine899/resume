@@ -1,8 +1,9 @@
 ---
-status: approved
+status: done
 epic: admin-contact-migration
 issue: 276
 created: '2026-10-17'
+verified: '2026-10-17'
 spec: SPEC.md
 ---
 
@@ -31,14 +32,14 @@ injectEndpoints`), этап B0 не начат. Трек B отложен до �
 
 ## Решения владельца D1–D7 (2026-10-17, план §5.1)
 
-| # | Решение | Выбор |
-|---|---|---|
-| D1 | Цель миграции | только трек A |
-| D2/D3 | RTK Query режим / конверт `{v:1}` | не применимо (D1) |
-| D4 | R1 устаревшие комментарии | да, точечно: блок AdminContact в `storeReducers.ts` + `HomePage.tsx`; сиблинг-блоки :23-33 не трогаются |
-| D5 | R2 barrel `model/selectors/index.ts` | R2-α: удалить в AdminContact, потребители на явный путь |
-| D6 | R3 email-max в entity-схеме | R3-γ: код не меняется, капитал 120 остаётся в инпуте |
-| D7 | чужая работа (витрина `features/Contact`, swap-комментарии сиблингов) | отложено, не трогается |
+| #     | Решение                                                               | Выбор                                                                                                   |
+| ----- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| D1    | Цель миграции                                                         | только трек A                                                                                           |
+| D2/D3 | RTK Query режим / конверт `{v:1}`                                     | не применимо (D1)                                                                                       |
+| D4    | R1 устаревшие комментарии                                             | да, точечно: блок AdminContact в `storeReducers.ts` + `HomePage.tsx`; сиблинг-блоки :23-33 не трогаются |
+| D5    | R2 barrel `model/selectors/index.ts`                                  | R2-α: удалить в AdminContact, потребители на явный путь                                                 |
+| D6    | R3 email-max в entity-схеме                                           | R3-γ: код не меняется, капитал 120 остаётся в инпуте                                                    |
+| D7    | чужая работа (витрина `features/Contact`, swap-комментарии сиблингов) | отложено, не трогается                                                                                  |
 
 ## Контракты сохранения (C1–C7, план §1 — заморожены)
 
@@ -55,7 +56,7 @@ injectEndpoints`), этап B0 не начат. Трек B отложен до �
   `removeContactContent` остаётся на барреле (`index.ts`) — его потребляет
   `HomePage.test` (`fsd-imports/tests-public-api-only`).
 - **C6** Синхронное чтение витриной: `HomePage` → `useSelector(
-  selectContactContent)` → `<Contact content={...}>`; витрина store-free.
+selectContactContent)` → `<Contact content={...}>`; витрина store-free.
 - **C7** Контракт `persist → dispatch`: persist ПЕРЕД dispatch; при `false`
   — error-тост, стор нетронут; reset = `remove → dispatch → form.reset`.
 
@@ -94,7 +95,7 @@ injectEndpoints`), этап B0 не начат. Трек B отложен до �
 
 - `npm run validate` — EXIT 0, public-api 37/37.
 - `npx vitest run src/features/AdminContact src/pages/Admin/ui/AdminContactPage
-  src/pages/Home/ui/HomePage` — 66/66.
+src/pages/Home/ui/HomePage` — 66/66.
 - `npm run check:axe` — 0 регрессий (baseline 4 known).
 - `npm run check:bundle` — 779.3 < 784 KiB.
 - CI: 8/8 чеков PR.
