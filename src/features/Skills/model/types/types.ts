@@ -1,6 +1,6 @@
 /**
  * Публичные пропсы компонента Skills (UI-контракт фичи).
- * Данные-контракт (SkillCategory, Technology, SkillCategoryData, SKILLS_DATA)
+ * Данные-контракт (SkillCategory, SkillTechnology, SkillCategoryData, SKILLS_DATA)
  * живёт в `entities/Skill` (plan_skills_crud §1 — feature→feature запрещено).
  */
 import type { SkillCategoryData } from '@/entities/Skill';
