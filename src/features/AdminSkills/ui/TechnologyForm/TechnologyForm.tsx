@@ -29,14 +29,7 @@
 //   `onExitEdit`.
 
 import { resolveIconSvg, type SkillCategoryData, type Technology } from '@/entities/Skill';
-import {
-  getOrCreateSubdir,
-  isDirectoryPickerSupported,
-  pickImagesRoot,
-  readImagesRootHandle,
-  saveImageToDir,
-  writeImagesRootHandle,
-} from '@/shared/lib/imageDir';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -136,14 +129,15 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         return;
       }
       try {
-        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-        await writeImagesRootHandle(root); // best-effort remember
-        await getOrCreateSubdir(root, ICON_SUBDIR);
-        const path = await saveImageToDir(root, file.blob, file.name, ICON_SUBDIR);
+        const path = await saveUploadedImage({
+          blob: file.blob,
+          name: file.name,
+          subdir: ICON_SUBDIR,
+        });
         setValue('iconSvg', path, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         // The user dismissed the picker — no alarm, no value change.
-        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        if (isAbortError(error)) return;
         setIconSaveErrorKey('skillsIconUploadSaveError');
       }
     },
