@@ -43,6 +43,47 @@
   display: inline-flex;
 }
 
+// technologies-pagination: both kit controls ABOVE the table (owner
+
+// directive) — size group right-aligned, pagination to its left (approved
+
+// MyWork arrangement rotated into one row).
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Sort toggle inside <th> — ported verbatim from the kit DataTable
+
+// decoration (kit Table is markup-only). Layout, typography and color are
+
+// inherited from the cell so sorting changes zero visual tokens; only the
+
+// focus ring is added (WCAG 2.4.7).
+
+.sortButton {
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+
+  &:focus-visible {
+    outline: var(--shadow-focus);
+    outline-offset: 2px;
+  }
+}
+
 .icon {
   width: 24px;
   height: 24px;

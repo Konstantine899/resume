@@ -1,19 +1,90 @@
 ---
 status: done
-epic: tech-icon-upload
-issue: 261
+epic: technologies-pagination
+issue: 268
 created: '2026-10-16'
 verified: '2026-10-17'
 spec: 1
 ---
 
-# SPEC — features/AdminTechnologies (загрузка иконки файла вместо URL)
+# SPEC — features/AdminTechnologies (витрина каталога)
 
 > Единственная истина для этого эпика (spec-driven workflow: AGENTS.md, раздел
 > Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Источник: issue #261 (директива владельца, решения A1/A2/A3/A5/A7 закреплены).
+> Текущий эпик: issue #268 (директива владельца 2026-10-16: пагинация
+> витрины). Исторические эпики пары: #261 (tech-icon-upload), #258
+> (technologies-crud) — их решения ниже сохранены как контекст, история в git.
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 > Companion: [TODO.md](./TODO.md).
+
+## Эпик technologies-pagination (issue #268)
+
+### Требование (директива владельца, verbatim intent)
+
+Пагинация таблицы каталога на `/admin/technologies`: контролы РАЗМЕЩАЮТСЯ
+ВЫШЕ таблицы, ПОД кнопкой «Add technology» (т.е. в list-области под шапкой
+страницы). Опции размера страницы: **5, 10, 20** элементов. Размер по
+умолчанию: **20**.
+
+### Решения
+
+- **P1** — `TechnologiesList` становится pagination-контейнером (зеркало
+  `features/MyWork` пилота): локальный стейт `{page, pageSize}` (default 20),
+  нарезка строк — render-time вывод (`safePage = min(max(page,1), totalPages)`),
+  БЕЗ setState-in-effect (react-hooks v7);
+- **P2** — kit `PageSizeGroup` (sizes `[5, 10, 20]`) + kit `Pagination`
+  рендерятся ВЫШЕ таблицы, под шапкой (DOM-порядок: page-size → Pagination →
+  таблица); kit `DataTable` НЕ используется: его `Pagination` рендерится
+  ПОД таблицей безусловно, а владелец разместил оба контрола выше. Таблица —
+  kit `Table`; sort-декорация (bare-button заголовок, `aria-sort`,
+  `null → asc → desc → null`, сортировка ДО нарезки, сброс страницы при
+  сортировке) перенесена из DataTable WU-5 в контейнер без изменений
+  поведения; kit-компоненты НЕ менялись;
+- **P3** — смена размера страницы сбрасывает окно на страницу 1 (kit
+  `PageSizeGroup` stateless — сброс на стороне контейнера, паттерн MyWork);
+- **P4** — пустой каталог: `EmptyState` вместо таблицы и контролов
+  (владелец 2026-10-09: контролы не исчезают при взаимодействии, скрывает
+  только пустой список);
+- **P5** — i18n: БЕЗ новых ключей — переиспользуются `perPageLabel` и
+  плоская семья `pagination*` (`paginationNav`/`paginationPrevious`/
+  `paginationNext`/`paginationPage`), они уже в ОБЕИХ локалях.
+
+### Контракт пагинации (наблюдаемое поведение)
+
+- 14 записей (сид) при default 20 → все 14 на странице 1, «следующая» disabled.
+- Выбор 5 → 5 строк; страницы 2/3 несут остальные 9 (5 + 5 + 4).
+- Выбор размера страницы → окно на странице 1.
+- Удаление последней строки на последней странице → окно выводится в диапазон
+  рендером (без эффекта).
+- Контролы выше таблицы (DOM-порядок: page-size → Pagination → таблица).
+- Сортировка по ключу (asc → desc → none) сохранена; `aria-sort` на `<th>`.
+
+### Критерии готовности (эпик #268)
+
+- [ ] Ветка `feat/technologies-pagination` от `origin/dev`; DRAFT PR с `--base dev`.
+- [ ] `TechnologiesList` — контейнер: `{page, pageSize}` default 20,
+      `safePage` render-time, kit `PageSizeGroup` + kit `Pagination` выше
+      kit `Table`; `DataTable` из файла убран; kit без правок.
+- [ ] Тесты `TechnologiesList.test.tsx` (TDD): 14 при default 20 → все видны;
+      размер 5 → окно 5; опции 5/10/20; смена размера → страница 1; удаление
+      на последней странице → кламп; DOM-порядок; сортировка сохранена.
+- [ ] `AdminTechnologiesPage.test.tsx` — зелёный без правок (сид 14 ≤ 20).
+- [ ] i18n: 0 новых ключей (`perPageLabel`/`pagination*` уже в en+ru),
+      `locales-parity.test` зелёный.
+- [ ] Гейты: prettier (тронутые файлы) → `npx vitest run src/features/
+    AdminTechnologies src/pages/Admin` → `npm run validate` →
+      `npm run check:spec` → `npm run build` + `npm run check:bundle`
+      (капы НЕ трогать) → `npm run check:axe` (0 регрессий; PATHS содержит
+      `/admin/technologies`).
+- [ ] PR переведён в ready, CI зелёный, squash-merge с `--delete-branch`,
+      issue #268 закрыт вручную.
+
+### Вне скоупа (эпик #268)
+
+- kit `Pagination` / `PageSizeGroup` / `Table` / `DataTable` — без изменений;
+- другие страницы, сортировка-расширение, URL-синк — нет (только
+  in-component state);
+- сторис: у `AdminTechnologies` сторис нет — пропущено осознанно.
 
 ## Цель
 
@@ -95,7 +166,7 @@ maxBlobBytes?, disabled?, className?}`; `FileUploadSelection = {blob, name}`
 - Превью в edit: `<img src={текущий url}>` виден до любого действия.
 - D7: смена ключа в edit (форс через DOM) отклоняется схемой, ничего не сохраняется.
 
-## Критерии готовности (наблюдаемые исходы)
+## Критерии готовности (эпик #261, сгорели — история)
 
 - [ ] Ветка `feat/261-tech-icon-upload` отрезана от `origin/dev`; DRAFT PR
       открыт с `--base dev` в момент старта работ.

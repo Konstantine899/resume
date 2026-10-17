@@ -2,10 +2,22 @@
 // TechnologiesList — flat catalog vitrina (technologies-crud WU-3)
 // ============================================
 //
-// Gold standard: SkillsEditorList + AdminJobs card parity. One kit
-// DataTable over the FLAT store array (PAGE_SIZE = 12, controlled sort
-// by key); row actions Pencil (outline) + Trash2 (danger) size=sm in
-// Tooltip top; `.cellActions` (nowrap) ONLY on cell renders (PR #256).
+// Gold standard: SkillsEditorList + AdminJobs card parity. Flat rows
+// from the store; row actions Pencil (outline) + Trash2 (danger)
+// size=sm in Tooltip top; `.cellActions` (nowrap) ONLY on cell renders
+// (PR #256).
+//
+// Pagination container (technologies-pagination, owner directive
+// 2026-10-16): the LIST owns {page, pageSize} (sizes 5/10/20, default
+// 20), windows the rows as a render-time derivation (MyWork pilot rule
+// — no setState-in-effect) and renders the kit PageSizeGroup + kit
+// Pagination ABOVE the table, under the «Add» header. The kit
+// DataTable cannot serve here: its Pagination sits BELOW the table
+// unconditionally, while the owner placed BOTH controls above
+// (size → nav → table DOM order). Table = kit Table; the sort toggle
+// (asc → desc → none cycle, aria-sort, sort BEFORE windowing, sort
+// resets the page) is preserved verbatim from the DataTable WU-5
+// decoration.
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): the next array is rebuilt from the
@@ -24,25 +36,40 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
-import { DataTable } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
+import { Pagination } from '@/shared/ui/Pagination';
+import { PageSizeGroup } from '@/shared/ui/PageSizeGroup';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import type { SortState } from '@/shared/ui/DataTable';
+import type { Column } from '@/shared/ui/Table';
 import {
   persistTechnologies,
   removeTechnology,
   selectAllTechnologies,
 } from '@/entities/Technology';
-import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
 import styles from './TechnologiesList.module.scss';
 
-/** Rows per page — SPEC: flat table, fixed window. */
-const PAGE_SIZE = 12;
+/** Owner directive (technologies-pagination): sizes 5/10/20, default 20. */
+const PAGE_SIZES = [5, 10, 20] as const;
+const DEFAULT_PAGE_SIZE = 20;
+
+/**
+ * Next step of the sort cycle for the SAME key: `null → asc → desc → null`
+ * (DataTable WU-5 rule — the toggle semantics stay identical, only the
+ * decoration moved into this container).
+ */
+function nextSort(current: SortState | null, key: string): SortState | null {
+  if (!current || current.key !== key) return { key, direction: 'asc' };
+  if (current.direction === 'asc') return { key, direction: 'desc' };
+  return null;
+}
 
 export interface TechnologiesListProps {
   className?: string;
@@ -76,7 +103,35 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
   // Destructive-confirm pattern: focus lands on «Отмена» after open.
   const cancelRef = useRef<HTMLButtonElement>(null);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [sort, setSort] = useState<SortState | null>(null);
+
+  // Sorting BEFORE windowing (DataTable WU-5 rule): page 2 must show rows
+  // of the SORTED order. A COPY — the store array is never mutated.
+  const sortedCatalog = useMemo(() => {
+    if (!sort) return catalog;
+    // Single sortable column (key) — string localeCompare, direction flip.
+    const direction = sort.direction === 'asc' ? 1 : -1;
+    return [...catalog].sort((a, b) => direction * a.key.localeCompare(b.key));
+  }, [catalog, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedCatalog.length / pageSize));
+  // Container-owned clamp (Pagination pilot rule): a shrinking list derives
+  // back into range during render — no setState-in-effect (react-hooks v7).
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const windowRows = sortedCatalog.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  /** The kit PageSizeGroup is stateless — the container resets the window. */
+  const handlePageSize = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
+
+  /** A sort the user cannot SEE reads as a broken button — reset the window. */
+  const handleSortToggle = () => {
+    setSort((current) => nextSort(current, 'key'));
+    setPage(1);
+  };
 
   const closeModal = () => {
     setPendingKey(null);
@@ -108,7 +163,12 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
     closeModal();
   };
 
-  const columns: DataTableColumn<(typeof catalog)[number]>[] = [
+  // Sort decoration moved from the kit DataTable (kit Table is markup-only):
+  // same bare-button header + `aria-sort` on the `<th>` (APG).
+  const keyAriaSort =
+    sort?.key === 'key' ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined;
+
+  const columns: Column<(typeof catalog)[number]>[] = [
     {
       key: 'icon',
       header: t('adminTechTableIcon'),
@@ -123,9 +183,12 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
     },
     {
       key: 'key',
-      header: t('adminTechTableKey'),
-      sortable: true,
-      sortValue: (row) => row.key,
+      header: (
+        <button type="button" className={styles.sortButton} onClick={handleSortToggle}>
+          {t('adminTechTableKey')}
+        </button>
+      ),
+      ariaSort: keyAriaSort,
       render: (row) => (
         <span className={styles.keyCell} data-testid={`tech-row-${row.key}`}>
           <strong>{row.key}</strong>
@@ -189,21 +252,23 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
       {catalog.length === 0 ? (
         <EmptyState title={t('adminTechnologiesEmpty')} />
       ) : (
-        <DataTable<(typeof catalog)[number]>
-          caption={t('adminTechnologiesTitle')}
-          columns={columns}
-          rows={catalog}
-          getKey={(row) => row.key}
-          page={page}
-          pageSize={PAGE_SIZE}
-          onPageChange={setPage}
-          sort={sort}
-          onSortChange={(next) => {
-            setSort(next);
-            // A sort the user cannot SEE reads as a broken button.
-            setPage(1);
-          }}
-        />
+        <>
+          {/* Owner directive (technologies-pagination): BOTH controls sit
+              ABOVE the table, under the «Add» header — size group first,
+              then the pagination row. Controls never disappear on
+              interaction (2026-10-09 directive); an empty catalog renders
+              the EmptyState above instead. */}
+          <div className={styles.controls}>
+            <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+          <Table<(typeof catalog)[number]>
+            caption={t('adminTechnologiesTitle')}
+            columns={columns}
+            rows={windowRows}
+            getKey={(row) => row.key}
+          />
+        </>
       )}
 
       <Modal

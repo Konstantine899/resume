@@ -3,7 +3,8 @@
 // ============================================
 //
 // RED-first contract (gold standard: SkillsEditorList + plan D6):
-// - flat DataTable rows from the store (PAGE_SIZE = 12, sort by key);
+// - flat rows from the store, windowed by the container (technologies-
+//   pagination: sizes 5/10/20, default 20 — MyWork pilot rule);
 // - row actions: Pencil → onEditTechnology(key), Trash2 → confirm modal
 //   whose subtitle NAMES the key (OPEN-10 parity);
 // - D6 guard: a key in `usedKeys` (any project references it) CANNOT be
@@ -66,7 +67,18 @@ vi.mock('react-redux', async (importOriginal) => {
   return {
     ...actual,
     useSelector: (selector: (state: typeof holder.state) => unknown) => selector(holder.state),
-    useDispatch: () => (_action: unknown) => undefined,
+    // Gotcha resume-projects-crud: the mock MUST mutate the holder for
+    // removeTechnology — otherwise the delete-then-clamp tests observe a
+    // frozen catalog (the re-render comes from closeModal's setState).
+    useDispatch: () => (action: { type?: string; payload?: string }) => {
+      if (action?.type === 'technologies/removeTechnology' && typeof action.payload === 'string') {
+        const key = action.payload;
+        holder.state.technologies = holder.state.technologies.filter(
+          (tech: Technology) => tech.key !== key
+        );
+      }
+      return action;
+    },
   };
 });
 
@@ -242,5 +254,140 @@ describe('TechnologiesList', () => {
 
     expect(screen.getByText('adminTechnologiesEmpty')).toBeInTheDocument();
     expect(screen.queryByTestId('tech-row-react')).not.toBeInTheDocument();
+  });
+
+  // ---- technologies-pagination epic (owner directive 2026-10-16) --------
+  //
+  // Container contract (MyWork pilot rule): the LIST owns {page, pageSize}
+  // (sizes 5/10/20, default 20), windows the rows as a render-time
+  // derivation (no setState-in-effect) and renders the kit PageSizeGroup
+  // + kit Pagination ABOVE the table, under the «Add» header.
+
+  const catalogOf14: Technology[] = Array.from({ length: 14 }, (_, index) => ({
+    key: `tech-${index + 1}`,
+    url: `https://cdn.example.com/tech-${index + 1}.svg`,
+  }));
+
+  describe('pagination', () => {
+    const root = () => screen.getByTestId('technologies-list');
+    const sizeGroup = () => within(root()).getByRole('group', { name: 'perPageLabel' });
+    const pagination = () => within(root()).getByRole('navigation', { name: 'paginationNav' });
+    const table = () => within(root()).getByRole('table');
+    const currentPage = () => pagination().querySelector('[aria-current="page"]');
+
+    beforeEach(() => {
+      holder.state.technologies = [...catalogOf14];
+    });
+
+    it('shows ALL 14 records at the default size 20 (single page)', () => {
+      render(<TechnologiesList />);
+
+      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(14);
+      expect(within(sizeGroup()).getByRole('button', { name: '20' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
+    });
+
+    it('offers 5/10/20 sizes; picking 5 windows the rows across pages 2/3', () => {
+      render(<TechnologiesList />);
+
+      const group = sizeGroup();
+      for (const size of ['5', '10', '20']) {
+        expect(within(group).getByRole('button', { name: size })).toBeInTheDocument();
+      }
+
+      fireEvent.click(within(group).getByRole('button', { name: '5' }));
+      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(5);
+      expect(within(group).getByRole('button', { name: '5' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+
+      // Page 3 carries the TAIL of the catalog (14 = 5 + 5 + 4).
+      fireEvent.click(within(pagination()).getByText('3'));
+      expect(screen.getAllByTestId(/^tech-row-/)).toHaveLength(4);
+      expect(screen.getByTestId('tech-row-tech-11')).toBeInTheDocument();
+      expect(screen.getByTestId('tech-row-tech-14')).toBeInTheDocument();
+      expect(screen.queryByTestId('tech-row-tech-10')).not.toBeInTheDocument();
+    });
+
+    it('switching the page size resets the window to page 1', () => {
+      render(<TechnologiesList />);
+
+      fireEvent.click(within(sizeGroup()).getByRole('button', { name: '5' }));
+      fireEvent.click(within(pagination()).getByLabelText('paginationNext'));
+      expect(currentPage()).toHaveTextContent('2');
+
+      fireEvent.click(within(sizeGroup()).getByRole('button', { name: '10' }));
+
+      expect(currentPage()).toHaveTextContent('1');
+      expect(screen.getByTestId('tech-row-tech-1')).toBeInTheDocument();
+      expect(screen.queryByTestId('tech-row-tech-11')).not.toBeInTheDocument();
+    });
+
+    it('deleting the last row on the last page clamps back into range (no effect)', async () => {
+      holder.state.technologies = Array.from({ length: 6 }, (_, index) => ({
+        key: `tech-${index + 1}`,
+        url: `https://cdn.example.com/tech-${index + 1}.svg`,
+      })) as Technology[];
+
+      render(<TechnologiesList />);
+      fireEvent.click(within(sizeGroup()).getByRole('button', { name: '5' }));
+      fireEvent.click(within(pagination()).getByLabelText('paginationNext'));
+      expect(currentPage()).toHaveTextContent('2');
+      expect(screen.getByTestId('tech-row-tech-6')).toBeInTheDocument();
+
+      // Delete the ONLY row of the last page.
+      fireEvent.click(
+        within(rowActions('tech-6')).getByRole('button', { name: 'adminTechnologiesDelete' })
+      );
+      fireEvent.click(
+        within(confirmModal()).getByRole('button', { name: 'adminTechnologiesDelete' })
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+      // 5 records fit ONE page — the view derives back into range at render.
+      expect(currentPage()).toHaveTextContent('1');
+      expect(screen.getByTestId('tech-row-tech-1')).toBeInTheDocument();
+      expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
+    });
+
+    it('renders the size group AND the pagination ABOVE the table', () => {
+      render(<TechnologiesList />);
+
+      // DOM order: page-size control → Pagination → table (FOLLOWING bit).
+      const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
+      expect(sizeGroup().compareDocumentPosition(pagination()) & FOLLOWING).toBe(FOLLOWING);
+      expect(pagination().compareDocumentPosition(table()) & FOLLOWING).toBe(FOLLOWING);
+    });
+
+    it('keeps the key-column sort toggle (asc → desc → none, aria-sort marked)', () => {
+      render(<TechnologiesList />);
+
+      const header = () => within(table()).getByRole('columnheader', { name: 'adminTechTableKey' });
+      const rowKeys = () =>
+        Array.from(document.querySelectorAll('[data-testid^="tech-row-"]')).map((node) =>
+          node.getAttribute('data-testid')
+        );
+
+      const sortButton = within(table()).getByRole('button', { name: 'adminTechTableKey' });
+      fireEvent.click(sortButton);
+      // localeCompare order — NOT insertion order (tech-1 < tech-10 < …).
+      expect(header()).toHaveAttribute('aria-sort', 'ascending');
+      expect(rowKeys().indexOf('tech-row-tech-10')).toBeLessThan(
+        rowKeys().indexOf('tech-row-tech-2')
+      );
+
+      fireEvent.click(sortButton);
+      expect(header()).toHaveAttribute('aria-sort', 'descending');
+      expect(rowKeys()[0]).toBe('tech-row-tech-9');
+
+      fireEvent.click(sortButton);
+      expect(header()).not.toHaveAttribute('aria-sort');
+      expect(rowKeys()[0]).toBe('tech-row-tech-1');
+      expect(rowKeys()[1]).toBe('tech-row-tech-2');
+    });
   });
 });
