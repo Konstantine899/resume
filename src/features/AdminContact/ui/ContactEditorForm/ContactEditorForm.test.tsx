@@ -253,6 +253,8 @@ describe('ContactEditorForm: row modal (R-5)', () => {
     fireEvent.click(screen.getByTestId('contact-add-formTexts'));
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByText('adminFieldFormTexts')).toBeInTheDocument(); // subtitle
+    // R-1 (contact-row-textarea): formTexts cap = 120 on the Textareas.
+    expect(within(dialog).getByLabelText('adminContactRowEn')).toHaveAttribute('maxlength', '120');
     fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
       target: { value: 'customToast' },
     });

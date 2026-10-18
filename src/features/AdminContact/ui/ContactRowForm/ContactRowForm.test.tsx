@@ -77,8 +77,8 @@ const renderForm = (
 };
 
 const keyInput = () => screen.getByLabelText('adminContactRowKey') as HTMLInputElement;
-const enInput = () => screen.getByLabelText('adminContactRowEn') as HTMLInputElement;
-const ruInput = () => screen.getByLabelText('adminContactRowRu') as HTMLInputElement;
+const enInput = () => screen.getByLabelText('adminContactRowEn') as HTMLTextAreaElement;
+const ruInput = () => screen.getByLabelText('adminContactRowRu') as HTMLTextAreaElement;
 const saveButton = () => screen.getByRole('button', { name: 'contactSave' });
 
 beforeEach(() => {
@@ -92,10 +92,17 @@ afterEach(() => {
 });
 
 describe('ContactRowForm: add mode (R-5)', () => {
-  it('renders key + EN + RU inputs with Save disabled while pristine', () => {
+  it('renders key as Input and EN/RU as Textareas (R-1/R-2), Save disabled while pristine', () => {
     renderForm();
 
+    // R-2: the short slug key stays a kit Input.
+    expect(keyInput().tagName).toBe('INPUT');
     expect(keyInput()).toHaveValue('');
+    // R-1: long values are Textareas with the table's cap (texts = 600).
+    expect(enInput().tagName).toBe('TEXTAREA');
+    expect(ruInput().tagName).toBe('TEXTAREA');
+    expect(enInput()).toHaveAttribute('maxlength', '600');
+    expect(ruInput()).toHaveAttribute('maxlength', '600');
     expect(enInput()).toHaveValue('');
     expect(ruInput()).toHaveValue('');
     expect(saveButton()).toBeDisabled();
