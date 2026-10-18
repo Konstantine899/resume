@@ -1,29 +1,23 @@
 ---
-status: approved
+status: done
 epic: contact-row-textarea
 issue: 289
 created: '2026-10-18'
+verified: '2026-10-18'
 spec: SPEC.md
 ---
 
-# TODO — contact-row-textarea
+# TODO — contact-row-textarea (сожжён)
 
-> Контракт: [SPEC.md](./SPEC.md). Правила: выполненный пункт **удаляется**
-> (не отмечается). Каждый WU — отдельный conventional commit.
-> План: vault `plan_admin_contact_migration.md` rev.6 §10.1. **Режим:
-> СТРОГО AUTO** (директива владельца 2026-10-18).
-
-## Оценка времени (показывается перед стартом — директива плана)
-
-≈ 40–60 минут агентного времени: WU-1 TDD-замена формы ~20–30 мин ·
-WU-2 гейты ~15–20 · WU-3 PR+CI+merge ~10 · WU-4 бёрн-даун ~5.
-
-- [ ] WU-1 — TDD: в `ContactRowForm.test.tsx` EN/RU-ассерты на
-      `tagName TEXTAREA` (RED на Input-рендере) → замена EN/RU `Input` →
-      `Textarea` (`rows=3`, `autoResize`, кап-`maxLength`, тот же
-      `error`-контракт); `key`/email — Input без правок (R-2);
-      локали не трогаются (R-3)
-- [ ] WU-2 — гейты: полный `npm run validate` (CPU-окно), `check:axe`,
-      `check:bundle`, `check:spec`
-- [ ] WU-3 — PR `--base dev` → CI → merge → ручное закрытие issue #289
-- [ ] WU-4 — бёрн-даун пары + dual-write (vault + AGENTS.md)
+> Эпик ЗАКРЫТ 2026-10-18: squash `e00c6ea` (PR #290, CI все зелёные),
+> issue #289 закрыт вручную. План: vault `plan_admin_contact_migration.md`
+> rev.6 §10.1 (директива владельца 2026-10-18, авто-режим, оценка ≈40–60
+> мин показана перед стартом).
+>
+> Выполнено WU-1..4: EN/RU-значения `ContactRowForm` → kit `Textarea`
+> (`rows=3`, `autoResize`, `maxLength` = кап таблицы 600/120, тот же
+> `error`-контракт); `key` (slug) и email остались `Input`; таблицы
+> vitrina и локали не тронуты. TDD: RED (ассерты TEXTAREA на Input-
+> рендере) → GREEN; гейты: validate 3749/3749, check:spec 17, axe 0
+> регрессий, бандл в бюджете 840 KiB (Δ≈0). Контракт — в
+> [SPEC.md](./SPEC.md); история — в git.

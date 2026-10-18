@@ -1,8 +1,9 @@
 ---
-status: approved
+status: done
 epic: contact-row-textarea
 issue: 289
 created: '2026-10-18'
+verified: '2026-10-18'
 spec: SPEC.md
 ---
 
