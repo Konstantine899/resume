@@ -15,7 +15,10 @@ import { BuildOptions } from './types/config.ts';
  * chunk — the showcase never downloads admin-form code (About CRUD WU-4,
  * human-approved 2026-10-04). Earlier the substring match kept RHF in
  * vendor because the form lived in main; with the form lazy that rationale
- * is gone.
+ * is gone. zod gets its own chunk AFTER the RHF rule (issue #298): it is
+ * statically reachable from main (entity schemas) and used to bloat the
+ * shared Overlay chunk; the rule must not swallow @hookform/resolvers/zod,
+ * which stays with its lazy admin importer.
  */
 export function resolveManualChunk(id: string): string | undefined {
   // Rollup выдаёт posix-id, но нормализуем и backslash-варианты, чтобы правило
@@ -28,6 +31,14 @@ export function resolveManualChunk(id: string): string | undefined {
   }
   if (normalized.includes('node_modules/react-hook-form')) {
     return undefined; // lazy /admin/about chunk only
+  }
+  // zod core после RHF-правила (issue #298): zod статически тянется в main
+  // через entity-схемы/store, но лежал в свалочном Overlay-чанке (95.7 КБ).
+  // Отдельный чанк снимает перегрузку default-лимита. ВАЖНО: строка ниже не
+  // матчит @hookform/resolvers/zod (после node_modules/ идёт @hookform) —
+  // резолвер остаётся в ленивом админ-чанке вместе с формой.
+  if (normalized.includes('node_modules/zod')) {
+    return 'zod';
   }
   if (
     normalized.includes('node_modules/react') ||
