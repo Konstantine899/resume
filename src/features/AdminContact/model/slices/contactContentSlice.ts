@@ -12,12 +12,20 @@
 //
 // Side effects (localStorage writes) live in `storage.ts`; callers
 // persist FIRST and dispatch only when persist returned success (§4).
+//
+// contact-rows-crud R-2 (D6): three granular row operations join the
+// full-replace — upsert/remove target one table, resetContactTable
+// restores ONE table's seed (the section-wide resetToDefaults dies with
+// the old footer form in WU-5).
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { ContactContent } from '@/entities/ContactContent';
+import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
 import { createContactSeed } from '../services/seed';
 import { readContactContent } from '../services/storage';
+
+/** The two editable tables of the Contact document (contact-rows-crud). */
+export type ContactTableRow = 'texts' | 'formTexts';
 
 const contactContentSlice = createSlice({
   name: 'contactContent',
@@ -28,13 +36,35 @@ const contactContentSlice = createSlice({
     updateContactContent(_state, action: PayloadAction<ContactContent>) {
       return action.payload;
     },
+    upsertContactTableRow(
+      state,
+      action: PayloadAction<{ table: ContactTableRow; key: string; value: LocalizedText }>
+    ) {
+      const { table, key, value } = action.payload;
+      state[table][key] = value;
+    },
+    removeContactTableRow(state, action: PayloadAction<{ table: ContactTableRow; key: string }>) {
+      const { table, key } = action.payload;
+      // Reflect: `delete state[table][key]` is a TS2790 error (operand
+      // must be optional) on the non-undefined index signature.
+      Reflect.deleteProperty(state[table], key);
+    },
+    resetContactTable(state, action: PayloadAction<{ table: ContactTableRow }>) {
+      state[action.payload.table] = createContactSeed()[action.payload.table];
+    },
     resetToDefaults() {
       return createContactSeed();
     },
   },
 });
 
-export const { updateContactContent, resetToDefaults } = contactContentSlice.actions;
+export const {
+  updateContactContent,
+  upsertContactTableRow,
+  removeContactTableRow,
+  resetContactTable,
+  resetToDefaults,
+} = contactContentSlice.actions;
 
 /** Store → stored document → seed: every unreadable state lands on the seed (§7). */
 export const contactContentReducer: typeof contactContentSlice.reducer = (state, action) =>
