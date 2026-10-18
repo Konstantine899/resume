@@ -141,6 +141,40 @@ describe('AdminContactPage (R-2: real store wiring)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
+  it('socials CRUD wires through the real store (add row → modal → store + persist)', async () => {
+    const store = renderPage();
+
+    // Third strip = socials (DOM order: texts, formTexts, socials).
+    const strips = screen.getAllByRole('button', { name: 'adminContactExpandGroup' });
+    fireEvent.click(strips[2] as HTMLElement);
+
+    fireEvent.click(screen.getByTestId('contact-add-socials'));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'website' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialName'), {
+      target: { value: 'Site' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialUrl'), {
+      target: { value: 'https://example.com' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    // Real store: the socials action landed, the persisted doc carries the row.
+    expect(store.getState().contactContent.socialLinks['website']).toEqual({
+      name: 'Site',
+      href: 'https://example.com',
+    });
+    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+      socialLinks: expect.objectContaining({
+        website: { name: 'Site', href: 'https://example.com' },
+      }),
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
   it('save-smoke: persist BEFORE dispatch, store updated, toast contactSaved', async () => {
     const store = renderPage();
 

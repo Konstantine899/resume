@@ -16,18 +16,40 @@ import {
   ContactContentSchema,
   type ContactContent,
 } from '@/entities/ContactContent';
+import { createContactSeed } from './seed';
 
 export const CONTACT_CONTENT_STORAGE_KEY = 'resume.contact.content';
 
 /**
  * Parsed document or `null` — for missing/absent/corrupt/versioned-invalid
  * data alike: every unreadable state falls back to the seed (§7), never a throw.
+ *
+ * contact-social-crud R-1: a document persisted BEFORE the socials table
+ * has no `socialLinks` key — the read-path injects the seed links BEFORE
+ * validation, so missing (legacy) is upgraded while an explicitly saved
+ * `{}` stays empty (the admin really deleted every row).
  */
 export const readContactContent = (): ContactContent | null => {
   try {
     const raw = localStorage.getItem(CONTACT_CONTENT_STORAGE_KEY);
     if (raw === null) return null;
-    const parsed = ContactContentEnvelopeSchema.safeParse(JSON.parse(raw));
+    const parsedJson: unknown = JSON.parse(raw);
+    const upgraded: unknown =
+      parsedJson !== null &&
+      typeof parsedJson === 'object' &&
+      'content' in parsedJson &&
+      parsedJson.content !== null &&
+      typeof parsedJson.content === 'object' &&
+      !('socialLinks' in parsedJson.content)
+        ? {
+            ...parsedJson,
+            content: {
+              ...parsedJson.content,
+              socialLinks: createContactSeed().socialLinks,
+            },
+          }
+        : parsedJson;
+    const parsed = ContactContentEnvelopeSchema.safeParse(upgraded);
     return parsed.success ? parsed.data.content : null;
   } catch {
     return null;

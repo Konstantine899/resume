@@ -32,7 +32,7 @@ import { z } from 'zod';
 import { persistContactContent } from '../../model/services/storage';
 import {
   upsertContactTableRow,
-  type ContactTableRow,
+  type ContactTextTableRow,
 } from '../../model/slices/contactContentSlice';
 import { withTableRows } from './lib/withTableRows';
 import styles from './ContactRowForm.module.scss';
@@ -43,8 +43,8 @@ const MAX_CHARS = { texts: 600, formTexts: 120 } as const;
 export interface ContactRowFormProps {
   /** Current document — the snapshot the save pipeline mutates. */
   content: ContactContent;
-  /** Which table the row belongs to. */
-  table: ContactTableRow;
+  /** Which table the row belongs to (localized-text tables only — R-1). */
+  table: ContactTextTableRow;
   /** All keys of that table — drives the duplicate-key refine. */
   existingKeys: string[];
   /** Existing row → edit mode (key read-only, values prefilled). */
@@ -55,7 +55,11 @@ export interface ContactRowFormProps {
 
 type RowFormValues = z.infer<ReturnType<typeof rowFormSchema>>;
 
-const rowFormSchema = (table: ContactTableRow, existingKeys: string[], originalKey?: string) => {
+const rowFormSchema = (
+  table: ContactTextTableRow,
+  existingKeys: string[],
+  originalKey?: string
+) => {
   const max = MAX_CHARS[table];
   return z.object({
     key: z

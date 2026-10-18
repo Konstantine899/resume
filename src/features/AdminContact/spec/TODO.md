@@ -1,23 +1,39 @@
 ---
-status: done
-epic: contact-row-textarea
-issue: 289
+status: approved
+epic: contact-social-crud
+issue: 293
 created: '2026-10-18'
-verified: '2026-10-18'
 spec: SPEC.md
 ---
 
-# TODO — contact-row-textarea (сожжён)
+# TODO — contact-social-crud
 
-> Эпик ЗАКРЫТ 2026-10-18: squash `e00c6ea` (PR #290, CI все зелёные),
-> issue #289 закрыт вручную. План: vault `plan_admin_contact_migration.md`
-> rev.6 §10.1 (директива владельца 2026-10-18, авто-режим, оценка ≈40–60
-> мин показана перед стартом).
->
-> Выполнено WU-1..4: EN/RU-значения `ContactRowForm` → kit `Textarea`
-> (`rows=3`, `autoResize`, `maxLength` = кап таблицы 600/120, тот же
-> `error`-контракт); `key` (slug) и email остались `Input`; таблицы
-> vitrina и локали не тронуты. TDD: RED (ассерты TEXTAREA на Input-
-> рендере) → GREEN; гейты: validate 3749/3749, check:spec 17, axe 0
-> регрессий, бандл в бюджете 840 KiB (Δ≈0). Контракт — в
-> [SPEC.md](./SPEC.md); история — в git.
+> Контракт: [SPEC.md](./SPEC.md). Правила: выполненный пункт **удаляется**
+> (не отмечается). Каждый WU — отдельный conventional commit.
+> План: vault `plan_admin_contact_migration.md` rev.7 §10.2.
+> **Режим: СТРОГО AUTO** (директива владельца 2026-10-18).
+
+## Оценка времени (показывается перед стартом — директива плана)
+
+≈ 4,5–6 часов агентного времени: WU-1 контракт+схема+seed+storage ~40–50
+мин · WU-2 slice+helper ~40 · WU-3 i18n ~20 · WU-4 `ContactSocialForm`
+TDD ~50 · WU-5 блок в редакторе + тесты ~80–90 · WU-6 страница-тесты
+~30 · WU-7 гейты ~50 · WU-8 PR/CI/merge ~20 · WU-9 бёрн-даун ~30.
+
+- [ ] WU-1 — контракт (`ContactContent.socialLinks` optional в схеме,
+      обязательный в типе) + `ContactSocialLink` + seed из `SOCIAL_LINKS` + read-path merge в `storage.ts` + тесты (старый конверт → seed
+      ссылок, `{}` остаётся пустым, roundtrip)
+- [ ] WU-2 — slice (`ContactTableRow` += socials, union value) +
+      `withTableRows`/`omitKey` widening + тесты upsert/remove/reset
+- [ ] WU-3 — 4 новых i18n-ключа en+ru + parity `adminKeys`
+- [ ] WU-4 — TDD `ContactSocialForm` (RED → GREEN: pristine-Save,
+      slug-валидация/дубликат, name/href-ошибки, persist-пайплайн,
+      persist-fail)
+- [ ] WU-5 — `ContactEditorForm`: CRUD-блок socials (Add/Reset
+      testid-паритет, `.cellActions` Pencil/Trash2, confirm-модалки,
+      URL `variant="ghost"` — тест), удалить read-only-тест (D8)
+- [ ] WU-6 — `AdminContactPage.test`: socials add-row через реальный стор
+- [ ] WU-7 — гейты: полный `npm run validate` (CPU-окно), `check:axe`,
+      `check:bundle`, `check:spec`, preview smoke light+dark
+- [ ] WU-8 — PR `--base dev` → CI → merge → ручное закрытие issue #293
+- [ ] WU-9 — бёрн-даун пары + dual-write (vault + AGENTS.md)

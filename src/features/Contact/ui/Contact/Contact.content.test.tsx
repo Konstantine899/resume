@@ -58,6 +58,7 @@ const STORE_CONTENT: ContactContent = {
     contactFormError: { en: 'store error en', ru: 'STORE_ERROR_RU' },
     contactFormConfigError: { en: 'store config en', ru: 'STORE_CONFIG_RU' },
   },
+  socialLinks: {},
 };
 
 describe('Contact: read-path via the content prop (WU-2)', () => {

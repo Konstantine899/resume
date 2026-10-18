@@ -14,13 +14,19 @@
 // - the email keeps its own inline Save (D6, merged snapshot via the
 //   full-replace `updateContactContent`).
 //
+// contact-social-crud (plan rev.7 §10.2, R-5): the socials Card joins the
+// CRUD set (owner directive 2026-10-18 — D8 read-only is closed): rows
+// render from ContactContent.socialLinks, every URL cell is a ghost-variant
+// kit Link, rows carry Pencil/Trash2 in `.cellActions`, the header has
+// Add/Reset, and row add/edit goes through <ContactSocialForm/> in its
+// own Modal. SOCIAL_LINKS stays the SEED source (vitrina/Nav keep
+// reading the constant — split-brain accepted until the DB lands).
+//
 // Invariants kept from the stage-1 form:
 // - persist BEFORE dispatch; a failed write toasts and keeps the modal open.
-// - SOCIAL_LINKS is read-only (decision B): preview Card, no actions (D8).
 // - ALL copy is i18n key lookups, never literals.
 
-import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
-import { SOCIAL_LINKS } from '@/entities/Developer';
+import type { ContactContent, ContactSocialLink, LocalizedText } from '@/entities/ContactContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -43,12 +49,15 @@ import { selectContactContent } from '../../model/selectors/selectors';
 import { createContactSeed } from '../../model/services/seed';
 import { persistContactContent } from '../../model/services/storage';
 import {
+  contactTableField,
   removeContactTableRow,
   resetContactTable,
   updateContactContent,
   type ContactTableRow,
+  type ContactTextTableRow,
 } from '../../model/slices/contactContentSlice';
 import { ContactRowForm } from '../ContactRowForm/ContactRowForm';
+import { ContactSocialForm } from '../ContactSocialForm/ContactSocialForm';
 import { withTableRows } from '../ContactRowForm/lib/withTableRows';
 import styles from './ContactEditorForm.module.scss';
 
@@ -61,18 +70,14 @@ interface TableRow {
   value: LocalizedText;
 }
 
-interface SocialRow {
-  name: string;
-  href: string;
-}
-
-const SOCIAL_ROWS: SocialRow[] = SOCIAL_LINKS.map(({ name, href }) => ({ name, href }));
-
 /** The email must stay a syntactically valid address (schema parity). */
 const emailSchema = z.string().trim().pipe(z.email());
 
 /** Row deletion without the TS2790 `delete` restriction (slice parity). */
-const omitKey = (rows: Record<string, LocalizedText>, key: string) => {
+const omitKey = (
+  rows: Record<string, LocalizedText> | Record<string, ContactSocialLink>,
+  key: string
+) => {
   const copy = { ...rows };
   Reflect.deleteProperty(copy, key);
   return copy;
@@ -102,9 +107,10 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const [emailDraft, setEmailDraft] = useState(content.email);
 
   // R-5: the row form modal (add when `row` is undefined, edit otherwise).
-  const [pendingRow, setPendingRow] = useState<{ table: ContactTableRow; row?: TableRow } | null>(
-    null
-  );
+  const [pendingRow, setPendingRow] = useState<{
+    table: ContactTextTableRow;
+    row?: TableRow;
+  } | null>(null);
   // R-6: delete-row confirm + per-table reset confirm.
   const [pendingDelete, setPendingDelete] = useState<{
     table: ContactTableRow;
@@ -115,23 +121,36 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const cancelDeleteRef = useRef<HTMLButtonElement>(null);
   const cancelResetRef = useRef<HTMLButtonElement>(null);
 
+  // R-5 (contact-social-crud): the social-row modal is its own state —
+  // ContactSocialForm has a different row shape than ContactRowForm.
+  const [pendingSocialRow, setPendingSocialRow] = useState<{
+    row?: { key: string; value: ContactSocialLink };
+  } | null>(null);
+
   const closeRowModal = () => setPendingRow(null);
-  const openAddRow = (table: ContactTableRow) => setPendingRow({ table });
-  const openEditRow = (table: ContactTableRow, row: TableRow) => setPendingRow({ table, row });
+  const closeSocialRowModal = () => setPendingSocialRow(null);
+  const openAddRow = (table: ContactTextTableRow) => setPendingRow({ table });
+  const openEditRow = (table: ContactTextTableRow, row: TableRow) => setPendingRow({ table, row });
   const closeDelete = () => setPendingDelete(null);
   const closeResetTable = () => setPendingResetTable(null);
 
   const groupName = (table: ContactTableRow) =>
-    t(table === 'texts' ? 'adminFieldTexts' : 'adminFieldFormTexts');
+    table === 'texts'
+      ? t('adminFieldTexts')
+      : table === 'formTexts'
+        ? t('adminFieldFormTexts')
+        : t('adminContactSocials');
 
-  const tableRows = (table: ContactTableRow): TableRow[] =>
+  const tableRows = (table: ContactTextTableRow): TableRow[] =>
     Object.entries(content[table]).map(([key, value]) => ({ key, value }));
+
+  const socialRows = Object.entries(content.socialLinks).map(([key, value]) => ({ key, value }));
 
   /** R-6: persist-fail toasts and KEEPS the confirm modal open (state untouched). */
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
     const { table, key } = pendingDelete;
-    const next = withTableRows(content, table, omitKey(content[table], key));
+    const next = withTableRows(content, table, omitKey(content[contactTableField(table)], key));
     if (!persistContactContent(next)) {
       addToast({ message: t('contactSaveError'), type: 'error' });
       return; // modal stays open (gold standard)
@@ -144,7 +163,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const handleConfirmResetTable = () => {
     if (!pendingResetTable) return;
     const table = pendingResetTable;
-    const next = withTableRows(content, table, createContactSeed()[table]);
+    const next = withTableRows(content, table, createContactSeed()[contactTableField(table)]);
     if (!persistContactContent(next)) {
       addToast({ message: t('contactSaveError'), type: 'error' });
       return; // modal stays open
@@ -170,7 +189,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     addToast({ message: t('contactSaved'), type: 'success' });
   };
 
-  const makeColumns = (table: ContactTableRow) => [
+  const makeColumns = (table: ContactTextTableRow) => [
     {
       key: 'field',
       header: t('adminContactTableField'),
@@ -212,7 +231,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     },
   ];
 
-  const renderTableGroup = (table: ContactTableRow) => {
+  const renderTableGroup = (table: ContactTextTableRow) => {
     const rows = tableRows(table);
     const name = groupName(table);
     // Stable id: aria-controls resolves before AND after the unmount
@@ -363,27 +382,100 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
                       onClick={() => collapseGroup('socials')}
                     />
                   </Tooltip>
-                  <Heading level={3}>{name}</Heading>
+                  <Heading level={3}>
+                    {name}{' '}
+                    <Badge variant="outline" size="sm">
+                      {socialRows.length}
+                    </Badge>
+                  </Heading>
+                </div>
+                {/* Req-4: Add row + Reset table (texts/formTexts parity). */}
+                <div className={styles.actions} data-testid="contact-actions-socials">
+                  <Tooltip content={t('adminContactAddRow')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                      ariaLabel={t('adminContactAddRow')}
+                      data-testid="contact-add-socials"
+                      onClick={() => setPendingSocialRow({})}
+                    />
+                  </Tooltip>
+                  <Tooltip content={t('adminContactResetRows')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+                      ariaLabel={t('adminContactResetRows')}
+                      data-testid="contact-reset-socials"
+                      onClick={() => setPendingResetTable('socials')}
+                    />
+                  </Tooltip>
                 </div>
               </div>
               <div className={styles.blockContent} id={contentId}>
                 <Table
                   caption={name}
-                  rows={SOCIAL_ROWS}
-                  getKey={(row) => row.name}
+                  rows={socialRows}
+                  getKey={(row) => row.key}
                   columns={[
                     {
                       key: 'name',
                       header: t('adminContactSocialName'),
-                      render: (row: SocialRow) => row.name,
+                      render: (row) => row.value.name,
                     },
                     {
                       key: 'url',
                       header: t('adminContactSocialUrl'),
-                      render: (row: SocialRow) => (
-                        <Link href={row.href} external showExternalIcon={false}>
-                          {row.href}
+                      // Req-1: the URL cell is a ghost-variant kit Link.
+                      render: (row) => (
+                        <Link
+                          href={row.value.href}
+                          variant="ghost"
+                          external
+                          showExternalIcon={false}
+                        >
+                          {row.value.href}
                         </Link>
+                      ),
+                    },
+                    {
+                      // Req-2: Pencil/Trash2 in the nowrap `.cellActions` cell.
+                      key: 'actions',
+                      header: t('adminContactTableActions'),
+                      render: (row) => (
+                        <div className={styles.cellActions}>
+                          <Tooltip content={t('adminContactEditRow')} position="top" showDelay={0}>
+                            <IconButton
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                              ariaLabel={t('adminContactEditRow')}
+                              data-testid={`contact-edit-socials-${row.key}`}
+                              onClick={() =>
+                                setPendingSocialRow({ row: { key: row.key, value: row.value } })
+                              }
+                            />
+                          </Tooltip>
+                          <Tooltip
+                            content={t('adminContactDeleteRow')}
+                            position="top"
+                            showDelay={0}
+                          >
+                            <IconButton
+                              type="button"
+                              variant="danger"
+                              size="sm"
+                              icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                              ariaLabel={t('adminContactDeleteRow')}
+                              data-testid={`contact-delete-socials-${row.key}`}
+                              onClick={() => setPendingDelete({ table: 'socials', key: row.key })}
+                            />
+                          </Tooltip>
+                        </div>
                       ),
                     },
                   ]}
@@ -448,6 +540,26 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
             existingKeys={Object.keys(content[pendingRow.table])}
             row={pendingRow.row}
             onExitEdit={closeRowModal}
+          />
+        ) : null}
+      </Modal>
+
+      {/* R-5 (contact-social-crud): the social-row form modal — the same
+          operation titles, the subtitle names the socials table. */}
+      <Modal
+        isOpen={pendingSocialRow !== null}
+        onClose={closeSocialRowModal}
+        title={t(pendingSocialRow?.row ? 'adminContactEditRow' : 'adminContactAddRow')}
+        subtitle={t('adminContactSocials')}
+        size="md"
+      >
+        {pendingSocialRow ? (
+          <ContactSocialForm
+            key={`socials-${pendingSocialRow.row?.key ?? 'new'}`}
+            content={content}
+            existingKeys={Object.keys(content.socialLinks)}
+            row={pendingSocialRow.row}
+            onExitEdit={closeSocialRowModal}
           />
         ) : null}
       </Modal>

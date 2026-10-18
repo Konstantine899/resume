@@ -10,7 +10,6 @@
 // against a seed-shaped state (ContactEditorForm old suite pattern).
 
 import type { ContactContent } from '@/entities/ContactContent';
-import { SOCIAL_LINKS } from '@/entities/Developer';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContactEditorForm } from './ContactEditorForm';
@@ -365,17 +364,89 @@ describe('ContactEditorForm: confirmations (R-6)', () => {
   });
 });
 
-describe('ContactEditorForm: socials card (R-4/D8)', () => {
-  it('expands into a read-only table without any actions', () => {
+describe('ContactEditorForm: socials card CRUD (contact-social-crud R-5)', () => {
+  it('renders document rows with ghost links, per-row actions and header affordances', () => {
     renderForm();
     expandGroup(2);
 
-    expect(screen.getByRole('table')).toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(SOCIAL_LINKS.length + 1);
-    // Read-only decision B: no row actions, no Add/Reset header buttons.
-    expect(screen.queryAllByTestId(/^contact-edit-/)).toHaveLength(0);
-    expect(screen.queryAllByTestId(/^contact-delete-/)).toHaveLength(0);
-    expect(screen.queryByTestId('contact-actions-socials')).not.toBeInTheDocument();
+    // Rows come from ContactContent.socialLinks (3 seed rows + header).
+    expect(screen.getAllByRole('row')).toHaveLength(Object.keys(SEED.socialLinks).length + 1);
+
+    // Req-1: every URL cell is a ghost-variant kit Link (owner directive).
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(Object.keys(SEED.socialLinks).length);
+    for (const link of links) {
+      expect(link.className).toContain('ghost');
+    }
+
+    // Req-2: per-row Pencil/Trash2 …
+    expect(screen.getByTestId('contact-edit-socials-github')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-delete-socials-github')).toBeInTheDocument();
+    // … and the header Add/Reset affordances (req-4, Jobs/Skills parity).
+    expect(screen.getByTestId('contact-actions-socials')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-add-socials')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-reset-socials')).toBeInTheDocument();
+  });
+
+  it('add row: the modal form persists and upserts a social row', async () => {
+    renderForm();
+    expandGroup(2);
+
+    fireEvent.click(screen.getByTestId('contact-add-socials'));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('adminContactAddRow')).toBeInTheDocument();
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'website' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialName'), {
+      target: { value: 'Site' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialUrl'), {
+      target: { value: 'https://example.com' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
+
+    await waitFor(() =>
+      expect(upsertSpy).toHaveBeenCalledWith({
+        table: 'socials',
+        key: 'website',
+        value: { name: 'Site', href: 'https://example.com' },
+      })
+    );
+    const persisted = lastPersisted();
+    expect(persisted.socialLinks['website']).toEqual({ name: 'Site', href: 'https://example.com' });
+    expect(persisted.texts).toEqual(SEED.texts); // other tables untouched
+  });
+
+  it('delete row: the confirm removes ONLY that social row', async () => {
+    renderForm();
+    expandGroup(2);
+
+    fireEvent.click(screen.getByTestId('contact-delete-socials-github'));
+    fireEvent.click(screen.getByTestId('contact-delete-confirm'));
+
+    await waitFor(() =>
+      expect(removeRowSpy).toHaveBeenCalledWith({ table: 'socials', key: 'github' })
+    );
+    const persisted = lastPersisted();
+    expect(persisted.socialLinks['github']).toBeUndefined();
+    expect(Object.keys(persisted.socialLinks)).toEqual(['linkedin', 'telegram']);
+    expect(persisted.texts).toEqual(SEED.texts);
+  });
+
+  it('reset: the confirm restores the socials seed through the document', async () => {
+    renderForm();
+    expandGroup(2);
+
+    fireEvent.click(screen.getByTestId('contact-delete-socials-github'));
+    fireEvent.click(screen.getByTestId('contact-delete-confirm'));
+    await waitFor(() => expect(removeRowSpy).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByTestId('contact-reset-socials'));
+    fireEvent.click(screen.getByTestId('contact-reset-confirm'));
+
+    await waitFor(() => expect(resetTableSpy).toHaveBeenCalledWith({ table: 'socials' }));
+    expect(lastPersisted().socialLinks).toEqual(SEED.socialLinks);
   });
 });
 
