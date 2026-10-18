@@ -111,7 +111,8 @@ value: LocalizedText})`, `removeContactTableRow({table, key})`,
   A12; subtitle = имя таблицы); Save/Cancel — `contactSave`/`contactCancel`.
 - Валидация: пустой/невалидный ключ → `adminContactRowKeyInvalid`;
   дубль в пределах таблицы → `adminContactRowKeyExists`; пустое значение →
-  `adminContactRowValueRequired`.
+  `adminContactRowValueRequired`; превышение лимита таблицы →
+  `adminContactRowValueMax`.
 - Наблюдаемый исход: pristine Save disabled; дубль блокирует с ошибком;
   успешный Save → persist+dispatch+toast+закрытие+новое значение в ячейке.
 
@@ -140,8 +141,8 @@ value: LocalizedText})`, `removeContactTableRow({table, key})`,
   `adminContactRowEn`, `adminContactRowRu`, `adminContactResetRows`,
   `adminContactResetRowsConfirm`, `adminContactExpandGroup`,
   `adminContactCollapseGroup`, `adminContactRowKeyInvalid`,
-  `adminContactRowKeyExists`, `adminContactRowValueRequired` (+ при
-  необходимости `adminContactEmailSave`).
+  `adminContactRowKeyExists`, `adminContactRowValueRequired`,
+  `adminContactRowValueMax`.
 - Переиспользуются: `contactSave`, `contactCancel`, `contactSaved`,
   `contactSaveError`, `adminFieldTexts`, `adminFieldFormTexts`,
   `adminContactSocials` и др. `locales-parity.test` НЕ правится.

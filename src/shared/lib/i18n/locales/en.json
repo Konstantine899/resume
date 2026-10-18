@@ -141,6 +141,7 @@
   "adminContactRowKeyInvalid": "Use a Latin key: letters, digits, «_» and «-», starting with a letter.",
   "adminContactRowKeyExists": "This key already exists in the table.",
   "adminContactRowValueRequired": "Both locales are required.",
+  "adminContactRowValueMax": "Up to {{max}} characters per locale.",
   "adminFieldEmail": "Contact email",
   "adminFieldTexts": "Section and form labels",
   "adminFieldFormTexts": "Form outcome messages",
