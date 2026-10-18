@@ -2,11 +2,19 @@
 // Locale parity invariant (plan WU-6, admin-panel)
 // ============================================
 //
-// en/ru must always expose the SAME key set with non-empty values, and the
-// admin keys wired up by WU-1..WU-5 must exist — deleting or renaming one
-// side silently ships raw keys to the UI. Read from disk (the
+// en/ru must always expose the SAME key set with non-empty values — deleting
+// or renaming one side silently ships raw keys to the UI. Read from disk (the
 // theme-tokens/keyframes precedent): jsdom never loads the JSON through the
 // i18n runtime, and the source files are the artifact under test.
+//
+// Issue #300 (i18n invariants) extends this file with the two whole-set
+// invariants that supersede the old pinned `adminKeys` list:
+//   1. placeholder parity for EVERY key carrying {{…}} (a one-sided
+//      placeholder ships a literal `{{name}}` in the other language);
+//   2. non-emptiness for EVERY value outside a tiny explicit allowlist.
+// Key EXISTENCE for rendered copy is guarded by t-key-existence.test.ts
+// (static t('…') scan + pinned dynamic keys), which covers strictly more
+// than the old list did.
 
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -19,6 +27,17 @@ const readLocale = (name: 'en' | 'ru'): Record<string, string> =>
 
 const en = readLocale('en');
 const ru = readLocale('ru');
+
+// The ONLY legitimately-empty values: an empty alt text is the ACCESSIBLE
+// choice for decorative images (imageAltDecorative). Anything else empty is
+// a broken translation — keep this allowlist tiny and justified.
+const ALLOWED_EMPTY = new Set(['imageAltDecorative']);
+
+// Placeholder-name extraction: `{{name}}`, tolerant of inner whitespace.
+const PLACEHOLDER = /\{\{\s*([\w.-]+)\s*\}\}/g;
+
+const placeholderNames = (value: string): string[] =>
+  [...value.matchAll(PLACEHOLDER)].map((match) => match[1] as string).sort();
 
 describe('locale parity (WU-6)', () => {
   it('en and ru expose exactly the same key set', () => {
@@ -52,185 +71,74 @@ describe('locale parity (WU-6)', () => {
     expect(ruEmpty).toEqual(enEmpty);
   });
 
-  it('the admin keys used by WU-1..WU-5 exist on both sides', () => {
-    const adminKeys = [
-      'adminBackToSite',
-      'adminNavLabel',
-      'adminNavDashboard',
-      'adminNavSettings',
-      'adminSettings',
-      'adminDashboardEmpty',
-      'adminMetricProjects',
-      'adminMetricSkills',
-      'adminMetricSections',
-      'adminLogout',
-      'adminComingSoon',
-      // About CRUD stage-1 (plan_about_crud §10 WU-3) — all 16 keys.
-      'adminNavAbout',
-      'adminAboutTitle',
-      'adminAboutHint',
-      'aboutFieldFullName',
-      'aboutFieldDescriptions',
-      'aboutFieldStats',
-      'aboutFieldCta',
-      'aboutSave',
-      'aboutReset',
-      'aboutSaved',
-      'aboutSaveError',
-      'aboutResetConfirm',
-      // admin-about-refactor WU-1 (SPEC R-1): the Modal's «Отмена» button.
-      'aboutCancel',
-      'aboutNameRequired',
-      'aboutParagraphEmpty',
-      'aboutStatRequired',
-      'aboutCtaRequired',
-      // Contact CRUD stage-1 (plan_contact_crud §10 WU-3) — all 14 keys.
-      'adminNavContact',
-      'adminContactTitle',
-      'adminContactHint',
-      'adminFieldEmail',
-      'adminFieldTexts',
-      'adminFieldFormTexts',
-      'contactSave',
-      'contactReset',
-      'contactSaved',
-      'contactSaveError',
-      'contactResetConfirm',
-      // admin-contact-refactor WU-1 (SPEC R-1): the Modal's «Отмена» button.
-      'contactCancel',
-      'contactEmailInvalid',
-      'contactTextEmpty',
-      'contactFormTextEmpty',
-      // WorkHistory CRUD stage-1 (plan_workhistory_crud WU-3) — 14 plan keys
-      // + adminNavJobs (the plan's key lists omit the nav label, but every
-      // other admin section ships an adminNav* key and WU-5's sidebar entry
-      // follows the same pattern).
-      'workHistoryEmpty',
-      'adminJobs',
-      'adminAddJob',
-      'adminEditJob',
-      'adminJobsEmpty',
-      'adminNavJobs',
-      'adminJobErrCompany',
-      'adminJobErrPosition',
-      'adminJobErrStartDate',
-      'adminJobErrEndDate',
-      'adminJobErrDescription',
-      'adminJobErrTechnologies',
-      'adminJobErrLocation',
-      'adminJobErrUrl',
-      'adminJobErrEnum',
-      // WU-5 form + list copy: the plan's WU-5 keys (the four admin basics
-      // shipped in WU-3) + adminJobPositionEn/Ru — the plan lists one
-      // adminJobPosition, but the form has two locale inputs
-      // (position.en / position.ru) and each needs its label, so the single
-      // label was never rendered and admin-jobs-refactor WU-8 (SPEC R-8)
-      // deleted it as dead copy.
-      'adminJobCompany',
-      'adminJobPositionEn',
-      'adminJobPositionRu',
-      'adminJobStartDate',
-      'adminJobEndDate',
-      'adminJobCurrent',
-      'adminJobDescription',
-      'adminJobTechnologies',
-      'adminJobLocation',
-      'adminJobEmploymentType',
-      'adminJobLevel',
-      'adminJobCompanyUrl',
-      'adminJobFeatured',
-      'adminJobAddBullet',
-      'adminJobRemoveBullet',
-      // Editor affordances beyond the plan's list: bullet reorder needs
-      // i18n aria-labels, the two description blocks need visible per-locale
-      // headings, and the chip editor has add/remove controls.
-      'adminJobBulletUp',
-      'adminJobBulletDown',
-      'adminJobDescriptionEn',
-      'adminJobDescriptionRu',
-      'adminJobAddTech',
-      'adminJobRemoveTech',
-      'adminJobSave',
-      // Not in the plan's 33-key list — the Save/Cancel row and the Modal
-      // confirm both need it (Skills reuses skillsCancel; jobs stays
-      // self-contained instead of borrowing another feature's key).
-      'adminJobCancel',
-      'adminJobDelete',
-      'adminJobConfirmDelete',
-      // admin-jobs-refactor WU-3 (SPEC R-3): confirm subtitle NAMES the
-      // company (SkillsEditorList OPEN-10 parity).
-      'adminJobConfirmDeleteName',
-      // admin-jobs-refactor WU-6 (SPEC R-6): DataTable column headers.
-      'adminJobsTableCompany',
-      'adminJobsTablePosition',
-      'adminJobsTablePeriod',
-      'adminJobsTableFlags',
-      'adminJobsTableActions',
-      'adminJobSaved',
-      'adminJobDeleted',
-      'adminJobPersistError',
-      // admin-mywork-refactor WU-2 (SPEC R-2): confirm subtitle NAMES the
-      // project (adminJobConfirmDeleteName / skillsConfirmDelete parity).
-      'projectConfirmDeleteName',
-      // admin-mywork-refactor WU-4 (SPEC R-4): the add-affordance that
-      // makes create mode reachable (the form modal lives on the page).
-      'adminMyWorkAdd',
-      // admin-mywork-refactor WU-5 (SPEC R-5): the detail table the
-      // ProjectCard renders (field | value | actions) — the old DataTable
-      // vitrina headers (Title/Category/Status/Featured/Year) died with
-      // the vitrina (mywork-parity-polish WU-4, issue #252).
-      'adminMyWorkTableActions',
-      // Technologies CRUD (#258, SPEC §i18n) — nav label included, per the
-      // adminNav* pattern noted above.
-      'adminNavTechnologies',
-      'adminTechnologiesTitle',
-      'adminTechnologiesHint',
-      'adminTechnologiesAdd',
-      'adminTechnologiesEmpty',
-      'adminTechnologiesEdit',
-      'adminTechnologiesDelete',
-      'adminTechKeyLabel',
-      'adminTechInvertLabel',
-      'adminTechInvertYes',
-      'adminTechInvertNo',
-      'adminTechKeyInvalid',
-      'adminTechKeyExists',
-      'adminTechSave',
-      'adminTechCancel',
-      'adminTechConfirmDelete',
-      'adminTechDeleteInUse',
-      'adminTechFormSubtitle',
-      'adminTechSaved',
-      'adminTechDeleted',
-      'adminTechPersistError',
-      'adminTechTableIcon',
-      'adminTechTableKey',
-      'adminTechTableActions',
-      // tech-icon-upload (#261, A1/A5) — the FileUpload label + texts, the
-      // two flow errors, the create-required error and the preview caption.
-      // The URL-input copy (adminTechIconUrlLabel / adminTechUrlInvalid)
-      // died with the Input — see the retired-keys test below.
-      'adminTechIconUploadLabel',
-      'adminTechIconUploadButton',
-      'adminTechIconUploadHint',
-      'adminTechIconUploadNotImage',
-      'adminTechIconUploadTooLarge',
-      'adminTechIconUploadUndecodable',
-      'adminTechIconUploadSelected',
-      'adminTechIconUploadUnsupported',
-      'adminTechIconUploadSaveError',
-      'adminTechIconRequired',
-      'adminTechIconCurrent',
-    ];
+  it('no value is empty outside the explicit allowlist (issue #300)', () => {
+    // Whole-set successor of the old adminKeys emptiness loop: instead of 130
+    // pinned keys, EVERY value on both sides must carry real copy — an empty
+    // translation renders nothing with no test going red.
+    for (const [loc, dict] of [
+      ['en', en],
+      ['ru', ru],
+    ] as const) {
+      const unexpectedEmpty = Object.entries(dict)
+        .filter(([key, value]) => value.trim() === '' && !ALLOWED_EMPTY.has(key))
+        .map(([key]) => key)
+        .sort();
+      expect(unexpectedEmpty, `${loc} unexpectedly empty values`).toEqual([]);
+    }
 
-    for (const key of adminKeys) {
-      expect(en, `en missing ${key}`).toHaveProperty(key);
-      expect(ru, `ru missing ${key}`).toHaveProperty(key);
-      // `?? ''`: toHaveProperty already asserted existence above — here we only
-      // guard the noUncheckedIndexedAccess index access; a missing key would
-      // collapse to '' and fail the emptiness assertion anyway.
-      expect((en[key] ?? '').trim(), `en ${key} empty`).not.toBe('');
-      expect((ru[key] ?? '').trim(), `ru ${key} empty`).not.toBe('');
+    // The allowlist must stay honest: entries must exist and must actually BE
+    // empty — otherwise delete them from the allowlist instead of growing it.
+    for (const key of ALLOWED_EMPTY) {
+      expect(en, `allowlisted ${key} missing from en`).toHaveProperty(key);
+      expect(ru, `allowlisted ${key} missing from ru`).toHaveProperty(key);
+      expect((en[key] ?? '').trim(), `allowlisted ${key} is no longer empty in en`).toBe('');
+      expect((ru[key] ?? '').trim(), `allowlisted ${key} is no longer empty in ru`).toBe('');
+    }
+  });
+
+  it('every key with {{placeholders}} carries the same placeholder names in ru (issue #300)', () => {
+    // Whole-set successor of the old aboutResetConfirm point test: a one-sided
+    // placeholder ships a literal `{{name}}` in the other language. A missing
+    // ru key collapses to '' via ?? and fails the comparison anyway.
+    const enWithPlaceholders = Object.entries(en).filter(
+      ([, value]) => placeholderNames(value).length > 0
+    );
+    // Vacuous-scan guard: the matcher must actually fire (aboutResetConfirm,
+    // skillsConfirmDelete*, paginationRange… carry placeholders today).
+    expect(enWithPlaceholders.length).toBeGreaterThan(0);
+
+    for (const [key, value] of Object.entries(en)) {
+      expect(placeholderNames(ru[key] ?? ''), `ru.${key} placeholder names differ from en`).toEqual(
+        placeholderNames(value)
+      );
+    }
+  });
+
+  it('no value carries corrupted {{ }} constructs (issue #300)', () => {
+    // Catches what the parity loop above cannot: a malformed construct that
+    // matches on NEITHER side ({{name, {{name }}, {{na{me}}}) still renders
+    // as visible braces garbage in the UI.
+    for (const [loc, dict] of [
+      ['en', en],
+      ['ru', ru],
+    ] as const) {
+      for (const [key, value] of Object.entries(dict)) {
+        const opens = (value.match(/\{\{/g) ?? []).length;
+        const closes = (value.match(/\}\}/g) ?? []).length;
+        expect(opens, `${loc}.${key}: unbalanced {{ / }} in "${value}"`).toBe(closes);
+
+        // After removing every well-formed {{name}} token, nothing may remain
+        // that still looks like an opener/closer — that residue is a broken
+        // construct i18next will NOT interpolate.
+        const residue = (value.match(PLACEHOLDER) ?? []).reduce(
+          (rest, token) => rest.replace(token, ''),
+          value
+        );
+        expect(
+          residue.includes('{{') || residue.includes('}}'),
+          `${loc}.${key}: malformed placeholder in "${value}"`
+        ).toBe(false);
+      }
     }
   });
 
@@ -249,14 +157,5 @@ describe('locale parity (WU-6)', () => {
     expect(ru).not.toHaveProperty('adminTechIconUrlLabel');
     expect(en).not.toHaveProperty('adminTechUrlInvalid');
     expect(ru).not.toHaveProperty('adminTechUrlInvalid');
-  });
-
-  it('aboutResetConfirm interpolates {{name}} on both sides (admin-about-refactor WU-1)', () => {
-    // R-1: the confirm subtitle NAMES the entity — one-sided placeholders
-    // would ship a literal `{{name}}` in the other language. `?? ''` only
-    // guards the noUncheckedIndexedAccess index; a missing key collapses
-    // to '' and fails the containment assertion anyway.
-    expect(en.aboutResetConfirm ?? '').toContain('{{name}}');
-    expect(ru.aboutResetConfirm ?? '').toContain('{{name}}');
   });
 });
