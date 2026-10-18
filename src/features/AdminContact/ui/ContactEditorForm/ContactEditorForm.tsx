@@ -29,6 +29,7 @@
 import type { ContactContent, ContactSocialLink, LocalizedText } from '@/entities/ContactContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Badge } from '@/shared/ui/Badge';
 import { Button, IconButton } from '@/shared/ui/Button';
@@ -42,7 +43,7 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import { Minus, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { z } from 'zod';
 import { selectContactContent } from '../../model/selectors/selectors';
@@ -111,15 +112,46 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     table: ContactTextTableRow;
     row?: TableRow;
   } | null>(null);
-  // R-6: delete-row confirm + per-table reset confirm.
-  const [pendingDelete, setPendingDelete] = useState<{
-    table: ContactTableRow;
-    key: string;
-  } | null>(null);
-  const [pendingResetTable, setPendingResetTable] = useState<ContactTableRow | null>(null);
+  // R-6: delete-row confirm + per-table reset confirm — the destructive-
+  // confirm state machines extracted to the shared hook (issue #302).
+  const {
+    pending: pendingDelete,
+    cancelRef: cancelDeleteRef,
+    request: requestDelete,
+    cancel: closeDelete,
+    confirm: handleConfirmDelete,
+  } = useConfirmAction<{ table: ContactTableRow; key: string }>({
+    onConfirm: ({ table, key }) => {
+      // R-6: persist-fail toasts and KEEPS the confirm modal open.
+      const next = withTableRows(content, table, omitKey(content[contactTableField(table)], key));
+      if (!persistContactContent(next)) {
+        addToast({ message: t('contactSaveError'), type: 'error' });
+        return false; // modal stays open (gold standard)
+      }
+      dispatch(removeContactTableRow({ table, key }));
+      addToast({ message: t('contactSaved'), type: 'success' });
+      return true;
+    },
+  });
 
-  const cancelDeleteRef = useRef<HTMLButtonElement>(null);
-  const cancelResetRef = useRef<HTMLButtonElement>(null);
+  const {
+    pending: pendingResetTable,
+    cancelRef: cancelResetRef,
+    request: requestResetTable,
+    cancel: closeResetTable,
+    confirm: handleConfirmResetTable,
+  } = useConfirmAction<ContactTableRow>({
+    onConfirm: (table) => {
+      const next = withTableRows(content, table, createContactSeed()[contactTableField(table)]);
+      if (!persistContactContent(next)) {
+        addToast({ message: t('contactSaveError'), type: 'error' });
+        return false; // modal stays open
+      }
+      dispatch(resetContactTable({ table }));
+      addToast({ message: t('contactSaved'), type: 'success' });
+      return true;
+    },
+  });
 
   // R-5 (contact-social-crud): the social-row modal is its own state —
   // ContactSocialForm has a different row shape than ContactRowForm.
@@ -131,8 +163,6 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const closeSocialRowModal = () => setPendingSocialRow(null);
   const openAddRow = (table: ContactTextTableRow) => setPendingRow({ table });
   const openEditRow = (table: ContactTextTableRow, row: TableRow) => setPendingRow({ table, row });
-  const closeDelete = () => setPendingDelete(null);
-  const closeResetTable = () => setPendingResetTable(null);
 
   const groupName = (table: ContactTableRow) =>
     table === 'texts'
@@ -145,33 +175,6 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     Object.entries(content[table]).map(([key, value]) => ({ key, value }));
 
   const socialRows = Object.entries(content.socialLinks).map(([key, value]) => ({ key, value }));
-
-  /** R-6: persist-fail toasts and KEEPS the confirm modal open (state untouched). */
-  const handleConfirmDelete = () => {
-    if (!pendingDelete) return;
-    const { table, key } = pendingDelete;
-    const next = withTableRows(content, table, omitKey(content[contactTableField(table)], key));
-    if (!persistContactContent(next)) {
-      addToast({ message: t('contactSaveError'), type: 'error' });
-      return; // modal stays open (gold standard)
-    }
-    dispatch(removeContactTableRow({ table, key }));
-    addToast({ message: t('contactSaved'), type: 'success' });
-    closeDelete();
-  };
-
-  const handleConfirmResetTable = () => {
-    if (!pendingResetTable) return;
-    const table = pendingResetTable;
-    const next = withTableRows(content, table, createContactSeed()[contactTableField(table)]);
-    if (!persistContactContent(next)) {
-      addToast({ message: t('contactSaveError'), type: 'error' });
-      return; // modal stays open
-    }
-    dispatch(resetContactTable({ table }));
-    addToast({ message: t('contactSaved'), type: 'success' });
-    closeResetTable();
-  };
 
   const emailParsed = emailSchema.safeParse(emailDraft);
   const emailValid = emailParsed.success;
@@ -223,7 +226,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
               icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
               ariaLabel={t('adminContactDeleteRow')}
               data-testid={`contact-delete-${row.key}`}
-              onClick={() => setPendingDelete({ table, key: row.key })}
+              onClick={() => requestDelete({ table, key: row.key })}
             />
           </Tooltip>
         </div>
@@ -311,7 +314,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
                       icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
                       ariaLabel={t('adminContactResetRows')}
                       data-testid={`contact-reset-${table}`}
-                      onClick={() => setPendingResetTable(table)}
+                      onClick={() => requestResetTable(table)}
                     />
                   </Tooltip>
                 </div>
@@ -410,7 +413,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
                       icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
                       ariaLabel={t('adminContactResetRows')}
                       data-testid="contact-reset-socials"
-                      onClick={() => setPendingResetTable('socials')}
+                      onClick={() => requestResetTable('socials')}
                     />
                   </Tooltip>
                 </div>
@@ -472,7 +475,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
                               icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                               ariaLabel={t('adminContactDeleteRow')}
                               data-testid={`contact-delete-socials-${row.key}`}
-                              onClick={() => setPendingDelete({ table: 'socials', key: row.key })}
+                              onClick={() => requestDelete({ table: 'socials', key: row.key })}
                             />
                           </Tooltip>
                         </div>
