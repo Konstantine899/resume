@@ -10,6 +10,7 @@ export {
   ContactFormDataSchema,
   SOCIAL_HREF_MAX,
   SOCIAL_NAME_MAX,
+  isHttpsUrl,
   type ContactContentEnvelope,
   type ContactFormDataInput,
 } from './model/services/schema';

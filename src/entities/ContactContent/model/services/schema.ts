@@ -43,14 +43,22 @@ const localizedText = (max: number) =>
 export const SOCIAL_NAME_MAX = 48;
 export const SOCIAL_HREF_MAX = 2048;
 
-/** One social row — https-only href (Technology.url precedent). */
+/**
+ * One https-URL rule for the contract AND the admin form (S9 single
+ * source): `new URL` rejects garbage, the protocol check kills http:/javascript:.
+ */
+export const isHttpsUrl = (value: string): boolean => {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/** One social row — the href rule comes from the shared `isHttpsUrl`. */
 const contactSocialLink = z.object({
   name: z.string().trim().min(1).max(SOCIAL_NAME_MAX),
-  href: z
-    .url()
-    .max(SOCIAL_HREF_MAX)
-    .trim()
-    .refine((value) => value.startsWith('https://')),
+  href: z.string().trim().min(1).max(SOCIAL_HREF_MAX).refine(isHttpsUrl),
 });
 
 export const ContactContentSchema = z.object({
