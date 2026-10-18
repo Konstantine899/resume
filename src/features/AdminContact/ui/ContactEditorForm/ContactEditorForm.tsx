@@ -1,109 +1,82 @@
 // ============================================
-// ContactEditorForm — admin edit form for the Contact section
+// ContactEditorForm — admin edit surface for the Contact section
 // ============================================
 //
-// Stage-1 CRUD (plan Contact CRUD §10 WU-3): react-hook-form + zodResolver
-// against the SHARED ContactContentSchema from entities (one source of
-// truth for the form and the persisted document, §7).
+// contact-rows-crud (plan rev.5 §10, Трек D): the whole-document form is
+// gone — texts/formTexts are per-row CRUD tables inside COLLAPSIBLE Cards
+// (owner directive 2026-10-18, AdminSkills/AdminJobs parity):
+// - all three Cards are collapsed by default (Skills A15/A17 geometry);
+// - table cells hold plain strings — NO inputs inside rows (R-4);
+// - every row carries Pencil/Trash2 in a nowrap `.cellActions` cell;
+// - the Card header holds «Add row» + «Reset table» (D5);
+// - row add/edit happens in a kit Modal around <ContactRowForm/> (R-5);
+// - delete/reset are kit Modal confirms with Cancel-focus (R-6);
+// - the email keeps its own inline Save (D6, merged snapshot via the
+//   full-replace `updateContactContent`).
 //
-// Invariants:
-// - persist happens BEFORE dispatch (§4, R-7): a failed write must never
-//   leave the store ahead of storage; on failure the form keeps the values.
-// - Reset is destructive → kit Modal confirm first (admin-contact-refactor
-//   R-1, never window.confirm), then remove + dispatch + form.reset(seed) —
-//   otherwise the fields would keep the dirty values.
-// - ALL copy is i18n (R-4): labels, validation messages and Toasts are
-//   key lookups, never literals.
-// - SOCIAL_LINKS is deliberately read-only here (decision B, §2): out of
-//   CRUD scope, previewed as a Name|URL kit Table (contact-kit-max R-3).
-// - The locale-pair matrices render as kit Table (contact-kit-max R-1);
-//   the per-input accessible name «${t(key)} · LOCALE» moved from a visible
-//   label to aria-label with the SAME string (C2 — the whole test suite
-//   pins it via getByLabelText and passes untouched).
+// Invariants kept from the stage-1 form:
+// - persist BEFORE dispatch; a failed write toasts and keeps the modal open.
+// - SOCIAL_LINKS is read-only (decision B): preview Card, no actions (D8).
+// - ALL copy is i18n key lookups, never literals.
 
-import {
-  ContactContentSchema,
-  type ContactContent,
-  type FormTextKey,
-  type TextKey,
-} from '@/entities/ContactContent';
+import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import type { Language } from '@/shared/lib/i18n/types';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
-import { Form } from '@/shared/ui/Form';
+import { Badge } from '@/shared/ui/Badge';
+import { Button, IconButton } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
 import { Link } from '@/shared/ui/Link';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
-import { Textarea } from '@/shared/ui/Textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Tooltip } from '@/shared/ui/Tooltip';
+import { Minus, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import { z } from 'zod';
 import { selectContactContent } from '../../model/selectors/selectors';
 import { createContactSeed } from '../../model/services/seed';
-import { persistContactContent, removeContactContent } from '../../model/services/storage';
-import { resetToDefaults, updateContactContent } from '../../model/slices/contactContentSlice';
+import { persistContactContent } from '../../model/services/storage';
+import {
+  removeContactTableRow,
+  resetContactTable,
+  updateContactContent,
+  type ContactTableRow,
+} from '../../model/slices/contactContentSlice';
+import { ContactRowForm } from '../ContactRowForm/ContactRowForm';
+import { withTableRows } from '../ContactRowForm/lib/withTableRows';
 import styles from './ContactEditorForm.module.scss';
 
-/** The two editable locales — the field order is en then ru everywhere. */
-const LOCALES: readonly Language[] = ['en', 'ru'];
+/** The three collapsible groups of the editor. */
+type GroupId = ContactTableRow | 'socials';
 
-/** The ten editable section strings, in vitrina render order. */
-const TEXT_KEYS: readonly TextKey[] = [
-  'contactDescription',
-  'responseTimeHint',
-  'nameField',
-  'email',
-  'message',
-  'namePlaceholder',
-  'emailPlaceholder',
-  'messagePlaceholder',
-  'sendMessage',
-  'sending',
-];
+/** One rendered table row: the object key and its bilingual value. */
+interface TableRow {
+  key: string;
+  value: LocalizedText;
+}
 
-/** The four Create-flow toasts. */
-const FORM_TEXT_KEYS: readonly FormTextKey[] = [
-  'contactFormRequired',
-  'contactFormSent',
-  'contactFormError',
-  'contactFormConfigError',
-];
-
-/** Row shapes for the three kit Tables (contact-kit-max R-1/R-3). */
-type TextRow = { key: TextKey };
-type FormTextRow = { key: FormTextKey };
 interface SocialRow {
   name: string;
   href: string;
 }
 
-const TEXT_ROWS: TextRow[] = TEXT_KEYS.map((key) => ({ key }));
-const FORM_TEXT_ROWS: FormTextRow[] = FORM_TEXT_KEYS.map((key) => ({ key }));
 const SOCIAL_ROWS: SocialRow[] = SOCIAL_LINKS.map(({ name, href }) => ({ name, href }));
 
-type Locale = Language;
+/** The email must stay a syntactically valid address (schema parity). */
+const emailSchema = z.string().trim().pipe(z.email());
 
-/**
- * Typed RHF paths (`texts.contactDescription.en` etc.). Template literals
- * stay inside `FieldPath<ContactContent>` only when built from the const
- * unions — a computed plain string would widen and fail register().
- */
-const textPath = (key: TextKey, locale: Locale) => `texts.${key}.${locale}` as const;
-const formTextPath = (key: FormTextKey, locale: Locale) => `formTexts.${key}.${locale}` as const;
-
-/**
- * `FieldErrors` nests one object per locale-split node — probing by key
- * presence keeps us out of RHF's merged-error type maze (About pattern).
- */
-const hasLocaleError = (node: unknown, locale: Locale): boolean =>
-  typeof node === 'object' && node !== null && locale in node;
+/** Row deletion without the TS2790 `delete` restriction (slice parity). */
+const omitKey = (rows: Record<string, LocalizedText>, key: string) => {
+  const copy = { ...rows };
+  Reflect.deleteProperty(copy, key);
+  return copy;
+};
 
 export interface ContactEditorFormProps {
   className?: string;
@@ -114,226 +87,432 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   className = '',
   'data-testid': testId = 'contact-editor-form',
 }) => {
-  // Same-feature selector + dispatch — legal inside AdminContact (§8).
   const content = useSelector(selectContactContent);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors, isDirty, isSubmitting },
-  } = useForm<ContactContent>({
-    resolver: zodResolver(ContactContentSchema),
-    defaultValues: content,
-  });
+  // R-3: every group is COLLAPSED by default (owner directive 2026-10-18).
+  const [collapsed, setCollapsed] = useState<Partial<Record<GroupId, boolean>>>({});
+  const isCollapsed = (group: GroupId) => collapsed[group] ?? true;
+  const collapseGroup = (group: GroupId) => setCollapsed((prev) => ({ ...prev, [group]: true }));
+  const expandGroup = (group: GroupId) => setCollapsed((prev) => ({ ...prev, [group]: false }));
 
-  // useWatch, NOT watch(): useForm().watch is on React Compiler's
-  // known-incompatible list and this repo ships the compiler with
-  // zero-warning lint (About lesson, resume-lazy-rhf-chunk era).
-  const values = useWatch({ control });
+  // D6: the email draft — its own mini-pipeline, no whole-document form.
+  const [emailDraft, setEmailDraft] = useState(content.email);
 
-  // R-1 (admin-contact-refactor): the destructive confirm is a kit Modal —
-  // it holds focus on «Отмена» and closes on ESC/overlay, never a native
-  // window.confirm.
-  const [pendingReset, setPendingReset] = useState(false);
+  // R-5: the row form modal (add when `row` is undefined, edit otherwise).
+  const [pendingRow, setPendingRow] = useState<{ table: ContactTableRow; row?: TableRow } | null>(
+    null
+  );
+  // R-6: delete-row confirm + per-table reset confirm.
+  const [pendingDelete, setPendingDelete] = useState<{
+    table: ContactTableRow;
+    key: string;
+  } | null>(null);
+  const [pendingResetTable, setPendingResetTable] = useState<ContactTableRow | null>(null);
+
+  const cancelDeleteRef = useRef<HTMLButtonElement>(null);
   const cancelResetRef = useRef<HTMLButtonElement>(null);
 
-  const closeReset = () => setPendingReset(false);
+  const closeRowModal = () => setPendingRow(null);
+  const openAddRow = (table: ContactTableRow) => setPendingRow({ table });
+  const openEditRow = (table: ContactTableRow, row: TableRow) => setPendingRow({ table, row });
+  const closeDelete = () => setPendingDelete(null);
+  const closeResetTable = () => setPendingResetTable(null);
 
-  /** §4 order: persist → dispatch → toast → form → idle. */
-  const handleSave = (values: ContactContent) => {
-    if (!persistContactContent(values)) {
+  const groupName = (table: ContactTableRow) =>
+    t(table === 'texts' ? 'adminFieldTexts' : 'adminFieldFormTexts');
+
+  const tableRows = (table: ContactTableRow): TableRow[] =>
+    Object.entries(content[table]).map(([key, value]) => ({ key, value }));
+
+  /** R-6: persist-fail toasts and KEEPS the confirm modal open (state untouched). */
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    const { table, key } = pendingDelete;
+    const next = withTableRows(content, table, omitKey(content[table], key));
+    if (!persistContactContent(next)) {
       addToast({ message: t('contactSaveError'), type: 'error' });
-      return; // form keeps the values; store unchanged (§7)
+      return; // modal stays open (gold standard)
     }
-    dispatch(updateContactContent(values));
+    dispatch(removeContactTableRow({ table, key }));
     addToast({ message: t('contactSaved'), type: 'success' });
-    reset(values); // pristine again → Save disabled (§9 saved → idle)
+    closeDelete();
   };
 
-  /** §7: destructive reset → confirm (open only) → handleConfirmReset. */
-  const handleReset = () => {
-    setPendingReset(true);
+  const handleConfirmResetTable = () => {
+    if (!pendingResetTable) return;
+    const table = pendingResetTable;
+    const next = withTableRows(content, table, createContactSeed()[table]);
+    if (!persistContactContent(next)) {
+      addToast({ message: t('contactSaveError'), type: 'error' });
+      return; // modal stays open
+    }
+    dispatch(resetContactTable({ table }));
+    addToast({ message: t('contactSaved'), type: 'success' });
+    closeResetTable();
   };
 
-  /**
-   * §7 order: remove → dispatch → form ← seed.
-   * `removeContactContent` is idempotent and never throws (storage.ts:52-58),
-   * so unlike Save there is NO persist-fail branch to guard here — the flow
-   * stays synchronous and no `deleting` state is introduced.
-   */
-  const handleConfirmReset = () => {
-    removeContactContent();
-    dispatch(resetToDefaults());
-    reset(createContactSeed()); // without this the fields keep dirty values
-    closeReset();
+  const emailParsed = emailSchema.safeParse(emailDraft);
+  const emailValid = emailParsed.success;
+  const emailDirty = emailDraft !== content.email;
+
+  /** D6: email-only save — merged snapshot through the full-replace action. */
+  const handleSaveEmail = () => {
+    if (!emailParsed.success) return; // the Input shows contactEmailInvalid
+    const next: ContactContent = { ...content, email: emailParsed.data };
+    if (!persistContactContent(next)) {
+      addToast({ message: t('contactSaveError'), type: 'error' });
+      return; // store unchanged; the draft stays for a retry
+    }
+    dispatch(updateContactContent(next));
+    addToast({ message: t('contactSaved'), type: 'success' });
+  };
+
+  const makeColumns = (table: ContactTableRow) => [
+    {
+      key: 'field',
+      header: t('adminContactTableField'),
+      render: (row: TableRow) => t(row.key),
+      width: '12rem',
+    },
+    // R-4: values are plain strings — never inputs inside rows.
+    { key: 'en', header: 'EN', render: (row: TableRow) => row.value.en || '—' },
+    { key: 'ru', header: 'RU', render: (row: TableRow) => row.value.ru || '—' },
+    {
+      key: 'actions',
+      header: t('adminContactTableActions'),
+      render: (row: TableRow) => (
+        <div className={styles.cellActions}>
+          <Tooltip content={t('adminContactEditRow')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="sm"
+              icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+              ariaLabel={t('adminContactEditRow')}
+              data-testid={`contact-edit-${row.key}`}
+              onClick={() => openEditRow(table, { key: row.key, value: row.value })}
+            />
+          </Tooltip>
+          <Tooltip content={t('adminContactDeleteRow')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="danger"
+              size="sm"
+              icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+              ariaLabel={t('adminContactDeleteRow')}
+              data-testid={`contact-delete-${row.key}`}
+              onClick={() => setPendingDelete({ table, key: row.key })}
+            />
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  const renderTableGroup = (table: ContactTableRow) => {
+    const rows = tableRows(table);
+    const name = groupName(table);
+    // Stable id: aria-controls resolves before AND after the unmount
+    // roundtrip (Skills ARA pattern).
+    const contentId = `contact-group-content-${table}`;
+    const collapseLabel = t('adminContactCollapseGroup', { name });
+    const expandLabel = t('adminContactExpandGroup', { name });
+
+    return (
+      <div className={styles.blockGroup} key={table}>
+        {isCollapsed(table) && (
+          <div className={styles.caption} data-testid={`contact-caption-${table}`}>
+            {name}
+          </div>
+        )}
+        <Card
+          variant="default"
+          size="default"
+          hoverable={false}
+          className={styles.block}
+          data-testid={`contact-block-${table}`}
+        >
+          {isCollapsed(table) ? (
+            <Tooltip content={expandLabel} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="md"
+                fullWidth
+                className={styles.strip}
+                icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                ariaLabel={expandLabel}
+                aria-expanded="true"
+                onClick={() => expandGroup(table)}
+              />
+            </Tooltip>
+          ) : (
+            <>
+              <div className={styles.blockHeader}>
+                <div className={styles.headerMain}>
+                  <Tooltip content={collapseLabel} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Minus} size={20} color="inherit" decorative />}
+                      ariaLabel={collapseLabel}
+                      aria-expanded="false"
+                      aria-controls={contentId}
+                      onClick={() => collapseGroup(table)}
+                    />
+                  </Tooltip>
+                  <Heading level={3}>
+                    {name}{' '}
+                    <Badge variant="outline" size="sm">
+                      {rows.length}
+                    </Badge>
+                  </Heading>
+                </div>
+                <div className={styles.actions} data-testid={`contact-actions-${table}`}>
+                  <Tooltip content={t('adminContactAddRow')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                      ariaLabel={t('adminContactAddRow')}
+                      data-testid={`contact-add-${table}`}
+                      onClick={() => openAddRow(table)}
+                    />
+                  </Tooltip>
+                  <Tooltip content={t('adminContactResetRows')} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+                      ariaLabel={t('adminContactResetRows')}
+                      data-testid={`contact-reset-${table}`}
+                      onClick={() => setPendingResetTable(table)}
+                    />
+                  </Tooltip>
+                </div>
+              </div>
+              <div className={styles.blockContent} id={contentId}>
+                <Table
+                  caption={name}
+                  rows={rows}
+                  getKey={(row) => row.key}
+                  columns={makeColumns(table)}
+                />
+              </div>
+            </>
+          )}
+        </Card>
+      </div>
+    );
+  };
+
+  // D8: the socials Card is a read-only preview — no actions, no Add/Reset.
+  const renderSocialsGroup = () => {
+    const contentId = 'contact-group-content-socials';
+    const name = t('adminContactSocials');
+    const collapseLabel = t('adminContactCollapseGroup', { name });
+    const expandLabel = t('adminContactExpandGroup', { name });
+
+    return (
+      <div className={styles.blockGroup} key="socials">
+        {isCollapsed('socials') && (
+          <div className={styles.caption} data-testid="contact-caption-socials">
+            {name}
+          </div>
+        )}
+        <Card
+          variant="default"
+          size="default"
+          hoverable={false}
+          className={styles.block}
+          data-testid="contact-block-socials"
+        >
+          {isCollapsed('socials') ? (
+            <Tooltip content={expandLabel} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="md"
+                fullWidth
+                className={styles.strip}
+                icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+                ariaLabel={expandLabel}
+                aria-expanded="true"
+                onClick={() => expandGroup('socials')}
+              />
+            </Tooltip>
+          ) : (
+            <>
+              <div className={styles.blockHeader}>
+                <div className={styles.headerMain}>
+                  <Tooltip content={collapseLabel} position="top" showDelay={0}>
+                    <IconButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      icon={<Icon name={Minus} size={20} color="inherit" decorative />}
+                      ariaLabel={collapseLabel}
+                      aria-expanded="false"
+                      aria-controls={contentId}
+                      onClick={() => collapseGroup('socials')}
+                    />
+                  </Tooltip>
+                  <Heading level={3}>{name}</Heading>
+                </div>
+              </div>
+              <div className={styles.blockContent} id={contentId}>
+                <Table
+                  caption={name}
+                  rows={SOCIAL_ROWS}
+                  getKey={(row) => row.name}
+                  columns={[
+                    {
+                      key: 'name',
+                      header: t('adminContactSocialName'),
+                      render: (row: SocialRow) => row.name,
+                    },
+                    {
+                      key: 'url',
+                      header: t('adminContactSocialUrl'),
+                      render: (row: SocialRow) => (
+                        <Link href={row.href} external showExternalIcon={false}>
+                          {row.href}
+                        </Link>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
+        </Card>
+      </div>
+    );
   };
 
   return (
-    <Form
-      className={classNames(styles.form, className)}
-      data-testid={testId}
-      gap="lg"
-      onSubmit={handleSubmit(handleSave)}
-    >
+    <div className={classNames(styles.form, className)} data-testid={testId}>
       <div className={styles.intro}>
         <Heading level={2}>{t('adminContactTitle')}</Heading>
         <Paragraph theme="muted">{t('adminContactHint')}</Paragraph>
       </div>
 
-      <Input
-        label={t('adminFieldEmail')}
-        error={errors.email ? t('contactEmailInvalid') : undefined}
-        value={values.email ?? ''}
-        type="email"
-        maxLength={120}
-        autoComplete="email"
-        fullWidth
-        {...register('email')}
-      />
-
-      <div className={styles.group}>
-        <Heading level={3}>{t('adminFieldTexts')}</Heading>
-        <Table
-          caption={t('adminFieldTexts')}
-          rows={TEXT_ROWS}
-          getKey={(row) => row.key}
-          columns={[
-            {
-              key: 'field',
-              header: t('adminContactTableField'),
-              render: (row) => t(row.key),
-              width: '12rem',
-            },
-            ...LOCALES.map((locale) => ({
-              key: locale,
-              header: locale.toUpperCase(),
-              render: (row: TextRow) =>
-                row.key === 'contactDescription' ? (
-                  <Textarea
-                    aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
-                    value={values.texts?.[row.key]?.[locale] ?? ''}
-                    error={
-                      hasLocaleError(errors.texts?.[row.key], locale)
-                        ? t('contactTextEmpty')
-                        : undefined
-                    }
-                    maxLength={600}
-                    rows={4}
-                    {...register(textPath(row.key, locale))}
-                  />
-                ) : (
-                  <Input
-                    aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
-                    value={values.texts?.[row.key]?.[locale] ?? ''}
-                    error={
-                      hasLocaleError(errors.texts?.[row.key], locale)
-                        ? t('contactTextEmpty')
-                        : undefined
-                    }
-                    maxLength={120}
-                    fullWidth
-                    {...register(textPath(row.key, locale))}
-                  />
-                ),
-            })),
-          ]}
-        />
-      </div>
-
-      <div className={styles.group}>
-        <Heading level={3}>{t('adminFieldFormTexts')}</Heading>
-        <Table
-          caption={t('adminFieldFormTexts')}
-          rows={FORM_TEXT_ROWS}
-          getKey={(row) => row.key}
-          columns={[
-            {
-              key: 'field',
-              header: t('adminContactTableField'),
-              render: (row) => t(row.key),
-              width: '12rem',
-            },
-            ...LOCALES.map((locale) => ({
-              key: locale,
-              header: locale.toUpperCase(),
-              render: (row: FormTextRow) => (
-                <Input
-                  aria-label={`${t(row.key)} · ${locale.toUpperCase()}`}
-                  value={values.formTexts?.[row.key]?.[locale] ?? ''}
-                  error={
-                    hasLocaleError(errors.formTexts?.[row.key], locale)
-                      ? t('contactFormTextEmpty')
-                      : undefined
-                  }
-                  maxLength={120}
-                  fullWidth
-                  {...register(formTextPath(row.key, locale))}
-                />
-              ),
-            })),
-          ]}
-        />
-      </div>
-
-      {/* Read-only social preview — SOCIAL_LINKS is shared with the vitrina
-          and deliberately OUT of CRUD scope (§2 decision B); contact-kit-max
-          renders it as a Name|URL kit Table instead of a hand-rolled list. */}
-      <Table
-        caption={t('adminContactSocials')}
-        rows={SOCIAL_ROWS}
-        getKey={(row) => row.name}
-        columns={[
-          { key: 'name', header: t('adminContactSocialName'), render: (row) => row.name },
-          {
-            key: 'url',
-            header: t('adminContactSocialUrl'),
-            render: (row) => (
-              <Link href={row.href} external showExternalIcon={false}>
-                {row.href}
-              </Link>
-            ),
-          },
-        ]}
-      />
-
-      <div className={styles.actions}>
-        <Button type="submit" variant="primary" loading={isSubmitting} disabled={!isDirty}>
+      {/* D6: the email is the only scalar field — inline Input + own Save. */}
+      <div className={styles.emailRow}>
+        <div className={styles.emailInput}>
+          <Input
+            label={t('adminFieldEmail')}
+            value={emailDraft}
+            onChange={(event) => setEmailDraft(event.target.value)}
+            error={emailDraft.trim() !== '' && !emailValid ? t('contactEmailInvalid') : undefined}
+            type="email"
+            maxLength={120}
+            autoComplete="email"
+            fullWidth
+          />
+        </div>
+        <Button
+          type="button"
+          variant="primary"
+          disabled={!emailDirty || !emailValid}
+          onClick={handleSaveEmail}
+        >
           {t('contactSave')}
         </Button>
-        <Button type="button" variant="outline" onClick={handleReset}>
-          {t('contactReset')}
-        </Button>
       </div>
 
-      {/* R-1: kit Modal confirm (§6, never window.confirm) — title/button
-          share `contactReset`, the subtitle IS the confirm copy (generic:
-          a single document needs no {{name}}), focus starts on «Отмена». */}
+      {renderTableGroup('texts')}
+      {renderTableGroup('formTexts')}
+      {renderSocialsGroup()}
+
+      {/* R-5: row form modal — title = the operation (A12 dialog name),
+          subtitle = the target table; ContactRowForm owns Save/Cancel. */}
       <Modal
-        isOpen={pendingReset}
-        onClose={closeReset}
-        title={t('contactReset')}
-        subtitle={pendingReset ? t('contactResetConfirm') : undefined}
+        isOpen={pendingRow !== null}
+        onClose={closeRowModal}
+        title={t(pendingRow?.row ? 'adminContactEditRow' : 'adminContactAddRow')}
+        subtitle={pendingRow ? groupName(pendingRow.table) : undefined}
+        size="md"
+      >
+        {pendingRow ? (
+          <ContactRowForm
+            key={`${pendingRow.table}-${pendingRow.row?.key ?? 'new'}`}
+            content={content}
+            table={pendingRow.table}
+            existingKeys={Object.keys(content[pendingRow.table])}
+            row={pendingRow.row}
+            onExitEdit={closeRowModal}
+          />
+        ) : null}
+      </Modal>
+
+      {/* R-6: delete-row confirm — subtitle names the key, focus starts
+          on «Отмена», persist-fail keeps the modal open. */}
+      <Modal
+        isOpen={pendingDelete !== null}
+        onClose={closeDelete}
+        title={t('adminContactDeleteRow')}
+        subtitle={
+          pendingDelete ? t('adminContactDeleteRowName', { key: pendingDelete.key }) : undefined
+        }
         size="sm"
-        initialFocusRef={cancelResetRef}
+        initialFocusRef={cancelDeleteRef}
         footer={
           <>
-            <Button ref={cancelResetRef} type="button" variant="outline" onClick={closeReset}>
+            <Button ref={cancelDeleteRef} type="button" variant="outline" onClick={closeDelete}>
               {t('contactCancel')}
             </Button>
-            <Button type="button" variant="danger" onClick={handleConfirmReset}>
-              {t('contactReset')}
+            <Button
+              type="button"
+              variant="danger"
+              data-testid="contact-delete-confirm"
+              onClick={handleConfirmDelete}
+            >
+              {t('adminContactDeleteRow')}
             </Button>
           </>
         }
       >
         {null}
       </Modal>
-    </Form>
+
+      {/* R-6: per-table reset confirm — Cancel-focus, same fail-parity. */}
+      <Modal
+        isOpen={pendingResetTable !== null}
+        onClose={closeResetTable}
+        title={t('adminContactResetRows')}
+        subtitle={
+          pendingResetTable
+            ? t('adminContactResetRowsConfirm', { table: groupName(pendingResetTable) })
+            : undefined
+        }
+        size="sm"
+        initialFocusRef={cancelResetRef}
+        footer={
+          <>
+            <Button ref={cancelResetRef} type="button" variant="outline" onClick={closeResetTable}>
+              {t('contactCancel')}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              data-testid="contact-reset-confirm"
+              onClick={handleConfirmResetTable}
+            >
+              {t('adminContactResetRows')}
+            </Button>
+          </>
+        }
+      >
+        {null}
+      </Modal>
+    </div>
   );
 };
 

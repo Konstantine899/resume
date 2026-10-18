@@ -38,11 +38,15 @@ export type FormTextKey =
  * - `email` — the mailto link target (seed = CONTACT_EMAIL).
  * - `texts` — section + form labels, each in both locales.
  * - `formTexts` — toast messages for the Create flow (§9).
+ * OPEN records (contact-rows-crud D1): rows are dynamic — the admin can
+ * add/delete string rows; `TextKey`/`FormTextKey` stay the typed read-set
+ * for the vitrina, seed and row labels. A missing key falls back to the
+ * i18n default on the read path.
  * Deliberately absent: `socialLinks` (shared SOCIAL_LINKS, out of CRUD
  * scope — decision B, §2) and the `contact` nav key (i18n-owned).
  */
 export interface ContactContent {
   email: string;
-  texts: Record<TextKey, LocalizedText>;
-  formTexts: Record<FormTextKey, LocalizedText>;
+  texts: Record<string, LocalizedText>;
+  formTexts: Record<string, LocalizedText>;
 }

@@ -1,42 +1,43 @@
 // ============================================
-// ContactEditorForm tests (plan Contact CRUD §10 WU-3)
+// ContactEditorForm tests (contact-rows-crud R-3..R-6, plan rev.5 §10)
 // ============================================
 //
-// RED-first contract, mirroring AboutEditorForm: render + prefill from
-// the store, §7 validation mapped to i18n keys (R-4: no hardcoded
-// messages), persist → dispatch order (R-7), Toast feedback and the
-// destructive-Reset confirm — a kit Modal (admin-contact-refactor R-1,
-// §6 «never window.confirm»), NOT a native dialog. Storage and action
-// creators are spied at the module boundary; the reducer stays real
-// (spread actual).
+// The reworked admin surface: three collapsed-by-default Cards (Skills
+// geometry), input-free table rows with Pencil/Trash2 cell actions (Jobs
+// parity), add/edit row modal, delete/reset confirms with Cancel-focus and
+// the persist-fail-keeps-modal-open parity, and the email's own Save.
+// Harness: mocked storage/slice/react-redux, identity `t`, real selector
+// against a seed-shaped state (ContactEditorForm old suite pattern).
 
 import type { ContactContent } from '@/entities/ContactContent';
-import { CONTACT_EMAIL } from '@/entities/ContactContent';
-import type { SocialLink } from '@/entities/Developer';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CONTACT_CONTENT_STORAGE_KEY } from '../../model/services/storage';
 import { ContactEditorForm } from './ContactEditorForm';
+import { createContactSeed } from '../../model/services/seed';
 
-const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() => ({
-  persistSpy: vi.fn((_content: ContactContent) => true),
-  removeSpy: vi.fn(),
-  updateSpy: vi.fn((content: unknown) => ({ type: 'contactContent/update', payload: content })),
-  resetSpy: vi.fn(() => ({ type: 'contactContent/reset' })),
-  addToast: vi.fn(),
-}));
+const { persistSpy, updateSpy, upsertSpy, removeRowSpy, resetTableSpy, addToast } = vi.hoisted(
+  () => ({
+    persistSpy: vi.fn((_content: ContactContent) => true),
+    updateSpy: vi.fn((payload: unknown) => ({ type: 'contactContent/update', payload })),
+    upsertSpy: vi.fn((payload: unknown) => ({ type: 'contactContent/upsertRow', payload })),
+    removeRowSpy: vi.fn((payload: unknown) => ({ type: 'contactContent/removeRow', payload })),
+    resetTableSpy: vi.fn((payload: unknown) => ({ type: 'contactContent/resetTable', payload })),
+    addToast: vi.fn(),
+  })
+);
 
 vi.mock('../../model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/services/storage')>()),
   persistContactContent: persistSpy,
-  removeContactContent: removeSpy,
 }));
 
 vi.mock('../../model/slices/contactContentSlice', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/slices/contactContentSlice')>()),
   updateContactContent: updateSpy,
-  resetToDefaults: resetSpy,
+  upsertContactTableRow: upsertSpy,
+  removeContactTableRow: removeRowSpy,
+  resetContactTable: resetTableSpy,
 }));
 
 // Deterministic labels: t(key) => key (Nav.test pattern).
@@ -55,12 +56,12 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-// react-redux is mocked instead of StoreProvider: `features → app` is a
-// banned FSD hop. The REAL selector runs against a seed-shaped state.
+// react-redux is mocked instead of StoreProvider (features → app is a
+// banned FSD hop). The real selector runs against the seed document.
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
-  const { createContactSeed } = await import('../../model/services/seed');
-  const state = { contactContent: createContactSeed() };
+  const { createContactSeed: seed } = await import('../../model/services/seed');
+  const state = { contactContent: seed() };
   return {
     ...actual,
     useSelector: (selector: (s: typeof state) => unknown) => selector(state),
@@ -68,240 +69,354 @@ vi.mock('react-redux', async (importOriginal) => {
   };
 });
 
-const confirmSpy = vi.spyOn(window, 'confirm');
+const SEED = createContactSeed();
 
 const renderForm = () => render(<ContactEditorForm />);
 
-const emailInput = () => screen.getByLabelText('adminFieldEmail');
+/** DOM order: texts, formTexts, socials — the identity t drops the name. */
+const expandGroup = (index: number) => {
+  const strips = screen.getAllByRole('button', { name: 'adminContactExpandGroup' });
+  fireEvent.click(strips[index] as HTMLElement);
+};
 
-// Every locale input exposes `key · EN/RU` as its accessible name — a
-// visible label before contact-kit-max (C2), an aria-label after it; the
-// string is identical either way, which is what pins the whole suite.
-const textInput = (key: string, locale: 'EN' | 'RU') => screen.getByLabelText(`${key} · ${locale}`);
+const emailInput = () => screen.getByLabelText('adminFieldEmail') as HTMLInputElement;
+const emailSave = () => screen.getByRole('button', { name: 'contactSave' });
+const lastPersisted = (): ContactContent =>
+  persistSpy.mock.calls[persistSpy.mock.calls.length - 1]?.[0] as ContactContent;
 
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   persistSpy.mockReturnValue(true);
-  confirmSpy.mockReturnValue(false);
 });
 
 afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('ContactEditorForm: render (WU-3)', () => {
-  it('renders title, hint and all §7 fields prefilled from the store', () => {
+describe('ContactEditorForm: collapsed cards (R-3)', () => {
+  it('renders intro + email + three collapsed cards and NO tables', () => {
     renderForm();
 
     expect(
       screen.getByRole('heading', { level: 2, name: 'adminContactTitle' })
     ).toBeInTheDocument();
-    expect(screen.getByText('adminContactHint')).toBeInTheDocument();
+    expect(screen.getByLabelText('adminFieldEmail')).toBeInTheDocument();
+    // One strip per group: texts, formTexts, socials.
+    expect(screen.getAllByRole('button', { name: 'adminContactExpandGroup' })).toHaveLength(3);
+    // Captions sit OUTSIDE the Cards while collapsed (Skills B1).
+    expect(screen.getByTestId('contact-caption-texts')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-caption-formTexts')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-caption-socials')).toBeInTheDocument();
+    expect(screen.queryAllByRole('table')).toHaveLength(0);
+  });
 
-    // Prefill = seed (empty localStorage → lazy hydration).
-    expect(emailInput()).toHaveValue(CONTACT_EMAIL);
-    // contactDescription (2 locales) is the only textarea; the rest is
-    // 1 email + 9 texts × 2 + 4 formTexts × 2 = 27 inputs.
-    expect(document.querySelectorAll('textarea')).toHaveLength(2);
-    expect(document.querySelectorAll('input')).toHaveLength(27);
+  it('expands a group into a table and collapses back (ARA roundtrip)', () => {
+    renderForm();
 
-    // Save is disabled until the form is dirty (§9 idle).
-    expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'contactReset' })).toBeInTheDocument();
+    expandGroup(0); // texts
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    const collapse = screen.getByRole('button', { name: 'adminContactCollapseGroup' });
+    expect(collapse).toHaveAttribute('aria-expanded', 'false');
+    expect(collapse).toHaveAttribute('aria-controls', 'contact-group-content-texts');
+
+    fireEvent.click(collapse);
+    expect(screen.queryAllByRole('table')).toHaveLength(0);
+    // The strip is back with aria-expanded="true" and NO dangling controls.
+    const strip = screen.getAllByRole('button', { name: 'adminContactExpandGroup' });
+    expect(strip).toHaveLength(3);
   });
 });
 
-describe('ContactEditorForm: validation (§7, R-4)', () => {
-  it('blocks submit on an invalid email and maps the error to contactEmailInvalid', async () => {
+describe('ContactEditorForm: table rows (R-4)', () => {
+  it('texts table renders ten rows as plain strings — zero inputs in cells', () => {
     renderForm();
+    expandGroup(0);
 
-    fireEvent.change(emailInput(), { target: { value: 'not-an-email' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactSave' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('contactEmailInvalid');
-    expect(persistSpy).not.toHaveBeenCalled();
+    const table = screen.getByRole('table');
+    expect(table.querySelectorAll('input, textarea')).toHaveLength(0);
+    // 10 data rows + the header row.
+    expect(screen.getAllByRole('row')).toHaveLength(11);
+    // Field labels are t(key) lookups; values are the store strings.
+    expect(screen.getByText('contactDescription')).toBeInTheDocument();
   });
 
-  it('maps an emptied text to contactTextEmpty', async () => {
+  it('formTexts table renders four rows', () => {
     renderForm();
+    expandGroup(1);
 
-    fireEvent.change(textInput('responseTimeHint', 'EN'), { target: { value: '' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactSave' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('contactTextEmpty');
-    expect(persistSpy).not.toHaveBeenCalled();
+    expect(screen.getAllByRole('row')).toHaveLength(5);
   });
 
-  it('maps an emptied formText to contactFormTextEmpty', async () => {
+  it('every row carries Pencil + Trash2 in the SAME cell (no stacking)', () => {
     renderForm();
+    expandGroup(0);
 
-    fireEvent.change(textInput('contactFormSent', 'RU'), { target: { value: '' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactSave' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('contactFormTextEmpty');
-    expect(persistSpy).not.toHaveBeenCalled();
+    for (const key of ['sending', 'contactDescription']) {
+      expect(screen.getByTestId(`contact-edit-${key}`)).toBeInTheDocument();
+      expect(screen.getByTestId(`contact-delete-${key}`)).toBeInTheDocument();
+    }
+    // Same td = one horizontal actions cell per row (resume-table-cell-actions-row).
+    expect(screen.getByTestId('contact-edit-sending').closest('td')).toBe(
+      screen.getByTestId('contact-delete-sending').closest('td')
+    );
   });
 });
 
-describe('ContactEditorForm: save (R-7 persist → dispatch)', () => {
-  it('persists BEFORE dispatching, toasts contactSaved and returns to idle', async () => {
+describe('ContactEditorForm: row modal (R-5)', () => {
+  it('row edit opens the modal prefilled; save persists, dispatches and exits', async () => {
     renderForm();
+    expandGroup(0);
 
-    fireEvent.change(emailInput(), { target: { value: 'new@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactSave' }));
+    fireEvent.click(screen.getByTestId('contact-edit-sending'));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('adminContactEditRow')).toBeInTheDocument(); // title = dialog name
+    expect(within(dialog).getByText('adminFieldTexts')).toBeInTheDocument(); // subtitle = table
+    const keyField = within(dialog).getByLabelText('adminContactRowKey') as HTMLInputElement;
+    expect(keyField).toHaveValue('sending');
+    expect(keyField).toHaveAttribute('readonly');
+
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Updated EN' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
 
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
-    expect(updateSpy).toHaveBeenCalledTimes(1);
-    expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
-      updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
-    );
-    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({ email: 'new@example.com' });
+    const persisted = lastPersisted();
+    expect(persisted.texts['sending']?.en).toBe('Updated EN');
+    expect(upsertSpy).toHaveBeenCalledWith({
+      table: 'texts',
+      key: 'sending',
+      value: expect.objectContaining({ en: 'Updated EN' }),
+    });
     expect(addToast).toHaveBeenCalledWith({ message: 'contactSaved', type: 'success' });
-
-    await waitFor(() => expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled());
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('keeps the form filled, skips dispatch and toasts contactSaveError when persist fails', async () => {
+  it('add row appends a custom row to the target table', async () => {
     renderForm();
+    expandGroup(0);
 
-    persistSpy.mockReturnValueOnce(false);
-    fireEvent.change(emailInput(), { target: { value: 'unsaved@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'contactSave' }));
+    fireEvent.click(screen.getByTestId('contact-add-texts'));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('adminContactAddRow')).toBeInTheDocument();
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'customRow' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Hi' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowRu'), {
+      target: { value: 'Привет' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
 
     await waitFor(() =>
-      expect(addToast).toHaveBeenCalledWith({
-        message: 'contactSaveError',
-        type: 'error',
+      expect(upsertSpy).toHaveBeenCalledWith({
+        table: 'texts',
+        key: 'customRow',
+        value: { en: 'Hi', ru: 'Привет' },
       })
     );
-    expect(updateSpy).not.toHaveBeenCalled();
-    // Data survives in the form (§7 quota/SecurityError row).
-    expect(emailInput()).toHaveValue('unsaved@example.com');
-    expect(screen.getByRole('button', { name: 'contactSave' })).toBeEnabled();
-  });
-});
-
-describe('ContactEditorForm: reset confirm (R-1, kit Modal)', () => {
-  /** Open the destructive confirm; returns the dialog element. */
-  const openConfirm = async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'contactReset' }));
-    return screen.findByRole('dialog');
-  };
-
-  it('«contactReset» opens a confirm Modal and never calls window.confirm', async () => {
-    renderForm();
-
-    fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
-    const modal = await openConfirm();
-
-    expect(confirmSpy).not.toHaveBeenCalled();
-    expect(
-      within(modal).getByRole('heading', { level: 2, name: 'contactReset' })
-    ).toBeInTheDocument();
-    // Generic subtitle (single document — no {{name}} needed, SPEC R-1).
-    expect(within(modal).getByText('contactResetConfirm')).toBeInTheDocument();
-    // Opening is not acting: nothing removed or dispatched yet.
-    expect(removeSpy).not.toHaveBeenCalled();
-    expect(resetSpy).not.toHaveBeenCalled();
-    expect(emailInput()).toHaveValue('dirty@example.com');
+    const persisted = lastPersisted();
+    expect(persisted.texts['customRow']).toEqual({ en: 'Hi', ru: 'Привет' });
+    expect(persisted.formTexts).toEqual(SEED.formTexts); // other table untouched
   });
 
-  it('«contactCancel» closes the confirm and never touches storage or the form', async () => {
+  it('a duplicate key is blocked inside the add modal', async () => {
     renderForm();
+    expandGroup(0);
 
-    localStorage.setItem(CONTACT_CONTENT_STORAGE_KEY, '{"v":1,"content":{}}');
-    fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
-    const modal = await openConfirm();
-    fireEvent.click(within(modal).getByRole('button', { name: 'contactCancel' }));
+    fireEvent.click(screen.getByTestId('contact-add-texts'));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'sending' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Hi' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowRu'), {
+      target: { value: 'Привет' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
 
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(removeSpy).not.toHaveBeenCalled();
-    expect(resetSpy).not.toHaveBeenCalled();
-    // The stored document is still there («Cancel не трогает storage»).
-    expect(localStorage.getItem(CONTACT_CONTENT_STORAGE_KEY)).toBe('{"v":1,"content":{}}');
-    expect(emailInput()).toHaveValue('dirty@example.com');
-  });
-
-  it('moves focus to «Отмена» when the confirm opens (initialFocusRef)', async () => {
-    renderForm();
-
-    const modal = await openConfirm();
-    const cancel = within(modal).getByRole('button', { name: 'contactCancel' });
-    await waitFor(() => expect(document.activeElement).toBe(cancel));
-  });
-
-  it('confirm removes storage, dispatches reset and returns the fields to the seed', async () => {
-    renderForm();
-
-    fireEvent.change(emailInput(), { target: { value: 'dirty@example.com' } });
-    const modal = await openConfirm();
-    fireEvent.click(within(modal).getByRole('button', { name: 'contactReset' }));
-
-    await waitFor(() => expect(removeSpy).toHaveBeenCalledTimes(1));
-    expect(resetSpy).toHaveBeenCalledTimes(1);
-    // Hard order: storage removal must run before the store changes.
-    // `?? NaN`: an impossible undefined would FAIL the comparison, not pass it.
-    expect(removeSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
-      resetSpy.mock.invocationCallOrder[0] ?? Number.NaN
+    await waitFor(() =>
+      expect(within(dialog).getByText('adminContactRowKeyExists')).toBeInTheDocument()
     );
-    // Fields show the seed again, not the dirty values.
-    await waitFor(() => expect(emailInput()).toHaveValue(CONTACT_EMAIL));
-    expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled();
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(persistSpy).not.toHaveBeenCalled();
+  });
+
+  it('add modal for formTexts targets the formTexts table', async () => {
+    renderForm();
+    expandGroup(1);
+
+    fireEvent.click(screen.getByTestId('contact-add-formTexts'));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('adminFieldFormTexts')).toBeInTheDocument(); // subtitle
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'customToast' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Toast' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowRu'), {
+      target: { value: 'Тост' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = lastPersisted();
+    expect(persisted.formTexts['customToast']).toEqual({ en: 'Toast', ru: 'Тост' });
+    expect(persisted.texts).toEqual(SEED.texts); // texts untouched
   });
 });
 
-// contact-kit-max (issue #282, plan rev.4 §8): the locale-pair grids are
-// tabular data — they render as kit Table (R-1), the accessible name moves
-// to aria-label with the SAME string (R-2/C2), the social preview becomes a
-// Name|URL table (R-3). The 12 suites above pass UNTOUCHED.
-describe('ContactEditorForm: kit tables (contact-kit-max, R-1/R-2/R-3)', () => {
-  it('renders the texts group as one kit Table with [Field|EN|RU] headers and 10 data rows', () => {
+describe('ContactEditorForm: confirmations (R-6)', () => {
+  it('delete opens a named confirm with Cancel focused; Cancel persists nothing', async () => {
     renderForm();
+    expandGroup(0);
 
-    const table = screen.getByRole('table', { name: 'adminFieldTexts' });
+    fireEvent.click(screen.getByTestId('contact-delete-sending'));
+    const dialog = screen.getByRole('dialog');
+    // Title === confirm-button label (Skills parity) — assert the HEADING.
     expect(
-      within(table)
-        .getAllByRole('columnheader')
-        .map((cell) => cell.textContent)
-    ).toEqual(['adminContactTableField', 'EN', 'RU']);
-    // 1 header row + one row per TEXT_KEYS entry.
-    expect(within(table).getAllByRole('row')).toHaveLength(11);
-    // The first cell of each row is the visible translated field name.
-    expect(within(table).getByText('responseTimeHint')).toBeInTheDocument();
+      within(dialog).getByRole('heading', { name: 'adminContactDeleteRow' })
+    ).toBeInTheDocument();
+    expect(within(dialog).getByText('adminContactDeleteRowName')).toBeInTheDocument(); // subtitle
+    // The focus lands on «Отмена» via initialFocusRef (async — waitFor).
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        within(dialog).getByRole('button', { name: 'contactCancel' })
+      )
+    );
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactCancel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(persistSpy).not.toHaveBeenCalled();
   });
 
-  it('renders the formTexts group as one kit Table with 4 data rows', () => {
+  it('delete confirm removes the row from the table only', async () => {
     renderForm();
+    expandGroup(0);
 
-    const table = screen.getByRole('table', { name: 'adminFieldFormTexts' });
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
-    expect(within(table).getAllByRole('row')).toHaveLength(5);
+    fireEvent.click(screen.getByTestId('contact-delete-sending'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByTestId('contact-delete-confirm'));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = lastPersisted();
+    expect(persisted.texts['sending']).toBeUndefined();
+    expect(Object.keys(persisted.texts)).toHaveLength(Object.keys(SEED.texts).length - 1);
+    expect(persisted.formTexts).toEqual(SEED.formTexts);
+    expect(removeRowSpy).toHaveBeenCalledWith({ table: 'texts', key: 'sending' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('keeps the «key · LOCALE» accessible name on every locale input (C2)', () => {
+  it('persist failure keeps the confirm modal open and toasts the error', async () => {
+    persistSpy.mockReturnValue(false);
     renderForm();
+    expandGroup(0);
 
-    // getByLabelText matches aria-label — the existing suite pins these too.
-    expect(screen.getByLabelText('responseTimeHint · EN')).toBeInTheDocument();
-    expect(screen.getByLabelText('contactFormSent · RU')).toBeInTheDocument();
-    expect(screen.getByLabelText('contactDescription · RU')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('contact-delete-sending'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByTestId('contact-delete-confirm'));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'contactSaveError', type: 'error' })
+    );
+    expect(removeRowSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument(); // still open
   });
 
-  it('renders the social links preview as a Name|URL kit Table with real links', () => {
+  it('reset restores the seed rows of THAT table only', async () => {
     renderForm();
+    expandGroup(0);
 
-    const table = screen.getByRole('table', { name: 'adminContactSocials' });
+    // Make the reset observable: add a custom row first.
+    fireEvent.click(screen.getByTestId('contact-add-texts'));
+    fireEvent.change(within(screen.getByRole('dialog')).getByLabelText('adminContactRowKey'), {
+      target: { value: 'customRow' },
+    });
+    fireEvent.change(within(screen.getByRole('dialog')).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Hi' },
+    });
+    fireEvent.change(within(screen.getByRole('dialog')).getByLabelText('adminContactRowRu'), {
+      target: { value: 'Привет' },
+    });
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'contactSave' })
+    );
+    await waitFor(() => expect(upsertSpy).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByTestId('contact-reset-texts'));
+    const dialog = screen.getByRole('dialog');
+    // Title === confirm-button label (Skills parity) — assert the HEADING.
     expect(
-      within(table)
-        .getAllByRole('columnheader')
-        .map((cell) => cell.textContent)
-    ).toEqual(['adminContactSocialName', 'adminContactSocialUrl']);
-    expect(within(table).getAllByRole('row')).toHaveLength(SOCIAL_LINKS.length + 1);
-    const first = SOCIAL_LINKS[0] as SocialLink;
-    expect(within(table).getByRole('link', { name: first.href })).toBeInTheDocument();
-    // The hand-rolled badge list is gone (its testid is referenced nowhere).
-    expect(screen.queryByTestId('contact-form-socials')).not.toBeInTheDocument();
+      within(dialog).getByRole('heading', { name: 'adminContactResetRows' })
+    ).toBeInTheDocument();
+    expect(within(dialog).getByText('adminContactResetRowsConfirm')).toBeInTheDocument(); // subtitle
+    fireEvent.click(within(dialog).getByTestId('contact-reset-confirm'));
+
+    await waitFor(() => expect(resetTableSpy).toHaveBeenCalledWith({ table: 'texts' }));
+    const persisted = lastPersisted();
+    expect(Object.keys(persisted.texts)).toEqual(Object.keys(SEED.texts)); // customRow gone
+    expect(persisted.formTexts).toEqual(SEED.formTexts); // other table intact
+    expect(persisted.email).toBe(SEED.email);
+  });
+});
+
+describe('ContactEditorForm: socials card (R-4/D8)', () => {
+  it('expands into a read-only table without any actions', () => {
+    renderForm();
+    expandGroup(2);
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getAllByRole('row')).toHaveLength(SOCIAL_LINKS.length + 1);
+    // Read-only decision B: no row actions, no Add/Reset header buttons.
+    expect(screen.queryAllByTestId(/^contact-edit-/)).toHaveLength(0);
+    expect(screen.queryAllByTestId(/^contact-delete-/)).toHaveLength(0);
+    expect(screen.queryByTestId('contact-actions-socials')).not.toBeInTheDocument();
+  });
+});
+
+describe('ContactEditorForm: email field (D6)', () => {
+  it('Save is disabled while pristine and on an invalid address', () => {
+    renderForm();
+
+    expect(emailSave()).toBeDisabled();
+
+    fireEvent.change(emailInput(), { target: { value: 'not-an-email' } });
+    expect(screen.getByText('contactEmailInvalid')).toBeInTheDocument();
+    expect(emailSave()).toBeDisabled();
+
+    fireEvent.change(emailInput(), { target: { value: 'other@example.com' } });
+    expect(screen.queryByText('contactEmailInvalid')).not.toBeInTheDocument();
+    expect(emailSave()).toBeEnabled();
+  });
+
+  it('valid save persists a merged snapshot through the full-replace action', async () => {
+    renderForm();
+
+    fireEvent.change(emailInput(), { target: { value: 'other@example.com' } });
+    fireEvent.click(emailSave());
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = lastPersisted();
+    expect(persisted.email).toBe('other@example.com');
+    expect(persisted.texts).toEqual(SEED.texts); // only the scalar changed
+    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ email: 'other@example.com' }));
+    expect(addToast).toHaveBeenCalledWith({ message: 'contactSaved', type: 'success' });
+  });
+
+  it('persist failure toasts the error and leaves the store action unemitted', async () => {
+    persistSpy.mockReturnValue(false);
+    renderForm();
+
+    fireEvent.change(emailInput(), { target: { value: 'other@example.com' } });
+    fireEvent.click(emailSave());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'contactSaveError', type: 'error' })
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(emailInput()).toHaveValue('other@example.com'); // draft kept
   });
 });
