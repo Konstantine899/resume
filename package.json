@@ -37,6 +37,7 @@
     "build-storybook": "storybook build",
     "storybook:test": "test-storybook",
     "test:storybook": "vitest --project=storybook",
+    "test:app": "npm run build && playwright test -c playwright.app.config.ts",
     "lint:storybook": "eslint .storybook/**/* --max-warnings 0"
   },
   "keywords": [],
