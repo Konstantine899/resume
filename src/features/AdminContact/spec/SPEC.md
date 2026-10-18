@@ -1,8 +1,9 @@
 ---
-status: approved
+status: done
 epic: contact-rows-crud
 issue: 285
 created: '2026-10-18'
+verified: '2026-10-18'
 spec: SPEC.md
 ---
 
@@ -136,13 +137,14 @@ value: LocalizedText})`, `removeContactTableRow({table, key})`,
 
 ### R-8 — i18n
 
-- ~15 новых flat-ключей en+ru: `adminContactAddRow`, `adminContactEditRow`,
+- 16 новых flat-ключей en+ru: `adminContactAddRow`, `adminContactEditRow`,
   `adminContactDeleteRow`, `adminContactDeleteRowName`, `adminContactRowKey`,
   `adminContactRowEn`, `adminContactRowRu`, `adminContactResetRows`,
   `adminContactResetRowsConfirm`, `adminContactExpandGroup`,
   `adminContactCollapseGroup`, `adminContactRowKeyInvalid`,
   `adminContactRowKeyExists`, `adminContactRowValueRequired`,
-  `adminContactRowValueMax`.
+  `adminContactRowValueMax`, `adminContactTableActions` (добавлен в WU-5 —
+  заголовок колонки «Действия», эталон `skillsTableActions`).
 - Переиспользуются: `contactSave`, `contactCancel`, `contactSaved`,
   `contactSaveError`, `adminFieldTexts`, `adminFieldFormTexts`,
   `adminContactSocials` и др. `locales-parity.test` НЕ правится.
