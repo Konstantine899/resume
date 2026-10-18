@@ -31,16 +31,16 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
       isDev,
     }),
 
-    // 3. Копирование статических файлов (locales + project images)
-    // Копируем из src/locales в public/locales и project-изображения
-    // из src/shared/assets/images/projects в public/images/projects
+    // 3. Копирование статических файлов (project images)
+    // Копируем project-изображения из src/shared/assets/images/projects
+    // в public/images/projects
     // (дев: через middleware, билд: через writeBundle — план project-images WU-2).
+    //
+    // public/locales больше НЕ копируется (issue #298): 0 fetch-потребителей —
+    // все локали статически импортируются из src/shared/lib/i18n/locales
+    // (i18n.ts, AdminAbout/AdminContact seeds), http-backend не установлен.
     viteStaticCopy({
       targets: [
-        {
-          src: paths.locales,
-          dest: paths.buildLocales,
-        },
         {
           src: paths.imagesProjects,
           dest: paths.buildImagesProjects,
