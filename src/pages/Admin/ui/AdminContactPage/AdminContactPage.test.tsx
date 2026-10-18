@@ -10,8 +10,8 @@
 // form), so this file proves the wiring end-to-end: the REAL storeReducers
 // hydrate the Contact document from storage on the first reducer call
 // (resume-rtk-lazy-hydration) and the form renders through that store.
-// Harness: AdminAboutPage.test.tsx — mock ONLY storage (persist control),
-// i18n (identity) and toasts.
+// Harness: shared renderAdminPage (src/shared/tests) — mock ONLY storage
+// (persist control), i18n (identity) and toasts.
 //
 // OPEN-2=B (owner verdict): the form stays INLINE on the page, so this is
 // a smoke of the inline component — the form's own Modal-confirm asserts
@@ -23,15 +23,13 @@
 // stays REAL behind the mock spread so the hydration path is the
 // production one.
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
 import type { ContactContent } from '@/entities/ContactContent';
 import { createContactSeed } from '@/features/AdminContact';
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminContactPage } from './AdminContactPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -63,15 +61,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 /** The storage.ts envelope key — literal on purpose (see header). */
 const STORAGE_KEY = 'resume.contact.content';
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminContactPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminContactPage />);
 
 const emailInput = () => screen.getByLabelText('adminFieldEmail');
 

@@ -13,13 +13,11 @@
 // structural here — a single `form` state renders ONE dialog, and in a
 // real browser the overlay blocks the list behind an open form.
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SkillCategoryData } from '@/entities/Skill';
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminSkillsPage } from './AdminSkillsPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -56,12 +54,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 }));
 
 const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminSkillsPage />
-    </Provider>
-  );
+  const store = renderAdminPage(<AdminSkillsPage />);
   // Owner directive 2026-10-13: cards are COLLAPSED by default — this
   // page suite exercises forms/rows, so expand every block first.
   screen

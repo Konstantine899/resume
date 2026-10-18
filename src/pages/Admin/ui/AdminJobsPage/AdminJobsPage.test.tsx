@@ -7,16 +7,14 @@
 // (R-3). This file wires the REAL storeReducers — the jobs slice hydrates
 // `readJobs() ?? createJobsSeed()` on its first reducer call — and mocks
 // only storage (persist control), i18n (identity) and toasts. Harness:
-// AdminSkillsPage.test.tsx:25-66.
+// shared renderAdminPage (src/shared/tests).
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { deleteJob } from '@/features/AdminJobs';
 import type { Job } from '@/entities/Job';
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminJobsPage } from './AdminJobsPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -52,15 +50,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminJobsPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminJobsPage />);
 
 const jobsOf = (store: ReturnType<typeof renderPage>): Job[] => store.getState().adminJobs;
 

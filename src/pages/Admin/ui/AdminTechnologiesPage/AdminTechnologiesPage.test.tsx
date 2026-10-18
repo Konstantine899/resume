@@ -13,12 +13,10 @@
 // page suite also proves the wiring — deleting a key a project references
 // is refused, deleting a free key succeeds.
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminTechnologiesPage } from './AdminTechnologiesPage';
 
 const { persistSpy, addToast, dirMocks } = vi.hoisted(() => ({
@@ -64,15 +62,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminTechnologiesPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminTechnologiesPage />);
 
 type Store = ReturnType<typeof renderPage>;
 type TechState = ReturnType<Store['getState']>['technologies'];
