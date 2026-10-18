@@ -86,6 +86,18 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('contact');
   });
 
+  it('falls back to the i18n key when the admin deleted a texts row (contact-rows-crud R-1)', () => {
+    // The open record (D1) may miss any key — the read path must degrade
+    // to the i18n default instead of throwing on `undefined[language]`.
+    const texts = { ...STORE_CONTENT.texts };
+    Reflect.deleteProperty(texts, 'sendMessage');
+    render(<Contact content={{ ...STORE_CONTENT, texts }} />);
+
+    // Identity t returns the raw key — the fallback is observable.
+    expect(screen.getByRole('button', { name: 'sendMessage' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'STORE_SEND_RU' })).not.toBeInTheDocument();
+  });
+
   it('routes resolved formTexts into the Create toasts (R-11)', async () => {
     render(<Contact content={STORE_CONTENT} />);
 
