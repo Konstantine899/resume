@@ -8,7 +8,7 @@
 
 import type { ContactContent } from '@/entities/ContactContent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Contact } from './Contact';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
@@ -62,7 +62,18 @@ const STORE_CONTENT: ContactContent = {
 };
 
 describe('Contact: read-path via the content prop (WU-2)', () => {
+  beforeEach(() => {
+    // CI has no `.env` (gitignored): the default emailjsSend checks
+    // import.meta.env.VITE_EMAILJS_* BEFORE the mocked SDK call, so without
+    // these it throws EmailJSConfigError and the success-toast assertion
+    // never matches (it only ever passed on a dev machine with a local .env).
+    vi.stubEnv('VITE_EMAILJS_SERVICE_ID', 'test-service');
+    vi.stubEnv('VITE_EMAILJS_TEMPLATE_ID', 'test-template');
+    vi.stubEnv('VITE_EMAILJS_PUBLIC_KEY', 'test-key');
+  });
+
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
   });
 
