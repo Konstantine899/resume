@@ -9,7 +9,6 @@ import { storeReducers } from '@/storeReducers';
 import {
   removeContactTableRow,
   resetContactTable,
-  resetToDefaults,
   updateContactContent,
   upsertContactTableRow,
 } from './contactContentSlice';
@@ -77,13 +76,6 @@ describe('reducers', () => {
     const store = makeStore();
     store.dispatch(updateContactContent(CHANGED));
     expect(selectContactContent(store.getState())).toEqual(CHANGED);
-  });
-
-  it('resetToDefaults returns exactly the seed', () => {
-    const store = makeStore();
-    store.dispatch(updateContactContent(CHANGED));
-    store.dispatch(resetToDefaults());
-    expect(selectContactContent(store.getState())).toEqual(SEED);
   });
 
   it('state is immutable after dispatch (payload cannot be mutated from outside)', () => {

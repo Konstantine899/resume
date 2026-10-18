@@ -52,9 +52,6 @@ const contactContentSlice = createSlice({
     resetContactTable(state, action: PayloadAction<{ table: ContactTableRow }>) {
       state[action.payload.table] = createContactSeed()[action.payload.table];
     },
-    resetToDefaults() {
-      return createContactSeed();
-    },
   },
 });
 
@@ -63,7 +60,6 @@ export const {
   upsertContactTableRow,
   removeContactTableRow,
   resetContactTable,
-  resetToDefaults,
 } = contactContentSlice.actions;
 
 /** Store → stored document → seed: every unreadable state lands on the seed (§7). */

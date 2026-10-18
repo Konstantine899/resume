@@ -28,6 +28,7 @@ import {
   upsertContactTableRow,
   type ContactTableRow,
 } from '../../model/slices/contactContentSlice';
+import { withTableRows } from './lib/withTableRows';
 import styles from './ContactRowForm.module.scss';
 
 /** Per-table per-locale cap (SPEC R-1: the open record has ONE cap per table). */
@@ -70,13 +71,6 @@ const rowFormSchema = (table: ContactTableRow, existingKeys: string[], originalK
       .max(max, { message: 'adminContactRowValueMax' }),
   });
 };
-
-/** Spread by union key is not type-safe — branch once, keep ContactContent exact. */
-const withTableRows = (
-  doc: ContactContent,
-  table: ContactTableRow,
-  rows: Record<string, LocalizedText>
-): ContactContent => (table === 'texts' ? { ...doc, texts: rows } : { ...doc, formTexts: rows });
 
 export const ContactRowForm: React.FC<ContactRowFormProps> = ({
   content,

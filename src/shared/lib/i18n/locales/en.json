@@ -127,6 +127,7 @@
   "adminContactSocials": "Social links",
   "adminContactSocialName": "Name",
   "adminContactSocialUrl": "URL",
+  "adminContactTableActions": "Actions",
   "adminContactAddRow": "Add row",
   "adminContactEditRow": "Edit row",
   "adminContactDeleteRow": "Delete row",
