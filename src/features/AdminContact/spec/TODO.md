@@ -21,8 +21,7 @@ TDD ~50 · WU-5 блок в редакторе + тесты ~80–90 · WU-6 с�
 ~30 · WU-7 гейты ~50 · WU-8 PR/CI/merge ~20 · WU-9 бёрн-даун ~30.
 
 - [ ] WU-1 — контракт (`ContactContent.socialLinks` optional в схеме,
-      обязательный в типе) + `ContactSocialLink` + seed из `SOCIAL_LINKS`
-      + read-path merge в `storage.ts` + тесты (старый конверт → seed
+      обязательный в типе) + `ContactSocialLink` + seed из `SOCIAL_LINKS` + read-path merge в `storage.ts` + тесты (старый конверт → seed
       ссылок, `{}` остаётся пустым, roundtrip)
 - [ ] WU-2 — slice (`ContactTableRow` += socials, union value) +
       `withTableRows`/`omitKey` widening + тесты upsert/remove/reset

@@ -36,6 +36,32 @@ describe('readContactContent', () => {
     expect(readContactContent()).toEqual(VALID);
   });
 
+  it('upgrades a legacy envelope (no socialLinks) with the seed links (R-1)', () => {
+    const full = createContactSeed();
+    const { socialLinks, ...legacy } = full;
+    expect(socialLinks).toBeDefined();
+    localStorage.setItem(CONTACT_CONTENT_STORAGE_KEY, JSON.stringify({ v: 1, content: legacy }));
+    const read = readContactContent();
+    // Missing field is upgraded, never confused with an emptied table.
+    expect(read?.texts).toEqual(full.texts);
+    expect(read?.socialLinks).toEqual(full.socialLinks);
+  });
+
+  it('keeps an explicitly emptied socials table empty ({} is a saved state, R-1)', () => {
+    const doc: ContactContent = { ...createContactSeed(), socialLinks: {} };
+    localStorage.setItem(CONTACT_CONTENT_STORAGE_KEY, JSON.stringify({ v: 1, content: doc }));
+    expect(readContactContent()?.socialLinks).toEqual({});
+  });
+
+  it('round-trips edited socialLinks', () => {
+    const doc: ContactContent = {
+      ...createContactSeed(),
+      socialLinks: { telegram: { name: 'TG', href: 'https://t.me/x' } },
+    };
+    expect(persistContactContent(doc)).toBe(true);
+    expect(readContactContent()?.socialLinks).toEqual(doc.socialLinks);
+  });
+
   it('returns null for corrupt JSON instead of throwing', () => {
     localStorage.setItem(CONTACT_CONTENT_STORAGE_KEY, '{not json');
     expect(readContactContent()).toBeNull();

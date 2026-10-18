@@ -29,13 +29,16 @@ spec: SPEC.md
   (`{ name: string; href: string }`), slug-ключ (тот же `rowKey`, что
   texts/formTexts). Тип объявлен в `entities/ContactContent` (имя
   `ContactSocialLink` не конфликтует с `SocialLink` из `entities/Developer`).
-- Схема: `socialLinks` **optional** — старый конверт `{v:1, content:{email,
-  texts, formTexts}}` валиден; `readContactContent` при отсутствии поля
-  подставляет seed-ссылки, присутствующий `{}` остаётся пустым.
+- Схема: `socialLinks` **обязательное** поле; `readContactContent`
+  апгрейдит старый конверт — если поля в `content` реально нет, подставляет
+  seed-ссылки ПЕРЕД валидацией (отсутствие ≠ пусто): старый конверт
+  читается без потери текстов + seed-ссылками, присутствующий `{}`
+  остаётся пустым.
 - Seed: `createContactSeed().socialLinks` выводится из `SOCIAL_LINKS`
   (slug = `name.toLowerCase()` → github/linkedin/telegram).
 - Наблюдаемый исход: старый конверт читается без потери текстов и с
-  seed-ссылками; roundtrip нового конверта сохраняет редакции строк.
+  seed-ссылками; roundtrip нового конверта сохраняет редакции строк;
+  документ без `socialLinks` — отказ схемы (апгрейд — только read-path).
 
 ### R-2 — RTK Query: документный PUT покрывает соцссылки
 

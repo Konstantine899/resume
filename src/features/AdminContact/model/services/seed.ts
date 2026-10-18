@@ -9,8 +9,13 @@
 
 import type { ContactContent } from '@/entities/ContactContent';
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
+import { SOCIAL_LINKS } from '@/entities/Developer';
 import en from '@/shared/lib/i18n/locales/en.json';
 import ru from '@/shared/lib/i18n/locales/ru.json';
+
+/** Socials seed (contact-social-crud S4): slug = name lowercase, from the shared constant. */
+const createSocialLinksSeed = (): ContactContent['socialLinks'] =>
+  Object.fromEntries(SOCIAL_LINKS.map(({ name, href }) => [name.toLowerCase(), { name, href }]));
 
 export const createContactSeed = (): ContactContent => ({
   email: CONTACT_EMAIL,
@@ -32,4 +37,5 @@ export const createContactSeed = (): ContactContent => ({
     contactFormError: { en: en.contactFormError, ru: ru.contactFormError },
     contactFormConfigError: { en: en.contactFormConfigError, ru: ru.contactFormConfigError },
   },
+  socialLinks: createSocialLinksSeed(),
 });

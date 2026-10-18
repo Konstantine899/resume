@@ -31,6 +31,9 @@ const VALID: ContactContent = {
     contactFormError: { en: 'Failed to send.', ru: 'Не удалось отправить.' },
     contactFormConfigError: { en: 'Config incomplete', ru: 'Конфиг неполный' },
   },
+  socialLinks: {
+    github: { name: 'GitHub', href: 'https://github.com/konstantin-atroshchenko' },
+  },
 };
 
 /** Clone with one texts-key overridden, keeping VALID readable at call sites. */
@@ -138,6 +141,67 @@ describe('ContactContentSchema', () => {
     const formTexts = { ...VALID.formTexts };
     Reflect.deleteProperty(formTexts, 'contactFormConfigError');
     expect(ContactContentSchema.safeParse({ ...VALID, formTexts }).success).toBe(true);
+  });
+});
+
+describe('socialLinks (contact-social-crud R-1/S9)', () => {
+  it('accepts a document with socialLinks', () => {
+    expect(ContactContentSchema.safeParse(VALID).success).toBe(true);
+  });
+
+  it('keeps a social row in the parsed output (known record, not stripped)', () => {
+    const parsed = ContactContentSchema.parse(VALID);
+    expect(parsed.socialLinks.github).toEqual({
+      name: 'GitHub',
+      href: 'https://github.com/konstantin-atroshchenko',
+    });
+  });
+
+  it('rejects a document WITHOUT socialLinks (legacy upgrade lives in the read-path)', () => {
+    const { socialLinks, ...legacy } = VALID;
+    expect(socialLinks).toBeDefined();
+    expect(ContactContentSchema.safeParse(legacy).success).toBe(false);
+  });
+
+  it('accepts an explicitly emptied socials table (row-delete is a valid op)', () => {
+    expect(ContactContentSchema.safeParse({ ...VALID, socialLinks: {} }).success).toBe(true);
+  });
+
+  it('rejects an http:// href (https-only, S9)', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'GitHub', href: 'http://github.com/x' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a non-URL href', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'GitHub', href: 'github.com/x' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects an empty social name', () => {
+    const doc = { ...VALID, socialLinks: { github: { name: '  ', href: 'https://g.io' } } };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a social name over 48 chars', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'x'.repeat(49), href: 'https://g.io' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a non-slug social key', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { 'Bad key!': { name: 'G', href: 'https://g.io' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
   });
 });
 

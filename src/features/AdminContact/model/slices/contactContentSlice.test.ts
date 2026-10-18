@@ -38,6 +38,7 @@ const CHANGED: ContactContent = {
     contactFormError: { en: 'Try again', ru: 'Попробуйте снова' },
     contactFormConfigError: { en: 'Misconfigured', ru: 'Нет конфига' },
   },
+  socialLinks: {},
 };
 
 const makeStore = () => configureStore({ reducer: storeReducers });

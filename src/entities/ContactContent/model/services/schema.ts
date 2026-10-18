@@ -16,6 +16,9 @@
 // trim, message 10–2000 (owner-approved spam floor). contact-rows-crud R-1
 // (D1): the per-key texts cap is unified at 600 per locale — an open
 // record cannot carry per-key limits, and 600 was the maximum anyway.
+// contact-social-crud (R-1/S9): socialLinks is a required open record —
+// name 1..48 trimmed, href https-only URL ≤2048; legacy documents are
+// upgraded by the read-path, not by this schema.
 // Messages are NOT set here — callers map failures to i18n keys (R-4).
 
 import { z } from 'zod';
@@ -36,11 +39,28 @@ const localizedText = (max: number) =>
     ru: z.string().min(1).max(max),
   });
 
+/** Socials caps (contact-social-crud S9): shared with the admin form schema. */
+export const SOCIAL_NAME_MAX = 48;
+export const SOCIAL_HREF_MAX = 2048;
+
+/** One social row — https-only href (Technology.url precedent). */
+const contactSocialLink = z.object({
+  name: z.string().trim().min(1).max(SOCIAL_NAME_MAX),
+  href: z
+    .url()
+    .max(SOCIAL_HREF_MAX)
+    .trim()
+    .refine((value) => value.startsWith('https://')),
+});
+
 export const ContactContentSchema = z.object({
   email: z.string().trim().pipe(z.email()),
   // Open records: rows are dynamic (add/delete ops are valid documents).
   texts: z.record(rowKey, localizedText(600)),
   formTexts: z.record(rowKey, localizedText(120)),
+  // Required field: a legacy document without it is upgraded by
+  // readContactContent BEFORE validation (missing ≠ emptied, R-1).
+  socialLinks: z.record(rowKey, contactSocialLink),
 });
 
 /** Create-form payload (§7): the owner-approved min(10) rejects one-word spam. */
