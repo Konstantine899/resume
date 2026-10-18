@@ -174,6 +174,66 @@ describe('row operations (contact-rows-crud R-2)', () => {
   });
 });
 
+describe('socials row operations (contact-social-crud R-3)', () => {
+  it('upsertContactTableRow adds a social row without touching the text tables', () => {
+    const store = makeStore();
+    store.dispatch(
+      upsertContactTableRow({
+        table: 'socials',
+        key: 'website',
+        value: { name: 'Site', href: 'https://example.com' },
+      })
+    );
+    const doc = selectContactContent(store.getState());
+    expect(doc.socialLinks['website']).toEqual({ name: 'Site', href: 'https://example.com' });
+    expect(doc.texts).toEqual(SEED.texts);
+    // Seed rows survive an addition.
+    expect(doc.socialLinks['github']).toEqual({
+      name: 'GitHub',
+      href: 'https://github.com/konstantin-atroshchenko',
+    });
+  });
+
+  it('upsertContactTableRow replaces an existing social row in place', () => {
+    const store = makeStore();
+    store.dispatch(
+      upsertContactTableRow({
+        table: 'socials',
+        key: 'github',
+        value: { name: 'GH', href: 'https://gh.io' },
+      })
+    );
+    const doc = selectContactContent(store.getState());
+    expect(Object.keys(doc.socialLinks)).toEqual(Object.keys(SEED.socialLinks));
+    expect(doc.socialLinks['github']).toEqual({ name: 'GH', href: 'https://gh.io' });
+  });
+
+  it('removeContactTableRow deletes a social row only', () => {
+    const store = makeStore();
+    store.dispatch(removeContactTableRow({ table: 'socials', key: 'github' }));
+    const doc = selectContactContent(store.getState());
+    expect(doc.socialLinks['github']).toBeUndefined();
+    expect(Object.keys(doc.socialLinks)).toHaveLength(Object.keys(SEED.socialLinks).length - 1);
+    expect(doc.formTexts).toEqual(SEED.formTexts);
+  });
+
+  it('resetContactTable restores the socials seed and leaves texts alone', () => {
+    const store = makeStore();
+    store.dispatch(removeContactTableRow({ table: 'socials', key: 'github' }));
+    store.dispatch(
+      upsertContactTableRow({
+        table: 'socials',
+        key: 'website',
+        value: { name: 'Site', href: 'https://example.com' },
+      })
+    );
+    store.dispatch(resetContactTable({ table: 'socials' }));
+    const doc = selectContactContent(store.getState());
+    expect(doc.socialLinks).toEqual(SEED.socialLinks);
+    expect(doc.texts).toEqual(SEED.texts);
+  });
+});
+
 describe('selector', () => {
   it('reads the contactContent key of the root state', () => {
     const store = makeStore();

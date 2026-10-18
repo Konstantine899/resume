@@ -19,7 +19,7 @@
 // - SOCIAL_LINKS is read-only (decision B): preview Card, no actions (D8).
 // - ALL copy is i18n key lookups, never literals.
 
-import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
+import type { ContactContent, ContactSocialLink, LocalizedText } from '@/entities/ContactContent';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
@@ -43,10 +43,12 @@ import { selectContactContent } from '../../model/selectors/selectors';
 import { createContactSeed } from '../../model/services/seed';
 import { persistContactContent } from '../../model/services/storage';
 import {
+  contactTableField,
   removeContactTableRow,
   resetContactTable,
   updateContactContent,
   type ContactTableRow,
+  type ContactTextTableRow,
 } from '../../model/slices/contactContentSlice';
 import { ContactRowForm } from '../ContactRowForm/ContactRowForm';
 import { withTableRows } from '../ContactRowForm/lib/withTableRows';
@@ -72,7 +74,10 @@ const SOCIAL_ROWS: SocialRow[] = SOCIAL_LINKS.map(({ name, href }) => ({ name, h
 const emailSchema = z.string().trim().pipe(z.email());
 
 /** Row deletion without the TS2790 `delete` restriction (slice parity). */
-const omitKey = (rows: Record<string, LocalizedText>, key: string) => {
+const omitKey = (
+  rows: Record<string, LocalizedText> | Record<string, ContactSocialLink>,
+  key: string
+) => {
   const copy = { ...rows };
   Reflect.deleteProperty(copy, key);
   return copy;
@@ -102,9 +107,10 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const [emailDraft, setEmailDraft] = useState(content.email);
 
   // R-5: the row form modal (add when `row` is undefined, edit otherwise).
-  const [pendingRow, setPendingRow] = useState<{ table: ContactTableRow; row?: TableRow } | null>(
-    null
-  );
+  const [pendingRow, setPendingRow] = useState<{
+    table: ContactTextTableRow;
+    row?: TableRow;
+  } | null>(null);
   // R-6: delete-row confirm + per-table reset confirm.
   const [pendingDelete, setPendingDelete] = useState<{
     table: ContactTableRow;
@@ -116,22 +122,26 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const cancelResetRef = useRef<HTMLButtonElement>(null);
 
   const closeRowModal = () => setPendingRow(null);
-  const openAddRow = (table: ContactTableRow) => setPendingRow({ table });
-  const openEditRow = (table: ContactTableRow, row: TableRow) => setPendingRow({ table, row });
+  const openAddRow = (table: ContactTextTableRow) => setPendingRow({ table });
+  const openEditRow = (table: ContactTextTableRow, row: TableRow) => setPendingRow({ table, row });
   const closeDelete = () => setPendingDelete(null);
   const closeResetTable = () => setPendingResetTable(null);
 
   const groupName = (table: ContactTableRow) =>
-    t(table === 'texts' ? 'adminFieldTexts' : 'adminFieldFormTexts');
+    table === 'texts'
+      ? t('adminFieldTexts')
+      : table === 'formTexts'
+        ? t('adminFieldFormTexts')
+        : t('adminContactSocials');
 
-  const tableRows = (table: ContactTableRow): TableRow[] =>
+  const tableRows = (table: ContactTextTableRow): TableRow[] =>
     Object.entries(content[table]).map(([key, value]) => ({ key, value }));
 
   /** R-6: persist-fail toasts and KEEPS the confirm modal open (state untouched). */
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
     const { table, key } = pendingDelete;
-    const next = withTableRows(content, table, omitKey(content[table], key));
+    const next = withTableRows(content, table, omitKey(content[contactTableField(table)], key));
     if (!persistContactContent(next)) {
       addToast({ message: t('contactSaveError'), type: 'error' });
       return; // modal stays open (gold standard)
@@ -144,7 +154,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
   const handleConfirmResetTable = () => {
     if (!pendingResetTable) return;
     const table = pendingResetTable;
-    const next = withTableRows(content, table, createContactSeed()[table]);
+    const next = withTableRows(content, table, createContactSeed()[contactTableField(table)]);
     if (!persistContactContent(next)) {
       addToast({ message: t('contactSaveError'), type: 'error' });
       return; // modal stays open
@@ -170,7 +180,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     addToast({ message: t('contactSaved'), type: 'success' });
   };
 
-  const makeColumns = (table: ContactTableRow) => [
+  const makeColumns = (table: ContactTextTableRow) => [
     {
       key: 'field',
       header: t('adminContactTableField'),
@@ -212,7 +222,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
     },
   ];
 
-  const renderTableGroup = (table: ContactTableRow) => {
+  const renderTableGroup = (table: ContactTextTableRow) => {
     const rows = tableRows(table);
     const name = groupName(table);
     // Stable id: aria-controls resolves before AND after the unmount
@@ -381,7 +391,7 @@ export const ContactEditorForm: React.FC<ContactEditorFormProps> = ({
                       key: 'url',
                       header: t('adminContactSocialUrl'),
                       render: (row: SocialRow) => (
-                        <Link href={row.href} external showExternalIcon={false}>
+                        <Link href={row.href} variant="ghost" external showExternalIcon={false}>
                           {row.href}
                         </Link>
                       ),

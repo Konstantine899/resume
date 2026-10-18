@@ -20,12 +20,25 @@
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
+import type { ContactContent, ContactSocialLink, LocalizedText } from '@/entities/ContactContent';
 import { createContactSeed } from '../services/seed';
 import { readContactContent } from '../services/storage';
 
-/** The two editable tables of the Contact document (contact-rows-crud). */
-export type ContactTableRow = 'texts' | 'formTexts';
+/** The two localized-string tables (ContactRowForm caps live on these only). */
+export type ContactTextTableRow = 'texts' | 'formTexts';
+
+/** The three editable tables of the Contact document (contact-rows-crud + contact-social-crud). */
+export type ContactTableRow = ContactTextTableRow | 'socials';
+
+/** Value shape per table: texts/formTexts hold locales, socials holds {name, href}. */
+export type ContactTableValue = LocalizedText | ContactSocialLink;
+
+/**
+ * Document field backing a table id: texts/formTexts are field-identical,
+ * the socials TABLE lives under the `socialLinks` document field (S1/S5).
+ */
+export const contactTableField = (table: ContactTableRow): 'texts' | 'formTexts' | 'socialLinks' =>
+  table === 'socials' ? 'socialLinks' : table;
 
 const contactContentSlice = createSlice({
   name: 'contactContent',
@@ -38,19 +51,30 @@ const contactContentSlice = createSlice({
     },
     upsertContactTableRow(
       state,
-      action: PayloadAction<{ table: ContactTableRow; key: string; value: LocalizedText }>
+      action: PayloadAction<{ table: ContactTableRow; key: string; value: ContactTableValue }>
     ) {
       const { table, key, value } = action.payload;
-      state[table][key] = value;
+      // The caller always sends the value shape matching its table (the
+      // form owns that typing) — the union write needs one widening cast.
+      const field = contactTableField(table);
+      (state[field] as Record<string, ContactTableValue>)[key] = value;
     },
     removeContactTableRow(state, action: PayloadAction<{ table: ContactTableRow; key: string }>) {
       const { table, key } = action.payload;
       // Reflect: `delete state[table][key]` is a TS2790 error (operand
       // must be optional) on the non-undefined index signature.
-      Reflect.deleteProperty(state[table], key);
+      Reflect.deleteProperty(state[contactTableField(table)], key);
     },
     resetContactTable(state, action: PayloadAction<{ table: ContactTableRow }>) {
-      state[action.payload.table] = createContactSeed()[action.payload.table];
+      const seed = createContactSeed();
+      // Per-branch write: TS cannot correlate a union-key indexed write.
+      if (action.payload.table === 'texts') {
+        state.texts = seed.texts;
+      } else if (action.payload.table === 'formTexts') {
+        state.formTexts = seed.formTexts;
+      } else {
+        state.socialLinks = seed.socialLinks;
+      }
     },
   },
 });
