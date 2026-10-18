@@ -1,12 +1,18 @@
 ---
-status: approved
+status: done
 epic: contact-social-crud
 issue: 293
 created: '2026-10-18'
+verified: '2026-10-18'
 spec: SPEC.md
 ---
 
 # SPEC — features/AdminContact (эпик contact-social-crud, план rev.7 §10.2)
+
+> **ЗАКРЫТ** (2026-10-18): выполнен и смержен в `dev` squash `2088c7e`
+> (PR #294, CI 8/8), issue #293 закрыт вручную. Реализация совпала с
+> контрактом ниже без отклонений; variant=ghost закреплён class-пином в
+> vitest и проверен по computed color в preview smoke.
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md,
 > раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
@@ -97,10 +103,10 @@ spec: SPEC.md
 
 ## Приёмка
 
-- [ ] TDD: schema/storage/slice тесты RED→GREEN; `ContactSocialForm`
+- [x] TDD: schema/storage/slice тесты RED→GREEN; `ContactSocialForm`
       RED→GREEN; тест variant=ghost написан ДО фикса-подтверждения.
-- [ ] Старый конверт (без socialLinks) читается: тексты сохраняются,
+- [x] Старый конверт (без socialLinks) читается: тексты сохраняются,
       ссылки — seed; `{}` остаётся пустым.
-- [ ] Полный `npm run validate` зелёный; `check:axe` 0 регрессий;
+- [x] Полный `npm run validate` зелёный; `check:axe` 0 регрессий;
       `check:bundle`; `check:spec`; preview smoke light+dark без сырых
       ключей.
