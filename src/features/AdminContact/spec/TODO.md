@@ -1,32 +1,29 @@
 ---
-status: done
-epic: contact-rows-crud
-issue: 285
+status: approved
+epic: contact-row-textarea
+issue: 289
 created: '2026-10-18'
-verified: '2026-10-18'
 spec: SPEC.md
 ---
 
-# TODO — contact-rows-crud (сожжён)
+# TODO — contact-row-textarea
 
-> Эпик ЗАКРЫТ 2026-10-18: squash `a9565e8` (PR #286, CI 8/8), issue #285
-> закрыт вручную (Closes-ключевое слово не срабатывает на non-default
-> ветке). План: vault `plan_admin_contact_migration.md` rev.5 §10 «Трек D»
-> (директива владельца 2026-10-18, авто-режим, оценка ≈4–5,5 ч показана
-> перед стартом).
->
-> Выполнено WU-1..8: открытая контрактная модель строк (slug-ключ, капы
-> 600/120) → slice-экшены (`resetToDefaults` удалён) → 16 i18n-ключей →
-> `ContactRowForm` (add/edit, pristine-Save, пайплайн snapshot→persist→
-> dispatch→toast→exit) → `ContactEditorForm` на 3 сворачиваемых Card
-> (гебометрия Skills, таблицы без инпутов, Pencil/Trash2 в `.cellActions`
-> nowrap, Add/Reset в шапке, confirm-модалки с Cancel-focus и
-> persist-fail-паритетом, email — inline Save) → page-тесты против
-> реального стора → гейты: validate 3749/3749, check:spec 17, axe 0
-> регрессий, бандл 832.0<840 KiB, превью-смоук light+dark без сырых
-> ключей.
->
-> Отклонения: R-8 «~15 ключей» → фактически 16 (`adminContactTableActions`
-> добавлен в WU-5, SPEC исправлен по правилу 7); `withTableRows` вынесен в
-> `ui/ContactRowForm/lib/` (react-refresh-правило). История — в git;
-> контракт живёт в [SPEC.md](./SPEC.md).
+> Контракт: [SPEC.md](./SPEC.md). Правила: выполненный пункт **удаляется**
+> (не отмечается). Каждый WU — отдельный conventional commit.
+> План: vault `plan_admin_contact_migration.md` rev.6 §10.1. **Режим:
+> СТРОГО AUTO** (директива владельца 2026-10-18).
+
+## Оценка времени (показывается перед стартом — директива плана)
+
+≈ 40–60 минут агентного времени: WU-1 TDD-замена формы ~20–30 мин ·
+WU-2 гейты ~15–20 · WU-3 PR+CI+merge ~10 · WU-4 бёрн-даун ~5.
+
+- [ ] WU-1 — TDD: в `ContactRowForm.test.tsx` EN/RU-ассерты на
+      `tagName TEXTAREA` (RED на Input-рендере) → замена EN/RU `Input` →
+      `Textarea` (`rows=3`, `autoResize`, кап-`maxLength`, тот же
+      `error`-контракт); `key`/email — Input без правок (R-2);
+      локали не трогаются (R-3)
+- [ ] WU-2 — гейты: полный `npm run validate` (CPU-окно), `check:axe`,
+      `check:bundle`, `check:spec`
+- [ ] WU-3 — PR `--base dev` → CI → merge → ручное закрытие issue #289
+- [ ] WU-4 — бёрн-даун пары + dual-write (vault + AGENTS.md)

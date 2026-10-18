@@ -11,6 +11,11 @@
 // Save pipeline is the golden standard of the CRUD chain: snapshot → mutate →
 // persist → dispatch → toast → exit. A persist failure toasts
 // `contactSaveError` and keeps the form open (state untouched).
+//
+// contact-row-textarea (issue #289, plan rev.6 §10.1): the long EN/RU
+// values render as kit Textarea (rows=3, autoResize, table cap as
+// maxLength) — owner directive «long text in modals = Textarea»; the short
+// slug key stays a kit Input.
 
 import type { ContactContent, LocalizedText } from '@/entities/ContactContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
@@ -18,6 +23,7 @@ import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
+import { Textarea } from '@/shared/ui/Textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -131,16 +137,22 @@ export const ContactRowForm: React.FC<ContactRowFormProps> = ({
         error={errors.key?.message ? t(errors.key.message) : undefined}
         {...register('key')}
       />
-      <Input
+      {/* R-1 (contact-row-textarea): long values are Textareas — the short
+          slug key stays an Input (R-2). Same error contract as Input. */}
+      <Textarea
         label={t('adminContactRowEn')}
+        rows={3}
+        autoResize
         maxLength={max}
         fullWidth
         value={values.en ?? ''}
         error={errors.en?.message ? t(errors.en.message) : undefined}
         {...register('en')}
       />
-      <Input
+      <Textarea
         label={t('adminContactRowRu')}
+        rows={3}
+        autoResize
         maxLength={max}
         fullWidth
         value={values.ru ?? ''}
