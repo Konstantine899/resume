@@ -1,5 +1,5 @@
 import { DEVELOPER_DATA, PROFILE_STACK } from '@/entities/Developer';
-import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.png';
+import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';

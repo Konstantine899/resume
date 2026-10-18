@@ -98,7 +98,7 @@ export const PROJECTS: Project[] = [
     },
     techIcons: ['html', 'css', 'javascript'],
     link: null,
-    image: '/images/projects/neumorphic-watch-face.png',
+    image: '/images/projects/neumorphic-watch-face.webp',
     category: 'mobile',
     status: 'completed',
     featured: false,
