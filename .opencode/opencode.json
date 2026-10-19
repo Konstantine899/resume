@@ -1006,34 +1006,38 @@
     }
   },
   "mcp": {
-    "serena": {
-      "type": "local",
-      "command": [
-        "wsl",
-        "--exec",
-        "bash",
-        "-c",
-        "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"
-      ],
-      "enabled": true,
-      "timeout": 60000,
-      "operationTimeout": {
-        "find_symbol": 30000,
-        "replace_symbol_body": 45000,
-        "get_symbols_overview": 20000,
-        "find_referencing_symbols": 30000
+    "servers": {
+      "serena": {
+        "type": "local",
+        "command": [
+          "wsl",
+          "--exec",
+          "bash",
+          "-c",
+          "source $HOME/.local/bin/env && uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context claude-code --project /mnt/d/Dev/projects/resume"
+        ],
+        "disabled": false,
+        "operationTimeout": {
+          "find_symbol": 30000,
+          "replace_symbol_body": 45000,
+          "get_symbols_overview": 20000,
+          "find_referencing_symbols": 30000
+        },
+        "fallback": {
+          "enabled": true,
+          "strategy": "filesystem_grep",
+          "maxFiles": 50,
+          "alertOnFallback": true
+        }
       },
-      "fallback": {
-        "enabled": true,
-        "strategy": "filesystem_grep",
-        "maxFiles": 50,
-        "alertOnFallback": true
+      "obsidian": {
+        "type": "local",
+        "command": [
+          "node",
+          "D:/Dev/projects/resume/.opencode/obsidian-debug.js"
+        ],
+        "disabled": false
       }
-    },
-    "obsidian": {
-      "type": "local",
-      "command": ["node", "D:/Dev/projects/resume/.opencode/obsidian-debug.js"],
-      "enabled": true
     }
   },
   "build": {
