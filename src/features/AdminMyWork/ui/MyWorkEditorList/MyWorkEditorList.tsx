@@ -43,7 +43,7 @@ import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
 import type { Project } from '@/entities/Project';
-import { selectAllProjects } from '../../model/selectors';
+import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects, removeProjects } from '../../model/services/storage';
 import { deleteProject, resetToDefaults } from '../../model/slices/myWorkSlice';
 import type { EditProjectField } from '../ProjectForm/lib/fieldSchemas';

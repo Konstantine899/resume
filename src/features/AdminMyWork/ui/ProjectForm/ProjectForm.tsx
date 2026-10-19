@@ -38,7 +38,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllProjects } from '../../model/selectors';
+import { selectAllProjects } from '../../model/selectors/selectors';
 import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
 import {

@@ -33,7 +33,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAboutContent } from '../../model/selectors';
+import { selectAboutContent } from '../../model/selectors/selectors';
 import { createAboutSeed } from '../../model/services/seed';
 import { persistAboutContent, removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';

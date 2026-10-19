@@ -8,7 +8,7 @@ import type { AboutContent } from '@/entities/AboutContent';
 import { storeReducers } from '@/storeReducers';
 import { createAboutSeed } from '../services/seed';
 import { resetToDefaults, updateAboutContent } from './aboutContentSlice';
-import { selectAboutContent } from '../selectors';
+import { selectAboutContent } from '../selectors/selectors';
 import { ABOUT_CONTENT_STORAGE_KEY, persistAboutContent } from '../services/storage';
 
 const SEED = createAboutSeed();

@@ -40,7 +40,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
 import type { Job } from '@/entities/Job';
 import { deleteJob } from '../../model/slices/jobsSlice';
-import { selectAllJobs, selectSortedJobs } from '../../model/selectors';
+import { selectAllJobs, selectSortedJobs } from '../../model/selectors/selectors';
 import { persistJobs } from '../../model/services/storage';
 import type { EditField } from '../JobForm/lib/fieldSchemas';
 import { JobCard } from '../JobCard/JobCard';
