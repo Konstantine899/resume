@@ -66,7 +66,9 @@
 
 // stacked into a single column below 48rem.
 
-// Consumers: AboutEditorForm (AdminAbout), ProjectForm (AdminMyWork).
+// Consumers: ProjectForm (AdminMyWork) — AdminAbout moved to a vitrina
+
+// (admin-about-table) and no longer includes this mixin.
 
 @mixin locale-row {
   display: grid;

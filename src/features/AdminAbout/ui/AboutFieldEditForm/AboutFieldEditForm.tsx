@@ -3,7 +3,7 @@
 // (admin-about-table WU-4, SPEC R-3)
 // ============================================
 //
-// The field-scoped counterpart of the (dead) AboutEditorForm. Renders ONLY
+// The field-scoped counterpart of the AboutEditorList vitrina. Renders ONLY
 // the inputs of the given `field` (scope honesty — the row Pencil's
 // promise), validates through the SHARED per-field slices
 // (../AboutEditorList/lib/fieldSchemas — single source of caps/min) and
