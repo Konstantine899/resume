@@ -22,7 +22,9 @@
 //   remounts the form with fresh defaults, and the Save seam
 //   (persistMergedAboutField) returns false on a failed write — the
 //   modal stays open with the user's values, the store does not move.
-// - The fullName scalar block is WU-5 (OPEN-3) — not here yet.
+// - WU-5 (OPEN-3, R-2): `fullName` is a SCALAR — its own block with an
+//   inline Save ABOVE the vitrina (Contact email D6 precedent: draft +
+//   mini-pipeline, pristine-disabled Save, persist → dispatch).
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
 import { useRef, useState } from 'react';
@@ -33,6 +35,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
+import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
@@ -46,6 +49,7 @@ import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutCon
 import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
 import {
   STAT_KEYS,
+  aboutFieldSchema,
   descriptionIndexOf,
   statIndexOf,
   type AboutFieldValue,
@@ -95,6 +99,24 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   const closeResetConfirm = () => setIsResetConfirmOpen(false);
   const closeFieldModal = () => setEditingField(null);
+
+  // WU-5 (R-2, OPEN-3): the fullName scalar block — Contact email (D6)
+  // precedent: its own draft + mini-pipeline, no whole-document form.
+  const [fullNameDraft, setFullNameDraft] = useState(content.fullName);
+  const fullNameParsed = aboutFieldSchema('fullName').safeParse(fullNameDraft);
+  const fullNameValid = fullNameParsed.success;
+  const fullNameDirty = fullNameDraft !== content.fullName;
+
+  const handleSaveFullName = () => {
+    if (!fullNameParsed.success) return; // the Input shows aboutNameRequired
+    const merged = persistMergedAboutField(content, 'fullName', fullNameParsed.data);
+    if (merged === null) {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+      return; // store unchanged; the draft stays for a retry
+    }
+    dispatch(updateAboutContent(merged));
+    addToast({ message: t('aboutSaved'), type: 'success' });
+  };
 
   /** Translated label of ANY vitrina row — the modal title names the field. */
   const fieldLabel = (field: EditAboutField): string => {
@@ -173,6 +195,31 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           onClick={() => setIsResetConfirmOpen(true)}
         >
           {t('aboutReset')}
+        </Button>
+      </div>
+
+      {/* WU-5 (R-2): fullName is a SCALAR — its own block with an inline
+          Save above the vitrina (Contact email D6 parity): pristine and
+          invalid drafts keep the Save disabled, a failed persist keeps
+          the draft for a retry. */}
+      <div className={styles.nameRow}>
+        <div className={styles.nameInput}>
+          <Input
+            label={t('aboutFieldFullName')}
+            value={fullNameDraft}
+            onChange={(event) => setFullNameDraft(event.target.value)}
+            error={fullNameValid ? undefined : t('aboutNameRequired')}
+            maxLength={80}
+            fullWidth
+          />
+        </div>
+        <Button
+          type="button"
+          variant="primary"
+          disabled={!fullNameDirty || !fullNameValid}
+          onClick={handleSaveFullName}
+        >
+          {t('aboutSave')}
         </Button>
       </div>
 

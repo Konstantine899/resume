@@ -9,6 +9,9 @@
 // - R-3/WU-2+WU-4: the merged save path — row Pencil → field-scoped modal
 //   → snapshot → toMergedDocument → persist → dispatch(full document) —
 //   with the persist-fail branch (error toast, NO dispatch, modal open);
+// - R-2/WU-5: the fullName scalar block — inline Input + own Save above
+//   the table (Contact email D6 parity: pristine/invalid disabled, the
+//   draft survives a failed persist);
 // - R-4: Reset keeps the admin-about-refactor kit-Modal-confirm (never
 //   window.confirm, subtitle names the entity, focus starts on «Отмена»).
 // Storage and action creators are spied at the module boundary; the
@@ -144,9 +147,11 @@ describe('AboutEditorList: vitrina render (WU-3, R-1)', () => {
     expect(screen.getAllByRole('button', { name: 'adminAboutEditRow' })).toHaveLength(8);
     expect(screen.queryByRole('button', { name: 'adminAboutAddRow' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'adminAboutDeleteRow' })).not.toBeInTheDocument();
-    // fullName has no row yet (WU-5 scalar block) and no inline inputs.
-    expect(document.querySelector('input')).toBeNull();
-    expect(document.querySelector('textarea')).toBeNull();
+    // No inline inputs INSIDE the rows (fixed contract); the only Input on
+    // the page is the fullName scalar block ABOVE the table (WU-5, R-2).
+    expect(document.querySelector('tbody input')).toBeNull();
+    expect(document.querySelector('tbody textarea')).toBeNull();
+    expect(screen.getByLabelText('aboutFieldFullName')).toBeInTheDocument();
   });
 });
 
@@ -387,5 +392,68 @@ describe('AboutEditorList: reset confirm (R-4, kit Modal)', () => {
     // The vitrina still renders the 8 fixed rows (the contract has no rows
     // to remove — reset restores the SEED document).
     expect(dataRows()).toHaveLength(8);
+  });
+});
+
+describe('AboutEditorList: fullName scalar block (WU-5, R-2)', () => {
+  it('renders ABOVE the table with the seed value, cap 80 and a pristine-disabled Save', () => {
+    renderList();
+
+    const input = screen.getByLabelText('aboutFieldFullName');
+    expect(input).toHaveValue(seed.fullName);
+    expect(input).toHaveAttribute('maxlength', '80');
+    // Document order: the scalar block sits BEFORE the vitrina.
+    const table = screen.getByRole('table');
+    const followsTable =
+      (input.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    expect(followsTable).toBe(true);
+    expect(screen.getByRole('button', { name: 'aboutSave' })).toBeDisabled();
+  });
+
+  it('persists the merged document BEFORE dispatching and toasts aboutSaved', async () => {
+    renderList();
+
+    fireEvent.change(screen.getByLabelText('aboutFieldFullName'), {
+      target: { value: 'New Name' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+      fullName: 'New Name',
+      descriptions: seed.descriptions, // the other fields ride through
+    });
+    expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
+      updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
+    );
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
+  });
+
+  it('a 1-char draft surfaces aboutNameRequired and blocks the save', () => {
+    renderList();
+
+    fireEvent.change(screen.getByLabelText('aboutFieldFullName'), { target: { value: 'K' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('aboutNameRequired');
+
+    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+    expect(persistSpy).not.toHaveBeenCalled();
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('persist-fail: error toast, store untouched, the draft survives for a retry', async () => {
+    renderList();
+
+    persistSpy.mockReturnValueOnce(false);
+    fireEvent.change(screen.getByLabelText('aboutFieldFullName'), {
+      target: { value: 'Retry Me' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaveError', type: 'error' })
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('aboutFieldFullName')).toHaveValue('Retry Me');
   });
 });
