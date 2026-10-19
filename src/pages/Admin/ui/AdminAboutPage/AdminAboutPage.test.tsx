@@ -1,11 +1,12 @@
 // ============================================
-// AdminAboutPage — page-level real-store tests (admin-about-refactor WU-2, R-2)
+// AdminAboutPage — page-level real-store tests (admin-about-refactor WU-2, R-2;
+// admin-about-table WU-3 — the vitrina replaces the inline form)
 // ============================================
 //
 // The PAGE is a thin composition (Section + ErrorBoundary + the feature
-// form), so this file proves the wiring end-to-end: the REAL storeReducers
+// vitrina), so this file proves the wiring end-to-end: the REAL storeReducers
 // hydrate the About document from storage on the first reducer call
-// (resume-rtk-lazy-hydration) and the form renders/saves through that
+// (resume-rtk-lazy-hydration) and the vitrina renders/saves through that
 // store. Harness: shared renderAdminPage (src/shared/tests) — mock ONLY
 // storage (persist control), i18n (identity) and toasts.
 //
@@ -56,7 +57,8 @@ const STORAGE_KEY = 'resume.about.content';
 
 const renderPage = () => renderAdminPage(<AdminAboutPage />);
 
-const fullNameInput = () => screen.getByLabelText('aboutFieldFullName');
+/** The vitrina body rows (the header row is excluded). */
+const dataRows = () => document.querySelectorAll<HTMLTableRowElement>('tbody tr');
 
 describe('AdminAboutPage (R-2: real store wiring)', () => {
   beforeEach(() => {
@@ -69,41 +71,45 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the About editor form on the page (seed prefill, Save idle)', () => {
+  it('renders the About vitrina on the page (8 rows from the seed)', () => {
     renderPage();
 
     expect(screen.getByTestId('admin-about')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'adminAboutTitle' })).toBeInTheDocument();
     expect(screen.getByText('adminAboutHint')).toBeInTheDocument();
     // Empty storage → lazy hydration falls back to the seed.
-    expect(fullNameInput()).toHaveValue(createAboutSeed().fullName);
-    expect(screen.getByRole('button', { name: 'aboutSave' })).toBeDisabled();
+    expect(dataRows()).toHaveLength(8);
+    expect(screen.getByText(createAboutSeed().ctaLabel.en)).toBeInTheDocument();
   });
 
-  it('prefills the form from the stored document (lazy hydration, not module import)', () => {
-    const stored: AboutContent = { ...createAboutSeed(), fullName: 'Stored Person' };
+  it('prefills the vitrina from the stored document (lazy hydration, not module import)', () => {
+    const stored: AboutContent = {
+      ...createAboutSeed(),
+      ctaLabel: { en: 'Stored CTA', ru: 'Stored CTA ru' },
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, content: stored }));
 
     renderPage();
 
-    expect(fullNameInput()).toHaveValue('Stored Person');
+    expect(screen.getByText('Stored CTA')).toBeInTheDocument();
+    expect(screen.getByText('Stored CTA ru')).toBeInTheDocument();
   });
 
-  it('save-smoke: persist BEFORE dispatch, store updated, toast aboutSaved', async () => {
+  it('row Pencil save-smoke: persist BEFORE dispatch, store updated, toast aboutSaved', async () => {
     const store = renderPage();
 
-    fireEvent.change(fullNameInput(), { target: { value: 'New Name' } });
-    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+    fireEvent.click(screen.getByTestId('admin-about-edit-ctaLabel'));
 
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
-    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({ fullName: 'New Name' });
-    expect(store.getState().aboutContent.fullName).toBe('New Name');
+    // The dispatched document is the FULL merged snapshot (WU-2 seam).
+    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+      ctaLabel: createAboutSeed().ctaLabel,
+    });
+    expect(store.getState().aboutContent.ctaLabel).toEqual(createAboutSeed().ctaLabel);
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
-    // Pristine again after a successful save (§9 saved → idle).
-    await waitFor(() => expect(screen.getByRole('button', { name: 'aboutSave' })).toBeDisabled());
   });
 
-  it('shows the destructive «Reset» button (its confirm Modal lives in the form tests)', () => {
+  it('shows the destructive «Reset» button (its confirm Modal lives in the feature tests)', () => {
     renderPage();
 
     expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
