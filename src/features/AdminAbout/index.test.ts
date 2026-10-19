@@ -9,7 +9,7 @@
 //
 // Precedent: `src/features/AdminJobs/index.test.ts` (admin-jobs-refactor
 // WU-8) and `src/features/AdminMyWork/index.test.ts` (WU-6). Types are
-// erased at runtime, so `AboutEditorFormProps` (kept by SPEC R-4) and
+// erased at runtime, so `AboutEditorListProps` (kept by SPEC R-4) and
 // `AboutContentRootState` (removed) are not assertable here.
 
 import { describe, expect, it } from 'vitest';
@@ -30,7 +30,7 @@ const LIVE_EXPORTS = [
   'createAboutSeed',
   'persistAboutContent',
   'removeAboutContent',
-  'AboutEditorForm',
+  'AboutEditorList',
 ] as const;
 
 describe('AdminAbout public API (SPEC R-4)', () => {

@@ -8,7 +8,7 @@
 //
 // admin-about-refactor WU-3 (SPEC R-4): the barrel keeps ONLY symbols
 // with a production consumer at the BARREL level:
-// - `AboutEditorForm` — `AdminAboutPage` (the lazy /admin/about route);
+// - `AboutEditorList` — `AdminAboutPage` (the lazy /admin/about route);
 // - `createAboutSeed` / `persistAboutContent` / `removeAboutContent` —
 //   `HomePage.test` (`fsd-imports/tests-public-api-only` forces a test to
 //   consume a cross-slice symbol through the barrel, so these stay).
@@ -24,5 +24,5 @@
 
 export { createAboutSeed } from './model/services/seed';
 export { persistAboutContent, removeAboutContent } from './model/services/storage';
-export { AboutEditorForm } from './ui/AboutEditorForm/AboutEditorForm';
-export type { AboutEditorFormProps } from './ui/AboutEditorForm/AboutEditorForm';
+export { AboutEditorList } from './ui/AboutEditorList/AboutEditorList';
+export type { AboutEditorListProps } from './ui/AboutEditorList/AboutEditorList';

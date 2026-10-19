@@ -8,7 +8,7 @@
 // Own module so react-refresh/only-export-components keeps the route-table
 // constants, the layout shell and page components separate (AdminSettings
 // pattern).
-import { AboutEditorForm } from '@/features/AdminAbout';
+import { AboutEditorList } from '@/features/AdminAbout';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { Section } from '@/shared/ui/Section';
 import React from 'react';
@@ -17,7 +17,7 @@ export const AdminAboutPage: React.FC = () => {
   return (
     <Section size="md" data-testid="admin-about">
       <ErrorBoundary>
-        <AboutEditorForm />
+        <AboutEditorList />
       </ErrorBoundary>
     </Section>
   );

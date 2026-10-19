@@ -37,7 +37,7 @@ import { selectAboutContent } from '../../model/selectors';
 import { createAboutSeed } from '../../model/services/seed';
 import { persistAboutContent, removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
-import styles from './AboutEditorForm.module.scss';
+import styles from './AboutEditorList.module.scss';
 
 /** The two editable locales — the field order is en then ru everywhere. */
 const LOCALES: readonly Language[] = ['en', 'ru'];
@@ -290,3 +290,9 @@ export const AboutEditorForm: React.FC<AboutEditorFormProps> = ({
 };
 
 AboutEditorForm.displayName = 'AboutEditorForm';
+
+// Temporary rename aliases (admin-about-table WU-3): the barrel and the
+// page switch to `AboutEditorList` in this very commit; the component
+// body is rewritten in the next commit.
+export { AboutEditorForm as AboutEditorList };
+export type { AboutEditorFormProps as AboutEditorListProps };

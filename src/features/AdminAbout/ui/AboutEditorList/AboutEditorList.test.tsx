@@ -13,7 +13,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AboutContent } from '@/entities/AboutContent';
 import { DEVELOPER_DATA, PROFILE_STACK } from '@/entities/Developer';
-import { AboutEditorForm } from './AboutEditorForm';
+import { AboutEditorForm } from './AboutEditorList';
 
 const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() => ({
   // Typed arg => mock.calls[0] is [AboutContent], not [].
