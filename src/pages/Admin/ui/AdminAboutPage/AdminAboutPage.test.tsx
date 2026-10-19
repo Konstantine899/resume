@@ -6,8 +6,8 @@
 // form), so this file proves the wiring end-to-end: the REAL storeReducers
 // hydrate the About document from storage on the first reducer call
 // (resume-rtk-lazy-hydration) and the form renders/saves through that
-// store. Harness: AdminSkillsPage.test.tsx:25-66 / AdminMyWorkPage.test.tsx
-// — mock ONLY storage (persist control), i18n (identity) and toasts.
+// store. Harness: shared renderAdminPage (src/shared/tests) — mock ONLY
+// storage (persist control), i18n (identity) and toasts.
 //
 // No slice-internal imports (fsd-imports/tests-public-api-only): the seed
 // comes from the barrel, the storage envelope key is written literally
@@ -15,14 +15,12 @@
 // SPEC R-4), and `readAboutContent` stays REAL behind the mock spread so
 // the hydration path is the production one.
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AboutContent } from '@/entities/AboutContent';
 import { createAboutSeed } from '@/features/AdminAbout';
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminAboutPage } from './AdminAboutPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -56,15 +54,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 /** The storage.ts envelope key — literal on purpose (see header). */
 const STORAGE_KEY = 'resume.about.content';
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminAboutPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminAboutPage />);
 
 const fullNameInput = () => screen.getByLabelText('aboutFieldFullName');
 

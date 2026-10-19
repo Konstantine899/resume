@@ -7,7 +7,7 @@
 // (R-2/R-3). This file wires the REAL storeReducers — the myWork slice
 // hydrates `readProjects() ?? createProjectsSeed()` on its first reducer
 // call — and mocks only storage (persist control), i18n (identity) and
-// toasts. Harness: AdminSkillsPage.test.tsx:25-66.
+// toasts. Harness: shared renderAdminPage (src/shared/tests).
 //
 // No slice-internal imports (fsd-imports/tests-public-api-only): the
 // records are driven through the LIST's own confirm flow, so the stale
@@ -15,12 +15,10 @@
 // the form-modal overlay would block those clicks — jsdom lets them
 // through, which is exactly how the record disappears "elsewhere".
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminMyWorkPage } from './AdminMyWorkPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -60,15 +58,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminMyWorkPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminMyWorkPage />);
 
 const projectsOf = (store: ReturnType<typeof renderPage>) => store.getState().myWork;
 

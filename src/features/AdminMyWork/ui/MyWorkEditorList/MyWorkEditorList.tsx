@@ -28,6 +28,7 @@
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Plus, RotateCcw } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
@@ -38,7 +39,7 @@ import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
 import type { Project } from '@/entities/Project';
@@ -79,13 +80,40 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
-  const [pending, setPending] = useState<{ kind: 'delete'; id: string } | { kind: 'reset' } | null>(
-    null
-  );
-  const [confirming, setConfirming] = useState(false);
-  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
-  const cancelRef = useRef<HTMLButtonElement>(null);
   const [sortMode, setSortMode] = useState<SortMode>('storage');
+  // Destructive-confirm state machine extracted to the shared hook
+  // (issue #302) — pending/confirming/cancelRef + persist-fail parity:
+  // a failed write keeps the modal OPEN for a retry (R-2).
+  const {
+    pending,
+    confirming,
+    cancelRef,
+    request: requestConfirm,
+    cancel: cancelConfirm,
+    confirm: handleConfirm,
+  } = useConfirmAction<{ kind: 'delete'; id: string } | { kind: 'reset' }>({
+    onConfirm: (action) => {
+      if (action.kind === 'reset') {
+        // Reset relocated from the form — remove → dispatch.
+        removeProjects();
+        dispatch(resetToDefaults());
+        return true;
+      }
+      // §3 order: persist → dispatch → toast → callback → close.
+      // R-3: rebuild from the INSERTION-ORDER snapshot so storage keeps the
+      // store's byte-for-byte order; the sorted array above is render-only.
+      const next = allProjects.filter((project) => project.id !== action.id);
+      if (!persistProjects(next)) {
+        // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
+        addToast({ message: t('projectSaveError'), type: 'error' });
+        return false;
+      }
+      dispatch(deleteProject(action.id));
+      addToast({ message: t('projectDeleted'), type: 'success' });
+      onDeleted?.(action.id);
+      return true;
+    },
+  });
 
   // R-1: storage keeps the selector order as-is; the other modes sort a
   // COPY so the store array is never mutated. `?? 0`: `year` is optional
@@ -110,43 +138,6 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
     { value: 'category', label: t('adminMyWorkSortCategory') },
     { value: 'year', label: t('adminMyWorkSortYear') },
   ];
-
-  const closeModal = () => {
-    setPending(null);
-    setConfirming(false);
-  };
-
-  /** §3 order: persist → dispatch → toast → callback → close. */
-  const handleConfirmDelete = (id: string) => {
-    setConfirming(true);
-    // R-3: rebuild from the INSERTION-ORDER snapshot so storage keeps the
-    // store's byte-for-byte order; the sorted array above is render-only.
-    const next = allProjects.filter((project) => project.id !== id);
-    if (!persistProjects(next)) {
-      // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
-      addToast({ message: t('projectSaveError'), type: 'error' });
-      setConfirming(false);
-      return;
-    }
-    dispatch(deleteProject(id));
-    addToast({ message: t('projectDeleted'), type: 'success' });
-    onDeleted?.(id);
-    closeModal();
-  };
-
-  /** Reset relocated from the form — remove → dispatch. */
-  const handleConfirmReset = () => {
-    setConfirming(true);
-    removeProjects();
-    dispatch(resetToDefaults());
-    closeModal();
-  };
-
-  const handleConfirm = () => {
-    if (pending === null) return;
-    if (pending.kind === 'delete') handleConfirmDelete(pending.id);
-    else handleConfirmReset();
-  };
 
   const pendingProject =
     pending?.kind === 'delete'
@@ -190,7 +181,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
               size="md"
               ariaLabel={t('projectReset')}
               icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
-              onClick={() => setPending({ kind: 'reset' })}
+              onClick={() => requestConfirm({ kind: 'reset' })}
             />
           </Tooltip>
           <Tooltip content={t('adminMyWorkAdd')} position="top" showDelay={0}>
@@ -212,13 +203,13 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
           project={project}
           onEdit={(record) => onEdit(record.id)}
           onEditField={onEditField}
-          onDelete={(id) => setPending({ kind: 'delete', id })}
+          onDelete={(id) => requestConfirm({ kind: 'delete', id })}
         />
       ))}
 
       <Modal
         isOpen={pending !== null}
-        onClose={closeModal}
+        onClose={cancelConfirm}
         // R-2: title ≠ button label for delete (the button stays
         // projectDelete); the subtitle NAMES the project
         // (projectConfirmDeleteName, OPEN-10 parity).
@@ -235,7 +226,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
         initialFocusRef={cancelRef}
         footer={
           <>
-            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
+            <Button ref={cancelRef} type="button" variant="outline" onClick={cancelConfirm}>
               {t('projectCancel')}
             </Button>
             <Button

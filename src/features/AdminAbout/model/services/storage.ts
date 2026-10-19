@@ -3,57 +3,45 @@
 // ============================================
 //
 // Stage-1 "backend": a versioned envelope `{ v: 1, content }` under
-// `resume.about.content`. Callers persist FIRST and dispatch only on
-// `true` (§4) — this module never throws, so a storage failure becomes
-// a reported `false`, the slice stays untouched, and reload shows the
-// previously saved document.
+// `resume.about.content`. Mechanics (parse/validate/fallback/write) come
+// from the shared `createVersionedStorage` factory (issue #302); this
+// module keeps only the feature specifics: the key, the envelope schema
+// and the payload extraction.
+//
+// Callers persist FIRST and dispatch only on `true` (§4) — every failure
+// is a reported `false`/`null`, never a throw, so the slice stays
+// untouched and reload shows the previously saved document.
 //
 // Swap note (§4.1): on the NestJS stage this whole module is replaced by
 // RTK Query; nothing outside imports localStorage directly.
 
 import {
   AboutContentEnvelopeSchema,
-  AboutContentSchema,
   type AboutContent,
+  type AboutContentEnvelope,
 } from '@/entities/AboutContent';
+import { createVersionedStorage } from '@/shared/lib/versionedStorage';
 
 export const ABOUT_CONTENT_STORAGE_KEY = 'resume.about.content';
+
+const storage = createVersionedStorage<AboutContent, AboutContentEnvelope>({
+  key: ABOUT_CONTENT_STORAGE_KEY,
+  envelopeSchema: AboutContentEnvelopeSchema,
+  extract: (envelope) => envelope.content,
+  wrap: (content) => ({ v: 1, content }),
+});
 
 /**
  * Parsed document or `null` — for missing/absent/corrupt/versioned-invalid
  * data alike: every unreadable state falls back to the seed (§7), never a throw.
  */
-export const readAboutContent = (): AboutContent | null => {
-  try {
-    const raw = localStorage.getItem(ABOUT_CONTENT_STORAGE_KEY);
-    if (raw === null) return null;
-    const parsed = AboutContentEnvelopeSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data.content : null;
-  } catch {
-    return null;
-  }
-};
+export const readAboutContent = storage.read;
 
 /**
  * Validate, then write. `false` means NOTHING was written (invalid payload
  * or storage failure) — the caller must NOT dispatch (§4 order, R-7).
  */
-export const persistAboutContent = (content: AboutContent): boolean => {
-  try {
-    const parsed = AboutContentSchema.safeParse(content);
-    if (!parsed.success) return false;
-    localStorage.setItem(ABOUT_CONTENT_STORAGE_KEY, JSON.stringify({ v: 1, content: parsed.data }));
-    return true;
-  } catch {
-    return false;
-  }
-};
+export const persistAboutContent = storage.persist;
 
 /** Drop the stored document (Reset path, §3). Idempotent, never throws. */
-export const removeAboutContent = (): void => {
-  try {
-    localStorage.removeItem(ABOUT_CONTENT_STORAGE_KEY);
-  } catch {
-    // Storage unavailable — the in-memory slice still works this session.
-  }
-};
+export const removeAboutContent = storage.remove;
