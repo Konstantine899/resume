@@ -16,6 +16,12 @@
 // - Reset stays the admin-about-refactor R-1 kit-Modal-confirm (subtitle
 //   names the entity, focus starts on «Отмена»); `useConfirmAction`
 //   takes the state machine over in WU-7 (OPEN-4).
+// - WU-4 (R-3): a row Pencil opens the field-scoped AboutFieldEditForm
+//   in a kit Modal owned HERE (page-owned-dialog parity with AdminJobs
+//   #227): `editingField` is the single selection state, `key=field`
+//   remounts the form with fresh defaults, and the Save seam
+//   (persistMergedAboutField) returns false on a failed write — the
+//   modal stays open with the user's values, the store does not move.
 // - The fullName scalar block is WU-5 (OPEN-3) — not here yet.
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
@@ -37,9 +43,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectAboutContent } from '../../model/selectors';
 import { removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
-import { STAT_KEYS } from './lib/fieldSchemas';
+import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
+import {
+  STAT_KEYS,
+  descriptionIndexOf,
+  statIndexOf,
+  type AboutFieldValue,
+  type EditAboutField,
+} from './lib/fieldSchemas';
 import { persistMergedAboutField } from './lib/saveAboutField';
-import type { EditAboutField } from './lib/fieldSchemas';
 import styles from './AboutEditorList.module.scss';
 
 /**
@@ -76,21 +88,39 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const cancelResetRef = useRef<HTMLButtonElement>(null);
 
+  // WU-4 (R-3): the field-scoped edit selection — null = closed. The
+  // overlay of an open modal blocks Reset, so the two dialogs never
+  // coexist (AdminJobs #227 page-owned-dialog parity).
+  const [editingField, setEditingField] = useState<EditAboutField | null>(null);
+
   const closeResetConfirm = () => setIsResetConfirmOpen(false);
+  const closeFieldModal = () => setEditingField(null);
+
+  /** Translated label of ANY vitrina row — the modal title names the field. */
+  const fieldLabel = (field: EditAboutField): string => {
+    if (field === 'fullName') return t('aboutFieldFullName');
+    if (field === 'ctaLabel') return t('aboutFieldCta');
+    if (field.startsWith('description-')) {
+      return `${t('aboutFieldDescriptions')} ${descriptionIndexOf(field) + 1}`;
+    }
+    return t(STAT_KEYS[statIndexOf(field)]);
+  };
 
   /**
    * §4 / R-3 order: persist → dispatch → toast. `persistMergedAboutField`
    * is the WU-2 seam — a failed write returns null and the store stays
-   * untouched. WU-4's field-modal Save will call this same path.
+   * untouched. WU-4: this is the field-modal Save's `onSave` — returning
+   * false keeps the modal open with the user's values.
    */
-  const handleSaveField = (row: AboutTableRow) => {
-    const merged = persistMergedAboutField(content, row.id, { en: row.en, ru: row.ru });
+  const handleSaveField = (field: EditAboutField, value: AboutFieldValue): boolean => {
+    const merged = persistMergedAboutField(content, field, value);
     if (merged === null) {
       addToast({ message: t('aboutSaveError'), type: 'error' });
-      return;
+      return false;
     }
     dispatch(updateAboutContent(merged));
     addToast({ message: t('aboutSaved'), type: 'success' });
+    return true;
   };
 
   /**
@@ -111,7 +141,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const rows: AboutTableRow[] = [
     ...content.descriptions.map((paragraph, index) => ({
       id: `description-${index}` as VitrinaField,
-      label: `${t('aboutFieldDescriptions')} ${index + 1}`,
+      label: fieldLabel(`description-${index}` as EditAboutField),
       en: paragraph.en,
       ru: paragraph.ru,
     })),
@@ -176,7 +206,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                     icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
                     ariaLabel={t('adminAboutEditRow')}
                     data-testid={`admin-about-edit-${row.id}`}
-                    onClick={() => handleSaveField(row)}
+                    onClick={() => setEditingField(row.id)}
                   />
                 </Tooltip>
               </div>
@@ -214,6 +244,33 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         }
       >
         {null}
+      </Modal>
+
+      {/* WU-4 (R-3): field-scoped edit modal — the LIST owns the dialog
+          state (AdminJobs #227 parity): `editingField` selects the row,
+          `key=field` remounts the form with fresh defaults, the title
+          names the field (aria-dialog-name). ESC/overlay close via the kit
+          Modal defaults; a seam failure (persist-fail) toasts aboutSaveError
+          and keeps this modal open with the user's values. */}
+      <Modal
+        isOpen={editingField !== null}
+        onClose={closeFieldModal}
+        title={
+          editingField !== null
+            ? t('adminAboutEditFieldTitle', { field: fieldLabel(editingField) })
+            : t('adminAboutEditRow')
+        }
+        size="md"
+      >
+        {editingField !== null ? (
+          <AboutFieldEditForm
+            key={editingField}
+            field={editingField}
+            document={content}
+            onSave={handleSaveField}
+            onExitEdit={closeFieldModal}
+          />
+        ) : null}
       </Modal>
     </section>
   );

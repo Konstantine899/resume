@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import { AboutContentSchema, type AboutContent } from '@/entities/AboutContent';
 import {
+  aboutFieldResolverSchema,
   aboutFieldSchema,
   defaultValuesFor,
   toMergedDocument,
@@ -255,5 +256,48 @@ describe('toMergedDocument — ONE field replaced, siblings byte-identical', () 
     const merged = toMergedDocument(frozen, 'stat-0', { en: '5 years', ru: '5 лет' });
     expect(merged).not.toBe(frozen);
     expect(frozen).toEqual(baseDoc);
+  });
+});
+
+describe('aboutFieldResolverSchema — RHF resolver entry (WU-4)', () => {
+  it('wraps the scalar slice under the value key (fullName)', () => {
+    const parsed = aboutFieldResolverSchema('fullName').safeParse({ fullName: '  Ab  ' });
+    expect(parsed.success).toBe(true);
+    // The resolver output carries the TRIMMED value (contract transform).
+    expect(parsed.data?.fullName).toBe('Ab');
+  });
+
+  it('wraps the LocalizedText slices under description/stat/ctaLabel', () => {
+    expect(
+      aboutFieldResolverSchema('description-1').safeParse({
+        description: { en: 'ok', ru: 'ок' },
+      }).success
+    ).toBe(true);
+    expect(
+      aboutFieldResolverSchema('stat-2').safeParse({ stat: { en: 'ok', ru: 'ок' } }).success
+    ).toBe(true);
+    expect(
+      aboutFieldResolverSchema('ctaLabel').safeParse({ ctaLabel: { en: 'ok', ru: 'ок' } }).success
+    ).toBe(true);
+  });
+
+  it('nests failures under the value key (errors.<key>.<locale> lookups)', () => {
+    const parsed = aboutFieldResolverSchema('description-0').safeParse({
+      description: { en: '', ru: 'ок' },
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.path).toEqual(['description', 'en']);
+      expect(parsed.error.issues[0]?.message).toBe('aboutParagraphEmpty');
+    }
+  });
+
+  it('fullName failures surface under errors.fullName', () => {
+    const parsed = aboutFieldResolverSchema('fullName').safeParse({ fullName: 'a' });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.path).toEqual(['fullName']);
+      expect(parsed.error.issues[0]?.message).toBe('aboutNameRequired');
+    }
   });
 });

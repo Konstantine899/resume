@@ -6,9 +6,9 @@
 // - R-1: 8 fixed rows (3 descriptions + 4 stats + ctaLabel), columns
 //   [Поле | EN | RU | Действия], exactly ONE Pencil per row in the
 //   nowrap `.cellActions`, no add/remove affordances (fixed contract);
-// - R-3/WU-2: the merged save path — snapshot → toMergedDocument →
-//   persist → dispatch(full document) — with the persist-fail branch
-//   (error toast, NO dispatch);
+// - R-3/WU-2+WU-4: the merged save path — row Pencil → field-scoped modal
+//   → snapshot → toMergedDocument → persist → dispatch(full document) —
+//   with the persist-fail branch (error toast, NO dispatch, modal open);
 // - R-4: Reset keeps the admin-about-refactor kit-Modal-confirm (never
 //   window.confirm, subtitle names the entity, focus starts on «Отмена»).
 // Storage and action creators are spied at the module boundary; the
@@ -150,11 +150,17 @@ describe('AboutEditorList: vitrina render (WU-3, R-1)', () => {
   });
 });
 
-describe('AboutEditorList: merged save path (WU-2, R-3 persist → dispatch)', () => {
+describe('AboutEditorList: merged save path (WU-2/WU-4, R-3 persist → dispatch)', () => {
   it('persists the FULL merged document BEFORE dispatching and toasts aboutSaved', async () => {
     renderList();
 
+    // WU-4: the Pencil opens the field modal — the seam runs on its Save.
     fireEvent.click(screen.getByTestId('admin-about-edit-stat-1'));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.change(within(modal).getByLabelText('aboutStatProjects · EN'), {
+      target: { value: '42 projects' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
 
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
     expect(updateSpy).toHaveBeenCalledTimes(1);
@@ -163,25 +169,132 @@ describe('AboutEditorList: merged save path (WU-2, R-3 persist → dispatch)', (
     expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
       updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
     );
-    // FULL document — the other 7 fields ride through untouched.
+    // FULL document — the other 7 fields ride through untouched, the edited
+    // one carries the FORM value.
     expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
       fullName: seed.fullName,
       descriptions: seed.descriptions,
       ctaLabel: seed.ctaLabel,
-      stats: { aboutStatProjects: seed.stats.aboutStatProjects },
+      stats: {
+        aboutStatProjects: { en: '42 projects', ru: seed.stats.aboutStatProjects.ru },
+      },
     });
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
+    // A successful save closes the modal (onExitEdit).
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('toasts aboutSaveError and skips dispatch when persist fails', async () => {
+  it('persist-fail: toasts aboutSaveError, skips dispatch and KEEPS the modal open', async () => {
     renderList();
 
     persistSpy.mockReturnValueOnce(false);
     fireEvent.click(screen.getByTestId('admin-about-edit-ctaLabel'));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.change(within(modal).getByLabelText('aboutFieldCta · EN'), {
+      target: { value: 'Go!' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
 
     await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaveError', type: 'error' })
     );
+    expect(updateSpy).not.toHaveBeenCalled();
+    // The dialog keeps the user's values for a retry (R-3).
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('aboutFieldCta · EN')).toHaveValue('Go!');
+  });
+});
+
+describe('AboutEditorList: field edit modal (WU-4, R-3)', () => {
+  it('a description Pencil opens the modal with TWO textareas and the field-named title', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-description-0'));
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).queryAllByRole('textbox')).toHaveLength(2);
+    expect(modal.querySelectorAll('textarea')).toHaveLength(2);
+    expect(modal.querySelectorAll('input')).toHaveLength(0);
+    // aria-dialog-name: the modal header names the field (identity t mock
+    // renders the raw key — the {{field}} option carries the row label).
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'adminAboutEditFieldTitle' })
+    ).toBeInTheDocument();
+  });
+
+  it('a stat Pencil opens the modal with Inputs (never textareas), cap 60', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-0'));
+    const modal = await screen.findByRole('dialog');
+
+    expect(modal.querySelectorAll('textarea')).toHaveLength(0);
+    expect(modal.querySelectorAll('input')).toHaveLength(2);
+    expect(within(modal).getByLabelText('aboutStatYears · EN')).toHaveAttribute('maxlength', '60');
+  });
+
+  it('a ctaLabel Pencil opens the modal with Inputs, cap 40', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-ctaLabel'));
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByLabelText('aboutFieldCta · RU')).toHaveValue(seed.ctaLabel.ru);
+    expect(within(modal).getByLabelText('aboutFieldCta · RU')).toHaveAttribute('maxlength', '40');
+  });
+
+  it('the form Save is pristine-disabled and the modal owns the only dialog', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-description-1'));
+    const modal = await screen.findByRole('dialog');
+
+    expect(within(modal).getByRole('button', { name: 'aboutSave' })).toBeDisabled();
+    // Exactly ONE dialog on the page (at-most-one-dialog invariant).
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('a cap violation surfaces the keyed error and never persists', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-description-2'));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.change(within(modal).getByLabelText('aboutFieldDescriptions · EN'), {
+      target: { value: '' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
+
+    expect(await within(modal).findByRole('alert')).toHaveTextContent('aboutParagraphEmpty');
+    expect(persistSpy).not.toHaveBeenCalled();
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('ESC closes the modal and clears the editing state (reopening works)', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-2'));
+    await screen.findByRole('dialog');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    // The selection state is CLEARED — a reopen mounts a fresh form.
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-2'));
+    const reopened = await screen.findByRole('dialog');
+    expect(within(reopened).getByLabelText('aboutStatUsers · EN')).toHaveValue(
+      seed.stats.aboutStatUsers.en
+    );
+    expect(persistSpy).not.toHaveBeenCalled();
+  });
+
+  it('Cancel closes the modal without saving', async () => {
+    renderList();
+
+    fireEvent.click(screen.getByTestId('admin-about-edit-description-0'));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutCancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(persistSpy).not.toHaveBeenCalled();
     expect(updateSpy).not.toHaveBeenCalled();
   });
 });

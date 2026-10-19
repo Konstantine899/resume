@@ -110,6 +110,28 @@ export const aboutFieldSchema = <F extends EditAboutField>(
 ): z.ZodType<AboutFieldValueOf<F>> =>
   aboutFieldSchemas[field] as unknown as z.ZodType<AboutFieldValueOf<F>>;
 
+/** The form-values KEY the active field's value lives under (WU-4). */
+export const valueKeyOf = (field: EditAboutField): keyof AboutFieldFormValues => {
+  if (field === 'fullName') return 'fullName';
+  if (field === 'ctaLabel') return 'ctaLabel';
+  return field.startsWith('description-') ? 'description' : 'stat';
+};
+
+/**
+ * zodResolver entry (WU-4): RHF hands the resolver the WHOLE form-values
+ * object (`{ description: {en,ru} }`), while the slices parse the field
+ * VALUE — so the resolver schema wraps the slice under the value key.
+ * `z.object` prefixes every issue path with the key, which is exactly the
+ * nesting the modal's `errors.<valueKey>.<locale>` lookups expect.
+ * The return type is INFERRED on purpose — an annotated `z.ZodType<…>`
+ * with an `unknown` input no longer satisfies @hookform/resolvers v5's
+ * `Zod4Type<unknown, FieldValues>` parameter (TS2345).
+ */
+export const aboutFieldResolverSchema = (field: EditAboutField) =>
+  z.object({
+    [valueKeyOf(field)]: aboutFieldSchema(field),
+  });
+
 // ---- form values / merged document ----
 
 /**

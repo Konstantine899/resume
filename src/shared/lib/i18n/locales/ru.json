@@ -71,6 +71,7 @@
   "adminAboutTableField": "Поле",
   "adminAboutTableActions": "Действия",
   "adminAboutEditRow": "Изменить строку",
+  "adminAboutEditFieldTitle": "Редактировать: {{field}}",
   "aboutFieldFullName": "Полное имя",
   "aboutFieldDescriptions": "Абзац описания",
   "aboutFieldStats": "Статистика",

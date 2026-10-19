@@ -71,6 +71,7 @@
   "adminAboutTableField": "Field",
   "adminAboutTableActions": "Actions",
   "adminAboutEditRow": "Edit row",
+  "adminAboutEditFieldTitle": "Edit: {{field}}",
   "aboutFieldFullName": "Full name",
   "aboutFieldDescriptions": "Pitch paragraph",
   "aboutFieldStats": "Stats",

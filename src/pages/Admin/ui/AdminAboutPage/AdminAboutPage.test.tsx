@@ -16,7 +16,7 @@
 // SPEC R-4), and `readAboutContent` stays REAL behind the mock spread so
 // the hydration path is the production one.
 
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AboutContent } from '@/entities/AboutContent';
@@ -95,17 +95,24 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(screen.getByText('Stored CTA ru')).toBeInTheDocument();
   });
 
-  it('row Pencil save-smoke: persist BEFORE dispatch, store updated, toast aboutSaved', async () => {
+  it('row Pencil save-smoke: modal Save persists BEFORE dispatch, store updated, toast aboutSaved', async () => {
     const store = renderPage();
 
+    // admin-about-table WU-4: the Pencil opens the field modal — the seam
+    // runs on the modal's Save button.
     fireEvent.click(screen.getByTestId('admin-about-edit-ctaLabel'));
+    const modal = await screen.findByRole('dialog');
+    fireEvent.change(within(modal).getByLabelText('aboutFieldCta · EN'), {
+      target: { value: 'Hire me now' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
 
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
     // The dispatched document is the FULL merged snapshot (WU-2 seam).
     expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
-      ctaLabel: createAboutSeed().ctaLabel,
+      ctaLabel: { en: 'Hire me now', ru: createAboutSeed().ctaLabel.ru },
     });
-    expect(store.getState().aboutContent.ctaLabel).toEqual(createAboutSeed().ctaLabel);
+    expect(store.getState().aboutContent.ctaLabel.en).toBe('Hire me now');
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
   });
 
