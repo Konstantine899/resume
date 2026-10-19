@@ -7,8 +7,8 @@
 // never touches it; the vitrina receives content as a prop from HomePage
 // (Design C).
 //
-// WU-2 ships the model only; the editor UI is exported from here in
-// WU-5 — and `storeReducers.ts` deep-imports `./model/slices/jobsSlice`
+// The editor UI (JobForm / JobsList / FieldEditForm) is exported from
+// here — and `storeReducers.ts` deep-imports `./model/slices/jobsSlice`
 // precisely so this barrel (and the form/RHF code behind it) is
 // instantiated only by the lazy `/admin/jobs` route (lesson
 // resume-lazy-rhf-chunk).

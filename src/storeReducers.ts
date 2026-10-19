@@ -25,16 +25,16 @@ import { apiSlice } from '@/shared/api';
 // instantiating the barrel here would pull it into the main chunk.
 import { contactContentReducer } from '@/features/AdminContact/model/slices/contactContentSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminJobs'
-// public API will export the editor form (RHF) in WU-5 — instantiating the
-// barrel here would pull it into the main chunk.
+// public API exports the editor form (RHF) — instantiating the barrel
+// here would pull it into the main chunk.
 import { jobsReducer } from '@/features/AdminJobs/model/slices/jobsSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminMyWork's
-// public API will export the editor form (RHF) in WU-4 — instantiating the
-// barrel here would pull it into the main chunk.
+// public API exports the editor form (RHF) — instantiating the barrel
+// here would pull it into the main chunk.
 import { myWorkReducer } from '@/features/AdminMyWork/model/slices/myWorkSlice';
 // Deep import, NOT the barrel (lesson resume-lazy-rhf-chunk): AdminSkills'
-// public API will export the editor forms (RHF) in WU-5 — instantiating the
-// barrel here would pull them into the main chunk.
+// public API exports the editor forms (RHF) — instantiating the barrel
+// here would pull them into the main chunk.
 import { skillsReducer } from '@/features/AdminSkills/model/slices/skillsSlice';
 
 export const storeReducers = {

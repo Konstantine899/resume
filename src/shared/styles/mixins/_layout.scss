@@ -61,3 +61,19 @@
     max-width: $container-2xl;
   }
 }
+
+// Locale pair row: one field in both locales (en | ru) side by side,
+
+// stacked into a single column below 48rem.
+
+// Consumers: AboutEditorForm (AdminAbout), ProjectForm (AdminMyWork).
+
+@mixin locale-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-3;
+
+  @media (width < 48rem) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
