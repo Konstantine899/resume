@@ -14,8 +14,9 @@
 //   leave the store ahead of storage; on failure the toast is an error
 //   and nothing dispatches.
 // - Reset stays the admin-about-refactor R-1 kit-Modal-confirm (subtitle
-//   names the entity, focus starts on «Отмена»); `useConfirmAction`
-//   takes the state machine over in WU-7 (OPEN-4).
+//   names the entity, focus starts on «Отмена»); WU-7 (OPEN-4): the state
+//   machine is `useConfirmAction` (issue #302 — MyWork/Jobs/Contact
+//   parity), the Modal JSX stays here (feature-scoped i18n copy).
 // - WU-4 (R-3): a row Pencil opens the field-scoped AboutFieldEditForm
 //   in a kit Modal owned HERE (page-owned-dialog parity with AdminJobs
 //   #227): `editingField` is the single selection state, `key=field`
@@ -27,10 +28,11 @@
 //   mini-pipeline, pristine-disabled Save, persist → dispatch).
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { Heading } from '@/shared/ui/Heading';
@@ -87,17 +89,33 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const { t } = useLanguage();
   const { addToast } = useToast();
 
-  // R-4: destructive confirm — kit Modal, own state until WU-7 swaps in
-  // useConfirmAction (OPEN-4). Cancel holds the initial focus.
-  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
-  const cancelResetRef = useRef<HTMLButtonElement>(null);
+  // R-4 / WU-7 (OPEN-4): destructive confirm — `useConfirmAction` owns
+  // the state machine (MyWork/Jobs/Contact parity). Cancel holds the
+  // initial focus; there is NO persist-fail branch below because
+  // removeAboutContent is idempotent and never throws (storage.ts) —
+  // the hook's keep-open-on-false contract stays unused, as before.
+  const {
+    pending: pendingReset,
+    cancelRef: cancelResetRef,
+    request: requestReset,
+    cancel: closeResetConfirm,
+    confirm: handleConfirmReset,
+  } = useConfirmAction<'reset'>({
+    onConfirm: () => {
+      // §7 order: remove → dispatch. NO fail branch — removeAboutContent
+      // is idempotent and never throws (storage.ts), so the hook's
+      // keep-open-on-false contract stays unused, as before WU-7.
+      removeAboutContent();
+      dispatch(resetToDefaults());
+      return true;
+    },
+  });
 
   // WU-4 (R-3): the field-scoped edit selection — null = closed. The
   // overlay of an open modal blocks Reset, so the two dialogs never
   // coexist (AdminJobs #227 page-owned-dialog parity).
   const [editingField, setEditingField] = useState<EditAboutField | null>(null);
 
-  const closeResetConfirm = () => setIsResetConfirmOpen(false);
   const closeFieldModal = () => setEditingField(null);
 
   // WU-5 (R-2, OPEN-3): the fullName scalar block — Contact email (D6)
@@ -145,17 +163,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     return true;
   };
 
-  /**
-   * §7 order: remove → dispatch. `removeAboutContent` is idempotent and
-   * never throws (storage.ts), so there is NO fail branch (parity with
-   * the admin-about-refactor behavior R-4 keeps unchanged).
-   */
-  const handleConfirmReset = () => {
-    removeAboutContent();
-    dispatch(resetToDefaults());
-    closeResetConfirm();
-  };
-
   // 8 rows in document order: 3 descriptions, 4 stats, the CTA label.
   // Labels reuse the form-era keys; per-row description labels carry the
   // 1-based index (`aboutFieldDescriptions 1..3`), stats are their own
@@ -188,12 +195,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <Heading level={2}>{t('adminAboutTitle')}</Heading>
           <Paragraph theme="muted">{t('adminAboutHint')}</Paragraph>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsResetConfirmOpen(true)}
-        >
+        <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
           {t('aboutReset')}
         </Button>
       </div>
@@ -262,15 +264,15 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         ]}
       />
 
-      {/* R-1: kit Modal confirm — title/button share `aboutReset`, the
-          subtitle IS the confirm copy and names the entity ({{name}} =
-          current fullName); focus starts on «Отмена». */}
+      {/* R-1/WU-7: kit Modal confirm — title/button share `aboutReset`,
+          the subtitle IS the confirm copy and names the entity ({{name}} =
+          current fullName); focus starts on «Отмена» (hook's cancelRef). */}
       <Modal
-        isOpen={isResetConfirmOpen}
+        isOpen={pendingReset !== null}
         onClose={closeResetConfirm}
         title={t('aboutReset')}
         subtitle={
-          isResetConfirmOpen ? t('aboutResetConfirm', { name: content.fullName }) : undefined
+          pendingReset !== null ? t('aboutResetConfirm', { name: content.fullName }) : undefined
         }
         size="sm"
         initialFocusRef={cancelResetRef}
