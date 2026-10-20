@@ -132,7 +132,24 @@ const confirmSpy = vi.spyOn(window, 'confirm');
 
 const seed = createAboutSeed();
 
-const renderList = () => render(<AboutEditorList />);
+/**
+ * WU-18 (R-10): legacy suites assert the FULL document (8 rows, tail rows
+ * like the CTA, whole-row button counts) — the default 5-row window would
+ * hide half of it. Pick size 20 to take pagination out of their way; the
+ * pagination suite below renders the RAW component instead (default state).
+ */
+const showAllRows = () => {
+  fireEvent.click(
+    within(screen.getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+      name: '20',
+    })
+  );
+};
+
+const renderList = () => {
+  render(<AboutEditorList />);
+  showAllRows();
+};
 
 /** The vitrina body rows (the header row is excluded). */
 const dataRows = () => document.querySelectorAll<HTMLTableRowElement>('tbody tr');
@@ -220,6 +237,125 @@ describe('AboutEditorList: vitrina render (WU-3, R-1 v2)', () => {
     expect(screen.getByText('Full Stack')).toBeInTheDocument();
     // Rows come from the record — 4 known + 1 custom + 3 descriptions + cta.
     expect(dataRows()).toHaveLength(9);
+  });
+});
+
+// ============================================
+// WU-18 vitrina pagination (SPEC R-10 / D18)
+// ============================================
+//
+// Container contract (TechnologiesList #272 parity): the LIST owns
+// {page, pageSize} (sizes 5/10/20, DEFAULT 5) and windows the rows as a
+// RENDER-TIME derivation (no setState-in-effect — react-hooks v7); kit
+// PageSizeGroup sits ABOVE the table, kit Pagination BELOW it; picking a
+// size resets the window to page 1; a shrinking document clamps back
+// into range during render (no effect).
+//
+// These tests render the RAW component (default window state); the
+// legacy suites below go through `renderList`, which takes pagination
+// out of their way (size 20 = the full document).
+
+describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
+  const root = () => screen.getByTestId('about-editor-list');
+  const sizeGroup = () => within(root()).getByRole('group', { name: 'perPageLabel' });
+  const pagination = () => within(root()).getByRole('navigation', { name: 'paginationNav' });
+  const table = () => within(root()).getByRole('table');
+  const currentPage = () => pagination().querySelector('[aria-current="page"]');
+
+  it('windows the 8-row seed to 5 rows by default with exactly 2 pages', () => {
+    render(<AboutEditorList />);
+
+    // Default size 5 → page 1 = the 3 descriptions + the first 2 stats.
+    expect(dataRows()).toHaveLength(5);
+    const labels = Array.from(dataRows()).map((row) => row.cells[0]?.textContent);
+    expect(labels).toEqual([
+      'aboutFieldDescriptions 1',
+      'aboutFieldDescriptions 2',
+      'aboutFieldDescriptions 3',
+      'aboutStatYears',
+      'aboutStatProjects',
+    ]);
+
+    // 8 rows / 5 per page → exactly TWO pages: «1» is current, «2» exists,
+    // «3» does not; the next edge stays enabled (more pages ahead).
+    expect(currentPage()).toHaveTextContent('1');
+    expect(within(pagination()).getByText('2')).toBeInTheDocument();
+    expect(within(pagination()).queryByText('3')).not.toBeInTheDocument();
+    expect(within(pagination()).getByLabelText('paginationNext')).toBeEnabled();
+    expect(within(sizeGroup()).getByRole('button', { name: '5' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  it('clicking page «2» shows the remaining 3 rows', () => {
+    render(<AboutEditorList />);
+
+    fireEvent.click(within(pagination()).getByText('2'));
+
+    expect(currentPage()).toHaveTextContent('2');
+    // Page 2 = the tail of the document: stats 3..4 + the CTA row.
+    expect(dataRows()).toHaveLength(3);
+    const labels = Array.from(dataRows()).map((row) => row.cells[0]?.textContent);
+    expect(labels).toEqual(['aboutStatUsers', 'aboutStatRemote', 'aboutFieldCta']);
+    expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
+  });
+
+  it('size 20 shows ALL 8 rows and resets a page-2 window back to page 1', () => {
+    render(<AboutEditorList />);
+
+    fireEvent.click(within(pagination()).getByText('2'));
+    expect(currentPage()).toHaveTextContent('2');
+
+    fireEvent.click(within(sizeGroup()).getByRole('button', { name: '20' }));
+
+    expect(dataRows()).toHaveLength(8);
+    expect(currentPage()).toHaveTextContent('1');
+    expect(within(sizeGroup()).getByRole('button', { name: '20' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(within(pagination()).getByLabelText('paginationNext')).toBeDisabled();
+  });
+
+  it('renders the size group ABOVE the table and the pagination BELOW it', () => {
+    render(<AboutEditorList />);
+
+    // DOM order: page-size control → table → Pagination (FOLLOWING bit).
+    const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(sizeGroup().compareDocumentPosition(table()) & FOLLOWING).toBe(FOLLOWING);
+    expect(table().compareDocumentPosition(pagination()) & FOLLOWING).toBe(FOLLOWING);
+  });
+
+  it('deleting the only row of the last page clamps back into range at render', async () => {
+    // 6 descriptions → 11 rows = pages 5 + 5 + 1; the CTA row is ALONE on
+    // page 3, so removing it shrinks the document below the current page.
+    holder.content = {
+      ...seed,
+      descriptions: [
+        ...seed.descriptions,
+        { en: 'Fourth pitch', ru: 'Четвёртый питч' },
+        { en: 'Fifth pitch', ru: 'Пятый питч' },
+        { en: 'Sixth pitch', ru: 'Шестой питч' },
+      ],
+    };
+
+    render(<AboutEditorList />);
+    fireEvent.click(within(pagination()).getByText('3'));
+    expect(currentPage()).toHaveTextContent('3');
+    expect(dataRows()).toHaveLength(1);
+
+    // Delete the ONLY row of the last page through the real confirm flow.
+    fireEvent.click(screen.getByTestId('admin-about-delete-ctaLabel'));
+    const confirm = await screen.findByRole('dialog');
+    fireEvent.click(within(confirm).getByRole('button', { name: 'adminAboutDeleteRow' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    // 10 rows fit TWO pages — the view derives back into range at render
+    // (clamp = pure derivation, no setState-in-effect).
+    expect(currentPage()).toHaveTextContent('2');
+    expect(dataRows()).toHaveLength(5);
+    expect(within(pagination()).queryByText('3')).not.toBeInTheDocument();
   });
 });
 

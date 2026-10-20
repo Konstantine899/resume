@@ -36,6 +36,12 @@
 // - WU-5 (OPEN-3, R-2): `fullName` is a SCALAR — its own block with an
 //   inline Save ABOVE the vitrina (Contact email D6 precedent: draft +
 //   mini-pipeline, pristine-disabled Save, persist → dispatch).
+// - WU-18 (R-10/D18): the vitrina is a PAGINATION CONTAINER
+//   (TechnologiesList #272 parity) — {page, pageSize} live here, the rows
+//   window as a render-time derivation (clamp on a shrinking document,
+//   no setState-in-effect), kit PageSizeGroup ABOVE the table, kit
+//   Pagination BELOW it; a size change resets the window to page 1; no
+//   sorting — document order is preserved.
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
 import { useState } from 'react';
@@ -54,6 +60,8 @@ import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
+import { Pagination } from '@/shared/ui/Pagination';
+import { PageSizeGroup } from '@/shared/ui/PageSizeGroup';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
@@ -107,6 +115,10 @@ export interface AboutEditorListProps {
   className?: string;
   'data-testid'?: string;
 }
+
+/** Vitrina page sizes (R-10/D18): 5/10/20, default 5 — TechnologiesList parity. */
+const PAGE_SIZES = [5, 10, 20] as const;
+const DEFAULT_PAGE_SIZE = 5;
 
 export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   className = '',
@@ -175,6 +187,12 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   // every open (the kit Modal unmounts its children when closed), so a
   // fresh pristine form is guaranteed without an extra key.
   const [adding, setAdding] = useState(false);
+  // WU-18 (R-10/D18): the pagination window — the CONTAINER owns {page,
+  // pageSize}. This state deliberately lives OUTSIDE the table subtree:
+  // WU-19 unmounts the content on collapse and the window survives the
+  // collapse/expand roundtrip (D18).
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const closeFieldModal = () => setEditingField(null);
   const closeAddModal = () => setAdding(false);
@@ -328,6 +346,20 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
       : []),
   ];
 
+  // WU-18 (R-10): windowing is a RENDER-TIME derivation — totalPages and
+  // safePage recompute on every render, so a shrinking document (row
+  // deletion on the last page) derives back into range without any
+  // setState-in-effect (react-hooks v7). No sorting: document order (R-1).
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const windowRows = rows.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  /** The kit PageSizeGroup is stateless — the container resets the window. */
+  const handlePageSize = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
+
   return (
     <section className={classNames(styles.editor, className)} data-testid={testId}>
       <div className={styles.header}>
@@ -438,9 +470,16 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         </div>
       </div>
 
+      {/* WU-18 (R-10/D18): size group ABOVE the table, kit Pagination
+          BELOW it — DOM order size → table → pagination (TechnologiesList
+          #272 parity). The controls never disappear on interaction. */}
+      <div className={styles.controls}>
+        <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
+      </div>
+
       <Table<AboutTableRow>
         caption={t('adminAboutTitle')}
-        rows={rows}
+        rows={windowRows}
         getKey={(row) => row.id}
         columns={[
           {
@@ -488,6 +527,13 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           },
         ]}
       />
+
+      {/* WU-18 (R-10): whole nav block below the table (numbers + arrows
+          together — TechnologiesList parity). safePage is the clamped
+          render-time window, so the control never shows an empty page. */}
+      <div className={styles.paginationRow}>
+        <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+      </div>
 
       {/* R-1/WU-7: kit Modal confirm — title/button share `aboutReset`,
           the subtitle IS the confirm copy and names the entity ({{name}} =

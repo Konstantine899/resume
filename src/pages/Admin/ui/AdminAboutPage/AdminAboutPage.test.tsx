@@ -55,7 +55,24 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 /** The storage.ts envelope key — literal on purpose (see header). */
 const STORAGE_KEY = 'resume.about.content';
 
-const renderPage = () => renderAdminPage(<AdminAboutPage />);
+/**
+ * WU-18 (R-10): the vitrina windows rows 5-at-a-time by default — these
+ * legacy page tests assert the FULL 8-row document (tail rows included),
+ * so pick size 20 right after render (feature test `showAllRows` parity).
+ */
+const showAllRows = () => {
+  fireEvent.click(
+    within(screen.getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
+      name: '20',
+    })
+  );
+};
+
+const renderPage = () => {
+  const store = renderAdminPage(<AdminAboutPage />);
+  showAllRows();
+  return store;
+};
 
 /** The vitrina body rows (the header row is excluded). */
 const dataRows = () => document.querySelectorAll<HTMLTableRowElement>('tbody tr');

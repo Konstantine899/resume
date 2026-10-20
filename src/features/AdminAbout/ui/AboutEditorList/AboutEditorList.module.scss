@@ -100,6 +100,29 @@
   gap: $spacing-2;
 }
 
+// WU-18 (R-10): page-size group right-aligned ABOVE the vitrina table
+
+// (TechnologiesList `.controls` parity); the kit Pagination block lives
+
+// in `.paginationRow` BELOW the table — DOM order size → table →
+
+// pagination. No margins — `.editor` is a flex column with gap.
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Whole nav block (numbers + arrows) below the table (WU-18).
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+}
+
 // One action row inside the table's «Действия» cell — never wraps.
 .cellActions {
   display: flex;
