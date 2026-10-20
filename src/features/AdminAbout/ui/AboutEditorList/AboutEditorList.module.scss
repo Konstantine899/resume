@@ -1,0 +1,201 @@
+// ============================================
+
+// AboutEditorList — admin vitrina layout (admin-about-table WU-3)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens — no hardcoded values (plan §8). The form-era `.field` /
+
+// `.localeRow` / `.actions` rules are gone with the inline form; the
+
+// table cell row keeps `.cellActions` NOWRAP (resume-table-cell-actions-
+
+// row: a wrapped flex row collapses the column to one icon wide).
+
+@use '@/shared/styles/variables' as *;
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+// Header: h2 + hint on the left, the add/Reset triggers on the right.
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+// WU-12 (R-2) + WU-20 (R-12): «Добавить строку» + avatar trigger +
+
+// «Сбросить» grouped on the header's right — wrapping on narrow viewports
+
+// (header-level, not a table cell).
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+// WU-5 + amend 3 (D19/R-11): the fullName scalar block — Contact email-row
+
+// parity (Input + inline Save on one line, wrapping on narrow viewports).
+
+// It is a flex COLUMN child of `.tableContent`, so the card gap above
+
+// `.controls` is the ONLY spacing — no margins, no doubled gap.
+
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-end;
+}
+
+.nameInput {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+// WU-14/WU-20: the upload column inside the PORTRAIT DIALOG — FileUpload
+
+// + error branch + staged-Save action row (the inline `.portraitRow` era
+
+// is gone; the block now stacks vertically inside the modal content).
+
+.portraitUpload {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  min-width: 0;
+}
+
+// Save + staged-cancel pair — wraps on narrow viewports (never a cell row).
+.portraitActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+// WU-20 (R-12/D20): portrait dialog content — upload column ON TOP, saved
+
+// portrait preview FULL-WIDTH BELOW. kit Modal children carry no gap of
+
+// their own, so the flex column + scale gap is ours.
+
+.portraitModal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+// The D14 portrait variant is chrome-less and declares NO size — this box
+
+// IS the size: the vitrina figure box (D20 amend 4 — About `.portrait`
+
+// proportions), 3:4 at 320px tall ≈ 240px wide, centered in the modal
+
+// content column. The vars pin kit Image's <img> to fill the figure box
+
+// (defaults are `auto` — same pattern as About's `.portrait`).
+
+.portraitModalPreview {
+  width: auto;
+  max-width: 100%;
+  height: 320px;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+
+  --image-width: 100%;
+  --image-height: 100%;
+}
+
+// WU-18 (R-10): page-size group right-aligned ABOVE the vitrina table
+
+// (TechnologiesList `.controls` parity); the kit Pagination block lives
+
+// in `.paginationRow` BELOW the table — DOM order size → table →
+
+// pagination. No margins — `.editor` is a flex column with gap.
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Whole nav block (numbers + arrows) below the table (WU-18).
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+}
+
+// One action row inside the table's «Действия» cell — never wraps.
+.cellActions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}
+
+// WU-19 (R-11): the vitrina Card — collapsed by default (Skills collapse
+
+// geometry). `height: auto` overrides the card base mixin's fixed 220px;
+
+// flex column + gap lays out strip → content like the Skills blocks.
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  height: auto;
+}
+
+// The aria-controls region: fullName block + size group + table +
+
+// pagination (amend 3 — `.nameRow` moved INSIDE the card). Its id must
+
+// STAY mounted even while collapsed (the strip references it), so the
+
+// children unmount on collapse instead; `:empty` keeps the collapsed Card
+
+// body = the strip, with no leftover gap row.
+
+.tableContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  &:empty {
+    display: none;
+  }
+}
+
+// Expand strip (WU-19): kit IconButton fullWidth = the whole Card body.
+
+// Doubled class raises specificity (0,2,0) over the kit's flex-center
+
+// mixin (.button, 0,1,0) so the Plus icon parks at the LEFT without
+
+// fighting CSS-module load order (Skills `.strip` parity).
+
+.strip.strip {
+  gap: $spacing-2;
+  justify-content: flex-start;
+  padding-inline: $spacing-3;
+}

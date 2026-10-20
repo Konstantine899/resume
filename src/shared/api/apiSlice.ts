@@ -19,7 +19,11 @@
 // backend lands (same swap point, documented in SPEC R-2).
 import { createApi } from '@reduxjs/toolkit/query';
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
-import type { ContactDocumentDto } from './types';
+import type {
+  ContactDocumentDto,
+  UpdateAboutPortraitArg,
+  UpdateAboutPortraitResult,
+} from './types';
 
 type StubArgs = undefined | string | { url: string; method?: string };
 
@@ -47,6 +51,34 @@ export const apiSlice = createApi({
     /** PUT the whole Contact document — full replace (contract C2). */
     updateContactContent: builder.mutation<ContactDocumentDto, ContactDocumentDto>({
       query: (content) => ({ url: '/contact', method: 'PUT', body: content }),
+    }),
+    /**
+     * WU-14 (admin-about-table): update the About PORTRAIT — full-replace of
+     * the document whose `portrait` field carries the new `/images/about/<name>`
+     * path. The form calls ONLY `apiSlice.endpoints.updateAboutPortrait.initiate()`
+     * and never touches storage directly for this operation.
+     *
+     * The `queryFn` persists through the feature-injected `persist` seam (the
+     * arg carries it) — this layer imports NOTHING from `features`/`entities`
+     * (FSD: allowedImports.shared = ['shared']). A failed persist returns
+     * `{ error }` so the mutation REJECTS; the caller toasts and skips the
+     * store dispatch (persist-THEN-dispatch).
+     *
+     * SWAP-POINT (real Nest.js backend): replace this `queryFn` with
+     * `query: (arg) => ({ url: '/about/portrait', method: 'PUT', body: arg.content })`
+     * and drop the `persist` seam from the arg — the FILENAME/path travels in
+     * the body and lands in the DB. Nothing else changes: the caller keeps
+     * calling `.initiate()` and branching on `.unwrap()`.
+     */
+    updateAboutPortrait: builder.mutation<UpdateAboutPortraitResult, UpdateAboutPortraitArg>({
+      queryFn: async (arg) => {
+        const { content, persist } = arg;
+        if (!persist(content)) {
+          // Same shape stubBaseQuery produces — `.unwrap()` throws with this.
+          return { error: { status: 500, data: { message: 'persist-failed' } } };
+        }
+        return { data: { document: content } };
+      },
     }),
   }),
 });

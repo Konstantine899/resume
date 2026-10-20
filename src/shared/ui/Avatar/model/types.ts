@@ -11,8 +11,11 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
  * Форма аватара
  * @circle - круглый (50% border-radius)
  * @square - квадратный со скруглёнными углами
+ * @portrait - портретный вариант: без chrome (border/background/radius),
+ *   заполняет контейнер потребителя (fill-container) — для вырезанных
+ *   PNG/WebP-портретов (About vitrina, D14)
  */
-export type AvatarVariant = 'circle' | 'square';
+export type AvatarVariant = 'circle' | 'square' | 'portrait';
 
 /**
  * Props для основного компонента Avatar

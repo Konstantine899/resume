@@ -3,9 +3,9 @@ import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { Avatar } from '@/shared/ui/Avatar';
 import { Badge } from '@/shared/ui/Badge';
 import { Heading } from '@/shared/ui/Heading';
-import { Image } from '@/shared/ui/Image';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
@@ -28,6 +28,11 @@ export const About: React.FC<AboutFeatureProps> = ({
 }) => {
   const { t, language } = useLanguage();
 
+  // Contract v2 (SPEC D13): the CTA row is optional — `null` means the admin
+  // deleted it, so the link disappears entirely. `undefined` (no content prop)
+  // keeps the original i18n fallback.
+  const ctaText = content ? content.ctaLabel : undefined;
+
   return (
     <Section
       size="xl"
@@ -46,17 +51,25 @@ export const About: React.FC<AboutFeatureProps> = ({
             <Heading level={1} size="4xl" className={styles.title}>
               {content?.fullName ?? DEVELOPER_DATA.fullName}
             </Heading>
-            {/* Recruiter-audit P1: expanded multi-paragraph pitch (i18n both locales). */}
+            {/* Recruiter-audit P1: expanded multi-paragraph pitch (i18n both
+                locales). Contract v2 (D13): with content every paragraph of
+                the array is mapped (the seed ships three); without content the
+                ORIGINAL three defaults render byte-identically. An empty or
+                short array simply renders fewer/no paragraphs — no crash. */}
             <div className={styles.description}>
-              <Paragraph theme="muted">
-                {content?.descriptions[0][language] ?? t('aboutDescription')}
-              </Paragraph>
-              <Paragraph theme="muted">
-                {content?.descriptions[1][language] ?? t('aboutDescription2')}
-              </Paragraph>
-              <Paragraph theme="muted">
-                {content?.descriptions[2][language] ?? t('aboutDescription3')}
-              </Paragraph>
+              {content ? (
+                content.descriptions.map((paragraph, index) => (
+                  <Paragraph key={index} theme="muted">
+                    {paragraph[language]}
+                  </Paragraph>
+                ))
+              ) : (
+                <>
+                  <Paragraph theme="muted">{t('aboutDescription')}</Paragraph>
+                  <Paragraph theme="muted">{t('aboutDescription2')}</Paragraph>
+                  <Paragraph theme="muted">{t('aboutDescription3')}</Paragraph>
+                </>
+              )}
             </div>
             {/* Stack badges — shared PROFILE_STACK, scannable proof. */}
             <ul className={styles.stackBadges} data-testid="about-stack">
@@ -68,37 +81,57 @@ export const About: React.FC<AboutFeatureProps> = ({
                 </li>
               ))}
             </ul>
-            {/* Stats row — translatable facts, separated by decorative dots. */}
+            {/* Stats row — translatable facts, separated by decorative dots.
+                Contract v2 (D13): with content every record entry renders in
+                insertion order (custom stats show the raw value — no i18n
+                label on the main page); a deleted key simply disappears.
+                Without content the original four i18n stats render as-is. */}
             <div className={styles.stats} data-testid="about-stats">
-              {STATS_KEYS.map((key, index) => (
-                <Fragment key={key}>
-                  {index > 0 && (
-                    <span className={styles.statSeparator} aria-hidden="true">
-                      ·
-                    </span>
-                  )}
-                  <span className={styles.stat}>{content?.stats[key][language] ?? t(key)}</span>
-                </Fragment>
-              ))}
+              {content
+                ? Object.entries(content.stats).map(([key, value], index) => (
+                    <Fragment key={key}>
+                      {index > 0 && (
+                        <span className={styles.statSeparator} aria-hidden="true">
+                          ·
+                        </span>
+                      )}
+                      <span className={styles.stat}>{value[language]}</span>
+                    </Fragment>
+                  ))
+                : STATS_KEYS.map((key, index) => (
+                    <Fragment key={key}>
+                      {index > 0 && (
+                        <span className={styles.statSeparator} aria-hidden="true">
+                          ·
+                        </span>
+                      )}
+                      <span className={styles.stat}>{t(key)}</span>
+                    </Fragment>
+                  ))}
             </div>
-            <Link
-              href="#contact"
-              unstyled
-              variant="primary"
-              underline="never"
-              className={styles.ctaButton}
-            >
-              {content?.ctaLabel[language] ?? t('getInTouch')}
-            </Link>
+            {/* CTA row — `null` = deleted by the admin → the link is hidden
+                (D13); no content prop → the original i18n fallback. */}
+            {ctaText !== null && (
+              <Link
+                href="#contact"
+                unstyled
+                variant="primary"
+                underline="never"
+                className={styles.ctaButton}
+              >
+                {ctaText?.[language] ?? t('getInTouch')}
+              </Link>
+            )}
           </div>
-          <Image
+          {/* D14: the portrait runs through the kit Avatar portrait variant —
+              transparent/contain/fill mapping lives inside Avatar now. The
+              `.portrait` class stays on the root and owns the box (About.module
+             .scss is intentionally untouched). */}
+          <Avatar
             data-testid="about-portrait"
-            src={aboutPortrait}
+            src={content?.portrait ?? aboutPortrait}
             alt=""
-            decorative
-            variant="transparent"
-            objectFit="contain"
-            size="full"
+            variant="portrait"
             className={styles.portrait}
           />
         </div>

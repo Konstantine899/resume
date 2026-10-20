@@ -8,7 +8,7 @@
 
 // tokens inside the shared inputs — no hardcoded values (plan §8).
 
-// Same structure as AboutEditorForm.module.scss + a toggle row for tech.
+// Same form-layout structure as the other admin forms + a toggle row for tech.
 
 @use '@/shared/styles/variables' as *;
 @use '@/shared/styles/mixins' as *;

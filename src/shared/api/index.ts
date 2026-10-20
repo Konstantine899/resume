@@ -7,4 +7,8 @@
 // (plan §3.7 / decision D3).
 
 export { apiSlice, stubBaseQuery } from './apiSlice';
-export type { ContactDocumentDto } from './types';
+export type {
+  ContactDocumentDto,
+  UpdateAboutPortraitArg,
+  UpdateAboutPortraitResult,
+} from './types';

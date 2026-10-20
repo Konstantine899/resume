@@ -18,12 +18,16 @@ vi.mock('@/shared/ui/Image', () => ({
   Image: ({
     'data-testid': dataTestId,
     variant,
+    objectFit,
+    size,
     className,
     src,
     alt,
   }: {
     'data-testid'?: string;
     variant?: string;
+    objectFit?: string;
+    size?: string;
     className?: string;
     src?: string;
     alt?: string;
@@ -32,6 +36,8 @@ vi.mock('@/shared/ui/Image', () => ({
       data-testid={dataTestId ?? 'mock-image'}
       data-mock="image"
       data-variant={variant}
+      data-object-fit={objectFit}
+      data-size={size}
       data-src={src}
       data-alt={alt}
       className={className}
@@ -61,13 +67,18 @@ describe('About: Link CTA integration', () => {
     expect(accent).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('renders the portrait with the transparent Image variant after the panel in the DOM', () => {
+  it('renders the portrait via the Avatar portrait variant after the panel in the DOM', () => {
     render(<About />);
 
     const panel = screen.getByTestId('about-panel');
     const portrait = screen.getByTestId('about-portrait');
-    expect(portrait).toBeInTheDocument();
-    expect(portrait).toHaveAttribute('data-variant', 'transparent');
+    expect(portrait).toHaveAttribute('data-variant', 'portrait');
+    // D14: inside Avatar the inner Image keeps the transparent/contain/full
+    // mapping that the vitrina used to spell out by hand.
+    const image = screen.getByTestId('mock-image');
+    expect(image).toHaveAttribute('data-variant', 'transparent');
+    expect(image).toHaveAttribute('data-object-fit', 'contain');
+    expect(image).toHaveAttribute('data-size', 'full');
     // Portrait must come AFTER the panel so z-index paints it over the panel.
     expect(panel.compareDocumentPosition(portrait) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -183,5 +194,100 @@ describe('About: store-content branch (WU-4)', () => {
     expect(screen.queryByText('aboutDescription')).toBeNull();
     expect(screen.queryByText('aboutStatYears')).toBeNull();
     expect(screen.queryByText('getInTouch')).toBeNull();
+  });
+});
+
+// WU-11: the dynamic vitrina branches of contract v2 (SPEC D13). The cases
+// above pin the default (no prop) DOM identity; these pin the add/delete
+// shaped content: extra paragraph, removed stat, hidden CTA, empty array.
+// Module scope (WU-14): the portrait suite below reuses the SAME fixture.
+const baseContent: AboutContent = {
+  fullName: 'Dynamic Full Name',
+  descriptions: [
+    { en: 'p1 en', ru: 'DYNAMIC_P1_RU' },
+    { en: 'p2 en', ru: 'DYNAMIC_P2_RU' },
+    { en: 'p3 en', ru: 'DYNAMIC_P3_RU' },
+  ],
+  stats: {
+    aboutStatYears: { en: '5+ years', ru: 'DYNAMIC_YEARS_RU' },
+  },
+  ctaLabel: { en: 'custom cta', ru: 'DYNAMIC_CTA_RU' },
+};
+
+describe('About: dynamic content branches (WU-11)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders a 4th paragraph added by the admin', () => {
+    const content: AboutContent = {
+      ...baseContent,
+      descriptions: [...baseContent.descriptions, { en: 'p4 en', ru: 'DYNAMIC_P4_RU' }],
+    };
+
+    render(<About content={content} />);
+
+    expect(screen.getByText('DYNAMIC_P4_RU')).toBeInTheDocument();
+    expect(screen.getByText('DYNAMIC_P1_RU')).toBeInTheDocument();
+  });
+
+  it('hides a stat record the admin deleted', () => {
+    render(<About content={baseContent} />);
+
+    const stats = screen.getByTestId('about-stats');
+    expect(within(stats).getByText('DYNAMIC_YEARS_RU')).toBeInTheDocument();
+    // aboutStatProjects/aboutStatUsers/aboutStatRemote were removed → absent.
+    expect(within(stats).queryByText('DYNAMIC_PROJECTS_RU')).toBeNull();
+    expect(within(stats).queryByText('aboutStatProjects')).toBeNull();
+    expect(within(stats).queryByText('aboutStatUsers')).toBeNull();
+    expect(within(stats).queryByText('aboutStatRemote')).toBeNull();
+  });
+
+  it('hides the CTA link when ctaLabel is null', () => {
+    const content: AboutContent = { ...baseContent, ctaLabel: null };
+
+    render(<About content={content} />);
+
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.queryByText('getInTouch')).toBeNull();
+  });
+
+  it('does not throw on an empty descriptions array', () => {
+    const content: AboutContent = { ...baseContent, descriptions: [] };
+
+    expect(() => render(<About content={content} />)).not.toThrow();
+    expect(screen.getByTestId('about-panel')).toBeInTheDocument();
+    expect(screen.queryByText('DYNAMIC_P1_RU')).toBeNull();
+    // The block renders empty — no hardcoded fallback paragraphs leak in.
+    expect(screen.queryByText('aboutDescription')).toBeNull();
+  });
+});
+
+// WU-14 (SPEC D16): the portrait follows the SAME store-prop contract as the
+// other fields — `content.portrait` overrides the static asset, and the
+// fallback (no prop, or content without a portrait) keeps the bundled image.
+describe('About: portrait source (WU-14, D16)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('uses content.portrait as the image src when it is set', () => {
+    const content: AboutContent = { ...baseContent, portrait: '/images/about/me.png' };
+
+    render(<About content={content} />);
+
+    // The inner Image (mocked) carries the src; the Avatar maps it through.
+    expect(screen.getByTestId('mock-image')).toHaveAttribute('data-src', '/images/about/me.png');
+    expect(screen.getByTestId('about-portrait')).toHaveAttribute('data-variant', 'portrait');
+  });
+
+  it('falls back to the static bundled portrait when content has no portrait', () => {
+    render(<About content={baseContent} />);
+
+    const image = screen.getByTestId('mock-image');
+    const src = image.getAttribute('data-src') ?? '';
+    expect(src).not.toBe('/images/about/me.png');
+    // The bundled static asset (not an admin path) is used.
+    expect(src).toMatch(/\.webp$/);
   });
 });
