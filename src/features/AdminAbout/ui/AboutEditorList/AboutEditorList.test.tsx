@@ -1043,8 +1043,17 @@ describe('AboutEditorList: fullName scalar block (WU-5, R-2)', () => {
 });
 
 // ============================================
-// WU-14 portrait upload block (SPEC R-7 / D15 / D16)
+// WU-20 portrait modal (SPEC R-12 / D20; WU-14 contract inside)
 // ============================================
+//
+// The inline `.portraitRow` block is GONE (D20): the header trigger
+// (`admin-about-portrait-button`, between «Добавить строку» and
+// «Сбросить», OUTSIDE the collapsed card) opens a kit Modal whose TITLE
+// is its accessible name (`adminAboutPortraitTitle`). Inside, top→bottom:
+// the SAME WU-14 upload contract (FileUpload .jpg/.png + error branches +
+// staged Save/Cancel) and the SAVED portrait preview on the full content
+// width (320px box — the D14 portrait variant is size-less, the consumer
+// class owns the box; the staged pick previews inside FileUpload itself).
 //
 // Two phases are pinned separately: the FILE write (abstract
 // `uploadPortrait` op → { name, path }, subdir `about`) and the DOCUMENT
@@ -1053,7 +1062,7 @@ describe('AboutEditorList: fullName scalar block (WU-5, R-2)', () => {
 // jsdom pipeline gets the FileUpload.test stubs (no image decoding, canvas
 // backend or object URLs in jsdom); URL is stubbed via `class extends URL`
 // — `Object.create(URL)` breaks zod v4's `new URL` (resume-*)).
-describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
+describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   /** jsdom never decodes pixels — controllable Image stand-in. */
   class FakeImage {
     onload: (() => void) | null = null;
@@ -1071,12 +1080,28 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     static revokeObjectURL = () => undefined;
   }
 
-  const portraitBlock = () => screen.getByTestId('admin-about-portrait');
+  /** The dialog's accessible NAME is its title (aria-dialog-name, D20). */
+  const portraitDialog = () => screen.getByRole('dialog', { name: 'adminAboutPortraitTitle' });
+
+  const openPortraitModal = () => {
+    fireEvent.click(screen.getByTestId('admin-about-portrait-button'));
+    return portraitDialog();
+  };
+
   const savePortraitButton = () =>
-    within(portraitBlock()).getByRole('button', { name: 'adminAboutPortraitSave' });
-  const fileInput = () => portraitBlock().querySelector('input[type="file"]') as HTMLInputElement;
+    within(portraitDialog()).getByRole('button', { name: 'adminAboutPortraitSave' });
+  const fileInput = () => portraitDialog().querySelector('input[type="file"]') as HTMLInputElement;
   const stageFile = (file: File) => {
     fireEvent.change(fileInput(), { target: { files: [file] } });
+  };
+
+  /**
+   * Raw render (the card stays collapsed — the trigger lives in the header,
+   * R-12) + the modal opened, which is where the WU-14 contract now lives.
+   */
+  const renderWithPortraitModal = () => {
+    render(<AboutEditorList />);
+    return openPortraitModal();
   };
 
   beforeEach(() => {
@@ -1100,8 +1125,43 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     vi.unstubAllGlobals();
   });
 
+  it('has no inline portrait block; the header trigger (visible while collapsed) opens the named dialog with FileUpload + preview inside', () => {
+    render(<AboutEditorList />);
+
+    // D20/R-12: the inline block is gone from the page entirely…
+    expect(screen.queryByTestId('admin-about-portrait')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('admin-about-portrait-preview')).not.toBeInTheDocument();
+
+    // …but the trigger sits in the header, available while the card is
+    // collapsed (D19: header stays outside the card).
+    const trigger = screen.getByTestId('admin-about-portrait-button');
+    expect(trigger).toHaveTextContent('adminAboutPortraitEdit');
+    // Document order: «Добавить строку» → avatar trigger → «Сбросить».
+    const addRow = screen.getByRole('button', { name: 'adminAboutAddRow' });
+    const reset = screen.getByRole('button', { name: 'aboutReset' });
+    expect(addRow.compareDocumentPosition(trigger) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+    expect(trigger.compareDocumentPosition(reset) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+
+    fireEvent.click(trigger);
+
+    const dialog = portraitDialog();
+    expect(dialog).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('group', { name: 'adminAboutPortraitLabel' })
+    ).toBeInTheDocument();
+    expect(within(dialog).getByTestId('admin-about-portrait-preview')).toBeInTheDocument();
+  });
+
+  it('ESC closes the portrait dialog', async () => {
+    renderWithPortraitModal();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
   it('wires the native picker to .jpg/.png and rejects other formats with adminAboutPortraitFormat', async () => {
-    renderList();
+    renderWithPortraitModal();
 
     expect(fileInput()).toHaveAttribute('accept', '.jpg,.png');
     stageFile(new File(['x'], 'shot.webp', { type: 'image/webp' }));
@@ -1120,7 +1180,7 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     ['logo.svg', 'image/svg+xml'],
     ['shot.webp', 'image/webp'],
   ])('rejects %s (%s) without staging the file', async (name, type) => {
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], name, { type }));
 
@@ -1130,7 +1190,7 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
   });
 
   it('accepts a .jpg carrying the legacy image/jpg MIME (staged, no document move)', async () => {
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.jpg', { type: 'image/jpg' }));
 
@@ -1148,7 +1208,7 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
   });
 
   it('Save runs the RTK Query mutation with the feature persist seam, then dispatches + toasts', async () => {
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
     await waitFor(() => expect(savePortraitButton()).toBeEnabled());
@@ -1176,8 +1236,8 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     );
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
     expect(holder.content?.portrait).toBe('/images/about/portrait.png');
-    // D16: the preview follows the SAVED document.
-    expect(screen.getByTestId('mock-image')).toHaveAttribute(
+    // D16: the modal preview follows the SAVED document.
+    expect(within(portraitDialog()).getByTestId('mock-image')).toHaveAttribute(
       'data-src',
       '/images/about/portrait.png'
     );
@@ -1185,11 +1245,11 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     expect(savePortraitButton()).toBeDisabled();
   });
 
-  it('persist-fail: the mutation rejects → error toast, store untouched, staged file kept', async () => {
+  it('persist-fail: the mutation rejects → error toast, store untouched, staged file kept, dialog open', async () => {
     initiateSpy.mockImplementation(() => ({
       unwrap: () => Promise.reject(new Error('persist-failed')),
     }));
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
     await waitFor(() => expect(savePortraitButton()).toBeEnabled());
@@ -1200,13 +1260,15 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     );
     expect(updateSpy).not.toHaveBeenCalled();
     expect(holder.content?.portrait).toBeUndefined();
-    // The staged pick survives for a retry (Save still enabled).
+    // The staged pick survives for a retry (Save still enabled)…
     expect(savePortraitButton()).toBeEnabled();
+    // …and the dialog stays open (R-12 fail-branch parity).
+    expect(portraitDialog()).toBeInTheDocument();
   });
 
   it('a failed file write surfaces adminAboutPortraitSaveError and stages nothing', async () => {
     saveUploadedImage.mockRejectedValueOnce(new Error('disk full'));
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
 
@@ -1217,7 +1279,7 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
 
   it('a missing directory picker surfaces adminAboutPortraitUnsupported (no write attempted)', async () => {
     directoryPickerSupported.mockReturnValue(false);
-    renderList();
+    renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
 
@@ -1226,18 +1288,20 @@ describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
     expect(savePortraitButton()).toBeDisabled();
   });
 
-  it('previews the SAVED portrait path (D16)', () => {
+  it('previews the SAVED portrait path in the modal (D16)', () => {
     holder.content = { ...createAboutSeed(), portrait: '/images/about/me.png' };
+    renderWithPortraitModal();
 
-    renderList();
-
-    expect(screen.getByTestId('mock-image')).toHaveAttribute('data-src', '/images/about/me.png');
+    expect(within(portraitDialog()).getByTestId('mock-image')).toHaveAttribute(
+      'data-src',
+      '/images/about/me.png'
+    );
   });
 
   it('falls back to the static bundled asset while the document has no portrait (D16)', () => {
-    renderList();
+    renderWithPortraitModal();
 
-    const src = screen.getByTestId('mock-image').getAttribute('data-src') ?? '';
+    const src = within(portraitDialog()).getByTestId('mock-image').getAttribute('data-src') ?? '';
     expect(src).toMatch(/\.webp$/);
   });
 });

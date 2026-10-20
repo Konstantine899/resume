@@ -37,9 +37,11 @@
   gap: $spacing-2;
 }
 
-// WU-12 (R-2): «Добавить строку» + «Сбросить» grouped on the header's
+// WU-12 (R-2) + WU-20 (R-12): «Добавить строку» + avatar trigger +
 
-// right — wrapping on narrow viewports (header-level, not a table cell).
+// «Сбросить» grouped on the header's right — wrapping on narrow viewports
+
+// (header-level, not a table cell).
 .headerActions {
   display: flex;
   flex-wrap: wrap;
@@ -63,31 +65,14 @@
   min-width: 0;
 }
 
-// WU-14: the portrait block — Avatar preview (left) + upload column (right),
+// WU-14/WU-20: the upload column inside the PORTRAIT DIALOG — FileUpload
 
-// wrapping on narrow viewports (block-level, not a table cell).
-.portraitRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-3;
-  align-items: flex-start;
-}
+// + error branch + staged-Save action row (the inline `.portraitRow` era
 
-// The D14 portrait variant is chrome-less and declares NO size — this box
+// is gone; the block now stacks vertically inside the modal content).
 
-// IS the size (64×80 ≈ the showcase's 3/4 portrait ratio), applied to the
-
-// Avatar root via its `className` prop (About.module.scss parity).
-.portraitPreview {
-  flex: 0 0 auto;
-  width: var(--space-16);
-  height: var(--space-20);
-}
-
-// Upload column: FileUpload + staged-Save action row.
 .portraitUpload {
   display: flex;
-  flex: 1 1 18rem;
   flex-direction: column;
   gap: $spacing-2;
   min-width: 0;
@@ -98,6 +83,29 @@
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-2;
+}
+
+// WU-20 (R-12/D20): portrait dialog content — upload column ON TOP, saved
+
+// portrait preview FULL-WIDTH BELOW. kit Modal children carry no gap of
+
+// their own, so the flex column + scale gap is ours.
+
+.portraitModal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+// The D14 portrait variant is chrome-less and declares NO size — this box
+
+// IS the size: the whole modal-content width × 320px of comfortable
+
+// preview height (the Avatar fills it via `className`).
+
+.portraitModalPreview {
+  width: 100%;
+  height: 320px;
 }
 
 // WU-18 (R-10): page-size group right-aligned ABOVE the vitrina table

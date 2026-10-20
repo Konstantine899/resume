@@ -44,12 +44,17 @@
 //   sorting — document order is preserved.
 // - WU-19 (R-11/D19): controls + table + pagination live in a kit Card
 //   that is COLLAPSED BY DEFAULT (Skills collapse geometry): the card
-//   body is the expand strip; the header, fullName block, portrait block
-//   and ALL modals stay OUTSIDE and available at all times. ARIA per
-//   D19: strip (collapsed) = aria-expanded="false" + aria-controls on the
-//   stable content id (mounted even while collapsed so the idref never
-//   dangles — axe 4.1.3); Minus (expanded) = aria-expanded="true"
-//   WITHOUT aria-controls (the strip alone owns the idref).
+//   body is the expand strip; the header, fullName block and ALL modals
+//   stay OUTSIDE and available at all times. ARIA per D19: strip
+//   (collapsed) = aria-expanded="false" + aria-controls on the stable
+//   content id (mounted even while collapsed so the idref never dangles —
+//   axe 4.1.3); Minus (expanded) = aria-expanded="true" WITHOUT
+//   aria-controls (the strip alone owns the idref).
+// - WU-20 (R-12/D20): the portrait UI lives in a kit MODAL (`size="lg"`,
+//   title = dialog name) opened by the header trigger between «Добавить
+//   строку» and «Сбросить»; the inline `.portraitRow` block is gone. The
+//   dialog stacks the unchanged WU-14 upload contract on top and the
+//   SAVED portrait preview full-width (320px) at the bottom.
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
 import { useState } from 'react';
@@ -204,6 +209,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   // every open (the kit Modal unmounts its children when closed), so a
   // fresh pristine form is guaranteed without an extra key.
   const [adding, setAdding] = useState(false);
+  // WU-20 (R-12/D20): the portrait dialog flag — the inline .portraitRow
+  // block moved into this modal; the staged pick/error state below lives
+  // in the CONTAINER, so a close/reopen keeps an un-saved staging.
+  const [portraitOpen, setPortraitOpen] = useState(false);
   // WU-18 (R-10/D18): the pagination window — the CONTAINER owns {page,
   // pageSize}. This state deliberately lives OUTSIDE the table subtree:
   // WU-19 unmounts the content on collapse and the window survives the
@@ -217,6 +226,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   const closeFieldModal = () => setEditingField(null);
   const closeAddModal = () => setAdding(false);
+  const closePortraitModal = () => setPortraitOpen(false);
 
   // WU-5 (R-2, OPEN-3): the fullName scalar block — Contact email (D6)
   // precedent: its own draft + mini-pipeline, no whole-document form.
@@ -389,10 +399,21 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <Paragraph theme="muted">{t('adminAboutHint')}</Paragraph>
         </div>
         {/* WU-12 (R-2): the add trigger lives in the HEADER (never in a
-            table cell) and comes BEFORE Reset in document order. */}
+            table cell) and comes BEFORE Reset in document order. WU-20
+            (R-12/D20): the avatar trigger sits between the two — same
+            outline sm parity, opens the portrait dialog. */}
         <div className={styles.headerActions}>
           <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)}>
             {t('adminAboutAddRow')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="admin-about-portrait-button"
+            onClick={() => setPortraitOpen(true)}
+          >
+            {t('adminAboutPortraitEdit')}
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
             {t('aboutReset')}
@@ -425,75 +446,13 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         </Button>
       </div>
 
-      {/* WU-14 (R-7): portrait block — sits with the fullName scalar block
-          (the header is button-only). The Avatar preview shows the SAVED
-          state with the SAME D14 variant as the showcase (static asset
-          fallback while the document has no portrait); the kit FileUpload
-          gates .jpg/.png by BOTH extension and MIME (`acceptExtensions`,
-          `adminAboutPortraitFormat` otherwise) and previews the staged pick
-          itself. Save is staged-only: file written first, then the RTK
-          Query mutation persists the document, then the dispatch. */}
-      <div className={styles.portraitRow} data-testid="admin-about-portrait">
-        {/* The D14 portrait variant is deliberately SIZE-LESS (no
-            width/height — the consumer's class owns the box, exactly like
-            About.module.scss `.portrait`), so the preview box class rides
-            the Avatar itself. */}
-        <Avatar
-          data-testid="admin-about-portrait-preview"
-          src={content.portrait ?? aboutPortrait}
-          alt={t('adminAboutPortraitPreview')}
-          variant="portrait"
-          className={styles.portraitPreview}
-        />
-        <div className={styles.portraitUpload}>
-          <FileUpload
-            label={t('adminAboutPortraitLabel')}
-            acceptExtensions={['.jpg', '.png']}
-            texts={{
-              button: t('adminAboutPortraitButton'),
-              hint: t('adminAboutPortraitHint'),
-              notImage: t('adminAboutPortraitNotImage'),
-              tooLarge: t('adminAboutPortraitTooLarge'),
-              undecodable: t('adminAboutPortraitUndecodable'),
-              wrongFormat: t('adminAboutPortraitFormat'),
-              selected: t('adminAboutPortraitSelected'),
-            }}
-            onFileSelect={handlePortraitFile}
-          />
-          {/* Static keys on purpose — the existence guard scans t('…')
-              literals; a dynamic t(errorKey) would go unguarded. */}
-          {portraitError === 'unsupported' ? (
-            <Paragraph asChild theme="error" size="s">
-              <span role="alert">{t('adminAboutPortraitUnsupported')}</span>
-            </Paragraph>
-          ) : null}
-          {portraitError === 'write-failed' ? (
-            <Paragraph asChild theme="error" size="s">
-              <span role="alert">{t('adminAboutPortraitSaveError')}</span>
-            </Paragraph>
-          ) : null}
-          <div className={styles.portraitActions}>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={stagedPortrait === null}
-              loading={savingPortrait}
-              onClick={handleSavePortrait}
-            >
-              {t('adminAboutPortraitSave')}
-            </Button>
-            {stagedPortrait !== null ? (
-              <Button type="button" variant="outline" onClick={clearStagedPortrait}>
-                {t('aboutCancel')}
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      {/* WU-14 (R-7): the portrait upload logic (staged pick + RTK Query
+          mutation seam below) — WU-20 moved its UI into the portrait
+          DIALOG opened from the header; see the Modal at the bottom. */}
 
       {/* WU-19 (R-11/D19): the vitrina Card — COLLAPSED by default. The
-          header, fullName, portrait block and all modals stay OUTSIDE the
-          card and are available at all times. */}
+          header, fullName block and all modals (incl. the portrait dialog)
+          stay OUTSIDE the card and are available at all times. */}
       <Card
         variant="default"
         size="default"
@@ -686,6 +645,78 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           onAdd={handleAddRow}
           onExitAdd={closeAddModal}
         />
+      </Modal>
+
+      {/* WU-20 (R-12/D20): portrait dialog — the WU-14 upload contract on
+          TOP (FileUpload .jpg/.png + error branches + staged Save/Cancel)
+          and the SAVED portrait preview FULL-WIDTH at the bottom (320px —
+          the D14 portrait variant is size-less, so the box class rides the
+          Avatar; the staged pick previews inside FileUpload itself). The
+          title IS the dialog name (aria-dialog-name). Save/Cancel stay in
+          the CONTENT, not the kit `footer`: D20 puts them above the preview
+          (a footer would move them below it) and Cancel only exists while
+          a pick is staged. The persist order is unchanged — file → RTK
+          Query mutation → dispatch → toast; a fail toasts an error, the
+          document stays untouched and the dialog stays open. */}
+      <Modal
+        isOpen={portraitOpen}
+        onClose={closePortraitModal}
+        title={t('adminAboutPortraitTitle')}
+        size="lg"
+      >
+        <div className={styles.portraitModal}>
+          <div className={styles.portraitUpload}>
+            <FileUpload
+              label={t('adminAboutPortraitLabel')}
+              acceptExtensions={['.jpg', '.png']}
+              texts={{
+                button: t('adminAboutPortraitButton'),
+                hint: t('adminAboutPortraitHint'),
+                notImage: t('adminAboutPortraitNotImage'),
+                tooLarge: t('adminAboutPortraitTooLarge'),
+                undecodable: t('adminAboutPortraitUndecodable'),
+                wrongFormat: t('adminAboutPortraitFormat'),
+                selected: t('adminAboutPortraitSelected'),
+              }}
+              onFileSelect={handlePortraitFile}
+            />
+            {/* Static keys on purpose — the existence guard scans t('…')
+                literals; a dynamic t(errorKey) would go unguarded. */}
+            {portraitError === 'unsupported' ? (
+              <Paragraph asChild theme="error" size="s">
+                <span role="alert">{t('adminAboutPortraitUnsupported')}</span>
+              </Paragraph>
+            ) : null}
+            {portraitError === 'write-failed' ? (
+              <Paragraph asChild theme="error" size="s">
+                <span role="alert">{t('adminAboutPortraitSaveError')}</span>
+              </Paragraph>
+            ) : null}
+            <div className={styles.portraitActions}>
+              <Button
+                type="button"
+                variant="primary"
+                disabled={stagedPortrait === null}
+                loading={savingPortrait}
+                onClick={handleSavePortrait}
+              >
+                {t('adminAboutPortraitSave')}
+              </Button>
+              {stagedPortrait !== null ? (
+                <Button type="button" variant="outline" onClick={clearStagedPortrait}>
+                  {t('aboutCancel')}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+          <Avatar
+            data-testid="admin-about-portrait-preview"
+            src={content.portrait ?? aboutPortrait}
+            alt={t('adminAboutPortraitPreview')}
+            variant="portrait"
+            className={styles.portraitModalPreview}
+          />
+        </div>
       </Modal>
 
       {/* WU-4 (R-3): field-scoped edit modal — the LIST owns the dialog

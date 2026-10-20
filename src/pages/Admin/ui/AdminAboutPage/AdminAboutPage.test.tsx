@@ -141,21 +141,27 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
   });
 
-  it('renders the WU-14 portrait block with a pristine-disabled Save (nothing staged)', () => {
+  it('opens the WU-20 portrait dialog from the header with a pristine-disabled Save (nothing staged)', () => {
     renderPage();
 
-    const block = screen.getByTestId('admin-about-portrait');
+    // D20/R-12: no inline block on the page — the header trigger owns it
+    // (available while the table card is collapsed, which renderPage leaves
+    // open only for the row suites; the trigger is outside the card anyway).
+    expect(screen.queryByTestId('admin-about-portrait')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('admin-about-portrait-button'));
+
+    const modal = screen.getByRole('dialog', { name: 'adminAboutPortraitTitle' });
     // The kit upload control is wired with the feature copy… (the label names
     // BOTH the dropzone group and the file input — query the group role).
     expect(
-      within(block).getByRole('group', { name: 'adminAboutPortraitLabel' })
+      within(modal).getByRole('group', { name: 'adminAboutPortraitLabel' })
     ).toBeInTheDocument();
-    expect(block.querySelector('input[type="file"]')).toHaveAttribute('accept', '.jpg,.png');
+    expect(modal.querySelector('input[type="file"]')).toHaveAttribute('accept', '.jpg,.png');
     expect(
-      within(block).getByRole('button', { name: 'adminAboutPortraitButton' })
+      within(modal).getByRole('button', { name: 'adminAboutPortraitButton' })
     ).toBeInTheDocument();
     // …and Save only arms once a file is staged (the file-write flow itself
     // is feature-tested — this store has no api middleware by design).
-    expect(within(block).getByRole('button', { name: 'adminAboutPortraitSave' })).toBeDisabled();
+    expect(within(modal).getByRole('button', { name: 'adminAboutPortraitSave' })).toBeDisabled();
   });
 });

@@ -102,6 +102,8 @@
   "adminAboutPortraitSelected": "Изображение выбрано",
   "adminAboutPortraitUnsupported": "Выбор папки недоступен в этом браузере",
   "adminAboutPortraitSaveError": "Не удалось сохранить файл портрета",
+  "adminAboutPortraitEdit": "Добавить/Отредактировать Аватар",
+  "adminAboutPortraitTitle": "Аватар",
   "aboutFieldFullName": "Полное имя",
   "aboutFieldDescriptions": "Абзац описания",
   "aboutFieldStats": "Статистика",

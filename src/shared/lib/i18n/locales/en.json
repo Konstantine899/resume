@@ -102,6 +102,8 @@
   "adminAboutPortraitSelected": "Image selected",
   "adminAboutPortraitUnsupported": "Directory picker is not available in this browser",
   "adminAboutPortraitSaveError": "Could not save the portrait file",
+  "adminAboutPortraitEdit": "Add / edit avatar",
+  "adminAboutPortraitTitle": "Avatar",
   "aboutFieldFullName": "Full name",
   "aboutFieldDescriptions": "Pitch paragraph",
   "aboutFieldStats": "Stats",
