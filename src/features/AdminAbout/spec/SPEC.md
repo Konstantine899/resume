@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: admin-about-table
 created: '2026-10-19'
 verified: '2026-10-20'

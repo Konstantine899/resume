@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 epic: admin-about-table
 created: '2026-10-19'
@@ -12,6 +12,6 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-17 Сдача** (последним): squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.
+- **Эпик закрыт** — PR #315 смержен squash'ем в `dev` 2026-10-20 (`0c04595`); баррельная чистка OPEN-8 довнесена PR #313 (`e95c6e3`). Burn-down пары: этот коммит.
 
 - **2026-10-20 (аменда 3)** — `.nameRow` перенесён внутрь карточки над таблицей по директиве владельца; SPEC D19/R-11 правлен ДО кода.
