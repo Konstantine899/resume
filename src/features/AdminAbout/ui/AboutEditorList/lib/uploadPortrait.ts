@@ -10,13 +10,17 @@
 // parity — features → shared is legal, features → features is not).
 //
 // Outcomes are machine-readable; COPY stays in the component (kit A2
-// precedent — this lib owns no i18n).
+// precedent — this lib owns no i18n). The union itself is module-internal
+// since WU-15 — call sites infer it from `uploadPortrait`'s signature and
+// only the failure REASON subset (`PortraitUploadFailure`) crosses the
+// boundary.
 
 import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import type { FileUploadSelection } from '@/shared/ui/FileUpload';
 
-/** Subdirectory of the picked images root the portrait is written into. */
-export const PORTRAIT_SUBDIR = 'about';
+/** Subdirectory of the picked images root the portrait is written into.
+ *  Module-internal since WU-15 (only `uploadPortrait` writes into it). */
+const PORTRAIT_SUBDIR = 'about';
 
 /** What the form receives back: the staged file name + its public path. */
 export interface UploadedPortrait {
@@ -24,7 +28,7 @@ export interface UploadedPortrait {
   path: string;
 }
 
-export type PortraitUploadOutcome =
+type PortraitUploadOutcome =
   | { ok: true; file: UploadedPortrait }
   /** Browser has no directory picker (non-Chromium) — copy-controlled. */
   | { ok: false; reason: 'unsupported' }

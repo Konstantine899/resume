@@ -25,4 +25,6 @@
 export { createAboutSeed } from './model/services/seed';
 export { persistAboutContent, removeAboutContent } from './model/services/storage';
 export { AboutEditorList } from './ui/AboutEditorList/AboutEditorList';
-export type { AboutEditorListProps } from './ui/AboutEditorList/AboutEditorList';
+// admin-about-table WU-15: `AboutEditorListProps` is NOT re-exported — zero
+// consumers outside the feature (the component file still exports it per the
+// repo-wide React convention; type re-exports are for CONSUMED types only).

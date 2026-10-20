@@ -22,7 +22,7 @@ verified: '2026-10-20'
 - Слайс: `updateAboutContent` = FULL REPLACE; persist-THEN-dispatch seam `lib/saveAboutField.ts` остаётся для скалярных правок.
 - RTK Query: `src/shared/api/apiSlice.ts` уже в сторе (reducer+middleware), core-subpath `@reduxjs/toolkit/query` (НЕ /query/react — груз; initiate()-диспатч), `stubBaseQuery` = 503.
 - Загрузка файлов: kit `shared/ui/FileUpload` + `shared/lib/imageDir` (getOrCreateSubdir/saveImageToDir → `/images/<dir>/<name>`) — паттерн ProjectForm/Skills #213/#209.
-- Avatar: `AvatarVariant = 'circle' | 'square'` (`shared/ui/Avatar/model/types.ts:15`), внутренний маппинг на Image в `Avatar.tsx:115`, логика в `lib/hooks/useAvatar.ts`.
+- Avatar: `AvatarVariant = 'circle' | 'square' | 'portrait'` (`shared/ui/Avatar/model/types.ts`, `portrait` добавлен WU-13), внутренний маппинг на Image в `Avatar.tsx`, логика в `lib/hooks/useAvatar.ts`.
 
 ## Решения (директива владельца 2026-10-20)
 
@@ -49,7 +49,7 @@ verified: '2026-10-20'
 
 ## Требования
 
-- **R-1 (v2, supersede)** Витрина: те же колонки; 8+ строк в порядке документа; строки добавляются/удаляются (см. R-2/R-3); `.cellActions` nowrap.
+- **R-1 (v2, supersede)** Витрина: те же колонки; строки в порядке документа — база = 8 (3 описания + 4 показателя + CTA; fullName живёт отдельным скаляр-блоком, R-5); после add/delete строк больше или меньше (последнюю удалять можно — пустая витрина терпима, R-3); `.cellActions` nowrap.
 - **R-2 add**: кнопка «Добавить строку» рядом со «Сбросить»; модалка: Select вида, поля по D11; валидация zod-слайсами (капы 600/60); pristine → Save disabled; успешный add → persist-THEN-dispatch, строка появилась; persist-fail → error-тост, модалка открыта.
 - **R-3 delete**: Trash2 в каждой строке витрины; confirm-модалка (имя строки в subtitle, фокус на «Отмена»); удаление описания/статов/cta; последняя строка удалима (витрина терпит пустоты: пустые блоки, скрытая cta-ссылка); persist-THEN-dispatch, fail → error-тост, документ не изменился.
 - **R-4 edit**: прежний Pencil → AboutFieldEditForm (без изменений контракта, кроме динамических индексов/ключей).
@@ -61,7 +61,7 @@ verified: '2026-10-20'
 
 ## Гейты
 
-`npm run validate` · `check:spec` · `check:axe` (/ и /admin, baseline 4) · `check:bundle` (мерить: запас 647 B при капе 861184 — ПРЕВЫШЕНИЕ = стоп, капу НЕ поднимать без слова владельца) · storybook-сторис нового Avatar-вариanta прогон · preview-смоук light+dark (скриншоты в temp) · squash `--base dev` без мержа.
+`npm run validate` · `check:spec` · `check:axe` (PATHS: `/`, `/admin` и все админ-страницы включая `/admin/about`, light+dark, baseline 4) · `check:bundle` (мерить: кап 861184, запас на старте эпика ~647 B — ПРЕВЫШЕНИЕ = стоп, капу НЕ поднимать без слова владельца; фактический замер — в отчёте WU-16) · storybook-сторис нового Avatar-вариanta прогон · preview-смоук light+dark (скриншоты в temp) · squash `--base dev` без мержа.
 
 ## Критерии приёмки
 

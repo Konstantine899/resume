@@ -37,8 +37,10 @@ import {
   type StatKey,
 } from '@/entities/AboutContent';
 
-/** The four KNOWN stat rows — the seed subset of the open record (D10). */
-export const STAT_KEYS = [
+/** The four KNOWN stat rows — the seed subset of the open record (D10).
+ *  Module-internal: only `isKnownStatKey` reads it (WU-15: dropped the
+ *  unused `export` — no consumer outside this file). */
+const STAT_KEYS = [
   'aboutStatYears',
   'aboutStatProjects',
   'aboutStatUsers',
@@ -67,8 +69,7 @@ export const descriptionIndexOf = (field: EditAboutField): number => {
 export const statKeyOf = (field: EditAboutField): string => field.slice('stat-'.length);
 
 /** Known stat keys are labeled by i18n; custom keys carry their own label. */
-export const isKnownStatKey = (key: string): boolean =>
-  (STAT_KEYS as readonly string[]).includes(key);
+const isKnownStatKey = (key: string): boolean => (STAT_KEYS as readonly string[]).includes(key);
 
 /**
  * Localized label of ANY stat row (D10): the four known keys translate via
@@ -114,15 +115,17 @@ const ctaFieldSchema = keyedContract(
 
 /**
  * One paragraph slice: any `descriptions[i]` (cap 600 + min 1 from the
- * contract). Exported as a factory so the add-row resolver composes it —
- * the address (`index`) is validated by the CALLER's schema/type contract,
- * the value rules are identical for every row (AdminMyWork metric parity).
+ * contract). A factory so `aboutFieldSchema`/`aboutRowResolverSchema`
+ * compose it — the address (`index`) is validated by the CALLER's
+ * schema/type contract, the value rules are identical for every row
+ * (AdminMyWork metric parity). Module-internal since WU-15 (no consumer
+ * outside this file).
  */
-export const descriptionFieldSchema = () =>
+const descriptionFieldSchema = () =>
   keyedContract(AboutContentSchema.shape.descriptions.def.element, 'aboutParagraphEmpty');
 
 /** One stat slice: any `stats[<key>]` entry (cap 60 + min 1 from the contract). */
-export const statFieldSchema = () =>
+const statFieldSchema = () =>
   keyedContract(AboutContentSchema.shape.stats.def.valueType, 'aboutStatRequired');
 
 /** Resolver entry for ANY vitrina row (field modal input: string | LocalizedText). */
@@ -141,7 +144,7 @@ export const aboutFieldSchema = <F extends EditAboutField>(
 };
 
 /** The form-values KEY the active field's value lives under (WU-4). */
-export const valueKeyOf = (field: EditAboutField): keyof AboutFieldFormValues => {
+const valueKeyOf = (field: EditAboutField): keyof AboutFieldFormValues => {
   if (field === 'fullName') return 'fullName';
   if (field === 'ctaLabel') return 'ctaLabel';
   return field.startsWith('description-') ? 'description' : 'stat';

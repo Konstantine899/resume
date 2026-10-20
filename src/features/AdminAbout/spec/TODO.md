@@ -12,6 +12,5 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-15 Тесты/гигиена**: баррел-пины, мёртвый код после R-1→R-1v2 (i18n-ключи en+ru и page-тест портретного блока сделаны в WU-14; parity + existence-guard гоняются в `validate`).
 - [ ] **WU-16 Гейты**: validate, check:spec, axe light+dark, bundle (мерить — превышение = стоп), axe-stories, preview-смоук light+dark со скриншотами.
 - [ ] **WU-17 Сдача**: squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.
