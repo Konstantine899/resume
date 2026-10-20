@@ -103,13 +103,23 @@
 
 // The D14 portrait variant is chrome-less and declares NO size — this box
 
-// IS the size: the whole modal-content width × 320px of comfortable
+// IS the size: the vitrina figure box (D20 amend 4 — About `.portrait`
 
-// preview height (the Avatar fills it via `className`).
+// proportions), 3:4 at 320px tall ≈ 240px wide, centered in the modal
+
+// content column. The vars pin kit Image's <img> to fill the figure box
+
+// (defaults are `auto` — same pattern as About's `.portrait`).
 
 .portraitModalPreview {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: 320px;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+
+  --image-width: 100%;
+  --image-height: 100%;
 }
 
 // WU-18 (R-10): page-size group right-aligned ABOVE the vitrina table

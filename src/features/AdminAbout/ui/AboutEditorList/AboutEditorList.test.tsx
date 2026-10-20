@@ -1088,9 +1088,10 @@ describe('AboutEditorList: fullName scalar block (WU-5, R-2)', () => {
 // «Сбросить», OUTSIDE the collapsed card) opens a kit Modal whose TITLE
 // is its accessible name (`adminAboutPortraitTitle`). Inside, top→bottom:
 // the SAME WU-14 upload contract (FileUpload .jpg/.png + error branches +
-// staged Save/Cancel) and the SAVED portrait preview on the full content
-// width (320px box — the D14 portrait variant is size-less, the consumer
-// class owns the box; the staged pick previews inside FileUpload itself).
+// staged Save/Cancel) and the SAVED portrait preview as the vitrina figure
+// box (D20 amend 4 — 3:4 aspect, 320px tall, centered; the D14 portrait
+// variant is size-less, the consumer class owns the box; the staged pick
+// previews inside FileUpload itself).
 //
 // Two phases are pinned separately: the FILE write (abstract
 // `uploadPortrait` op → { name, path }, subdir `about`) and the DOCUMENT
