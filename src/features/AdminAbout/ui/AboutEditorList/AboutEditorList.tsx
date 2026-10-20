@@ -35,21 +35,24 @@
 //   modal stays open with the user's values, the store does not move.
 // - WU-5 (OPEN-3, R-2): `fullName` is a SCALAR — its own block with an
 //   inline Save ABOVE the vitrina (Contact email D6 precedent: draft +
-//   mini-pipeline, pristine-disabled Save, persist → dispatch).
+//   mini-pipeline, pristine-disabled Save, persist → dispatch). AMEND 3
+//   (owner 2026-10-20, SPEC D19/R-11 правка 3): the block lives INSIDE
+//   the collapsible card, so it hides with the table.
 // - WU-18 (R-10/D18): the vitrina is a PAGINATION CONTAINER
 //   (TechnologiesList #272 parity) — {page, pageSize} live here, the rows
 //   window as a render-time derivation (clamp on a shrinking document,
 //   no setState-in-effect), kit PageSizeGroup ABOVE the table, kit
 //   Pagination BELOW it; a size change resets the window to page 1; no
 //   sorting — document order is preserved.
-// - WU-19 (R-11/D19): controls + table + pagination live in a kit Card
-//   that is COLLAPSED BY DEFAULT (Skills collapse geometry): the card
-//   body is the expand strip; the header, fullName block and ALL modals
-//   stay OUTSIDE and available at all times. ARIA per D19: strip
-//   (collapsed) = aria-expanded="false" + aria-controls on the stable
-//   content id (mounted even while collapsed so the idref never dangles —
-//   axe 4.1.3); Minus (expanded) = aria-expanded="true" WITHOUT
-//   aria-controls (the strip alone owns the idref).
+// - WU-19 (R-11/D19): controls + fullName block + table + pagination live
+//   in a kit Card that is COLLAPSED BY DEFAULT (Skills collapse geometry):
+//   the card body is the expand strip; the header and ALL modals stay
+//   OUTSIDE and available at all times, while the fullName block is part
+//   of the card CONTENT (amend 3) and unmounts with it. ARIA per D19:
+//   strip (collapsed) = aria-expanded="false" + aria-controls on the
+//   stable content id (mounted even while collapsed so the idref never
+//   dangles — axe 4.1.3); Minus (expanded) = aria-expanded="true"
+//   WITHOUT aria-controls (the strip alone owns the idref).
 // - WU-20 (R-12/D20): the portrait UI lives in a kit MODAL (`size="lg"`,
 //   title = dialog name) opened by the header trigger between «Добавить
 //   строку» and «Сбросить»; the inline `.portraitRow` block is gone. The
@@ -421,38 +424,14 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         </div>
       </div>
 
-      {/* WU-5 (R-2): fullName is a SCALAR — its own block with an inline
-          Save above the vitrina (Contact email D6 parity): pristine and
-          invalid drafts keep the Save disabled, a failed persist keeps
-          the draft for a retry. */}
-      <div className={styles.nameRow}>
-        <div className={styles.nameInput}>
-          <Input
-            label={t('aboutFieldFullName')}
-            value={fullNameDraft}
-            onChange={(event) => setFullNameDraft(event.target.value)}
-            error={fullNameValid ? undefined : t('aboutNameRequired')}
-            maxLength={80}
-            fullWidth
-          />
-        </div>
-        <Button
-          type="button"
-          variant="primary"
-          disabled={!fullNameDirty || !fullNameValid}
-          onClick={handleSaveFullName}
-        >
-          {t('aboutSave')}
-        </Button>
-      </div>
-
       {/* WU-14 (R-7): the portrait upload logic (staged pick + RTK Query
           mutation seam below) — WU-20 moved its UI into the portrait
           DIALOG opened from the header; see the Modal at the bottom. */}
 
       {/* WU-19 (R-11/D19): the vitrina Card — COLLAPSED by default. The
-          header, fullName block and all modals (incl. the portrait dialog)
-          stay OUTSIDE the card and are available at all times. */}
+          header and all modals (incl. the portrait dialog) stay OUTSIDE
+          the card and are available at all times; the fullName block moved
+          INSIDE (amend 3, owner 2026-10-20) and unmounts with the table. */}
       <Card
         variant="default"
         size="default"
@@ -496,11 +475,38 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         )}
         {/* The stable id target stays MOUNTED even while collapsed (a
             dangling aria-controls would be an axe 4.1.3 violation); the
-            children below unmount with the collapse and `.tableContent:
-            empty` hides the leftover row. */}
+            children below (fullName → size group → table → pagination —
+            amend 3) unmount with the collapse and `.tableContent: empty`
+            hides the leftover row. */}
         <div id={TABLE_CONTENT_ID} className={styles.tableContent}>
           {tableExpanded ? (
             <>
+              {/* WU-5 (R-2) + amend 3 (D19/R-11): fullName is a SCALAR —
+                  its own block with an inline Save, now INSIDE the card
+                  ABOVE the vitrina (Contact email D6 parity): pristine and
+                  invalid drafts keep the Save disabled, a failed persist
+                  keeps the draft for a retry; collapsing unmounts it. */}
+              <div className={styles.nameRow}>
+                <div className={styles.nameInput}>
+                  <Input
+                    label={t('aboutFieldFullName')}
+                    value={fullNameDraft}
+                    onChange={(event) => setFullNameDraft(event.target.value)}
+                    error={fullNameValid ? undefined : t('aboutNameRequired')}
+                    maxLength={80}
+                    fullWidth
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={!fullNameDirty || !fullNameValid}
+                  onClick={handleSaveFullName}
+                >
+                  {t('aboutSave')}
+                </Button>
+              </div>
+
               {/* WU-18 (R-10/D18): size group ABOVE the table, kit Pagination
                   BELOW it — DOM order size → table → pagination (TechnologiesList
                   #272 parity). The controls never disappear on interaction. */}

@@ -134,8 +134,9 @@ const seed = createAboutSeed();
 
 /**
  * WU-19 (R-11): the vitrina Card is COLLAPSED by default — the legacy
- * suites that look at the table open it first (resume-skills-card-
- * collapse helper pattern); the WU-19 suite below renders RAW instead.
+ * suites that look at the table OR the fullName block open it first
+ * (amend 3 moved `.nameRow` inside; resume-skills-card-collapse helper
+ * pattern); the WU-19 suite below renders RAW instead.
  */
 const expandTable = () => {
   fireEvent.click(screen.getByTestId('admin-about-table-expand'));
@@ -226,7 +227,8 @@ describe('AboutEditorList: vitrina render (WU-3, R-1 v2)', () => {
     expect(screen.getAllByRole('button', { name: 'adminAboutEditRow' })).toHaveLength(8);
     expect(screen.getAllByRole('button', { name: 'adminAboutDeleteRow' })).toHaveLength(8);
     // No inline inputs INSIDE the rows; the only Input on the page is the
-    // fullName scalar block ABOVE the table (WU-5, R-2).
+    // fullName scalar block ABOVE the table, INSIDE the card (WU-5, R-2;
+    // amend 3 — renderList expanded it first).
     expect(document.querySelector('tbody input')).toBeNull();
     expect(document.querySelector('tbody textarea')).toBeNull();
     expect(screen.getByLabelText('aboutFieldFullName')).toBeInTheDocument();
@@ -376,14 +378,16 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
 });
 
 // ============================================
-// WU-19 table card collapsed by default (SPEC R-11 / D19)
+// WU-19 table card collapsed by default (SPEC R-11 / D19, amend 3)
 // ============================================
 //
-// Controls + table + pagination live in a kit Card (Skills collapse
-// geometry) that is COLLAPSED by default: the card body is the expand
-// strip; header, fullName and the modals stay OUTSIDE the card and are
-// always available. ARIA per SPEC D19 (APG disclosure semantics): the
-// strip (collapsed) carries aria-expanded="false" + aria-controls on the
+// Controls + table + pagination + the fullName scalar block live in a kit
+// Card (Skills collapse geometry) that is COLLAPSED by default: the card
+// body is the expand strip; the header and the modals stay OUTSIDE the
+// card and are always available, while the fullName block is INSIDE and
+// hidden with the table (owner amendment 2026-10-20 — SPEC D19/R-11
+// правка 3). ARIA per SPEC D19 (APG disclosure semantics): the strip
+// (collapsed) carries aria-expanded="false" + aria-controls on the
 // STABLE content id (the target div stays mounted so the idref never
 // dangles — axe 4.1.3 lesson resume-skills-card-collapse); the Minus
 // control (expanded) carries aria-expanded="true" WITHOUT aria-controls.
@@ -395,13 +399,14 @@ describe('AboutEditorList: table card collapsed by default (WU-19, R-11/D19)', (
   const pagination = () => within(root()).getByRole('navigation', { name: 'paginationNav' });
   const sizeGroup = () => within(root()).getByRole('group', { name: 'perPageLabel' });
 
-  it('hides the table by default, shows the expand strip and keeps the header/fullName outside', () => {
+  it('hides the table AND the fullName block by default; the header stays outside the card', () => {
     render(<AboutEditorList />);
 
-    // Collapsed: NO table, NO pagination controls in the DOM…
+    // Collapsed: NO table, NO pagination controls, NO fullName block…
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'paginationNav' })).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'perPageLabel' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('aboutFieldFullName')).not.toBeInTheDocument();
 
     // …but the strip IS there, correctly wired (aria-controls target
     // resolves even while collapsed — no dangling idref).
@@ -412,12 +417,11 @@ describe('AboutEditorList: table card collapsed by default (WU-19, R-11/D19)', (
     expect(expand).toHaveAttribute('aria-controls', 'about-editor-table-content');
     expect(document.getElementById('about-editor-table-content')).not.toBeNull();
 
-    // Header (h2 + add/reset) and the fullName scalar block stay OUTSIDE
-    // the card and are available while it is collapsed (R-11).
+    // Header (h2 + add/reset) stays OUTSIDE the card and available while
+    // it is collapsed (R-11); the fullName block moved INSIDE (amend 3).
     expect(screen.getByRole('heading', { level: 2, name: 'adminAboutTitle' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'adminAboutAddRow' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
-    expect(screen.getByLabelText('aboutFieldFullName')).toBeInTheDocument();
   });
 
   it('expand shows table + size group + pagination; collapse removes them again', () => {
@@ -440,6 +444,39 @@ describe('AboutEditorList: table card collapsed by default (WU-19, R-11/D19)', (
     const expandAgain = screen.getByTestId('admin-about-table-expand');
     expect(expandAgain).toHaveAttribute('aria-expanded', 'false');
     expect(expandAgain).toHaveAttribute('aria-controls', 'about-editor-table-content');
+  });
+
+  // Amend 3 (owner 2026-10-20, SPEC D19/R-11): the fullName scalar block
+  // moved INSIDE the card, ABOVE the table — it is hidden with the table
+  // and its Save arms exactly as before (dirty + valid).
+  it('shows the fullName block INSIDE the card above the table on expand; collapse hides it again', () => {
+    render(<AboutEditorList />);
+
+    // Collapsed: the block is not in the DOM at all.
+    expect(screen.queryByLabelText('aboutFieldFullName')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+
+    const input = screen.getByLabelText('aboutFieldFullName');
+    expect(input).toHaveValue(seed.fullName);
+    // Document order INSIDE the card: fullName comes BEFORE the table.
+    const table = screen.getByRole('table');
+    expect(input.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    // The block lives inside the aria-controls content region itself.
+    expect(document.getElementById('about-editor-table-content')?.contains(input)).toBe(true);
+
+    // Save behaves as before: pristine → disabled, dirty → enabled.
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    expect(save).toBeDisabled();
+    fireEvent.change(input, { target: { value: 'New Name' } });
+    expect(save).toBeEnabled();
+
+    fireEvent.click(screen.getByTestId('admin-about-table-collapse'));
+
+    expect(screen.queryByLabelText('aboutFieldFullName')).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   it('the pagination window survives the collapse roundtrip (D18: state lives in the container)', () => {

@@ -49,9 +49,13 @@
   align-items: center;
 }
 
-// WU-5: the fullName scalar block — Contact email-row parity (Input +
+// WU-5 + amend 3 (D19/R-11): the fullName scalar block — Contact email-row
 
-// inline Save on one line, wrapping on narrow viewports).
+// parity (Input + inline Save on one line, wrapping on narrow viewports).
+
+// It is a flex COLUMN child of `.tableContent`, so the card gap above
+
+// `.controls` is the ONLY spacing — no margins, no doubled gap.
 
 .nameRow {
   display: flex;
@@ -152,7 +156,9 @@
   height: auto;
 }
 
-// The aria-controls region: size group + table + pagination. Its id must
+// The aria-controls region: fullName block + size group + table +
+
+// pagination (amend 3 — `.nameRow` moved INSIDE the card). Its id must
 
 // STAY mounted even while collapsed (the strip references it), so the
 
