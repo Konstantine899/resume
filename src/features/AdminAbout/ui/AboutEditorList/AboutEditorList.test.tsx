@@ -133,10 +133,19 @@ const confirmSpy = vi.spyOn(window, 'confirm');
 const seed = createAboutSeed();
 
 /**
+ * WU-19 (R-11): the vitrina Card is COLLAPSED by default — the legacy
+ * suites that look at the table open it first (resume-skills-card-
+ * collapse helper pattern); the WU-19 suite below renders RAW instead.
+ */
+const expandTable = () => {
+  fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+};
+
+/**
  * WU-18 (R-10): legacy suites assert the FULL document (8 rows, tail rows
  * like the CTA, whole-row button counts) — the default 5-row window would
  * hide half of it. Pick size 20 to take pagination out of their way; the
- * pagination suite below renders the RAW component instead (default state).
+ * pagination suite below renders the card EXPANDED at the default size.
  */
 const showAllRows = () => {
   fireEvent.click(
@@ -148,6 +157,7 @@ const showAllRows = () => {
 
 const renderList = () => {
   render(<AboutEditorList />);
+  expandTable();
   showAllRows();
 };
 
@@ -251,9 +261,9 @@ describe('AboutEditorList: vitrina render (WU-3, R-1 v2)', () => {
 // size resets the window to page 1; a shrinking document clamps back
 // into range during render (no effect).
 //
-// These tests render the RAW component (default window state); the
-// legacy suites below go through `renderList`, which takes pagination
-// out of their way (size 20 = the full document).
+// These tests render the card EXPANDED at the default size (WU-19
+// collapses it); the legacy suites below go through `renderList`, which
+// takes pagination out of their way (size 20 = the full document).
 
 describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
   const root = () => screen.getByTestId('about-editor-list');
@@ -262,8 +272,14 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
   const table = () => within(root()).getByRole('table');
   const currentPage = () => pagination().querySelector('[aria-current="page"]');
 
-  it('windows the 8-row seed to 5 rows by default with exactly 2 pages', () => {
+  /** Expanded card at the DEFAULT size 5 — the window under test. */
+  const renderExpanded = () => {
     render(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+  };
+
+  it('windows the 8-row seed to 5 rows by default with exactly 2 pages', () => {
+    renderExpanded();
 
     // Default size 5 → page 1 = the 3 descriptions + the first 2 stats.
     expect(dataRows()).toHaveLength(5);
@@ -289,7 +305,7 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
   });
 
   it('clicking page «2» shows the remaining 3 rows', () => {
-    render(<AboutEditorList />);
+    renderExpanded();
 
     fireEvent.click(within(pagination()).getByText('2'));
 
@@ -302,7 +318,7 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
   });
 
   it('size 20 shows ALL 8 rows and resets a page-2 window back to page 1', () => {
-    render(<AboutEditorList />);
+    renderExpanded();
 
     fireEvent.click(within(pagination()).getByText('2'));
     expect(currentPage()).toHaveTextContent('2');
@@ -319,7 +335,7 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
   });
 
   it('renders the size group ABOVE the table and the pagination BELOW it', () => {
-    render(<AboutEditorList />);
+    renderExpanded();
 
     // DOM order: page-size control → table → Pagination (FOLLOWING bit).
     const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
@@ -340,7 +356,7 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
       ],
     };
 
-    render(<AboutEditorList />);
+    renderExpanded();
     fireEvent.click(within(pagination()).getByText('3'));
     expect(currentPage()).toHaveTextContent('3');
     expect(dataRows()).toHaveLength(1);
@@ -356,6 +372,95 @@ describe('AboutEditorList: vitrina pagination (WU-18, R-10/D18)', () => {
     expect(currentPage()).toHaveTextContent('2');
     expect(dataRows()).toHaveLength(5);
     expect(within(pagination()).queryByText('3')).not.toBeInTheDocument();
+  });
+});
+
+// ============================================
+// WU-19 table card collapsed by default (SPEC R-11 / D19)
+// ============================================
+//
+// Controls + table + pagination live in a kit Card (Skills collapse
+// geometry) that is COLLAPSED by default: the card body is the expand
+// strip; header, fullName and the modals stay OUTSIDE the card and are
+// always available. ARIA per SPEC D19 (APG disclosure semantics): the
+// strip (collapsed) carries aria-expanded="false" + aria-controls on the
+// STABLE content id (the target div stays mounted so the idref never
+// dangles — axe 4.1.3 lesson resume-skills-card-collapse); the Minus
+// control (expanded) carries aria-expanded="true" WITHOUT aria-controls.
+// These tests render the RAW component — the legacy suites below go
+// through `renderList`, which expands the card first.
+
+describe('AboutEditorList: table card collapsed by default (WU-19, R-11/D19)', () => {
+  const root = () => screen.getByTestId('about-editor-list');
+  const pagination = () => within(root()).getByRole('navigation', { name: 'paginationNav' });
+  const sizeGroup = () => within(root()).getByRole('group', { name: 'perPageLabel' });
+
+  it('hides the table by default, shows the expand strip and keeps the header/fullName outside', () => {
+    render(<AboutEditorList />);
+
+    // Collapsed: NO table, NO pagination controls in the DOM…
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'paginationNav' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'perPageLabel' })).not.toBeInTheDocument();
+
+    // …but the strip IS there, correctly wired (aria-controls target
+    // resolves even while collapsed — no dangling idref).
+    const expand = screen.getByTestId('admin-about-table-expand');
+    expect(screen.getByTestId('admin-about-table-card')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'adminAboutExpandTable' })).toBe(expand);
+    expect(expand).toHaveAttribute('aria-expanded', 'false');
+    expect(expand).toHaveAttribute('aria-controls', 'about-editor-table-content');
+    expect(document.getElementById('about-editor-table-content')).not.toBeNull();
+
+    // Header (h2 + add/reset) and the fullName scalar block stay OUTSIDE
+    // the card and are available while it is collapsed (R-11).
+    expect(screen.getByRole('heading', { level: 2, name: 'adminAboutTitle' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'adminAboutAddRow' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
+    expect(screen.getByLabelText('aboutFieldFullName')).toBeInTheDocument();
+  });
+
+  it('expand shows table + size group + pagination; collapse removes them again', () => {
+    render(<AboutEditorList />);
+
+    fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(sizeGroup()).toBeInTheDocument();
+    expect(pagination()).toBeInTheDocument();
+    const collapse = screen.getByTestId('admin-about-table-collapse');
+    expect(screen.getByRole('button', { name: 'adminAboutCollapseTable' })).toBe(collapse);
+    expect(collapse).toHaveAttribute('aria-expanded', 'true');
+    expect(collapse).not.toHaveAttribute('aria-controls');
+    expect(screen.queryByTestId('admin-about-table-expand')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('admin-about-table-collapse'));
+
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    const expandAgain = screen.getByTestId('admin-about-table-expand');
+    expect(expandAgain).toHaveAttribute('aria-expanded', 'false');
+    expect(expandAgain).toHaveAttribute('aria-controls', 'about-editor-table-content');
+  });
+
+  it('the pagination window survives the collapse roundtrip (D18: state lives in the container)', () => {
+    render(<AboutEditorList />);
+
+    fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+    fireEvent.click(within(pagination()).getByText('2'));
+    expect(pagination().querySelector('[aria-current="page"]')).toHaveTextContent('2');
+
+    // The content unmounts on collapse…
+    fireEvent.click(screen.getByTestId('admin-about-table-collapse'));
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+    // …but {page, pageSize} are container state — the window is restored.
+    fireEvent.click(screen.getByTestId('admin-about-table-expand'));
+    expect(pagination().querySelector('[aria-current="page"]')).toHaveTextContent('2');
+    expect(within(sizeGroup()).getByRole('button', { name: '5' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(dataRows()).toHaveLength(3);
   });
 });
 

@@ -11,6 +11,7 @@ verified: '2026-10-20'
 > Исходный план: vault `wiki/plan/plan_admin_about_refactor.md` (rev.3 + rev.4 §7). Companion: [TODO.md](./TODO.md).
 > Язык: русский. Все user-facing строки — i18n-ключи en+ru.
 > **Статус `approved`** — директива владельца 2026-10-20 (аменда: add/delete строк, Avatar-вариант, загрузка портрета). Ранее открытые OPEN-1..4 закрыты 2026-10-19 (а/да/да/да).
+> **Аменда rev.3 (вторая директива владельца, 2026-10-20)**: пагинация витрины (5/10/20, дефолт 5, kit Pagination под таблицей), таблица в kit Card СВЁРНУТА по умолчанию, блок аватара переезжает в модалку (кнопка в шапке `.headerActions`, превью внизу окна на всю ширину). См. D18–D20 / R-10–R-12. Kit не меняется — только переиспользуются Pagination/PageSizeGroup/Card.
 
 ## Цель
 
@@ -34,6 +35,9 @@ verified: '2026-10-20'
 - **D15 — загрузка портрета**: kit FileUpload, accept СТРОГО .jpg/.png (MIME + расширение; иначе — ошибка, файл не берётся) → `saveImageToDir(root, blob, name, 'about')` → RTK Query мутация `updateAboutPortrait({ name })` (apiSlice, локальный queryFn: пишет `portrait` в localStorage-конверт + persist, возвращает обновлённый документ; UI dispatch по возвращённому) — свап-точка на Nest.js: queryFn → `fetchBaseQuery` PUT `/about/portrait`, имя файла в БД. Логика формы НЕ знает, где лежит файл.
 - **D16 — отображение**: `content.portrait ?? static webp` в витрине About (дефолт = прежний вид); превью в админке — тот же Avatar-вариант.
 - **D17 — R2 (useConfirmAction) уже выполнен** в rev.3 (WU-7); эта аменда не трогает Reset.
+- **D18 — пагинация витрины (аменда rev.3)**: контейнер — сам `AboutEditorList` (эталон `TechnologiesList`, tech-pagination #272): `{page, pageSize}`, `PAGE_SIZES = [5, 10, 20]`, `DEFAULT_PAGE_SIZE = 5`; windowing — render-time производная (`safePage = min(max(page, 1), totalPages)` — setState-in-effect ЗАПРЕЩЁН, react-hooks v7); kit `PageSizeGroup` НАД таблицей, kit `Pagination` ПОД ней (DOM-порядок size → table → pagination); смена размера сбрасывает страницу в 1; сортировки НЕТ — порядок документа сохраняется (R-1 v2); collapse-состояние контента не персистентно, страница/размер хранятся в контейнере и переживают сворачивание (контент размонтируется).
+- **D19 — карточка, свёрнута по умолчанию (аменда rev.3)**: таблица + контролы пагинации живут внутри kit `Card` (`variant="default"`, `size="default"`, `hoverable={false}`; геометрия Skills-сворачивания `resume-skills-card-collapse`, `.block { height: auto }` поверх базового 220px-миксина). Свёрнута по умолчанию: тело карточки = strip-кнопка «показать таблицу» (Plus, fullWidth, Tooltip, `aria-expanded="false"` + `aria-controls` на стабильный id); развёрнута: Minus-кнопка сворачивания сверху (`aria-expanded="true"` — БЕЗ aria-controls, dangling idref) + controls/таблица/пагинация. Шапка (h2/hint/кнопки), fullName-блок и все модалки — ВНЕ карточки и доступны всегда.
+- **D20 — аватар в модалке (аменда rev.3)**: инлайн-блок `.portraitRow` умирает; в `.headerActions` между «Добавить строку» и «Сбросить» — кнопка `adminAboutPortraitEdit` («Добавить/Отредактировать Аватар») → kit Modal (`size="lg"`, заголовок = имя диалога): сверху FileUpload (.jpg/.png — контракт WU-14 без изменений) + прежние error-ветки + Save/Cancel, ВНИЗУ — превью Avatar `variant="portrait"` сохранённого портрета (`content.portrait ?? статика`) на ВСЮ ШИРИНУ контента модалки с высотой 320px (`.portraitModalPreview`); persist-порядок и RTK Query-мутация НЕ меняются (файл → мутация → dispatch → тост; fail → error-тост, документ не изменился).
 
 ## Открытые ограничения (приняты, не блокеры)
 
@@ -45,7 +49,7 @@ verified: '2026-10-20'
 ## Скоуп
 
 Меняются: `entities/AboutContent` (schema/types/seed-совместимость), `features/About/ui/About/About.tsx` (TSX-логика + Avatar; **SCSS НЕ ТРОГАТЬ**), `features/AdminAbout/ui/AboutEditorList/…` (add/delete), `shared/ui/Avatar` (вариант + stories), `shared/api/apiSlice.ts` (endpoint), баррелы/локали/тесты.
-НЕ меняются: SCSS `features/About/**`, `model/slices` (FULL REPLACE достаточен), Design C, kit-контракты (FileUpload/Avatar расширяются БЕЗ breaking changes), `storeReducers`/deep-import инвариант lazy-chunk.
+НЕ меняются: SCSS `features/About/**`, `model/slices` (FULL REPLACE достаточен), Design C, kit-контракты (аменда rev.3 kit вообще не меняет — переиспользует Pagination/PageSizeGroup/Card; FileUpload/Avatar расширялись БЕЗ breaking changes в WU-13/14), `storeReducers`/deep-import инвариант lazy-chunk.
 
 ## Требования
 
@@ -58,6 +62,9 @@ verified: '2026-10-20'
 - **R-7 портрет**: FileUpload принимает ТОЛЬКО .jpg/.png (MIME+extension, оба условия); другие форматы → отказ; saveImageToDir('about') → RTK Query `updateAboutPortrait` → документ `portrait` → превью в админке и витрина на главной (fallback на статику без портрета); `model/slices` не меняется (возврат документа из мутации + updateAboutContent).
 - **R-8 i18n**: все новые строки — ключи en+ru, flat, parity + existence-guard зелёные.
 - **R-9 тесты**: контракт v2 (add/delete/массивы/record/null-cta/portrait), витрина динамика (дефолтный DOM идентичен), add/delete UI (persist-fail ветки), Avatar-вариант, FileUpload-валидация jpg/png, RTK Query-мутация; page-тест; баррел-пины.
+- **R-10 пагинация (аменда rev.3)**: страницы по 5 строк (дефолт), выбор 5/10/20; `PageSizeGroup` над таблицей, kit `Pagination` под ней; clamp при уменьшении строк (удаление на последней странице возвращает в диапазон render-time, без эффектов); порядок документа без сортировки. Тесты: дефолтное окно = 5 строк + Pagination, смена размера → страница 1, clamp после удаления.
+- **R-11 карточка (аменда rev.3)**: таблица с контролами в kit Card, свёрнута по умолчанию; шапка с кнопками и fullName-блок доступны при свёрнутой карточке; strip Plus / Minus roundtrip, `aria-expanded`; тесты: по умолчанию таблицы нет в DOM, expand → таблица видна, collapse → убрана.
+- **R-12 аватар-модалка (аменда rev.3)**: кнопка в `.headerActions` открывает модалку с прежним `.portraitRow`-функционалом (FileUpload + ошибки + Save/Cancel) + полноширинное превью Avatar (высота 320px) внизу; инлайн-блока на странице больше нет; fail-ветки прежние. Тесты: модалка открывается/закрывается, save = persist+dispatch, отклонение не-jpg/png, инлайн-превью отсутствует.
 
 ## Гейты
 

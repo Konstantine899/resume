@@ -42,6 +42,14 @@
 //   no setState-in-effect), kit PageSizeGroup ABOVE the table, kit
 //   Pagination BELOW it; a size change resets the window to page 1; no
 //   sorting — document order is preserved.
+// - WU-19 (R-11/D19): controls + table + pagination live in a kit Card
+//   that is COLLAPSED BY DEFAULT (Skills collapse geometry): the card
+//   body is the expand strip; the header, fullName block, portrait block
+//   and ALL modals stay OUTSIDE and available at all times. ARIA per
+//   D19: strip (collapsed) = aria-expanded="false" + aria-controls on the
+//   stable content id (mounted even while collapsed so the idref never
+//   dangles — axe 4.1.3); Minus (expanded) = aria-expanded="true"
+//   WITHOUT aria-controls (the strip alone owns the idref).
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
 import { useState } from 'react';
@@ -55,6 +63,7 @@ import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Button, IconButton } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
@@ -66,7 +75,7 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Minus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { selectAboutContent } from '../../model/selectors';
@@ -119,6 +128,14 @@ export interface AboutEditorListProps {
 /** Vitrina page sizes (R-10/D18): 5/10/20, default 5 — TechnologiesList parity. */
 const PAGE_SIZES = [5, 10, 20] as const;
 const DEFAULT_PAGE_SIZE = 5;
+
+/**
+ * Stable aria-controls target of the WU-19 expand strip (SPEC D19): the
+ * id must resolve BEFORE AND AFTER the collapse/expand roundtrip, so the
+ * wrapper div stays mounted even while collapsed (a dangling idref is an
+ * axe 4.1.3 violation — resume-skills-card-collapse lesson).
+ */
+const TABLE_CONTENT_ID = 'about-editor-table-content';
 
 export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   className = '',
@@ -193,6 +210,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   // collapse/expand roundtrip (D18).
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  // WU-19 (R-11/D19): the vitrina Card is COLLAPSED by default. Also
+  // container state — the strip roundtrips without losing {page, pageSize}
+  // (D18: only the CONTENT unmounts on collapse).
+  const [tableExpanded, setTableExpanded] = useState(false);
 
   const closeFieldModal = () => setEditingField(null);
   const closeAddModal = () => setAdding(false);
@@ -470,70 +491,125 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         </div>
       </div>
 
-      {/* WU-18 (R-10/D18): size group ABOVE the table, kit Pagination
-          BELOW it — DOM order size → table → pagination (TechnologiesList
-          #272 parity). The controls never disappear on interaction. */}
-      <div className={styles.controls}>
-        <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
-      </div>
-
-      <Table<AboutTableRow>
-        caption={t('adminAboutTitle')}
-        rows={windowRows}
-        getKey={(row) => row.id}
-        columns={[
-          {
-            key: 'field',
-            header: t('adminAboutTableField'),
-            width: '20%',
-            render: (row) => row.label,
-          },
-          { key: 'en', header: 'EN', render: (row) => row.en },
-          { key: 'ru', header: 'RU', render: (row) => row.ru },
-          {
-            // R-2/R-3 (WU-12): a Pencil (field edit) + a Trash2 (delete
-            // confirm) per row — `.cellActions` keeps the icon row nowrap
-            // (resume-table-cell-actions-row).
-            key: 'actions',
-            header: t('adminAboutTableActions'),
-            width: '120px',
-            align: 'right',
-            render: (row) => (
-              <div className={styles.cellActions}>
-                <Tooltip content={t('adminAboutEditRow')} position="top" showDelay={0}>
-                  <IconButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
-                    ariaLabel={t('adminAboutEditRow')}
-                    data-testid={`admin-about-edit-${row.id}`}
-                    onClick={() => setEditingField(row.id)}
-                  />
-                </Tooltip>
-                <Tooltip content={t('adminAboutDeleteRow')} position="top" showDelay={0}>
-                  <IconButton
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
-                    ariaLabel={t('adminAboutDeleteRow')}
-                    data-testid={`admin-about-delete-${row.id}`}
-                    onClick={() => requestDelete(row.id)}
-                  />
-                </Tooltip>
+      {/* WU-19 (R-11/D19): the vitrina Card — COLLAPSED by default. The
+          header, fullName, portrait block and all modals stay OUTSIDE the
+          card and are available at all times. */}
+      <Card
+        variant="default"
+        size="default"
+        hoverable={false}
+        className={styles.block}
+        data-testid="admin-about-table-card"
+      >
+        {tableExpanded ? (
+          // Expanded: Minus control on top — aria-expanded="true" and NO
+          // aria-controls (SPEC D19: the strip alone owns the idref).
+          <Tooltip content={t('adminAboutCollapseTable')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="md"
+              icon={<Icon name={Minus} size={20} color="inherit" decorative />}
+              ariaLabel={t('adminAboutCollapseTable')}
+              aria-expanded="true"
+              data-testid="admin-about-table-collapse"
+              onClick={() => setTableExpanded(false)}
+            />
+          </Tooltip>
+        ) : (
+          // Collapsed: the whole Card body is the expand strip (Plus left,
+          // fullWidth — Skills `.strip` geometry).
+          <Tooltip content={t('adminAboutExpandTable')} position="top" showDelay={0}>
+            <IconButton
+              type="button"
+              variant="outline"
+              size="md"
+              fullWidth
+              className={styles.strip}
+              icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+              ariaLabel={t('adminAboutExpandTable')}
+              aria-expanded="false"
+              aria-controls={TABLE_CONTENT_ID}
+              data-testid="admin-about-table-expand"
+              onClick={() => setTableExpanded(true)}
+            />
+          </Tooltip>
+        )}
+        {/* The stable id target stays MOUNTED even while collapsed (a
+            dangling aria-controls would be an axe 4.1.3 violation); the
+            children below unmount with the collapse and `.tableContent:
+            empty` hides the leftover row. */}
+        <div id={TABLE_CONTENT_ID} className={styles.tableContent}>
+          {tableExpanded ? (
+            <>
+              {/* WU-18 (R-10/D18): size group ABOVE the table, kit Pagination
+                  BELOW it — DOM order size → table → pagination (TechnologiesList
+                  #272 parity). The controls never disappear on interaction. */}
+              <div className={styles.controls}>
+                <PageSizeGroup sizes={PAGE_SIZES} value={pageSize} onChange={handlePageSize} />
               </div>
-            ),
-          },
-        ]}
-      />
 
-      {/* WU-18 (R-10): whole nav block below the table (numbers + arrows
-          together — TechnologiesList parity). safePage is the clamped
-          render-time window, so the control never shows an empty page. */}
-      <div className={styles.paginationRow}>
-        <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
-      </div>
+              <Table<AboutTableRow>
+                caption={t('adminAboutTitle')}
+                rows={windowRows}
+                getKey={(row) => row.id}
+                columns={[
+                  {
+                    key: 'field',
+                    header: t('adminAboutTableField'),
+                    width: '20%',
+                    render: (row) => row.label,
+                  },
+                  { key: 'en', header: 'EN', render: (row) => row.en },
+                  { key: 'ru', header: 'RU', render: (row) => row.ru },
+                  {
+                    // R-2/R-3 (WU-12): a Pencil (field edit) + a Trash2 (delete
+                    // confirm) per row — `.cellActions` keeps the icon row nowrap
+                    // (resume-table-cell-actions-row).
+                    key: 'actions',
+                    header: t('adminAboutTableActions'),
+                    width: '120px',
+                    align: 'right',
+                    render: (row) => (
+                      <div className={styles.cellActions}>
+                        <Tooltip content={t('adminAboutEditRow')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                            ariaLabel={t('adminAboutEditRow')}
+                            data-testid={`admin-about-edit-${row.id}`}
+                            onClick={() => setEditingField(row.id)}
+                          />
+                        </Tooltip>
+                        <Tooltip content={t('adminAboutDeleteRow')} position="top" showDelay={0}>
+                          <IconButton
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                            ariaLabel={t('adminAboutDeleteRow')}
+                            data-testid={`admin-about-delete-${row.id}`}
+                            onClick={() => requestDelete(row.id)}
+                          />
+                        </Tooltip>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
+
+              {/* WU-18 (R-10): whole nav block below the table (numbers + arrows
+                  together — TechnologiesList parity). safePage is the clamped
+                  render-time window, so the control never shows an empty page. */}
+              <div className={styles.paginationRow}>
+                <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Card>
 
       {/* R-1/WU-7: kit Modal confirm — title/button share `aboutReset`,
           the subtitle IS the confirm copy and names the entity ({{name}} =

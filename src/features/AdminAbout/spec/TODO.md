@@ -6,10 +6,12 @@ created: '2026-10-19'
 verified: '2026-10-20'
 ---
 
-# TODO — features/AdminAbout (аменда rev.2: add/delete + Avatar + портрет)
+# TODO — features/AdminAbout (аменда rev.3: пагинация + карточка + модалка аватара)
 
-> План к [SPEC.md](./SPEC.md) (approved, директива 2026-10-20). Предыдущая пара WU-0..9 сожжена 2026-10-20 (история в git). Пункты сгорают удалением.
+> План к [SPEC.md](./SPEC.md) (approved; вторая директива владельца 2026-10-20). Предыдущие WU-0..16 сожжены 2026-10-20 (история в git); WU-17 (сдача) сохранён и выполняется последним. Пункты сгорают удалением.
 
 ## WU
 
-- [ ] **WU-17 Сдача**: squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.
+- [ ] **WU-20 (TDD) Модалка аватара** (R-12/D20): кнопка `adminAboutPortraitEdit` в `.headerActions` → Modal `size="lg"` с прежним `.portraitRow`-функционалом + полноширинное превью Avatar (320px) внизу; инлайн `.portraitRow` удалён (+ мёртвый SCSS); i18n en+ru; тесты.
+- [ ] **WU-21 Гейты**: `npm run validate`, `check:spec`, `check:axe` (light+dark), **`check:bundle` против капа 896256 — превышение = СТОП, капу не поднимать без слова владельца**, preview-смоук light+dark (скриншоты в temp).
+- [ ] **WU-17 Сдача** (последним): squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.

@@ -70,6 +70,8 @@
   "adminAboutHint": "Изменения сохраняются в этом браузере и сразу появляются на главной.",
   "adminAboutTableField": "Поле",
   "adminAboutTableActions": "Действия",
+  "adminAboutExpandTable": "Показать таблицу",
+  "adminAboutCollapseTable": "Скрыть таблицу",
   "adminAboutEditRow": "Изменить строку",
   "adminAboutEditFieldTitle": "Редактировать: {{field}}",
   "adminAboutAddRow": "Добавить строку",

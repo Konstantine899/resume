@@ -56,11 +56,13 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 const STORAGE_KEY = 'resume.about.content';
 
 /**
- * WU-18 (R-10): the vitrina windows rows 5-at-a-time by default — these
- * legacy page tests assert the FULL 8-row document (tail rows included),
- * so pick size 20 right after render (feature test `showAllRows` parity).
+ * WU-18/WU-19: the vitrina windows rows 5-at-a-time by default and the
+ * table card is COLLAPSED by default — these legacy page tests assert the
+ * FULL 8-row document (tail rows included), so the helper opens the card
+ * and picks size 20 right after render (feature test parity).
  */
 const showAllRows = () => {
+  fireEvent.click(screen.getByTestId('admin-about-table-expand'));
   fireEvent.click(
     within(screen.getByRole('group', { name: 'perPageLabel' })).getByRole('button', {
       name: '20',

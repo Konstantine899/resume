@@ -70,6 +70,8 @@
   "adminAboutHint": "Changes are saved to this browser and show up on the home page right away.",
   "adminAboutTableField": "Field",
   "adminAboutTableActions": "Actions",
+  "adminAboutExpandTable": "Show table",
+  "adminAboutCollapseTable": "Hide table",
   "adminAboutEditRow": "Edit row",
   "adminAboutEditFieldTitle": "Edit: {{field}}",
   "adminAboutAddRow": "Add row",

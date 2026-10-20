@@ -130,3 +130,48 @@
   gap: $spacing-2;
   justify-content: flex-end;
 }
+
+// WU-19 (R-11): the vitrina Card — collapsed by default (Skills collapse
+
+// geometry). `height: auto` overrides the card base mixin's fixed 220px;
+
+// flex column + gap lays out strip → content like the Skills blocks.
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  height: auto;
+}
+
+// The aria-controls region: size group + table + pagination. Its id must
+
+// STAY mounted even while collapsed (the strip references it), so the
+
+// children unmount on collapse instead; `:empty` keeps the collapsed Card
+
+// body = the strip, with no leftover gap row.
+
+.tableContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  &:empty {
+    display: none;
+  }
+}
+
+// Expand strip (WU-19): kit IconButton fullWidth = the whole Card body.
+
+// Doubled class raises specificity (0,2,0) over the kit's flex-center
+
+// mixin (.button, 0,1,0) so the Plus icon parks at the LEFT without
+
+// fighting CSS-module load order (Skills `.strip` parity).
+
+.strip.strip {
+  gap: $spacing-2;
+  justify-content: flex-start;
+  padding-inline: $spacing-3;
+}
