@@ -9,6 +9,7 @@
 // swap (stubBaseQuery -> fetchBaseQuery) needs no wiring work.
 
 import { configureStore } from '@reduxjs/toolkit';
+import { vi } from 'vitest';
 import { storeReducers } from '@/storeReducers';
 import { apiSlice, stubBaseQuery } from './apiSlice';
 
@@ -75,6 +76,39 @@ describe('apiSlice endpoints', () => {
     ).rejects.toMatchObject({
       status: 503,
       data: { message: 'backend not configured' },
+    });
+  });
+});
+
+describe('apiSlice.updateAboutPortrait (WU-14)', () => {
+  it('exposes the updateAboutPortrait endpoint', () => {
+    expect(apiSlice.endpoints.updateAboutPortrait).toBeDefined();
+  });
+
+  it('persists through the injected seam and unwraps to the document', async () => {
+    const store = makeStore();
+    const persist = vi.fn(() => true);
+    const content = { fullName: 'Konstantine', portrait: '/images/about/me.png' };
+
+    const result = await store
+      .dispatch(apiSlice.endpoints.updateAboutPortrait.initiate({ content, persist }))
+      .unwrap();
+
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(persist).toHaveBeenCalledWith(content);
+    expect(result).toEqual({ document: content });
+  });
+
+  it('rejects with the persist-failed error when the seam returns false', async () => {
+    const store = makeStore();
+    const persist = vi.fn(() => false);
+    const content = { fullName: 'Konstantine', portrait: '/images/about/me.png' };
+
+    await expect(
+      store.dispatch(apiSlice.endpoints.updateAboutPortrait.initiate({ content, persist })).unwrap()
+    ).rejects.toMatchObject({
+      status: 500,
+      data: { message: 'persist-failed' },
     });
   });
 });
