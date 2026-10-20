@@ -56,6 +56,11 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
 
   const avatarWidth = AVATAR_SIZES[size];
 
+  // D14: portrait maps onto the chrome-less Image variant — transparent
+  // container, contain fit, fill-container sizing (no fixed px width/height).
+  const isPortrait = variant === 'portrait';
+  const imageVariant = isPortrait ? 'transparent' : variant === 'circle' ? 'circular' : 'rounded';
+
   return (
     <div
       className={classNames(styles.container, className)}
@@ -67,9 +72,11 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
         src={normalizedSrc || ''}
         alt={alt}
         decorative
-        variant={variant === 'circle' ? 'circular' : 'rounded'}
-        width={avatarWidth}
-        height={avatarWidth}
+        variant={imageVariant}
+        objectFit={isPortrait ? 'contain' : undefined}
+        size={isPortrait ? 'full' : undefined}
+        width={isPortrait ? undefined : avatarWidth}
+        height={isPortrait ? undefined : avatarWidth}
         placeholder={showSkeleton ? 'skeleton' : 'color'}
         showPlaceholder={showSkeleton}
         forceLoading={forceLoading}
