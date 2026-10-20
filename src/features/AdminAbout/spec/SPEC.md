@@ -61,7 +61,7 @@ verified: '2026-10-20'
 
 ## Гейты
 
-`npm run validate` · `check:spec` · `check:axe` (PATHS: `/`, `/admin` и все админ-страницы включая `/admin/about`, light+dark, baseline 4) · `check:bundle` (мерить: кап 861184, запас на старте эпика ~647 B — ПРЕВЫШЕНИЕ = стоп, капу НЕ поднимать без слова владельца; фактический замер — в отчёте WU-16) · storybook-сторис нового Avatar-вариanta прогон · preview-смоук light+dark (скриншоты в temp) · squash `--base dev` без мержа.
+`npm run validate` · `check:spec` · `check:axe` (PATHS: `/`, `/admin` и все админ-страницы включая `/admin/about`, light+dark, baseline 4) · `check:bundle` (кап `total.maxSize` поднят ВЛАДЕЦЕМ до 896256 = 896 KiB, 2026-10-20 — замер аменды 875551 B, запас ~20.7 KiB; остальные капы не тронуты) · storybook-сторис нового Avatar-варианта прогон · preview-смоук light+dark (скриншоты в temp) · squash `--base dev` без мержа.
 
 ## Критерии приёмки
 
