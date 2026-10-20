@@ -21,6 +21,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAboutSeed } from '../../model/services/seed';
 import { AboutFieldEditForm } from './AboutFieldEditForm';
 import type { EditAboutField } from '../AboutEditorList/lib/fieldSchemas';
+import type { AboutContent } from '@/entities/AboutContent';
 
 // Identity t(): raw keys in assertions (Nav.test pattern).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
@@ -38,9 +39,9 @@ const onExitEdit = vi.fn();
 
 const seed = createAboutSeed();
 
-const renderForm = (field: EditAboutField) =>
+const renderForm = (field: EditAboutField, document: AboutContent = seed) =>
   render(
-    <AboutFieldEditForm field={field} document={seed} onSave={onSave} onExitEdit={onExitEdit} />
+    <AboutFieldEditForm field={field} document={document} onSave={onSave} onExitEdit={onExitEdit} />
   );
 
 /** The form's Save/Cancel pair (footer-less — the form renders its own). */
@@ -76,22 +77,35 @@ describe('AboutFieldEditForm: per-field control (WU-4, R-3)', () => {
   });
 
   it('a stat row renders TWO inputs with the STAT KEY label and cap 60', () => {
-    renderForm('stat-1');
+    renderForm('stat-aboutStatProjects');
 
     expect(document.querySelectorAll('textarea')).toHaveLength(0);
     expect(document.querySelectorAll('input')).toHaveLength(2);
     expect(screen.getByLabelText('aboutStatProjects · EN')).toBeInTheDocument();
     expect(screen.getByLabelText('aboutStatProjects · RU')).toHaveValue(
-      seed.stats.aboutStatProjects.ru
+      seed.stats.aboutStatProjects?.ru
     );
     expect(screen.getByLabelText('aboutStatProjects · EN')).toHaveAttribute('maxlength', '60');
+  });
+
+  it('a CUSTOM stat row labels the inputs from statLabels (not from i18n)', () => {
+    const doc: AboutContent = {
+      ...seed,
+      stats: { ...seed.stats, 'full-stack': { en: '10 years', ru: '10 лет' } },
+      statLabels: { 'full-stack': { en: 'Full Stack', ru: 'Фулл-стек' } },
+    };
+
+    renderForm('stat-full-stack', doc);
+
+    expect(screen.getByLabelText('Full Stack · EN')).toHaveValue('10 years');
+    expect(screen.getByLabelText('Full Stack · RU')).toHaveValue('10 лет');
   });
 
   it('ctaLabel renders TWO inputs with the CTA label and cap 40', () => {
     renderForm('ctaLabel');
 
     expect(screen.getByLabelText('aboutFieldCta · EN')).toBeInTheDocument();
-    expect(screen.getByLabelText('aboutFieldCta · RU')).toHaveValue(seed.ctaLabel.ru);
+    expect(screen.getByLabelText('aboutFieldCta · RU')).toHaveValue(seed.ctaLabel?.ru);
     expect(screen.getByLabelText('aboutFieldCta · EN')).toHaveAttribute('maxlength', '40');
   });
 
@@ -106,7 +120,7 @@ describe('AboutFieldEditForm: per-field control (WU-4, R-3)', () => {
 
 describe('AboutFieldEditForm: pristine gate + cancel (WU-4)', () => {
   it('Save is disabled while pristine and enables on the first edit', () => {
-    renderForm('stat-0');
+    renderForm('stat-aboutStatYears');
 
     expect(saveButton()).toBeDisabled();
     fireEvent.change(screen.getByLabelText('aboutStatYears · EN'), {
@@ -152,7 +166,7 @@ describe('AboutFieldEditForm: validation through the shared slices (WU-4)', () =
   });
 
   it('an empty stat locale surfaces aboutStatRequired', async () => {
-    renderForm('stat-2');
+    renderForm('stat-aboutStatUsers');
 
     fireEvent.change(screen.getByLabelText('aboutStatUsers · RU'), {
       target: { value: '' },
@@ -204,7 +218,7 @@ describe('AboutFieldEditForm: submit → save seam (WU-4, R-3)', () => {
   });
 
   it('a valid stat submit passes the LocalizedText slice', async () => {
-    renderForm('stat-3');
+    renderForm('stat-aboutStatRemote');
 
     fireEvent.change(screen.getByLabelText('aboutStatRemote · EN'), {
       target: { value: '100% remote' },
@@ -212,9 +226,9 @@ describe('AboutFieldEditForm: submit → save seam (WU-4, R-3)', () => {
     fireEvent.click(saveButton());
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
-    expect(onSave).toHaveBeenCalledWith('stat-3', {
+    expect(onSave).toHaveBeenCalledWith('stat-aboutStatRemote', {
       en: '100% remote',
-      ru: seed.stats.aboutStatRemote.ru,
+      ru: seed.stats.aboutStatRemote?.ru,
     });
   });
 

@@ -34,10 +34,10 @@ import type { Resolver } from 'react-hook-form';
 
 import type { AboutContent } from '@/entities/AboutContent';
 import {
-  STAT_KEYS,
   aboutFieldResolverSchema,
   defaultValuesFor,
-  statIndexOf,
+  statKeyOf,
+  statRowLabel,
   type AboutFieldFormValues,
   type AboutFieldValue,
   type EditAboutField,
@@ -85,7 +85,7 @@ export const AboutFieldEditForm: React.FC<AboutFieldEditFormProps> = ({
   className = '',
   'data-testid': testId = 'about-field-form',
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const {
     register,
@@ -150,17 +150,23 @@ export const AboutFieldEditForm: React.FC<AboutFieldEditFormProps> = ({
       );
     }
 
-    const statKey = field.startsWith('stat-') ? STAT_KEYS[statIndexOf(field)] : null;
+    const statKey = field.startsWith('stat-') ? statKeyOf(field) : null;
+    // Label of ANY stat row: known keys translate, custom keys read statLabels
+    // (D10 — the address is the KEY, not a positional index, since WU-12).
+    const statLabel =
+      statKey !== null ? statRowLabel(document, statKey, language, (key) => t(key)) : null;
 
     return (
       <>
         {LOCALES.map((locale) => (
           <div key={locale} className={styles.field}>
             <Input
-              label={`${statKey !== null ? t(statKey) : t('aboutFieldCta')} · ${locale.toUpperCase()}`}
-              error={message(statKey !== null ? errors.stat?.[locale] : errors.ctaLabel?.[locale])}
-              value={(statKey !== null ? values.stat?.[locale] : values.ctaLabel?.[locale]) ?? ''}
-              maxLength={statKey !== null ? 60 : 40}
+              label={`${statLabel !== null ? statLabel : t('aboutFieldCta')} · ${locale.toUpperCase()}`}
+              error={message(
+                statLabel !== null ? errors.stat?.[locale] : errors.ctaLabel?.[locale]
+              )}
+              value={(statLabel !== null ? values.stat?.[locale] : values.ctaLabel?.[locale]) ?? ''}
+              maxLength={statLabel !== null ? 60 : 40}
               fullWidth
               {...register(
                 statKey !== null ? (`stat.${locale}` as const) : (`ctaLabel.${locale}` as const)

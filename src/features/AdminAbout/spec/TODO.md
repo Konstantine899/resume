@@ -12,7 +12,6 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-12 (TDD) AdminAbout add/delete**: fieldSchemas для динамических description-N / stat:<key>; add-модалка (Select вида + формы D11, slug-генерация, уникальность); delete с confirm (#286 parity); persist-THEN-dispatch + fail-ветки; строки в документе.
 - [ ] **WU-13 Avatar `portrait`**: тип+маппинг+стиль варианта (shared, без breaking), витрина About → Avatar, stories (+axe-stories --build --filter), тесты валидации пропсов.
 - [ ] **WU-14 Портрет**: FileUpload accept jpg/png (MIME+ext, отказ иначе), saveImageToDir('about'), RTK Query `updateAboutPortrait` (локальный queryFn → свап на Nest.js), превью в админке, витрина читает `content.portrait`; тесты валидации форматов и мутации.
 - [ ] **WU-15 i18n + тесты**: ключи en+ru (add/delete/превью/ошибки формата), parity + existence-guard, page-тест, баррел-пины; мёртвый код после R-1→R-1v2.

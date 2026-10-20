@@ -79,7 +79,7 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(screen.getByText('adminAboutHint')).toBeInTheDocument();
     // Empty storage → lazy hydration falls back to the seed.
     expect(dataRows()).toHaveLength(8);
-    expect(screen.getByText(createAboutSeed().ctaLabel.en)).toBeInTheDocument();
+    expect(screen.getByText(createAboutSeed().ctaLabel?.en ?? '')).toBeInTheDocument();
   });
 
   it('prefills the vitrina from the stored document (lazy hydration, not module import)', () => {
@@ -110,9 +110,9 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
     // The dispatched document is the FULL merged snapshot (WU-2 seam).
     expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
-      ctaLabel: { en: 'Hire me now', ru: createAboutSeed().ctaLabel.ru },
+      ctaLabel: { en: 'Hire me now', ru: createAboutSeed().ctaLabel?.ru },
     });
-    expect(store.getState().aboutContent.ctaLabel.en).toBe('Hire me now');
+    expect(store.getState().aboutContent.ctaLabel?.en).toBe('Hire me now');
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
   });
 

@@ -1,21 +1,26 @@
 // ============================================
-// AboutEditorList tests (admin-about-table WU-2/WU-3, SPEC R-1/R-3/R-7)
+// AboutEditorList tests (admin-about-table WU-2/WU-3 + WU-12 amendment,
+// SPEC R-1/R-2/R-3/R-4/R-7)
 // ============================================
 //
 // RED-first contract for the kit-Table vitrina:
-// - R-1: 8 fixed rows (3 descriptions + 4 stats + ctaLabel), columns
-//   [Поле | EN | RU | Действия], exactly ONE Pencil per row in the
-//   nowrap `.cellActions`, no add/remove affordances (fixed contract);
-// - R-3/WU-2+WU-4: the merged save path — row Pencil → field-scoped modal
-//   → snapshot → toMergedDocument → persist → dispatch(full document) —
-//   with the persist-fail branch (error toast, NO dispatch, modal open);
-// - R-2/WU-5: the fullName scalar block — inline Input + own Save above
-//   the table (Contact email D6 parity: pristine/invalid disabled, the
-//   draft survives a failed persist);
-// - R-4: Reset keeps the admin-about-refactor kit-Modal-confirm (never
-//   window.confirm, subtitle names the entity, focus starts on «Отмена»).
-// Storage and action creators are spied at the module boundary; the
-// reducer stays real (spread actual) so the store hydrates normally.
+// - R-1 (v2): rows are built from the ACTUAL document (all descriptions,
+//   every stats record entry addressed BY KEY, cta while it is not null);
+//   columns [Поле | EN | RU | Действия], a Pencil + a Trash2 per row in the
+//   nowrap `.cellActions`;
+// - R-2/WU-12: «Добавить строку» in the header next to «Сбросить» → kit
+//   Modal + kit Select of the row kind → per-kind form → persist-THEN-
+//   dispatch (fail keeps the modal open); the slug key + custom label land
+//   in `stats`/`statLabels`;
+// - R-3/WU-12: Trash2 → confirm Modal (subtitle names the row, focus on
+//   «Отмена», persist-fail keeps it open) → description/stat/cta removed;
+// - R-3/WU-2+WU-4: row Pencil → field-scoped modal (merged save seam);
+// - R-2/WU-5: the fullName scalar block (Contact email D6 parity);
+// - R-4: Reset keeps the useConfirmAction kit-Modal-confirm.
+// Storage and action creators are spied at the module boundary; the store
+// holder is MUTATED by the mocked dispatch so add/delete tests can assert
+// the vitrina reacting to the new document (resume-projects-crud lesson:
+// a frozen holder makes «row appeared/disappeared» assertions vacuous).
 
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,7 +29,9 @@ import type { AboutContent } from '@/entities/AboutContent';
 import { createAboutSeed } from '../../model/services/seed';
 import { AboutEditorList } from './AboutEditorList';
 
-const { persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() => ({
+const { holder, persistSpy, removeSpy, updateSpy, resetSpy, addToast } = vi.hoisted(() => ({
+  // Live store stand-in: the mocked dispatch writes through to it.
+  holder: { content: null as AboutContent | null },
   // Typed arg => mock.calls[0] is [AboutContent], not [].
   persistSpy: vi.fn((_content: AboutContent) => true),
   removeSpy: vi.fn(),
@@ -47,7 +54,7 @@ vi.mock('../../model/slices/aboutContentSlice', async (importOriginal) => ({
 
 // Deterministic labels: t(key) => key (Nav.test pattern) — assertions target
 // raw i18n keys, so locale edits never flip the expectations. Known options
-// render as `${key}:${value}` (name — R-1 confirm subtitle names the entity).
+// render as `${key}:${value}` (confirm subtitles name the entity).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string, options?: { name?: string }) =>
@@ -67,14 +74,27 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 // react-redux is mocked instead of wrapping StoreProvider: `features → app`
 // is a banned FSD hop (eslint fsd-imports/layer-dependency), so a feature
 // test may not import @/app/providers. The REAL selector still runs against
-// a seed-shaped state, so the selector wiring stays covered.
+// the holder, and the mocked dispatch APPLIES the full-replace actions so
+// add/delete round-trips are observable (WU-12).
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
-  const state = { aboutContent: createAboutSeed() };
+  const state: { aboutContent: AboutContent } = {
+    get aboutContent() {
+      return holder.content ?? createAboutSeed();
+    },
+  };
   return {
     ...actual,
     useSelector: (selector: (s: typeof state) => unknown) => selector(state),
-    useDispatch: () => (_action: unknown) => undefined,
+    useDispatch: () => (action: { type?: string; payload?: AboutContent } | undefined) => {
+      if (action?.type === 'aboutContent/update' && action.payload !== undefined) {
+        holder.content = action.payload;
+      }
+      if (action?.type === 'aboutContent/reset') {
+        holder.content = createAboutSeed();
+      }
+      return action;
+    },
   };
 });
 
@@ -90,6 +110,7 @@ const dataRows = () => document.querySelectorAll<HTMLTableRowElement>('tbody tr'
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
+  holder.content = createAboutSeed();
   persistSpy.mockReturnValue(true);
   confirmSpy.mockReturnValue(false);
 });
@@ -98,12 +119,13 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('AboutEditorList: vitrina render (WU-3, R-1)', () => {
-  it('renders the header (h2 + hint + Reset) and the 4-column table', () => {
+describe('AboutEditorList: vitrina render (WU-3, R-1 v2)', () => {
+  it('renders the header (h2 + hint + «Добавить строку» + Reset) and the 4-column table', () => {
     renderList();
 
     expect(screen.getByRole('heading', { level: 2, name: 'adminAboutTitle' })).toBeInTheDocument();
     expect(screen.getByText('adminAboutHint')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'adminAboutAddRow' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
 
     expect(screen.getAllByRole('columnheader')).toHaveLength(4);
@@ -121,7 +143,7 @@ describe('AboutEditorList: vitrina render (WU-3, R-1)', () => {
     const rows = dataRows();
     expect(rows).toHaveLength(8);
 
-    // Row order: description 1..3 → 4 stats → ctaLabel; labels are key lookups.
+    // Row order: description 1..3 → stats in record insertion order → cta.
     const labels = Array.from(rows).map((row) => row.cells[0]?.textContent);
     expect(labels).toEqual([
       'aboutFieldDescriptions 1',
@@ -137,21 +159,37 @@ describe('AboutEditorList: vitrina render (WU-3, R-1)', () => {
     // EN/RU cells carry the seed locale values (row 1 and the CTA).
     expect(rows[0]?.cells[1]?.textContent).toBe(seed.descriptions[0]?.en);
     expect(rows[0]?.cells[2]?.textContent).toBe(seed.descriptions[0]?.ru);
-    expect(rows[7]?.cells[1]?.textContent).toBe(seed.ctaLabel.en);
-    expect(rows[7]?.cells[2]?.textContent).toBe(seed.ctaLabel.ru);
+    expect(rows[7]?.cells[1]?.textContent).toBe(seed.ctaLabel?.en);
+    expect(rows[7]?.cells[2]?.textContent).toBe(seed.ctaLabel?.ru);
   });
 
-  it('renders exactly one Pencil per row and NO add/remove affordance', () => {
+  it('every row carries a Pencil AND a Trash2 in the nowrap actions cell', () => {
     renderList();
 
     expect(screen.getAllByRole('button', { name: 'adminAboutEditRow' })).toHaveLength(8);
-    expect(screen.queryByRole('button', { name: 'adminAboutAddRow' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'adminAboutDeleteRow' })).not.toBeInTheDocument();
-    // No inline inputs INSIDE the rows (fixed contract); the only Input on
-    // the page is the fullName scalar block ABOVE the table (WU-5, R-2).
+    expect(screen.getAllByRole('button', { name: 'adminAboutDeleteRow' })).toHaveLength(8);
+    // No inline inputs INSIDE the rows; the only Input on the page is the
+    // fullName scalar block ABOVE the table (WU-5, R-2).
     expect(document.querySelector('tbody input')).toBeNull();
     expect(document.querySelector('tbody textarea')).toBeNull();
     expect(screen.getByLabelText('aboutFieldFullName')).toBeInTheDocument();
+  });
+
+  it('stat rows are addressed BY KEY and custom stats show their own label', () => {
+    holder.content = {
+      ...seed,
+      stats: { ...seed.stats, 'full-stack': { en: '10 years', ru: '10 лет' } },
+      statLabels: { 'full-stack': { en: 'Full Stack', ru: 'Фулл-стек' } },
+    };
+
+    renderList();
+
+    expect(screen.getByTestId('admin-about-edit-stat-aboutStatYears')).toBeInTheDocument();
+    expect(screen.getByTestId('admin-about-edit-stat-full-stack')).toBeInTheDocument();
+    // The custom row label is the STORED label (language 'en' in this suite).
+    expect(screen.getByText('Full Stack')).toBeInTheDocument();
+    // Rows come from the record — 4 known + 1 custom + 3 descriptions + cta.
+    expect(dataRows()).toHaveLength(9);
   });
 });
 
@@ -160,7 +198,7 @@ describe('AboutEditorList: merged save path (WU-2/WU-4, R-3 persist → dispatch
     renderList();
 
     // WU-4: the Pencil opens the field modal — the seam runs on its Save.
-    fireEvent.click(screen.getByTestId('admin-about-edit-stat-1'));
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-aboutStatProjects'));
     const modal = await screen.findByRole('dialog');
     fireEvent.change(within(modal).getByLabelText('aboutStatProjects · EN'), {
       target: { value: '42 projects' },
@@ -174,14 +212,14 @@ describe('AboutEditorList: merged save path (WU-2/WU-4, R-3 persist → dispatch
     expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
       updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
     );
-    // FULL document — the other 7 fields ride through untouched, the edited
+    // FULL document — the other fields ride through untouched, the edited
     // one carries the FORM value.
     expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
       fullName: seed.fullName,
       descriptions: seed.descriptions,
       ctaLabel: seed.ctaLabel,
       stats: {
-        aboutStatProjects: { en: '42 projects', ru: seed.stats.aboutStatProjects.ru },
+        aboutStatProjects: { en: '42 projects', ru: seed.stats.aboutStatProjects?.ru },
       },
     });
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
@@ -230,7 +268,7 @@ describe('AboutEditorList: field edit modal (WU-4, R-3)', () => {
   it('a stat Pencil opens the modal with Inputs (never textareas), cap 60', async () => {
     renderList();
 
-    fireEvent.click(screen.getByTestId('admin-about-edit-stat-0'));
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-aboutStatYears'));
     const modal = await screen.findByRole('dialog');
 
     expect(modal.querySelectorAll('textarea')).toHaveLength(0);
@@ -244,7 +282,7 @@ describe('AboutEditorList: field edit modal (WU-4, R-3)', () => {
     fireEvent.click(screen.getByTestId('admin-about-edit-ctaLabel'));
     const modal = await screen.findByRole('dialog');
 
-    expect(within(modal).getByLabelText('aboutFieldCta · RU')).toHaveValue(seed.ctaLabel.ru);
+    expect(within(modal).getByLabelText('aboutFieldCta · RU')).toHaveValue(seed.ctaLabel?.ru);
     expect(within(modal).getByLabelText('aboutFieldCta · RU')).toHaveAttribute('maxlength', '40');
   });
 
@@ -277,16 +315,16 @@ describe('AboutEditorList: field edit modal (WU-4, R-3)', () => {
   it('ESC closes the modal and clears the editing state (reopening works)', async () => {
     renderList();
 
-    fireEvent.click(screen.getByTestId('admin-about-edit-stat-2'));
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-aboutStatUsers'));
     await screen.findByRole('dialog');
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
     // The selection state is CLEARED — a reopen mounts a fresh form.
-    fireEvent.click(screen.getByTestId('admin-about-edit-stat-2'));
+    fireEvent.click(screen.getByTestId('admin-about-edit-stat-aboutStatUsers'));
     const reopened = await screen.findByRole('dialog');
     expect(within(reopened).getByLabelText('aboutStatUsers · EN')).toHaveValue(
-      seed.stats.aboutStatUsers.en
+      seed.stats.aboutStatUsers?.en
     );
     expect(persistSpy).not.toHaveBeenCalled();
   });
@@ -301,6 +339,282 @@ describe('AboutEditorList: field edit modal (WU-4, R-3)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(persistSpy).not.toHaveBeenCalled();
     expect(updateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('AboutEditorList: add row (WU-12, R-2)', () => {
+  /** Open the add modal (the header trigger). */
+  const openAdd = async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutAddRow' }));
+    return screen.findByRole('dialog');
+  };
+
+  it('the «Добавить строку» trigger lives in the header, never in a table cell', () => {
+    renderList();
+
+    const add = screen.getByRole('button', { name: 'adminAboutAddRow' });
+    const reset = screen.getByRole('button', { name: 'aboutReset' });
+    expect(add.closest('td')).toBeNull();
+    expect(reset.closest('td')).toBeNull();
+    // Document order: the add trigger comes BEFORE Reset in the header.
+    expect((add.compareDocumentPosition(reset) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(
+      true
+    );
+  });
+
+  it('the add modal names the dialog and offers description+stat (no cta while it exists)', async () => {
+    renderList();
+
+    const modal = await openAdd();
+
+    expect(
+      within(modal).getByRole('heading', { level: 2, name: 'adminAboutAddRowTitle' })
+    ).toBeInTheDocument();
+    const options = within(modal).getAllByRole('option');
+    expect(options.map((option) => option.textContent)).toEqual([
+      'adminAboutRowKindDescription',
+      'adminAboutRowKindStat',
+    ]);
+  });
+
+  it('pristine Save is disabled', async () => {
+    renderList();
+
+    const modal = await openAdd();
+
+    expect(within(modal).getByRole('button', { name: 'aboutSave' })).toBeDisabled();
+  });
+
+  it('adding a description appends the row, persists BEFORE dispatch and toasts', async () => {
+    renderList();
+
+    const modal = await openAdd();
+    // The auto-label carries the 1-based index (N = length + 1).
+    fireEvent.change(within(modal).getByLabelText('aboutFieldDescriptions 4 · EN'), {
+      target: { value: 'Fourth pitch' },
+    });
+    fireEvent.change(within(modal).getByLabelText('aboutFieldDescriptions 4 · RU'), {
+      target: { value: 'Четвёртый питч' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0];
+    expect(persisted?.descriptions).toHaveLength(4);
+    expect(persisted?.descriptions[3]).toEqual({ en: 'Fourth pitch', ru: 'Четвёртый питч' });
+    expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
+      updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
+    );
+    expect(addToast).toHaveBeenCalledWith({ message: 'adminAboutRowAdded', type: 'success' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    // The row APPEARED in the vitrina (write-through holder = real store).
+    expect(dataRows()).toHaveLength(9);
+    expect(screen.getByText('aboutFieldDescriptions 4')).toBeInTheDocument();
+    expect(screen.getByText('Fourth pitch')).toBeInTheDocument();
+  });
+
+  it('persist-fail: error toast, NO dispatch, modal stays open with the values', async () => {
+    renderList();
+    persistSpy.mockReturnValueOnce(false);
+
+    const modal = await openAdd();
+    fireEvent.change(within(modal).getByLabelText('aboutFieldDescriptions 4 · EN'), {
+      target: { value: 'Not saved' },
+    });
+    fireEvent.change(within(modal).getByLabelText('aboutFieldDescriptions 4 · RU'), {
+      target: { value: 'Не сохранится' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaveError', type: 'error' })
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(within(modal).getByLabelText('aboutFieldDescriptions 4 · EN')).toHaveValue('Not saved');
+    expect(dataRows()).toHaveLength(8); // the store did NOT move
+  });
+
+  it('a stat add writes stats[key] + statLabels[key] (slug from the EN label)', async () => {
+    renderList();
+
+    const modal = await openAdd();
+    fireEvent.change(within(modal).getByLabelText('adminAboutRowKindLabel'), {
+      target: { value: 'stat' },
+    });
+    fireEvent.change(within(modal).getByLabelText('adminAboutStatLabelEn'), {
+      target: { value: 'Full Stack' },
+    });
+    fireEvent.change(within(modal).getByLabelText('adminAboutStatLabelRu'), {
+      target: { value: 'Фулл-стек' },
+    });
+    fireEvent.change(within(modal).getByLabelText('adminAboutStatValueEn'), {
+      target: { value: '10 years' },
+    });
+    fireEvent.change(within(modal).getByLabelText('adminAboutStatValueRu'), {
+      target: { value: '10 лет' },
+    });
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0];
+    expect(persisted?.stats['full-stack']).toEqual({ en: '10 years', ru: '10 лет' });
+    expect(persisted?.statLabels?.['full-stack']).toEqual({ en: 'Full Stack', ru: 'Фулл-стек' });
+    expect(addToast).toHaveBeenCalledWith({ message: 'adminAboutRowAdded', type: 'success' });
+    // The new row renders with its STORED custom label (language 'en').
+    await waitFor(() => expect(screen.getByText('Full Stack')).toBeInTheDocument());
+    expect(screen.getByText('10 years')).toBeInTheDocument();
+  });
+
+  it('a colliding stat slug surfaces adminAboutKeyExists and never persists', async () => {
+    renderList();
+
+    // Seed the collision: add «Full Stack» once (slug `full-stack`).
+    const first = await openAdd();
+    fireEvent.change(within(first).getByLabelText('adminAboutRowKindLabel'), {
+      target: { value: 'stat' },
+    });
+    fireEvent.change(within(first).getByLabelText('adminAboutStatLabelEn'), {
+      target: { value: 'Full Stack' },
+    });
+    fireEvent.change(within(first).getByLabelText('adminAboutStatLabelRu'), {
+      target: { value: 'Фулл-стек' },
+    });
+    fireEvent.change(within(first).getByLabelText('adminAboutStatValueEn'), {
+      target: { value: '10 years' },
+    });
+    fireEvent.change(within(first).getByLabelText('adminAboutStatValueRu'), {
+      target: { value: '10 лет' },
+    });
+    fireEvent.click(within(first).getByRole('button', { name: 'aboutSave' }));
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+
+    // Reopen: the same EN label must now collide with the stored key.
+    const second = await openAdd();
+    fireEvent.change(within(second).getByLabelText('adminAboutRowKindLabel'), {
+      target: { value: 'stat' },
+    });
+    fireEvent.change(within(second).getByLabelText('adminAboutStatLabelEn'), {
+      target: { value: 'Full Stack' },
+    });
+    fireEvent.change(within(second).getByLabelText('adminAboutStatLabelRu'), {
+      target: { value: 'Другая метка' },
+    });
+    fireEvent.change(within(second).getByLabelText('adminAboutStatValueEn'), {
+      target: { value: '5 years' },
+    });
+    fireEvent.change(within(second).getByLabelText('adminAboutStatValueRu'), {
+      target: { value: '5 лет' },
+    });
+    fireEvent.click(within(second).getByRole('button', { name: 'aboutSave' }));
+
+    expect(await within(second).findByRole('alert')).toHaveTextContent('adminAboutKeyExists');
+    expect(persistSpy).toHaveBeenCalledTimes(1); // only the first add
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('the cta option appears once the CTA row was deleted', async () => {
+    renderList();
+
+    // Delete the CTA row first (WU-12 delete path).
+    fireEvent.click(screen.getByTestId('admin-about-delete-ctaLabel'));
+    const confirm = await screen.findByRole('dialog');
+    fireEvent.click(within(confirm).getByRole('button', { name: 'adminAboutDeleteRow' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    const modal = await openAdd();
+    const options = within(modal).getAllByRole('option');
+    expect(options.map((option) => option.textContent)).toContain('adminAboutRowKindCta');
+  });
+});
+
+describe('AboutEditorList: delete row (WU-12, R-3)', () => {
+  /** Open the Trash2 confirm for a row; returns the dialog element. */
+  const openDelete = async (field: string) => {
+    fireEvent.click(screen.getByTestId(`admin-about-delete-${field}`));
+    return screen.findByRole('dialog');
+  };
+
+  it('deleting a description: subtitle names the row, focus on «Отмена», row removed', async () => {
+    renderList();
+
+    const modal = await openDelete('description-0');
+    expect(
+      within(modal).getByText('adminAboutDeleteRowName:aboutFieldDescriptions 1')
+    ).toBeInTheDocument();
+    // Opening is not acting yet.
+    expect(persistSpy).not.toHaveBeenCalled();
+    const cancel = within(modal).getByRole('button', { name: 'aboutCancel' });
+    await waitFor(() => expect(document.activeElement).toBe(cancel));
+
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminAboutDeleteRow' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0];
+    expect(persisted?.descriptions).toHaveLength(2);
+    expect(persisted?.descriptions[0]).toEqual(seed.descriptions[1]);
+    expect(persistSpy.mock.invocationCallOrder[0] ?? Number.NaN).toBeLessThan(
+      updateSpy.mock.invocationCallOrder[0] ?? Number.NaN
+    );
+    expect(addToast).toHaveBeenCalledWith({ message: 'adminAboutRowDeleted', type: 'success' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    // The row is GONE from the vitrina (7 rows left).
+    expect(dataRows()).toHaveLength(7);
+  });
+
+  it('deleting a stat removes stats[key] (addressed by key, not position)', async () => {
+    renderList();
+
+    const modal = await openDelete('stat-aboutStatYears');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminAboutDeleteRow' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0];
+    expect(persisted?.stats['aboutStatYears']).toBeUndefined();
+    expect(Object.keys(persisted?.stats ?? {})).toHaveLength(3);
+    // The other stats keep their values.
+    expect(persisted?.stats.aboutStatProjects).toEqual(seed.stats.aboutStatProjects);
+    await waitFor(() => expect(dataRows()).toHaveLength(7));
+    expect(screen.queryByText('aboutStatYears')).not.toBeInTheDocument();
+  });
+
+  it('deleting the CTA row sets ctaLabel to null and removes the row', async () => {
+    renderList();
+
+    const modal = await openDelete('ctaLabel');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminAboutDeleteRow' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    expect(persistSpy.mock.calls[0]?.[0]?.ctaLabel).toBeNull();
+    await waitFor(() => expect(dataRows()).toHaveLength(7));
+    expect(screen.queryByText('aboutFieldCta')).not.toBeInTheDocument();
+  });
+
+  it('persist-fail: error toast, the confirm stays OPEN, document unchanged', async () => {
+    renderList();
+    persistSpy.mockReturnValueOnce(false);
+
+    const modal = await openDelete('description-0');
+    fireEvent.click(within(modal).getByRole('button', { name: 'adminAboutDeleteRow' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaveError', type: 'error' })
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(dataRows()).toHaveLength(8);
+  });
+
+  it('«Отмена» closes the confirm without any action', async () => {
+    renderList();
+
+    const modal = await openDelete('description-1');
+    fireEvent.click(within(modal).getByRole('button', { name: 'aboutCancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(persistSpy).not.toHaveBeenCalled();
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(dataRows()).toHaveLength(8);
   });
 });
 
@@ -389,8 +703,7 @@ describe('AboutEditorList: reset confirm (R-4, kit Modal)', () => {
       resetSpy.mock.invocationCallOrder[0] ?? Number.NaN
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    // The vitrina still renders the 8 fixed rows (the contract has no rows
-    // to remove — reset restores the SEED document).
+    // Reset restores the SEED document — the 8 default rows render again.
     expect(dataRows()).toHaveLength(8);
   });
 });

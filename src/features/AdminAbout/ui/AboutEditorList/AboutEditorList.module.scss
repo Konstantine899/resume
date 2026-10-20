@@ -22,7 +22,7 @@
   gap: $spacing-4;
 }
 
-// Header: h2 + hint on the left, the Reset confirm trigger on the right.
+// Header: h2 + hint on the left, the add/Reset triggers on the right.
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -35,6 +35,16 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
+}
+
+// WU-12 (R-2): «Добавить строку» + «Сбросить» grouped on the header's
+
+// right — wrapping on narrow viewports (header-level, not a table cell).
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
 }
 
 // WU-5: the fullName scalar block — Contact email-row parity (Input +

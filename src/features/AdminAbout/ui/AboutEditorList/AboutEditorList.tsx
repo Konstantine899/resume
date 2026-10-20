@@ -1,22 +1,32 @@
 // ============================================
 // AboutEditorList — admin vitrina for the About document
-// (admin-about-table WU-3, SPEC R-1/R-4/R-5)
+// (admin-about-table WU-3 + WU-12 amendment, SPEC R-1/R-2/R-3/R-4/R-5)
 // ============================================
 //
 // The inline RHF form is gone (OPEN-1 = а): every editable field is a
 // TABLE ROW — [Поле | EN | RU | Действия] — exactly like the Contact
-// (#283/#286), Jobs (#225) and MyWork vitrinas. The document contract is
-// FIXED (3 descriptions + 4 stats + ctaLabel): rows are edited, never
-// added or removed (honest data).
+// (#283/#286), Jobs (#225) and MyWork vitrinas. Contract v2 (WU-12): rows
+// are built from the ACTUAL document — all descriptions (addressed by
+// index), every `stats` record entry (addressed BY KEY, never by a
+// positional index), the CTA row while `ctaLabel` is not null — and the
+// admin ADDS/REMOVES rows (R-2/R-3):
+// - «Добавить строку» lives in the header next to «Сбросить» and opens a
+//   kit Modal with AboutRowAddForm (kind Select → per-kind fields →
+//   persist-THEN-dispatch behind `onAdd`; a failed write keeps the modal
+//   open — R-2);
+// - every row's Trash2 opens a confirm Modal (subtitle names the row,
+//   focus starts on «Отмена» — `useConfirmAction`) and removes the row
+//   via the same seam (R-3); the LAST row is deletable — the vitrina
+//   tolerates empty blocks (honest data).
 //
 // Invariants:
-// - persist happens BEFORE dispatch (R-3): a failed write must never
-//   leave the store ahead of storage; on failure the toast is an error
-//   and nothing dispatches.
+// - persist happens BEFORE dispatch (R-2/R-3/R-4): a failed write must
+//   never leave the store ahead of storage; on failure the toast is an
+//   error and nothing dispatches.
 // - Reset stays the admin-about-refactor R-1 kit-Modal-confirm (subtitle
-//   names the entity, focus starts on «Отмена»); WU-7 (OPEN-4): the state
-//   machine is `useConfirmAction` (issue #302 — MyWork/Jobs/Contact
-//   parity), the Modal JSX stays here (feature-scoped i18n copy).
+//   names the entity, focus starts on «Отмена»); the state machine is
+//   `useConfirmAction` (MyWork/Jobs/Contact parity), the Modal JSX stays
+//   here (feature-scoped i18n copy).
 // - WU-4 (R-3): a row Pencil opens the field-scoped AboutFieldEditForm
 //   in a kit Modal owned HERE (page-owned-dialog parity with AdminJobs
 //   #227): `editingField` is the single selection state, `key=field`
@@ -42,29 +52,36 @@ import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { selectAboutContent } from '../../model/selectors';
 import { removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
 import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
+import { AboutRowAddForm } from '../AboutRowAddForm/AboutRowAddForm';
 import {
-  STAT_KEYS,
   aboutFieldSchema,
   descriptionIndexOf,
-  statIndexOf,
+  statKeyOf,
+  statRowLabel,
   type AboutFieldValue,
+  type AboutRowField,
+  type AboutRowPayload,
   type EditAboutField,
 } from './lib/fieldSchemas';
-import { persistMergedAboutField } from './lib/saveAboutField';
+import {
+  persistAddedAboutRow,
+  persistMergedAboutField,
+  persistRemovedAboutRow,
+} from './lib/saveAboutField';
 import styles from './AboutEditorList.module.scss';
 
 /**
  * Every vitrina row is a two-locale field; `fullName` is a scalar and
  * gets its own WU-5 block, so it is NOT a table row (SPEC R-2).
  */
-type VitrinaField = Exclude<EditAboutField, 'fullName'>;
+type VitrinaField = AboutRowField;
 
 /** One vitrina row: translated label + the field's EN/RU values. */
 interface AboutTableRow {
@@ -86,7 +103,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   // Same-feature selector + dispatch — legal inside AdminAbout (§8).
   const content = useSelector(selectAboutContent);
   const dispatch = useDispatch();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { addToast } = useToast();
 
   // R-4 / WU-7 (OPEN-4): destructive confirm — `useConfirmAction` owns
@@ -111,12 +128,41 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     },
   });
 
+  // WU-12 (R-3): delete-row confirm — the pending item IS the row
+  // ADDRESS (description index / stat key / ctaLabel), so the very same
+  // `withRemovedRow` seam removes exactly the confirmed row. A persist
+  // failure returns false → the modal stays open for a retry (R-3).
+  const {
+    pending: deletingField,
+    confirming: deleting,
+    cancelRef: cancelDeleteRef,
+    request: requestDelete,
+    cancel: closeDeleteConfirm,
+    confirm: handleConfirmDelete,
+  } = useConfirmAction<AboutRowField>({
+    onConfirm: (field) => {
+      const merged = persistRemovedAboutRow(content, field);
+      if (merged === null) {
+        addToast({ message: t('aboutSaveError'), type: 'error' });
+        return false; // store unchanged; the confirm stays open (R-3)
+      }
+      dispatch(updateAboutContent(merged));
+      addToast({ message: t('adminAboutRowDeleted'), type: 'success' });
+      return true;
+    },
+  });
+
   // WU-4 (R-3): the field-scoped edit selection — null = closed. The
   // overlay of an open modal blocks Reset, so the two dialogs never
   // coexist (AdminJobs #227 page-owned-dialog parity).
   const [editingField, setEditingField] = useState<EditAboutField | null>(null);
+  // WU-12 (R-2): the add-row modal flag — AboutRowAddForm remounts on
+  // every open (the kit Modal unmounts its children when closed), so a
+  // fresh pristine form is guaranteed without an extra key.
+  const [adding, setAdding] = useState(false);
 
   const closeFieldModal = () => setEditingField(null);
+  const closeAddModal = () => setAdding(false);
 
   // WU-5 (R-2, OPEN-3): the fullName scalar block — Contact email (D6)
   // precedent: its own draft + mini-pipeline, no whole-document form.
@@ -143,7 +189,9 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     if (field.startsWith('description-')) {
       return `${t('aboutFieldDescriptions')} ${descriptionIndexOf(field) + 1}`;
     }
-    return t(STAT_KEYS[statIndexOf(field)]);
+    // Stat rows are addressed BY KEY: known keys translate, custom keys
+    // carry their stored label (D10 — statLabels).
+    return statRowLabel(content, statKeyOf(field), language, (key) => t(key));
   };
 
   /**
@@ -163,10 +211,26 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     return true;
   };
 
-  // 8 rows in document order: 3 descriptions, 4 stats, the CTA label.
-  // Labels reuse the form-era keys; per-row description labels carry the
-  // 1-based index (`aboutFieldDescriptions 1..3`), stats are their own
-  // keys (aboutStatYears …), the CTA is aboutFieldCta.
+  /**
+   * WU-12 (R-2) add seam: persist-THEN-dispatch with the row appended.
+   * `false` keeps AboutRowAddForm mounted (the modal stays open) — the
+   * error toast was already fired here.
+   */
+  const handleAddRow = (payload: AboutRowPayload): boolean => {
+    const merged = persistAddedAboutRow(content, payload);
+    if (merged === null) {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+      return false;
+    }
+    dispatch(updateAboutContent(merged));
+    addToast({ message: t('adminAboutRowAdded'), type: 'success' });
+    return true;
+  };
+
+  // Rows in document order (R-1 v2): every description, every stats
+  // record entry in insertion order (addressed BY KEY — a custom stat is
+  // a first-class row), the CTA row while it is not null. The LAST row
+  // stays deletable — the vitrina tolerates empty blocks (R-3).
   const rows: AboutTableRow[] = [
     ...content.descriptions.map((paragraph, index) => ({
       id: `description-${index}` as VitrinaField,
@@ -174,18 +238,22 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
       en: paragraph.en,
       ru: paragraph.ru,
     })),
-    ...STAT_KEYS.map((key, index) => ({
-      id: `stat-${index}` as VitrinaField,
-      label: t(key),
-      en: content.stats[key].en,
-      ru: content.stats[key].ru,
+    ...Object.keys(content.stats).map((key) => ({
+      id: `stat-${key}` as VitrinaField,
+      label: statRowLabel(content, key, language, (translate) => t(translate)),
+      en: content.stats[key]?.en ?? '',
+      ru: content.stats[key]?.ru ?? '',
     })),
-    {
-      id: 'ctaLabel',
-      label: t('aboutFieldCta'),
-      en: content.ctaLabel.en,
-      ru: content.ctaLabel.ru,
-    },
+    ...(content.ctaLabel !== null
+      ? [
+          {
+            id: 'ctaLabel' as VitrinaField,
+            label: t('aboutFieldCta'),
+            en: content.ctaLabel.en,
+            ru: content.ctaLabel.ru,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -195,9 +263,16 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <Heading level={2}>{t('adminAboutTitle')}</Heading>
           <Paragraph theme="muted">{t('adminAboutHint')}</Paragraph>
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
-          {t('aboutReset')}
-        </Button>
+        {/* WU-12 (R-2): the add trigger lives in the HEADER (never in a
+            table cell) and comes BEFORE Reset in document order. */}
+        <div className={styles.headerActions}>
+          <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)}>
+            {t('adminAboutAddRow')}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
+            {t('aboutReset')}
+          </Button>
+        </div>
       </div>
 
       {/* WU-5 (R-2): fullName is a SCALAR — its own block with an inline
@@ -239,8 +314,9 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           { key: 'en', header: 'EN', render: (row) => row.en },
           { key: 'ru', header: 'RU', render: (row) => row.ru },
           {
-            // R-1: only a Pencil per row — add/remove rows is forbidden
-            // (fixed contract); `.cellActions` keeps the icon row nowrap.
+            // R-2/R-3 (WU-12): a Pencil (field edit) + a Trash2 (delete
+            // confirm) per row — `.cellActions` keeps the icon row nowrap
+            // (resume-table-cell-actions-row).
             key: 'actions',
             header: t('adminAboutTableActions'),
             width: '120px',
@@ -256,6 +332,17 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                     ariaLabel={t('adminAboutEditRow')}
                     data-testid={`admin-about-edit-${row.id}`}
                     onClick={() => setEditingField(row.id)}
+                  />
+                </Tooltip>
+                <Tooltip content={t('adminAboutDeleteRow')} position="top" showDelay={0}>
+                  <IconButton
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                    ariaLabel={t('adminAboutDeleteRow')}
+                    data-testid={`admin-about-delete-${row.id}`}
+                    onClick={() => requestDelete(row.id)}
                   />
                 </Tooltip>
               </div>
@@ -293,6 +380,52 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         }
       >
         {null}
+      </Modal>
+
+      {/* WU-12 (R-3): delete-row confirm — the subtitle names the row
+          ({{name}} = the row label), focus starts on «Отмена», a persist
+          failure keeps this modal open (useConfirmAction keep-open-on-false). */}
+      <Modal
+        isOpen={deletingField !== null}
+        onClose={closeDeleteConfirm}
+        title={t('adminAboutDeleteRow')}
+        subtitle={
+          deletingField !== null
+            ? t('adminAboutDeleteRowName', { name: fieldLabel(deletingField) })
+            : undefined
+        }
+        size="sm"
+        initialFocusRef={cancelDeleteRef}
+        footer={
+          <>
+            <Button
+              ref={cancelDeleteRef}
+              type="button"
+              variant="outline"
+              onClick={closeDeleteConfirm}
+            >
+              {t('aboutCancel')}
+            </Button>
+            <Button type="button" variant="danger" loading={deleting} onClick={handleConfirmDelete}>
+              {t('adminAboutDeleteRow')}
+            </Button>
+          </>
+        }
+      >
+        {null}
+      </Modal>
+
+      {/* WU-12 (R-2): add-row modal — AboutRowAddForm owns the kind Select
+          and the per-kind fields; `onAdd` IS the persist-THEN-dispatch
+          seam (a false return keeps this modal open with the values).
+          The heading names the dialog (aria-dialog-name). */}
+      <Modal isOpen={adding} onClose={closeAddModal} title={t('adminAboutAddRowTitle')} size="md">
+        <AboutRowAddForm
+          document={content}
+          canAddCta={content.ctaLabel === null}
+          onAdd={handleAddRow}
+          onExitAdd={closeAddModal}
+        />
       </Modal>
 
       {/* WU-4 (R-3): field-scoped edit modal — the LIST owns the dialog
