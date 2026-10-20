@@ -1,25 +1,21 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
 epic: admin-about-table
 created: '2026-10-19'
 verified: '2026-10-20'
 ---
 
-# TODO — features/AdminAbout (витрина на kit Table, rev.1)
+# TODO — features/AdminAbout (аменда rev.2: add/delete + Avatar + портрет)
 
-Эпик `admin-about-table` ЗАКРЫТ 2026-10-20 (PR #315): WU-0..9 исполнены и выжжены
-(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
-3882/3882 (public-api 37/37), axe-app 0 регрессий (baseline 4 known), бандл
-840.4 < 841.0 KiB (кап `total.maxSize` поднят 860160 → 861184 по слову владельца
-2026-10-20: measured 860537, +377 B; main/vendor/gzip не тронуты), preview-смоук
-18/18. Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
-`verified: '2026-10-20'`). Вердикт владельца 2026-10-19: OPEN-1=а, OPEN-2=да,
-OPEN-3=да, OPEN-4=да (все закрыты, см. «Решения» SPEC).
+> План к [SPEC.md](./SPEC.md) (approved, директива 2026-10-20). Предыдущая пара WU-0..9 сожжена 2026-10-20 (история в git). Пункты сгорают удалением.
 
-## Решения (вердикт владельца 2026-10-19)
+## WU
 
-- OPEN-1 = (а) — чистый эталон: вся страница = vitrina + модалки, инлайн-форма умирает.
-- OPEN-2 = да — переименование `AboutEditorForm` → `AboutEditorList` (+ баррел, страница, тесты).
-- OPEN-3 = да — `fullName`: отдельный скаляр-блок над таблицей с inline Save.
-- OPEN-4 = да — `useConfirmAction` на Reset-confirm.
+- [ ] **WU-11 Vitrina features/About динамическая** (SCSS НЕ ТРОГАТЬ): map descriptions по факту (дефолт = 3 прежних), статы по record (кастомные → значение, порядок seed сохранён), cta null → скрыта, portrait fallback на статику; тесты дефолтной идентичности DOM + динамических веток; git diff по `features/About/**/*.module.scss` пуст.
+- [ ] **WU-12 (TDD) AdminAbout add/delete**: fieldSchemas для динамических description-N / stat:<key>; add-модалка (Select вида + формы D11, slug-генерация, уникальность); delete с confirm (#286 parity); persist-THEN-dispatch + fail-ветки; строки в документе.
+- [ ] **WU-13 Avatar `portrait`**: тип+маппинг+стиль варианта (shared, без breaking), витрина About → Avatar, stories (+axe-stories --build --filter), тесты валидации пропсов.
+- [ ] **WU-14 Портрет**: FileUpload accept jpg/png (MIME+ext, отказ иначе), saveImageToDir('about'), RTK Query `updateAboutPortrait` (локальный queryFn → свап на Nest.js), превью в админке, витрина читает `content.portrait`; тесты валидации форматов и мутации.
+- [ ] **WU-15 i18n + тесты**: ключи en+ru (add/delete/превью/ошибки формата), parity + existence-guard, page-тест, баррел-пины; мёртвый код после R-1→R-1v2.
+- [ ] **WU-16 Гейты**: validate, check:spec, axe light+dark, bundle (мерить — превышение = стоп), axe-stories, preview-смоук light+dark со скриншотами.
+- [ ] **WU-17 Сдача**: squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.
