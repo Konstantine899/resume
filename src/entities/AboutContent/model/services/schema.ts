@@ -9,10 +9,12 @@
 //   `{ v: 1, content }`; `v` is a migration guard, unknown versions
 //   fall back to the seed (§7).
 //
-// Limits come straight from the plan's validation table (§7):
-// fullName 2–80 after trim; each paragraph locale ≤600; each stat locale
-// ≤60; ctaLabel locale ≤40. Messages are NOT set here — the form maps
-// failures to i18n keys (R-4: no hardcoded text).
+// Limits come straight from the plan's validation table (§7) + SPEC D10
+// (contract v2): fullName 2–80 after trim; each paragraph locale ≤600
+// (0..n paragraphs); stat/label KEYS 1..40 with each locale ≤60;
+// statLabels optional (custom keys only); ctaLabel locale ≤40, nullable
+// (null = deleted row); portrait 1..260, optional. Messages are NOT set
+// here — the form maps failures to i18n keys (R-4: no hardcoded text).
 
 import { z } from 'zod';
 
@@ -25,16 +27,16 @@ const localizedText = (max: number) =>
     ru: z.string().min(1).max(max),
   });
 
+/** Stat record key (stats AND statLabels): non-empty, ≤40 chars (D10). */
+const statKey = z.string().min(1).max(40);
+
 export const AboutContentSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
-  descriptions: z.tuple([localizedText(600), localizedText(600), localizedText(600)]),
-  stats: z.object({
-    aboutStatYears: localizedText(60),
-    aboutStatProjects: localizedText(60),
-    aboutStatUsers: localizedText(60),
-    aboutStatRemote: localizedText(60),
-  }),
-  ctaLabel: localizedText(40),
+  descriptions: z.array(localizedText(600)),
+  stats: z.record(statKey, localizedText(60)),
+  statLabels: z.record(statKey, localizedText(60)).optional(),
+  ctaLabel: localizedText(40).nullable(),
+  portrait: z.string().min(1).max(260).optional(),
 });
 
 /** The exact envelope persisted under `resume.about.content` (§4.1). */

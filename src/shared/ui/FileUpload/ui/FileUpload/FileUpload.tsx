@@ -17,6 +17,7 @@ export function FileUpload({
   texts,
   onFileSelect,
   maxBlobBytes,
+  acceptExtensions,
   disabled,
   className,
 }: FileUploadProps) {
@@ -34,6 +35,7 @@ export function FileUpload({
       onError: () => setAnnounceSuccess(false),
       onSuccess: () => setAnnounceSuccess(true),
       maxBlobBytes,
+      acceptExtensions,
     });
 
   const errorText = errorCode ? texts[errorCode] : undefined;
@@ -65,7 +67,9 @@ export function FileUpload({
           ref={inputRef}
           id={inputId}
           type="file"
-          accept="image/*"
+          // Native picker filter mirrors the JS gate (WU-14): a restricted
+          // consumer gets its extensions; everyone else keeps image/*.
+          accept={acceptExtensions ? acceptExtensions.join(',') : 'image/*'}
           className={styles.input}
           disabled={disabled}
           aria-describedby={describedBy || undefined}

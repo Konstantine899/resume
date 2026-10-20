@@ -8,9 +8,10 @@
 
 // tokens inside the shared inputs — no hardcoded values (plan §8).
 
-// Same structure as AboutEditorForm.module.scss + a toggle row for tech.
+// Same form-layout structure as the other admin forms + a toggle row for tech.
 
 @use '@/shared/styles/variables' as *;
+@use '@/shared/styles/mixins' as *;
 
 .form {
   display: flex;
@@ -30,13 +31,7 @@
 
 // One row = one field in both locales (en | ru), stacked on narrow screens.
 .localeRow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: $spacing-3;
-
-  @media (width < 48rem) {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  @include locale-row;
 }
 
 // Tech toggles: one button per catalog key, aria-pressed reflects state.

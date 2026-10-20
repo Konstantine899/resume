@@ -37,6 +37,13 @@ export interface UseImageDragDropOptions {
   onSuccess: () => void;
   /** Cap for the compressed blob size in bytes. */
   maxBlobBytes?: number;
+  /**
+   * Optional format gate (WU-14): lowercase, dot-prefixed extensions. When
+   * present, a file whose extension OR MIME type falls outside the set is
+   * rejected with `wrongFormat` before the canvas/SVG pipeline runs. Absent
+   * = the historical `image/*`-only behaviour (4 existing consumers).
+   */
+  acceptExtensions?: string[];
 }
 
 export interface UseImageDragDropReturn {
@@ -99,8 +106,46 @@ export function isSafeSvgText(text: string): boolean {
   return !/<script[\s/>]/i.test(text) && !/javascript:/i.test(text);
 }
 
+/**
+ * Canonical MIME types per accepted extension (WU-14). The legacy
+ * `image/jpg` (non-standard; some cameras/Windows report it) is treated as
+ * a synonym of `image/jpeg` so a real JPEG is never rejected on a MIME
+ * technicality. Extensions not listed here have no canonical MIME and pass
+ * on the extension gate alone.
+ */
+const MIME_BY_EXT: Record<string, readonly string[]> = {
+  '.jpg': ['image/jpeg', 'image/jpg'],
+  '.jpeg': ['image/jpeg', 'image/jpg'],
+  '.png': ['image/png'],
+  '.webp': ['image/webp'],
+  '.gif': ['image/gif'],
+};
+
+/**
+ * Format gate (WU-14): true when `file` matches `acceptExtensions` by BOTH
+ * extension and MIME. The extension is lower-cased and dot-prefixed before
+ * comparison; a disallowed extension, a missing extension, or a MIME that
+ * disagrees with a listed extension all return false (spoof guard — the
+ * extension alone is not trusted). Absent `acceptExtensions`, the caller
+ * skips this gate entirely.
+ */
+export function isAcceptedFormat(file: File, acceptExtensions: readonly string[]): boolean {
+  const ext = `.${(file.name.split('.').pop() ?? '').toLowerCase()}`;
+  if (!acceptExtensions.includes(ext)) return false;
+  const allowedMimes = MIME_BY_EXT[ext];
+  // No canonical MIME for this extension — the extension gate alone decides.
+  if (!allowedMimes) return true;
+  return allowedMimes.includes(file.type.toLowerCase());
+}
+
 export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDragDropReturn {
-  const { onFileSelect, onError, onSuccess, maxBlobBytes = DEFAULT_MAX_BLOB_BYTES } = options;
+  const {
+    onFileSelect,
+    onError,
+    onSuccess,
+    maxBlobBytes = DEFAULT_MAX_BLOB_BYTES,
+    acceptExtensions,
+  } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -139,6 +184,16 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
 
       if (!file.type.startsWith('image/')) {
         fail('notImage');
+        return;
+      }
+
+      // WU-14 format gate: when the consumer restricts `acceptExtensions`,
+      // a file whose extension OR MIME falls outside the set is rejected
+      // BEFORE any pipeline work (spoof guard — extension alone is not
+      // trusted, and the raster/SVG branches below never run). Absent the
+      // prop the historical image/* behaviour is untouched.
+      if (acceptExtensions && !isAcceptedFormat(file, acceptExtensions)) {
+        fail('wrongFormat');
         return;
       }
 
@@ -211,7 +266,7 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
       };
       reader.readAsDataURL(file);
     },
-    [fail, maxBlobBytes, onFileSelect, onSuccess, setPreview]
+    [fail, maxBlobBytes, acceptExtensions, onFileSelect, onSuccess, setPreview]
   );
 
   const handleInputChange = useCallback(

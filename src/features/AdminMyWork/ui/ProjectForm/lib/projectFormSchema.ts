@@ -11,7 +11,7 @@
 // never drift from record fields.
 //
 // No zod messages are set (i18n-first): the component maps field errors
-// to i18n keys exactly like AboutEditorForm.
+// to i18n keys exactly like AboutFieldEditForm (AdminAbout).
 
 import { z } from 'zod';
 

@@ -1,0 +1,28 @@
+// ============================================
+
+// AboutRowAddForm — add-row modal layout (admin-about-table WU-12)
+
+// ============================================
+
+// Layout only: the kind Select above the per-kind fields; the Save/Cancel
+
+// row wraps on narrow viewports (ContactRowForm .actions parity).
+
+@use '@/shared/styles/variables' as *;
+
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

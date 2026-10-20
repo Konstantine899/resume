@@ -103,6 +103,24 @@
       }
     }
   }
+
+  // Portrait variant — chrome-less fill-container (D14). Declared LAST so it
+
+  // beats the base border/background above ((0,2,0) > (0,1,0) regardless of
+
+  // cascade order). Deliberately declares NO width/height: the size mixin is
+
+  // skipped by useAvatar and the consumer's layout class owns the box
+
+  // (About's `.stack .portrait`), so equal-specificity width fights cannot
+
+  // happen. `border-radius: 0` is defensive documentation of the contract.
+  &.portrait {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
 }
 
 // Image wrapper fills the Avatar container
