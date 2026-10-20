@@ -3,9 +3,9 @@ import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
+import { Avatar } from '@/shared/ui/Avatar';
 import { Badge } from '@/shared/ui/Badge';
 import { Heading } from '@/shared/ui/Heading';
-import { Image } from '@/shared/ui/Image';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
@@ -123,14 +123,15 @@ export const About: React.FC<AboutFeatureProps> = ({
               </Link>
             )}
           </div>
-          <Image
+          {/* D14: the portrait runs through the kit Avatar portrait variant —
+              transparent/contain/fill mapping lives inside Avatar now. The
+              `.portrait` class stays on the root and owns the box (About.module
+             .scss is intentionally untouched). */}
+          <Avatar
             data-testid="about-portrait"
             src={aboutPortrait}
             alt=""
-            decorative
-            variant="transparent"
-            objectFit="contain"
-            size="full"
+            variant="portrait"
             className={styles.portrait}
           />
         </div>

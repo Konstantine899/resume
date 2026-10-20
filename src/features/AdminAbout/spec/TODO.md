@@ -12,7 +12,6 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-13 Avatar `portrait`**: тип+маппинг+стиль варианта (shared, без breaking), витрина About → Avatar, stories (+axe-stories --build --filter), тесты валидации пропсов.
 - [ ] **WU-14 Портрет**: FileUpload accept jpg/png (MIME+ext, отказ иначе), saveImageToDir('about'), RTK Query `updateAboutPortrait` (локальный queryFn → свап на Nest.js), превью в админке, витрина читает `content.portrait`; тесты валидации форматов и мутации.
 - [ ] **WU-15 i18n + тесты**: ключи en+ru (add/delete/превью/ошибки формата), parity + existence-guard, page-тест, баррел-пины; мёртвый код после R-1→R-1v2.
 - [ ] **WU-16 Гейты**: validate, check:spec, axe light+dark, bundle (мерить — превышение = стоп), axe-stories, preview-смоук light+dark со скриншотами.

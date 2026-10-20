@@ -18,12 +18,16 @@ vi.mock('@/shared/ui/Image', () => ({
   Image: ({
     'data-testid': dataTestId,
     variant,
+    objectFit,
+    size,
     className,
     src,
     alt,
   }: {
     'data-testid'?: string;
     variant?: string;
+    objectFit?: string;
+    size?: string;
     className?: string;
     src?: string;
     alt?: string;
@@ -32,6 +36,8 @@ vi.mock('@/shared/ui/Image', () => ({
       data-testid={dataTestId ?? 'mock-image'}
       data-mock="image"
       data-variant={variant}
+      data-object-fit={objectFit}
+      data-size={size}
       data-src={src}
       data-alt={alt}
       className={className}
@@ -61,13 +67,18 @@ describe('About: Link CTA integration', () => {
     expect(accent).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('renders the portrait with the transparent Image variant after the panel in the DOM', () => {
+  it('renders the portrait via the Avatar portrait variant after the panel in the DOM', () => {
     render(<About />);
 
     const panel = screen.getByTestId('about-panel');
     const portrait = screen.getByTestId('about-portrait');
-    expect(portrait).toBeInTheDocument();
-    expect(portrait).toHaveAttribute('data-variant', 'transparent');
+    expect(portrait).toHaveAttribute('data-variant', 'portrait');
+    // D14: inside Avatar the inner Image keeps the transparent/contain/full
+    // mapping that the vitrina used to spell out by hand.
+    const image = screen.getByTestId('mock-image');
+    expect(image).toHaveAttribute('data-variant', 'transparent');
+    expect(image).toHaveAttribute('data-object-fit', 'contain');
+    expect(image).toHaveAttribute('data-size', 'full');
     // Portrait must come AFTER the panel so z-index paints it over the panel.
     expect(panel.compareDocumentPosition(portrait) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
