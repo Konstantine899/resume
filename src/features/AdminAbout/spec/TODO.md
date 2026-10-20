@@ -12,7 +12,6 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-11 Vitrina features/About динамическая** (SCSS НЕ ТРОГАТЬ): map descriptions по факту (дефолт = 3 прежних), статы по record (кастомные → значение, порядок seed сохранён), cta null → скрыта, portrait fallback на статику; тесты дефолтной идентичности DOM + динамических веток; git diff по `features/About/**/*.module.scss` пуст.
 - [ ] **WU-12 (TDD) AdminAbout add/delete**: fieldSchemas для динамических description-N / stat:<key>; add-модалка (Select вида + формы D11, slug-генерация, уникальность); delete с confirm (#286 parity); persist-THEN-dispatch + fail-ветки; строки в документе.
 - [ ] **WU-13 Avatar `portrait`**: тип+маппинг+стиль варианта (shared, без breaking), витрина About → Avatar, stories (+axe-stories --build --filter), тесты валидации пропсов.
 - [ ] **WU-14 Портрет**: FileUpload accept jpg/png (MIME+ext, отказ иначе), saveImageToDir('about'), RTK Query `updateAboutPortrait` (локальный queryFn → свап на Nest.js), превью в админке, витрина читает `content.portrait`; тесты валидации форматов и мутации.

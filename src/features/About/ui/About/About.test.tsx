@@ -185,3 +185,68 @@ describe('About: store-content branch (WU-4)', () => {
     expect(screen.queryByText('getInTouch')).toBeNull();
   });
 });
+
+// WU-11: the dynamic vitrina branches of contract v2 (SPEC D13). The cases
+// above pin the default (no prop) DOM identity; these pin the add/delete
+// shaped content: extra paragraph, removed stat, hidden CTA, empty array.
+describe('About: dynamic content branches (WU-11)', () => {
+  const baseContent: AboutContent = {
+    fullName: 'Dynamic Full Name',
+    descriptions: [
+      { en: 'p1 en', ru: 'DYNAMIC_P1_RU' },
+      { en: 'p2 en', ru: 'DYNAMIC_P2_RU' },
+      { en: 'p3 en', ru: 'DYNAMIC_P3_RU' },
+    ],
+    stats: {
+      aboutStatYears: { en: '5+ years', ru: 'DYNAMIC_YEARS_RU' },
+    },
+    ctaLabel: { en: 'custom cta', ru: 'DYNAMIC_CTA_RU' },
+  };
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders a 4th paragraph added by the admin', () => {
+    const content: AboutContent = {
+      ...baseContent,
+      descriptions: [...baseContent.descriptions, { en: 'p4 en', ru: 'DYNAMIC_P4_RU' }],
+    };
+
+    render(<About content={content} />);
+
+    expect(screen.getByText('DYNAMIC_P4_RU')).toBeInTheDocument();
+    expect(screen.getByText('DYNAMIC_P1_RU')).toBeInTheDocument();
+  });
+
+  it('hides a stat record the admin deleted', () => {
+    render(<About content={baseContent} />);
+
+    const stats = screen.getByTestId('about-stats');
+    expect(within(stats).getByText('DYNAMIC_YEARS_RU')).toBeInTheDocument();
+    // aboutStatProjects/aboutStatUsers/aboutStatRemote were removed → absent.
+    expect(within(stats).queryByText('DYNAMIC_PROJECTS_RU')).toBeNull();
+    expect(within(stats).queryByText('aboutStatProjects')).toBeNull();
+    expect(within(stats).queryByText('aboutStatUsers')).toBeNull();
+    expect(within(stats).queryByText('aboutStatRemote')).toBeNull();
+  });
+
+  it('hides the CTA link when ctaLabel is null', () => {
+    const content: AboutContent = { ...baseContent, ctaLabel: null };
+
+    render(<About content={content} />);
+
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.queryByText('getInTouch')).toBeNull();
+  });
+
+  it('does not throw on an empty descriptions array', () => {
+    const content: AboutContent = { ...baseContent, descriptions: [] };
+
+    expect(() => render(<About content={content} />)).not.toThrow();
+    expect(screen.getByTestId('about-panel')).toBeInTheDocument();
+    expect(screen.queryByText('DYNAMIC_P1_RU')).toBeNull();
+    // The block renders empty — no hardcoded fallback paragraphs leak in.
+    expect(screen.queryByText('aboutDescription')).toBeNull();
+  });
+});
