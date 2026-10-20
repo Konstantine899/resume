@@ -200,20 +200,21 @@ describe('About: store-content branch (WU-4)', () => {
 // WU-11: the dynamic vitrina branches of contract v2 (SPEC D13). The cases
 // above pin the default (no prop) DOM identity; these pin the add/delete
 // shaped content: extra paragraph, removed stat, hidden CTA, empty array.
-describe('About: dynamic content branches (WU-11)', () => {
-  const baseContent: AboutContent = {
-    fullName: 'Dynamic Full Name',
-    descriptions: [
-      { en: 'p1 en', ru: 'DYNAMIC_P1_RU' },
-      { en: 'p2 en', ru: 'DYNAMIC_P2_RU' },
-      { en: 'p3 en', ru: 'DYNAMIC_P3_RU' },
-    ],
-    stats: {
-      aboutStatYears: { en: '5+ years', ru: 'DYNAMIC_YEARS_RU' },
-    },
-    ctaLabel: { en: 'custom cta', ru: 'DYNAMIC_CTA_RU' },
-  };
+// Module scope (WU-14): the portrait suite below reuses the SAME fixture.
+const baseContent: AboutContent = {
+  fullName: 'Dynamic Full Name',
+  descriptions: [
+    { en: 'p1 en', ru: 'DYNAMIC_P1_RU' },
+    { en: 'p2 en', ru: 'DYNAMIC_P2_RU' },
+    { en: 'p3 en', ru: 'DYNAMIC_P3_RU' },
+  ],
+  stats: {
+    aboutStatYears: { en: '5+ years', ru: 'DYNAMIC_YEARS_RU' },
+  },
+  ctaLabel: { en: 'custom cta', ru: 'DYNAMIC_CTA_RU' },
+};
 
+describe('About: dynamic content branches (WU-11)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -259,5 +260,34 @@ describe('About: dynamic content branches (WU-11)', () => {
     expect(screen.queryByText('DYNAMIC_P1_RU')).toBeNull();
     // The block renders empty — no hardcoded fallback paragraphs leak in.
     expect(screen.queryByText('aboutDescription')).toBeNull();
+  });
+});
+
+// WU-14 (SPEC D16): the portrait follows the SAME store-prop contract as the
+// other fields — `content.portrait` overrides the static asset, and the
+// fallback (no prop, or content without a portrait) keeps the bundled image.
+describe('About: portrait source (WU-14, D16)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('uses content.portrait as the image src when it is set', () => {
+    const content: AboutContent = { ...baseContent, portrait: '/images/about/me.png' };
+
+    render(<About content={content} />);
+
+    // The inner Image (mocked) carries the src; the Avatar maps it through.
+    expect(screen.getByTestId('mock-image')).toHaveAttribute('data-src', '/images/about/me.png');
+    expect(screen.getByTestId('about-portrait')).toHaveAttribute('data-variant', 'portrait');
+  });
+
+  it('falls back to the static bundled portrait when content has no portrait', () => {
+    render(<About content={baseContent} />);
+
+    const image = screen.getByTestId('mock-image');
+    const src = image.getAttribute('data-src') ?? '';
+    expect(src).not.toBe('/images/about/me.png');
+    // The bundled static asset (not an admin path) is used.
+    expect(src).toMatch(/\.webp$/);
   });
 });

@@ -40,11 +40,16 @@
 
 import { useState } from 'react';
 
+import type { AboutContent } from '@/entities/AboutContent';
+import { apiSlice } from '@/shared/api';
+import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { Avatar } from '@/shared/ui/Avatar';
 import { Button, IconButton } from '@/shared/ui/Button';
+import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
@@ -52,12 +57,14 @@ import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Table } from '@/shared/ui/Table';
 import { Tooltip } from '@/shared/ui/Tooltip';
+import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { selectAboutContent } from '../../model/selectors';
-import { removeAboutContent } from '../../model/services/storage';
+import { persistAboutContent, removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
+import type { AboutContentRootState } from '../../model/types/types';
 import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
 import { AboutRowAddForm } from '../AboutRowAddForm/AboutRowAddForm';
 import {
@@ -75,6 +82,11 @@ import {
   persistMergedAboutField,
   persistRemovedAboutRow,
 } from './lib/saveAboutField';
+import {
+  uploadPortrait,
+  type PortraitUploadFailure,
+  type UploadedPortrait,
+} from './lib/uploadPortrait';
 import styles from './AboutEditorList.module.scss';
 
 /**
@@ -101,8 +113,11 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   'data-testid': testId = 'about-editor-list',
 }) => {
   // Same-feature selector + dispatch — legal inside AdminAbout (§8).
+  // WU-14: typed as ThunkDispatch so the RTK Query mutation thunk
+  // (`apiSlice.endpoints…initiate()`, core-subpath — no hooks) is a legal
+  // dispatch argument alongside the plain slice actions.
   const content = useSelector(selectAboutContent);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<AboutContentRootState, unknown, UnknownAction>>();
   const { t, language } = useLanguage();
   const { addToast } = useToast();
 
@@ -227,6 +242,63 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     return true;
   };
 
+  /**
+   * WU-14 (R-7, D15): portrait upload — TWO phases, both storage-agnostic
+   * from the form's point of view:
+   * 1. `uploadPortrait(file)` writes the FILE (shared imageDir seam, root
+   *    pick/remember inside) and stages `{ name, path }` — nothing in the
+   *    document moves yet;
+   * 2. Save runs the RTK Query mutation ONLY (`updateAboutPortrait.initiate`
+   *    — the localStorage write lives inside the mutation's queryFn behind
+   *    the injected `persist` seam; swap-point to Nest.js documented on the
+   *    endpoint). A rejected `.unwrap()` toasts and leaves the store AND the
+   *    document untouched (persist-THEN-dispatch).
+   */
+  const [stagedPortrait, setStagedPortrait] = useState<UploadedPortrait | null>(null);
+  const [portraitError, setPortraitError] = useState<PortraitUploadFailure | null>(null);
+  const [savingPortrait, setSavingPortrait] = useState(false);
+
+  const handlePortraitFile = async (file: FileUploadSelection): Promise<void> => {
+    setPortraitError(null);
+    const outcome = await uploadPortrait(file);
+    if (!outcome.ok) {
+      // `aborted` = the user dismissed the picker — silence by design.
+      if (outcome.reason !== 'aborted') setPortraitError(outcome.reason);
+      return;
+    }
+    setStagedPortrait(outcome.file);
+  };
+
+  const clearStagedPortrait = () => {
+    setStagedPortrait(null);
+    setPortraitError(null);
+  };
+
+  const handleSavePortrait = async (): Promise<void> => {
+    if (stagedPortrait === null || savingPortrait) return;
+    setSavingPortrait(true);
+    const merged: AboutContent = { ...content, portrait: stagedPortrait.path };
+    try {
+      await dispatch(
+        apiSlice.endpoints.updateAboutPortrait.initiate({
+          content: merged,
+          // shared cannot know AboutContent (FSD) — the seam parameter is
+          // `unknown`, down-cast to the contract this feature owns. Passing
+          // `persistAboutContent` directly fails strict contravariance.
+          persist: (doc) => persistAboutContent(doc as AboutContent),
+        })
+      ).unwrap();
+    } catch {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+      return; // store unchanged; the staged file stays for a retry
+    } finally {
+      setSavingPortrait(false);
+    }
+    dispatch(updateAboutContent(merged));
+    setStagedPortrait(null);
+    addToast({ message: t('aboutSaved'), type: 'success' });
+  };
+
   // Rows in document order (R-1 v2): every description, every stats
   // record entry in insertion order (addressed BY KEY — a custom stat is
   // a first-class row), the CTA row while it is not null. The LAST row
@@ -298,6 +370,72 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         >
           {t('aboutSave')}
         </Button>
+      </div>
+
+      {/* WU-14 (R-7): portrait block — sits with the fullName scalar block
+          (the header is button-only). The Avatar preview shows the SAVED
+          state with the SAME D14 variant as the showcase (static asset
+          fallback while the document has no portrait); the kit FileUpload
+          gates .jpg/.png by BOTH extension and MIME (`acceptExtensions`,
+          `adminAboutPortraitFormat` otherwise) and previews the staged pick
+          itself. Save is staged-only: file written first, then the RTK
+          Query mutation persists the document, then the dispatch. */}
+      <div className={styles.portraitRow} data-testid="admin-about-portrait">
+        {/* The D14 portrait variant is deliberately SIZE-LESS (no
+            width/height — the consumer's class owns the box, exactly like
+            About.module.scss `.portrait`), so the preview box class rides
+            the Avatar itself. */}
+        <Avatar
+          data-testid="admin-about-portrait-preview"
+          src={content.portrait ?? aboutPortrait}
+          alt={t('adminAboutPortraitPreview')}
+          variant="portrait"
+          className={styles.portraitPreview}
+        />
+        <div className={styles.portraitUpload}>
+          <FileUpload
+            label={t('adminAboutPortraitLabel')}
+            acceptExtensions={['.jpg', '.png']}
+            texts={{
+              button: t('adminAboutPortraitButton'),
+              hint: t('adminAboutPortraitHint'),
+              notImage: t('adminAboutPortraitNotImage'),
+              tooLarge: t('adminAboutPortraitTooLarge'),
+              undecodable: t('adminAboutPortraitUndecodable'),
+              wrongFormat: t('adminAboutPortraitFormat'),
+              selected: t('adminAboutPortraitSelected'),
+            }}
+            onFileSelect={handlePortraitFile}
+          />
+          {/* Static keys on purpose — the existence guard scans t('…')
+              literals; a dynamic t(errorKey) would go unguarded. */}
+          {portraitError === 'unsupported' ? (
+            <Paragraph asChild theme="error" size="s">
+              <span role="alert">{t('adminAboutPortraitUnsupported')}</span>
+            </Paragraph>
+          ) : null}
+          {portraitError === 'write-failed' ? (
+            <Paragraph asChild theme="error" size="s">
+              <span role="alert">{t('adminAboutPortraitSaveError')}</span>
+            </Paragraph>
+          ) : null}
+          <div className={styles.portraitActions}>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={stagedPortrait === null}
+              loading={savingPortrait}
+              onClick={handleSavePortrait}
+            >
+              {t('adminAboutPortraitSave')}
+            </Button>
+            {stagedPortrait !== null ? (
+              <Button type="button" variant="outline" onClick={clearStagedPortrait}>
+                {t('aboutCancel')}
+              </Button>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <Table<AboutTableRow>

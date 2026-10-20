@@ -98,6 +98,36 @@ vi.mock('react-redux', async (importOriginal) => {
   };
 });
 
+// WU-14 (R-7): BOTH seams are spied at the module boundary — the mutation
+// (the file's react-redux mock has no api middleware, so `initiate` is
+// faked and `.unwrap()` is the branch under test) and the file write (the
+// real File-System-Access root must never run in tests).
+const { initiateSpy, saveUploadedImage, directoryPickerSupported } = vi.hoisted(() => ({
+  initiateSpy: vi.fn<
+    (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
+      unwrap: () => Promise<{ document: unknown }>;
+    }
+  >(),
+  saveUploadedImage: vi.fn(async () => '/images/about/portrait.png'),
+  directoryPickerSupported: vi.fn(() => true),
+}));
+
+vi.mock('@/shared/api', () => ({
+  apiSlice: { endpoints: { updateAboutPortrait: { initiate: initiateSpy } } },
+}));
+
+vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
+  saveUploadedImage,
+  isDirectoryPickerSupported: directoryPickerSupported,
+}));
+
+// The Avatar preview is asserted by SRC — the real kit Image keeps it out
+// of the DOM (About.test WU-13 recipe).
+vi.mock('@/shared/ui/Image', () => ({
+  Image: ({ src }: { src?: string }) => <div data-testid="mock-image" data-src={src ?? ''} />,
+}));
+
 const confirmSpy = vi.spyOn(window, 'confirm');
 
 const seed = createAboutSeed();
@@ -768,5 +798,205 @@ describe('AboutEditorList: fullName scalar block (WU-5, R-2)', () => {
     );
     expect(updateSpy).not.toHaveBeenCalled();
     expect(screen.getByLabelText('aboutFieldFullName')).toHaveValue('Retry Me');
+  });
+});
+
+// ============================================
+// WU-14 portrait upload block (SPEC R-7 / D15 / D16)
+// ============================================
+//
+// Two phases are pinned separately: the FILE write (abstract
+// `uploadPortrait` op → { name, path }, subdir `about`) and the DOCUMENT
+// mutation (RTK Query `updateAboutPortrait` only — the storage seam rides
+// the arg, persist-THEN-dispatch). The REAL kit FileUpload runs, so the
+// jsdom pipeline gets the FileUpload.test stubs (no image decoding, canvas
+// backend or object URLs in jsdom); URL is stubbed via `class extends URL`
+// — `Object.create(URL)` breaks zod v4's `new URL` (resume-*)).
+describe('AboutEditorList: portrait upload (WU-14, R-7)', () => {
+  /** jsdom never decodes pixels — controllable Image stand-in. */
+  class FakeImage {
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    naturalWidth = 1200;
+    naturalHeight = 1600;
+    set src(_value: string) {
+      setTimeout(() => this.onload?.(), 0);
+    }
+  }
+
+  /** Object URLs are absent in jsdom; subclassing keeps `new URL()` alive. */
+  class FakeURL extends URL {
+    static createObjectURL = () => 'blob:preview';
+    static revokeObjectURL = () => undefined;
+  }
+
+  const portraitBlock = () => screen.getByTestId('admin-about-portrait');
+  const savePortraitButton = () =>
+    within(portraitBlock()).getByRole('button', { name: 'adminAboutPortraitSave' });
+  const fileInput = () => portraitBlock().querySelector('input[type="file"]') as HTMLInputElement;
+  const stageFile = (file: File) => {
+    fireEvent.change(fileInput(), { target: { files: [file] } });
+  };
+
+  beforeEach(() => {
+    vi.stubGlobal('Image', FakeImage);
+    vi.stubGlobal('URL', FakeURL);
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage: vi.fn(),
+    } as unknown as ReturnType<HTMLCanvasElement['getContext']>);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+      callback: BlobCallback
+    ) {
+      callback(new Blob(['compressed'], { type: 'image/webp' }));
+    });
+    // Defaults for the two spied seams; tests override per branch.
+    initiateSpy.mockImplementation(() => ({ unwrap: () => Promise.resolve({ document: {} }) }));
+    saveUploadedImage.mockResolvedValue('/images/about/portrait.png');
+    directoryPickerSupported.mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('wires the native picker to .jpg/.png and rejects other formats with adminAboutPortraitFormat', async () => {
+    renderList();
+
+    expect(fileInput()).toHaveAttribute('accept', '.jpg,.png');
+    stageFile(new File(['x'], 'shot.webp', { type: 'image/webp' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
+    // Rejected BEFORE any pipeline/storage work — nothing staged.
+    expect(saveUploadedImage).not.toHaveBeenCalled();
+    expect(initiateSpy).not.toHaveBeenCalled();
+    expect(savePortraitButton()).toBeDisabled();
+  });
+
+  // The kit gate accepts by BOTH extension and MIME (spec D15) — these three
+  // formats must never reach the picker's pipeline.
+  it.each([
+    ['anim.gif', 'image/gif'],
+    ['logo.svg', 'image/svg+xml'],
+    ['shot.webp', 'image/webp'],
+  ])('rejects %s (%s) without staging the file', async (name, type) => {
+    renderList();
+
+    stageFile(new File(['x'], name, { type }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
+    expect(saveUploadedImage).not.toHaveBeenCalled();
+    expect(savePortraitButton()).toBeDisabled();
+  });
+
+  it('accepts a .jpg carrying the legacy image/jpg MIME (staged, no document move)', async () => {
+    renderList();
+
+    stageFile(new File(['x'], 'me.jpg', { type: 'image/jpg' }));
+
+    await waitFor(() => expect(saveUploadedImage).toHaveBeenCalledTimes(1));
+    // The kit re-encodes and renames to match the ENCODED blob type
+    // (sanitizeFileName: base from the original 'me.jpg' + codec ext) —
+    // the 'me' base proves the legacy-MIME file itself passed the gate.
+    expect(saveUploadedImage).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'me.webp', subdir: 'about' })
+    );
+    await waitFor(() => expect(savePortraitButton()).toBeEnabled());
+    // Phase 1 wrote the FILE only — the document/store never moved (D15).
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(initiateSpy).not.toHaveBeenCalled();
+  });
+
+  it('Save runs the RTK Query mutation with the feature persist seam, then dispatches + toasts', async () => {
+    renderList();
+
+    stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
+    await waitFor(() => expect(savePortraitButton()).toBeEnabled());
+
+    fireEvent.click(savePortraitButton());
+
+    await waitFor(() => expect(initiateSpy).toHaveBeenCalledTimes(1));
+    expect(initiateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({ portrait: '/images/about/portrait.png' }),
+        persist: expect.any(Function),
+      })
+    );
+    // The seam injected into shared IS the feature's storage module.
+    const arg = initiateSpy.mock.calls[0]?.[0];
+    expect(arg?.persist(arg.content)).toBe(true);
+    expect(persistSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ portrait: '/images/about/portrait.png' })
+    );
+
+    await waitFor(() =>
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ portrait: '/images/about/portrait.png' })
+      )
+    );
+    expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
+    expect(holder.content?.portrait).toBe('/images/about/portrait.png');
+    // D16: the preview follows the SAVED document.
+    expect(screen.getByTestId('mock-image')).toHaveAttribute(
+      'data-src',
+      '/images/about/portrait.png'
+    );
+    // Staged state cleared — Save disables again.
+    expect(savePortraitButton()).toBeDisabled();
+  });
+
+  it('persist-fail: the mutation rejects → error toast, store untouched, staged file kept', async () => {
+    initiateSpy.mockImplementation(() => ({
+      unwrap: () => Promise.reject(new Error('persist-failed')),
+    }));
+    renderList();
+
+    stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
+    await waitFor(() => expect(savePortraitButton()).toBeEnabled());
+    fireEvent.click(savePortraitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaveError', type: 'error' })
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(holder.content?.portrait).toBeUndefined();
+    // The staged pick survives for a retry (Save still enabled).
+    expect(savePortraitButton()).toBeEnabled();
+  });
+
+  it('a failed file write surfaces adminAboutPortraitSaveError and stages nothing', async () => {
+    saveUploadedImage.mockRejectedValueOnce(new Error('disk full'));
+    renderList();
+
+    stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitSaveError');
+    expect(initiateSpy).not.toHaveBeenCalled();
+    expect(savePortraitButton()).toBeDisabled();
+  });
+
+  it('a missing directory picker surfaces adminAboutPortraitUnsupported (no write attempted)', async () => {
+    directoryPickerSupported.mockReturnValue(false);
+    renderList();
+
+    stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitUnsupported');
+    expect(saveUploadedImage).not.toHaveBeenCalled();
+    expect(savePortraitButton()).toBeDisabled();
+  });
+
+  it('previews the SAVED portrait path (D16)', () => {
+    holder.content = { ...createAboutSeed(), portrait: '/images/about/me.png' };
+
+    renderList();
+
+    expect(screen.getByTestId('mock-image')).toHaveAttribute('data-src', '/images/about/me.png');
+  });
+
+  it('falls back to the static bundled asset while the document has no portrait (D16)', () => {
+    renderList();
+
+    const src = screen.getByTestId('mock-image').getAttribute('data-src') ?? '';
+    expect(src).toMatch(/\.webp$/);
   });
 });

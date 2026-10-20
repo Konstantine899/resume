@@ -63,6 +63,43 @@
   min-width: 0;
 }
 
+// WU-14: the portrait block — Avatar preview (left) + upload column (right),
+
+// wrapping on narrow viewports (block-level, not a table cell).
+.portraitRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-start;
+}
+
+// The D14 portrait variant is chrome-less and declares NO size — this box
+
+// IS the size (64×80 ≈ the showcase's 3/4 portrait ratio), applied to the
+
+// Avatar root via its `className` prop (About.module.scss parity).
+.portraitPreview {
+  flex: 0 0 auto;
+  width: var(--space-16);
+  height: var(--space-20);
+}
+
+// Upload column: FileUpload + staged-Save action row.
+.portraitUpload {
+  display: flex;
+  flex: 1 1 18rem;
+  flex-direction: column;
+  gap: $spacing-2;
+  min-width: 0;
+}
+
+// Save + staged-cancel pair — wraps on narrow viewports (never a cell row).
+.portraitActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
 // One action row inside the table's «Действия» cell — never wraps.
 .cellActions {
   display: flex;

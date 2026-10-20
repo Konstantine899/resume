@@ -129,7 +129,7 @@ export const About: React.FC<AboutFeatureProps> = ({
              .scss is intentionally untouched). */}
           <Avatar
             data-testid="about-portrait"
-            src={aboutPortrait}
+            src={content?.portrait ?? aboutPortrait}
             alt=""
             variant="portrait"
             className={styles.portrait}

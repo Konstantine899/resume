@@ -121,4 +121,22 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
 
     expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
   });
+
+  it('renders the WU-14 portrait block with a pristine-disabled Save (nothing staged)', () => {
+    renderPage();
+
+    const block = screen.getByTestId('admin-about-portrait');
+    // The kit upload control is wired with the feature copy… (the label names
+    // BOTH the dropzone group and the file input — query the group role).
+    expect(
+      within(block).getByRole('group', { name: 'adminAboutPortraitLabel' })
+    ).toBeInTheDocument();
+    expect(block.querySelector('input[type="file"]')).toHaveAttribute('accept', '.jpg,.png');
+    expect(
+      within(block).getByRole('button', { name: 'adminAboutPortraitButton' })
+    ).toBeInTheDocument();
+    // …and Save only arms once a file is staged (the file-write flow itself
+    // is feature-tested — this store has no api middleware by design).
+    expect(within(block).getByRole('button', { name: 'adminAboutPortraitSave' })).toBeDisabled();
+  });
 });
