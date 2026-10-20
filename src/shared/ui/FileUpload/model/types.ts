@@ -4,7 +4,7 @@
  * Machine-readable rejection codes. The kit never owns copy (plan A2):
  * the hook returns a CODE, the component maps it to `FileUploadTexts`.
  */
-export type FileUploadErrorCode = 'notImage' | 'tooLarge' | 'undecodable';
+export type FileUploadErrorCode = 'notImage' | 'tooLarge' | 'undecodable' | 'wrongFormat';
 
 /**
  * Consumer-owned strings for every text the component can render.
@@ -24,6 +24,13 @@ export interface FileUploadTexts {
   tooLarge: string;
   /** Error copy: the image could not be decoded (HEIC and friends). */
   undecodable: string;
+  /**
+   * Error copy: the file's format is outside `acceptExtensions` (WU-14).
+   * Optional on purpose — the code is UNREACHABLE without the
+   * `acceptExtensions` prop, so the four historical image/* consumers
+   * carry no dead copy. Pass it whenever `acceptExtensions` is used.
+   */
+  wrongFormat?: string;
   /** Announced through the aria-live=polite region after a selection. */
   selected: string;
 }
@@ -60,6 +67,13 @@ export interface FileUploadProps {
   onFileSelect: (file: FileUploadSelection) => void;
   /** Cap for the compressed blob size in bytes (default 300_000). */
   maxBlobBytes?: number;
+  /**
+   * Optional format gate (WU-14): when present, a file whose extension OR
+   * MIME type falls outside these lowercase, dot-prefixed extensions (e.g.
+   * `['.jpg', '.jpeg', '.png']`) is rejected with `wrongFormat` before it
+   * reaches the canvas pipeline. Absent = the historical image/* behaviour.
+   */
+  acceptExtensions?: string[];
   /** Disables the input and the button. */
   disabled?: boolean;
   /** Merged onto the root element. */
