@@ -28,7 +28,7 @@ export {
   updateJob,
 } from './model/slices/jobsSlice';
 export { createJobsSeed } from './model/services/seed';
-export { selectAllJobs, selectSortedJobs } from './model/selectors';
+export { selectAllJobs, selectSortedJobs } from './model/selectors/selectors';
 export { JOBS_STORAGE_KEY, persistJobs, readJobs } from './model/services/storage';
 export type { JobsRootState } from './model/types/types';
 

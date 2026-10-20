@@ -16,7 +16,12 @@ import {
   toggleCurrent,
   updateJob,
 } from './jobsSlice';
-import { selectAllJobs, selectCurrentJob, selectJobById, selectSortedJobs } from '../selectors';
+import {
+  selectAllJobs,
+  selectCurrentJob,
+  selectJobById,
+  selectSortedJobs,
+} from '../selectors/selectors';
 import { createJobsSeed } from '../services/seed';
 import { persistJobs } from '../services/storage';
 

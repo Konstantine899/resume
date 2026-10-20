@@ -1,19 +1,19 @@
 // ============================================
 // Home Page
 // ============================================
-import { selectAboutContent } from '@/features/AdminAbout/model/selectors';
+import { selectAboutContent } from '@/features/AdminAbout/model/selectors/selectors';
 // Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
 // barrel exports the RHF editor form and must stay lazy-only.
 import { selectContactContent } from '@/features/AdminContact/model/selectors/selectors';
 // WorkHistory CRUD WU-4: same Design C pattern — pages reads the adminJobs
 // slice, WorkHistory stays store-free and receives the sorted list as a prop.
-import { selectSortedJobs } from '@/features/AdminJobs/model/selectors';
+import { selectSortedJobs } from '@/features/AdminJobs/model/selectors/selectors';
 // Projects CRUD WU-3: deep import for the same lazy-barrel reason — the
 // AdminMyWork barrel exports the RHF editor form.
-import { selectAllProjects } from '@/features/AdminMyWork/model/selectors';
+import { selectAllProjects } from '@/features/AdminMyWork/model/selectors/selectors';
 // Skills CRUD WU-4: deep import, pages is the only layer that reads the
 // adminSkills slice — the vitrina stays store-free (Design C / R-5).
-import { selectSkillsData } from '@/features/AdminSkills/model/selectors';
+import { selectSkillsData } from '@/features/AdminSkills/model/selectors/selectors';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
 import { MyWork } from '@/features/MyWork';

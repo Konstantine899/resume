@@ -19,7 +19,7 @@
 //
 // `src/features/AdminMyWork/index.test.ts` pins the live set.
 
-export { selectAllProjects } from './model/selectors';
+export { selectAllProjects } from './model/selectors/selectors';
 export { removeProjects } from './model/services/storage';
 export { myWorkReducer } from './model/slices/myWorkSlice';
 export type { MyWorkRootState, ProjectUpdatePatch } from './model/types/types';

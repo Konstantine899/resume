@@ -86,7 +86,7 @@ import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { Minus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { selectAboutContent } from '../../model/selectors';
+import { selectAboutContent } from '../../model/selectors/selectors';
 import { persistAboutContent, removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
 import type { AboutContentRootState } from '../../model/types/types';

@@ -14,7 +14,11 @@ import {
   resetToDefaults,
   updateProject,
 } from './myWorkSlice';
-import { selectAllProjects, selectFeaturedProjects, selectProjectById } from '../selectors';
+import {
+  selectAllProjects,
+  selectFeaturedProjects,
+  selectProjectById,
+} from '../selectors/selectors';
 import { createProjectsSeed } from '../services/seed';
 import { persistProjects } from '../services/storage';
 
