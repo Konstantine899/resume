@@ -12,5 +12,4 @@ verified: '2026-10-20'
 
 ## WU
 
-- [ ] **WU-21 Гейты**: `npm run validate`, `check:spec`, `check:axe` (light+dark), **`check:bundle` против капа 896256 — превышение = СТОП, капу не поднимать без слова владельца**, preview-смоук light+dark (скриншоты в temp).
 - [ ] **WU-17 Сдача** (последним): squash `--base dev` (НЕ мержить), burn-down пары, `gh issue close` если есть issue эпика.
