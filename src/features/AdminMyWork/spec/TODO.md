@@ -1,17 +1,20 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
-issue: 273
-verified: '2026-10-17'
+verified: '2026-10-21'
 ---
 
-# TODO — features/AdminMyWork (mywork-field-image-fileupload, issue #273)
+# TODO — features/AdminMyWork (mywork-metrics-bullet-rows)
 
-Эпик `mywork-field-image-fileupload` (директива владельца 2026-10-17). Пункты WU-1..4 сгорели в этом PR (Closes #273):
+**Закрыт (2026-10-21):** эпик выполнен в этом PR (#319) — WU-1..6 сгорели. Гейты: validate 4002/4002 (public-api 37/37), целевой прогон 221/221 + i18n 13/13, build + bundle 859.0 < 875.3 KiB (кап 896256 не поднимался), prettier + check:spec зелёные. Пара переведена в `done` этим же коммитом.
 
-1. TDD: тесты image-поля (`FieldEditForm.test.tsx`) — red → green: FileUpload вместо текстового Input, save-on-selection с `subdir:'projects'`, unsupported/write-failure держат модалку открытой, AbortError тихо, Save disabled пока pristine.
-2. `FieldEditForm.tsx`: `case 'image':` → kit `FileUpload` + `handleImageFile` (async `saveUploadedImage`, `setValue('image', path, {shouldDirty, shouldValidate})`), `imageSaveErrorKey`-станок, превью текущего значения (паритет ProjectForm).
-3. `FieldEditForm.module.scss`: добавлены `imageCurrent`/`imageCurrentPreview`/`imageCurrentPath` (превью текущего пути, паритет ProjectForm).
-4. Пара spec перезаписана эпиком `mywork-field-image-fileupload` (issue #273).
+Эпик `mywork-metrics-bullet-rows` (директива владельца «выполни средние», задача A из трёх, 2026-10-21). Правила сгорания: выполненная единица **удаляется**, а не отмечается; критерии приёмки живут в [SPEC.md](./SPEC.md).
 
-Предыдущая пара (эпик `mywork-parity-polish`, rev.1, PR #253) перезаписана — история в git.
+1. TDD RED: тесты `ui/ProjectForm/ProjectForm.test.tsx` — рендер строк метрик из defaultValues (edit), одна пустая строка в create, add / remove / move ↑↓, disabled-матрица (↑ первый, ↓ последний, X при одной строке), round-trip: строки доходят до записи, пустые строки отбрасываются.
+2. `ui/ProjectForm/lib/projectFormSchema.ts`: вход `metrics: string[]` (trim + drop-blank вместо `splitMetricLines` по строкам), `emptyProjectFormValues` / `toProjectFormValues` дают `['']` при пустом списке; выход не меняется.
+3. `ui/ProjectForm/ProjectForm.tsx`: Textarea метрик → bullet-блок `data-testid="project-metrics"` (Heading h3 + `Paragraph asChild`-инпуты + `IconButton` ↑/↓/X в Tooltip + кнопка `projectMetricAdd`), хендлеры add/remove/move на `setValue(…, { shouldDirty: true })`.
+4. `ui/ProjectForm/ProjectForm.module.scss`: `.metricBlock` / `.metricRow` / `.metricInput` (геометрия JobForm `.bulletBlock` / `.bulletRow` / `.bulletInput`).
+5. Локали: 4 ключа `projectMetricAdd` / `projectMetricUp` / `projectMetricDown` / `projectMetricRemove` (en+ru).
+6. Гейты: vitest `src/features/AdminMyWork` + `src/pages/Admin` + `src/shared/lib/i18n`, type-check, lint, lint:styles, prettier (изменённые), check:spec, build + check:bundle (кап `total.maxSize` 896256 — НЕ поднимать).
+
+Предыдущая пара (эпик `mywork-field-image-fileupload`, issue #273, done) перезаписана — история в git.

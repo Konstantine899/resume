@@ -17,7 +17,7 @@
 
 import { PROJECT_CATEGORIES, type Project } from '@/entities/Project';
 import { TECHNOLOGIES_SEED } from '@/entities/Technology';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
 import { ProjectForm } from './ProjectForm';
@@ -183,7 +183,7 @@ describe('ProjectForm: render (WU-4)', () => {
     renderCreate();
 
     expect(titleInput()).toHaveValue('');
-    expect(document.querySelectorAll('textarea')).toHaveLength(5); // desc×2, role×2, metrics
+    expect(document.querySelectorAll('textarea')).toHaveLength(4); // desc×2, role×2 (metrics = bullet rows)
     // imageSubdir + category + status are kit Selects.
     const selects = document.querySelectorAll('select');
     expect(selects).toHaveLength(3);
@@ -338,7 +338,9 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     renderCreate();
 
     await fillMinimalValid();
-    fireEvent.change(screen.getByLabelText('projectFieldMetrics'), {
+    // Metrics is a bullet-row list now (mywork-metrics-bullet-rows) —
+    // row 1 of the editor; programmatic change bypasses the DOM maxLength.
+    fireEvent.change(screen.getByLabelText('projectFieldMetrics-1'), {
       target: { value: 'x'.repeat(41) },
     });
     fireEvent.click(saveButton());
@@ -560,5 +562,100 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadSaveError');
     expect(screen.queryByText(/^\/images\/projects\//)).not.toBeInTheDocument();
+  });
+});
+
+// ============================================
+// metrics bullet rows (mywork-metrics-bullet-rows, SPEC R-1/R-2)
+// ============================================
+//
+// The Textarea is replaced by the JobForm bullet-row editor: one input row
+// per metric, IconButtons ↑/↓/X, an Add button. RED-first — these pin the
+// new editor contract before the component changes.
+
+describe('ProjectForm: metrics bullet rows (mywork-metrics-bullet-rows)', () => {
+  const metricBlock = () => screen.getByTestId('project-metrics');
+  const metricRows = () => within(metricBlock()).getAllByRole('textbox');
+  const metricButtons = (name: string) => within(metricBlock()).getAllByRole('button', { name });
+
+  it('edit mode renders one input row per metric from defaultValues (R-1)', () => {
+    const project: Project = {
+      ...(seedProjects[0] as Project),
+      metrics: ['1M+ users', '99.9% uptime'],
+    };
+    renderEdit(project);
+
+    const rows = metricRows();
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveValue('1M+ users');
+    expect(rows[1]).toHaveValue('99.9% uptime');
+    // Row labels follow the JobForm `blockLabel-<N>` pattern.
+    expect(rows[0]).toHaveAttribute('aria-label', 'projectFieldMetrics-1');
+  });
+
+  it('create mode starts with exactly ONE empty metric row (R-1)', () => {
+    renderCreate();
+
+    const rows = metricRows();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveValue('');
+  });
+
+  it('Add metric appends an empty row (R-2)', () => {
+    renderCreate();
+
+    fireEvent.click(screen.getByRole('button', { name: 'projectMetricAdd' }));
+
+    const rows = metricRows();
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toHaveValue('');
+  });
+
+  it('remove deletes its row and the action matrix collapses at one row (R-1/R-2)', () => {
+    const project: Project = { ...(seedProjects[0] as Project), metrics: ['Alpha', 'Beta'] };
+    renderEdit(project);
+
+    const removes = metricButtons('projectMetricRemove');
+    expect(removes).toHaveLength(2);
+    fireEvent.click(removes[0] as HTMLElement);
+
+    const after = metricRows();
+    expect(after).toHaveLength(1);
+    expect(after[0]).toHaveValue('Beta');
+    // JobForm disabled matrix: ↑ first, ↓ last, × length<=1.
+    expect(metricButtons('projectMetricUp')[0]).toBeDisabled();
+    expect(metricButtons('projectMetricDown')[0]).toBeDisabled();
+    expect(metricButtons('projectMetricRemove')[0]).toBeDisabled();
+  });
+
+  it('move down/up reorders the rows via the IconButtons (R-2)', () => {
+    const project: Project = { ...(seedProjects[0] as Project), metrics: ['First', 'Second'] };
+    renderEdit(project);
+
+    fireEvent.click(metricButtons('projectMetricDown')[0] as HTMLElement);
+    let rows = metricRows();
+    expect(rows[0]).toHaveValue('Second');
+    expect(rows[1]).toHaveValue('First');
+
+    fireEvent.click(metricButtons('projectMetricUp')[1] as HTMLElement);
+    rows = metricRows();
+    expect(rows[0]).toHaveValue('First');
+    expect(rows[1]).toHaveValue('Second');
+  });
+
+  it('round-trip: rows reach the record and blank rows are dropped (R-3/R-4)', async () => {
+    renderCreate();
+
+    await fillMinimalValid();
+    fireEvent.change(metricRows()[0] as HTMLElement, { target: { value: 'One metric' } });
+    fireEvent.click(screen.getByRole('button', { name: 'projectMetricAdd' }));
+    fireEvent.change(metricRows()[1] as HTMLElement, { target: { value: 'Two metric' } });
+    fireEvent.click(screen.getByRole('button', { name: 'projectMetricAdd' })); // trailing blank
+    fireEvent.click(saveButton());
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Project[];
+    const record = persisted[persisted.length - 1] as Project;
+    expect(record.metrics).toEqual(['One metric', 'Two metric']);
   });
 });
