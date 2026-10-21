@@ -20,6 +20,8 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+import { SEED_RU_TEXTS } from './locales/seedTexts';
+
 const LOCALES_DIR = resolve(__dirname, 'locales');
 
 const readLocale = (name: 'en' | 'ru'): Record<string, string> =>
@@ -157,5 +159,23 @@ describe('locale parity (WU-6)', () => {
     expect(ru).not.toHaveProperty('adminTechIconUrlLabel');
     expect(en).not.toHaveProperty('adminTechUrlInvalid');
     expect(ru).not.toHaveProperty('adminTechUrlInvalid');
+  });
+});
+
+describe('static RU seed texts (lazy ru locale, issue #298)', () => {
+  // The ru locale bundle loads lazily, so the About/Contact seeds carry
+  // their ru copy statically (locales/seedTexts.ts). This is the DRIFT
+  // GUARD for that copy: every entry must equal ru.json verbatim and have
+  // its en counterpart (the seed pairs the two). The feature seed.test.ts
+  // files close the loop from the other side: create*Seed() ≡ ru.json.
+  it('every RU seed text equals its ru.json value (no silent drift)', () => {
+    const entries = Object.entries(SEED_RU_TEXTS);
+    // Non-vacuous: today 22 entries (8 About + 14 Contact).
+    expect(entries.length).toBeGreaterThanOrEqual(22);
+
+    for (const [key, value] of entries) {
+      expect(ru[key], `ru.${key} drifted from SEED_RU_TEXTS`).toBe(value);
+      expect(en, `en.${key} missing (the seed pairs it with the ru text)`).toHaveProperty(key);
+    }
   });
 });

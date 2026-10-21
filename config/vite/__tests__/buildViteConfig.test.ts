@@ -40,9 +40,13 @@ function makeOptions(overrides: Partial<BuildOptions> = {}): BuildOptions {
 }
 
 describe('resolveManualChunk', () => {
-  it('routes bundled locale JSON into the i18n chunk', () => {
+  it('routes bundled locale JSON into the i18n chunk, except the lazy ru locale', () => {
     expect(resolveManualChunk('/repo/src/shared/lib/i18n/locales/en.json')).toBe('i18n');
-    expect(resolveManualChunk('D:\\repo\\src\\shared\\lib\\i18n\\locales\\ru.json')).toBe('i18n');
+    // ru.json is loaded lazily via dynamic import (loadRu, issue #298): it must
+    // NOT be forced into the static i18n chunk, or it would be modulepreloaded.
+    expect(
+      resolveManualChunk('D:\\repo\\src\\shared\\lib\\i18n\\locales\\ru.json')
+    ).toBeUndefined();
   });
 
   it('routes i18next runtime packages into the i18n chunk', () => {
