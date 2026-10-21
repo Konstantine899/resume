@@ -102,8 +102,11 @@
 // Дни соседних месяцев: видимая геометрия, но вне дерева доступности
 
 // (aria-hidden) и без interactivity.
+
+// Цвет — tertiary: quaternary давал 2.54:1 (light) / 1.97:1 (dark) — AA fail.
+
 .dayOutside {
-  color: var(--color-text-quaternary);
+  color: var(--color-text-tertiary);
   pointer-events: none;
 }
 

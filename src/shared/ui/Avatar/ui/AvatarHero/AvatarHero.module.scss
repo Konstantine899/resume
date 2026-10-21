@@ -104,6 +104,13 @@
 
       [data-theme='light'] & {
         background: var(--avatar-light-bg);
+
+        // Initials over #dfdfdf: the theme default #3f84f6 is 2.70:1 (AA fail).
+
+        // Scoped here, not in _theme.scss — AvatarAbout pairs the same token
+
+        // with the dark #3a2e28 backdrop where it already passes.
+        --avatar-initial-color: #1d4ed8;
       }
     }
   }
