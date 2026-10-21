@@ -70,7 +70,9 @@ describe('resolveManualChunk', () => {
     // @hookform/resolvers/zod must NOT match: it rides the lazy admin chunk
     // with the form (RHF rule returns undefined first for react-hook-form
     // itself; the resolver simply falls through to Rollup).
-    expect(resolveManualChunk('/repo/node_modules/@hookform/resolvers/zod/index.js')).toBeUndefined();
+    expect(
+      resolveManualChunk('/repo/node_modules/@hookform/resolvers/zod/index.js')
+    ).toBeUndefined();
   });
 
   it('keeps react-related packages in vendor', () => {

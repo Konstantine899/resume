@@ -39,7 +39,7 @@ export const StoreProvider = ({ children, reducers }: StoreProviderProps) => {
         middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat(apiSlice.middleware as Middleware),
       }),
-    [reducers],
+    [reducers]
   );
 
   return <Provider store={store}>{children}</Provider>;
