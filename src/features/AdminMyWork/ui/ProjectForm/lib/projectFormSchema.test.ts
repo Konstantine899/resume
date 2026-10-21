@@ -20,7 +20,7 @@ const VALID: ProjectFormValues = {
   status: 'completed',
   featured: true,
   role: { en: '', ru: '' },
-  metrics: '',
+  metrics: [],
   year: '',
   imageSubdir: 'projects',
 };

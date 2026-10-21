@@ -183,7 +183,7 @@ describe('ProjectForm: render (WU-4)', () => {
     renderCreate();
 
     expect(titleInput()).toHaveValue('');
-    expect(document.querySelectorAll('textarea')).toHaveLength(5); // desc×2, role×2, metrics
+    expect(document.querySelectorAll('textarea')).toHaveLength(4); // desc×2, role×2 (metrics = bullet rows)
     // imageSubdir + category + status are kit Selects.
     const selects = document.querySelectorAll('select');
     expect(selects).toHaveLength(3);
@@ -338,7 +338,9 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     renderCreate();
 
     await fillMinimalValid();
-    fireEvent.change(screen.getByLabelText('projectFieldMetrics'), {
+    // Metrics is a bullet-row list now (mywork-metrics-bullet-rows) —
+    // row 1 of the editor; programmatic change bypasses the DOM maxLength.
+    fireEvent.change(screen.getByLabelText('projectFieldMetrics-1'), {
       target: { value: 'x'.repeat(41) },
     });
     fireEvent.click(saveButton());

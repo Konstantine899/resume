@@ -15,6 +15,9 @@
 // - WU-6 (SPEC R-6): this form is DATA-ONLY — no reset/delete, no
 //   confirms. Delete lives in the list rows, reset in the vitrina header
 //   (the page owns the modals).
+// - metrics: a bullet-row editor (add / remove / reorder) per the
+//   JobForm convention (mywork-metrics-bullet-rows) — one input row per
+//   metric; the schema still trims and drops blank rows.
 // - ALL copy is i18n (i18n-first): labels, validation keys, toasts.
 // - Edit vs create: the `project` prop switches the mode; the page owns
 //   the key-remount (Design C — this component stays the only place that
@@ -26,14 +29,17 @@ import { selectTechnologyKeys } from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
-import { Button } from '@/shared/ui/Button';
+import { ArrowDown, ArrowUp, X } from 'lucide-react';
+import { Button, IconButton } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
+import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
+import { Tooltip } from '@/shared/ui/Tooltip';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -120,6 +126,24 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
 
   const toggleFeatured = () => {
     setValue('featured', !values.featured, { shouldDirty: true });
+  };
+
+  // mywork-metrics-bullet-rows (SPEC R-2): JobForm bullet-editor parity —
+  // add/remove/reorder all go through the RHF array value and mark the
+  // form dirty so the pristine Save stays disabled until a row changes.
+  const metricRows = values.metrics ?? [''];
+  const setMetricRows = (next: string[]) => setValue('metrics', next, { shouldDirty: true });
+
+  const addMetric = () => setMetricRows([...metricRows, '']);
+  const removeMetric = (index: number) => setMetricRows(metricRows.filter((_, i) => i !== index));
+  const moveMetric = (index: number, delta: -1 | 1) => {
+    const list = [...metricRows];
+    const target = index + delta;
+    const [moved] = list.splice(index, 1);
+    if (moved !== undefined && target >= 0 && target < list.length + 1) {
+      list.splice(target, 0, moved);
+      setMetricRows(list);
+    }
   };
 
   // rev.4 + amend 2026-10-10 (owner directive): the ROOT images directory
@@ -354,14 +378,67 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         </div>
       </div>
 
-      <div className={styles.field}>
-        <Textarea
-          label={t('projectFieldMetrics')}
-          error={errors.metrics ? t('projectMetricInvalid') : undefined}
-          value={values.metrics ?? ''}
-          rows={3}
-          {...register('metrics')}
-        />
+      {/* mywork-metrics-bullet-rows (SPEC R-1): the Textarea is replaced
+          by the JobForm bullet-row editor — one input row per metric with
+          ↑/↓/X IconButtons and an Add button; blank rows never reach the
+          record (schema transform → metrics: undefined when all blank). */}
+      <div className={styles.metricBlock} data-testid="project-metrics">
+        <Heading level={3}>{t('projectFieldMetrics')}</Heading>
+        {metricRows.map((text, index) => (
+          <div className={styles.metricRow} key={`metric-${index}`}>
+            <Paragraph asChild size="xs" theme="primary" align="left">
+              <input
+                type="text"
+                className={styles.metricInput}
+                maxLength={40}
+                aria-label={`${t('projectFieldMetrics')}-${index + 1}`}
+                value={text}
+                {...register(`metrics.${index}`)}
+              />
+            </Paragraph>
+            <Tooltip content={t('projectMetricUp')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('projectMetricUp')}
+                disabled={index === 0}
+                icon={<Icon name={ArrowUp} size={20} color="inherit" decorative />}
+                onClick={() => moveMetric(index, -1)}
+              />
+            </Tooltip>
+            <Tooltip content={t('projectMetricDown')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('projectMetricDown')}
+                disabled={index === metricRows.length - 1}
+                icon={<Icon name={ArrowDown} size={20} color="inherit" decorative />}
+                onClick={() => moveMetric(index, 1)}
+              />
+            </Tooltip>
+            <Tooltip content={t('projectMetricRemove')} position="top" showDelay={0}>
+              <IconButton
+                type="button"
+                variant="outline"
+                size="sm"
+                ariaLabel={t('projectMetricRemove')}
+                disabled={metricRows.length <= 1}
+                icon={<Icon name={X} size={20} color="inherit" decorative />}
+                onClick={() => removeMetric(index)}
+              />
+            </Tooltip>
+          </div>
+        ))}
+        {errors.metrics && (
+          <Paragraph asChild theme="error" size="s">
+            <span role="alert">{t('projectMetricInvalid')}</span>
+          </Paragraph>
+        )}
+        <Button type="button" variant="outline" size="sm" onClick={addMetric}>
+          {t('projectMetricAdd')}
+        </Button>
       </div>
 
       <div className={styles.field}>

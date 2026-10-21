@@ -3,8 +3,9 @@
 // ============================================
 //
 // Plan §10 says "RHF + zodResolver(ProjectFormDataSchema)": RHF however
-// always hands the resolver RAW input values (textareas and inputs are
-// strings), while `ProjectFormDataSchema` speaks the persisted contract
+// always hands the resolver RAW input values (textareas/inputs are strings,
+// the metrics bullet editor hands over raw rows), while
+// `ProjectFormDataSchema` speaks the persisted contract
 // (link null, metrics string[], year number, role optional). Every rule
 // below is delegated to the SHARED schema via `.pipe()`, so the contract
 // in entities stays the single source of truth (§7) and form fields can
@@ -17,16 +18,15 @@ import { z } from 'zod';
 
 import { ProjectFormDataSchema, type Project } from '@/entities/Project';
 
-/** Textarea contract: one metric per line, blanks dropped (§7: ≤40 each). */
-const splitMetricLines = (raw: string): string[] =>
-  raw
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+/** Bullet-row contract (mywork-metrics-bullet-rows): ONE row = ONE metric,
+ *  blanks dropped — the old `splitMetricLines` semantics over the Textarea,
+ *  now fed by the row-based UI instead of a newline-joined string. */
+const normalizeMetricRows = (rows: string[]): string[] =>
+  rows.map((row) => row.trim()).filter((row) => row.length > 0);
 
 /**
  * Form-input schema: shape comes from `ProjectFormDataSchema`, only the
- * four DOM-string fields are adapted (link, metrics, year, role).
+ * four DOM-side fields are adapted (link, metric rows, year, role).
  */
 export const ProjectFormSchema = ProjectFormDataSchema.extend({
   /** '' → null, otherwise the shared null | https:// | /… rule. */
@@ -35,12 +35,12 @@ export const ProjectFormSchema = ProjectFormDataSchema.extend({
     .trim()
     .transform((value) => (value === '' ? null : value))
     .pipe(ProjectFormDataSchema.shape.link),
-  /** Textarea lines → string[]; blank → undefined (shape.metrics is optional
+  /** Bullet rows → string[]; all-blank → undefined (shape.metrics is optional
    *  and zod's .pipe() requires the EXACT input type `string[] | undefined`). */
   metrics: z
-    .string()
-    .transform((raw) => {
-      const lines = splitMetricLines(raw);
+    .array(z.string())
+    .transform((rows) => {
+      const lines = normalizeMetricRows(rows);
       return lines.length === 0 ? undefined : lines;
     })
     .pipe(ProjectFormDataSchema.shape.metrics),
@@ -105,12 +105,13 @@ export const emptyProjectFormValues = (): ProjectFormValues => ({
   status: 'completed',
   featured: false,
   role: { en: '', ru: '' },
-  metrics: '',
+  // One empty row — the bullet editor never starts with zero rows (JobForm parity).
+  metrics: [''],
   year: '',
   imageSubdir: 'projects',
 });
 
-/** Record → DOM values (edit-mode defaults; RHF needs the string forms). */
+/** Record → DOM values (edit-mode defaults; RHF needs the row forms). */
 export const toProjectFormValues = (project: Project): ProjectFormValues => ({
   title: project.title,
   description: { ...project.description },
@@ -121,7 +122,8 @@ export const toProjectFormValues = (project: Project): ProjectFormValues => ({
   status: project.status,
   featured: project.featured,
   role: project.role ? { ...project.role } : { en: '', ru: '' },
-  metrics: (project.metrics ?? []).join('\n'),
+  // Bullet rows: one input row per metric; no metrics → one empty row.
+  metrics: project.metrics && project.metrics.length > 0 ? [...project.metrics] : [''],
   year: project.year === undefined ? '' : String(project.year),
   imageSubdir: 'projects',
 });
