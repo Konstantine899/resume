@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { loadRu } from '../config/i18n';
 import type { Language } from '../types';
 
 export const useLanguage = () => {
@@ -9,8 +10,13 @@ export const useLanguage = () => {
 
   const setLanguage = useCallback(
     (lang: Language) => {
-      i18n.changeLanguage(lang);
       localStorage.setItem('language', lang);
+      // The ru bundle is lazy: land it BEFORE the switch, otherwise
+      // changeLanguage('ru') would resolve against a missing bundle and
+      // render en copy — a visible flash of the wrong language. A failed
+      // ru fetch degrades to en via fallbackLng (never raw keys).
+      const ready = lang === 'ru' ? loadRu().catch(() => undefined) : Promise.resolve();
+      void ready.then(() => i18n.changeLanguage(lang));
     },
     [i18n]
   );

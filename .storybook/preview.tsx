@@ -3,7 +3,15 @@ import { ToastProvider } from '@/shared/lib/contexts/ToastContext';
 import type { Preview } from '@storybook/react-vite';
 import { I18nProvider } from '../src/app/providers/I18nProvider';
 import { ThemeProvider } from '../src/app/providers/ThemeProvider';
+import { loadRu } from '../src/shared/lib/i18n/config/i18n';
 import '../src/app/styles/globals/index.scss';
+
+// Lazy ru locale (issue #298): the app loads ru.json on demand, but every
+// story must see it — play functions await i18n.changeLanguage('ru') and
+// assert ru copy. Top-level await in the preview entry runs before any
+// story renders (vite's browser targets support TLA), so the switch is
+// instant and race-free.
+await loadRu();
 
 const withProviders = (Story: React.ComponentType, context: { globals: { theme?: string } }) => {
   const theme = context.globals?.theme || 'dark';

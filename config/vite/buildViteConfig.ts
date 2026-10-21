@@ -25,8 +25,14 @@ export function resolveManualChunk(id: string): string | undefined {
   // локалей не зависело от платформы.
   const normalized = id.replace(/\\/g, '/');
 
-  // Локали — в отдельный чанк, чтобы не тянуть JSON в main.
-  if (normalized.includes('src/shared/lib/i18n/locales/') && normalized.endsWith('.json')) {
+  // Локали — в отдельный чанк, чтобы не тянуть JSON в main. ru.json ИСКЛЮЧЁН:
+  // он грузится лениво (dynamic import в loadRu, issue #298) и должен уходить
+  // в отдельный async-чанк, а не в modulepreload-статику.
+  if (
+    normalized.includes('src/shared/lib/i18n/locales/') &&
+    normalized.endsWith('.json') &&
+    !normalized.endsWith('ru.json')
+  ) {
     return 'i18n';
   }
   if (normalized.includes('node_modules/react-hook-form')) {
