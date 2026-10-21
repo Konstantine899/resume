@@ -6,6 +6,7 @@ import React from 'react';
 import { AvatarFallbackProps } from '../../model/types';
 import { getInitials } from '@/shared/lib/utils';
 import { getFallbackColor } from '@/shared/ui/Avatar/lib/utils/getFallbackColor';
+import { getFallbackTextColor } from '@/shared/ui/Avatar/lib/utils/getFallbackTextColor';
 import { classNames } from '@/shared/lib/utils/classNames';
 
 import styles from './AvatarFallback.module.scss';
@@ -36,6 +37,7 @@ export const AvatarFallback = React.memo(
   }: AvatarFallbackProps) => {
     const initials = getInitials(name, { maxInitials });
     const backgroundColor = fillContainer ? undefined : getFallbackColor(name);
+    const textColor = backgroundColor ? getFallbackTextColor(backgroundColor) : undefined;
 
     return (
       <div
@@ -48,7 +50,7 @@ export const AvatarFallback = React.memo(
             [styles.fillContainer ?? '']: fillContainer,
           }
         )}
-        style={backgroundColor ? { backgroundColor } : undefined}
+        style={backgroundColor && textColor ? { backgroundColor, color: textColor } : undefined}
         aria-hidden="true"
       >
         <span className={styles.initials ?? ''}>{initials}</span>
