@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: mywork-metrics-bullet-rows
 created: '2026-10-21'
 verified: '2026-10-21'
@@ -70,9 +70,10 @@ verified: '2026-10-21'
 - Перестановка меняет DOM-порядок строк (ключи по индексу) — фокус следует за браузером по порядку рендера, как в JobForm.
 - Подпись строки — `aria-label` вида `Metrics-<N>` (перевод + номер), паритет `adminJobDescriptionEn-<N>` JobForm.
 
-## Гейты (2026-10-21)
+## Гейты (2026-10-21, ВЫПОЛНЕНО)
 
-- `npx vitest run src/features/AdminMyWork src/pages/Admin` — зелёный.
-- `npm run type-check`, `npm run lint`, `npm run lint:styles`, `npx prettier --check` (изменённые файлы), `npm run check:spec`.
-- `npm run build` + `npm run check:bundle` — `total` ≤ 896256 (кап НЕ поднимать).
-- Локали: `npx vitest run src/shared/lib/i18n` — parity + t-key-existence зелёные.
+- `npx vitest run src/features/AdminMyWork src/pages/Admin` — 18 файлов / 221 тест зелёный (6 новых: RED 6 → GREEN 221/221).
+- `npx vitest run src/shared/lib/i18n` — 13/13 (locale parity + t-key-existence с 4 новыми ключами).
+- `npm run validate` (type-check + lint + lint:styles + unit + coverage + check:public-api) — зелёный: 240 файлов / **4002 теста**, public-api 37/37.
+- `npx prettier --check` (изменённые файлы) и `npm run check:spec` (16 spec ready) — зелёные.
+- `npm run build` + `npm run check:bundle` — total **859.0 KiB** < 875.3 KiB (кап `total.maxSize` 896256 НЕ поднимался).

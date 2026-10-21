@@ -1,10 +1,12 @@
 ---
-status: approved
+status: done
 spec: SPEC.md
 verified: '2026-10-21'
 ---
 
 # TODO — features/AdminMyWork (mywork-metrics-bullet-rows)
+
+**Закрыт (2026-10-21):** эпик выполнен в этом PR (#319) — WU-1..6 сгорели. Гейты: validate 4002/4002 (public-api 37/37), целевой прогон 221/221 + i18n 13/13, build + bundle 859.0 < 875.3 KiB (кап 896256 не поднимался), prettier + check:spec зелёные. Пара переведена в `done` этим же коммитом.
 
 Эпик `mywork-metrics-bullet-rows` (директива владельца «выполни средние», задача A из трёх, 2026-10-21). Правила сгорания: выполненная единица **удаляется**, а не отмечается; критерии приёмки живут в [SPEC.md](./SPEC.md).
 
