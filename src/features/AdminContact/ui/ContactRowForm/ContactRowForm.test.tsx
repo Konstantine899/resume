@@ -31,9 +31,13 @@ vi.mock('../../model/slices/contactContentSlice', async (importOriginal) => ({
   upsertContactTableRow: upsertSpy,
 }));
 
+// Deterministic labels: t(key) => key — assertions target raw i18n keys.
+// Rendered options as `${key}:${value}` (the value-max error interpolates
+// { max } — ProjectCard.test parity).
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: Record<string, string | number>) =>
+      options && Object.keys(options).length > 0 ? `${key}:${Object.values(options)[0]}` : key,
     language: 'en',
     setLanguage: vi.fn(),
     toggleLanguage: vi.fn(),
@@ -141,8 +145,30 @@ describe('ContactRowForm: add mode (R-5)', () => {
     fireEvent.change(enInput(), { target: { value: 'Hello' } });
     fireEvent.click(saveButton());
 
+    // The component passes { max } to t() unconditionally (ContactSocialForm
+    // parity — i18next ignores unused params in prod), so the composite mock
+    // may suffix the key; match by the bare required-key substring.
     await waitFor(() =>
-      expect(screen.getByText('adminContactRowValueRequired')).toBeInTheDocument()
+      expect(screen.getByText(/adminContactRowValueRequired/)).toBeInTheDocument()
+    );
+    expect(persistSpy).not.toHaveBeenCalled();
+  });
+
+  it('interpolates the table cap into the value-max error (no raw {{max}})', async () => {
+    renderForm();
+
+    // texts cap = 600 (MAX_CHARS); over-cap EN + valid RU → the EN Textarea
+    // surfaces adminContactRowValueMax. The mock renders options as
+    // `${key}:${value}`, so the error must carry the REAL cap (600) —
+    // without the { max } param t() gets no options and renders the bare
+    // key, which is exactly the user-facing `{{max}}` bug.
+    fireEvent.change(keyInput(), { target: { value: 'customRow' } });
+    fireEvent.change(enInput(), { target: { value: 'a'.repeat(601) } });
+    fireEvent.change(ruInput(), { target: { value: 'Привет' } });
+    fireEvent.click(saveButton());
+
+    await waitFor(() =>
+      expect(screen.getByText('adminContactRowValueMax:600')).toBeInTheDocument()
     );
     expect(persistSpy).not.toHaveBeenCalled();
   });

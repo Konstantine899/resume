@@ -142,7 +142,9 @@ export const ContactRowForm: React.FC<ContactRowFormProps> = ({
         {...register('key')}
       />
       {/* R-1 (contact-row-textarea): long values are Textareas — the short
-          slug key stays an Input (R-2). Same error contract as Input. */}
+          slug key stays an Input (R-2). Same error contract as Input.
+          { max } parity with ContactSocialForm — the interpolated {{max}}
+          placeholder must never reach the user. */}
       <Textarea
         label={t('adminContactRowEn')}
         rows={3}
@@ -150,7 +152,7 @@ export const ContactRowForm: React.FC<ContactRowFormProps> = ({
         maxLength={max}
         fullWidth
         value={values.en ?? ''}
-        error={errors.en?.message ? t(errors.en.message) : undefined}
+        error={errors.en?.message ? t(errors.en.message, { max }) : undefined}
         {...register('en')}
       />
       <Textarea
@@ -160,7 +162,7 @@ export const ContactRowForm: React.FC<ContactRowFormProps> = ({
         maxLength={max}
         fullWidth
         value={values.ru ?? ''}
-        error={errors.ru?.message ? t(errors.ru.message) : undefined}
+        error={errors.ru?.message ? t(errors.ru.message, { max }) : undefined}
         {...register('ru')}
       />
       <div className={styles.actions}>
