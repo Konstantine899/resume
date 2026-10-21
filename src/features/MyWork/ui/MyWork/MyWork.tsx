@@ -2,7 +2,8 @@
 // MyWork Feature
 // ============================================
 
-import { PROJECTS, resolveTechIcons } from '@/entities/Project';
+import { PROJECTS } from '@/entities/Project';
+import { resolveTechIcons } from '@/entities/Technology';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';

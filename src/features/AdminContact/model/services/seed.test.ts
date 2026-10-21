@@ -57,6 +57,15 @@ describe('createContactSeed', () => {
     expect(Object.keys(texts)).toHaveLength(TEXT_KEYS.length);
   });
 
+  it('derives socialLinks from the shared SOCIAL_LINKS (slugs, S4)', () => {
+    const { socialLinks } = createContactSeed();
+    expect(Object.keys(socialLinks)).toEqual(['github', 'linkedin', 'telegram']);
+    expect(socialLinks.github).toEqual({
+      name: 'GitHub',
+      href: 'https://github.com/konstantin-atroshchenko',
+    });
+  });
+
   it('always produces a schema-valid document (locales can never exceed limits)', () => {
     expect(ContactContentSchema.safeParse(createContactSeed()).success).toBe(true);
   });

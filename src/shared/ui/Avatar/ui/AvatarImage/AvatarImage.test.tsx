@@ -32,6 +32,22 @@ describe('AvatarImage', () => {
     expect(wrapper).toHaveAttribute('data-variant', 'square');
   });
 
+  it('supports the portrait variant (transparent/contain/full, no fixed size)', () => {
+    const { container } = render(<AvatarImage src="/portrait.png" variant="portrait" alt="" />);
+
+    const wrapper = container.firstChild as HTMLElement;
+    expect(wrapper).toHaveAttribute('data-variant', 'portrait');
+
+    // D14 mapping: portrait fills its consumer-owned box without chrome.
+    const figure = container.querySelector('figure');
+    expect(figure).toHaveAttribute('data-variant', 'transparent');
+    expect(figure?.className ?? '').toContain('objectFitContain');
+    expect(figure?.className ?? '').toContain('sizeFull');
+    // No inline width/height — the fixed px size must not override size="full".
+    expect((figure as HTMLElement).style.width).toBeFalsy();
+    expect((figure as HTMLElement).style.height).toBeFalsy();
+  });
+
   it('applies custom className to wrapper', () => {
     const { container } = render(<AvatarImage src="/test.jpg" className="custom-img" />);
     const wrapper = container.firstChild as HTMLElement;

@@ -70,7 +70,7 @@ describe('buildPlugins', () => {
     expect(names).not.toContain('visualizer');
   });
 
-  it('always registers the svg transform and static locale copy', () => {
+  it('always registers the svg transform and static-copy plugin', () => {
     const names = pluginNames(buildPlugins(makeOptions()));
 
     expect(names).toContain('vite-plugin-scss-unused-analyzer');

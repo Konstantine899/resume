@@ -54,7 +54,14 @@ describe('ProjectSchema', () => {
     expect(ProjectSchema.array().safeParse(PROJECTS).success).toBe(true);
   });
 
-  it('rejects title shorter than 2 chars after trim', () => {
+  // ---- rev.4 (every-row clear): relaxed limits — '' and empty collections
+  // are now valid record states; only out-of-range values are rejected. ----
+
+  it('accepts an empty title (rev.4 clear)', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, title: '' }).success).toBe(true);
+  });
+
+  it('rejects a NON-EMPTY title shorter than 2 chars after trim', () => {
     expect(ProjectSchema.safeParse({ ...VALID, title: ' A ' }).success).toBe(false);
   });
 
@@ -62,9 +69,10 @@ describe('ProjectSchema', () => {
     expect(ProjectSchema.safeParse({ ...VALID, title: 'x'.repeat(101) }).success).toBe(false);
   });
 
-  it('rejects an empty description locale', () => {
-    const bad = { ...VALID, description: { en: '', ru: 'Описание.' } };
-    expect(ProjectSchema.safeParse(bad).success).toBe(false);
+  it('accepts empty description locales (rev.4 clear)', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, description: { en: '', ru: '' } }).success).toBe(
+      true
+    );
   });
 
   it('rejects a description locale over 600 chars', () => {
@@ -72,14 +80,25 @@ describe('ProjectSchema', () => {
     expect(ProjectSchema.safeParse(bad).success).toBe(false);
   });
 
-  it('rejects an empty techIcons array', () => {
-    expect(ProjectSchema.safeParse({ ...VALID, techIcons: [] }).success).toBe(false);
+  it('accepts an empty techIcons array (rev.4 clear)', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: [] }).success).toBe(true);
   });
 
-  it('rejects a techIcons key outside TECH_ICONS', () => {
-    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', 'cobol'] }).success).toBe(
-      false
+  it('accepts an arbitrary techIcons key (membership lives at the feature level, D2)', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', 'cobol'] }).success).toBe(true);
+  });
+
+  it('rejects more than 20 techIcons', () => {
+    const tooMany = Array.from({ length: 21 }, (_unused, index) => `t${index}`);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: tooMany }).success).toBe(false);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: tooMany.slice(0, 20) }).success).toBe(
+      true
     );
+  });
+
+  it('rejects non-string techIcons members', () => {
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: [42] }).success).toBe(false);
+    expect(ProjectSchema.safeParse({ ...VALID, techIcons: ['react', null] }).success).toBe(false);
   });
 
   it('accepts an internal link and null, rejects http:// and bare paths', () => {
@@ -92,6 +111,10 @@ describe('ProjectSchema', () => {
 
   it('rejects an image that is not a valid URL', () => {
     expect(ProjectSchema.safeParse({ ...VALID, image: 'not-a-url' }).success).toBe(false);
+  });
+
+  it("accepts an empty image '' (rev.4 clear)", () => {
+    expect(ProjectSchema.safeParse({ ...VALID, image: '' }).success).toBe(true);
   });
 
   // Superset union (plan rev.3, решение 5): internal path | http(s):// | data:image/.
@@ -120,7 +143,7 @@ describe('ProjectSchema', () => {
       'data:text/html;base64,PHNjcmlwdD4=',
       'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
       'data:image/png;base64',
-      '',
+      // NOTE: '' was in this list pre-rev.4 — it is the CLEAR value now.
       '/',
       'example.com',
     ];
@@ -140,6 +163,32 @@ describe('ProjectSchema', () => {
   it('rejects category/status outside their enums', () => {
     expect(ProjectSchema.safeParse({ ...VALID, category: 'mainframe' }).success).toBe(false);
     expect(ProjectSchema.safeParse({ ...VALID, status: 'paused' }).success).toBe(false);
+  });
+
+  it('accepts missing category/status (rev.4 optional)', () => {
+    const { category: _c, status: _s, ...rest } = VALID;
+    void _c;
+    void _s;
+    expect(ProjectSchema.safeParse(rest).success).toBe(true);
+  });
+
+  it('accepts a fully cleared record — every scalar at its CLEAR value', () => {
+    const cleared = {
+      ...VALID,
+      title: '',
+      description: { en: '', ru: '' },
+      techIcons: [],
+      image: '',
+      link: null,
+      role: undefined,
+      metrics: undefined,
+      year: undefined,
+      featured: false,
+    };
+    const { category: _c, status: _s, ...rest } = cleared;
+    void _c;
+    void _s;
+    expect(ProjectSchema.safeParse(rest).success).toBe(true);
   });
 
   it('rejects a role with a single empty locale (both are required)', () => {
@@ -177,8 +226,15 @@ describe('ProjectFormDataSchema', () => {
   });
 
   it('applies the same field rules as ProjectSchema', () => {
+    // title '' is VALID since rev.4 — 1-char non-empty still rejects.
     expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, title: 'x' }).success).toBe(false);
-    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: [] }).success).toBe(false);
+    // techIcons: membership moved to the feature level (D2) — the record
+    // contract still enforces the 0..20 bound and string-only members.
+    const tooMany = Array.from({ length: 21 }, (_unused, index) => `t${index}`);
+    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: tooMany }).success).toBe(
+      false
+    );
+    expect(ProjectFormDataSchema.safeParse({ ...FORM_DATA, techIcons: [42] }).success).toBe(false);
   });
 });
 
@@ -196,7 +252,8 @@ describe('ProjectsEnvelopeSchema', () => {
   });
 
   it('rejects an invalid record inside the envelope', () => {
-    const bad = { ...VALID, title: '' };
+    // title '' is VALID since rev.4 — 1-char non-empty is the invalid case.
+    const bad = { ...VALID, title: 'x' };
     expect(ProjectsEnvelopeSchema.safeParse({ v: 1, projects: [bad] }).success).toBe(false);
   });
 });

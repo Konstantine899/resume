@@ -1,71 +1,67 @@
 // ============================================
-// MyWorkEditorList — admin project vitrina (admin-mywork-refactor WU-5)
+// MyWorkEditorList — admin project vitrina (mywork-detail-table WU-2)
 // ============================================
 //
-// Stage-1 CRUD list (plan §9) on the kit DataTable (SPEC R-5): columns
-// title / category / status / featured / year / actions, controlled
-// sorting + pagination (page-size 5|10|20), the range counter under the
-// table, and the header (h2+hint+IconButton add, the SkillsEditorList
-// pattern). Edit emits onEdit(id); Delete goes through a kit Modal
-// confirm (§6, NOT window.confirm). The page owns the open form — this
-// list only fires callbacks.
+// SPEC R-1/R-3/R-5 (variant A′, owner verdict 2026-10-14): the DataTable
+// vitrina is replaced by one collapsible ProjectCard per record (default
+// collapsed — Jobs #225 / Skills rev.4 parity). The header carries the
+// page-level kit Select sort (storage = insertion order, title,
+// category, year desc) plus the unchanged reset + add IconButtons
+// (SkillsEditorList header pattern). Delete opens through the card's
+// header Trash2 (R-3): subtitle names the project, focus lands on
+// «Отмена». Pagination/PageSizeGroup/range counter leave WITH the
+// DataTable — ≤15 records render all (R-1, deliberate).
 //
 // Invariants:
-// - persist BEFORE dispatch (§3): the dispatched id and the persisted
-//   array come from the same `projects` snapshot.
-// - Sorting is CONTROLLED: a header click only emits `onSortChange`; a
-//   sort resets the page to 1 (Skills WU-5a — a sort the user cannot
-//   SEE reads as a broken button).
-// - `confirming` gates the confirm Button (plan §6 ButtonLoader row): the
-//   stage-1 localStorage persist is synchronous so the spinner never
-//   paints — the state exists for the future API swap, not for show.
-// - ALL copy is i18n (i18n-first); status/featured badges show the enum
-//   values, exactly like the form's native selects.
+// - persist BEFORE dispatch (§3): the next array is rebuilt from the
+//   INSERTION-ORDER snapshot (selectAllProjects — store === storage
+//   byte-for-byte), then deleteProject is dispatched. Only the RENDER
+//   uses the sorted list; persisting the sorted array would silently
+//   rewrite the stored order on every delete.
+// - Sorting is local view state; sort never mutates the store array
+//   (useMemo sorts a copy).
+// - persist failure → projectSaveError toast, record untouched, the
+//   confirm modal stays open for a retry (R-2).
+// - ALL copy is i18n (i18n-first).
+// - `year` is optional — the desc comparator uses `?? 0` so absent years
+//   sort last.
 
-import type { Project, ProjectStatus } from '@/entities/Project';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Plus, RotateCcw } from 'lucide-react';
-import type { BadgeVariant } from '@/shared/ui/Badge';
-import { Badge } from '@/shared/ui/Badge';
 import { Button, IconButton } from '@/shared/ui/Button';
-import { DataTable } from '@/shared/ui/DataTable';
-import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import React, { useRef, useState } from 'react';
+import { Select } from '@/shared/ui/Select';
+import { Tooltip } from '@/shared/ui/Tooltip';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllProjects } from '../../model/selectors';
+import type { SelectOption } from '@/shared/ui/Select';
+import type { Project } from '@/entities/Project';
+import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects, removeProjects } from '../../model/services/storage';
 import { deleteProject, resetToDefaults } from '../../model/slices/myWorkSlice';
+import type { EditProjectField } from '../ProjectForm/lib/fieldSchemas';
+import { ProjectCard } from '../ProjectCard/ProjectCard';
 import styles from './MyWorkEditorList.module.scss';
 
-/** Badge color per status enum value (raw value shown as the label). */
-const STATUS_VARIANTS: Record<ProjectStatus, BadgeVariant> = {
-  completed: 'success',
-  'in-progress': 'warning',
-  maintenance: 'accent',
-  archived: 'outline',
-};
-
-/**
- * Default rows per page + the kit `PageSizeGroup` options — mirror of
- * JobsList / SkillsEditorList.
- */
-const DEFAULT_PAGE_SIZE = 5;
-const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
+/** Header Select modes (R-1 D3): storage = insertion order, the others alpha/desc. */
+type SortMode = 'storage' | 'title' | 'category' | 'year';
 
 export interface MyWorkEditorListProps {
   className?: string;
   'data-testid'?: string;
-  /** The page opens its CREATE form (R-4 add-affordance). */
+  /** The page opens its CREATE form (add-affordance). */
   onAdd?: () => void;
-  /** The page opens its edit form for this record. */
+  /** The page opens its edit form for this record id. */
   onEdit: (id: string) => void;
+  /** Rev.3: the page opens the FIELD-scoped modal for this record+row. */
+  onEditField?: (project: Project, field: EditProjectField) => void;
   /** The page clears editingId when the open record is deleted. */
   onDeleted?: (id: string) => void;
 }
@@ -75,213 +71,149 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
   'data-testid': testId = 'mywork-editor-list',
   onAdd,
   onEdit,
+  onEditField,
   onDeleted,
 }) => {
   // Same-feature selector + dispatch — legal inside AdminMyWork (§8).
-  const projects = useSelector(selectAllProjects);
+  // Render is sorted per mode; the persist snapshot stays insertion-order.
+  const allProjects = useSelector(selectAllProjects);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
-  // WU-6 (SPEC R-6): one shared confirm Modal for both destructive
-  // actions — delete-per-record (row button) and reset (header button).
-  const [pending, setPending] = useState<{ kind: 'delete'; id: string } | { kind: 'reset' } | null>(
-    null
-  );
-  const [confirming, setConfirming] = useState(false);
-  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  // Controlled DataTable state (kit A2): the container owns page/size/sort.
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sort, setSort] = useState<SortState | null>(null);
+  const [sortMode, setSortMode] = useState<SortMode>('storage');
+  // Destructive-confirm state machine extracted to the shared hook
+  // (issue #302) — pending/confirming/cancelRef + persist-fail parity:
+  // a failed write keeps the modal OPEN for a retry (R-2).
+  const {
+    pending,
+    confirming,
+    cancelRef,
+    request: requestConfirm,
+    cancel: cancelConfirm,
+    confirm: handleConfirm,
+  } = useConfirmAction<{ kind: 'delete'; id: string } | { kind: 'reset' }>({
+    onConfirm: (action) => {
+      if (action.kind === 'reset') {
+        // Reset relocated from the form — remove → dispatch.
+        removeProjects();
+        dispatch(resetToDefaults());
+        return true;
+      }
+      // §3 order: persist → dispatch → toast → callback → close.
+      // R-3: rebuild from the INSERTION-ORDER snapshot so storage keeps the
+      // store's byte-for-byte order; the sorted array above is render-only.
+      const next = allProjects.filter((project) => project.id !== action.id);
+      if (!persistProjects(next)) {
+        // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
+        addToast({ message: t('projectSaveError'), type: 'error' });
+        return false;
+      }
+      dispatch(deleteProject(action.id));
+      addToast({ message: t('projectDeleted'), type: 'success' });
+      onDeleted?.(action.id);
+      return true;
+    },
+  });
 
-  const closeModal = () => {
-    setPending(null);
-    setConfirming(false);
-  };
-
-  /** §3 order: persist → dispatch → toast → callback → close. */
-  const handleConfirmDelete = (id: string) => {
-    setConfirming(true);
-    const next = projects.filter((project) => project.id !== id);
-    if (!persistProjects(next)) {
-      // R-2 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
-      addToast({ message: t('projectSaveError'), type: 'error' });
-      setConfirming(false);
-      return;
+  // R-1: storage keeps the selector order as-is; the other modes sort a
+  // COPY so the store array is never mutated. `?? 0`: `year` is optional
+  // — absent years sort last on desc.
+  const sortedProjects = useMemo(() => {
+    if (sortMode === 'title') {
+      return [...allProjects].sort((a, b) => a.title.localeCompare(b.title));
     }
-    dispatch(deleteProject(id));
-    addToast({ message: t('projectDeleted'), type: 'success' });
-    onDeleted?.(id);
-    closeModal();
-  };
+    if (sortMode === 'category') {
+      // `?? ''`: category is optional (rev.4) — cleared records sort as empty.
+      return [...allProjects].sort((a, b) => (a.category ?? '').localeCompare(b.category ?? ''));
+    }
+    if (sortMode === 'year') {
+      return [...allProjects].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+    }
+    return allProjects;
+  }, [allProjects, sortMode]);
 
-  /** WU-6 (R-6): reset relocated from the form — remove → dispatch. */
-  const handleConfirmReset = () => {
-    setConfirming(true);
-    removeProjects();
-    dispatch(resetToDefaults());
-    closeModal();
-  };
-
-  const handleConfirm = () => {
-    if (pending === null) return;
-    if (pending.kind === 'delete') handleConfirmDelete(pending.id);
-    else handleConfirmReset();
-  };
+  const sortOptions: SelectOption[] = [
+    { value: 'storage', label: t('adminMyWorkSortStorage') },
+    { value: 'title', label: t('adminMyWorkSortTitle') },
+    { value: 'category', label: t('adminMyWorkSortCategory') },
+    { value: 'year', label: t('adminMyWorkSortYear') },
+  ];
 
   const pendingProject =
     pending?.kind === 'delete'
-      ? projects.find((project) => project.id === pending.id)
+      ? allProjects.find((project) => project.id === pending.id)
       : undefined;
-
-  /** Columns of the vitrina (SPEC R-5): title / category / status / featured / year / actions. */
-  const columns: DataTableColumn<Project>[] = [
-    {
-      key: 'title',
-      header: t('adminMyWorkTableTitle'),
-      sortable: true,
-      sortValue: (project) => project.title,
-      render: (project) => (
-        <span className={styles.titleCell} data-testid={`mywork-row-${project.id}`}>
-          {/* A6: no heading elements inside cells — <strong> label. */}
-          <strong>{project.title}</strong>
-        </span>
-      ),
-    },
-    {
-      key: 'category',
-      header: t('adminMyWorkTableCategory'),
-      sortable: true,
-      sortValue: (project) => project.category,
-      render: (project) => <span className={styles.category}>{project.category}</span>,
-    },
-    {
-      key: 'status',
-      header: t('adminMyWorkTableStatus'),
-      sortable: true,
-      sortValue: (project) => project.status,
-      render: (project) => (
-        <Badge variant={STATUS_VARIANTS[project.status]} size="sm">
-          {project.status}
-        </Badge>
-      ),
-    },
-    {
-      key: 'featured',
-      header: t('adminMyWorkTableFeatured'),
-      render: (project) =>
-        project.featured ? (
-          <Badge variant="accent" size="sm">
-            {t('projectFieldFeatured')}
-          </Badge>
-        ) : null,
-    },
-    {
-      key: 'year',
-      header: t('adminMyWorkTableYear'),
-      sortable: true,
-      // Numbers compare as values, not as their display strings (kit A3).
-      // `?? 0`: `year` is optional on the entity — undefined sorts first.
-      sortValue: (project) => project.year ?? 0,
-      render: (project) => <span className={styles.year}>{project.year}</span>,
-    },
-    {
-      key: 'actions',
-      header: t('adminMyWorkTableActions'),
-      render: (project) => (
-        <div className={styles.actions} data-testid={`mywork-actions-${project.id}`}>
-          <Button type="button" variant="outline" size="sm" onClick={() => onEdit(project.id)}>
-            {t('projectEdit')}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            size="sm"
-            onClick={() => setPending({ kind: 'delete', id: project.id })}
-          >
-            {t('projectDelete')}
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  // Mirror of the kit's safePage so the range counter always agrees with
-  // the window DataTable actually renders (A10).
-  const totalPages = Math.max(1, Math.ceil(projects.length / pageSize));
-  const safePage = Math.min(Math.max(page, 1), totalPages);
-  const start = (safePage - 1) * pageSize;
-  const rangeFrom = projects.length > 0 ? start + 1 : 0;
-  const rangeTo = Math.min(start + pageSize, projects.length);
 
   return (
     <div className={classNames(styles.root, className)} data-testid={testId}>
       <div className={styles.header}>
         <div className={styles.intro}>
           <Heading level={2}>{t('adminMyWorkTitle')}</Heading>
+          {/* Kept from the DataTable vitrina — migration changes the LIST
+              mechanics, never the user-facing copy (i18n-first). */}
           <Paragraph theme="muted">{t('adminMyWorkHint')}</Paragraph>
         </div>
         <div className={styles.headerActions}>
-          {/* WU-6 (R-6): destructive reset relocated from the form —
-              header button behind the SAME confirm Modal as delete. */}
-          <IconButton
-            variant="ghost"
-            size="md"
-            ariaLabel={t('projectReset')}
-            icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
-            onClick={() => setPending({ kind: 'reset' })}
+          <Select
+            id="admin-mywork-sort"
+            data-testid="admin-mywork-sort"
+            label={t('adminMyWorkSort')}
+            size="sm"
+            options={sortOptions}
+            value={sortMode}
+            onChange={(value) => {
+              if (
+                value === 'storage' ||
+                value === 'title' ||
+                value === 'category' ||
+                value === 'year'
+              ) {
+                setSortMode(value);
+              }
+            }}
           />
-          <IconButton
-            variant="primary"
-            size="md"
-            ariaLabel={t('adminMyWorkAdd')}
-            icon={<Icon name={Plus} size={20} color="inherit" decorative />}
-            onClick={() => onAdd?.()}
-          />
+          {/* Destructive reset relocated from the form — header button
+              behind the SAME confirm Modal as delete. R-A2 (issue #242):
+              hover tooltip (A14 — kit Tooltip is hover-only). */}
+          <Tooltip content={t('projectReset')} position="top" showDelay={0}>
+            <IconButton
+              variant="outline"
+              size="md"
+              ariaLabel={t('projectReset')}
+              icon={<Icon name={RotateCcw} size={20} color="inherit" decorative />}
+              onClick={() => requestConfirm({ kind: 'reset' })}
+            />
+          </Tooltip>
+          <Tooltip content={t('adminMyWorkAdd')} position="top" showDelay={0}>
+            <IconButton
+              variant="primary"
+              size="md"
+              ariaLabel={t('adminMyWorkAdd')}
+              icon={<Icon name={Plus} size={20} color="inherit" decorative />}
+              onClick={() => onAdd?.()}
+            />
+          </Tooltip>
         </div>
       </div>
 
-      <DataTable<Project>
-        caption={t('adminMyWorkTitle')}
-        columns={columns}
-        rows={projects}
-        getKey={(project) => project.id}
-        page={page}
-        pageSize={pageSize}
-        pageSizeOptions={PAGE_SIZE_OPTIONS}
-        onPageSizeChange={(next) => {
-          setPageSize(next);
-          // A new size re-windows everything — top of page 1 (SPEC A10).
-          setPage(1);
-        }}
-        onPageChange={setPage}
-        sort={sort}
-        onSortChange={(next) => {
-          setSort(next);
-          // A sort the user cannot SEE reads as a broken button:
-          // reset to the top of the new order (Skills WU-5a).
-          setPage(1);
-        }}
-        emptyState={<EmptyState title={t('noProjectsYet')} />}
-      />
-
-      {projects.length > 0 && (
-        <div className={styles.footer}>
-          <span className={styles.range} aria-live="polite">
-            {t('paginationRange', { from: rangeFrom, to: rangeTo, total: projects.length })}
-          </span>
-        </div>
-      )}
+      {sortedProjects.length === 0 && <EmptyState title={t('noProjectsYet')} />}
+      {sortedProjects.map((project) => (
+        <ProjectCard
+          key={project.id}
+          project={project}
+          onEdit={(record) => onEdit(record.id)}
+          onEditField={onEditField}
+          onDelete={(id) => requestConfirm({ kind: 'delete', id })}
+        />
+      ))}
 
       <Modal
         isOpen={pending !== null}
-        onClose={closeModal}
+        onClose={cancelConfirm}
         // R-2: title ≠ button label for delete (the button stays
         // projectDelete); the subtitle NAMES the project
-        // (projectConfirmDeleteName, OPEN-10 parity with
-        // skillsConfirmDelete={{name}} / adminJobConfirmDeleteName).
-        // Reset (WU-6): projectReset title + projectResetConfirm subtitle.
+        // (projectConfirmDeleteName, OPEN-10 parity).
+        // Reset: projectReset title + projectResetConfirm subtitle.
         title={pending?.kind === 'reset' ? t('projectReset') : t('projectDeleteConfirm')}
         subtitle={
           pendingProject
@@ -294,7 +226,7 @@ export const MyWorkEditorList: React.FC<MyWorkEditorListProps> = ({
         initialFocusRef={cancelRef}
         footer={
           <>
-            <Button ref={cancelRef} type="button" variant="outline" onClick={closeModal}>
+            <Button ref={cancelRef} type="button" variant="outline" onClick={cancelConfirm}>
               {t('projectCancel')}
             </Button>
             <Button

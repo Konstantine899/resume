@@ -48,7 +48,7 @@ import React, { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { addJob, applyJobUpdate, makeJobRecord, updateJob } from '../../model/slices/jobsSlice';
-import { selectAllJobs } from '../../model/selectors';
+import { selectAllJobs } from '../../model/selectors/selectors';
 import { persistJobs } from '../../model/services/storage';
 import {
   emptyJobFormValues,

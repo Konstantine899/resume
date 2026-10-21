@@ -84,6 +84,9 @@ export const AdminLayout: React.FC = () => {
           <NavLink to="/admin/jobs" className={navLinkClassName}>
             {t('adminNavJobs')}
           </NavLink>
+          <NavLink to="/admin/technologies" className={navLinkClassName}>
+            {t('adminNavTechnologies')}
+          </NavLink>
         </nav>
 
         <main className={styles.content}>

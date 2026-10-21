@@ -26,6 +26,7 @@
 
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Plus } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
@@ -34,12 +35,12 @@ import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Modal } from '@/shared/ui/Modal';
 import { Select } from '@/shared/ui/Select';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { SelectOption } from '@/shared/ui/Select';
 import type { Job } from '@/entities/Job';
 import { deleteJob } from '../../model/slices/jobsSlice';
-import { selectAllJobs, selectSortedJobs } from '../../model/selectors';
+import { selectAllJobs, selectSortedJobs } from '../../model/selectors/selectors';
 import { persistJobs } from '../../model/services/storage';
 import type { EditField } from '../JobForm/lib/fieldSchemas';
 import { JobCard } from '../JobCard/JobCard';
@@ -80,11 +81,34 @@ export const JobsList: React.FC<JobsListProps> = ({
   const dispatch = useDispatch();
   const { t, language } = useLanguage();
   const { addToast } = useToast();
-  const [pending, setPending] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>('recent');
-  // Destructive-confirm pattern (SkillsEditorList §6): focus lands on «Отмена».
-  const cancelRef = useRef<HTMLButtonElement>(null);
+  // Destructive-confirm state machine extracted to the shared hook
+  // (issue #302) — pending/confirming/cancelRef + persist-fail parity:
+  // a failed write keeps the modal OPEN for a retry (R-3).
+  const {
+    pending,
+    confirming: deleting,
+    cancelRef,
+    request: setPending,
+    cancel: closeModal,
+    confirm: handleConfirmDelete,
+  } = useConfirmAction<string>({
+    onConfirm: (id) => {
+      // §3 order: persist → dispatch → toast → callback → close.
+      // R-2: rebuild from the INSERTION-ORDER snapshot so storage keeps the
+      // store's byte-for-byte order; the sorted array above is render-only.
+      const next = allJobs.filter((job) => job.id !== id);
+      if (!persistJobs(next)) {
+        // R-3 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
+        addToast({ message: t('adminJobPersistError'), type: 'error' });
+        return false;
+      }
+      dispatch(deleteJob(id));
+      addToast({ message: t('adminJobDeleted'), type: 'success' });
+      onJobDeleted?.(id);
+      return true;
+    },
+  });
 
   // R-4: recent keeps the selector order as-is; company/position alpha-sort
   // a COPY so the store array is never mutated.
@@ -105,30 +129,6 @@ export const JobsList: React.FC<JobsListProps> = ({
     { value: 'company', label: t('adminJobsSortCompany') },
     { value: 'position', label: t('adminJobsSortPosition') },
   ];
-
-  const closeModal = () => {
-    setPending(null);
-    setDeleting(false);
-  };
-
-  /** §3 order: persist → dispatch → toast → callback → close. */
-  const handleConfirmDelete = () => {
-    if (!pending) return;
-    setDeleting(true);
-    // R-2: rebuild from the INSERTION-ORDER snapshot so storage keeps the
-    // store's byte-for-byte order; the sorted array above is render-only.
-    const next = allJobs.filter((job) => job.id !== pending);
-    if (!persistJobs(next)) {
-      // R-3 / Skills OPEN-9 parity: keep the modal OPEN for a retry.
-      addToast({ message: t('adminJobPersistError'), type: 'error' });
-      setDeleting(false);
-      return;
-    }
-    dispatch(deleteJob(pending));
-    addToast({ message: t('adminJobDeleted'), type: 'success' });
-    onJobDeleted?.(pending);
-    closeModal();
-  };
 
   const pendingJob = pending === null ? undefined : allJobs.find((job) => job.id === pending);
 

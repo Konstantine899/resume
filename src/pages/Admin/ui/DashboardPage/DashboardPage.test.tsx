@@ -5,13 +5,13 @@
 // Builds the REAL reducer map (src/storeReducers) so the page proves the
 // store wiring too; identity i18n keeps the copy assertions on keys.
 
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
-import { Provider } from 'react-redux';
 import { describe, expect, it, vi } from 'vitest';
 
 import { clearMetrics, mockAdminMetrics } from '@/features/AdminDashboard';
 import type { AdminMetric } from '@/features/AdminDashboard';
+import { renderAdminPage } from '@/shared/tests';
 import { storeReducers } from '@/storeReducers';
 import { DashboardPage } from './DashboardPage';
 
@@ -33,11 +33,7 @@ vi.mock('@/shared/lib/i18n/hooks', () => ({
 }));
 
 const renderDashboard = (store = configureStore({ reducer: storeReducers })) => {
-  render(
-    <Provider store={store}>
-      <DashboardPage />
-    </Provider>
-  );
+  renderAdminPage(<DashboardPage />, { store });
   return store;
 };
 

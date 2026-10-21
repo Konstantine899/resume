@@ -16,14 +16,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileUpload } from './FileUpload';
 import type { FileUploadSelection, FileUploadTexts } from '../../model/types';
 
-const TEXTS: FileUploadTexts = {
+// `satisfies` (not `: FileUploadTexts`) keeps `wrongFormat` a `string` here:
+// the property is OPTIONAL on purpose (unreachable without acceptExtensions),
+// and a widened `string | undefined` would break the toHaveTextContent pins.
+const TEXTS = {
   button: 'Choose image',
   hint: 'PNG, WebP or JPEG',
   notImage: 'The file is not an image',
   tooLarge: 'The image is too large',
   undecodable: 'The image could not be decoded',
+  wrongFormat: 'The file format is not supported',
   selected: 'Image selected',
-};
+} satisfies FileUploadTexts;
 
 /** Controllable stand-in for the DOM Image (jsdom never decodes pixels). */
 let imageBehavior: 'load' | 'error' = 'load';
@@ -274,6 +278,69 @@ describe('FileUpload: raw SVG passthrough (skills-icon-upload)', () => {
       })
     );
     expect(toBlob).not.toHaveBeenCalled();
+  });
+});
+
+describe('FileUpload: acceptExtensions format gate (WU-14)', () => {
+  it('accepts a .png file when .png is in acceptExtensions', async () => {
+    mockCanvasToBlob();
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.png'] });
+
+    attachFile(new File(['x'], 'portrait.png', { type: 'image/png' }));
+
+    await waitFor(() => expect(onFileSelect).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('accepts a .jpg file even when the MIME is the legacy image/jpg', async () => {
+    mockCanvasToBlob();
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.jpg', '.jpeg', '.png'] });
+
+    attachFile(new File(['x'], 'portrait.jpg', { type: 'image/jpg' }));
+
+    await waitFor(() => expect(onFileSelect).toHaveBeenCalledTimes(1));
+  });
+
+  it('rejects a .webp file (image/webp) when only .jpg/.png are accepted', async () => {
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.jpg', '.jpeg', '.png'] });
+
+    attachFile(new File(['x'], 'shot.webp', { type: 'image/webp' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.wrongFormat);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('rejects a .gif file when only .jpg/.png are accepted', async () => {
+    mockCanvasToBlob();
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.jpg', '.jpeg', '.png'] });
+
+    attachFile(new File(['x'], 'anim.gif', { type: 'image/gif' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.wrongFormat);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('rejects an .svg file when only .jpg/.png are accepted', async () => {
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.jpg', '.jpeg', '.png'] });
+
+    attachFile(
+      new File(['<svg xmlns="http://www.w3.org/2000/svg"></svg>'], 'logo.svg', {
+        type: 'image/svg+xml',
+      })
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.wrongFormat);
+    expect(onFileSelect).not.toHaveBeenCalled();
+  });
+
+  it('rejects a file whose EXTENSION lies about a disallowed type (spoof guard)', async () => {
+    const { onFileSelect } = renderFU({ acceptExtensions: ['.jpg', '.jpeg', '.png'] });
+
+    // Extension says .png, MIME says image/webp — the MIME gate trips first.
+    attachFile(new File(['x'], 'spoof.png', { type: 'image/webp' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(TEXTS.wrongFormat);
+    expect(onFileSelect).not.toHaveBeenCalled();
   });
 });
 

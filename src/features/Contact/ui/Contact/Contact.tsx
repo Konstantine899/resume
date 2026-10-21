@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, type ContactContent } from '@/entities/ContactContent';
+import { CONTACT_EMAIL, type TextKey } from '@/entities/ContactContent';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
@@ -24,8 +24,9 @@ export function Contact({ content }: ContactProps) {
   // Fallback branch keeps rendering constants/t() — identical to the
   // pre-store behavior (the 3 legacy tests assert this, §11).
   const email = content?.email ?? CONTACT_EMAIL;
-  const text = (key: keyof ContactContent['texts']): string =>
-    content?.texts[key][language] ?? t(key);
+  // contact-rows-crud R-1: per-key `?.` — an admin-deleted row falls back
+  // to the i18n default instead of throwing on `undefined[language]`.
+  const text = (key: TextKey): string => content?.texts[key]?.[language] ?? t(key);
 
   // ✅ Используем хук формы (внутри уже есть Toast); admin-edited
   // formTexts reach the Create toasts via the texts option (R-11).

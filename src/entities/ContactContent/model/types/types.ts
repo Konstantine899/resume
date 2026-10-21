@@ -34,15 +34,32 @@ export type FormTextKey =
   'contactFormRequired' | 'contactFormSent' | 'contactFormError' | 'contactFormConfigError';
 
 /**
+ * One row of the social-links table (contact-social-crud S1).
+ * Named `ContactSocialLink` to avoid the clash with `SocialLink` in
+ * `entities/Developer` (the icon-bearing constant type) and in
+ * `widgets/Nav` — those consumers keep reading `SOCIAL_LINKS`.
+ */
+export interface ContactSocialLink {
+  name: string;
+  href: string;
+}
+
+/**
  * The editable document of the Contact section.
  * - `email` — the mailto link target (seed = CONTACT_EMAIL).
  * - `texts` — section + form labels, each in both locales.
  * - `formTexts` — toast messages for the Create flow (§9).
- * Deliberately absent: `socialLinks` (shared SOCIAL_LINKS, out of CRUD
- * scope — decision B, §2) and the `contact` nav key (i18n-owned).
+ * - `socialLinks` — open record of social rows (contact-social-crud S1):
+ *   slug key, `{ name, href }` value; seed = shared `SOCIAL_LINKS`.
+ * OPEN records (contact-rows-crud D1): rows are dynamic — the admin can
+ * add/delete string rows; `TextKey`/`FormTextKey` stay the typed read-set
+ * for the vitrina, seed and row labels. A missing key falls back to the
+ * i18n default on the read path.
+ * Deliberately absent: the `contact` nav key (i18n-owned).
  */
 export interface ContactContent {
   email: string;
-  texts: Record<TextKey, LocalizedText>;
-  formTexts: Record<FormTextKey, LocalizedText>;
+  texts: Record<string, LocalizedText>;
+  formTexts: Record<string, LocalizedText>;
+  socialLinks: Record<string, ContactSocialLink>;
 }

@@ -3,7 +3,8 @@
 // WU-2 (plan_project_images): buildPlugins must register a viteStaticCopy
 // target that emits src/shared/assets/images/projects → public/images/projects.
 // Targets are not exposed on the real plugin object, so the module is mocked
-// and the options are captured. See also the locales target precedent.
+// and the options are captured. The former locales copy target was removed
+// by issue #298 (0 fetch consumers).
 import { describe, expect, it, vi } from 'vitest';
 
 const captured: { targets?: Array<{ src: string; dest: string }> } = {};
@@ -42,7 +43,7 @@ const options: BuildOptions = {
 };
 
 describe('viteStaticCopy targets (WU-2)', () => {
-  it('registers the project-images target (flat copy) alongside the locales target', () => {
+  it('registers the project-images target (flat copy) — issue #298 dropped the dead locales copy', () => {
     buildPlugins(options);
 
     // stripBase: a directory src preserves the matched dir tree
@@ -53,7 +54,8 @@ describe('viteStaticCopy targets (WU-2)', () => {
       dest: paths.buildImagesProjects,
       rename: { stripBase: true },
     });
-    expect(captured.targets).toContainEqual({
+    // public/locales had 0 fetch consumers (static JSON imports only).
+    expect(captured.targets).not.toContainEqual({
       src: paths.locales,
       dest: paths.buildLocales,
     });

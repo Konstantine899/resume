@@ -3,8 +3,10 @@
 // ============================================
 //
 // Stage-1 CRUD (plan_projects_crud §10): react-hook-form + zodResolver
-// against `ProjectFormSchema`, which delegates every rule to the SHARED
-// `ProjectFormDataSchema` in entities (§7 single source of truth).
+// against `makeProjectFormSchema(techKeys)` — the DOM adapter over the
+// SHARED `ProjectFormDataSchema` in entities (§7 single source of truth)
+// plus catalog membership (technologies-crud D2: keys come from the store,
+// the deleted TECH_ICONS enum no longer exists).
 //
 // Invariants:
 // - persist BEFORE dispatch (§3): record/patch built ONCE by
@@ -19,7 +21,8 @@
 //   touches the slice, selectors via react-redux).
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
-import { PROJECT_CATEGORIES, PROJECT_STATUSES, TECH_ICONS } from '@/entities/Project';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '@/entities/Project';
+import { selectTechnologyKeys } from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -35,20 +38,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllProjects } from '../../model/selectors';
-import {
-  getOrCreateSubdir,
-  isDirectoryPickerSupported,
-  pickImagesRoot,
-  readImagesRootHandle,
-  saveImageToDir,
-  writeImagesRootHandle,
-} from '@/shared/lib/imageDir';
+import { selectAllProjects } from '../../model/selectors/selectors';
+import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
-import { addProject, makeProjectRecord, makeUpdatePatch, updateProject } from '../../model/slices/myWorkSlice';
 import {
-  ProjectFormSchema,
+  addProject,
+  makeProjectRecord,
+  makeUpdatePatch,
+  updateProject,
+} from '../../model/slices/myWorkSlice';
+import {
   emptyProjectFormValues,
+  makeProjectFormSchema,
   toProjectFormValues,
   type ProjectFormOutput,
   type ProjectFormValues,
@@ -81,6 +82,10 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
 }) => {
   // Same-feature selector + dispatch — legal inside AdminMyWork (§8).
   const all = useSelector(selectAllProjects);
+  // Live catalog keys (technologies-crud D2/D4): the toggles AND the
+  // schema's membership rule both read the store; a missing slice falls
+  // back to the seed instead of throwing (bare tests / Storybook).
+  const techKeys = useSelector(selectTechnologyKeys);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -98,7 +103,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
     setValue,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ProjectFormValues, unknown, ProjectFormOutput>({
-    resolver: zodResolver(ProjectFormSchema),
+    resolver: zodResolver(makeProjectFormSchema(techKeys)),
     defaultValues: project ? toProjectFormValues(project) : emptyProjectFormValues(),
   });
 
@@ -106,8 +111,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   // every keystroke/validation/reset flows through RHF state into the DOM
   // (useWatch, NOT watch(): React Compiler incompatible-library rule).
   const values = useWatch({ control });
-
-  const techKeys = Object.keys(TECH_ICONS);
 
   const toggleTech = (key: string) => {
     const current = values.techIcons ?? [];
@@ -132,15 +135,12 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         return;
       }
       try {
-        const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-        await writeImagesRootHandle(root); // best-effort remember
         const subdir = values.imageSubdir || 'projects';
-        await getOrCreateSubdir(root, subdir); // create-or-select under root
-        const path = await saveImageToDir(root, file.blob, file.name, subdir);
+        const path = await saveUploadedImage({ blob: file.blob, name: file.name, subdir });
         setValue('image', path, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         // The user dismissed the picker — no alarm, no value change.
-        if ((error as { name?: string } | null)?.name === 'AbortError') return;
+        if (isAbortError(error)) return;
         setImageSaveErrorKey('projectFileUploadSaveError');
       }
     },

@@ -1,178 +1,74 @@
 ---
-status: done
-epic: admin-mywork-refactor
-created: '2026-10-11'
-verified: '2026-10-12'
+status: approved
+epic: mywork-field-image-fileupload
+issue: 273
+created: '2026-10-17'
+verified: '2026-10-17'
 ---
 
-# SPEC — features/AdminMyWork (рефакторинг к паритету с AdminSkills)
+# SPEC — features/AdminMyWork (mywork-field-image-fileupload, issue #273)
 
 > Единственная истина для этого блока (spec-driven workflow: AGENTS.md, раздел Spec-driven features). Статусы: `draft` → `approved` → `done`.
-> Исходный план: vault `wiki/plan/plan_admin_mywork_refactor.md`, rev.1 (draft, 2026-10-11). Companion: [TODO.md](./TODO.md).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
-> Статус `approved` — вердикт владельца 2026-10-12: OPEN-1 = A, OPEN-2 = A, OPEN-3 = A, OPEN-4 = A (рекомендации приняты без изменений).
+> Предыдущая пара (эпик `mywork-parity-polish`, rev.1, done, PR #253) перезаписана — история в git (`git log -- src/features/AdminMyWork/spec/`).
+> **Режим исполнения: AUTO** (директива владельца).
 
-## Цель
+## Контекст и цель
 
-Привести `features/AdminMyWork` к уровню отрефакторенного `AdminSkills`
-(план `plan_admin_panel_edit.md`, PR #205): confirm-modal с именем сущности
-и retry-поведением, kit EmptyState, page-owned form-modal с тестом
-страницы, kit DataTable в витрине, гигиена баррела, ARCH-1 докрутка.
-Model-слой (slice/storage/seed) эталонный и не меняется; FileUpload-пилот
-(project-images, PR #209) не трогается.
+Директива владельца (2026-10-17): «Загрузка изображений должна быть через компонент `src/shared/ui/FileUpload`.»
 
-## Контекст (факты, проверено 2026-10-11)
-
-- Слой: `features/AdminMyWork` (ui: MyWorkEditorList.tsx 147 LOC,
-  ProjectForm.tsx 472 LOC, projectFormSchema.ts 108 LOC; model:
-  myWorkSlice.ts/storage.ts по 69 LOC; 68 тестов), композиция страницы —
-  `src/pages/Admin/ui/AdminMyWorkPage` (44 LOC, без тестов); данные —
-  `entities/Project` + слайс `myWork` + storage `resume.projects`
-  (persist-THEN-dispatch).
-- Сегодня: confirm-modal списка без subtitle-имени/initialFocus,
-  persist-fail закрывает модалку (MyWorkEditorList.tsx:71-75); две
-  confirm-модалки ВНУТРИ формы (ProjectForm.tsx:431-467, persist-fail
-  :194-197); пустое состояние — голый Paragraph (:84-90); витрина —
-  рукотворный `<ul>` без шапки/DataTable/пагинации (:94-123); форма
-  инлайн под списком с h2 внутри (AdminMyWorkPage.tsx:38,
-  ProjectForm.tsx:217-220); `ui/lib/projectFormSchema.ts` вне
-  компонентной директории; баррел — 12 значений + 2 типа без
-  production-потребителей (index.ts:16-33).
-- ОПРОВЕРГНУТО (WU не заводим): persist-order бага НЕТ — снимок везде из
-  insertion-order `selectAllProjects` (MyWorkEditorList.tsx:59,70;
-  ProjectForm.tsx:90,162,171,193), сортирующего селектора нет
-  (selectors.ts:6-13); дрейф лимитов схемы НЕВОЗМОЖЕН — форма делегирует
-  через `.pipe()` в `ProjectFormDataSchema` (projectFormSchema.ts:31-62),
-  compile-time guard в entities (schema.ts:122-125); мёртвых i18n-ключей
-  НЕТ (46 project*/myWork*-ключей, en/ru симметрия); axe-маршрут
-  `/admin/mywork` уже в PATHS (purge-axe-check.mjs:37).
-- Кит: `DataTable` (Table + Pagination + PageSizeGroup, контролируемая
-  сортировка — Skills-пилот), `EmptyState`, `Modal` (subtitle
-  Modal.tsx:19, initialFocusRef :40), `Badge`, `Button`, `Form`, `Input`,
-  `Textarea`, `Select`, `FileUpload` (пилот — не трогаем), `Heading`,
-  `Paragraph`, `Toast`.
-- Gold standard сравнения — `features/AdminSkills` (SkillsEditorList,
-  AdminSkillsPage, AdminSkillsPage.test.tsx:25-66) и план
-  `plan_admin_jobs_refactor.md` (rev.1).
-
-## Скоуп
-
-Меняются: `src/features/AdminMyWork/**` (ui/, баррел index.ts, импорты),
-`src/pages/Admin/ui/AdminMyWorkPage/**` (+ новый тест), локали
-`en.json`/`ru.json` (новые ключи projectConfirmDeleteName, возможно
-adminMyWorkTable*/кнопки шапки), `HomePage.test.tsx` (только deep-import
-`removeProjects`).
-
-НЕ меняются: `myWorkSlice.ts`, `storage.ts`, `seed.ts` и их тесты;
-`entities/Project/**` (spec `done`, project-images); витрина
-`features/MyWork` и Design C + deep-import `HomePage.tsx:13`;
-`storeReducers.ts` deep-import (resume-lazy-rhf-chunk);
-`model/selectors/index.ts` barrel — OPEN-8 repo-wide; поведение
-ProjectForm (кроме удаления h2/подтверждений — вердикты OPEN-1/OPEN-4);
-публичные контракты kit-компонентов.
+Аудит `src` показал, что каждая загрузка изображений уже идёт через kit `FileUpload`, КРОМЕ ОДНОГО места: `src/features/AdminMyWork/ui/FieldEditForm/FieldEditForm.tsx`, ветка `case 'image':`. Она рисовала kit `Input` (текстовое поле с `placeholder="/images/…  or  https://…"` и `{...register('image')}`) — это field-scoped модалка, открываемая по ✏️ на строке `image` detail-таблицы `/admin/mywork`. Эпик заменяет этот текстовый инпут на kit `FileUpload`, повторяя поток `ProjectForm` (save-on-selection).
 
 ## Требования
 
-### R-1 — ARCH-1 докрутка (`ui/lib` внутрь компонента)
-- [ ] `projectFormSchema.ts` перенесён в `ui/ProjectForm/lib/
-      projectFormSchema.ts` (прецедент Jobs R-1, `DatePicker/lib/isoDate.ts`).
-- [ ] На верхнем уровне `src/features/AdminMyWork/ui/` нет `lib/` и нет
-      `.tsx`/`.scss`-файлов; импорты резолвятся (validate зелёный,
-      public-api включительно).
+### R-1 Текстовый Input изображения удалён, вместо него kit `FileUpload`
 
-### R-2 — Confirm-delete parity (список + форма)
-- [ ] Subtitle модалок удаления называет сущность: новый ключ
-      `projectConfirmDeleteName` (en+ru, `{{name}}` — title проекта);
-      заголовок модалки ≠ label кнопки.
-- [ ] `initialFocusRef` → кнопка «Отмена» в модалках списка и формы.
-- [ ] При неудачном `persistProjects` модалка ОСТАЁТСЯ открытой (повтор),
-      тост `projectSaveError` показан — в модалке списка
-      (MyWorkEditorList.tsx:71-75) и в form-delete (ProjectForm.tsx:194-197).
-- [ ] Тесты зелёные: subtitle с именем, фокус на «Отмена», persist-fail не
-      закрывает (список + форма).
+- [ ] Ветка `case 'image':` `FieldEditForm.tsx` больше не рендерит `Input` с `placeholder="/images/…"` и `{...register('image')}`.
+- [ ] Вместо неё рендерится kit `FileUpload` (паритет `ProjectForm`): `label`/`texts` из той же i18n-семьи `projectFileUpload*`.
+- [ ] Критерий: в модалке поля `image` присутствует `input[type="file"]`; `getByLabelText('projectFieldImage')` → null.
 
-### R-3 — Пустое состояние через kit EmptyState
-- [ ] Пустой список → kit `EmptyState` (public API) c
-      `title={t('noProjectsYet')}` (ключ общий с витриной — не
-      переименовывать); голый Paragraph удалён; feature-SCSS пустого
-      состояния нет (A2 у kit).
-- [ ] Тест: пустой список рендерит EmptyState.
+### R-2 Save-on-selection через saveUploadedImage (паритет ProjectForm)
 
-### R-4 — Форма в page-owned Modal / тест страницы
-- [ ] `AdminMyWorkPage` рендерит форму в kit `Modal`: `isOpen`
-      от состояния create/edit, шапка `adminMyWorkTitle`, ESC/overlay →
-      закрытие; одновременно открыт не более одного диалога (A12).
-- [ ] h2+hint удалены из `ProjectForm` (A12 — имя диалога =
-      шапка модалки) и перенесены в шапку витрины (R-5); key-remount
-      сохраняется; есть add-affordance «Добавить» (create-режим иначе
-      недоступен).
-- [ ] Существует `AdminMyWorkPage.test.tsx` (реальный
-      `configureStore({reducer: storeReducers})`, моки только
-      storage/i18n/toast — харнес `AdminSkillsPage.test.tsx:25-66`):
-      create-open, edit-open, stale-record guard, ESC-close, единственный
-      диалог (A12).
+- [ ] `handleImageFile` async: `saveUploadedImage({ blob, name, subdir: 'projects' })` → `setValue('image', path, { shouldDirty: true, shouldValidate: true })`.
+- [ ] `subdir` ФИКСИРОВАН `'projects'` — модалка одного поля НЕ получает Select `imageSubdir` (нет места, вне скоупа).
+- [ ] Критерий: выбор файла пишет `/images/projects/<name>` и включает Save (форма становится dirty); при Save значение доходит до записи.
 
-### R-5 — Витрина на kit DataTable
-- [ ] `MyWorkEditorList` использует kit `DataTable`: колонки
-      title, category, status (Badge), featured (Badge), year, actions
-      Edit/Delete (kit Button); контролируемая сортировка (sort → page=1,
-      закреплено тестом; паттерн Skills WU-5a); Page-size 5|10|20 и
-      навигация видны при `rows > 0`; layout зеркалом Skills: page-size
-      сверху справа, навигация снизу по центру; шапка витрины (h2+hint+
-      actions — паттерн SkillsEditorList:232-238).
-- [ ] Тесты: строка реально исчезает при delete; порядок persist→dispatch
-      сохранён (shared `calls` array); переходы страниц; sort → page=1.
-- [ ] Новые i18n-ключи заголовков колонок/кнопок шапки при необходимости
-      (`adminMyWorkTable*`, en+ru); parity-тест зелёный.
-- [ ] axe `/admin/mywork` — 0 регрессий (маршрут уже в PATHS).
+### R-3 Ошибки: unsupported / write-failure держат модалку открытой, AbortError — тихо
 
-### R-6 — Релокация подтверждений формы
-- [ ] Из `ProjectForm` удалены две confirm-модалки и кнопки
-      reset/delete (форма оставляет Save/Cancel); delete-per-record — в
-      строках списка (уже есть); reset переезжает в шапку витрины с
-      confirm-модалкой (retry-поведение R-2 сохраняется).
-- [ ] Затронутые ProjectForm.test переписаны; persist-THEN-dispatch кейсы
-      сохранены.
+- [ ] `isDirectoryPickerSupported()` false → in-modal `role="alert"` `projectFileUploadUnsupported`, модалка открыта, Save disabled.
+- [ ] Ошибка записи → `role="alert"` `projectFileUploadSaveError`, модалка открыта, Save disabled.
+- [ ] `isAbortError(...)` → тихо (пользователь отменил picker), без значения и без тревоги.
 
-### R-7 — Гигиена баррела
-- [ ] Из `index.ts` удалены 12 мёртвых значений
-      (`selectFeaturedProjects`, `selectProjectById`, `createProjectsSeed`,
-      `PROJECTS_STORAGE_KEY`, `readProjects`, `persistProjects`,
-      `addProject`, `deleteProject`, `makeProjectRecord`,
-      `makeUpdatePatch`, `resetToDefaults`, `updateProject`) + 2 типа
-      (`MyWorkEditorListProps`, `ProjectFormProps`); `HomePage.test.tsx:16`
-      переведён на deep-import `@/features/AdminMyWork/model/services/
-      storage`; `check:public-api` зелёный.
-- [ ] Мёртвых i18n-ключей нет (проверено) — allowlist locales-parity не
-      меняется.
+### R-4 Save-конвейер и i18n не меняются
 
-### R-8 — Известные проблемы вне скоупа (зафиксировать, не чинить)
-- [x] Kit не имеет Checkbox/Switch и Chip/TagInput — Button-toggle ряд
-      techIcons (ProjectForm.tsx:213-227) и aria-pressed featured
-      (:334) остаются до отдельного kit-плана.
-- [x] Select `error`-prop миграция (ручные `Paragraph role=alert`,
-      :310/:324) — family-wide волна (Jobs OPEN-5).
-- [x] `model/selectors/index.ts` — OPEN-8 repo-wide (HomePage
-      deep-import), не трогается этим эпиком; компонентные тесты на
-      legacy holder-моке документированы как working.
+- [ ] Существующий Save-конвейер без изменений: `handleSubmit` → `toUpdateDto` → `persistProjects` → `dispatch(updateProject)` → toast → `onExitEdit()`.
+- [ ] 0 новых i18n-ключей — используются только существующие `projectFileUploadLabel/Button/Hint/NotImage/TooLarge/Undecodable/Selected`, `projectFileUploadUnsupported`, `projectFileUploadSaveError`, `projectImageInvalid` (diff `en.json`/`ru.json` пуст).
+- [ ] kit (`src/shared/**`) и `entities/**` не тронуты.
 
-### R-9 — Гейты эпика
-- [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты
-      с coverage + public-api) — 3464/3464, public-api 37/37.
-- [x] `check:axe:stories` зелёный, если менялись сторисы (со `--build`) —
-      72/72, 0 violations.
-- [x] axe-app `/admin/mywork`: 0 регрессий (baseline 4 known).
-- [x] Бандл-дельта в капе `performance-budget.json` (737280) — 732.3 KiB
-      < 744 KiB.
-- [x] Все критерии R-1..R-7 закрыты; [TODO.md](./TODO.md) выжжен
-      (выполненные пункты удалены, не отмечены).
+### R-5 Превью текущего изображения (паритет ProjectForm)
 
-## Критерии приёмки (итог)
+- [ ] Как в `ProjectForm`: при непустом `values.image` рендерится строка с превью `<img>` + путь; запись с `https://…` сохраняет значение, `FileUpload` просто ждёт новый выбор.
+- [ ] Кнопки очистки в модалке НЕТ (очистка — Trash2 строки, эпик every-row-clear — не трогаем).
 
-Пользователь на `/admin/mywork` видит DataTable-витрину с шапкой,
-сортировкой/пагинацией и кнопкой «Добавить»; удаление
-подтверждается модалкой с названием проекта, фокус на «Отмена», при ошибке
-сохранения модалка не закрывается; форма открывается в модальном окне,
-закрывается по ESC; пустой список — kit EmptyState; после удаления порядок
-в localStorage совпадает с порядком в store; `npm run validate` и axe
-зелёные.
+### R-6 Пара spec
+
+- [ ] `spec/SPEC.md` + `spec/TODO.md` перезаписаны эпиком `mywork-field-image-fileupload` (issue #273).
+
+## Решения / Отклонения
+
+- **Подкаталог фиксирован `'projects'`** — модалка одного поля слишком мала для Select `imageSubdir`; альтернатива «добавить выбор подкаталога» отклонена (вне скоупа).
+- **Очистка изображения НЕ в модалке** — это Trash2 строки detail-таблицы (эпик every-row-clear, #250), не трогаем.
+- **Превью текущего значения добавлено** (паритет `ProjectForm`, `imageCurrent*`-классы в `FieldEditForm.module.scss`) — чтобы перед заменой было видно, какое изображение стоит сейчас. Классов-мёртвых не появилось (`.field`/`.toggles`/`.actions` по-прежнему используются).
+- **`subdir`-селект и `imageSubdir`-поле формы не заводим** — форма-модалка работает только со скаляром `image`; контракт зода/типов не менялся.
+
+## Известные ограничения (осознанные)
+
+- Кит `FileUpload` не различает «текущее https-изображение» и «пусто» — модалка просто показывает текущее значение строкой и ждёт новый файл.
+- Выбор корневой директории (`pickImagesRoot`) и её память в IndexedDB — на стороне общего `shared/lib/imageDir`, здесь только контракт `(blob, name, subdir)`.
+
+## Гейты (2026-10-17)
+
+- `npm run validate` (type-check + lint + lint:styles + unit + coverage + check:public-api) — зелёный.
+- `npm run build` + `npm run check:bundle` (кап `total.maxSize` 802816).
+- `npm run check:axe` — 0 регрессий (baseline 4 known).
+- diff `src/shared/lib/i18n/locales/en.json` + `ru.json` пуст (0 новых ключей).

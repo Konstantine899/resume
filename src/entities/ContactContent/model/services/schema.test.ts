@@ -31,12 +31,17 @@ const VALID: ContactContent = {
     contactFormError: { en: 'Failed to send.', ru: 'Не удалось отправить.' },
     contactFormConfigError: { en: 'Config incomplete', ru: 'Конфиг неполный' },
   },
+  socialLinks: {
+    github: { name: 'GitHub', href: 'https://github.com/konstantin-atroshchenko' },
+  },
 };
 
 /** Clone with one texts-key overridden, keeping VALID readable at call sites. */
-const withText = (key: keyof ContactContent['texts'], en: string): ContactContent => {
+const withText = (key: string, en: string): ContactContent => {
   const texts = { ...VALID.texts };
-  texts[key] = { ...VALID.texts[key], en };
+  // noUncheckedIndexedAccess: the open record indexes as `| undefined`.
+  const current = texts[key] as { en: string; ru: string };
+  texts[key] = { ...current, en };
   return { ...VALID, texts };
 };
 
@@ -81,9 +86,11 @@ describe('ContactContentSchema', () => {
     ).toBe(true);
   });
 
-  it('rejects a non-description text over 120 chars per locale', () => {
+  it('rejects a non-description text over the legacy 120 cap (uniform 600 cap, R-1)', () => {
+    // contact-rows-crud R-1: the open record has ONE cap per table — the
+    // old per-key 120 cap for non-description rows is relaxed to 600.
     expect(ContactContentSchema.safeParse(withText('sendMessage', 'x'.repeat(121))).success).toBe(
-      false
+      true
     );
   });
 
@@ -93,9 +100,24 @@ describe('ContactContentSchema', () => {
     );
   });
 
-  it('rejects a missing text key', () => {
+  it('accepts a document with a deleted texts row (row-delete is a valid op, R-1)', () => {
     const texts = { ...VALID.texts };
     Reflect.deleteProperty(texts, 'sending');
+    expect(ContactContentSchema.safeParse({ ...VALID, texts }).success).toBe(true);
+  });
+
+  it('keeps a custom added texts row in the parsed output (row-add, R-1)', () => {
+    const parsed = ContactContentSchema.safeParse({
+      ...VALID,
+      texts: { ...VALID.texts, customRow: { en: 'Hello', ru: 'Привет' } },
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success)
+      expect(parsed.data.texts['customRow']).toEqual({ en: 'Hello', ru: 'Привет' });
+  });
+
+  it('rejects a non-slug row key', () => {
+    const texts = { ...VALID.texts, 'bad key!': { en: 'Hello', ru: 'Привет' } };
     expect(ContactContentSchema.safeParse({ ...VALID, texts }).success).toBe(false);
   });
 
@@ -115,10 +137,71 @@ describe('ContactContentSchema', () => {
     expect(ContactContentSchema.safeParse(bad).success).toBe(false);
   });
 
-  it('rejects a missing formTexts key', () => {
+  it('accepts a document with a deleted formTexts row (row-delete is a valid op, R-1)', () => {
     const formTexts = { ...VALID.formTexts };
     Reflect.deleteProperty(formTexts, 'contactFormConfigError');
-    expect(ContactContentSchema.safeParse({ ...VALID, formTexts }).success).toBe(false);
+    expect(ContactContentSchema.safeParse({ ...VALID, formTexts }).success).toBe(true);
+  });
+});
+
+describe('socialLinks (contact-social-crud R-1/S9)', () => {
+  it('accepts a document with socialLinks', () => {
+    expect(ContactContentSchema.safeParse(VALID).success).toBe(true);
+  });
+
+  it('keeps a social row in the parsed output (known record, not stripped)', () => {
+    const parsed = ContactContentSchema.parse(VALID);
+    expect(parsed.socialLinks.github).toEqual({
+      name: 'GitHub',
+      href: 'https://github.com/konstantin-atroshchenko',
+    });
+  });
+
+  it('rejects a document WITHOUT socialLinks (legacy upgrade lives in the read-path)', () => {
+    const { socialLinks, ...legacy } = VALID;
+    expect(socialLinks).toBeDefined();
+    expect(ContactContentSchema.safeParse(legacy).success).toBe(false);
+  });
+
+  it('accepts an explicitly emptied socials table (row-delete is a valid op)', () => {
+    expect(ContactContentSchema.safeParse({ ...VALID, socialLinks: {} }).success).toBe(true);
+  });
+
+  it('rejects an http:// href (https-only, S9)', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'GitHub', href: 'http://github.com/x' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a non-URL href', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'GitHub', href: 'github.com/x' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects an empty social name', () => {
+    const doc = { ...VALID, socialLinks: { github: { name: '  ', href: 'https://g.io' } } };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a social name over 48 chars', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { github: { name: 'x'.repeat(49), href: 'https://g.io' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
+  });
+
+  it('rejects a non-slug social key', () => {
+    const doc = {
+      ...VALID,
+      socialLinks: { 'Bad key!': { name: 'G', href: 'https://g.io' } },
+    };
+    expect(ContactContentSchema.safeParse(doc).success).toBe(false);
   });
 });
 

@@ -6,7 +6,7 @@
 // were exported speculatively (review finding) and stay module-internal
 // until a real consumer appears (tests deep-import them from model/).
 export { mockAdminMetrics } from './model/constants';
-export { selectAdminMetrics } from './model/selectors';
+export { selectAdminMetrics } from './model/selectors/selectors';
 export { adminDashboardReducer, clearMetrics } from './model/slices/adminDashboardSlice';
 export type {
   AdminDashboardRootState,

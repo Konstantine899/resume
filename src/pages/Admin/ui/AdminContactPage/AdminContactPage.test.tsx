@@ -2,12 +2,16 @@
 // AdminContactPage — page-level real-store tests (admin-contact-refactor WU-2, R-2)
 // ============================================
 //
+// contact-rows-crud WU-6: the old document-level Reset smoke is gone with
+// the document form — the page now proves the collapsed-cards default and
+// the per-row add pipeline against the REAL store.
+//
 // The PAGE is a thin composition (Section + ErrorBoundary + the feature
 // form), so this file proves the wiring end-to-end: the REAL storeReducers
 // hydrate the Contact document from storage on the first reducer call
 // (resume-rtk-lazy-hydration) and the form renders through that store.
-// Harness: AdminAboutPage.test.tsx — mock ONLY storage (persist control),
-// i18n (identity) and toasts.
+// Harness: shared renderAdminPage (src/shared/tests) — mock ONLY storage
+// (persist control), i18n (identity) and toasts.
 //
 // OPEN-2=B (owner verdict): the form stays INLINE on the page, so this is
 // a smoke of the inline component — the form's own Modal-confirm asserts
@@ -19,15 +23,13 @@
 // stays REAL behind the mock spread so the hydration path is the
 // production one.
 
-import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
 import type { ContactContent } from '@/entities/ContactContent';
 import { createContactSeed } from '@/features/AdminContact';
-import { storeReducers } from '@/storeReducers';
+import { renderAdminPage } from '@/shared/tests';
 import { AdminContactPage } from './AdminContactPage';
 
 const { persistSpy, addToast } = vi.hoisted(() => ({
@@ -59,15 +61,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
 /** The storage.ts envelope key — literal on purpose (see header). */
 const STORAGE_KEY = 'resume.contact.content';
 
-const renderPage = () => {
-  const store = configureStore({ reducer: storeReducers });
-  render(
-    <Provider store={store}>
-      <AdminContactPage />
-    </Provider>
-  );
-  return store;
-};
+const renderPage = () => renderAdminPage(<AdminContactPage />);
 
 const emailInput = () => screen.getByLabelText('adminFieldEmail');
 
@@ -82,7 +76,7 @@ describe('AdminContactPage (R-2: real store wiring)', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the Contact editor form on the page (seed prefill, Save idle)', () => {
+  it('renders the Contact editor form on the page (seed prefill, Save idle, cards collapsed)', () => {
     renderPage();
 
     expect(screen.getByTestId('admin-contact')).toBeInTheDocument();
@@ -93,6 +87,9 @@ describe('AdminContactPage (R-2: real store wiring)', () => {
     // Empty storage → lazy hydration falls back to the seed.
     expect(emailInput()).toHaveValue(CONTACT_EMAIL);
     expect(screen.getByRole('button', { name: 'contactSave' })).toBeDisabled();
+    // contact-rows-crud: all three Cards start COLLAPSED (no tables yet).
+    expect(screen.queryAllByRole('table')).toHaveLength(0);
+    expect(screen.getAllByRole('button', { name: 'adminContactExpandGroup' })).toHaveLength(3);
   });
 
   it('prefills the form from the stored document (lazy hydration, not module import)', () => {
@@ -104,10 +101,68 @@ describe('AdminContactPage (R-2: real store wiring)', () => {
     expect(emailInput()).toHaveValue('stored@example.com');
   });
 
-  it('shows the destructive «Reset» button (its confirm Modal lives in the form tests)', () => {
-    renderPage();
+  it('per-row CRUD wires through the real store (add row → modal → store + persist)', async () => {
+    const store = renderPage();
 
-    expect(screen.getByRole('button', { name: 'contactReset' })).toBeInTheDocument();
+    // Expand the texts card via its strip (identity t: the name is dropped).
+    const strips = screen.getAllByRole('button', { name: 'adminContactExpandGroup' });
+    fireEvent.click(strips[0] as HTMLElement);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('contact-add-texts'));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'customRow' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowEn'), {
+      target: { value: 'Hi' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowRu'), {
+      target: { value: 'Привет' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    // Real store: the granular action landed, the persisted doc carries the row.
+    expect(store.getState().contactContent.texts.customRow).toEqual({ en: 'Hi', ru: 'Привет' });
+    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+      texts: expect.objectContaining({ customRow: { en: 'Hi', ru: 'Привет' } }),
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('socials CRUD wires through the real store (add row → modal → store + persist)', async () => {
+    const store = renderPage();
+
+    // Third strip = socials (DOM order: texts, formTexts, socials).
+    const strips = screen.getAllByRole('button', { name: 'adminContactExpandGroup' });
+    fireEvent.click(strips[2] as HTMLElement);
+
+    fireEvent.click(screen.getByTestId('contact-add-socials'));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('adminContactRowKey'), {
+      target: { value: 'website' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialName'), {
+      target: { value: 'Site' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('adminContactSocialUrl'), {
+      target: { value: 'https://example.com' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'contactSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    // Real store: the socials action landed, the persisted doc carries the row.
+    expect(store.getState().contactContent.socialLinks['website']).toEqual({
+      name: 'Site',
+      href: 'https://example.com',
+    });
+    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+      socialLinks: expect.objectContaining({
+        website: { name: 'Site', href: 'https://example.com' },
+      }),
+    });
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('save-smoke: persist BEFORE dispatch, store updated, toast contactSaved', async () => {

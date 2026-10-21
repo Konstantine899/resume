@@ -1,0 +1,59 @@
+// ============================================
+
+// FieldEditForm — one-field modal layout (mywork-field-actions WU-5)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens — no hardcoded values.
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}
+
+// Issue #273: read-only row showing the stored image path + a small preview
+
+// (ProjectForm parity — the only visible evidence of the current value now
+
+// that the URL input is gone).
+.imageCurrent {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.imageCurrentPreview {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.imageCurrentPath {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}

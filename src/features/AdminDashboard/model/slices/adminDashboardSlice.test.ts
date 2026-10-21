@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 
 import { mockAdminMetrics } from '../constants';
 import { adminDashboardReducer, clearMetrics, setMetrics } from './adminDashboardSlice';
-import { selectAdminMetrics, selectMetricsCount } from '../selectors';
+import { selectAdminMetrics, selectMetricsCount } from '../selectors/selectors';
 import type { AdminDashboardRootState, AdminMetric } from '../types/types';
 
 describe('adminDashboard slice', () => {

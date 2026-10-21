@@ -1,0 +1,6 @@
+@use '@/shared/styles/variables' as *;
+
+.actions {
+  display: flex;
+  gap: $spacing-2;
+}

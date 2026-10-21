@@ -2,10 +2,6 @@
 // Test Utils - Public API
 // ============================================
 
-export {
-  renderWithProviders,
-  setupUserEvent,
-  getInputTestId,
-  createInputProps,
-  screen,
-} from './test-utils';
+export { renderAdminPage } from './renderAdminPage';
+export type { AdminTestStore, RenderAdminPageOptions } from './renderAdminPage';
+export { setupUserEvent, screen } from './test-utils';

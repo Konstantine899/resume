@@ -8,7 +8,7 @@
 
 import type { ContactContent } from '@/entities/ContactContent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Contact } from './Contact';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
@@ -58,10 +58,22 @@ const STORE_CONTENT: ContactContent = {
     contactFormError: { en: 'store error en', ru: 'STORE_ERROR_RU' },
     contactFormConfigError: { en: 'store config en', ru: 'STORE_CONFIG_RU' },
   },
+  socialLinks: {},
 };
 
 describe('Contact: read-path via the content prop (WU-2)', () => {
+  beforeEach(() => {
+    // CI has no `.env` (gitignored): the default emailjsSend checks
+    // import.meta.env.VITE_EMAILJS_* BEFORE the mocked SDK call, so without
+    // these it throws EmailJSConfigError and the success-toast assertion
+    // never matches (it only ever passed on a dev machine with a local .env).
+    vi.stubEnv('VITE_EMAILJS_SERVICE_ID', 'test-service');
+    vi.stubEnv('VITE_EMAILJS_TEMPLATE_ID', 'test-template');
+    vi.stubEnv('VITE_EMAILJS_PUBLIC_KEY', 'test-key');
+  });
+
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
   });
 
@@ -84,6 +96,18 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
 
     // h2 stays i18n-owned (§2 split-brain guard) — t('contact') → 'contact'.
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('contact');
+  });
+
+  it('falls back to the i18n key when the admin deleted a texts row (contact-rows-crud R-1)', () => {
+    // The open record (D1) may miss any key — the read path must degrade
+    // to the i18n default instead of throwing on `undefined[language]`.
+    const texts = { ...STORE_CONTENT.texts };
+    Reflect.deleteProperty(texts, 'sendMessage');
+    render(<Contact content={{ ...STORE_CONTENT, texts }} />);
+
+    // Identity t returns the raw key — the fallback is observable.
+    expect(screen.getByRole('button', { name: 'sendMessage' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'STORE_SEND_RU' })).not.toBeInTheDocument();
   });
 
   it('routes resolved formTexts into the Create toasts (R-11)', async () => {

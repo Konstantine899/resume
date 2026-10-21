@@ -1,0 +1,51 @@
+// ============================================
+
+// TechnologyForm — admin technology form layout (technologies-crud WU-3)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens inside the shared inputs — no hardcoded values. Same structure
+
+// as AdminSkills TechnologyForm.module.scss (icon-preview + upload rows —
+
+// tech-icon-upload A1/A2).
+
+// NOTE: no `gap` on `.form` — the kit Form `gap="lg"` prop owns it
+
+// (a local gap conflicts with --form-gap and jumps to 24px).
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+// tech-icon-upload WU-2 (A2): edit-mode preview of the CURRENT stored
+
+// icon above the uploader (Skills rev.2 parity).
+
+.iconPreviewRow {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.iconPreview {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}

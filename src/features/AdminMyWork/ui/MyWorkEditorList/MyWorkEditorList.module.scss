@@ -1,18 +1,18 @@
 // ============================================
 
-// MyWorkEditorList — admin vitrina layout (admin-mywork-refactor WU-5)
+// MyWorkEditorList — admin project vitrina (mywork-detail-table WU-2)
 
 // ============================================
 
 // Layout only: spacing via the $spacing-* scale, colors come from inherited
 
-// tokens — no hardcoded values (plan §8). Rhythm mirrors JobsList so the
+// tokens — no hardcoded values. Rhythm mirrors JobsList so the admin area
 
-// admin area stays visually consistent.
+// stays visually consistent. The list itself is a stack of ProjectCard
 
-// The list itself is the kit DataTable (SPEC R-5); only header/cell chrome
+// components — spacing between cards comes from the .root gap (the card
 
-// and the range footer live here.
+// groups its own caption + Card internally).
 
 @use '@/shared/styles/variables' as *;
 
@@ -39,33 +39,5 @@
 .headerActions {
   display: flex;
   gap: $spacing-2;
-}
-
-.titleCell {
-  min-width: 0;
-}
-
-.category {
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-}
-
-.year {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.actions {
-  display: flex;
-  gap: $spacing-2;
-}
-
-.footer {
-  display: flex;
-  justify-content: center;
-}
-
-.range {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  align-items: flex-end;
 }

@@ -95,6 +95,15 @@ export const routerConfig: RouteObject[] = [
             Component: m.AdminJobsPage,
           })),
       },
+      {
+        // Technologies CRUD (#258) — own chunk; carries the RHF editor
+        // (resume-lazy-rhf-chunk, same as /admin/about).
+        path: 'technologies',
+        lazy: () =>
+          import('./Admin/ui/AdminTechnologiesPage/AdminTechnologiesPage').then((m) => ({
+            Component: m.AdminTechnologiesPage,
+          })),
+      },
     ],
   },
   { path: '*', loader: () => redirect('/') },

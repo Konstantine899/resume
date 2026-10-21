@@ -1,64 +1,4 @@
-import type { TechIcon } from '@/shared/ui/Card/model/types';
 import { Project, ProjectCategory, ProjectStatus } from '../types/types';
-
-// ============================================
-// Централизованный словарь иконок технологий
-// ============================================
-export const TECH_ICONS = {
-  // Frontend
-  react: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-    invertInDark: true,
-  },
-  nextjs: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
-    invertInDark: true,
-  },
-  typescript: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
-  },
-  javascript: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
-  },
-
-  // Styling
-  tailwind: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg',
-  },
-  css: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
-  },
-  html: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
-  },
-  sass: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
-  },
-
-  // Backend
-  nodejs: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
-  },
-  python: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
-  },
-  postgresql: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
-  },
-
-  // Tools & Libraries
-  redux: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
-  },
-  framer: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/framermotion/framermotion-original.svg',
-    invertInDark: true,
-  },
-  d3js: {
-    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/d3js/d3js-original.svg',
-    invertInDark: true,
-  },
-} satisfies Record<string, TechIcon>;
 
 // ============================================
 // Проекты портфолио
@@ -158,7 +98,7 @@ export const PROJECTS: Project[] = [
     },
     techIcons: ['html', 'css', 'javascript'],
     link: null,
-    image: '/images/projects/neumorphic-watch-face.png',
+    image: '/images/projects/neumorphic-watch-face.webp',
     category: 'mobile',
     status: 'completed',
     featured: false,

@@ -1,20 +1,17 @@
 ---
-status: done
+status: approved
 spec: SPEC.md
+issue: 273
+verified: '2026-10-17'
 ---
 
-# TODO — features/AdminMyWork (рефакторинг к паритету с AdminSkills, rev.1)
+# TODO — features/AdminMyWork (mywork-field-image-fileupload, issue #273)
 
-Эпик `admin-mywork-refactor` ЗАКРЫТ 2026-10-12 (PR #217): WU-1..7 исполнены и выжжены
-(выполненные пункты удаляются — правило эпика). Итоги гейтов: `npm run validate`
-3464/3464, `check:axe:stories` 72/72, axe-app 0 регрессий, бандл 732.3 < 744 KiB,
-public-api 37/37. Контракт и критерии — [SPEC.md](./SPEC.md) (status `done`,
-`verified: '2026-10-12'`). Вердикт владельца 2026-10-12: OPEN-1=A, OPEN-2=A,
-OPEN-3=A, OPEN-4=A (см. «Решения» внизу).
+Эпик `mywork-field-image-fileupload` (директива владельца 2026-10-17). Пункты WU-1..4 сгорели в этом PR (Closes #273):
 
-## Решения (вердикт владельца 2026-10-12)
+1. TDD: тесты image-поля (`FieldEditForm.test.tsx`) — red → green: FileUpload вместо текстового Input, save-on-selection с `subdir:'projects'`, unsupported/write-failure держат модалку открытой, AbortError тихо, Save disabled пока pristine.
+2. `FieldEditForm.tsx`: `case 'image':` → kit `FileUpload` + `handleImageFile` (async `saveUploadedImage`, `setValue('image', path, {shouldDirty, shouldValidate})`), `imageSaveErrorKey`-станок, превью текущего значения (паритет ProjectForm).
+3. `FieldEditForm.module.scss`: добавлены `imageCurrent`/`imageCurrentPreview`/`imageCurrentPath` (превью текущего пути, паритет ProjectForm).
+4. Пара spec перезаписана эпиком `mywork-field-image-fileupload` (issue #273).
 
-- OPEN-1 = A — форма переезжает в page-owned kit Modal на странице (паритет Skills).
-- OPEN-2 = A — витрина полностью на kit DataTable: Table + Pagination + PageSizeGroup, сортировка → page=1.
-- OPEN-3 = A — мёртвые экспорты баррела вырезаются: 12 значений + 2 типа; HomePage.test → deep-import.
-- OPEN-4 = A — подтверждения релокируются: две confirm-модалки и кнопки reset/delete удаляются из ProjectForm; reset — шапка витрины, delete — списка; THEN-dispatch кейсы сохранить.
+Предыдущая пара (эпик `mywork-parity-polish`, rev.1, PR #253) перезаписана — история в git.

@@ -6,6 +6,13 @@
 
 .content {
   flex: 1;
+
+  // min-height: 0 — flex children default to `min-height: auto` and refuse
+
+  // to shrink below their content; without this the panel (max-height 90vh)
+
+  // clips tall content instead of scrolling it (#234).
+  min-height: 0;
   padding: var(--space-8);
   overflow-y: auto;
 

@@ -5,7 +5,7 @@
 
 import { describe, expect, it, beforeEach } from 'vitest';
 
-import { SKILLS_DATA, type SkillCategoryData, type Technology } from '@/entities/Skill';
+import { SKILLS_DATA, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
 import {
   addSkillCategory,
   addTechnology,
@@ -20,7 +20,7 @@ import { SKILLS_STORAGE_KEY, persistSkills } from '../services/storage';
 
 const hydrated = (): SkillCategoryData[] => skillsReducer(undefined, { type: '@@INIT' });
 
-const frontendTech: Technology = { name: 'Preact', iconSvg: 'preact' };
+const frontendTech: SkillTechnology = { name: 'Preact', iconSvg: 'preact' };
 
 beforeEach(() => {
   localStorage.clear();

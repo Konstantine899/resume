@@ -2,12 +2,15 @@
 // ContactContent Entity — Public API
 // ============================================
 
-export type { ContactContent, FormTextKey, TextKey } from './model/types/types';
+export type { ContactContent, ContactSocialLink, FormTextKey, TextKey } from './model/types/types';
 export { CONTACT_EMAIL } from './model/constants';
 export {
   ContactContentEnvelopeSchema,
   ContactContentSchema,
   ContactFormDataSchema,
+  SOCIAL_HREF_MAX,
+  SOCIAL_NAME_MAX,
+  isHttpsUrl,
   type ContactContentEnvelope,
   type ContactFormDataInput,
 } from './model/services/schema';

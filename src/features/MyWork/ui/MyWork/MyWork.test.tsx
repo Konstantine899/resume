@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PROJECTS } from '@/entities/Project';
+import { resolveTechIcons } from '@/entities/Technology';
 import { MyWork } from './MyWork';
 
 // Identity i18n + language 'en' (existing repo pattern). Interpolated
@@ -187,5 +188,28 @@ describe('MyWork: empty state through the content prop (WU-3)', () => {
     for (const project of PROJECTS) {
       expect(screen.queryByText(project.title)).not.toBeInTheDocument();
     }
+  });
+});
+
+// technologies-crud D3: moved from the deleted entities/Project/lib/utils.test.ts —
+// the guard spans TWO entities (PROJECTS keys × Technology catalog) and
+// entities→entities is banned, so the vitrina layer is its legal home.
+describe('MyWork: seed techIcons coverage (technologies-crud D3)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('every seed project techIcons key resolves (guard against key typos)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const seedKeys = PROJECTS.flatMap((project) => project.techIcons);
+    expect(seedKeys.length).toBeGreaterThan(0);
+
+    for (const key of seedKeys) {
+      expect(resolveTechIcons([key])).toEqual([
+        expect.objectContaining({ url: expect.any(String) }),
+      ]);
+    }
+    expect(warn).not.toHaveBeenCalled();
   });
 });
