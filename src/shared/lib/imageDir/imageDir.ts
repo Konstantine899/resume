@@ -194,6 +194,62 @@ export const saveUploadedImage = async (params: {
   }
 };
 
+/**
+ * Parses the public path `saveImageToDir` produced back into its
+ * `/images/<subdir>/<name>` parts. Returns `null` for anything else —
+ * cleanup must NEVER touch the filesystem on a foreign string (a legacy
+ * icon key like `react`, an absolute https URL, a nested path).
+ */
+function parseImagePath(path: string): { subdir: string; name: string } | null {
+  if (!path.startsWith('/images/')) return null;
+  const rest = path.slice('/images/'.length);
+  const sep = rest.indexOf('/');
+  if (sep <= 0 || sep === rest.length - 1) return null;
+  const subdir = rest.slice(0, sep);
+  const name = rest.slice(sep + 1);
+  if (name.includes('/')) return null;
+  return { subdir, name };
+}
+
+/**
+ * Removes `root/<subdir>/<name>` — the cleanup mirror of
+ * {@link saveImageToDir}. The subdirectory must ALREADY exist (no
+ * `create: true`: a missing directory/entry is a failure the composed
+ * flow swallows).
+ */
+export async function removeImageFromDir(
+  root: FileSystemDirectoryHandle,
+  subdir: string,
+  name: string
+): Promise<void> {
+  const directory = await root.getDirectoryHandle(subdir);
+  await directory.removeEntry(name);
+}
+
+/**
+ * Best-effort orphan cleanup: deletes the file behind a stored
+ * `/images/<subdir>/<name>` path — the tail of the upload-then-persist
+ * flow, so a file written just before a FAILED persist does not stay on
+ * disk unreferenced (specs: AdminTechnologies §Известные ограничения,
+ * AdminSkills §Загрузка иконки rev.6).
+ *
+ * NEVER throws and NEVER opens the directory picker (an error path has no
+ * user gesture for it): an impossible or failed removal resolves `false`
+ * and the caller keeps handling its own error.
+ */
+export const removeUploadedImage = async (path: string): Promise<boolean> => {
+  const parsed = parseImagePath(path);
+  if (!parsed) return false;
+  try {
+    const root = await readImagesRootHandle();
+    if (!root) return false; // nothing remembered → nothing this flow wrote
+    await removeImageFromDir(root, parsed.subdir, parsed.name);
+    return true;
+  } catch {
+    return false; // best-effort — must not mask the upstream persist error
+  }
+};
+
 /** Best-effort removal of the obsolete pre-amend key. Never throws. */
 async function clearLegacyProjectsDirKey(): Promise<void> {
   if (typeof indexedDB === 'undefined') return;

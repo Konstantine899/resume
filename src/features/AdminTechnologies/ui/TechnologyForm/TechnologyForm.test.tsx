@@ -43,6 +43,7 @@ const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted
       async (params: { blob: Blob; name: string; subdir: string }) =>
         `/images/${params.subdir}/${params.name}`
     ),
+    remove: vi.fn(async (_path: string) => true),
   },
 }));
 
@@ -57,6 +58,7 @@ vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
   isDirectoryPickerSupported: dirMocks.supported,
   saveUploadedImage: dirMocks.save,
+  removeUploadedImage: dirMocks.remove,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -128,6 +130,7 @@ describe('TechnologyForm', () => {
       async (params: { blob: Blob; name: string; subdir: string }) =>
         `/images/${params.subdir}/${params.name}`
     );
+    dirMocks.remove.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -402,5 +405,119 @@ describe('TechnologyForm', () => {
     expect(onExitEdit).toHaveBeenCalled();
     expect(persistSpy).not.toHaveBeenCalled();
     expect(addToast).not.toHaveBeenCalled();
+  });
+
+  // ---- orphan cleanup on persist failure (2026-10-22 tail) ----
+  // The file is written INSIDE handleSave, before persist — a failed
+  // persist must remove the just-written file (spec §Контракт FileUpload),
+  // EXCEPT a same-name overwrite the stored record still points at.
+
+  it('create mode: persist failure REMOVES the just-written file and keeps the form open', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(<TechnologyForm />);
+    await uploadSvg('tech-logo.svg');
+    fireEvent.change(keyInput(), { target: { value: 'vue' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/tech-logo.svg')
+    );
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
+      )
+    );
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(keyInput()).toHaveValue('vue'); // the form stays open for a retry
+  });
+
+  it('create mode: a THROWN persist fails like `false` — toast + cleanup, no dispatch', async () => {
+    persistSpy.mockImplementation(() => {
+      throw new Error('storage quota');
+    });
+
+    render(<TechnologyForm />);
+    await uploadSvg('tech-logo.svg');
+    fireEvent.change(keyInput(), { target: { value: 'vue' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
+      )
+    );
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/tech-logo.svg')
+    );
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(keyInput()).toHaveValue('vue');
+  });
+
+  it('create mode: a successful save does NOT remove the written file', async () => {
+    render(<TechnologyForm />);
+    await uploadSvg('tech-logo.svg');
+    fireEvent.change(keyInput(), { target: { value: 'vue' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'adminTechSaved' }))
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
+  });
+
+  it('edit mode: persist failure removes the uploaded REPLACEMENT file', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm technology={{ key: 'react', url: 'https://cdn.example.com/react.svg' }} />
+    );
+    await uploadSvg('react-19.svg');
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/react-19.svg')
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('edit mode: persist failure does NOT remove a same-name overwrite (record still points at it)', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm technology={{ key: 'react', url: '/images/technologies/react-19.svg' }} />
+    );
+    await uploadSvg('react-19.svg');
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
+      )
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
+  });
+
+  it('edit mode: persist failure WITHOUT a new file (keep-current) removes nothing', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm technology={{ key: 'react', url: 'https://cdn.example.com/react.svg' }} />
+    );
+    fireEvent.change(invertSelect(), { target: { value: 'true' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
+      )
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
   });
 });

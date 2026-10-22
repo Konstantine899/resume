@@ -10,6 +10,8 @@ export {
   isDirectoryPickerSupported,
   pickImagesRoot,
   readImagesRootHandle,
+  removeImageFromDir,
+  removeUploadedImage,
   saveImageToDir,
   saveUploadedImage,
   writeImagesRootHandle,

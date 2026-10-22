@@ -18,6 +18,12 @@
 // write toasts and keeps the form open; edit with no new file KEEPS the
 // stored url (keep-current); create requires a file.
 //
+// Orphan cleanup (2026-10-22): the file is written INSIDE handleSave, so a
+// FAILED persist removes the just-written file best-effort
+// (`removeUploadedImage`); the pending selection stays in state, so a
+// retry re-writes it. A same-name overwrite is kept — the stored record
+// still points at that path.
+//
 // D7 (key immutability in edit): the key Input is DISABLED and the edit
 // schema re-checks `value === originalKey` — the update is always keyed
 // by the record's ORIGINAL key, never by the form's `key` field.
@@ -27,7 +33,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
+import {
+  isAbortError,
+  isDirectoryPickerSupported,
+  removeUploadedImage,
+  saveUploadedImage,
+} from '@/shared/lib/imageDir';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
@@ -59,6 +70,15 @@ import styles from './TechnologyForm.module.scss';
 const ICON_MAX_BYTES = 50_000;
 /** Fixed subdir under the remembered images root. */
 const ICON_SUBDIR = 'technologies';
+
+/** §3: the persist contract is `boolean` — a THROW must fail exactly like `false`. */
+function persistOutcome(persist: () => boolean): boolean {
+  try {
+    return persist();
+  } catch {
+    return false;
+  }
+}
 
 export interface TechnologyFormProps {
   className?: string;
@@ -147,12 +167,23 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       url = technology.url;
     }
 
+    // Orphan cleanup: the file above was JUST written — a failed persist
+    // must not leave it unreferenced on disk. Same-name overwrite is kept
+    // (the stored record still points at that path); removal is
+    // best-effort (never throws, never masks the toast below).
+    const cleanupWrittenFile = async (): Promise<void> => {
+      if (pendingFile && url !== technology?.url) {
+        await removeUploadedImage(url);
+      }
+    };
+
     if (technology) {
       const patch = { url, invertInDark: data.invertInDark };
       const next = catalog.map((tech) =>
         tech.key === technology.key ? { ...tech, ...patch } : tech
       );
-      if (!persistTechnologies(next)) {
+      if (!persistOutcome(() => persistTechnologies(next))) {
+        await cleanupWrittenFile();
         addToast({ message: t('adminTechPersistError'), type: 'error' });
         return; // form keeps the values; store unchanged (§7)
       }
@@ -167,7 +198,8 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       url,
       invertInDark: data.invertInDark,
     };
-    if (!persistTechnologies([...catalog, record])) {
+    if (!persistOutcome(() => persistTechnologies([...catalog, record]))) {
+      await cleanupWrittenFile();
       addToast({ message: t('adminTechPersistError'), type: 'error' });
       return;
     }

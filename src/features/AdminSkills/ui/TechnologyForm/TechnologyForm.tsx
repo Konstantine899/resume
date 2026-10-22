@@ -19,6 +19,16 @@
 // The kit never owns copy — unsupported/save errors surface as i18n
 // keys through local state (plan A2).
 //
+// rev.6 (orphan cleanup, 2026-10-22): THIS form writes the file at
+// FILE-SELECT time (not inside handleSave), so a FAILED persist removes
+// the just-written file best-effort (`removeUploadedImage` — never
+// throws) AND resets `iconSvg` to the «keep the stored record» form
+// value ('' — a retry re-persists the stored icon instead of a link to
+// the DELETED file; '' in create blocks the Save until a new upload).
+// A same-name overwrite is NOT removed (the stored record still points
+// at that path). The kit uploader is key-remounted so its "selected"
+// announcement/preview cannot lie after the cleanup.
+//
 // Invariants:
 // - persist BEFORE dispatch (§3) with the nested collection rebuilt from
 //   one `all` snapshot — store === storage.
@@ -29,7 +39,12 @@
 //   `onExitEdit`.
 
 import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
-import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
+import {
+  isAbortError,
+  isDirectoryPickerSupported,
+  removeUploadedImage,
+  saveUploadedImage,
+} from '@/shared/lib/imageDir';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -59,6 +74,15 @@ import styles from './TechnologyForm.module.scss';
 const ICON_MAX_BYTES = 50_000;
 /** Fixed subdir under the remembered images root (plan D2). */
 const ICON_SUBDIR = 'skills';
+
+/** §3: the persist contract is `boolean` — a THROW must fail exactly like `false`. */
+function persistOutcome(persist: () => boolean): boolean {
+  try {
+    return persist();
+  } catch {
+    return false;
+  }
+}
 
 export interface TechnologyFormProps {
   className?: string;
@@ -119,6 +143,10 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     'skillsIconUploadUnsupported' | 'skillsIconUploadSaveError' | null
   >(null);
 
+  // rev.6: bumping the key REMOUNTS the kit uploader — its internal
+  // "selected" announcement and preview must not survive a cleanup.
+  const [uploadKey, setUploadKey] = useState(0);
+
   // rev.2 / D2: the ProjectForm pattern (PR #209) — root handle in
   // IndexedDB, fixed `skills` subdir, the form stores the PATH.
   const handleImageFile = useCallback(
@@ -145,7 +173,19 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   );
 
   /** §3 order: persist → dispatch → toast → pristine form / exit. */
-  const handleSave = handleSubmit((data) => {
+  const handleSave = handleSubmit(async (data) => {
+    // rev.6 orphan cleanup: the file was written at FILE-SELECT time, so
+    // a FAILED persist removes it best-effort (`removeUploadedImage` never
+    // throws) AND restores the `iconSvg` field — a retry must never
+    // persist a link to the DELETED file. Removal skips a same-name
+    // overwrite (the stored record still points at that path).
+    const cleanupIconFile = async (): Promise<void> => {
+      if (data.iconSvg && data.iconSvg !== technology?.iconSvg) {
+        await removeUploadedImage(data.iconSvg);
+      }
+      setUploadKey((key) => key + 1); // remount the uploader (stale preview)
+    };
+
     if (technology) {
       // rev.2: '' means «keep the stored record» (legacy key or path).
       const patch = {
@@ -164,7 +204,12 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
             }
           : entry
       );
-      if (!persistSkills(next)) {
+      if (!persistOutcome(() => persistSkills(next))) {
+        await cleanupIconFile();
+        // Restore the «keep the stored record» form value ('' — the
+        // schema never accepts a legacy KEY in the field; a retry
+        // re-persists `technology.iconSvg` through the patch above).
+        setValue('iconSvg', '', { shouldDirty: true });
         addToast({ message: t('skillsPersistError'), type: 'error' });
         return; // form keeps the values; store unchanged (§7)
       }
@@ -185,7 +230,9 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         ? { ...entry, technologies: [...entry.technologies, record] }
         : entry
     );
-    if (!persistSkills(next)) {
+    if (!persistOutcome(() => persistSkills(next))) {
+      await cleanupIconFile();
+      setValue('iconSvg', '', { shouldDirty: true }); // next Save requires a NEW upload
       addToast({ message: t('skillsPersistError'), type: 'error' });
       return;
     }
@@ -239,6 +286,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
           </div>
         )}
         <FileUpload
+          key={uploadKey}
           label={t('skillsIconUploadLabel')}
           texts={{
             button: t('skillsIconUploadButton'),

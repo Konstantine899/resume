@@ -15,6 +15,8 @@ import {
   isDirectoryPickerSupported,
   pickImagesRoot,
   readImagesRootHandle,
+  removeImageFromDir,
+  removeUploadedImage,
   saveImageToDir,
   saveUploadedImage,
   writeImagesRootHandle,
@@ -185,5 +187,138 @@ describe('imageDir: saveUploadedImage', () => {
     expect(isAbortError(new DOMException('x', 'AbortError'))).toBe(true);
     expect(isAbortError(new Error('x'))).toBe(false);
     expect(isAbortError(null)).toBe(false);
+  });
+});
+
+// ============================================
+// removeImageFromDir / removeUploadedImage — orphan cleanup (2026-10-22)
+// ============================================
+//
+// The cleanup side of the upload flow: when the persist AFTER the write
+// fails, the form removes the file it just wrote (spec: AdminTechnologies
+// §Известные ограничения / AdminSkills §Загрузка иконки rev.6). Contract:
+// the composed helper parses ONLY the `/images/<subdir>/<name>` shape
+// `saveImageToDir` produced, NEVER opens a picker during cleanup (no user
+// gesture there), and NEVER throws — a failed removal must not mask the
+// persist error the caller is already handling.
+
+type FakeRequest = {
+  result?: unknown;
+  onsuccess?: (() => void) | null;
+  onerror?: (() => void) | null;
+  onupgradeneeded?: (() => void) | null;
+};
+
+/** Minimal IndexedDB fake: the `imagesRoot` record resolves to `root`. */
+function stubRememberedRoot(root: FileSystemDirectoryHandle): void {
+  const db = {
+    objectStoreNames: { contains: () => true },
+    close: vi.fn(),
+    transaction: (_store: string, mode?: string): unknown => {
+      if (mode === 'readonly') {
+        return {
+          objectStore: () => ({
+            get: (): FakeRequest => {
+              const request: FakeRequest = {};
+              queueMicrotask(() => {
+                request.result = root;
+                request.onsuccess?.();
+              });
+              return request;
+            },
+          }),
+        };
+      }
+      // readwrite — the best-effort legacy-key cleanup (must complete or
+      // stay pending; either way it is swallowed by the module).
+      const tx = {
+        error: null,
+        objectStore: () => ({ delete: () => undefined, put: () => undefined }),
+        oncomplete: undefined as (() => void) | undefined,
+      };
+      queueMicrotask(() => tx.oncomplete?.());
+      return tx;
+    },
+  };
+  vi.stubGlobal('indexedDB', {
+    open: (): FakeRequest => {
+      const request: FakeRequest = {};
+      queueMicrotask(() => {
+        request.result = db;
+        request.onsuccess?.();
+      });
+      return request;
+    },
+  });
+}
+
+describe('imageDir: removeImageFromDir', () => {
+  it('removes the entry from the EXISTING subdirectory (never create: true)', async () => {
+    const removeEntry = vi.fn(async () => undefined);
+    const getDirectoryHandle = vi.fn(async () => ({ removeEntry, name: 'skills' }));
+    const root = { getDirectoryHandle } as unknown as FileSystemDirectoryHandle;
+
+    await removeImageFromDir(root, 'skills', 'logo.svg');
+
+    expect(getDirectoryHandle).toHaveBeenCalledWith('skills');
+    expect(removeEntry).toHaveBeenCalledWith('logo.svg');
+  });
+
+  it('propagates a missing directory/entry (the composed flow swallows it)', async () => {
+    const getDirectoryHandle = vi.fn(async () => {
+      throw new DOMException('gone', 'NotFoundError');
+    });
+    const root = { getDirectoryHandle } as unknown as FileSystemDirectoryHandle;
+
+    await expect(removeImageFromDir(root, 'skills', 'gone.svg')).rejects.toMatchObject({
+      name: 'NotFoundError',
+    });
+  });
+});
+
+describe('imageDir: removeUploadedImage', () => {
+  it('parses /images/<subdir>/<name> and removes the file via the remembered root', async () => {
+    const removeEntry = vi.fn(async () => undefined);
+    const getDirectoryHandle = vi.fn(async () => ({ removeEntry }));
+    stubRememberedRoot({ getDirectoryHandle } as unknown as FileSystemDirectoryHandle);
+
+    await expect(removeUploadedImage('/images/skills/logo.svg')).resolves.toBe(true);
+
+    expect(getDirectoryHandle).toHaveBeenCalledWith('skills');
+    expect(removeEntry).toHaveBeenCalledWith('logo.svg');
+  });
+
+  it('returns false for anything outside the /images/<subdir>/<name> shape', async () => {
+    const picker = vi.fn();
+    vi.stubGlobal('window', { showDirectoryPicker: picker });
+
+    await expect(removeUploadedImage('react')).resolves.toBe(false);
+    await expect(removeUploadedImage('https://cdn.example.com/x.svg')).resolves.toBe(false);
+    await expect(removeUploadedImage('/images/')).resolves.toBe(false);
+    await expect(removeUploadedImage('/images/skills/')).resolves.toBe(false);
+    await expect(removeUploadedImage('/images/a/b/c.svg')).resolves.toBe(false);
+
+    expect(picker).not.toHaveBeenCalled();
+  });
+
+  it('returns false when no root is remembered — cleanup NEVER opens a picker', async () => {
+    const picker = vi.fn();
+    vi.stubGlobal('window', { showDirectoryPicker: picker });
+
+    // jsdom: indexedDB is undefined → readImagesRootHandle() === null.
+    await expect(removeUploadedImage('/images/skills/logo.svg')).resolves.toBe(false);
+
+    expect(picker).not.toHaveBeenCalled();
+  });
+
+  it('swallows a removal failure (returns false, never throws)', async () => {
+    const getDirectoryHandle = vi.fn(async () => ({
+      removeEntry: vi.fn(async () => {
+        throw new DOMException('busy', 'InvalidModificationError');
+      }),
+    }));
+    stubRememberedRoot({ getDirectoryHandle } as unknown as FileSystemDirectoryHandle);
+
+    await expect(removeUploadedImage('/images/skills/logo.svg')).resolves.toBe(false);
   });
 });
