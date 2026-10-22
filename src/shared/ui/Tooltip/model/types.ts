@@ -16,6 +16,17 @@ export type TooltipPosition = Placement;
 export type TooltipTriggerType = 'hover' | 'focus' | 'click';
 
 /**
+ * Значение триггера: одиночный режим ИЛИ массив активных режимов —
+ * комбинированный триггер (issue #222), например `['hover', 'focus']`:
+ * подсказка открывается и по наведению, и по фокусу одновременно.
+ *
+ * Массив выбран вместо магической строки `'both'`: расширяет существующий
+ * union без нового литерала, generalizуется до `['hover', 'focus', 'click']`
+ * и сохраняет все существующие одиночные вызовы без правок.
+ */
+export type TooltipTriggerValue = TooltipTriggerType | TooltipTriggerType[];
+
+/**
  * Тип контента тултипа — строже, чем `ReactNode`:
  * строка, ReactElement или null (план ui-kit-improvement-tooltip #9).
  * Числа, булевы значения и фрагменты исключены — контент тултипа
@@ -31,8 +42,8 @@ export type TooltipContentValue = string | ReactElement | null;
 export interface TooltipConfig {
   /** Позиция относительно триггера */
   position?: TooltipPosition;
-  /** Триггер активации */
-  trigger?: TooltipTriggerType;
+  /** Триггер активации: одиночный режим или массив (комбинированный, issue #222) */
+  trigger?: TooltipTriggerValue;
   /** Задержка показа (мс) */
   showDelay?: number;
   /** Задержка скрытия (мс) */
@@ -182,7 +193,10 @@ export interface TooltipContextValue {
   triggerRef: React.RefObject<HTMLElement | null>;
   tooltipRef: React.RefObject<HTMLDivElement | null>;
   tooltipId: string;
+  /** Основной (первый) активный режим — обратная совместимость */
   activeTrigger: TooltipTriggerType;
+  /** Все активные режимы — источник истины для gating (комбо-триггер, issue #222) */
+  activeTriggers: TooltipTriggerType[];
   disabled: boolean;
   skeleton: boolean;
   /** Позиция уже вычислена (тултип можно показывать с transition) */

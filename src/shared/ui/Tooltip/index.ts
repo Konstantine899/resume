@@ -2,6 +2,7 @@ export type {
   TooltipPosition,
   TooltipProps,
   TooltipTriggerType,
+  TooltipTriggerValue,
   TooltipOwnProps,
   TooltipBaseProps,
   TooltipComponent,

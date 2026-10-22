@@ -280,11 +280,12 @@ describe('SkillsEditorList', () => {
     expect(onEditTechnology).toHaveBeenCalledWith('frontend', 'React');
   });
 
-  // ---- rev.3 icon actions: hover tooltips (SPEC A14 — hover-only kit) ----
-  describe('Action tooltips (rev.3)', () => {
+  // ---- rev.3 icon actions tooltips + rev.5 combined trigger (issue #222) ----
+  describe('Action tooltips (rev.3, combined trigger rev.5)', () => {
     /**
      * Hover shows the tooltip with the SAME i18n key the button uses as
-     * aria-label; unhover hides it again (A14: kit Tooltip is hover-only).
+     * aria-label; unhover hides it again (rev.5: combined hover+focus —
+     * the unhover path stays intact when nothing is focused).
      */
     const expectHoverTooltip = async (button: HTMLElement, key: string) => {
       fireEvent.mouseEnter(button);
@@ -332,11 +333,11 @@ describe('SkillsEditorList', () => {
       await expectHoverTooltip(row.getByRole('button', { name: 'skillsDelete' }), 'skillsDelete');
     });
 
-    it('focus does NOT open the visual tooltip (A14: hover-only, name via aria-label)', () => {
+    it('focus opens the visual tooltip (rev.5: combined hover+focus, issue #222)', async () => {
       renderList();
 
       fireEvent.focus(screen.getByRole('button', { name: 'skillsAddCategory' }));
-      expect(screen.queryByRole('tooltip')).toBeNull();
+      expect(await screen.findByRole('tooltip')).toHaveTextContent('skillsAddCategory');
     });
   });
 

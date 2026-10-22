@@ -62,7 +62,7 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
     adjustedPosition,
     triggerRef,
     tooltipId,
-    activeTrigger,
+    activeTriggers,
     disabled,
     skeleton,
     handlers,
@@ -71,7 +71,15 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
   const triggerRefCallback = useMergeRefs(forwardedRef as Ref<HTMLElement>, triggerRef);
   const Tag = Component as ElementType;
 
-  const needsKeyboardProps = activeTrigger === 'click' || activeTrigger === 'focus';
+  // role/tabIndex обёртки — только для одиночных click/focus режимов
+  // (bare-span паттерн, легаси). В комбо-режиме «hover + focus» (issue #222)
+  // триггер декорирует УЖЕ фокусируемый контроль (пилот: IconButton) —
+  // focus всплывает от него; role="button"+tabIndex на обёртке вложили бы
+  // интерактивный виджет внутрь кнопки (axe nested-interactive) и добавили
+  // фантомный tab-stop.
+  const needsKeyboardProps =
+    activeTriggers.includes('click') ||
+    (activeTriggers.includes('focus') && !activeTriggers.includes('hover'));
   const defaultTriggerRole = needsKeyboardProps ? 'button' : undefined;
 
   // Базовые пропсы триггера. Обработчики делегируют приоритет user-обработчику.
@@ -109,7 +117,7 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
     role: roleProp ?? defaultTriggerRole,
     'data-tooltip-visible': isVisible,
     'data-tooltip-position': adjustedPosition,
-    'data-tooltip-trigger': activeTrigger,
+    'data-tooltip-trigger': activeTriggers.join(' '),
     'data-tooltip-disabled': disabled,
     ...(skeleton ? { 'data-skeleton': 'true' } : {}),
   };
@@ -138,7 +146,7 @@ function TooltipTriggerImpl<C extends ElementType = 'span'>(
       'aria-describedby': isVisible ? tooltipId : undefined,
       'data-tooltip-visible': isVisible,
       'data-tooltip-position': adjustedPosition,
-      'data-tooltip-trigger': activeTrigger,
+      'data-tooltip-trigger': activeTriggers.join(' '),
       'data-tooltip-disabled': disabled,
       ...(skeleton ? { 'data-skeleton': 'true' } : {}),
       // Event-обработчики мержим, а не перезаписываем.

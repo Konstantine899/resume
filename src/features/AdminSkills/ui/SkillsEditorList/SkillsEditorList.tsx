@@ -212,7 +212,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       header: t('skillsTableActions'),
       render: (row) => (
         <div className={styles.cellActions} data-testid={`skill-tech-actions-${row.techName}`}>
-          <Tooltip content={t('skillsEditTechnology')} position="top" showDelay={0}>
+          <Tooltip
+            content={t('skillsEditTechnology')}
+            trigger={['hover', 'focus']}
+            position="top"
+            showDelay={0}
+          >
             <IconButton
               type="button"
               variant="outline"
@@ -222,7 +227,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
               onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
             />
           </Tooltip>
-          <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+          <Tooltip
+            content={t('skillsDelete')}
+            trigger={['hover', 'focus']}
+            position="top"
+            showDelay={0}
+          >
             <IconButton
               type="button"
               variant="danger"
@@ -251,7 +261,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           <Paragraph theme="muted">{t('adminSkillsHint')}</Paragraph>
         </div>
         <div className={styles.headerActions}>
-          <Tooltip content={t('skillsAddCategory')} position="top" showDelay={0}>
+          <Tooltip
+            content={t('skillsAddCategory')}
+            trigger={['hover', 'focus']}
+            position="top"
+            showDelay={0}
+          >
             <IconButton
               type="button"
               variant="primary"
@@ -261,7 +276,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
               onClick={() => onAddCategory?.()}
             />
           </Tooltip>
-          <Tooltip content={t('skillsReset')} position="top" showDelay={0}>
+          <Tooltip
+            content={t('skillsReset')}
+            trigger={['hover', 'focus']}
+            position="top"
+            showDelay={0}
+          >
             <IconButton
               type="button"
               variant="outline"
@@ -336,7 +356,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
               >
                 {isCollapsed ? (
                   // A17: the whole Card body is the expand button (Plus left).
-                  <Tooltip content={expandLabel} position="top" showDelay={0}>
+                  <Tooltip
+                    content={expandLabel}
+                    trigger={['hover', 'focus']}
+                    position="top"
+                    showDelay={0}
+                  >
                     <IconButton
                       type="button"
                       variant="outline"
@@ -353,7 +378,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                   <>
                     <div className={styles.blockHeader}>
                       <div className={styles.headerMain}>
-                        <Tooltip content={collapseLabel} position="top" showDelay={0}>
+                        <Tooltip
+                          content={collapseLabel}
+                          trigger={['hover', 'focus']}
+                          position="top"
+                          showDelay={0}
+                        >
                           <IconButton
                             type="button"
                             variant="outline"
@@ -376,7 +406,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                         className={styles.actions}
                         data-testid={`skill-category-actions-${entry.category}`}
                       >
-                        <Tooltip content={t('skillsEditCategory')} position="top" showDelay={0}>
+                        <Tooltip
+                          content={t('skillsEditCategory')}
+                          trigger={['hover', 'focus']}
+                          position="top"
+                          showDelay={0}
+                        >
                           <IconButton
                             type="button"
                             variant="outline"
@@ -386,7 +421,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                             onClick={() => onEditCategory?.(entry)}
                           />
                         </Tooltip>
-                        <Tooltip content={t('skillsAddTechnology')} position="top" showDelay={0}>
+                        <Tooltip
+                          content={t('skillsAddTechnology')}
+                          trigger={['hover', 'focus']}
+                          position="top"
+                          showDelay={0}
+                        >
                           <IconButton
                             type="button"
                             variant="outline"
@@ -396,7 +436,12 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                             onClick={() => onAddTechnology?.(entry.category)}
                           />
                         </Tooltip>
-                        <Tooltip content={t('skillsDelete')} position="top" showDelay={0}>
+                        <Tooltip
+                          content={t('skillsDelete')}
+                          trigger={['hover', 'focus']}
+                          position="top"
+                          showDelay={0}
+                        >
                           <IconButton
                             type="button"
                             variant="danger"

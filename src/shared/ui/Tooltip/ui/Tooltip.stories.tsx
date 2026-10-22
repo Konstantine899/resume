@@ -21,7 +21,7 @@ const meta = {
 
 ### Особенности:
 - 12 позиций: top/bottom/left/right + start/end варианты
-- 3 триггера: hover, focus, click
+- Триггеры: hover, focus, click — одиночные или комбинированный режим массивом, например \`['hover', 'focus']\` (issue #222: подсказка и по наведению, и по фокусу)
 - Авто-коррекция позиции при выходе за границы
 - Compound API: Provider + Trigger + Content + Arrow
 - Accessibility (aria-describedby, keyboard navigation)
@@ -53,7 +53,8 @@ const meta = {
     trigger: {
       control: 'select',
       options: ['hover', 'focus', 'click'],
-      description: 'Триггер активации тултипа',
+      description:
+        'Триггер активации тултипа: одиночный режим или массив (комбинированный, напр. ["hover", "focus"])',
     },
     showDelay: {
       control: 'number',
@@ -386,6 +387,54 @@ export const FocusTrigger: Story = {
     expect(tooltip).toBeInTheDocument();
     expect(tooltip).toHaveTextContent('Нажмите Tab для фокуса');
     trigger.blur();
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Комбинированный триггер hover + focus (issue #222):
+ * подсказка открывается и по наведению курсора, и по фокусу на контроле.
+ * Focus всплывает от декорируемого элемента (кнопка) к обёртке триггера.
+ */
+export const CombinedHoverFocus: Story = {
+  args: {
+    content: 'Открывается по hover и по focus',
+    trigger: ['hover', 'focus'],
+    position: 'bottom',
+    showDelay: 0,
+    hideDelay: 100,
+    children: <button style={{ padding: '0.5rem 1rem' }}>Hover or focus me</button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Hover or focus me' });
+
+    // Focus path: фокус на контроле (событие всплывает к обёртке триггера)
+    button.focus();
+    expect(button).toHaveFocus();
+    let tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('Открывается по hover и по focus');
+
+    // Blur закрывает, когда курсор не наведён
+    button.blur();
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    // Hover path
+    await userEvent.hover(button);
+    tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent('Открывается по hover и по focus');
+
+    // Кросс-кейс: blur НЕ гасит тултип, пока курсор наведён
+    button.focus();
+    button.blur();
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    // Курсор ушёл, фокуса нет — закрывается
+    await userEvent.unhover(button);
     await waitFor(() => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
