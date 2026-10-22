@@ -2,7 +2,7 @@
 status: done
 epic: skills-card-collapse
 created: '2026-10-12'
-verified: '2026-10-17'
+verified: '2026-10-22'
 ---
 
 # SPEC — features/AdminSkills (редактирование блока «Навыки»)
@@ -12,6 +12,7 @@ verified: '2026-10-17'
 > **rev.2 (2026-10-11):** эпик `skills-icon-upload` — замена Select иконки на FileUpload (vault `wiki/plan/plan_skills_icon_upload.md`, вердикт OPEN-1 = A «полная замена»), done 2026-10-11, PR #213.
 > **rev.3 (2026-10-12):** эпик `skills-actions-polish` — кнопки действий → иконки с тултипами, правый прижим, категорийные блоки в kit Card (vault `wiki/plan/plan_skills_actions_polish.md`, вердикты OPEN-1..4 = A, auto-режим), done 2026-10-12, PR #221; follow-up kit Tooltip combined-trigger — issue #222.
 > **rev.4 (2026-10-13):** эпик `skills-card-collapse` — сворачивание карточек категорий (vault `wiki/plan/plan_skills_card_collapse.md`, вердикты OPEN-1..4 r4 = A/B1/A/A + директива владельца 2026-10-13 «все свёрнуты по умолчанию», auto-режим), **done 2026-10-13, PR #223** (squash `c350d0d`). §Критерии предыдущих эпиков сгорели вместе с их TODO. Companion: [TODO.md](./TODO.md).
+> **rev.5 (2026-10-22):** пилот комбинированного триггера kit `Tooltip` (issue #222): все тултипы этого файла переведены с дефолтного hover-only на `trigger={['hover', 'focus']}` — подсказка открывается и по наведению, и по фокусу на кнопке; A14 устарел (см. ниже). Статус не меняется (малый аменд поверх done-эпика).
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
@@ -93,7 +94,7 @@ Section (data-testid="admin-skills")
 - **Варианты:** сохраняются 1:1 от текущих кнопок (outline/primary/danger — вердикт OPEN-4=A); `variant="danger"` — семантический алиас kit (primary + colorScheme danger, `resolveButtonAppearance.ts`), руками не переписывать.
 - **Правый прижим (вердикт OPEN-1=A):** шапка блока — `justify-content: flex-end`; ячейка «Действия» — `margin-left: auto`/`flex-end` через класс `.actions` в `SkillsEditorList.module.scss`. DataTable колонки `align` не имеют — CSS на потребителе, kit не правится (вердикт OPEN-3 плана). Соседние списки (MyWork/Jobs) прижима не имеют — Skills первый, их не трогаем.
 - **Card-границы блока (вердикт OPEN-2=A):** `<section>` категории → kit `Card` `variant` default + `size="default"` (padding 16px) + `hoverable={false}` (гасит hover-lift `Card.module.scss:17-21` через `.noHover`) + `className={styles.block}` с `height: auto` (базовый миксин фиксирует 220px — `_card-mixins.scss:4`); `data-testid="skills-category-block-*"` пробрасывается restProps'ом. Заголовок страницы (h2+hint+header-иконки) остаётся СНАРУЖИ карточек. Админ-прецедент — `StatCard.tsx:22`.
-- **Tooltip:** `position="top"` пиним явно; kit `autoAdjust` (types.ts:48-49) не отключать — правый край вьюпорта; **trigger = hover (дефолт kit)** — RED-тест закрепляет hover/unhover; focus-визуал НЕ открывает тултип (см. A14), имя кнопки на focus несёт `aria-label`.
+- **Tooltip:** `position="top"` пиним явно; kit `autoAdjust` (types.ts:48-49) не отключать — правый край вьюпорта; **trigger = `['hover', 'focus']`** (комбо kit, rev.5 / issue #222) — RED-тесты закрепляют hover/unhover И открытие по focus; имя кнопки на focus дополнительно несёт `aria-label` (SR).
 - **Тесты:** существующие `getByRole('button', { name: <ключ> })` переживают (ariaLabel = прежний ключ); добавляются тесты видимости тултипа по hover/unhover.
 
 ### Сворачивание карточек (rev.4, эпик skills-card-collapse) — РЕШЕНО (вердикт 2026-10-12)
@@ -186,7 +187,7 @@ Section (data-testid="admin-skills")
 
 ## Предположения (A)
 
-A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз · A13 (rev.3) outline-Badge в заголовке блока визуально не меняется внутри Card (цвет наследуется `--color-text`, совпадает; проверка light+dark в preview, при дрейфе — вложить селектор, kit не править — gotcha `resume-card-p-inherit`) · A14 (rev.3, поправка 2026-10-12 после верификации kit)** kit `Tooltip` строго однорежимный: `TooltipTriggerType = 'hover' | 'focus' | 'click'` (types.ts:16), `handleFocus` gated на `activeTrigger === 'focus'` (useTooltip.ts:251-255) — комбинированного «hover+focus» НЕТ. Решение (владелец подтвердил 2026-10-12): **hover-only**, kit не правим (запрет эпика); клавиатурный доступ — через обязательный `aria-label` (SR объявляет имя при focus, WCAG покрыт). Визуальный тултип по focus — follow-up ишью на улучшение kit (combined trigger), вне этого эпика · A15 (rev.3) span-обёртка Tooltip (триггер по умолчанию `as='span'`) вокруг IconButton семантически и визуально нейтральна · **A16 (rev.4)** unmount контента при сворачивании допустим: локальные сортировка/страница блока сбрасываются (разворот → страница 1, сортировка по умолчанию) · **A17 (rev.4)** вся полоска — кнопка разворачивания (`+`-иконка слева внутри), не только иконка.
+A1 модалки форм (вердикт OPEN-2) · A2 порядок из storage (вердикт OPEN-6) · A3 кнопка в шапке блока (вердикт OPEN-3) · A4 локальная пагинация на блок, размер по умолчанию 5 при опциях 5/10/20 (вердикт OPEN-1/OPEN-5) · A5 Badge с видимой plural-формой (вердикт OPEN-8) · A6 EmptyState с ключом skillsCategoryEmpty (вердикт OPEN-7) · A7 Save закрывает модалку · A8 закрытие без dirty-guard · A9 локальная сортировка со сбросом страницы · A10 clamp страницы · A11 reset без изменений · A12 одна открытая модалка за раз · A13 (rev.3) outline-Badge в заголовке блока визуально не меняется внутри Card (цвет наследуется `--color-text`, совпадает; проверка light+dark в preview, при дрейфе — вложить селектор, kit не править — gotcha `resume-card-p-inherit`) · A14 **(rev.5, 2026-10-22 — заменяет rev.3):** комбинированный триггер kit `Tooltip` реализован (issue #222) — все тултипы блока используют `trigger={['hover', 'focus']}`: подсказка открывается и по hover, и по focus на кнопке (фокус всплывает к обёртке триггера), кросс-защита «unhover не гасит открытую фокусом / blur не гасит открытую по hover» закреплена тестами kit. Рев.3-решение «hover-only, kit не правим» устарело; `aria-label` остаётся носителем имени кнопки для SR · A15 (rev.3) span-обёртка Tooltip (триггер по умолчанию `as='span'`) вокруг IconButton семантически и визуально нейтральна · **A16 (rev.4)** unmount контента при сворачивании допустим: локальные сортировка/страница блока сбрасываются (разворот → страница 1, сортировка по умолчанию) · **A17 (rev.4)** вся полоска — кнопка разворачивания (`+`-иконка слева внутри), не только иконка.
 
 ## Критерии приёмки
 
