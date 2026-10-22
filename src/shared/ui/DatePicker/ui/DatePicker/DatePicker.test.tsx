@@ -66,6 +66,20 @@ describe('DatePicker', () => {
       expect(screen.queryByRole('grid')).toBeNull();
     });
 
+    it('поповер открывается со size="auto" — фиксированные 200px резали календарь', async () => {
+      const user = userEvent.setup();
+      render(<DatePicker value={null} onChange={vi.fn()} />);
+
+      await user.click(screen.getByRole('button', { name: 'calendarOpen' }));
+
+      // CSS-modules в этом проекте хэшит классы как `_auto_b0860f` —
+      // размер поповера читается прямо из className. sm = 200px резал
+      // 196px-минимум Calendar (right chevron обрезался overflow: hidden).
+      const popover = screen.getByTestId('popover-content');
+      expect(popover.className).toMatch(/\b_auto_/);
+      expect(popover.className).not.toMatch(/\b_sm_/);
+    });
+
     it('выбор дня в календаре → onChange(ISO) и поповер закрывается', async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();

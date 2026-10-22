@@ -29,13 +29,31 @@ export const Default: Story = {
   play: async ({ canvasElement, args }) => {
     await i18n.changeLanguage('en');
     const canvas = within(canvasElement);
+    // Popover.Content живёт в Portal (document.body) — контент ищем там.
+    const body = within(document.body);
 
     // ISO in, dd.mm.yyyy on display (OPEN-4).
     await expect(canvas.getByRole('textbox')).toHaveValue('15.06.2026');
 
     const user = userEvent.setup();
-    await user.click(canvas.getByRole('button', { name: 'calendarOpen' }));
-    await user.click(canvas.getByRole('gridcell', { name: /^20 / }));
+    await user.click(canvas.getByRole('button', { name: 'Open calendar' }));
+    await expect(body.getByRole('grid')).toBeVisible();
+
+    // Layout pin (real Chromium): size="sm" давал фикс 200px → 166px под
+    // календарь с жёстким минимумом 196px → right chevron обрезался
+    // overflow: hidden. size="auto" обязан вместить календарь целиком.
+    const popover = body.getByTestId('popover-content');
+    const calendar = popover.firstElementChild?.firstElementChild as HTMLElement;
+    await expect(popover).toContainElement(body.getByRole('grid'));
+    await expect(popover.clientWidth).toBeGreaterThanOrEqual(calendar.scrollWidth);
+
+    const nextChevron = body.getByRole('button', { name: 'Next month' });
+    const popoverBox = popover.getBoundingClientRect();
+    const chevronBox = nextChevron.getBoundingClientRect();
+    await expect(chevronBox.right).toBeLessThanOrEqual(popoverBox.right);
+    await expect(chevronBox.left).toBeGreaterThanOrEqual(popoverBox.left);
+
+    await user.click(body.getByRole('gridcell', { name: /^20 / }));
 
     await expect(args.onChange).toHaveBeenCalledWith('2026-06-20');
   },
@@ -61,13 +79,15 @@ export const WithMinMax: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    await user.click(canvas.getByRole('button', { name: 'calendarOpen' }));
+    await user.click(canvas.getByRole('button', { name: 'Open calendar' }));
 
-    await expect(canvas.getByRole('gridcell', { name: /^5 / })).toHaveAttribute(
+    // Content is portaled to document.body — query it there.
+    const body = within(document.body);
+    await expect(body.getByRole('gridcell', { name: /^5 / })).toHaveAttribute(
       'aria-disabled',
       'true'
     );
-    await expect(canvas.getByRole('gridcell', { name: /^25 / })).toHaveAttribute(
+    await expect(body.getByRole('gridcell', { name: /^25 / })).toHaveAttribute(
       'aria-disabled',
       'true'
     );
@@ -93,7 +113,7 @@ export const Disabled: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByRole('textbox')).toBeDisabled();
-    await expect(canvas.getByRole('button', { name: 'calendarOpen' })).toBeDisabled();
+    await expect(canvas.getByRole('button', { name: 'Open calendar' })).toBeDisabled();
   },
 };
 
