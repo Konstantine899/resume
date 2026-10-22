@@ -21,6 +21,7 @@ interface UseTooltipReturn {
   tooltipRef: React.RefObject<HTMLDivElement | null>;
   tooltipId: string;
   activeTrigger: TooltipTriggerType;
+  activeTriggers: TooltipTriggerType[];
   disabled: boolean;
   handlers: {
     handleMouseEnter: () => void;
@@ -57,7 +58,25 @@ export const useTooltip = ({
   const triggerRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-  const activeTrigger = trigger;
+  // Комбинированный триггер (issue #222): trigger может быть массивом режимов.
+  // Нормализация в массив — единая форма для всех проверок ниже.
+  const activeTriggers = useMemo<TooltipTriggerType[]>(
+    () => (Array.isArray(trigger) ? [...trigger] : [trigger]),
+    [trigger]
+  );
+  const isActive = useCallback(
+    (mode: TooltipTriggerType) => activeTriggers.includes(mode),
+    [activeTriggers]
+  );
+  // Основной режим — первый в списке (обратная совместимость + data-атрибут).
+  const activeTrigger = activeTriggers[0] ?? 'hover';
+  // Перекрёстная защита имеет смысл только в комбо «hover + focus»:
+  // в одиночных режимах поведение не меняется (characterization-тесты).
+  const isHoverFocus = isActive('hover') && isActive('focus');
+  // Текущие входы «держат» подсказку: пока активен один, снятие другого
+  // не должен её гасить (unhover не убивает открытую фокусом, и наоборот).
+  const hoveredRef = useRef(false);
+  const focusedRef = useRef(false);
 
   // Runtime validation in development mode
   useEffect(() => {
@@ -237,51 +256,60 @@ export const useTooltip = ({
 
   // Обработчики событий
   const handleMouseEnter = useCallback(() => {
-    if (activeTrigger === 'hover' && !disabled) {
-      debouncedShow();
-    }
-  }, [activeTrigger, disabled, debouncedShow]);
+    if (disabled) return;
+    hoveredRef.current = true;
+    if (isActive('hover')) debouncedShow();
+  }, [disabled, isActive, debouncedShow]);
 
   const handleMouseLeave = useCallback(() => {
-    if (activeTrigger === 'hover' && !disabled) {
-      debouncedHide();
-    }
-  }, [activeTrigger, disabled, debouncedHide]);
+    if (disabled) return;
+    hoveredRef.current = false;
+    // Комбо: курсор ушёл, но триггер в фокусе — подсказку держит фокус.
+    if (isHoverFocus && focusedRef.current) return;
+    if (isActive('hover')) debouncedHide();
+  }, [disabled, isHoverFocus, isActive, debouncedHide]);
 
   const handleFocus = useCallback(() => {
-    if (activeTrigger === 'focus' && !disabled) {
+    if (disabled) return;
+    focusedRef.current = true;
+    if (isActive('focus')) {
+      // Отмена отложенного hide: иначе hover-путь, запланировавший скрытие,
+      // погасил бы подсказку сразу после открытия фокусом.
+      hideRef.current?.cancel();
       setVisible(true);
     }
-  }, [activeTrigger, disabled, setVisible]);
+  }, [disabled, isActive, setVisible]);
 
   const handleBlur = useCallback(() => {
-    if (activeTrigger === 'focus' && !disabled) {
-      setVisible(false);
-    }
-  }, [activeTrigger, disabled, setVisible]);
+    if (disabled) return;
+    focusedRef.current = false;
+    // Комбо: фокус ушёл, но курсор всё ещё наведён — подсказку держит hover.
+    if (isHoverFocus && hoveredRef.current) return;
+    if (isActive('focus')) setVisible(false);
+  }, [disabled, isHoverFocus, isActive, setVisible]);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      if (activeTrigger === 'click' && !disabled) {
+      if (isActive('click') && !disabled) {
         // stopPropagation нужен только для click-триггера (toggle),
         // иначе клики на hover/focus тултипах глотаются у родителей.
         e.stopPropagation();
         setVisible((prev) => !prev);
       }
     },
-    [activeTrigger, disabled, setVisible]
+    [isActive, disabled, setVisible]
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (activeTrigger === 'click' && (e.key === 'Enter' || e.key === ' ') && !disabled) {
+      if (isActive('click') && (e.key === 'Enter' || e.key === ' ') && !disabled) {
         // Клавиатурная активация click-триггера (span с role="button"
         // не активируется нативно, как button/a)
         e.preventDefault();
         setVisible((prev) => !prev);
       }
     },
-    [activeTrigger, disabled, setVisible]
+    [isActive, disabled, setVisible]
   );
 
   // Escape закрывает тултип с любого места (не только при фокусе на триггере)
@@ -307,7 +335,7 @@ export const useTooltip = ({
       setVisible(false);
     },
     {
-      enabled: activeTrigger === 'click' && isVisible,
+      enabled: isActive('click') && isVisible,
       event: 'mousedown',
       excludeRefs: [triggerRef, tooltipRef],
     }
@@ -335,6 +363,7 @@ export const useTooltip = ({
     tooltipRef,
     tooltipId,
     activeTrigger,
+    activeTriggers,
     disabled,
     handlers,
     isVisibleEnabled: isVisible && !disabled,

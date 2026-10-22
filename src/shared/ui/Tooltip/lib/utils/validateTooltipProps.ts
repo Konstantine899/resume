@@ -1,6 +1,6 @@
 import { PLACEMENTS } from '@/shared/lib/utils/calculatePosition';
 import type { Placement } from '@/shared/lib/utils/calculatePosition';
-import type { TooltipTriggerType } from '../../model/types';
+import type { TooltipTriggerType, TooltipTriggerValue } from '../../model/types';
 
 // Единый источник 12 позиций — импортируется из calculatePosition,
 // чтобы не дублировать union/массив (5-й источник был тут).
@@ -29,7 +29,8 @@ export interface ValidationWarning {
 
 export interface ValidateTooltipOptions {
   position?: Placement;
-  trigger?: TooltipTriggerType;
+  /** Одиночный режим или массив (комбинированный триггер, issue #222) */
+  trigger?: TooltipTriggerValue;
   showDelay?: number;
   hideDelay?: number;
   offset?: number;
@@ -63,10 +64,21 @@ export const validateTooltipProps = ({
     });
   }
 
-  if (trigger !== undefined && !VALID_TRIGGERS.includes(trigger)) {
-    warnings.push({
-      prop: 'trigger',
-      message: `Tooltip: invalid trigger "${trigger}". Valid values: ${VALID_TRIGGERS.join(', ')}`,
+  if (trigger !== undefined) {
+    const triggers = Array.isArray(trigger) ? trigger : [trigger];
+    if (triggers.length === 0) {
+      warnings.push({
+        prop: 'trigger',
+        message: 'Tooltip: trigger — пустой массив, ни один триггер не активен',
+      });
+    }
+    triggers.forEach((value) => {
+      if (!VALID_TRIGGERS.includes(value)) {
+        warnings.push({
+          prop: 'trigger',
+          message: `Tooltip: invalid trigger "${value}". Valid values: ${VALID_TRIGGERS.join(', ')}`,
+        });
+      }
     });
   }
 

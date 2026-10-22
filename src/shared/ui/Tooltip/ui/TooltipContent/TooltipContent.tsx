@@ -36,7 +36,7 @@ const TooltipContentImpl = memo((props: TooltipContentProps) => {
     positioned,
     tooltipRef,
     tooltipId,
-    activeTrigger,
+    activeTriggers,
     isVisibleEnabled,
     handlers,
     color,
@@ -82,8 +82,8 @@ const TooltipContentImpl = memo((props: TooltipContentProps) => {
           overlayClassName
         )}
         style={{ ...calculatedStyle, ...overlayRest, ...colorVar, ...arrowShadowVar }}
-        onMouseEnter={activeTrigger === 'hover' ? handlers.handleMouseEnter : undefined}
-        onMouseLeave={activeTrigger === 'hover' ? handlers.handleMouseLeave : undefined}
+        onMouseEnter={activeTriggers.includes('hover') ? handlers.handleMouseEnter : undefined}
+        onMouseLeave={activeTriggers.includes('hover') ? handlers.handleMouseLeave : undefined}
         {...(skeleton ? { 'data-skeleton': 'true' } : {})}
       >
         {skeleton ? <Skeleton variant="text" width="120px" lines={2} /> : children}
