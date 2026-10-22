@@ -41,6 +41,7 @@ const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted
       async (params: { blob: Blob; name: string; subdir: string }) =>
         `/images/${params.subdir}/${params.name}`
     ),
+    remove: vi.fn(async (_path: string) => true),
   },
 }));
 
@@ -59,6 +60,7 @@ vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
   isDirectoryPickerSupported: dirMocks.supported,
   saveUploadedImage: dirMocks.save,
+  removeUploadedImage: dirMocks.remove,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -131,6 +133,7 @@ describe('TechnologyForm', () => {
       async (params: { blob: Blob; name: string; subdir: string }) =>
         `/images/${params.subdir}/${params.name}`
     );
+    dirMocks.remove.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -355,5 +358,160 @@ describe('TechnologyForm', () => {
     await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('skillsIconUploadSaveError')).not.toBeInTheDocument();
     expect(screen.queryByText('skillsIconUploadUnsupported')).not.toBeInTheDocument();
+  });
+
+  // ---- orphan cleanup on persist failure (2026-10-22 tail, rev.6) ----
+  // This form writes the file at FILE-SELECT time, so a failed persist must
+  // remove the session-written file AND restore the field (otherwise a
+  // retry would persist a link to the deleted file) — spec §Загрузка
+  // иконки rev.6. Same-name overwrite: the record still points at the path
+  // → no removal, no field reset.
+
+  it('create mode: persist failure removes the uploaded file AND clears the icon field', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(<TechnologyForm categoryId="frontend" />);
+    fireEvent.change(nameInput(), { target: { value: 'Vue' } });
+    await uploadSvg('vue-logo.svg');
+    // Non-vacuous: the kit announcement IS visible before the cleanup
+    // remounts the uploader (key bump — stale preview must not survive).
+    await screen.findByText('skillsIconUploadSelected');
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/vue-logo.svg')
+    );
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
+      )
+    );
+    await waitFor(() =>
+      expect(screen.queryByText('skillsIconUploadSelected')).not.toBeInTheDocument()
+    );
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(nameInput()).toHaveValue('Vue');
+
+    // The field was cleared → a retry is blocked until a NEW upload.
+    fireEvent.click(submitButton());
+    expect(await screen.findByRole('alert')).toHaveTextContent('skillsErrIcon');
+    expect(persistSpy).toHaveBeenCalledTimes(1); // only the failed attempt reached persist
+  });
+
+  it('edit mode: persist failure removes the uploaded file; a retry keeps the STORED icon', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm
+        categoryId="frontend"
+        technology={{ name: 'React', iconSvg: 'react' }}
+        onExitEdit={vi.fn()}
+      />
+    );
+    await uploadSvg('react-19.svg');
+    fireEvent.change(nameInput(), { target: { value: 'React 19' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/react-19.svg')
+    );
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
+      )
+    );
+    expect(updateSpy).not.toHaveBeenCalled();
+
+    // Retry: the icon field was restored — the record must never persist a
+    // link to the DELETED file.
+    persistSpy.mockReturnValue(true);
+    fireEvent.click(submitButton());
+
+    await waitFor(() => expect(updateSpy).toHaveBeenCalled());
+    const patch = updateSpy.mock.calls[0]?.[0] as { patch: { iconSvg: string } };
+    expect(patch.patch.iconSvg).toBe('react');
+  });
+
+  it('create mode: a THROWN persist fails like `false` — toast + cleanup, form open', async () => {
+    persistSpy.mockImplementation(() => {
+      throw new Error('storage quota');
+    });
+
+    render(<TechnologyForm categoryId="frontend" />);
+    fireEvent.change(nameInput(), { target: { value: 'Vue' } });
+    await uploadSvg('vue-logo.svg');
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
+      )
+    );
+    await waitFor(() =>
+      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/vue-logo.svg')
+    );
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(nameInput()).toHaveValue('Vue');
+  });
+
+  it('edit mode: persist failure does NOT remove a same-name overwrite (record still points at it)', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm
+        categoryId="frontend"
+        technology={{ name: 'React', iconSvg: '/images/skills/react-19.svg' }}
+        onExitEdit={vi.fn()}
+      />
+    );
+    await uploadSvg('react-19.svg');
+    fireEvent.change(nameInput(), { target: { value: 'React 19' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
+      )
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
+  });
+
+  it('edit mode: persist failure WITHOUT a new upload (keep-current) removes nothing', async () => {
+    persistSpy.mockReturnValue(false);
+
+    render(
+      <TechnologyForm
+        categoryId="frontend"
+        technology={{ name: 'React', iconSvg: 'react' }}
+        onExitEdit={vi.fn()}
+      />
+    );
+    fireEvent.change(nameInput(), { target: { value: 'React 19' } });
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
+      )
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
+  });
+
+  it('a successful save does NOT remove the uploaded file', async () => {
+    render(<TechnologyForm categoryId="frontend" />);
+    fireEvent.change(nameInput(), { target: { value: 'Vue' } });
+    await uploadSvg('vue-logo.svg');
+
+    fireEvent.click(submitButton());
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'skillsSaved' }))
+    );
+    expect(dirMocks.remove).not.toHaveBeenCalled();
   });
 });
