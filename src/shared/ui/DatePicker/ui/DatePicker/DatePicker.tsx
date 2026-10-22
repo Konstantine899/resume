@@ -128,7 +128,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <CalendarDays size={16} aria-hidden="true" />
           </Popover.Trigger>
         </div>
-        <Popover.Content position="bottom" size="sm">
+        <Popover.Content position="bottom" size="auto">
           <Calendar value={value} onChange={onChange} minDate={minDate} maxDate={maxDate} />
         </Popover.Content>
       </Popover.Provider>
