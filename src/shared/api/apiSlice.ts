@@ -1,48 +1,74 @@
 // ============================================
-// apiSlice — RTK Query STUB (migration plan rev.3, §3.7 amendment)
+// apiSlice — RTK Query (fetchBaseQuery + reauth)
 // ============================================
 //
-// Scaffolding only: the endpoints exist and the slice is wired into the
-// root store, but NOTHING in the UI consumes them — the showcase keeps its
-// synchronous localStorage read (contract C6) and persist->dispatch (C7).
-//
-// Real-server swap point: replace `stubBaseQuery` with
-// `fetchBaseQuery({ baseUrl: ... })` and finalize the wire format
-// (decision D3, plan §3.5). The coexistence mode (server truth vs local
-// cache, plan §3.3 variants 1/2/3) is approved together with the backend,
-// not here.
+// Plan 2 step 2: swapped the stub base query for a real fetchBaseQuery
+// with a reauth wrapper. The access token lives in memory (authToken) and
+// is attached as a Bearer header; on a 401 the wrapper calls
+// /auth/refresh once and retries the original request. Logout wipes the
+// in-memory token.
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-// NOTE (migration plan rev.3 §3.7): the CORE subpath (`/query`) is used on
-// purpose — the react-hooks module (`use*Query`) would add bundle weight
-// that NOTHING consumes until the real server arrives. Swap to
-// `@reduxjs/toolkit/query/react` together with `fetchBaseQuery` when the
-// backend lands (same swap point, documented in SPEC R-2).
-import { createApi } from '@reduxjs/toolkit/query';
-import type { BaseQueryFn } from '@reduxjs/toolkit/query';
+import { authToken } from './authToken';
 import type {
+  AuthCredentials,
+  AuthTokenResponse,
+  AuthUser,
   ContactDocumentDto,
   UpdateAboutPortraitArg,
   UpdateAboutPortraitResult,
 } from './types';
 
-type StubArgs = undefined | string | { url: string; method?: string };
-
-/**
- * Deterministic stub base query — no network, no timers. Always rejects
- * with 503 "backend not configured" so consumers (future) see a stable,
- * testable error shape identical to what fetchBaseQuery produces.
- */
-export const stubBaseQuery: BaseQueryFn<StubArgs> = async () => ({
-  error: {
-    status: 503,
-    data: { message: 'backend not configured' },
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: 'http://localhost:3000',
+  credentials: 'include',
+  prepareHeaders: (headers) => {
+    const token = authToken.getAccessToken();
+    if (token) headers.set('authorization', `Bearer ${token}`);
+    return headers;
   },
 });
 
+export const baseQuery = rawBaseQuery;
+
+/**
+ * Reauth wrapper: on HTTP 401, attempt a single refresh and retry the
+ * original request. Any other error (or a failed refresh) is returned
+ * unchanged.
+ */
+export const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  const result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    const refreshResult = await rawBaseQuery(
+      { url: '/auth/refresh', method: 'POST' },
+      api,
+      extraOptions
+    );
+
+    const refreshData = refreshResult.data as { accessToken?: string } | undefined;
+
+    if (refreshData?.accessToken) {
+      authToken.setAccessToken(refreshData.accessToken);
+      return rawBaseQuery(args, api, extraOptions);
+    }
+
+    authToken.clearAccessToken();
+  }
+
+  return result;
+};
+
+export const reauthBaseQuery = baseQueryWithReauth;
+
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: stubBaseQuery,
-  // No tagTypes / invalidation yet — added with the real backend.
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     /** GET the whole Contact document. */
     getContactContent: builder.query<ContactDocumentDto, void>({
@@ -52,33 +78,55 @@ export const apiSlice = createApi({
     updateContactContent: builder.mutation<ContactDocumentDto, ContactDocumentDto>({
       query: (content) => ({ url: '/contact', method: 'PUT', body: content }),
     }),
-    /**
-     * WU-14 (admin-about-table): update the About PORTRAIT — full-replace of
-     * the document whose `portrait` field carries the new `/images/about/<name>`
-     * path. The form calls ONLY `apiSlice.endpoints.updateAboutPortrait.initiate()`
-     * and never touches storage directly for this operation.
-     *
-     * The `queryFn` persists through the feature-injected `persist` seam (the
-     * arg carries it) — this layer imports NOTHING from `features`/`entities`
-     * (FSD: allowedImports.shared = ['shared']). A failed persist returns
-     * `{ error }` so the mutation REJECTS; the caller toasts and skips the
-     * store dispatch (persist-THEN-dispatch).
-     *
-     * SWAP-POINT (real Nest.js backend): replace this `queryFn` with
-     * `query: (arg) => ({ url: '/about/portrait', method: 'PUT', body: arg.content })`
-     * and drop the `persist` seam from the arg — the FILENAME/path travels in
-     * the body and lands in the DB. Nothing else changes: the caller keeps
-     * calling `.initiate()` and branching on `.unwrap()`.
-     */
+
+    // WU-14 (admin-about-table): unchanged persist-through-seam behavior.
     updateAboutPortrait: builder.mutation<UpdateAboutPortraitResult, UpdateAboutPortraitArg>({
       queryFn: async (arg) => {
         const { content, persist } = arg;
         if (!persist(content)) {
-          // Same shape stubBaseQuery produces — `.unwrap()` throws with this.
           return { error: { status: 500, data: { message: 'persist-failed' } } };
         }
         return { data: { document: content } };
       },
     }),
+
+    // Auth endpoints (Plan 2 step 2).
+    login: builder.mutation<AuthTokenResponse, AuthCredentials>({
+      query: (credentials) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+      transformResponse: (response: unknown) => {
+        const data = response as AuthTokenResponse;
+        authToken.setAccessToken(data.accessToken);
+        return data;
+      },
+    }),
+    refresh: builder.mutation<AuthTokenResponse, void>({
+      query: () => ({ url: '/auth/refresh', method: 'POST' }),
+      transformResponse: (response: unknown) => {
+        const data = response as AuthTokenResponse;
+        authToken.setAccessToken(data.accessToken);
+        return data;
+      },
+    }),
+    logout: builder.mutation<void, void>({
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch {
+          // Logout errors still wipe the local token.
+        }
+        authToken.clearAccessToken();
+      },
+    }),
+    me: builder.query<AuthUser, void>({
+      query: () => '/auth/me',
+    }),
   }),
 });
+
+// Hooks are not exported: the project uses the RTK Query core subpath
+// (`@reduxjs/toolkit/query`) on purpose and calls `.initiate()` directly.

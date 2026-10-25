@@ -5,7 +5,7 @@
 // FSD constraint: `shared` may NOT import `entities`, so the wire shape is
 // declared here structurally instead of reusing `entities/ContactContent`.
 // The mirror intentionally tracks the localStorage envelope `{ v: 1, content }`
-// (plan §3.5 D3-α is the default assumption) — the FINAL wire format is
+// (plan §3.5 D3-а is the default assumption) — the FINAL wire format is
 // approved when the real NestJS backend arrives (decision D3), and this file
 // is the single swap point for that change.
 
@@ -60,4 +60,28 @@ export type UpdateAboutPortraitArg = {
 export type UpdateAboutPortraitResult = {
   /** The document the seam wrote — mirrors the `content` passed in today. */
   document: unknown;
+};
+
+// ============================================
+// Auth DTOs (Plan 2 step 2)
+// ============================================
+
+/** Login credentials sent to `/auth/login`. */
+export type AuthCredentials = {
+  email: string;
+  password: string;
+};
+
+/** Wire shape of `/auth/login` and `/auth/refresh`. */
+export type AuthTokenResponse = {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: number;
+};
+
+/** Wire shape of `/auth/me`. */
+export type AuthUser = {
+  id: string;
+  email: string;
+  role: string;
 };
