@@ -14,6 +14,8 @@
     "check:axe:stories": "node scripts/axe-stories-check.mjs",
     "check:public-api": "node scripts/refactoring/check-shared-ui-public-api.mjs",
     "check:spec": "node scripts/check-spec.mjs",
+    "snapshot:openapi": "node scripts/snapshot-openapi.mjs",
+    "check:contract": "node scripts/check-contract.mjs",
     "spec:status": "node scripts/spec-status.mjs",
     "generate:slice": "node scripts/createSlices/index.mjs",
     "refactor:imports": "node scripts/refactoring/update-imports.mjs",
