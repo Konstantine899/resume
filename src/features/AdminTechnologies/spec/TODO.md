@@ -19,7 +19,7 @@ spec: SPEC.md
 ## Работа
 
 - [ ] WU-7: один конвеншнл-коммит `feat(technologies-admin): default page
-  size 5 and pagination below the table`; push; DRAFT PR
+size 5 and pagination below the table`; push; DRAFT PR
       `--base dev` (ОБЯЗАТЕЛЬНО — default-ветка репо `main`), body:
       директивы, `Closes #271`, результаты гейтов. НЕ мержить, НЕ удалять
       ветки.
