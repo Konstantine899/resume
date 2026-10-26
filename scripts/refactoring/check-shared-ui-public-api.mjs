@@ -169,7 +169,8 @@ async function main() {
     if (!entry.isDirectory()) continue;
     const files = await readdir(path.join(srcSharedUi, entry.name), { recursive: true });
     const hasSource = files.some(
-      (rel) => (rel.endsWith('.ts') || rel.endsWith('.tsx')) && !rel.split(path.sep).includes('spec')
+      (rel) =>
+        (rel.endsWith('.ts') || rel.endsWith('.tsx')) && !rel.split(path.sep).includes('spec')
     );
     (hasSource ? componentDirs : phaseAOnly).push(entry.name);
   }

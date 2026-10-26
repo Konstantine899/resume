@@ -66,6 +66,7 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
 ## Требования
 
 ### R-1 — ARCH-1: тест в свою директорию
+
 - [x] `ui/Contact.content.test.tsx` перемещён в
       `ui/Contact/Contact.content.test.tsx` (git mv); импорт внутри поправлен
       (`./Contact/Contact` → `./Contact`).
@@ -73,6 +74,7 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
 - [x] `npm run validate` зелёный (тесты content-ветки в том числе).
 
 ### R-2 — Мёртвый код удалён
+
 - [x] Интерфейс `SocialLink` удалён из `model/types/types.ts` (дубль
       `entities/Developer/model/types/types.ts:23`, 0 использований).
 - [x] `formRef` (`Contact.tsx:23,51`) удалён — `.current` нигде не читался.
@@ -82,11 +84,13 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
       `src/features/Contact` пуст.
 
 ### R-3 — Мёртвые пропсы
+
 - [x] `id`/`className` удалены из `ContactProps`
       (`model/types/types.ts:16-17`) — компонент деструктурирует только
       `content` (`Contact.tsx:22`), потребителей пропсов нет.
 
 ### R-4 — Баррел
+
 - [x] из `index.ts` удалены экспорты без production-
       потребителей: `useContactForm`, `CONTACT_EMAIL` (re-export из entities —
       AdminContact читает entities напрямую), `ContactFormData`, `FormStatus`;
@@ -95,6 +99,7 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
       `@/features/Contact`.
 
 ### R-5 — Известные ограничения (зафиксировать, не чинить)
+
 - [x] Тост-only валидация формы (единый `contactFormRequired` на все zod-
       ошибки, `useContactForm.ts:81-89`) — решение владельца Contact CRUD
       (R-4 плана); per-field ошибки — family-wide волна вне скоупа.
@@ -103,6 +108,7 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
       форма использует `ContactFormDataSchema` напрямую — проверено grep'ом).
 
 ### R-6 — Гейты эпика
+
 - [x] `npm run validate` зелёный (type-check + lint + lint:styles + тесты с
       coverage + public-api) — 3502/3502, public-api 37/37.
 - [x] axe-app `/`: 0 регрессий против baseline (4 known).
