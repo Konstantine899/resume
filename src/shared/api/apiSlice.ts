@@ -16,12 +16,15 @@ import type {
   AuthTokenResponse,
   AuthUser,
   ContactDocumentDto,
+  RegisterCredentials,
+  SiteSettingsDto,
   UpdateAboutPortraitArg,
   UpdateAboutPortraitResult,
+  UpdatePreferencesInput,
 } from './types';
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
   credentials: 'include',
   prepareHeaders: (headers) => {
     const token = authToken.getAccessToken();
@@ -31,6 +34,46 @@ const rawBaseQuery = fetchBaseQuery({
 });
 
 export const baseQuery = rawBaseQuery;
+
+const SKIPS_REAUTH = (url: string): boolean =>
+  url === '/auth/refresh' ||
+  url === '/auth/login' ||
+  url === '/auth/register' ||
+  url.endsWith('/auth/refresh') ||
+  url.endsWith('/auth/login') ||
+  url.endsWith('/auth/register');
+
+function requestUrl(args: string | FetchArgs): string {
+  if (typeof args === 'string') return args;
+  return String(args.url ?? '');
+}
+
+let refreshInFlight: Promise<AuthTokenResponse | null> | null = null;
+
+async function refreshOnce(
+  api: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[1],
+  extraOptions: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[2]
+): Promise<AuthTokenResponse | null> {
+  if (refreshInFlight) return refreshInFlight;
+
+  refreshInFlight = (async () => {
+    try {
+      const refreshResult = await rawBaseQuery(
+        { url: '/auth/refresh', method: 'POST' },
+        api,
+        extraOptions
+      );
+      if (refreshResult.error) return null;
+      const data = refreshResult.data as AuthTokenResponse;
+      if (data?.accessToken) authToken.setAccessToken(data.accessToken);
+      return data ?? null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
 
 /**
  * Reauth wrapper: on HTTP 401, attempt a single refresh and retry the
@@ -42,25 +85,35 @@ export const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  const url = requestUrl(args);
   const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
-    const refreshResult = await rawBaseQuery(
-      { url: '/auth/refresh', method: 'POST' },
-      api,
-      extraOptions
-    );
-
-    const refreshData = refreshResult.data as { accessToken?: string } | undefined;
-
-    if (refreshData?.accessToken) {
-      authToken.setAccessToken(refreshData.accessToken);
-      return rawBaseQuery(args, api, extraOptions);
-    }
-
-    authToken.clearAccessToken();
+  if (!(result.error && result.error.status === 401)) {
+    return result;
   }
 
+  if (SKIPS_REAUTH(url)) {
+    // Login/register/refresh failures never trigger another refresh.
+    if (url.endsWith('/auth/refresh')) {
+      authToken.clearAccessToken();
+      api.dispatch({ type: 'auth/signedOut' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('unauthorized'));
+      }
+    }
+    return result;
+  }
+
+  const refreshed = await refreshOnce(api, extraOptions);
+  if (refreshed?.accessToken) {
+    return rawBaseQuery(args, api, extraOptions);
+  }
+
+  authToken.clearAccessToken();
+  api.dispatch({ type: 'auth/signedOut' });
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('unauthorized'));
+  }
   return result;
 };
 
@@ -103,6 +156,18 @@ export const apiSlice = createApi({
         return data;
       },
     }),
+    register: builder.mutation<AuthTokenResponse, RegisterCredentials>({
+      query: (credentials) => ({
+        url: '/auth/register',
+        method: 'POST',
+        body: credentials,
+      }),
+      transformResponse: (response: unknown) => {
+        const data = response as AuthTokenResponse;
+        authToken.setAccessToken(data.accessToken);
+        return data;
+      },
+    }),
     refresh: builder.mutation<AuthTokenResponse, void>({
       query: () => ({ url: '/auth/refresh', method: 'POST' }),
       transformResponse: (response: unknown) => {
@@ -124,6 +189,24 @@ export const apiSlice = createApi({
     }),
     me: builder.query<AuthUser, void>({
       query: () => '/auth/me',
+    }),
+    // Preferences (Phase A backend): partial update of the current user's
+    // theme/language. Anonymous callers never reach here.
+    updatePreferences: builder.mutation<AuthUser, UpdatePreferencesInput>({
+      query: (body) => ({ url: '/users/me/preferences', method: 'PATCH', body }),
+      transformResponse: (response: unknown) => response as AuthUser,
+    }),
+    // Compatibility alias.
+    updateUserPreferences: builder.mutation<AuthUser, UpdatePreferencesInput>({
+      query: (body) => ({ url: '/users/me/preferences', method: 'PATCH', body }),
+      transformResponse: (response: unknown) => response as AuthUser,
+    }),
+    // Site settings (Phase A backend): global resume download URL.
+    getSiteSettings: builder.query<SiteSettingsDto, void>({
+      query: () => '/site/settings',
+    }),
+    siteSettings: builder.query<SiteSettingsDto, void>({
+      query: () => '/site/settings',
     }),
   }),
 });

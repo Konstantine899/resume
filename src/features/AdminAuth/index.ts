@@ -1,13 +1,8 @@
-// ============================================
-// AdminAuth - Public API (FSD slice)
-// ============================================
-
-export { adminAuthReducer } from './model/slices/authSlice';
-export { login, logout } from './model/services/session';
-export { selectIsAuthed } from './model/selectors/selectors';
-export {
-  ADMIN_AUTH_STORAGE_KEY,
-  persistAdminAuth,
-  readAdminAuthFlag,
-} from './model/services/storage';
-export type { AdminAuthRootState, AdminAuthState } from './model/types/types';
+// Compatibility barrel: AdminAuth now projects from the JWT-backed Auth slice.
+// Kept (instead of deletion) so existing import sites and tests continue to
+// resolve during the migration window; there is no separate reducer or storage.
+export { selectAuthUser, selectIsAdmin, selectIsAuthed } from '@/features/Auth';
+export type {
+  AuthState as AdminAuthState,
+  AuthRootState as AdminAuthRootState,
+} from '@/features/Auth';

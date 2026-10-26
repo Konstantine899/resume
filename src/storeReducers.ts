@@ -10,7 +10,7 @@
 // Stable reference (StoreProvider useMemo contract): module-level const —
 // an inline object literal in JSX would rebuild the store on every render.
 import { aboutContentReducer } from '@/features/AdminAbout/model/slices/aboutContentSlice';
-import { adminAuthReducer } from '@/features/AdminAuth';
+import { authReducer } from '@/features/Auth';
 import { adminDashboardReducer } from '@/features/AdminDashboard';
 // Deep import, NOT the barrel (technologies-crud SPEC D1): the entity's
 // public API is consumed by features; the composition root takes the
@@ -39,7 +39,7 @@ import { skillsReducer } from '@/features/AdminSkills/model/slices/skillsSlice';
 
 export const storeReducers = {
   aboutContent: aboutContentReducer,
-  adminAuth: adminAuthReducer,
+  auth: authReducer,
   adminDashboard: adminDashboardReducer,
   adminJobs: jobsReducer,
   adminSkills: skillsReducer,

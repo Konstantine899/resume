@@ -31,8 +31,21 @@ export const routerConfig: RouteObject[] = [
   {
     path: '/admin',
     // Dynamic imports = vite code-split points (tests: AppRouter > lazy boundary).
-    lazy: () =>
-      import('./Admin/ui/AdminLayout/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+    lazy: async () => {
+      const [layoutModule, authModule] = await Promise.all([
+        import('./Admin/ui/AdminLayout/AdminLayout'),
+        import('@/features/Auth'),
+      ]);
+      const AdminLayout = layoutModule.AdminLayout;
+      const RequireAdmin = authModule.RequireAdmin;
+      return {
+        Component: () => (
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        ),
+      };
+    },
     // Deep-loads of /admin hydrate asynchronously (RR 8 initial-hydration
     // path) — a route-level fallback prevents the blank frame + RR warning.
     hydrateFallbackElement: <AdminHydrateFallback />,

@@ -15,13 +15,16 @@
 // enters straight into this shell, and "Sign out" clears the vestigial
 // flag and returns to the showcase (`/`). The flag plumbing
 // (storage/slice/session) stays as the swap-point for the JWT stage.
-import { logout } from '@/features/AdminAuth';
 import { LanguageSwitch } from '@/features/LanguageSwitch';
+import { signedOut } from '@/features/Auth';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils';
+import { apiSlice } from '@/shared/api/apiSlice';
+import { authToken } from '@/shared/api/authToken';
 import { Button } from '@/shared/ui/Button';
 import React from 'react';
+import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import styles from './AdminLayout.module.scss';
@@ -31,11 +34,17 @@ const navLinkClassName = ({ isActive }: { isActive: boolean }): string =>
 
 export const AdminLayout: React.FC = () => {
   const { t } = useLanguage();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<unknown, unknown, UnknownAction>>();
   const navigate = useNavigate();
 
-  const handleLogout = (): void => {
-    logout(dispatch);
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await dispatch(apiSlice.endpoints.logout.initiate()).unwrap();
+    } catch {
+      // Logout errors still clear client state.
+    }
+    dispatch(signedOut());
+    authToken.clearAccessToken();
     navigate('/');
   };
 

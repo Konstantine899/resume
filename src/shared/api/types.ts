@@ -72,6 +72,11 @@ export type AuthCredentials = {
   password: string;
 };
 
+/** Registration credentials (alias with optional deviceId for parity). */
+export type RegisterCredentials = AuthCredentials & {
+  deviceId?: string;
+};
+
 /** Wire shape of `/auth/login` and `/auth/refresh`. */
 export type AuthTokenResponse = {
   accessToken: string;
@@ -84,4 +89,27 @@ export type AuthUser = {
   id: string;
   email: string;
   role: string;
+  theme: UserTheme;
+  language: UserLanguage;
+};
+
+// ============================================
+// Auth preferences DTOs (Phase A backend)
+// ============================================
+export type UserTheme = 'light' | 'dark';
+export type UserLanguage = 'en' | 'ru';
+
+/** Wire shape of PATCH /users/me/preferences. */
+export type UpdatePreferencesInput = {
+  theme?: UserTheme;
+  language?: UserLanguage;
+};
+
+// ============================================
+// Site settings DTO (Phase A backend)
+// ============================================
+export type SiteSettingsDto = {
+  id: string;
+  resumeUrl: string | null;
+  updatedAt?: string;
 };

@@ -11,10 +11,9 @@ import styles from './Nav.module.scss';
 import { sectionIdFromHref, useNavigation } from './lib/useNavigation';
 import { MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 import type { NavProps } from './model/types/types';
-import { AdminLink } from './ui/AdminLink';
-import { CtaButton } from './ui/CtaButton';
+import { AuthButtons } from '@/features/Auth';
+
 import { MobileMenu } from './ui/MobileMenu';
-import { NavControls } from './ui/NavControls';
 import { NavItem } from './ui/NavItem';
 import { SocialLinks } from './ui/SocialLinks';
 
@@ -93,15 +92,12 @@ export const Nav: React.FC<NavProps> = ({
             className={styles.burger}
             data-testid="nav-burger"
           />
-          <CtaButton variant="mobile" data-testid="nav-cta-mobile" />
         </div>
 
-        {/* Right-side controls (decision R5): 🌍🎨 switches (T4) → 📄 CTA → socials. */}
+        {/* Right-side controls: user avatar/auth only; settings are in avatar menu. */}
         <div className={styles.controls} data-testid="nav-controls">
-          <NavControls />
-          <CtaButton variant="desktop" />
           <SocialLinks />
-          <AdminLink />
+          <AuthButtons />
         </div>
       </nav>
 
