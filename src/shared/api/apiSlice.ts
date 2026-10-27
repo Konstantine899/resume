@@ -15,6 +15,7 @@ import type {
   AuthCredentials,
   AuthTokenResponse,
   AuthUser,
+  AboutContentDto,
   CreateContactMessageInput,
   ContactMessageAdminDto,
   ListContactMessagesQuery,
@@ -217,6 +218,14 @@ export const apiSlice = createApi({
     }),
     siteSettings: builder.query<SiteSettingsDto, void>({
       query: () => '/site/settings',
+    }),
+    // About (public profile)
+    getAboutContent: builder.query<AboutContentDto, void>({
+      query: () => '/about',
+    }),
+    updateAboutContent: builder.mutation<AboutContentDto, AboutContentDto>({
+      query: (body) => ({ url: '/about', method: 'PUT', body }),
+      transformResponse: (response: unknown) => response as AboutContentDto,
     }),
 
     // Contact messages (admin inbox, Phase 4).

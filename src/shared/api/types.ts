@@ -98,6 +98,18 @@ export type AuthUser = {
 // ============================================
 export type UserTheme = 'light' | 'dark';
 
+// About document DTO (sync about plan)
+export type AboutContentDto = {
+  fullName: string;
+  descriptions: { en: string; ru: string }[];
+  stats: Record<string, { en: string; ru: string }>;
+  statLabels?: Record<string, { en: string; ru: string }>;
+  ctaLabel: { en: string; ru: string } | null;
+  portrait?: string;
+  updatedAt?: string;
+  id?: string;
+};
+
 // Contact messages (admin inbox, Phase 4)
 export type ContactMessageAdminStatus = 'NEW' | 'READ' | 'REPLIED';
 export type ContactMessageAdminDto = {
