@@ -464,6 +464,55 @@
         "tags": ["ContactMessage"]
       }
     },
+    "/admin/contact/messages": {
+      "get": {
+        "operationId": "ContactMessageAdminController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["ContactMessageAdmin"]
+      }
+    },
+    "/admin/contact/messages/{id}": {
+      "patch": {
+        "operationId": "ContactMessageAdminController_updateStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["ContactMessageAdmin"]
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "HealthController_liveness",
