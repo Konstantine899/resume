@@ -102,18 +102,30 @@ vi.mock('react-redux', async (importOriginal) => {
 // (the file's react-redux mock has no api middleware, so `initiate` is
 // faked and `.unwrap()` is the branch under test) and the file write (the
 // real File-System-Access root must never run in tests).
-const { initiateSpy, saveUploadedImage, directoryPickerSupported } = vi.hoisted(() => ({
-  initiateSpy: vi.fn<
-    (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
-      unwrap: () => Promise<{ document: unknown }>;
-    }
-  >(),
-  saveUploadedImage: vi.fn(async () => '/images/about/portrait.png'),
-  directoryPickerSupported: vi.fn(() => true),
-}));
+const { initiateSpy, updateAboutContentInitiate, saveUploadedImage, directoryPickerSupported } =
+  vi.hoisted(() => ({
+    initiateSpy: vi.fn<
+      (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
+        unwrap: () => Promise<{ document: unknown }>;
+      }
+    >(),
+    updateAboutContentInitiate: vi.fn((doc: unknown) => ({
+      unwrap: async () => {
+        if (!persistSpy(doc as AboutContent)) throw new Error('persist-failed');
+        return doc;
+      },
+    })),
+    saveUploadedImage: vi.fn(async () => '/images/about/portrait.png'),
+    directoryPickerSupported: vi.fn(() => true),
+  }));
 
 vi.mock('@/shared/api', () => ({
-  apiSlice: { endpoints: { updateAboutPortrait: { initiate: initiateSpy } } },
+  apiSlice: {
+    endpoints: {
+      updateAboutContent: { initiate: updateAboutContentInitiate },
+      updateAboutPortrait: { initiate: initiateSpy },
+    },
+  },
 }));
 
 vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
@@ -171,6 +183,12 @@ beforeEach(() => {
   holder.content = createAboutSeed();
   persistSpy.mockReturnValue(true);
   confirmSpy.mockReturnValue(false);
+  global.fetch = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ fullName: 'Seed Name' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  ) as unknown as typeof fetch;
 });
 
 afterEach(() => {
@@ -1262,7 +1280,7 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
     );
     // The seam injected into shared IS the feature's storage module.
     const arg = initiateSpy.mock.calls[0]?.[0];
-    expect(arg?.persist(arg.content)).toBe(true);
+    await expect(arg?.persist(arg.content)).resolves.toBe(true);
     expect(persistSpy).toHaveBeenCalledWith(
       expect.objectContaining({ portrait: '/images/about/portrait.png' })
     );

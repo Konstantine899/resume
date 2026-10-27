@@ -141,7 +141,7 @@ export const apiSlice = createApi({
     updateAboutPortrait: builder.mutation<UpdateAboutPortraitResult, UpdateAboutPortraitArg>({
       queryFn: async (arg) => {
         const { content, persist } = arg;
-        if (!persist(content)) {
+        if (!(await persist(content))) {
           return { error: { status: 500, data: { message: 'persist-failed' } } };
         }
         return { data: { document: content } };

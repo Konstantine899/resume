@@ -60,7 +60,7 @@
 //   SAVED portrait preview full-width (320px) at the bottom.
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { AboutContent } from '@/entities/AboutContent';
 import { apiSlice } from '@/shared/api';
@@ -86,8 +86,9 @@ import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { Minus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { createAboutSeed } from '../../model/services/seed';
 import { selectAboutContent } from '../../model/selectors/selectors';
-import { persistAboutContent, removeAboutContent } from '../../model/services/storage';
+import { removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
 import type { AboutContentRootState } from '../../model/types/types';
 import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
@@ -158,6 +159,18 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const { t, language } = useLanguage();
   const { addToast } = useToast();
 
+  const persistAboutContentToApi = useCallback(
+    async (doc: AboutContent) => {
+      try {
+        await dispatch(apiSlice.endpoints.updateAboutContent.initiate(doc)).unwrap();
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [dispatch]
+  );
+
   // R-4 / WU-7 (OPEN-4): destructive confirm — `useConfirmAction` owns
   // the state machine (MyWork/Jobs/Contact parity). Cancel holds the
   // initial focus; there is NO persist-fail branch below because
@@ -170,12 +183,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     cancel: closeResetConfirm,
     confirm: handleConfirmReset,
   } = useConfirmAction<'reset'>({
-    onConfirm: () => {
-      // §7 order: remove → dispatch. NO fail branch — removeAboutContent
-      // is idempotent and never throws (storage.ts), so the hook's
-      // keep-open-on-false contract stays unused, as before WU-7.
+    onConfirm: async () => {
       removeAboutContent();
       dispatch(resetToDefaults());
+      void persistAboutContentToApi(createAboutSeed());
       return true;
     },
   });
@@ -192,8 +203,8 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     cancel: closeDeleteConfirm,
     confirm: handleConfirmDelete,
   } = useConfirmAction<AboutRowField>({
-    onConfirm: (field) => {
-      const merged = persistRemovedAboutRow(content, field);
+    onConfirm: async (field) => {
+      const merged = await persistRemovedAboutRow(content, field, persistAboutContentToApi);
       if (merged === null) {
         addToast({ message: t('aboutSaveError'), type: 'error' });
         return false; // store unchanged; the confirm stays open (R-3)
@@ -238,9 +249,14 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const fullNameValid = fullNameParsed.success;
   const fullNameDirty = fullNameDraft !== content.fullName;
 
-  const handleSaveFullName = () => {
+  const handleSaveFullName = async (): Promise<void> => {
     if (!fullNameParsed.success) return; // the Input shows aboutNameRequired
-    const merged = persistMergedAboutField(content, 'fullName', fullNameParsed.data);
+    const merged = await persistMergedAboutField(
+      content,
+      'fullName',
+      fullNameParsed.data,
+      persistAboutContentToApi
+    );
     if (merged === null) {
       addToast({ message: t('aboutSaveError'), type: 'error' });
       return; // store unchanged; the draft stays for a retry
@@ -267,8 +283,11 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
    * untouched. WU-4: this is the field-modal Save's `onSave` — returning
    * false keeps the modal open with the user's values.
    */
-  const handleSaveField = (field: EditAboutField, value: AboutFieldValue): boolean => {
-    const merged = persistMergedAboutField(content, field, value);
+  const handleSaveField = async (
+    field: EditAboutField,
+    value: AboutFieldValue
+  ): Promise<boolean> => {
+    const merged = await persistMergedAboutField(content, field, value, persistAboutContentToApi);
     if (merged === null) {
       addToast({ message: t('aboutSaveError'), type: 'error' });
       return false;
@@ -283,8 +302,8 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
    * `false` keeps AboutRowAddForm mounted (the modal stays open) — the
    * error toast was already fired here.
    */
-  const handleAddRow = (payload: AboutRowPayload): boolean => {
-    const merged = persistAddedAboutRow(content, payload);
+  const handleAddRow = async (payload: AboutRowPayload): Promise<boolean> => {
+    const merged = await persistAddedAboutRow(content, payload, persistAboutContentToApi);
     if (merged === null) {
       addToast({ message: t('aboutSaveError'), type: 'error' });
       return false;
@@ -337,7 +356,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           // shared cannot know AboutContent (FSD) — the seam parameter is
           // `unknown`, down-cast to the contract this feature owns. Passing
           // `persistAboutContent` directly fails strict contravariance.
-          persist: (doc) => persistAboutContent(doc as AboutContent),
+          persist: (doc) => persistAboutContentToApi(doc as AboutContent),
         })
       ).unwrap();
     } catch {

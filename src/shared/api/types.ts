@@ -47,7 +47,7 @@ export type UpdateAboutPortraitArg = {
   /** Full document, full-replace semantics; `portrait` carries the path. */
   content: unknown;
   /** Feature-owned persistence seam (localStorage today, API on swap). */
-  persist: (content: unknown) => boolean;
+  persist: (content: unknown) => boolean | Promise<boolean>;
 };
 
 /**
