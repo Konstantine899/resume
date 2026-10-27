@@ -7,11 +7,16 @@ import { AppRouter } from '@/pages/AppRouter';
 import './app/styles/globals/index.scss';
 
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { apiSlice } from '@/shared/api/apiSlice';
+import { selectAuthUser } from '@/features/Auth/model/selectors/selectors';
 import { bootstrapSession } from '@/features/Auth';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';
+import { useTheme } from '@/shared/lib/contexts/ThemeContext';
+import { useLanguage } from '@/shared/lib/i18n/hooks';
+import type { Theme } from '@/shared/lib/contexts/ThemeContext/model/types';
+import type { UserTheme, UserLanguage } from '@/shared/api/types';
 import { storeReducers } from './storeReducers';
 
 /**
@@ -34,6 +39,28 @@ const SessionBootstrap: React.FC = () => {
   return null;
 };
 
+const AuthPreferenceSync: React.FC = () => {
+  const user = useSelector(selectAuthUser);
+  const { setTheme } = useTheme();
+  const { setLanguage } = useLanguage();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const theme = user.theme as UserTheme | undefined;
+    if (theme === 'dark' || theme === 'light') {
+      setTheme(theme as Theme);
+    }
+
+    const language = user.language as UserLanguage | undefined;
+    if (language === 'en' || language === 'ru') {
+      setLanguage(language);
+    }
+  }, [user, setTheme, setLanguage]);
+
+  return null;
+};
+
 const App: React.FC = () => {
   return (
     <StoreProvider reducers={storeReducers}>
@@ -41,6 +68,7 @@ const App: React.FC = () => {
       <ToastProvider>
         <I18nProvider>
           <ThemeProvider>
+            <AuthPreferenceSync />
             <AppRouter />
           </ThemeProvider>
         </I18nProvider>

@@ -20,6 +20,19 @@
         "tags": ["auth"]
       }
     },
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Register a new user and issue a token pair",
+        "tags": ["auth"]
+      }
+    },
     "/auth/refresh": {
       "post": {
         "operationId": "AuthController_refresh",
@@ -66,6 +79,18 @@
         },
         "summary": "Current profile from a valid access token",
         "tags": ["auth"]
+      }
+    },
+    "/users/me/preferences": {
+      "patch": {
+        "operationId": "UserPreferencesController_updatePreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["UserPreferences"]
       }
     },
     "/images": {
@@ -403,6 +428,28 @@
           }
         },
         "tags": ["ContentImport"]
+      }
+    },
+    "/site/settings": {
+      "get": {
+        "operationId": "SiteSettingsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["SiteSettings"]
+      },
+      "patch": {
+        "operationId": "SiteSettingsController_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["SiteSettings"]
       }
     },
     "/health/live": {
