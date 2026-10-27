@@ -117,6 +117,14 @@ export const routerConfig: RouteObject[] = [
             Component: m.AdminTechnologiesPage,
           })),
       },
+      {
+        // Contact inbox (plan-contact-crm Phase 4) — own chunk.
+        path: 'contact-messages',
+        lazy: () =>
+          import('./Admin/ui/AdminContactMessagesPage/AdminContactMessagesPage').then((m) => ({
+            Component: m.AdminContactMessagesPage,
+          })),
+      },
     ],
   },
   { path: '*', loader: () => redirect('/') },
