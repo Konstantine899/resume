@@ -452,6 +452,18 @@
         "tags": ["SiteSettings"]
       }
     },
+    "/contact/messages": {
+      "post": {
+        "operationId": "ContactMessageController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["ContactMessage"]
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "HealthController_liveness",

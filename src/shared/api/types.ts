@@ -113,3 +113,13 @@ export type SiteSettingsDto = {
   resumeUrl: string | null;
   updatedAt?: string;
 };
+
+// Contact messages (plan-contact-crm / backend POST /contact/messages)
+export type CreateContactMessageInput = {
+  email: string;
+  subject?: string;
+  body: string;
+  source?: string;
+  locale?: UserLanguage;
+  website?: string;
+};

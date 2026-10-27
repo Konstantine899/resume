@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { CONTACT_EMAIL } from '@/entities/ContactContent';
 import { Contact } from './Contact';
+import { configureStore } from '@reduxjs/toolkit';
+import { apiSlice } from '@/shared/api';
+import { Provider } from 'react-redux';
+import { storeReducers } from '@/storeReducers';
 
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
@@ -30,7 +34,16 @@ describe('Contact: social links integration', () => {
   });
 
   it('renders a visible mailto link plus one external Link per social link', () => {
-    render(<Contact />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact />
+      </Provider>
+    );
 
     const links = screen.getAllByRole('link');
     expect(links.length).toBe(4);
@@ -52,13 +65,31 @@ describe('Contact: social links integration', () => {
   });
 
   it('renders the response-time hint via i18n (recruiter audit P1)', () => {
-    render(<Contact />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact />
+      </Provider>
+    );
 
     expect(screen.getByText('responseTimeHint')).toBeInTheDocument();
   });
 
   it('does NOT render the redundant "Opens in new tab" external icon (W-R1)', () => {
-    render(<Contact />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact />
+      </Provider>
+    );
 
     // showExternalIcon={false} — the social links already ship their own icons
     expect(screen.queryAllByLabelText('Opens in new tab')).toHaveLength(0);

@@ -10,6 +10,10 @@ import type { ContactContent } from '@/entities/ContactContent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Contact } from './Contact';
+import { configureStore } from '@reduxjs/toolkit';
+import { apiSlice } from '@/shared/api';
+import { Provider } from 'react-redux';
+import { storeReducers } from '@/storeReducers';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
 
@@ -37,6 +41,16 @@ vi.mock('@/shared/ui/Card', () => ({
 vi.mock('@emailjs/browser', () => ({
   default: { sendForm: vi.fn().mockResolvedValue({ status: 200 }) },
 }));
+vi.stubGlobal(
+  'fetch',
+  vi.fn(
+    async () =>
+      new Response(JSON.stringify({ id: 'mock-id' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  )
+);
 
 const STORE_CONTENT: ContactContent = {
   email: 'store@example.com',
@@ -78,7 +92,16 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
   });
 
   it('renders editable text and the mailto target from the content prop (language=ru)', () => {
-    render(<Contact content={STORE_CONTENT} />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact content={STORE_CONTENT} />
+      </Provider>
+    );
 
     // The mailto target and label come from the store, not CONTACT_EMAIL.
     const mailto = screen.getByRole('link', { name: 'store@example.com' });
@@ -103,7 +126,16 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
     // to the i18n default instead of throwing on `undefined[language]`.
     const texts = { ...STORE_CONTENT.texts };
     Reflect.deleteProperty(texts, 'sendMessage');
-    render(<Contact content={{ ...STORE_CONTENT, texts }} />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact content={{ ...STORE_CONTENT, texts }} />
+      </Provider>
+    );
 
     // Identity t returns the raw key — the fallback is observable.
     expect(screen.getByRole('button', { name: 'sendMessage' })).toBeInTheDocument();
@@ -111,7 +143,16 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
   });
 
   it('routes resolved formTexts into the Create toasts (R-11)', async () => {
-    render(<Contact content={STORE_CONTENT} />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact content={STORE_CONTENT} />
+      </Provider>
+    );
 
     fireEvent.change(screen.getByPlaceholderText('STORE_NAME_PH_RU'), {
       target: { value: 'John' },
@@ -136,7 +177,16 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
   });
 
   it('keeps SOCIAL_LINKS untouched (outside the store, decision B)', () => {
-    render(<Contact content={STORE_CONTENT} />);
+    render(
+      <Provider
+        store={configureStore({
+          reducer: storeReducers,
+          middleware: (g) => g().concat(apiSlice.middleware),
+        })}
+      >
+        <Contact content={STORE_CONTENT} />
+      </Provider>
+    );
 
     const external = screen
       .getAllByRole('link')

@@ -15,6 +15,7 @@ import type {
   AuthCredentials,
   AuthTokenResponse,
   AuthUser,
+  CreateContactMessageInput,
   ContactDocumentDto,
   RegisterCredentials,
   SiteSettingsDto,
@@ -200,6 +201,12 @@ export const apiSlice = createApi({
     updateUserPreferences: builder.mutation<AuthUser, UpdatePreferencesInput>({
       query: (body) => ({ url: '/users/me/preferences', method: 'PATCH', body }),
       transformResponse: (response: unknown) => response as AuthUser,
+    }),
+
+    // Contact ingestion (plan-contact-crm, Variant A).
+    createContactMessage: builder.mutation<{ id: string }, CreateContactMessageInput>({
+      query: (body) => ({ url: '/contact/messages', method: 'POST', body }),
+      transformResponse: (response: unknown) => response as { id: string },
     }),
     // Site settings (Phase A backend): global resume download URL.
     getSiteSettings: builder.query<SiteSettingsDto, void>({

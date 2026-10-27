@@ -126,3 +126,56 @@ model-слой `entities/ContactContent` (types/schema/seed) — заморож�
 (OPEN-2=A) мёртвые пропсы, (OPEN-1=A) 4 мёртвых экспорта баррела. Тест
 content-ветки живёт в `ui/Contact/` по ARCH-1. `npm run validate` и axe `/`
 зелёные.
+
+---
+
+## Amendment — Contact CRM ingestion (`plan-contact-crm.md`, 2026-10-27)
+
+Public form now submits to backend `POST /contact/messages`, storing a bounded message in DB instead of EmailJS.
+
+### Observable criteria
+
+- form submit calls `apiSlice.endpoints.createContactMessage` with `{ email, subject?, body }`
+- valid submission shows success toast and resets all fields
+- invalid response shows RFC7807 problem+json-derived message
+- rate-limit (429) shows toast and keeps entered text
+- text field caps: subject <=120, body <=2000
+- honeypot field `website` empty on successful submit or backend rejects
+- locale metadata included
+- Design C / read-path (`HomePage`, seed fallback) unchanged
+
+### Gap correction (pref-sync)
+
+- Auth preferences (`theme`, `language`) now applied after bootstrap/login/register.
+- No dark/light reset on reload
+- anonymous only local settings
+
+---
+
+## Amendment 4-6 — Contact CRM hardening (2026-10-27)
+
+### Frontend behavior
+
+- form fields:
+  - `email`
+  - `subject` (optional, 1..120)
+  - `body` (required, 1..2000)
+  - hidden `website` honeypot
+  - optional `source`, `locale`
+- normalize:
+  - trim email
+  - domain lowercase; preserve local-part casing
+  - subject/body trim + reject control chars
+- success clear
+- RFC problem mapping in toast
+- 429 preserves draft and shows retry window
+- Admin/inbox text-only rendering
+- Design C read-path unchanged
+- i18n parity updated en/ru
+
+### Contract/security
+
+- `check:contract` passes after endpoint change
+- OpenAPI snapshot refreshed
+- no HTML/format fallback
+- all requests use exact API base
