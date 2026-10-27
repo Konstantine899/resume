@@ -67,7 +67,6 @@ import { apiSlice } from '@/shared/api';
 import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { isAbortError, pickImagesRoot, writeImagesRootHandle } from '@/shared/lib/imageDir';
 import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Avatar } from '@/shared/ui/Avatar';
@@ -328,16 +327,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
    */
   const [stagedPortrait, setStagedPortrait] = useState<UploadedPortrait | null>(null);
   const [portraitError, setPortraitError] = useState<PortraitUploadFailure | null>(null);
-
-  const handleChoosePortraitRoot = async () => {
-    try {
-      const root = await pickImagesRoot();
-      await writeImagesRootHandle(root);
-      setPortraitError(null);
-    } catch (error) {
-      if (!isAbortError(error)) setPortraitError('write-failed');
-    }
-  };
   const [savingPortrait, setSavingPortrait] = useState(false);
 
   const handlePortraitFile = async (file: FileUploadSelection): Promise<void> => {
@@ -716,16 +705,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
               }}
               onFileSelect={handlePortraitFile}
             />
-            {/* First-run helper: File System Access needs a user gesture
-                to pick the writeable images-root. */}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => void handleChoosePortraitRoot()}
-            >
-              {t('adminAboutPortraitChooseFolder')}
-            </Button>
             {/* Static keys on purpose — the existence guard scans t('…')
                 literals; a dynamic t(errorKey) would go unguarded. */}
             {portraitError === 'unsupported' ? (
