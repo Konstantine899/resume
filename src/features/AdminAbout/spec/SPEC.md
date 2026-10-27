@@ -86,3 +86,12 @@ verified: '2026-10-20'
 - full-replace semantics on PUT
 - ` portrait?` resolves through same asset pipeline (`/images/...`)
 - local localStorage branch may remain temporarily during migration
+
+---
+
+## Amendment: backend-sync About via `/about` (plan-sync-about, 2026-10-27)
+
+- Admin About persistence is now API-backed (`updateAboutContent`)
+- Public bootstrap hydrates the store through `GET /about`
+- Design C read path unchanged (`content?` optional, seed fallback on null)
+- full-replace PUT semantics enforced by payload builder
