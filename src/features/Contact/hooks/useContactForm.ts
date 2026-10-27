@@ -1,5 +1,5 @@
 // ============================================
-// Contact Form Hook with EmailJS & Toast
+// Contact Form Hook with backend ingestion & Toast
 // ============================================
 
 import {
@@ -14,7 +14,7 @@ import { useState } from 'react';
 import type { ContactFormData, FormStatus } from '../model/types/types';
 
 interface UseContactFormOptions {
-  /** Overrides the default EmailJS send call (used for testing). */
+  /** Overrides the default submit send call (used for testing). */
   send?: (form: HTMLFormElement) => Promise<unknown>;
   /**
    * Admin-edited toast texts (resolved `content.formTexts[language]`,
@@ -67,7 +67,7 @@ export function useContactForm(options?: UseContactFormOptions): UseContactFormR
         return;
       }
 
-      // 2. Send (EmailJS by default, injected in tests)
+      // 2. Send (backend ingestion by default, injected in tests)
       const formElement = e.target as HTMLFormElement;
       if (!sendForm) {
         throw new Error('No send implementation provided');

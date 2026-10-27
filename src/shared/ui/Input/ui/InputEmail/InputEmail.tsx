@@ -21,7 +21,7 @@ export type InputEmailProps = InputOwnProps & {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   autoComplete?: string;
-  /** Form field name — required for form serialization (e.g. EmailJS sendForm). */
+  /** Form field name — required for form serialization. */
   name?: string;
 };
 

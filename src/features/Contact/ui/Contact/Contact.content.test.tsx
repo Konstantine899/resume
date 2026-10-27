@@ -38,9 +38,6 @@ vi.mock('@/shared/ui/Card', () => ({
     <div data-testid="card-grid">{children}</div>
   ),
 }));
-vi.mock('@emailjs/browser', () => ({
-  default: { sendForm: vi.fn().mockResolvedValue({ status: 200 }) },
-}));
 vi.stubGlobal(
   'fetch',
   vi.fn(
@@ -76,15 +73,7 @@ const STORE_CONTENT: ContactContent = {
 };
 
 describe('Contact: read-path via the content prop (WU-2)', () => {
-  beforeEach(() => {
-    // CI has no `.env` (gitignored): the default emailjsSend checks
-    // import.meta.env.VITE_EMAILJS_* BEFORE the mocked SDK call, so without
-    // these it throws EmailJSConfigError and the success-toast assertion
-    // never matches (it only ever passed on a dev machine with a local .env).
-    vi.stubEnv('VITE_EMAILJS_SERVICE_ID', 'test-service');
-    vi.stubEnv('VITE_EMAILJS_TEMPLATE_ID', 'test-template');
-    vi.stubEnv('VITE_EMAILJS_PUBLIC_KEY', 'test-key');
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
     vi.unstubAllEnvs();
@@ -165,7 +154,7 @@ describe('Contact: read-path via the content prop (WU-2)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'STORE_SEND_RU' }));
 
-    // Default send (mocked emailjs) resolves → success toast uses the
+    // Default send (RTK Query) resolves -> success toast uses the
     // STORE value, proving Contact passes `content.formTexts` down (R-11).
     await waitFor(() => {
       expect(addToast).toHaveBeenCalledWith({
