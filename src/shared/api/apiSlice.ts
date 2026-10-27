@@ -16,7 +16,10 @@ import type {
   AuthTokenResponse,
   AuthUser,
   CreateContactMessageInput,
+  ContactMessageAdminDto,
+  ListContactMessagesQuery,
   ContactDocumentDto,
+  ContactMessageAdminStatus,
   RegisterCredentials,
   SiteSettingsDto,
   UpdateAboutPortraitArg,
@@ -214,6 +217,29 @@ export const apiSlice = createApi({
     }),
     siteSettings: builder.query<SiteSettingsDto, void>({
       query: () => '/site/settings',
+    }),
+
+    // Contact messages (admin inbox, Phase 4).
+    getContactMessages: builder.query<ContactMessageAdminDto[], ListContactMessagesQuery | void>({
+      query: (arg) => {
+        const q = (arg as ListContactMessagesQuery | undefined) ?? {};
+        const params = new URLSearchParams();
+        if (q.status && q.status !== 'ALL') params.set('status', q.status);
+        if (q.skip !== undefined) params.set('skip', String(q.skip));
+        if (q.take !== undefined) params.set('take', String(q.take));
+        const qs = params.toString();
+        return '/admin/contact/messages' + (qs ? `?${qs}` : '');
+      },
+    }),
+    updateContactMessageStatus: builder.mutation<
+      ContactMessageAdminDto,
+      { id: string; status: ContactMessageAdminStatus }
+    >({
+      query: ({ id, status }) => ({
+        url: `/admin/contact/messages/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
     }),
   }),
 });

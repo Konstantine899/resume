@@ -97,6 +97,27 @@ export type AuthUser = {
 // Auth preferences DTOs (Phase A backend)
 // ============================================
 export type UserTheme = 'light' | 'dark';
+
+// Contact messages (admin inbox, Phase 4)
+export type ContactMessageAdminStatus = 'NEW' | 'READ' | 'REPLIED';
+export type ContactMessageAdminDto = {
+  id: string;
+  email: string;
+  subject?: string;
+  body: string;
+  source?: string;
+  locale?: string;
+  status: ContactMessageAdminStatus;
+  createdAt: string;
+  readAt?: string;
+  repliedAt?: string;
+};
+
+export type ListContactMessagesQuery = {
+  status?: 'ALL' | ContactMessageAdminStatus;
+  skip?: number;
+  take?: number;
+};
 export type UserLanguage = 'en' | 'ru';
 
 /** Wire shape of PATCH /users/me/preferences. */
