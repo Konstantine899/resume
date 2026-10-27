@@ -12,6 +12,8 @@ import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { apiSlice } from '@/shared/api/apiSlice';
 import { selectAuthUser } from '@/features/Auth/model/selectors/selectors';
 import { bootstrapSession } from '@/features/Auth';
+import { updateAboutContent } from '@/features/AdminAbout/model/slices/aboutContentSlice';
+import type { AboutContent } from '@/entities/AboutContent';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
@@ -29,12 +31,30 @@ import { storeReducers } from './storeReducers';
  */
 const SessionBootstrap: React.FC = () => {
   const dispatch = useDispatch<ThunkDispatch<unknown, unknown, UnknownAction>>();
+
   useEffect(() => {
     const api = {
       refresh: () => dispatch(apiSlice.endpoints.refresh.initiate()).unwrap(),
       me: () => dispatch(apiSlice.endpoints.me.initiate()).unwrap(),
     };
     void bootstrapSession(dispatch, api);
+  }, [dispatch]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadAbout = async () => {
+      try {
+        const data = await dispatch(apiSlice.endpoints.getAboutContent.initiate()).unwrap();
+        if (cancelled || !data) return;
+        dispatch(updateAboutContent(data as AboutContent));
+      } catch {
+        // Design C: keep seed fallback when API is unavailable or empty.
+      }
+    };
+    void loadAbout();
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch]);
   return null;
 };
