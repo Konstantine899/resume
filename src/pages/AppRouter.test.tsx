@@ -76,7 +76,7 @@ describe('AppRouter', () => {
     // settings, about, contact, mywork, skills, jobs, technologies — the
     // CRUD §10 chains) are lazy too so no admin page reaches the showcase
     // bundle.
-    expect(adminRoute?.children).toHaveLength(8);
+    expect(adminRoute?.children).toHaveLength(9);
     expect(adminRoute?.children?.every((child) => child.lazy)).toBe(true);
     // Deep /admin loads hydrate asynchronously — the route carries a fallback
     // so React Router 8 doesn't warn about a missing HydrateFallback.
