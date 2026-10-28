@@ -33,12 +33,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import {
-  isAbortError,
-  isDirectoryPickerSupported,
-  removeUploadedImage,
-  saveUploadedImage,
-} from '@/shared/lib/imageDir';
+import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
+import { uploadImage } from '@/shared/lib/imageUpload';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
@@ -69,7 +65,6 @@ import styles from './TechnologyForm.module.scss';
 /** SVG byte cap for the icon upload (~50 KB — Skills rev.2 parity). */
 const ICON_MAX_BYTES = 50_000;
 /** Fixed subdir under the remembered images root. */
-const ICON_SUBDIR = 'technologies';
 
 /** §3: the persist contract is `boolean` — a THROW must fail exactly like `false`. */
 function persistOutcome(persist: () => boolean): boolean {
@@ -145,22 +140,12 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   const handleSave = handleSubmit(async (data) => {
     let url = data.iconUrl;
     if (pendingFile) {
-      if (!isDirectoryPickerSupported()) {
-        addToast({ message: t('adminTechIconUploadUnsupported'), type: 'error' });
-        return; // form keeps the pending file; store unchanged
-      }
-      try {
-        url = await saveUploadedImage({
-          blob: pendingFile.blob,
-          name: pendingFile.name,
-          subdir: ICON_SUBDIR,
-        });
-      } catch (error) {
-        // The user dismissed the picker — no alarm, no persist.
-        if (isAbortError(error)) return;
+      const uploadOutcome = await uploadImage({ blob: pendingFile.blob, name: pendingFile.name });
+      if (!uploadOutcome.ok) {
         addToast({ message: t('adminTechIconUploadSaveError'), type: 'error' });
-        return; // form keeps the values for a retry (§7)
+        return; // form keeps the values for a retry
       }
+      url = uploadOutcome.file.path;
     } else if (technology) {
       // Keep-current: the provisional marker (or any form value) must not
       // overwrite the stored url when no NEW file was picked.
@@ -261,6 +246,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
             undecodable: t('adminTechIconUploadUndecodable'),
             selected: t('adminTechIconUploadSelected'),
           }}
+          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleFileSelect}
           maxBlobBytes={ICON_MAX_BYTES}
         />

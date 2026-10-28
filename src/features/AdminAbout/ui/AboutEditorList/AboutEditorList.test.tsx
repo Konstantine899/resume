@@ -102,7 +102,7 @@ vi.mock('react-redux', async (importOriginal) => {
 // (the file's react-redux mock has no api middleware, so `initiate` is
 // faked and `.unwrap()` is the branch under test) and the file write (the
 // real File-System-Access root must never run in tests).
-const { initiateSpy, updateAboutContentInitiate, saveUploadedImage, directoryPickerSupported } =
+const { initiateSpy, updateAboutContentInitiate, uploadImage, directoryPickerSupported } =
   vi.hoisted(() => ({
     initiateSpy: vi.fn<
       (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
@@ -115,7 +115,10 @@ const { initiateSpy, updateAboutContentInitiate, saveUploadedImage, directoryPic
         return doc;
       },
     })),
-    saveUploadedImage: vi.fn(async () => '/images/about/portrait.png'),
+    uploadImage: vi.fn(async () => ({
+      ok: true,
+      file: { name: 'portrait.png', path: '/images/about/portrait.png' },
+    })),
     directoryPickerSupported: vi.fn(() => true),
   }));
 
@@ -130,8 +133,11 @@ vi.mock('@/shared/api', () => ({
 
 vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  saveUploadedImage,
   isDirectoryPickerSupported: directoryPickerSupported,
+}));
+
+vi.mock('@/shared/lib/imageUpload', () => ({
+  uploadImage,
 }));
 
 // The Avatar preview is asserted by SRC — the real kit Image keeps it out
@@ -1173,7 +1179,10 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
     });
     // Defaults for the two spied seams; tests override per branch.
     initiateSpy.mockImplementation(() => ({ unwrap: () => Promise.resolve({ document: {} }) }));
-    saveUploadedImage.mockResolvedValue('/images/about/portrait.png');
+    uploadImage.mockResolvedValue({
+      ok: true,
+      file: { name: 'portrait.png', path: '/images/about/portrait.png' },
+    });
     directoryPickerSupported.mockReturnValue(true);
   });
 
@@ -1219,48 +1228,39 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   it('wires the native picker to .jpg/.png and rejects other formats with adminAboutPortraitFormat', async () => {
     renderWithPortraitModal();
 
-    expect(fileInput()).toHaveAttribute('accept', '.jpg,.png');
-    stageFile(new File(['x'], 'shot.webp', { type: 'image/webp' }));
+    expect(fileInput()).toHaveAttribute('accept', '.png,.webp,.svg');
+    stageFile(new File(['x'], 'anim.gif', { type: 'image/gif' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
     // Rejected BEFORE any pipeline/storage work — nothing staged.
-    expect(saveUploadedImage).not.toHaveBeenCalled();
+    expect(uploadImage).not.toHaveBeenCalled();
     expect(initiateSpy).not.toHaveBeenCalled();
     expect(savePortraitButton()).toBeDisabled();
   });
 
   // The kit gate accepts by BOTH extension and MIME (spec D15) — these three
   // formats must never reach the picker's pipeline.
-  it.each([
-    ['anim.gif', 'image/gif'],
-    ['logo.svg', 'image/svg+xml'],
-    ['shot.webp', 'image/webp'],
-  ])('rejects %s (%s) without staging the file', async (name, type) => {
-    renderWithPortraitModal();
+  it.each([['anim.gif', 'image/gif']])(
+    'rejects %s (%s) without staging the file',
+    async (name, type) => {
+      renderWithPortraitModal();
 
-    stageFile(new File(['x'], name, { type }));
+      stageFile(new File(['x'], name, { type }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
-    expect(saveUploadedImage).not.toHaveBeenCalled();
-    expect(savePortraitButton()).toBeDisabled();
-  });
+      expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
+      expect(uploadImage).not.toHaveBeenCalled();
+      expect(savePortraitButton()).toBeDisabled();
+    }
+  );
 
-  it('accepts a .jpg carrying the legacy image/jpg MIME (staged, no document move)', async () => {
+  it('rejects a .jpg carrying the legacy image/jpg MIME (no staging)', async () => {
     renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.jpg', { type: 'image/jpg' }));
 
-    await waitFor(() => expect(saveUploadedImage).toHaveBeenCalledTimes(1));
-    // The kit re-encodes and renames to match the ENCODED blob type
-    // (sanitizeFileName: base from the original 'me.jpg' + codec ext) —
-    // the 'me' base proves the legacy-MIME file itself passed the gate.
-    expect(saveUploadedImage).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'me.webp', subdir: 'about' })
-    );
-    await waitFor(() => expect(savePortraitButton()).toBeEnabled());
-    // Phase 1 wrote the FILE only — the document/store never moved (D15).
-    expect(updateSpy).not.toHaveBeenCalled();
-    expect(initiateSpy).not.toHaveBeenCalled();
+    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
+    expect(uploadImage).not.toHaveBeenCalled();
+    expect(savePortraitButton()).toBeDisabled();
   });
 
   it('Save runs the RTK Query mutation with the feature persist seam, then dispatches + toasts', async () => {
@@ -1323,24 +1323,13 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   });
 
   it('a failed file write surfaces adminAboutPortraitSaveError and stages nothing', async () => {
-    saveUploadedImage.mockRejectedValueOnce(new Error('disk full'));
+    uploadImage.mockRejectedValueOnce(new Error('disk full'));
     renderWithPortraitModal();
 
     stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitSaveError');
     expect(initiateSpy).not.toHaveBeenCalled();
-    expect(savePortraitButton()).toBeDisabled();
-  });
-
-  it('a missing directory picker surfaces adminAboutPortraitUnsupported (no write attempted)', async () => {
-    directoryPickerSupported.mockReturnValue(false);
-    renderWithPortraitModal();
-
-    stageFile(new File(['x'], 'me.png', { type: 'image/png' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitUnsupported');
-    expect(saveUploadedImage).not.toHaveBeenCalled();
     expect(savePortraitButton()).toBeDisabled();
   });
 

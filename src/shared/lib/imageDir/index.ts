@@ -5,6 +5,7 @@
 export {
   IMAGES_ROOT_KEY,
   ImageUploadError,
+  ensureRootWithinGesture,
   getOrCreateSubdir,
   isAbortError,
   isDirectoryPickerSupported,

@@ -36,6 +36,10 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
   const isAdmin = isAdminProp ?? user?.role === 'admin';
 
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const storePortrait = useSelector(
+    (state: unknown) => (state as { aboutContent?: { portrait?: string } })?.aboutContent?.portrait
+  );
+  const avatarSrc = storePortrait && storePortrait.trim() ? storePortrait : aboutPortrait;
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +52,25 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
       .catch(() => {
         if (cancelled) return;
         setResumeUrl(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    let cancelled = false;
+    dispatch(apiSlice.endpoints.getAboutContent.initiate())
+      .unwrap()
+      .then((data: unknown) => {
+        if (cancelled || !data || typeof data !== 'object') return;
+        const content = { ...(data as Record<string, unknown>) };
+        delete content.id;
+        delete content.updatedAt;
+        dispatch({ type: 'aboutContent/updateAboutContent', payload: content });
+      })
+      .catch(() => {
+        if (cancelled) return;
       });
     return () => {
       cancelled = true;
@@ -116,7 +139,8 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
         style={{ background: 'transparent', border: 0, padding: 0 }}
       >
         <img
-          src={aboutPortrait}
+          key={avatarSrc}
+          src={avatarSrc}
           alt={user.email}
           style={{
             width: 32,

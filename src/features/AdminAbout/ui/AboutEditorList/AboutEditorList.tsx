@@ -67,6 +67,7 @@ import { apiSlice } from '@/shared/api';
 import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
 import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Avatar } from '@/shared/ui/Avatar';
@@ -162,7 +163,16 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const persistAboutContentToApi = useCallback(
     async (doc: AboutContent) => {
       try {
-        await dispatch(apiSlice.endpoints.updateAboutContent.initiate(doc)).unwrap();
+        await dispatch(
+          apiSlice.endpoints.updateAboutContent.initiate({
+            fullName: doc.fullName,
+            descriptions: doc.descriptions,
+            stats: doc.stats,
+            statLabels: doc.statLabels,
+            ctaLabel: doc.ctaLabel,
+            portrait: doc.portrait,
+          })
+        ).unwrap();
         return true;
       } catch {
         return false;
@@ -693,7 +703,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <div className={styles.portraitUpload}>
             <FileUpload
               label={t('adminAboutPortraitLabel')}
-              acceptExtensions={['.jpg', '.png']}
+              acceptExtensions={['.png', '.webp', '.svg']}
               texts={{
                 button: t('adminAboutPortraitButton'),
                 hint: t('adminAboutPortraitHint'),
@@ -703,6 +713,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                 wrongFormat: t('adminAboutPortraitFormat'),
                 selected: t('adminAboutPortraitSelected'),
               }}
+              onBeforeSelect={() => ensureRootWithinGesture()}
               onFileSelect={handlePortraitFile}
             />
             {/* Static keys on purpose — the existence guard scans t('…')

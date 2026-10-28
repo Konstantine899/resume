@@ -39,12 +39,8 @@
 //   `onExitEdit`.
 
 import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
-import {
-  isAbortError,
-  isDirectoryPickerSupported,
-  removeUploadedImage,
-  saveUploadedImage,
-} from '@/shared/lib/imageDir';
+import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
+import { uploadImage } from '@/shared/lib/imageUpload';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -73,7 +69,6 @@ import styles from './TechnologyForm.module.scss';
 /** SVG byte cap for the icon upload (~50 KB — plan D1). */
 const ICON_MAX_BYTES = 50_000;
 /** Fixed subdir under the remembered images root (plan D2). */
-const ICON_SUBDIR = 'skills';
 
 /** §3: the persist contract is `boolean` — a THROW must fail exactly like `false`. */
 function persistOutcome(persist: () => boolean): boolean {
@@ -152,20 +147,15 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   const handleImageFile = useCallback(
     async (file: FileUploadSelection) => {
       setIconSaveErrorKey(null);
-      if (!isDirectoryPickerSupported()) {
-        setIconSaveErrorKey('skillsIconUploadUnsupported');
-        return;
-      }
+
       try {
-        const path = await saveUploadedImage({
-          blob: file.blob,
-          name: file.name,
-          subdir: ICON_SUBDIR,
-        });
-        setValue('iconSvg', path, { shouldDirty: true, shouldValidate: true });
-      } catch (error) {
-        // The user dismissed the picker — no alarm, no value change.
-        if (isAbortError(error)) return;
+        const outcome = await uploadImage({ blob: file.blob, name: file.name });
+        if (!outcome.ok) {
+          setIconSaveErrorKey('skillsIconUploadSaveError');
+          return;
+        }
+        setValue('iconSvg', outcome.file.path, { shouldDirty: true, shouldValidate: true });
+      } catch {
         setIconSaveErrorKey('skillsIconUploadSaveError');
       }
     },
@@ -296,6 +286,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
             undecodable: t('skillsIconUploadUndecodable'),
             selected: t('skillsIconUploadSelected'),
           }}
+          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleImageFile}
           maxBlobBytes={ICON_MAX_BYTES}
         />

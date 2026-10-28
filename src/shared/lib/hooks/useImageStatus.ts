@@ -2,7 +2,7 @@
 // useImageStatus Hook
 // ============================================
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Custom hook for managing image loading state
@@ -38,6 +38,11 @@ export const useImageStatus = (
     },
     [onError]
   );
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    setImageStatus('loading');
+  }, [normalizedSrc]);
 
   return {
     imageStatus,

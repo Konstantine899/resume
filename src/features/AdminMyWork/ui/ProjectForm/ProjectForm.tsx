@@ -45,7 +45,8 @@ import React, { useCallback, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors/selectors';
-import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
+import { uploadImage } from '@/shared/lib/imageUpload';
+import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
 import {
   addProject,
@@ -154,21 +155,19 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   const handleImageFile = useCallback(
     async (file: FileUploadSelection) => {
       setImageSaveErrorKey(null);
-      if (!isDirectoryPickerSupported()) {
-        setImageSaveErrorKey('projectFileUploadUnsupported');
-        return;
-      }
+      // directory picker no longer required for backend upload
       try {
-        const subdir = values.imageSubdir || 'projects';
-        const path = await saveUploadedImage({ blob: file.blob, name: file.name, subdir });
-        setValue('image', path, { shouldDirty: true, shouldValidate: true });
-      } catch (error) {
-        // The user dismissed the picker — no alarm, no value change.
-        if (isAbortError(error)) return;
+        const outcome = await uploadImage({ blob: file.blob, name: file.name });
+        if (!outcome.ok) {
+          setImageSaveErrorKey('projectFileUploadSaveError');
+          return;
+        }
+        setValue('image', outcome.file.path, { shouldDirty: true, shouldValidate: true });
+      } catch {
         setImageSaveErrorKey('projectFileUploadSaveError');
       }
     },
-    [setValue, values.imageSubdir]
+    [setValue]
   );
 
   /** §3 order: persist → dispatch → toast → pristine form. */
@@ -295,6 +294,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
             undecodable: t('projectFileUploadUndecodable'),
             selected: t('projectFileUploadSelected'),
           }}
+          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleImageFile}
         />
         {imageSaveErrorKey ? (

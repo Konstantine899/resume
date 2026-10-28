@@ -39,7 +39,12 @@ import {
   type ProjectStatus,
 } from '@/entities/Project';
 import { selectTechnologyKeys } from '@/entities/Technology';
-import { isAbortError, isDirectoryPickerSupported, saveUploadedImage } from '@/shared/lib/imageDir';
+import {
+  ensureRootWithinGesture,
+  isAbortError,
+  isDirectoryPickerSupported,
+  saveUploadedImage,
+} from '@/shared/lib/imageDir';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -325,6 +330,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 undecodable: t('projectFileUploadUndecodable'),
                 selected: t('projectFileUploadSelected'),
               }}
+              onBeforeSelect={() => ensureRootWithinGesture()}
               onFileSelect={handleImageFile}
             />
             {imageSaveErrorKey ? (

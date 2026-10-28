@@ -18,7 +18,9 @@
 const DB_NAME = 'resume-admin';
 const STORE_NAME = 'handles';
 /** IndexedDB key for the ROOT images-directory handle. */
+import { authToken } from '@/shared/api/authToken';
 export const IMAGES_ROOT_KEY = 'imagesRoot';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 /** Pre-amend key holding a subdirectory handle — obsolete, cleaned best-effort. */
 const LEGACY_PROJECTS_DIR_KEY = 'projectsImageDir';
 
@@ -108,11 +110,45 @@ export async function writeImagesRootHandle(handle: FileSystemDirectoryHandle): 
 
 /** Opens the system directory picker (user gesture required). */
 export async function pickImagesRoot(): Promise<FileSystemDirectoryHandle> {
+  if (typeof window === 'undefined') {
+    throw new DOMException('Directory picker is not supported', 'NotSupportedError');
+  }
   const withPicker = window as WindowWithDirectoryPicker;
   if (!withPicker.showDirectoryPicker) {
     throw new DOMException('Directory picker is not supported', 'NotSupportedError');
   }
   return withPicker.showDirectoryPicker({ mode: 'readwrite', id: 'images-root' });
+}
+
+let currentRootPromise: Promise<FileSystemDirectoryHandle> | null = null;
+
+export async function ensureRootWithinGesture(): Promise<FileSystemDirectoryHandle> {
+  if (currentRootPromise) return currentRootPromise;
+  currentRootPromise = (async () => {
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem(IMAGES_ROOT_KEY)) {
+        const remembered = await readImagesRootHandle();
+        if (remembered) return remembered;
+      }
+      const withPicker = window as WindowWithDirectoryPicker;
+      if (!withPicker.showDirectoryPicker) {
+        throw new DOMException('Directory picker is not supported', 'NotSupportedError');
+      }
+      const root = await withPicker.showDirectoryPicker({ mode: 'readwrite', id: 'images-root' });
+      await writeImagesRootHandle(root);
+      if (typeof localStorage !== 'undefined') localStorage.setItem(IMAGES_ROOT_KEY, '1');
+      return root;
+    } catch (error) {
+      if (typeof localStorage !== 'undefined') localStorage.removeItem(IMAGES_ROOT_KEY);
+      throw error;
+    }
+  })();
+  try {
+    const root = await currentRootPromise;
+    return root;
+  } finally {
+    currentRootPromise = null;
+  }
 }
 
 /**
@@ -153,12 +189,32 @@ export async function saveImageToDir(
  * is NEVER wrapped: it is rethrown untouched so callers keep their
  * silent-return branch.
  */
-export class ImageUploadError extends Error {
-  readonly reason = 'write-failed' as const;
+export type ImageUploadErrorReason =
+  'permission-denied' | 'root-missing' | 'quota' | 'security' | 'write-failed';
 
-  constructor(subdir: string, name: string) {
+export class ImageUploadError extends Error {
+  readonly reason: ImageUploadErrorReason;
+  constructor(reason: ImageUploadErrorReason, subdir: string, name: string, cause?: unknown) {
     super(`Failed to save "${name}" into "/images/${subdir}/"`);
+    (this as { cause?: unknown }).cause = cause;
     this.name = 'ImageUploadError';
+    this.reason = reason;
+  }
+}
+
+function classifyImageUploadError(error: unknown): ImageUploadErrorReason {
+  const name = (error as { name?: string } | null)?.name;
+  switch (name) {
+    case 'NotAllowedError':
+      return 'permission-denied';
+    case 'NotFoundError':
+      return 'root-missing';
+    case 'QuotaExceededError':
+      return 'quota';
+    case 'SecurityError':
+      return 'security';
+    default:
+      return 'write-failed';
   }
 }
 
@@ -185,12 +241,11 @@ export const saveUploadedImage = async (params: {
 }): Promise<string> => {
   const { blob, name, subdir } = params;
   try {
-    const root = (await readImagesRootHandle()) ?? (await pickImagesRoot());
-    await writeImagesRootHandle(root); // best-effort remember
+    const root = await ensureRootWithinGesture();
     return await saveImageToDir(root, blob, name, subdir);
   } catch (error) {
     if (isAbortError(error)) throw error; // caller: silent return
-    throw new ImageUploadError(subdir, name);
+    throw new ImageUploadError(classifyImageUploadError(error), subdir, name, error);
   }
 };
 
@@ -237,7 +292,40 @@ export async function removeImageFromDir(
  * user gesture for it): an impossible or failed removal resolves `false`
  * and the caller keeps handling its own error.
  */
+const BACKEND_IMAGE_NAME =
+  /\/images\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(?:jpg|png|gif|webp|svg))$/i;
+
+async function deleteBackendImage(name: string): Promise<boolean> {
+  const doRequest = (token: string | null) =>
+    fetch(API_BASE + '/images/' + name, {
+      method: 'DELETE',
+      headers: token ? { authorization: 'Bearer ' + token } : {},
+      credentials: 'include',
+    });
+  try {
+    let res = await doRequest(authToken.getAccessToken());
+    if (res.status === 401) {
+      const refreshRes = await fetch(API_BASE + '/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (refreshRes.ok) {
+        const data = (await refreshRes.json()) as { accessToken?: string };
+        if (data?.accessToken) authToken.setAccessToken(data.accessToken);
+        res = await doRequest(authToken.getAccessToken());
+      } else {
+        return false;
+      }
+    }
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export const removeUploadedImage = async (path: string): Promise<boolean> => {
+  const backendName = path.match(BACKEND_IMAGE_NAME)?.[1];
+  if (backendName) return deleteBackendImage(backendName);
   const parsed = parseImagePath(path);
   if (!parsed) return false;
   try {

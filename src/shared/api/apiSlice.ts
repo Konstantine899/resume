@@ -11,6 +11,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { authToken } from './authToken';
+import { publishAboutUpdate } from '@/shared/lib/contentSync/contentSync';
 import type {
   AuthCredentials,
   AuthTokenResponse,
@@ -127,6 +128,7 @@ export const reauthBaseQuery = baseQueryWithReauth;
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
+  tagTypes: ['AboutContent'] as const,
   endpoints: (builder) => ({
     /** GET the whole Contact document. */
     getContactContent: builder.query<ContactDocumentDto, void>({
@@ -145,6 +147,18 @@ export const apiSlice = createApi({
           return { error: { status: 500, data: { message: 'persist-failed' } } };
         }
         return { data: { document: content } };
+      },
+      invalidatesTags: ['AboutContent'],
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          publishAboutUpdate(
+            (data as { document?: { updatedAt?: string } }).document?.updatedAt ??
+              new Date().toISOString()
+          );
+        } catch {
+          // Failure state remains local; callers surface toast.
+        }
       },
     }),
 
@@ -219,12 +233,23 @@ export const apiSlice = createApi({
     siteSettings: builder.query<SiteSettingsDto, void>({
       query: () => '/site/settings',
     }),
-    // About (public profile)
     getAboutContent: builder.query<AboutContentDto, void>({
       query: () => '/about',
+      providesTags: ['AboutContent'],
     }),
     updateAboutContent: builder.mutation<AboutContentDto, AboutContentDto>({
       query: (body) => ({ url: '/about', method: 'PUT', body }),
+      invalidatesTags: ['AboutContent'],
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          publishAboutUpdate(
+            (data as { updatedAt?: string }).updatedAt ?? new Date().toISOString()
+          );
+        } catch {
+          // Failure state remains local; callers surface toast.
+        }
+      },
       transformResponse: (response: unknown) => response as AboutContentDto,
     }),
 

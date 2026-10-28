@@ -26,6 +26,7 @@ const MAX_EDGE_PX = 1600;
 const DEFAULT_QUALITY = 0.8;
 /** ~400K-char dataURL in rev.3 ≈ 300 KB of binary — same budget, in bytes. */
 const DEFAULT_MAX_BLOB_BYTES = 300_000;
+const DEFAULT_MAX_INPUT_BYTES = 10_000_000;
 const NAME_MAX_LENGTH = 64;
 
 export interface UseImageDragDropOptions {
@@ -37,6 +38,8 @@ export interface UseImageDragDropOptions {
   onSuccess: () => void;
   /** Cap for the compressed blob size in bytes. */
   maxBlobBytes?: number;
+  /** Cap for the incoming file size in bytes. */
+  maxInputBytes?: number;
   /**
    * Optional format gate (WU-14): lowercase, dot-prefixed extensions. When
    * present, a file whose extension OR MIME type falls outside the set is
@@ -89,7 +92,7 @@ export function sanitizeFileName(originalName: string, blob: Blob): string {
     .replace(/\.[^.]+$/, '')
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[^\w-]+/g, '-')
+    .replace(/[^\p{L}\p{N}_-]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, NAME_MAX_LENGTH);
   return `${base || 'image'}.${ext}`;
@@ -101,9 +104,52 @@ export function sanitizeFileName(originalName: string, blob: Blob): string {
  * Rejects a missing `<svg` root and active content (`<script`, `javascript:`).
  */
 export function isSafeSvgText(text: string): boolean {
-  // `[\s/>]` — a self-closing `<svg/>` root is valid SVG too.
-  if (!/<svg[\s/>]/i.test(text)) return false;
-  return !/<script[\s/>]/i.test(text) && !/javascript:/i.test(text);
+  return sanitizeSvgText(text) !== null;
+}
+
+export function sanitizeSvgText(text: string): string | null {
+  const parser = new DOMParser();
+  const document = parser.parseFromString(text, 'image/svg+xml');
+  const root = document.documentElement;
+  if (!root || root.nodeName.toLowerCase() !== 'svg' || document.querySelector('parsererror'))
+    return null;
+  const allowedTags = new Set([
+    'svg',
+    'g',
+    'path',
+    'circle',
+    'rect',
+    'line',
+    'polyline',
+    'polygon',
+    'title',
+    'defs',
+    'lineargradient',
+    'radialgradient',
+    'clippath',
+    'pattern',
+    'stop',
+  ]);
+  const sanitize = (node: Node): boolean => {
+    if (node.nodeType !== Node.ELEMENT_NODE) return true;
+    const element = node as Element;
+    const tag = element.nodeName.toLowerCase();
+    if (!allowedTags.has(tag)) return false;
+    for (const attr of Array.from(element.attributes)) {
+      if (/^on/i.test(attr.nodeName) || /^style$/i.test(attr.nodeName)) return false;
+      if (/^xmlns/i.test(attr.nodeName)) continue;
+      if (/^href$/i.test(attr.nodeName)) {
+        const value = attr.value.trim().toLowerCase();
+        // eslint-disable-next-line no-script-url
+        if (!value.startsWith('#') || value.includes('javascript:') || value.includes('data:'))
+          return false;
+      }
+      if (/(javascript:|data:|https?:|http:)/i.test(attr.value)) return false;
+    }
+    return Array.from(element.children).every((child) => sanitize(child));
+  };
+  if (!sanitize(root)) return null;
+  return new XMLSerializer().serializeToString(root);
 }
 
 /**
@@ -144,6 +190,7 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
     onError,
     onSuccess,
     maxBlobBytes = DEFAULT_MAX_BLOB_BYTES,
+    maxInputBytes = DEFAULT_MAX_INPUT_BYTES,
     acceptExtensions,
   } = options;
 
@@ -153,6 +200,7 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef(0);
+  const runIdRef = useRef(0);
   const previewObjectUrl = useRef<string | null>(null);
 
   const setPreview = useCallback((url: string | null) => {
@@ -179,8 +227,14 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
   );
 
   const processFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
+      const runId = ++runIdRef.current;
       setErrorCode(null);
+
+      if (file.size > maxInputBytes) {
+        fail('inputTooLarge');
+        return;
+      }
 
       if (!file.type.startsWith('image/')) {
         fail('notImage');
@@ -215,11 +269,55 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
           }
           setPreview(URL.createObjectURL(file));
           setErrorCode(null);
+          if (runIdRef.current !== runId) return;
           onFileSelect({ blob: file, name: sanitizeFileName(file.name, file) });
+          if (runIdRef.current !== runId) return;
           onSuccess();
         };
         svgReader.readAsText(file);
         return;
+      }
+
+      if (file.type !== 'image/svg+xml' && typeof createImageBitmap === 'function') {
+        try {
+          const bitmap = await createImageBitmap(file, {
+            imageOrientation: 'from-image',
+          } as ImageBitmapOptions);
+          const width = bitmap.width;
+          const height = bitmap.height;
+          const scale = Math.min(1, MAX_EDGE_PX / Math.max(width, height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(width * scale));
+          canvas.height = Math.max(1, Math.round(height * scale));
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            bitmap.close();
+            fail('undecodable');
+            return;
+          }
+          ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          bitmap.close();
+          void (async () => {
+            const blob = await encodeCompressed(canvas);
+            if (blob === null) {
+              fail('undecodable');
+              return;
+            }
+            if (blob.size > maxBlobBytes) {
+              fail('tooLarge');
+              return;
+            }
+            setPreview(URL.createObjectURL(blob));
+            setErrorCode(null);
+            if (runIdRef.current !== runId) return;
+            onFileSelect({ blob, name: sanitizeFileName(file.name, blob) });
+            if (runIdRef.current !== runId) return;
+            onSuccess();
+          })();
+          return;
+        } catch {
+          // Fall back to the Image data-URL pipeline.
+        }
       }
 
       const reader = new FileReader();
@@ -258,7 +356,9 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
 
             setPreview(URL.createObjectURL(blob));
             setErrorCode(null);
+            if (runIdRef.current !== runId) return;
             onFileSelect({ blob, name: sanitizeFileName(file.name, blob) });
+            if (runIdRef.current !== runId) return;
             onSuccess();
           })();
         };
@@ -266,7 +366,7 @@ export function useImageDragDrop(options: UseImageDragDropOptions): UseImageDrag
       };
       reader.readAsDataURL(file);
     },
-    [fail, maxBlobBytes, acceptExtensions, onFileSelect, onSuccess, setPreview]
+    [fail, maxBlobBytes, maxInputBytes, acceptExtensions, onFileSelect, onSuccess, setPreview]
   );
 
   const handleInputChange = useCallback(
