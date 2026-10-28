@@ -11,28 +11,28 @@
 // seed-shaped state.
 //
 // rev.4 (owner directive 2026-10-10): there is NO URL input — the image
-// value only ever comes from the FileUpload → save-to-directory flow, so
-// every test that needs a valid image drives the file input against a
-// mocked imageDir service (path `/images/projects/<name>`).
+// value only ever comes from the FileUpload flow, so every test that needs
+// a valid image drives the file input against the mocked BACKEND upload
+// seam (`uploadImage` → `/images/projects/<name>` after the cutover).
 
 import { PROJECT_CATEGORIES, type Project } from '@/entities/Project';
 import { TECHNOLOGIES_SEED } from '@/entities/Technology';
+import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProjectsSeed } from '../../model/services/seed';
 import { ProjectForm } from './ProjectForm';
 
-const { persistSpy, addSpy, updateSpy, addToast, dirMocks } = vi.hoisted(() => ({
+const { persistSpy, addSpy, updateSpy, addToast, uploadMocks } = vi.hoisted(() => ({
   persistSpy: vi.fn((_projects: unknown[]) => true),
   addSpy: vi.fn((project: unknown) => ({ type: 'myWork/addProject', payload: project })),
   updateSpy: vi.fn((payload: unknown) => ({ type: 'myWork/updateProject', payload })),
   addToast: vi.fn(),
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
+  uploadMocks: {
+    upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
+      ok: true,
+      file: { name: params.name, path: `/images/projects/${params.name}` },
+    })),
   },
 }));
 
@@ -41,10 +41,10 @@ vi.mock('../../model/services/storage', async (importOriginal) => ({
   persistProjects: persistSpy,
 }));
 
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
+// The backend upload seam replaced the File-System-Access write.
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
@@ -108,15 +108,15 @@ const titleInput = () => screen.getByLabelText('projectFieldTitle');
 const saveButton = () => screen.getByRole('button', { name: 'projectSave' });
 const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
-/** Drive the FileUpload pipeline against the mocked canvas + imageDir. */
+/** Drive the FileUpload pipeline against the mocked backend upload. */
 const uploadImageFile = async (fileName = 'photo.png') => {
-  // Await a NEW save call — a plain toHaveBeenCalled() passes instantly on
+  // Await a NEW upload call — a plain toHaveBeenCalled() passes instantly on
   // the second upload (the first call is still recorded).
-  const savesBefore = dirMocks.save.mock.calls.length;
+  const uploadsBefore = uploadMocks.upload.mock.calls.length;
   fireEvent.change(fileInput(), {
     target: { files: [new File(['x'], fileName, { type: 'image/png' })] },
   });
-  await waitFor(() => expect(dirMocks.save.mock.calls.length).toBeGreaterThan(savesBefore));
+  await waitFor(() => expect(uploadMocks.upload.mock.calls.length).toBeGreaterThan(uploadsBefore));
 };
 
 /** Fill the minimal valid create-mode payload around the required title/image. */
@@ -162,12 +162,6 @@ beforeEach(() => {
       static createObjectURL = vi.fn(() => 'blob:preview');
       static revokeObjectURL = vi.fn();
     }
-  );
-  // imageDir defaults — some tests override per-case.
-  dirMocks.supported.mockReturnValue(true);
-  dirMocks.save.mockImplementation(
-    async (params: { blob: Blob; name: string; subdir: string }) =>
-      `/images/${params.subdir}/${params.name}`
   );
 });
 
@@ -387,7 +381,10 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
   });
 
   it('persists the uploaded /images/projects path verbatim (rev.4 replaces the WU-3 typed-path test)', async () => {
-    dirMocks.save.mockResolvedValue('/images/projects/dragonfly.webp');
+    uploadMocks.upload.mockResolvedValueOnce({
+      ok: true,
+      file: { name: 'dragonfly.webp', path: '/images/projects/dragonfly.webp' },
+    });
     renderCreate();
 
     await fillMinimalValid();
@@ -486,74 +483,25 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
     );
   });
 
-  it('passes blob, name and subdir to the shared saveUploadedImage flow (second upload included)', async () => {
+  it('passes blob and name to the backend upload (second upload included)', async () => {
     renderCreate();
 
     await uploadImageFile('first.png');
-    expect(dirMocks.save).toHaveBeenCalledTimes(1);
+    expect(uploadMocks.upload).toHaveBeenCalledTimes(1);
 
     await uploadImageFile('second.png');
 
-    // The root pick/remember logic lives in shared saveUploadedImage now —
-    // the form only owns the (blob, name, subdir) contract.
-    expect(dirMocks.save).toHaveBeenCalledTimes(2);
-    expect(dirMocks.save).toHaveBeenLastCalledWith(
-      expect.objectContaining({ name: 'second.webp', subdir: 'projects' })
-    );
-  });
-
-  // Amend 2026-10-10: default/create/select subdirectory behaviour.
-  it('defaults to the `projects` subdirectory when no explicit choice is made', async () => {
-    renderCreate();
-
-    await uploadImageFile();
-
-    expect(dirMocks.save).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'photo.webp', subdir: 'projects' })
-    );
-  });
-
-  it('creates/uses a NEW subdirectory when the select is switched to `new`', async () => {
-    renderCreate();
-    fireEvent.change(document.querySelector('select') as HTMLSelectElement, {
-      target: { value: 'new' },
+    // The root pick/remember logic is gone — the form only owns the
+    // (blob, name) contract of the backend upload.
+    expect(uploadMocks.upload).toHaveBeenCalledTimes(2);
+    expect(uploadMocks.upload).toHaveBeenLastCalledWith({
+      blob: expect.any(Blob),
+      name: 'second.webp',
     });
-
-    await uploadImageFile();
-
-    expect(dirMocks.save).toHaveBeenLastCalledWith(
-      expect.objectContaining({ name: 'photo.webp', subdir: 'new' })
-    );
   });
 
-  it('shows projectFileUploadUnsupported when the File System Access API is missing', async () => {
-    dirMocks.supported.mockReturnValue(false);
-    renderCreate();
-
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-    });
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadUnsupported');
-    expect(dirMocks.save).not.toHaveBeenCalled();
-  });
-
-  it('stays silent when the user cancels the picker (AbortError)', async () => {
-    dirMocks.save.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
-    renderCreate();
-
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-    });
-
-    await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
-    // No alarm, no path row, no value change.
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.queryByText(/^\/images\/projects\//)).not.toBeInTheDocument();
-  });
-
-  it('shows projectFileUploadSaveError when the directory write fails', async () => {
-    dirMocks.save.mockRejectedValueOnce(new DOMException('quota', 'QuotaExceededError'));
+  it('shows projectFileUploadSaveError when the backend upload fails', async () => {
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'write-failed' });
     renderCreate();
 
     fireEvent.change(fileInput(), {

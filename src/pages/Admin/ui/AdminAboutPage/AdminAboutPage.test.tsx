@@ -7,14 +7,15 @@
 // vitrina), so this file proves the wiring end-to-end: the REAL storeReducers
 // hydrate the About document from storage on the first reducer call
 // (resume-rtk-lazy-hydration) and the vitrina renders/saves through that
-// store. Harness: shared renderAdminPage (src/shared/tests) — mock ONLY
-// storage (persist control), i18n (identity) and toasts.
+// store. Harness: shared renderAdminPage (src/shared/tests) — mock ONLY the
+// API persist seam (the About document is backend-owned after the cutover),
+// i18n (identity) and toasts.
 //
 // No slice-internal imports (fsd-imports/tests-public-api-only): the seed
 // comes from the barrel, the storage envelope key is written literally
 // (the barrel deliberately does NOT export ABOUT_CONTENT_STORAGE_KEY —
-// SPEC R-4), and `readAboutContent` stays REAL behind the mock spread so
-// the hydration path is the production one.
+// SPEC R-4), and `readAboutContent` stays REAL so the hydration path is
+// the production one.
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,15 +25,37 @@ import { createAboutSeed } from '@/features/AdminAbout';
 import { renderAdminPage } from '@/shared/tests';
 import { AdminAboutPage } from './AdminAboutPage';
 
-const { persistSpy, addToast } = vi.hoisted(() => ({
-  persistSpy: vi.fn((_content: AboutContent) => true),
+const { updateAboutSpy, addToast } = vi.hoisted(() => ({
+  updateAboutSpy: vi.fn(),
   addToast: vi.fn(),
 }));
 
-vi.mock('@/features/AdminAbout/model/services/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/features/AdminAbout/model/services/storage')>()),
-  persistAboutContent: persistSpy,
-}));
+// The vitrina persists through `apiSlice.endpoints.updateAboutContent`
+// (`persistAboutContentToApi`). The harness store registers the api REDUCER
+// but no api middleware, so `initiate` is replaced by a dispatchable thunk
+// whose result carries the RTK Query `.unwrap()` shape.
+vi.mock('@/shared/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/api')>();
+  return {
+    ...actual,
+    apiSlice: {
+      ...actual.apiSlice,
+      endpoints: {
+        ...actual.apiSlice.endpoints,
+        updateAboutContent: {
+          ...actual.apiSlice.endpoints.updateAboutContent,
+          initiate: ((arg: unknown) => {
+            updateAboutSpy(arg);
+            const result = Object.assign(Promise.resolve({ data: {} }), {
+              unwrap: () => Promise.resolve({}),
+            });
+            return () => result;
+          }) as unknown as typeof actual.apiSlice.endpoints.updateAboutContent.initiate,
+        },
+      },
+    },
+  };
+});
 
 // Identity t(): raw keys in assertions; known options render as
 // `${key}:${value}` (the R-1 confirm subtitle names the entity).
@@ -82,7 +105,6 @@ const dataRows = () => document.querySelectorAll<HTMLTableRowElement>('tbody tr'
 describe('AdminAboutPage (R-2: real store wiring)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    persistSpy.mockReturnValue(true);
     localStorage.clear();
   });
 
@@ -114,7 +136,7 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(screen.getByText('Stored CTA ru')).toBeInTheDocument();
   });
 
-  it('row Pencil save-smoke: modal Save persists BEFORE dispatch, store updated, toast aboutSaved', async () => {
+  it('row Pencil save-smoke: modal Save persists through the API BEFORE dispatch, store updated, toast aboutSaved', async () => {
     const store = renderPage();
 
     // admin-about-table WU-4: the Pencil opens the field modal — the seam
@@ -126,9 +148,9 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     });
     fireEvent.click(within(modal).getByRole('button', { name: 'aboutSave' }));
 
-    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
-    // The dispatched document is the FULL merged snapshot (WU-2 seam).
-    expect(persistSpy.mock.calls[0]?.[0]).toMatchObject({
+    await waitFor(() => expect(updateAboutSpy).toHaveBeenCalledTimes(1));
+    // The persisted document is the FULL merged snapshot (WU-2 seam).
+    expect(updateAboutSpy.mock.calls[0]?.[0]).toMatchObject({
       ctaLabel: { en: 'Hire me now', ru: createAboutSeed().ctaLabel?.ru },
     });
     expect(store.getState().aboutContent.ctaLabel?.en).toBe('Hire me now');
@@ -156,7 +178,7 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(
       within(modal).getByRole('group', { name: 'adminAboutPortraitLabel' })
     ).toBeInTheDocument();
-    expect(modal.querySelector('input[type="file"]')).toHaveAttribute('accept', '.jpg,.png');
+    expect(modal.querySelector('input[type="file"]')).toHaveAttribute('accept', '.png,.webp,.svg');
     expect(
       within(modal).getByRole('button', { name: 'adminAboutPortraitButton' })
     ).toBeInTheDocument();

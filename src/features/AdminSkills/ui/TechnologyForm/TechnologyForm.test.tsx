@@ -9,41 +9,47 @@
 // Toast feedback, exit-edit on success.
 //
 // rev.2: the icon Select is GONE — the value only ever comes from the
-// FileUpload → save-to-directory flow (subdir `skills`), so every test
-// that needs a valid create-mode icon drives the file input against a
-// mocked imageDir service (path `/images/skills/<name>`). Edit mode
-// allows '' (keep the stored record: key or path).
+// FileUpload flow (backend `uploadImage` → `/images/skills/<name>`), so
+// every test that needs a valid create-mode icon drives the file input
+// against the mocked upload seam. Edit mode allows '' (keep the stored
+// record: key or path).
 
 import type { SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { TechnologyForm } from './TechnologyForm';
 
-const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted(() => ({
-  persistSpy: vi.fn((_data: unknown[]) => true),
-  addSpy: vi.fn((payload: unknown) => ({ type: 'adminSkills/addTechnology', payload })),
-  updateSpy: vi.fn((payload: unknown) => ({ type: 'adminSkills/updateTechnology', payload })),
-  addToast: vi.fn(),
-  holder: {
-    state: {
-      adminSkills: [
-        {
-          category: 'frontend',
-          categoryName: 'Frontend',
-          technologies: [{ name: 'React', iconSvg: 'react' }],
-        },
-      ] as SkillCategoryData[],
+const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks, uploadMocks } = vi.hoisted(
+  () => ({
+    persistSpy: vi.fn((_data: unknown[]) => true),
+    addSpy: vi.fn((payload: unknown) => ({ type: 'adminSkills/addTechnology', payload })),
+    updateSpy: vi.fn((payload: unknown) => ({ type: 'adminSkills/updateTechnology', payload })),
+    addToast: vi.fn(),
+    holder: {
+      state: {
+        adminSkills: [
+          {
+            category: 'frontend',
+            categoryName: 'Frontend',
+            technologies: [{ name: 'React', iconSvg: 'react' }],
+          },
+        ] as SkillCategoryData[],
+      },
     },
-  },
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
-    remove: vi.fn(async (_path: string) => true),
-  },
-}));
+    // Orphan cleanup still goes through the shared imageDir helper.
+    dirMocks: {
+      remove: vi.fn(async (_path: string) => true),
+    },
+    // The backend upload seam replaced the File-System-Access write.
+    uploadMocks: {
+      upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
+        ok: true,
+        file: { name: params.name, path: `/images/skills/${params.name}` },
+      })),
+    },
+  })
+);
 
 vi.mock('../../model/services/storage', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/services/storage')>()),
@@ -58,9 +64,12 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
 
 vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
   removeUploadedImage: dirMocks.remove,
+}));
+
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -96,15 +105,15 @@ const invertToggle = () => screen.getByLabelText('skillsInvertInDark');
 const submitButton = () => screen.getByRole('button', { name: 'skillsSave' });
 const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
-/** Drive the raw-SVG FileUpload pipeline against the mocked imageDir. */
+/** Drive the raw-SVG FileUpload pipeline against the mocked backend upload. */
 const uploadSvg = async (fileName = 'react-logo.svg') => {
-  // Await a NEW save call — a plain toHaveBeenCalled() passes instantly on
+  // Await a NEW upload call — a plain toHaveBeenCalled() passes instantly on
   // the second upload (the first call is still recorded).
-  const savesBefore = dirMocks.save.mock.calls.length;
+  const uploadsBefore = uploadMocks.upload.mock.calls.length;
   fireEvent.change(fileInput(), {
     target: { files: [new File(['<svg/>'], fileName, { type: 'image/svg+xml' })] },
   });
-  await waitFor(() => expect(dirMocks.save.mock.calls.length).toBeGreaterThan(savesBefore));
+  await waitFor(() => expect(uploadMocks.upload.mock.calls.length).toBeGreaterThan(uploadsBefore));
 };
 
 describe('TechnologyForm', () => {
@@ -127,12 +136,7 @@ describe('TechnologyForm', () => {
         static revokeObjectURL = vi.fn();
       }
     );
-    // imageDir defaults — some tests override per-case.
-    dirMocks.supported.mockReturnValue(true);
-    dirMocks.save.mockImplementation(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    );
+    // imageDir cleanup defaults — some tests override per-case.
     dirMocks.remove.mockResolvedValue(true);
   });
 
@@ -224,10 +228,11 @@ describe('TechnologyForm', () => {
         invertInDark: true,
       }),
     });
-    // The subdir is always `skills` — the plan contract.
-    expect(dirMocks.save).toHaveBeenLastCalledWith(
-      expect.objectContaining({ name: 'vue-logo.svg', subdir: 'skills' })
-    );
+    // The backend upload only owns the (blob, name) contract.
+    expect(uploadMocks.upload).toHaveBeenLastCalledWith({
+      blob: expect.any(Blob),
+      name: 'vue-logo.svg',
+    });
   });
 
   it('create mode: persist failure shows skillsPersistError and skips dispatch', async () => {
@@ -324,20 +329,8 @@ describe('TechnologyForm', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('shows skillsIconUploadUnsupported when the File System Access API is missing', async () => {
-    dirMocks.supported.mockReturnValue(false);
-
-    render(<TechnologyForm categoryId="frontend" />);
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(['<svg/>'], 'x.svg', { type: 'image/svg+xml' })] },
-    });
-
-    expect(await screen.findByText('skillsIconUploadUnsupported')).toBeInTheDocument();
-    expect(dirMocks.save).not.toHaveBeenCalled();
-  });
-
-  it('shows skillsIconUploadSaveError when the directory write fails', async () => {
-    dirMocks.save.mockRejectedValueOnce(new DOMException('quota', 'QuotaExceededError'));
+  it('shows skillsIconUploadSaveError when the backend upload fails', async () => {
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'write-failed' });
 
     render(<TechnologyForm categoryId="frontend" />);
     fireEvent.change(fileInput(), {
@@ -347,17 +340,15 @@ describe('TechnologyForm', () => {
     expect(await screen.findByText('skillsIconUploadSaveError')).toBeInTheDocument();
   });
 
-  it('swallows AbortError from the picker silently (user cancelled)', async () => {
-    dirMocks.save.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
+  it('shows skillsIconUploadSaveError when permission is denied (401 after refresh)', async () => {
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission-denied' });
 
     render(<TechnologyForm categoryId="frontend" />);
     fireEvent.change(fileInput(), {
       target: { files: [new File(['<svg/>'], 'x.svg', { type: 'image/svg+xml' })] },
     });
 
-    await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
-    expect(screen.queryByText('skillsIconUploadSaveError')).not.toBeInTheDocument();
-    expect(screen.queryByText('skillsIconUploadUnsupported')).not.toBeInTheDocument();
+    expect(await screen.findByText('skillsIconUploadSaveError')).toBeInTheDocument();
   });
 
   // ---- orphan cleanup on persist failure (2026-10-22 tail, rev.6) ----

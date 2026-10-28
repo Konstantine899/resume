@@ -10,7 +10,7 @@
 // - tech-icon-upload A1: the iconUrl Input is GONE — the value only ever
 //   comes from the FileUpload flow (pending selection in component state,
 //   the REAL `/images/technologies/<name>` path is resolved at SAVE time
-//   against a mocked imageDir service); create requires a file, edit with
+//   against the backend upload seam); create requires a file, edit with
 //   no new file KEEPS the stored url;
 // - D7: the key is IMMUTABLE in edit mode — the Input is disabled AND the
 //   edit zod schema rejects a changed key, so even a forced DOM change
@@ -18,34 +18,40 @@
 // - persist BEFORE dispatch (§3), Toast feedback, exit-edit on success.
 
 import type { Technology } from '@/entities/Technology';
+import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TechnologyForm } from './TechnologyForm';
 
-const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks } = vi.hoisted(() => ({
-  persistSpy: vi.fn((_data: unknown[]) => true),
-  addSpy: vi.fn((payload: unknown) => ({ type: 'technologies/addTechnology', payload })),
-  updateSpy: vi.fn((payload: unknown) => ({ type: 'technologies/updateTechnology', payload })),
-  addToast: vi.fn(),
-  holder: {
-    state: {
-      technologies: [
-        {
-          key: 'react',
-          url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-        },
-      ] as Technology[],
+const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks, uploadMocks } = vi.hoisted(
+  () => ({
+    persistSpy: vi.fn((_data: unknown[]) => true),
+    addSpy: vi.fn((payload: unknown) => ({ type: 'technologies/addTechnology', payload })),
+    updateSpy: vi.fn((payload: unknown) => ({ type: 'technologies/updateTechnology', payload })),
+    addToast: vi.fn(),
+    holder: {
+      state: {
+        technologies: [
+          {
+            key: 'react',
+            url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+          },
+        ] as Technology[],
+      },
     },
-  },
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
-    remove: vi.fn(async (_path: string) => true),
-  },
-}));
+    // Orphan cleanup still goes through the shared imageDir helper.
+    dirMocks: {
+      remove: vi.fn(async (_path: string) => true),
+    },
+    // The backend upload seam replaced the File-System-Access write.
+    uploadMocks: {
+      upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
+        ok: true,
+        file: { name: params.name, path: `/images/technologies/${params.name}` },
+      })),
+    },
+  })
+);
 
 vi.mock('@/entities/Technology', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/entities/Technology')>()),
@@ -56,9 +62,12 @@ vi.mock('@/entities/Technology', async (importOriginal) => ({
 
 vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
   removeUploadedImage: dirMocks.remove,
+}));
+
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.
@@ -94,7 +103,7 @@ const submitButton = () => screen.getByRole('button', { name: 'adminTechSave' })
 const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
 /**
- * Drive the raw-SVG FileUpload pipeline against the mocked imageDir.
+ * Drive the raw-SVG FileUpload pipeline against the mocked backend upload.
  * Exactly ONE upload per render — the aria-live `selected` announcement
  * (already rendered from a previous upload) would not re-appear otherwise.
  */
@@ -124,13 +133,15 @@ describe('TechnologyForm', () => {
         static revokeObjectURL = vi.fn();
       }
     );
-    // imageDir defaults — some tests override per-case.
-    dirMocks.supported.mockReturnValue(true);
-    dirMocks.save.mockImplementation(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    );
+    // imageDir cleanup defaults — some tests override per-case.
     dirMocks.remove.mockResolvedValue(true);
+    // `vi.clearAllMocks()` does NOT reset implementations — re-arm the
+    // upload default every test (Once-queues from a failing test would
+    // otherwise leak the failure into the next one).
+    uploadMocks.upload.mockImplementation(async (params: { blob: Blob; name: string }) => ({
+      ok: true as const,
+      file: { name: params.name, path: `/images/technologies/${params.name}` },
+    }));
   });
 
   afterEach(() => {
@@ -202,9 +213,10 @@ describe('TechnologyForm', () => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'adminTechSaved' }))
     );
     expect(calls).toEqual(['persist', 'dispatch']);
-    expect(dirMocks.save).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'vue-logo.svg', subdir: 'technologies' })
-    );
+    expect(uploadMocks.upload).toHaveBeenCalledWith({
+      blob: expect.any(Blob),
+      name: 'vue-logo.svg',
+    });
     expect(persistSpy).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({ key: 'react' }),
@@ -240,9 +252,9 @@ describe('TechnologyForm', () => {
     expect(keyInput()).toHaveValue('vue');
   });
 
-  it('create mode: a failed file write toasts and keeps the form open (no persist/dispatch)', async () => {
+  it('create mode: a failed backend upload toasts and keeps the form open (no persist/dispatch)', async () => {
     const onExitEdit = vi.fn();
-    dirMocks.save.mockRejectedValue(new Error('disk full'));
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'write-failed' });
 
     render(<TechnologyForm onExitEdit={onExitEdit} />);
     await uploadSvg();
@@ -262,8 +274,8 @@ describe('TechnologyForm', () => {
     expect(keyInput()).toHaveValue('vue');
   });
 
-  it('create mode: an unsupported browser toasts and persists nothing', async () => {
-    dirMocks.supported.mockReturnValue(false);
+  it('create mode: a permission-denied upload toasts and persists nothing', async () => {
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission-denied' });
 
     render(<TechnologyForm />);
     await uploadSvg();
@@ -273,7 +285,7 @@ describe('TechnologyForm', () => {
 
     await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'adminTechIconUploadUnsupported', type: 'error' })
+        expect.objectContaining({ message: 'adminTechIconUploadSaveError', type: 'error' })
       )
     );
     expect(persistSpy).not.toHaveBeenCalled();
@@ -351,7 +363,7 @@ describe('TechnologyForm', () => {
     await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'adminTechSaved' }))
     );
-    expect(dirMocks.save).not.toHaveBeenCalled();
+    expect(uploadMocks.upload).not.toHaveBeenCalled();
     expect(persistSpy).toHaveBeenCalledWith([
       {
         key: 'react',
