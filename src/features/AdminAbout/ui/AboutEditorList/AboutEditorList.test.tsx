@@ -1271,16 +1271,10 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
 
     fireEvent.click(savePortraitButton());
 
-    await waitFor(() => expect(initiateSpy).toHaveBeenCalledTimes(1));
-    expect(initiateSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: expect.objectContaining({ portrait: 'portrait-key' }),
-        persist: expect.any(Function),
-      })
+    await waitFor(() => expect(updateAboutContentInitiate).toHaveBeenCalledTimes(1));
+    expect(updateAboutContentInitiate).toHaveBeenCalledWith(
+      expect.objectContaining({ portrait: 'portrait-key' })
     );
-    // The seam injected into shared IS the feature's storage module.
-    const arg = initiateSpy.mock.calls[0]?.[0];
-    await expect(arg?.persist(arg.content)).resolves.toBe(true);
     expect(persistSpy).toHaveBeenCalledWith(expect.objectContaining({ portrait: 'portrait-key' }));
 
     await waitFor(() =>
@@ -1298,7 +1292,7 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   });
 
   it('persist-fail: the mutation rejects → error toast, store untouched, staged file kept, dialog open', async () => {
-    initiateSpy.mockImplementation(() => ({
+    updateAboutContentInitiate.mockImplementation(() => ({
       unwrap: () => Promise.reject(new Error('persist-failed')),
     }));
     renderWithPortraitModal();

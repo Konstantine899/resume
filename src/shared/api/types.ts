@@ -98,6 +98,13 @@ export type AuthUser = {
 // ============================================
 export type UserTheme = 'light' | 'dark';
 
+// Conflict body for concurrent About updates (optimistic concurrency).
+export type AboutConflictBody = {
+  status: 409;
+  conflicts?: { currentUpdatedAt: string; key: 'concurrent-modification' };
+  updatedAt?: string;
+};
+
 // About document DTO (sync about plan)
 export type AboutContentDto = {
   fullName: string;

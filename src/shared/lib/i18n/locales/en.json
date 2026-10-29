@@ -112,6 +112,7 @@
   "aboutReset": "Reset",
   "aboutSaved": "Saved",
   "aboutSaveError": "Could not save",
+  "aboutConflictError": "Someone else updated this document; your changes are kept. Refresh and retry.",
   "aboutResetConfirm": "Reset the About section for {{name}} to defaults? Your edits will be lost.",
   "aboutCancel": "Cancel",
   "aboutNameRequired": "Name is required (2–80 characters).",

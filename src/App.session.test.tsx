@@ -108,8 +108,19 @@ class FakeBroadcastChannel implements ChannelLike {
   }
 }
 
-const ABOUT_ROW = { id: 'about-1', updatedAt: 'rev-1', fullName: 'Ada Lovelace' };
-const ABOUT_ROW_NEXT = { id: 'about-1', updatedAt: 'rev-2', fullName: 'Ada Byron' };
+const ABOUT_DOMAIN = {
+  fullName: 'Ada Lovelace',
+  descriptions: [{ en: 'Hello', ru: 'Привет' }],
+  stats: { aboutStatYears: { en: '5', ru: '5' } },
+  ctaLabel: { en: 'Hire me', ru: 'Найми' },
+};
+const ABOUT_ROW = { id: 'about-1', updatedAt: 'rev-1', ...ABOUT_DOMAIN };
+const ABOUT_ROW_NEXT = {
+  id: 'about-1',
+  updatedAt: 'rev-2',
+  ...ABOUT_DOMAIN,
+  fullName: 'Ada Byron',
+};
 
 const lastChannel = (): ChannelLike => {
   const channel = channels[channels.length - 1];
@@ -151,7 +162,7 @@ describe('SessionBootstrap — canonical About load', () => {
     await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(1));
 
     expect(h.initiate).toHaveBeenCalledWith(undefined, { forceRefetch: true });
-    expect(h.updateAboutContent).toHaveBeenCalledWith({ fullName: 'Ada Lovelace' });
+    expect(h.updateAboutContent).toHaveBeenCalledWith(ABOUT_DOMAIN);
     expect(h.bootstrapSession).toHaveBeenCalledWith(h.dispatch, expect.any(Object));
   });
 
@@ -170,12 +181,12 @@ describe('SessionBootstrap — canonical About load', () => {
 
   it('hydrates a document that carries no revision marker', async () => {
     h.initiate.mockImplementation(() => ({
-      unwrap: async () => ({ id: 'about-1', fullName: 'Ada Lovelace' }),
+      unwrap: async () => ({ id: 'about-1', ...ABOUT_DOMAIN }),
     }));
 
     render(<App />);
     await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(1));
-    expect(h.updateAboutContent).toHaveBeenCalledWith({ fullName: 'Ada Lovelace' });
+    expect(h.updateAboutContent).toHaveBeenCalledWith(ABOUT_DOMAIN);
   });
 
   it('falls back to the seed when the API call rejects', async () => {
@@ -224,7 +235,10 @@ describe('SessionBootstrap — canonical About load', () => {
     });
 
     await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(2));
-    expect(h.updateAboutContent).toHaveBeenLastCalledWith({ fullName: 'Ada Byron' });
+    expect(h.updateAboutContent).toHaveBeenLastCalledWith({
+      ...ABOUT_DOMAIN,
+      fullName: 'Ada Byron',
+    });
   });
 
   it('reloads when another tab publishes an invalidation', async () => {
@@ -234,7 +248,11 @@ describe('SessionBootstrap — canonical About load', () => {
     h.initiate.mockImplementation(() => ({ unwrap: async () => ABOUT_ROW_NEXT }));
 
     act(() => {
-      lastChannel().onmessage?.(new MessageEvent('message'));
+      lastChannel().onmessage?.(
+        new MessageEvent('message', {
+          data: { entity: 'about', updatedAt: 'rev-2', sourceTabId: 'tab-1' },
+        })
+      );
     });
 
     await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(2));

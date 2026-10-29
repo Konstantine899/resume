@@ -14,8 +14,7 @@ import { apiSlice } from '@/shared/api/apiSlice';
 import { selectAuthUser } from '@/features/Auth/model/selectors/selectors';
 import { bootstrapSession } from '@/features/Auth';
 import { updateAboutContent } from '@/features/AdminAbout/model/slices/aboutContentSlice';
-import type { AboutContent } from '@/entities/AboutContent';
-import { AboutContentSchema } from '@/entities/AboutContent/model/services/schema';
+import { normalizeAboutPayload, extractAboutRevision } from '@/entities/AboutContent';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
@@ -35,6 +34,7 @@ const SessionBootstrap: React.FC = () => {
   const dispatch = useDispatch<ThunkDispatch<unknown, unknown, UnknownAction>>();
 
   const loadedAboutRevisionRef = useRef<string | null>(null);
+  const loadInFlightRef = useRef<Promise<void> | null>(null);
 
   const loadAbout = useCallback(async () => {
     try {
@@ -42,25 +42,32 @@ const SessionBootstrap: React.FC = () => {
         apiSlice.endpoints.getAboutContent.initiate(undefined, { forceRefetch: true })
       ).unwrap();
       if (!data) return;
-      if (loadedAboutRevisionRef.current === data.updatedAt) return;
-      // Validate and normalize payload
-      const parsed = AboutContentSchema.safeParse({
-        ...data,
-        // Ensure id is removed (schema does not include id)
-      });
-      if (!parsed.success) {
-        // Design C: keep seed fallback on invalid payload
-        return;
-      }
-      const content = { ...parsed.data } as Record<string, unknown>;
-      delete content.id; // safety: remove id if somehow present
-      // updatedAt may be present; we keep it for revision tracking
-      dispatch(updateAboutContent(content as unknown as AboutContent));
-      loadedAboutRevisionRef.current = (parsed.data as { updatedAt?: string }).updatedAt ?? null;
+
+      const revision = extractAboutRevision(data);
+      if (revision !== null && revision === loadedAboutRevisionRef.current) return;
+
+      const normalized = normalizeAboutPayload(data);
+      if (normalized === undefined) return;
+
+      dispatch(updateAboutContent(normalized));
+      loadedAboutRevisionRef.current = revision;
     } catch {
       // Design C: keep seed fallback when API is unavailable or empty.
     }
   }, [dispatch]);
+
+  const scheduleLoadAbout = useCallback(() => {
+    if (loadInFlightRef.current) return loadInFlightRef.current;
+
+    const promise = loadAbout().finally(() => {
+      if (loadInFlightRef.current === promise) {
+        loadInFlightRef.current = null;
+      }
+    });
+
+    loadInFlightRef.current = promise;
+    return promise;
+  }, [loadAbout]);
 
   useEffect(() => {
     const api = {
@@ -71,6 +78,8 @@ const SessionBootstrap: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    void scheduleLoadAbout();
+
     if (typeof BroadcastChannel === 'undefined') {
       // No BroadcastChannel: rely on storage event fallback only
       const storageKey = 'resume.about.content';
@@ -80,15 +89,17 @@ const SessionBootstrap: React.FC = () => {
           const raw = e.newValue ?? window.localStorage.getItem(storageKey);
           if (!raw) return;
           const parsed = JSON.parse(raw);
-          const validated = AboutContentSchema.safeParse({
-            ...parsed,
-          });
-          if (!validated.success) return;
-          const content = { ...validated.data } as Record<string, unknown>;
-          delete content.id;
-          dispatch(updateAboutContent(content as unknown as AboutContent));
-          loadedAboutRevisionRef.current =
-            (validated.data as { updatedAt?: string }).updatedAt ?? null;
+          const source =
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            !Array.isArray(parsed) &&
+            'content' in (parsed as Record<string, unknown>)
+              ? (parsed as Record<string, unknown>).content
+              : parsed;
+          const normalized = normalizeAboutPayload(source);
+          if (normalized === undefined) return;
+          dispatch(updateAboutContent(normalized));
+          loadedAboutRevisionRef.current = extractAboutRevision(source ?? parsed);
         } catch {
           // ignore storage errors
         }
@@ -103,15 +114,15 @@ const SessionBootstrap: React.FC = () => {
     const channel = new BroadcastChannel(CONTENT_SYNC_CHANNEL);
     channel.onmessage = (event) => {
       if (isContentSyncMessage(event.data)) {
-        void loadAbout();
+        void scheduleLoadAbout();
       }
     };
     const onFocus = () => {
-      void loadAbout();
+      void scheduleLoadAbout();
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        void loadAbout();
+        void scheduleLoadAbout();
       }
     };
     window.addEventListener('focus', onFocus);
@@ -121,7 +132,7 @@ const SessionBootstrap: React.FC = () => {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       channel.close();
     };
-  }, [loadAbout, dispatch]);
+  }, [scheduleLoadAbout, dispatch]);
 };
 
 const AuthPreferenceSync: React.FC = () => {

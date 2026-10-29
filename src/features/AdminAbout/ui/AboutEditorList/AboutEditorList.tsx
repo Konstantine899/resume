@@ -63,7 +63,6 @@
 import { useCallback, useState } from 'react';
 
 import type { AboutContent } from '@/entities/AboutContent';
-import { apiSlice } from '@/shared/api';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
@@ -98,16 +97,15 @@ import {
   descriptionIndexOf,
   statKeyOf,
   statRowLabel,
+  toMergedDocument,
+  withAddedRow,
+  withRemovedRow,
   type AboutFieldValue,
   type AboutRowField,
   type AboutRowPayload,
   type EditAboutField,
 } from './lib/fieldSchemas';
-import {
-  persistAddedAboutRow,
-  persistMergedAboutField,
-  persistRemovedAboutRow,
-} from './lib/saveAboutField';
+import { saveAboutDocument } from './lib/saveAboutDocument';
 import {
   uploadPortrait,
   type PortraitUploadFailure,
@@ -159,27 +157,25 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const { t, language } = useLanguage();
   const { addToast } = useToast();
 
+  // Compatibility seam kept for legacy callers (current persistence helpers
+  // still expect a `Promise<boolean>`). Conflict handling lives here as the
+  // single toast owner for this boolean path; newer paths call
+  // `saveAboutDocument` directly (T14-T18) with richer result reporting.
   const persistAboutContentToApi = useCallback(
     async (doc: AboutContent) => {
-      try {
-        await dispatch(
-          apiSlice.endpoints.updateAboutContent.initiate({
-            fullName: doc.fullName,
-            descriptions: doc.descriptions,
-            stats: doc.stats,
-            statLabels: doc.statLabels,
-            ctaLabel: doc.ctaLabel,
-            portrait: doc.portrait,
-            expectedUpdatedAt: doc.updatedAt,
-          })
-        ).unwrap();
-        return true;
-      } catch {
-        return false;
+      const result = await saveAboutDocument(doc, dispatch);
+      if (result.ok) return true;
+      if (result.reason === 'conflict') {
+        dispatch(updateAboutContent({ ...doc, updatedAt: result.serverUpdatedAt }));
+        addToast({ message: t('aboutConflictError'), type: 'error' });
+      } else {
+        addToast({ message: t('aboutSaveError'), type: 'error' });
       }
+      return false;
     },
-    [dispatch]
+    [dispatch, addToast, t]
   );
+  void persistAboutContentToApi;
 
   // R-4 / WU-7 (OPEN-4): destructive confirm — `useConfirmAction` owns
   // the state machine (MyWork/Jobs/Contact parity). Cancel holds the
@@ -194,10 +190,19 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     confirm: handleConfirmReset,
   } = useConfirmAction<'reset'>({
     onConfirm: async () => {
+      const seed = createAboutSeed();
       removeAboutContent();
       dispatch(resetToDefaults());
-      void persistAboutContentToApi(createAboutSeed());
-      return true;
+      const result = await saveAboutDocument(seed, dispatch);
+      if (result.ok) {
+        dispatch(updateAboutContent(result.document));
+      } else if (result.reason === 'conflict') {
+        dispatch(updateAboutContent({ ...seed, updatedAt: result.serverUpdatedAt }));
+        addToast({ message: t('aboutConflictError'), type: 'error' });
+      } else {
+        addToast({ message: t('aboutSaveError'), type: 'error' });
+      }
+      return result.ok;
     },
   });
 
@@ -214,14 +219,19 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     confirm: handleConfirmDelete,
   } = useConfirmAction<AboutRowField>({
     onConfirm: async (field) => {
-      const merged = await persistRemovedAboutRow(content, field, persistAboutContentToApi);
-      if (merged === null) {
-        addToast({ message: t('aboutSaveError'), type: 'error' });
-        return false; // store unchanged; the confirm stays open (R-3)
+      const merged = withRemovedRow(content, field);
+      const result = await saveAboutDocument(merged, dispatch);
+      if (result.ok) {
+        addToast({ message: t('adminAboutRowDeleted'), type: 'success' });
+        return true;
       }
-      dispatch(updateAboutContent(merged));
-      addToast({ message: t('adminAboutRowDeleted'), type: 'success' });
-      return true;
+      if (result.reason === 'conflict') {
+        dispatch(updateAboutContent({ ...merged, updatedAt: result.serverUpdatedAt }));
+        addToast({ message: t('aboutConflictError'), type: 'error' });
+      } else {
+        addToast({ message: t('aboutSaveError'), type: 'error' });
+      }
+      return false;
     },
   });
 
@@ -261,18 +271,20 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   const handleSaveFullName = async (): Promise<void> => {
     if (!fullNameParsed.success) return; // the Input shows aboutNameRequired
-    const merged = await persistMergedAboutField(
-      content,
-      'fullName',
-      fullNameParsed.data,
-      persistAboutContentToApi
-    );
-    if (merged === null) {
-      addToast({ message: t('aboutSaveError'), type: 'error' });
-      return; // store unchanged; the draft stays for a retry
+    const merged = toMergedDocument(content, 'fullName', fullNameParsed.data);
+    const result = await saveAboutDocument(merged, dispatch);
+    if (result.ok) {
+      setFullNameDraft(result.document.fullName);
+      addToast({ message: t('aboutSaved'), type: 'success' });
+      return;
     }
-    dispatch(updateAboutContent(merged));
-    addToast({ message: t('aboutSaved'), type: 'success' });
+    if (result.reason === 'conflict') {
+      dispatch(updateAboutContent({ ...merged, updatedAt: result.serverUpdatedAt }));
+      addToast({ message: t('aboutConflictError'), type: 'error' });
+    } else {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+    }
+    // store unchanged; the draft stays for a retry
   };
 
   /** Translated label of ANY vitrina row — the modal title names the field. */
@@ -297,14 +309,19 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     field: EditAboutField,
     value: AboutFieldValue
   ): Promise<boolean> => {
-    const merged = await persistMergedAboutField(content, field, value, persistAboutContentToApi);
-    if (merged === null) {
-      addToast({ message: t('aboutSaveError'), type: 'error' });
-      return false;
+    const merged = toMergedDocument(content, field, value);
+    const result = await saveAboutDocument(merged, dispatch);
+    if (result.ok) {
+      addToast({ message: t('aboutSaved'), type: 'success' });
+      return true;
     }
-    dispatch(updateAboutContent(merged));
-    addToast({ message: t('aboutSaved'), type: 'success' });
-    return true;
+    if (result.reason === 'conflict') {
+      dispatch(updateAboutContent({ ...merged, updatedAt: result.serverUpdatedAt }));
+      addToast({ message: t('aboutConflictError'), type: 'error' });
+    } else {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+    }
+    return false;
   };
 
   /**
@@ -313,14 +330,19 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
    * error toast was already fired here.
    */
   const handleAddRow = async (payload: AboutRowPayload): Promise<boolean> => {
-    const merged = await persistAddedAboutRow(content, payload, persistAboutContentToApi);
-    if (merged === null) {
-      addToast({ message: t('aboutSaveError'), type: 'error' });
-      return false;
+    const merged = withAddedRow(content, payload);
+    const result = await saveAboutDocument(merged, dispatch);
+    if (result.ok) {
+      addToast({ message: t('adminAboutRowAdded'), type: 'success' });
+      return true;
     }
-    dispatch(updateAboutContent(merged));
-    addToast({ message: t('adminAboutRowAdded'), type: 'success' });
-    return true;
+    if (result.reason === 'conflict') {
+      dispatch(updateAboutContent({ ...merged, updatedAt: result.serverUpdatedAt }));
+      addToast({ message: t('aboutConflictError'), type: 'error' });
+    } else {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+    }
+    return false;
   };
 
   /**
@@ -364,24 +386,21 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     setSavingPortrait(true);
     const merged: AboutContent = { ...content, portrait: stagedPortrait.key };
     try {
-      await dispatch(
-        apiSlice.endpoints.updateAboutPortrait.initiate({
-          content: merged,
-          // shared cannot know AboutContent (FSD) — the seam parameter is
-          // `unknown`, down-cast to the contract this feature owns. Passing
-          // `persistAboutContent` directly fails strict contravariance.
-          persist: (doc) => persistAboutContentToApi(doc as AboutContent),
-        })
-      ).unwrap();
-    } catch {
-      addToast({ message: t('aboutSaveError'), type: 'error' });
-      return; // store unchanged; the staged file stays for a retry
+      const result = await saveAboutDocument(merged, dispatch);
+      if (!result.ok) {
+        if (result.reason === 'conflict') {
+          dispatch(updateAboutContent({ ...merged, updatedAt: result.serverUpdatedAt }));
+          addToast({ message: t('aboutConflictError'), type: 'error' });
+        } else {
+          addToast({ message: t('aboutSaveError'), type: 'error' });
+        }
+        return; // store unchanged; the staged file stays for a retry
+      }
+      setStagedPortrait(null);
+      addToast({ message: t('aboutSaved'), type: 'success' });
     } finally {
       setSavingPortrait(false);
     }
-    dispatch(updateAboutContent(merged));
-    setStagedPortrait(null);
-    addToast({ message: t('aboutSaved'), type: 'success' });
   };
 
   // Rows in document order (R-1 v2): every description, every stats
