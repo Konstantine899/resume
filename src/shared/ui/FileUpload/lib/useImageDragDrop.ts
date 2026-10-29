@@ -160,8 +160,8 @@ export function sanitizeSvgText(text: string): string | null {
  * on the extension gate alone.
  */
 const MIME_BY_EXT: Record<string, readonly string[]> = {
-  '.jpg': ['image/jpeg', 'image/jpg'],
-  '.jpeg': ['image/jpeg', 'image/jpg'],
+  '.jpg': ['image/jpeg'],
+  '.jpeg': ['image/jpeg'],
   '.png': ['image/png'],
   '.webp': ['image/webp'],
   '.gif': ['image/gif'],
