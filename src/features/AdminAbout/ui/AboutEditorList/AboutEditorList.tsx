@@ -64,7 +64,6 @@ import { useCallback, useState } from 'react';
 
 import type { AboutContent } from '@/entities/AboutContent';
 import { apiSlice } from '@/shared/api';
-import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
@@ -758,7 +757,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           </div>
           <Avatar
             data-testid="admin-about-portrait-preview"
-            src={content.portrait ?? aboutPortrait}
+            src={content.portrait ?? ''}
             alt={t('adminAboutPortraitPreview')}
             variant="portrait"
             className={styles.portraitModalPreview}

@@ -1,5 +1,4 @@
 import { DEVELOPER_DATA, PROFILE_STACK } from '@/entities/Developer';
-import aboutPortrait from '@/shared/assets/Firefly_RemoveBackground.webp';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
@@ -129,9 +128,9 @@ export const About: React.FC<AboutFeatureProps> = ({
               `.portrait` class stays on the root and owns the box (About.module
              .scss is intentionally untouched). */}
           <Avatar
-            key={content?.portrait ?? aboutPortrait}
+            key={content?.portrait ?? 'about-portrait'}
             data-testid="about-portrait"
-            src={content?.portrait ? mediaUrl(content.portrait) : aboutPortrait}
+            src={content?.portrait ? mediaUrl(content.portrait) : ''}
             srcSet={content?.portrait ? mediaSrcSet(content.portrait) : undefined}
             priority
             alt=""
