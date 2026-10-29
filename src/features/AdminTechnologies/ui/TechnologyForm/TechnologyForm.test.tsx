@@ -18,7 +18,7 @@
 // - persist BEFORE dispatch (§3), Toast feedback, exit-edit on success.
 
 import type { Technology } from '@/entities/Technology';
-import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
+import type { LegacyImageUploadOutcome as ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TechnologyForm } from './TechnologyForm';
@@ -68,6 +68,7 @@ vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
 vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
   uploadImage: uploadMocks.upload,
+  uploadLegacyImage: uploadMocks.upload,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.

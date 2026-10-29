@@ -5,6 +5,7 @@
 import { PROJECTS } from '@/entities/Project';
 import { resolveTechIcons } from '@/entities/Technology';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { mediaUrl } from '@/shared/lib/media';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { CardGrid, ProjectCard } from '@/shared/ui/Card';
 import { Container } from '@/shared/ui/Container';
@@ -98,7 +99,7 @@ export const MyWork: React.FC<MyWorkProps> = ({
               <ProjectCard
                 title={project.title}
                 description={language === 'en' ? project.description.en : project.description.ru}
-                backgroundImage={project.image}
+                backgroundImage={mediaUrl(project.image)}
                 techIcons={resolveTechIcons(project.techIcons)}
                 link={project.link}
                 role={

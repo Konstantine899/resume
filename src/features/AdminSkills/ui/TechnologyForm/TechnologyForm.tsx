@@ -40,7 +40,7 @@
 
 import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
 import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
-import { uploadImage } from '@/shared/lib/imageUpload';
+import { uploadLegacyImage as uploadImage } from '@/shared/lib/imageUpload';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
