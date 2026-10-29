@@ -95,7 +95,7 @@
   "adminAboutPortraitPreview": "Текущий портрет",
   "adminAboutPortraitHint": "Только JPG или PNG",
   "adminAboutPortraitButton": "Выбрать файл",
-  "adminAboutPortraitFormat": "Поддерживаются только файлы .jpg и .png",
+  "adminAboutPortraitFormat": "Поддерживаются только файлы .jpg, .jpeg, .png и .webp",
   "adminAboutPortraitNotImage": "Файл не является изображением",
   "adminAboutPortraitTooLarge": "Изображение слишком большое",
   "adminAboutPortraitUndecodable": "Не удалось обработать изображение",

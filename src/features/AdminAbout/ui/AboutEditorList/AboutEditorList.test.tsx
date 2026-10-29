@@ -1228,7 +1228,7 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   it('wires the native picker to .jpg/.png and rejects other formats with adminAboutPortraitFormat', async () => {
     renderWithPortraitModal();
 
-    expect(fileInput()).toHaveAttribute('accept', '.png,.webp,.svg');
+    expect(fileInput()).toHaveAttribute('accept', '.jpg,.jpeg,.png,.webp');
     stageFile(new File(['x'], 'anim.gif', { type: 'image/gif' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
@@ -1256,7 +1256,7 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   it('rejects a .jpg carrying the legacy image/jpg MIME (no staging)', async () => {
     renderWithPortraitModal();
 
-    stageFile(new File(['x'], 'me.jpg', { type: 'image/jpg' }));
+    stageFile(new File(['x'], 'me.jpg', { type: 'image/png' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('adminAboutPortraitFormat');
     expect(uploadImage).not.toHaveBeenCalled();

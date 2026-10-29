@@ -178,7 +178,10 @@ describe('AdminAboutPage (R-2: real store wiring)', () => {
     expect(
       within(modal).getByRole('group', { name: 'adminAboutPortraitLabel' })
     ).toBeInTheDocument();
-    expect(modal.querySelector('input[type="file"]')).toHaveAttribute('accept', '.png,.webp,.svg');
+    expect(modal.querySelector('input[type="file"]')).toHaveAttribute(
+      'accept',
+      '.jpg,.jpeg,.png,.webp'
+    );
     expect(
       within(modal).getByRole('button', { name: 'adminAboutPortraitButton' })
     ).toBeInTheDocument();
