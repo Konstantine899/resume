@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
 import { StoreProvider } from '@/app/providers';
 import { mockAdminMetrics } from '@/features/AdminDashboard';
 import { storeReducers } from '@/storeReducers';
+import { apiSlice } from '@/shared/api';
 import { AppRouter } from './AppRouter';
 import { routerConfig } from './routerConfig';
 
@@ -21,12 +24,20 @@ vi.mock('@/features/ThemeSwitch', () => ({ ThemeSwitch: () => null }));
 
 // The dashboard route reads Redux — every render goes through the real
 // reducer map (src/storeReducers), the same shape App.tsx injects.
-const renderAt = (initialEntry: string) => {
+const renderAt = (
+  initialEntry: string,
+  preloadedState?: Parameters<typeof configureStore>[0]['preloadedState']
+) => {
+  const store = configureStore({
+    reducer: storeReducers,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
+    preloadedState,
+  });
   const router = createMemoryRouter(routerConfig, { initialEntries: [initialEntry] });
   render(
-    <StoreProvider reducers={storeReducers}>
+    <Provider store={store}>
       <RouterProvider router={router} />
-    </StoreProvider>
+    </Provider>
   );
   return router;
 };
@@ -65,7 +76,7 @@ describe('AppRouter', () => {
     // settings, about, contact, mywork, skills, jobs, technologies — the
     // CRUD §10 chains) are lazy too so no admin page reaches the showcase
     // bundle.
-    expect(adminRoute?.children).toHaveLength(8);
+    expect(adminRoute?.children).toHaveLength(9);
     expect(adminRoute?.children?.every((child) => child.lazy)).toBe(true);
     // Deep /admin loads hydrate asynchronously — the route carries a fallback
     // so React Router 8 doesn't warn about a missing HydrateFallback.
@@ -73,9 +84,9 @@ describe('AppRouter', () => {
   });
 
   it('renders the admin dashboard at /admin', async () => {
-    // No flag needed — AdminGate was removed (plan rev. 2026-10-02): the
-    // shell renders unconditionally.
-    renderAt('/admin');
+    renderAt('/admin', {
+      auth: { user: { id: '1', email: 'admin@example.com', role: 'admin' } },
+    } as never);
 
     // Lazy route: the module resolves asynchronously on navigation (WU-4).
     expect(

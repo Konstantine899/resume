@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
-import { SOCIAL_LINKS } from '@/entities/Developer';
 import { HomePage } from '@/pages/Home';
 import { storeReducers } from '@/storeReducers';
 import { ADMIN_HREF, CTA_HREF, NAV_ITEMS } from './model/constants';
@@ -79,43 +78,20 @@ describe('Nav: sticky top bar scaffold (T1)', () => {
     expect(CTA_HREF).toBe('#contact');
   });
 
-  it('renders NavControls with both switches inside the right-side container (T4)', () => {
+  it('renders Nav controls as auth/social entries only (switches moved to avatar menu)', () => {
     render(<Nav />);
 
     const controls = screen.getByTestId('nav-controls');
-    expect(within(controls).getByTestId('language-switch')).toBeInTheDocument();
-    expect(within(controls).getByTestId('theme-switch')).toBeInTheDocument();
+    expect(within(controls).getByTestId('nav-social-links')).toBeInTheDocument();
+    expect(within(controls).queryByTestId('nav-controls-switches')).not.toBeInTheDocument();
+    expect(within(controls).queryByTestId('nav-cta')).not.toBeInTheDocument();
   });
 
-  it('renders CTA then the social profile links after the switches inside nav-controls (T5, R5)', () => {
+  it('no longer renders the AdminLink in the navbar controls', () => {
     render(<Nav />);
 
     const controls = screen.getByTestId('nav-controls');
-    const links = within(controls).getAllByRole('link');
-
-    // Right-side order (decision R5, extended): [🌍🎨 switches][📄 CTA][socials][🔐 admin].
-    // The 🔐 AdminLink is the desktop admin entry (wired back deliberately).
-    expect(links.map((link) => link.getAttribute('href'))).toEqual([
-      CTA_HREF,
-      ...SOCIAL_LINKS.map((link) => link.href),
-      ADMIN_HREF,
-    ]);
-
-    // Switches precede the CTA in document order.
-    const switches = within(controls).getByTestId('nav-controls-switches');
-    expect(
-      switches.compareDocumentPosition(links[0] as Node) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  });
-
-  it('renders the AdminLink as the last link of the desktop controls (admin entry)', () => {
-    render(<Nav />);
-
-    const controls = screen.getByTestId('nav-controls');
-    const adminLink = within(controls).getByTestId('nav-admin-link');
-    expect(adminLink).toHaveAttribute('href', ADMIN_HREF);
-    // Identity i18n mock → the key itself carries the accessible name.
-    expect(adminLink).toHaveAccessibleName('navAdmin');
+    expect(within(controls).queryByTestId('nav-admin-link')).toBeNull();
   });
 
   it('invokes onNavigation with the section href when a link is activated', () => {
@@ -177,9 +153,8 @@ describe('Nav: burger + MobileMenu wiring (T6, R9/R11)', () => {
     expect(burger).toHaveAttribute('data-testid', 'nav-burger');
     expect(burger).toHaveAttribute('aria-controls', 'nav-mobile-menu');
 
-    // Compact mobile CTA sits in the header NEXT TO the burger (R4) — outside any panel.
-    const compactCta = screen.getByTestId('nav-cta-mobile');
-    expect(compactCta).toHaveAttribute('href', CTA_HREF);
+    // Mobile no longer renders the compact CTA in the header.
+    expect(screen.queryByTestId('nav-cta-mobile')).not.toBeInTheDocument();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

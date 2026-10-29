@@ -1,5 +1,5 @@
 import { StoreProvider } from '@/app/providers';
-import { ADMIN_AUTH_STORAGE_KEY } from '@/features/AdminAuth';
+
 import { storeReducers } from '@/storeReducers';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -63,7 +63,6 @@ const routes = [
 const renderAdmin = () => {
   // No flag on purpose: since the gate removal (rev. 2026-10-02) the shell
   // must render unconditionally — a persisted flag is no longer required.
-  localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
   const router = createMemoryRouter(routes, { initialEntries: ['/admin'] });
   render(
     <StoreProvider reducers={storeReducers}>
@@ -73,28 +72,23 @@ const renderAdmin = () => {
   return router;
 };
 
-afterEach(() => {
-  localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
-});
+afterEach(() => {});
 
 describe('Admin entry (AdminGate removed — plan rev. 2026-10-02)', () => {
   it('renders the shell even when no auth flag was ever persisted', () => {
     renderAdmin();
 
-    expect(localStorage.getItem(ADMIN_AUTH_STORAGE_KEY)).toBeNull();
     expect(screen.getByTestId('admin-layout')).toBeInTheDocument();
     expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument();
     // No login panel may ever replace the shell again.
     expect(screen.queryByTestId('admin-gate')).not.toBeInTheDocument();
   });
 
-  it('logout clears the persisted flag and returns to the showcase', async () => {
-    localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, '1');
+  it('logout returns to the showcase', async () => {
     const router = renderAdmin();
 
     fireEvent.click(screen.getByRole('button', { name: 'adminLogout' }));
 
-    expect(localStorage.getItem(ADMIN_AUTH_STORAGE_KEY)).toBeNull();
     await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     expect(await screen.findByTestId('home-stub')).toBeInTheDocument();
     expect(screen.queryByTestId('admin-layout')).not.toBeInTheDocument();

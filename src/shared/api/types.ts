@@ -47,7 +47,7 @@ export type UpdateAboutPortraitArg = {
   /** Full document, full-replace semantics; `portrait` carries the path. */
   content: unknown;
   /** Feature-owned persistence seam (localStorage today, API on swap). */
-  persist: (content: unknown) => boolean;
+  persist: (content: unknown) => boolean | Promise<boolean>;
 };
 
 /**
@@ -72,6 +72,11 @@ export type AuthCredentials = {
   password: string;
 };
 
+/** Registration credentials (alias with optional deviceId for parity). */
+export type RegisterCredentials = AuthCredentials & {
+  deviceId?: string;
+};
+
 /** Wire shape of `/auth/login` and `/auth/refresh`. */
 export type AuthTokenResponse = {
   accessToken: string;
@@ -84,4 +89,70 @@ export type AuthUser = {
   id: string;
   email: string;
   role: string;
+  theme: UserTheme;
+  language: UserLanguage;
+};
+
+// ============================================
+// Auth preferences DTOs (Phase A backend)
+// ============================================
+export type UserTheme = 'light' | 'dark';
+
+// About document DTO (sync about plan)
+export type AboutContentDto = {
+  fullName: string;
+  descriptions: { en: string; ru: string }[];
+  stats: Record<string, { en: string; ru: string }>;
+  statLabels?: Record<string, { en: string; ru: string }>;
+  ctaLabel: { en: string; ru: string } | null;
+  portrait?: string;
+  updatedAt?: string;
+  id?: string;
+};
+
+// Contact messages (admin inbox, Phase 4)
+export type ContactMessageAdminStatus = 'NEW' | 'READ' | 'REPLIED';
+export type ContactMessageAdminDto = {
+  id: string;
+  email: string;
+  subject?: string;
+  body: string;
+  source?: string;
+  locale?: string;
+  status: ContactMessageAdminStatus;
+  createdAt: string;
+  readAt?: string;
+  repliedAt?: string;
+};
+
+export type ListContactMessagesQuery = {
+  status?: 'ALL' | ContactMessageAdminStatus;
+  skip?: number;
+  take?: number;
+};
+export type UserLanguage = 'en' | 'ru';
+
+/** Wire shape of PATCH /users/me/preferences. */
+export type UpdatePreferencesInput = {
+  theme?: UserTheme;
+  language?: UserLanguage;
+};
+
+// ============================================
+// Site settings DTO (Phase A backend)
+// ============================================
+export type SiteSettingsDto = {
+  id: string;
+  resumeUrl: string | null;
+  updatedAt?: string;
+};
+
+// Contact messages (plan-contact-crm / backend POST /contact/messages)
+export type CreateContactMessageInput = {
+  email: string;
+  subject?: string;
+  body: string;
+  source?: string;
+  locale?: UserLanguage;
+  website?: string;
 };

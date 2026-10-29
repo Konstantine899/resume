@@ -19,15 +19,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderAdminPage } from '@/shared/tests';
 import { AdminTechnologiesPage } from './AdminTechnologiesPage';
 
-const { persistSpy, addToast, dirMocks } = vi.hoisted(() => ({
+const { persistSpy, addToast, uploadMocks } = vi.hoisted(() => ({
   persistSpy: vi.fn((_data: unknown[]) => true),
   addToast: vi.fn(),
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
+  // The backend upload seam replaced the File-System-Access write.
+  uploadMocks: {
+    upload: vi.fn(async (params: { blob: Blob; name: string }) => ({
+      ok: true as const,
+      file: { name: params.name, path: `/images/technologies/${params.name}` },
+    })),
   },
 }));
 
@@ -36,12 +36,11 @@ vi.mock('@/entities/Technology/model/services/storage', async (importOriginal) =
   persistTechnologies: persistSpy,
 }));
 
-// tech-icon-upload A1: the form uploads icons through the shared imageDir
-// service — mocked here so page-level flows never touch the filesystem.
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
+// tech-icon-upload A1: the form uploads icons through the backend seam —
+// mocked here so page-level flows never touch the network or filesystem.
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 // Identity t(): raw keys in assertions; known options render as
@@ -74,7 +73,7 @@ const openDialog = async () => screen.findByRole('dialog');
 const keyInput = () => screen.getByLabelText('adminTechKeyLabel');
 const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
-/** Drive the raw-SVG FileUpload pipeline against the mocked imageDir. */
+/** Drive the raw-SVG FileUpload pipeline against the mocked backend upload. */
 const uploadSvg = async (fileName = 'tech-logo.svg') => {
   fireEvent.change(fileInput(), {
     target: { files: [new File(['<svg/>'], fileName, { type: 'image/svg+xml' })] },
@@ -105,11 +104,10 @@ beforeEach(() => {
       static revokeObjectURL = vi.fn();
     }
   );
-  dirMocks.supported.mockReturnValue(true);
-  dirMocks.save.mockImplementation(
-    async (params: { blob: Blob; name: string; subdir: string }) =>
-      `/images/${params.subdir}/${params.name}`
-  );
+  uploadMocks.upload.mockImplementation(async (params: { blob: Blob; name: string }) => ({
+    ok: true as const,
+    file: { name: params.name, path: `/images/technologies/${params.name}` },
+  }));
 });
 
 afterEach(() => {

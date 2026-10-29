@@ -4,7 +4,8 @@
  * Machine-readable rejection codes. The kit never owns copy (plan A2):
  * the hook returns a CODE, the component maps it to `FileUploadTexts`.
  */
-export type FileUploadErrorCode = 'notImage' | 'tooLarge' | 'undecodable' | 'wrongFormat';
+export type FileUploadErrorCode =
+  'notImage' | 'tooLarge' | 'undecodable' | 'wrongFormat' | 'inputTooLarge';
 
 /**
  * Consumer-owned strings for every text the component can render.
@@ -20,6 +21,8 @@ export interface FileUploadTexts {
   hint?: string;
   /** Error copy: the selected file is not an image. */
   notImage: string;
+  /** Error copy: the incoming file is too large before decode. */
+  inputTooLarge?: string;
   /** Error copy: the compressed blob exceeds the byte cap. */
   tooLarge: string;
   /** Error copy: the image could not be decoded (HEIC and friends). */
@@ -67,6 +70,10 @@ export interface FileUploadProps {
   onFileSelect: (file: FileUploadSelection) => void;
   /** Cap for the compressed blob size in bytes (default 300_000). */
   maxBlobBytes?: number;
+  /** Cap for the incoming file size in bytes (default ~10_000_000). */
+  maxInputBytes?: number;
+  /** Called during root selection to enforce user gesture. */
+  onBeforeSelect?: () => Promise<unknown>;
   /**
    * Optional format gate (WU-14): when present, a file whose extension OR
    * MIME type falls outside these lowercase, dot-prefixed extensions (e.g.

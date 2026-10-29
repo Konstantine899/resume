@@ -31,8 +31,21 @@ export const routerConfig: RouteObject[] = [
   {
     path: '/admin',
     // Dynamic imports = vite code-split points (tests: AppRouter > lazy boundary).
-    lazy: () =>
-      import('./Admin/ui/AdminLayout/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+    lazy: async () => {
+      const [layoutModule, authModule] = await Promise.all([
+        import('./Admin/ui/AdminLayout/AdminLayout'),
+        import('@/features/Auth'),
+      ]);
+      const AdminLayout = layoutModule.AdminLayout;
+      const RequireAdmin = authModule.RequireAdmin;
+      return {
+        Component: () => (
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        ),
+      };
+    },
     // Deep-loads of /admin hydrate asynchronously (RR 8 initial-hydration
     // path) — a route-level fallback prevents the blank frame + RR warning.
     hydrateFallbackElement: <AdminHydrateFallback />,
@@ -102,6 +115,14 @@ export const routerConfig: RouteObject[] = [
         lazy: () =>
           import('./Admin/ui/AdminTechnologiesPage/AdminTechnologiesPage').then((m) => ({
             Component: m.AdminTechnologiesPage,
+          })),
+      },
+      {
+        // Contact inbox (plan-contact-crm Phase 4) — own chunk.
+        path: 'contact-messages',
+        lazy: () =>
+          import('./Admin/ui/AdminContactMessagesPage/AdminContactMessagesPage').then((m) => ({
+            Component: m.AdminContactMessagesPage,
           })),
       },
     ],

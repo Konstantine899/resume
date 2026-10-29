@@ -64,8 +64,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }, TRANSITION_DURATION);
   };
 
+  const applyTheme = React.useCallback((next: Theme) => {
+    setTheme(next);
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isTransitioning }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: applyTheme, isTransitioning }}>
       {children}
     </ThemeContext.Provider>
   );

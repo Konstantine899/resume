@@ -69,6 +69,7 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
       data-variant={variant}
     >
       <Image
+        key={normalizedSrc || 'avatar-fallback'}
         src={normalizedSrc || ''}
         alt={alt}
         decorative

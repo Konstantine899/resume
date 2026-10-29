@@ -9,7 +9,7 @@ import { useId, useState, type DragEvent } from 'react';
 import { Button } from '@/shared/ui/Button';
 
 import { useImageDragDrop } from '../../lib/useImageDragDrop';
-import type { FileUploadProps } from '../../model/types';
+import type { FileUploadProps, FileUploadTexts } from '../../model/types';
 import styles from './FileUpload.module.scss';
 
 export function FileUpload({
@@ -17,7 +17,9 @@ export function FileUpload({
   texts,
   onFileSelect,
   maxBlobBytes,
+  maxInputBytes,
   acceptExtensions,
+  onBeforeSelect,
   disabled,
   className,
 }: FileUploadProps) {
@@ -35,15 +37,26 @@ export function FileUpload({
       onError: () => setAnnounceSuccess(false),
       onSuccess: () => setAnnounceSuccess(true),
       maxBlobBytes,
+      maxInputBytes,
       acceptExtensions,
     });
 
-  const errorText = errorCode ? texts[errorCode] : undefined;
+  const errorText = errorCode
+    ? texts[errorCode as keyof FileUploadTexts] || texts.tooLarge || undefined
+    : undefined;
   const describedBy = [texts.hint ? hintId : null, errorText ? errorId : null]
     .filter(Boolean)
     .join(' ');
 
-  const openDialog = () => {
+  const openDialog = async () => {
+    if (disabled) return;
+    if (onBeforeSelect) {
+      try {
+        await onBeforeSelect();
+      } catch {
+        return;
+      }
+    }
     inputRef.current?.click();
   };
 
@@ -58,10 +71,23 @@ export function FileUpload({
         role="group"
         aria-labelledby={labelId}
         className={[styles.dropzone, isDragging ? styles.dragging : null].filter(Boolean).join(' ')}
-        onDragEnter={(event: DragEvent) => drag.handleDragEnter(event)}
-        onDragLeave={(event: DragEvent) => drag.handleDragLeave(event)}
-        onDragOver={(event: DragEvent) => drag.handleDragOver(event)}
-        onDrop={(event: DragEvent) => drag.handleDrop(event)}
+        aria-disabled={disabled ? 'true' : undefined}
+        onDragEnter={(event: DragEvent) => {
+          if (disabled) return;
+          drag.handleDragEnter(event);
+        }}
+        onDragLeave={(event: DragEvent) => {
+          if (disabled) return;
+          drag.handleDragLeave(event);
+        }}
+        onDragOver={(event: DragEvent) => {
+          if (disabled) return;
+          drag.handleDragOver(event);
+        }}
+        onDrop={(event: DragEvent) => {
+          if (disabled) return;
+          drag.handleDrop(event);
+        }}
       >
         <input
           ref={inputRef}

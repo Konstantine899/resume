@@ -1,5 +1,5 @@
 // ============================================
-// Contact Form Hook with EmailJS & Toast
+// Contact Form Hook with backend ingestion & Toast
 // ============================================
 
 import {
@@ -8,13 +8,13 @@ import {
   type LocalizedText,
 } from '@/entities/ContactContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
+
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import emailjs from '@emailjs/browser';
 import { useState } from 'react';
 import type { ContactFormData, FormStatus } from '../model/types/types';
 
 interface UseContactFormOptions {
-  /** Overrides the default EmailJS send call (used for testing). */
+  /** Overrides the default submit send call (used for testing). */
   send?: (form: HTMLFormElement) => Promise<unknown>;
   /**
    * Admin-edited toast texts (resolved `content.formTexts[language]`,
@@ -33,31 +33,10 @@ interface UseContactFormReturn {
   resetForm: () => void;
 }
 
-/** Thrown when the required EmailJS environment variables are missing. */
-class EmailJSConfigError extends Error {
-  constructor() {
-    super('EmailJS configuration is missing');
-    this.name = 'EmailJSConfigError';
-  }
-}
-
-/** Default EmailJS send implementation (ADR 0003 — direct SDK call). */
-async function emailjsSend(form: HTMLFormElement): Promise<unknown> {
-  const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-  if (!serviceID || !templateID || !publicKey) {
-    throw new EmailJSConfigError();
-  }
-
-  return emailjs.sendForm(serviceID, templateID, form, publicKey);
-}
-
 export function useContactForm(options?: UseContactFormOptions): UseContactFormReturn {
   const { addToast } = useToast();
   const { t, language } = useLanguage();
-  const sendForm = options?.send ?? emailjsSend;
+  const sendForm = options?.send;
   // R-11: store-edited text wins, t() is the store-free fallback.
   const toastText = (key: FormTextKey): string => options?.texts?.[key]?.[language] ?? t(key);
 
@@ -88,22 +67,22 @@ export function useContactForm(options?: UseContactFormOptions): UseContactFormR
         return;
       }
 
-      // 2. Send (EmailJS by default, injected in tests)
+      // 2. Send (backend ingestion by default, injected in tests)
       const formElement = e.target as HTMLFormElement;
+      if (!sendForm) {
+        throw new Error('No send implementation provided');
+      }
       await sendForm(formElement);
 
       // 3. Success → Toast + reset
       setStatus('success');
       addToast({ message: toastText('contactFormSent'), type: 'success', duration: 5000 });
       resetForm();
-    } catch (error) {
+    } catch {
       // 4. Error → Toast
       setStatus('error');
 
-      const message =
-        error instanceof EmailJSConfigError
-          ? toastText('contactFormConfigError')
-          : toastText('contactFormError');
+      const message = toastText('contactFormError');
 
       addToast({ message, type: 'error', duration: 5000 });
     }

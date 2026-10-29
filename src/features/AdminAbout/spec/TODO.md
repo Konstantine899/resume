@@ -15,3 +15,13 @@ verified: '2026-10-20'
 - **Эпик закрыт** — PR #315 смержен squash'ем в `dev` 2026-10-20 (`0c04595`); баррельная чистка OPEN-8 довнесена PR #313 (`e95c6e3`). Burn-down пары: этот коммит.
 
 - **2026-10-20 (аменда 3)** — `.nameRow` перенесён внутрь карточки над таблицей по директиве владельца; SPEC D19/R-11 правлен ДО кода.
+
+---
+
+## About sync amendment tasks (2026-10-27)
+
+- [x] Add shared API endpoints (`getAboutContent`, `updateAboutContent`)
+- [x] Replace localStorage persist seam with API seam
+- [x] Hydrate public route in App bootstrap
+- [x] Preserve fallback in resolver/content view
+- [ ] optional throttler/HTTP caching in backend request later

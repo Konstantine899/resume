@@ -141,6 +141,18 @@ export function useImageLoading({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lazyMode, priority, threshold, root, rootMargin]);
 
+  // Синхронизация lifecycle при смене src
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoadingStatus('loading');
+    hasLoadedRef.current = false;
+    hasStartedRef.current = false;
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+  }, [_src]);
+
   // Возвращаем imageRef напрямую (без externalRef indirection)
   return {
     loadingStatus: displayStatus,

@@ -128,6 +128,7 @@ export const About: React.FC<AboutFeatureProps> = ({
               `.portrait` class stays on the root and owns the box (About.module
              .scss is intentionally untouched). */}
           <Avatar
+            key={content?.portrait ?? aboutPortrait}
             data-testid="about-portrait"
             src={content?.portrait ?? aboutPortrait}
             alt=""

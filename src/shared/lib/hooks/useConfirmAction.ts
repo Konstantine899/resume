@@ -22,7 +22,7 @@ export interface UseConfirmActionOptions<T> {
    * Return `false` to keep the modal open (persist failed — the caller
    * owns the error toast); return `true` to close it.
    */
-  onConfirm: (item: T) => boolean;
+  onConfirm: (item: T) => boolean | Promise<boolean>;
 }
 
 export interface UseConfirmActionReturn<T> {
@@ -37,7 +37,7 @@ export interface UseConfirmActionReturn<T> {
   /** Closes the modal and resets the state (Cancel / ESC / overlay). */
   cancel: () => void;
   /** Runs onConfirm; closes on success, keeps the modal open on failure. */
-  confirm: () => void;
+  confirm: () => void | Promise<void>;
 }
 
 export function useConfirmAction<T>({
@@ -55,10 +55,11 @@ export function useConfirmAction<T>({
     setConfirming(false);
   };
 
-  const confirm = (): void => {
+  const confirm = async (): Promise<void> => {
     if (pending === null) return;
     setConfirming(true);
-    if (!onConfirm(pending)) {
+    const ok = await onConfirm(pending);
+    if (!ok) {
       // Persist-fail parity: keep the modal OPEN for a retry.
       setConfirming(false);
       return;

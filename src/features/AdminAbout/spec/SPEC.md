@@ -73,3 +73,25 @@ verified: '2026-10-20'
 ## Критерии приёмки
 
 Владелец видит: кнопку добавления → модалка → новая строка в таблице и на главной; Trash2 → confirm → строка исчезла из таблици и из vitrina (дефолтный вид главной БЕЗ данных не изменился); портрет в About — через Avatar-вариант (SCSS блока байтово нетронут), stories показывают вариант; админ загружает .jpg/.png портрет (другое — отказ), превью и главная показывают его, имя файла уходит в RTK Query-мутацию (свап на Nest.js = замена queryFn). Гейты зелёные.
+
+---
+
+## Amendment — About backend sync via `/about` (plan-sync-about, 2026-10-27)
+
+- backend GET/PUT `/about` remains source truth
+- frontend DTOs must mirror `fullName`, `descriptions`, `stats`, `statLabels`, `ctaLabel`, `portrait`
+- `ctaLabel: null` means CTA hides completely in display
+- `statLabels` only custom keys
+- preserve `HomePage` seed fallback when no content
+- full-replace semantics on PUT
+- ` portrait?` resolves through same asset pipeline (`/images/...`)
+- local localStorage branch may remain temporarily during migration
+
+---
+
+## Amendment: backend-sync About via `/about` (plan-sync-about, 2026-10-27)
+
+- Admin About persistence is now API-backed (`updateAboutContent`)
+- Public bootstrap hydrates the store through `GET /about`
+- Design C read path unchanged (`content?` optional, seed fallback on null)
+- full-replace PUT semantics enforced by payload builder

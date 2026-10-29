@@ -11,17 +11,26 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { authToken } from './authToken';
+import { publishAboutUpdate } from '@/shared/lib/contentSync/contentSync';
 import type {
   AuthCredentials,
   AuthTokenResponse,
   AuthUser,
+  AboutContentDto,
+  CreateContactMessageInput,
+  ContactMessageAdminDto,
+  ListContactMessagesQuery,
   ContactDocumentDto,
+  ContactMessageAdminStatus,
+  RegisterCredentials,
+  SiteSettingsDto,
   UpdateAboutPortraitArg,
   UpdateAboutPortraitResult,
+  UpdatePreferencesInput,
 } from './types';
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
   credentials: 'include',
   prepareHeaders: (headers) => {
     const token = authToken.getAccessToken();
@@ -31,6 +40,46 @@ const rawBaseQuery = fetchBaseQuery({
 });
 
 export const baseQuery = rawBaseQuery;
+
+const SKIPS_REAUTH = (url: string): boolean =>
+  url === '/auth/refresh' ||
+  url === '/auth/login' ||
+  url === '/auth/register' ||
+  url.endsWith('/auth/refresh') ||
+  url.endsWith('/auth/login') ||
+  url.endsWith('/auth/register');
+
+function requestUrl(args: string | FetchArgs): string {
+  if (typeof args === 'string') return args;
+  return String(args.url ?? '');
+}
+
+let refreshInFlight: Promise<AuthTokenResponse | null> | null = null;
+
+async function refreshOnce(
+  api: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[1],
+  extraOptions: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[2]
+): Promise<AuthTokenResponse | null> {
+  if (refreshInFlight) return refreshInFlight;
+
+  refreshInFlight = (async () => {
+    try {
+      const refreshResult = await rawBaseQuery(
+        { url: '/auth/refresh', method: 'POST' },
+        api,
+        extraOptions
+      );
+      if (refreshResult.error) return null;
+      const data = refreshResult.data as AuthTokenResponse;
+      if (data?.accessToken) authToken.setAccessToken(data.accessToken);
+      return data ?? null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
 
 /**
  * Reauth wrapper: on HTTP 401, attempt a single refresh and retry the
@@ -42,25 +91,35 @@ export const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  const url = requestUrl(args);
   const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
-    const refreshResult = await rawBaseQuery(
-      { url: '/auth/refresh', method: 'POST' },
-      api,
-      extraOptions
-    );
-
-    const refreshData = refreshResult.data as { accessToken?: string } | undefined;
-
-    if (refreshData?.accessToken) {
-      authToken.setAccessToken(refreshData.accessToken);
-      return rawBaseQuery(args, api, extraOptions);
-    }
-
-    authToken.clearAccessToken();
+  if (!(result.error && result.error.status === 401)) {
+    return result;
   }
 
+  if (SKIPS_REAUTH(url)) {
+    // Login/register/refresh failures never trigger another refresh.
+    if (url.endsWith('/auth/refresh')) {
+      authToken.clearAccessToken();
+      api.dispatch({ type: 'auth/signedOut' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('unauthorized'));
+      }
+    }
+    return result;
+  }
+
+  const refreshed = await refreshOnce(api, extraOptions);
+  if (refreshed?.accessToken) {
+    return rawBaseQuery(args, api, extraOptions);
+  }
+
+  authToken.clearAccessToken();
+  api.dispatch({ type: 'auth/signedOut' });
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('unauthorized'));
+  }
   return result;
 };
 
@@ -69,6 +128,7 @@ export const reauthBaseQuery = baseQueryWithReauth;
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
+  tagTypes: ['AboutContent'] as const,
   endpoints: (builder) => ({
     /** GET the whole Contact document. */
     getContactContent: builder.query<ContactDocumentDto, void>({
@@ -83,10 +143,22 @@ export const apiSlice = createApi({
     updateAboutPortrait: builder.mutation<UpdateAboutPortraitResult, UpdateAboutPortraitArg>({
       queryFn: async (arg) => {
         const { content, persist } = arg;
-        if (!persist(content)) {
+        if (!(await persist(content))) {
           return { error: { status: 500, data: { message: 'persist-failed' } } };
         }
         return { data: { document: content } };
+      },
+      invalidatesTags: ['AboutContent'],
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          publishAboutUpdate(
+            (data as { document?: { updatedAt?: string } }).document?.updatedAt ??
+              new Date().toISOString()
+          );
+        } catch {
+          // Failure state remains local; callers surface toast.
+        }
       },
     }),
 
@@ -94,6 +166,18 @@ export const apiSlice = createApi({
     login: builder.mutation<AuthTokenResponse, AuthCredentials>({
       query: (credentials) => ({
         url: '/auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+      transformResponse: (response: unknown) => {
+        const data = response as AuthTokenResponse;
+        authToken.setAccessToken(data.accessToken);
+        return data;
+      },
+    }),
+    register: builder.mutation<AuthTokenResponse, RegisterCredentials>({
+      query: (credentials) => ({
+        url: '/auth/register',
         method: 'POST',
         body: credentials,
       }),
@@ -124,6 +208,72 @@ export const apiSlice = createApi({
     }),
     me: builder.query<AuthUser, void>({
       query: () => '/auth/me',
+    }),
+    // Preferences (Phase A backend): partial update of the current user's
+    // theme/language. Anonymous callers never reach here.
+    updatePreferences: builder.mutation<AuthUser, UpdatePreferencesInput>({
+      query: (body) => ({ url: '/users/me/preferences', method: 'PATCH', body }),
+      transformResponse: (response: unknown) => response as AuthUser,
+    }),
+    // Compatibility alias.
+    updateUserPreferences: builder.mutation<AuthUser, UpdatePreferencesInput>({
+      query: (body) => ({ url: '/users/me/preferences', method: 'PATCH', body }),
+      transformResponse: (response: unknown) => response as AuthUser,
+    }),
+
+    // Contact ingestion (plan-contact-crm, Variant A).
+    createContactMessage: builder.mutation<{ id: string }, CreateContactMessageInput>({
+      query: (body) => ({ url: '/contact/messages', method: 'POST', body }),
+      transformResponse: (response: unknown) => response as { id: string },
+    }),
+    // Site settings (Phase A backend): global resume download URL.
+    getSiteSettings: builder.query<SiteSettingsDto, void>({
+      query: () => '/site/settings',
+    }),
+    siteSettings: builder.query<SiteSettingsDto, void>({
+      query: () => '/site/settings',
+    }),
+    getAboutContent: builder.query<AboutContentDto, void>({
+      query: () => '/about',
+      providesTags: ['AboutContent'],
+    }),
+    updateAboutContent: builder.mutation<AboutContentDto, AboutContentDto>({
+      query: (body) => ({ url: '/about', method: 'PUT', body }),
+      invalidatesTags: ['AboutContent'],
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          publishAboutUpdate(
+            (data as { updatedAt?: string }).updatedAt ?? new Date().toISOString()
+          );
+        } catch {
+          // Failure state remains local; callers surface toast.
+        }
+      },
+      transformResponse: (response: unknown) => response as AboutContentDto,
+    }),
+
+    // Contact messages (admin inbox, Phase 4).
+    getContactMessages: builder.query<ContactMessageAdminDto[], ListContactMessagesQuery | void>({
+      query: (arg) => {
+        const q = (arg as ListContactMessagesQuery | undefined) ?? {};
+        const params = new URLSearchParams();
+        if (q.status && q.status !== 'ALL') params.set('status', q.status);
+        if (q.skip !== undefined) params.set('skip', String(q.skip));
+        if (q.take !== undefined) params.set('take', String(q.take));
+        const qs = params.toString();
+        return '/admin/contact/messages' + (qs ? `?${qs}` : '');
+      },
+    }),
+    updateContactMessageStatus: builder.mutation<
+      ContactMessageAdminDto,
+      { id: string; status: ContactMessageAdminStatus }
+    >({
+      query: ({ id, status }) => ({
+        url: `/admin/contact/messages/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
     }),
   }),
 });

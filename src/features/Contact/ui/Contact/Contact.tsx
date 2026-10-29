@@ -1,6 +1,9 @@
 import { CONTACT_EMAIL, type TextKey } from '@/entities/ContactContent';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { useDispatch } from 'react-redux';
+import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
+import { apiSlice } from '@/shared/api/apiSlice';
 import { AnimatedSection } from '@/shared/ui/AnimatedSection';
 import { Button } from '@/shared/ui/Button';
 import { CardGrid, ContactCard } from '@/shared/ui/Card';
@@ -30,8 +33,20 @@ export function Contact({ content }: ContactProps) {
 
   // ✅ Используем хук формы (внутри уже есть Toast); admin-edited
   // formTexts reach the Create toasts via the texts option (R-11).
+  const dispatch = useDispatch<ThunkDispatch<unknown, unknown, UnknownAction>>();
   const { formData, status, setFormData, handleSubmit } = useContactForm({
     texts: content?.formTexts,
+    send: async () => {
+      await dispatch(
+        apiSlice.endpoints.createContactMessage.initiate({
+          email: formData.email,
+          subject: formData.name?.trim() ? formData.name.trim().slice(0, 120) : undefined,
+          body: formData.message,
+          locale: language as 'en' | 'ru',
+          source: 'web-form',
+        })
+      ).unwrap();
+    },
   });
 
   return (

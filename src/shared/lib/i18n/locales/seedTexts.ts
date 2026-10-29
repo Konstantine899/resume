@@ -42,5 +42,5 @@ export const SEED_RU_TEXTS = {
   contactFormRequired: 'Все поля обязательны для заполнения',
   contactFormSent: 'Сообщение успешно отправлено!',
   contactFormError: 'Не удалось отправить сообщение. Попробуйте позже.',
-  contactFormConfigError: 'EmailJS конфигурация не завершена',
+  contactFormConfigError: 'Не удалось отправить сообщение. Попробуйте позже.',
 } as const;
