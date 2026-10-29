@@ -23,6 +23,10 @@ export type AvatarVariant = 'circle' | 'square' | 'portrait';
 export interface AvatarProps {
   /** URL изображения аватара */
   src?: string;
+  /** Универсальный srcSet для responsive-портретов (media-pipeline WU-4). */
+  srcSet?: string;
+  /** Повысить приоритет загрузки для above-the-fold (media-pipeline WU-4). */
+  priority?: boolean;
   /** Альтернативный текст для доступности (используется для инициалов) */
   alt?: string;
   /** Размер аватара */

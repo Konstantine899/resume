@@ -171,6 +171,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
             statLabels: doc.statLabels,
             ctaLabel: doc.ctaLabel,
             portrait: doc.portrait,
+            expectedUpdatedAt: doc.updatedAt,
           })
         ).unwrap();
         return true;

@@ -12,7 +12,7 @@ import { Section } from '@/shared/ui/Section';
 import { Fragment } from 'react';
 import type { AboutFeatureProps } from '../../model/types/types';
 import styles from './About.module.scss';
-import { mediaUrl } from '@/shared/lib/media';
+import { mediaSrcSet, mediaUrl } from '@/shared/lib/media';
 
 /** Recruiter-audit P1 stats — data-backed, translatable, never invented. */
 const STATS_KEYS = [
@@ -132,6 +132,8 @@ export const About: React.FC<AboutFeatureProps> = ({
             key={content?.portrait ?? aboutPortrait}
             data-testid="about-portrait"
             src={content?.portrait ? mediaUrl(content.portrait) : aboutPortrait}
+            srcSet={content?.portrait ? mediaSrcSet(content.portrait) : undefined}
+            priority
             alt=""
             variant="portrait"
             className={styles.portrait}

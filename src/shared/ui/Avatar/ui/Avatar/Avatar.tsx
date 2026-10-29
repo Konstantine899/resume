@@ -41,6 +41,8 @@ import styles from './Avatar.module.scss';
 function AvatarImpl<C extends React.ElementType = 'div'>(
   {
     src,
+    srcSet,
+    priority = false,
     alt = 'Avatar placeholder',
     size = 'md',
     variant = 'circle',
@@ -122,7 +124,7 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
         )
       ) : (
         <Image
-          src={src || ''}
+          src={srcSet ? { src: src || '', srcSet } : src || ''}
           alt=""
           decorative
           variant={imageVariant}
@@ -134,6 +136,7 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
           showPlaceholder={showSkeleton}
           forceLoading={forceLoading}
           className={styles.image}
+          priority={priority}
           onLoadSuccess={handleLoadSuccess}
           onLoadError={handleLoadError}
         />
