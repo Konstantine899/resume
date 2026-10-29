@@ -18,7 +18,7 @@
 // - persist BEFORE dispatch (§3), Toast feedback, exit-edit on success.
 
 import type { Technology } from '@/entities/Technology';
-import type { LegacyImageUploadOutcome as ImageUploadOutcome } from '@/shared/lib/imageUpload';
+import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TechnologyForm } from './TechnologyForm';
@@ -47,7 +47,7 @@ const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks, uploadMocks }
     uploadMocks: {
       upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
         ok: true,
-        file: { name: params.name, path: `/images/technologies/${params.name}` },
+        file: { key: `/images/technologies/${params.name}`, width: 24, height: 24, variants: [] },
       })),
     },
   })
@@ -141,7 +141,7 @@ describe('TechnologyForm', () => {
     // otherwise leak the failure into the next one).
     uploadMocks.upload.mockImplementation(async (params: { blob: Blob; name: string }) => ({
       ok: true as const,
-      file: { name: params.name, path: `/images/technologies/${params.name}` },
+      file: { key: `/images/technologies/${params.name}`, width: 24, height: 24, variants: [] },
     }));
   });
 

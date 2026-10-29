@@ -16,6 +16,7 @@
 
 import { z } from 'zod';
 
+import { isMediaKey } from '@/shared/lib/media';
 import type { Technology } from '../types/types';
 
 /** Slug: lowercase letters, digits, hyphens — no leading/trailing hyphen. */
@@ -40,6 +41,7 @@ export const TechnologySchema = z.object({
   url: z.union([
     z.url().refine((value) => value.startsWith('https://')),
     z.string().regex(INTERNAL_IMAGES_PATH_REGEX),
+    z.string().refine((value) => isMediaKey(value)),
   ]),
   invertInDark: z.boolean().optional(),
 });

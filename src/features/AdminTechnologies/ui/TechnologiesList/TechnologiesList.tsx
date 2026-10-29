@@ -35,6 +35,7 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mediaUrl } from '@/shared/lib/media';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -177,7 +178,7 @@ export const TechnologiesList: React.FC<TechnologiesListProps> = ({
         <img
           className={classNames(styles.icon, row.invertInDark && styles.iconInvert)}
           data-testid={`tech-icon-${row.key}`}
-          src={row.url}
+          src={mediaUrl(row.url)}
           alt=""
         />
       ),
