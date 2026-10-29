@@ -338,14 +338,17 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
    */
   const [stagedPortrait, setStagedPortrait] = useState<UploadedPortrait | null>(null);
   const [portraitError, setPortraitError] = useState<PortraitUploadFailure | null>(null);
+  const [portraitDetail, setPortraitDetail] = useState<string | null>(null);
   const [savingPortrait, setSavingPortrait] = useState(false);
 
   const handlePortraitFile = async (file: FileUploadSelection): Promise<void> => {
     setPortraitError(null);
+    setPortraitDetail(null);
     const outcome = await uploadPortrait(file);
     if (!outcome.ok) {
       // `aborted` = the user dismissed the picker — silence by design.
       if (outcome.reason !== 'aborted') setPortraitError(outcome.reason);
+      if (outcome.detail) setPortraitDetail(outcome.detail);
       return;
     }
     setStagedPortrait(outcome.file);
@@ -354,6 +357,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const clearStagedPortrait = () => {
     setStagedPortrait(null);
     setPortraitError(null);
+    setPortraitDetail(null);
   };
 
   const handleSavePortrait = async (): Promise<void> => {
@@ -726,9 +730,13 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
             ) : null}
             {portraitError === 'write-failed' ||
             portraitError === 'security' ||
-            portraitError === 'quota' ? (
+            portraitError === 'quota' ||
+            portraitError === 'conflict' ? (
               <Paragraph asChild theme="error" size="s">
-                <span role="alert">{t('adminAboutPortraitSaveError')}</span>
+                <span role="alert">
+                  {t('adminAboutPortraitSaveError')}
+                  {portraitDetail ? ` (${portraitDetail})` : ''}
+                </span>
               </Paragraph>
             ) : null}
             <div className={styles.portraitActions}>

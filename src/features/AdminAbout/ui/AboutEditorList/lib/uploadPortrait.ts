@@ -12,23 +12,24 @@ export interface UploadedPortrait {
   variants: { width: number; key: string }[];
 }
 
+export type PortraitUploadFailure =
+  | 'unsupported'
+  | 'aborted'
+  | 'permission-denied'
+  | 'root-missing'
+  | 'quota'
+  | 'security'
+  | 'write-failed'
+  | 'conflict';
+
 type PortraitUploadOutcome =
   | { ok: true; file: UploadedPortrait }
-  | { ok: false; reason: 'unsupported' }
-  | { ok: false; reason: 'aborted' }
-  | { ok: false; reason: 'permission-denied' }
-  | { ok: false; reason: 'root-missing' }
-  | { ok: false; reason: 'quota' }
-  | { ok: false; reason: 'security' }
-  | { ok: false; reason: 'write-failed' }
-  | { ok: false; reason: 'conflict' };
-
-export type PortraitUploadFailure = Extract<PortraitUploadOutcome, { ok: false }>['reason'];
+  | { ok: false; reason: PortraitUploadFailure; detail?: string };
 
 export const uploadPortrait = async (file: FileUploadSelection): Promise<PortraitUploadOutcome> => {
   try {
     const outcome = await uploadImage({ blob: file.blob, name: file.name }, 'portrait');
-    if (!outcome.ok) return { ok: false, reason: outcome.reason };
+    if (!outcome.ok) return { ok: false, reason: outcome.reason, detail: outcome.detail };
     return {
       ok: true,
       file: {
