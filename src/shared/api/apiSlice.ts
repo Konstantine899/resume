@@ -12,6 +12,7 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 
 import { authToken } from './authToken';
 import { publishAboutUpdate } from '@/shared/lib/contentSync/contentSync';
+import { removeMedia } from '@/shared/lib/imageUpload';
 import type {
   AuthCredentials,
   AuthTokenResponse,
@@ -242,10 +243,16 @@ export const apiSlice = createApi({
       invalidatesTags: ['AboutContent'],
       async onQueryStarted(_arg, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          const { data, meta } = await queryFulfilled;
           publishAboutUpdate(
             (data as { updatedAt?: string }).updatedAt ?? new Date().toISOString()
           );
+          const headers = (meta as { response?: { headers?: Headers } } | undefined)?.response
+            ?.headers;
+          const replacedKey = headers?.get('x-replaced-media-key');
+          if (typeof replacedKey === 'string' && replacedKey.trim().length > 0) {
+            void removeMedia(replacedKey.trim()).catch(() => undefined);
+          }
         } catch {
           // Failure state remains local; callers surface toast.
         }

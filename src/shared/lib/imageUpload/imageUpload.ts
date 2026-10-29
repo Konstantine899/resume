@@ -6,6 +6,7 @@
 // media key plus its width/height/variants. Legacy callers that still need
 // the `/images` shim shape use `uploadLegacyImage`.
 import { authToken } from '@/shared/api/authToken';
+import { isMediaKey } from '@/shared/lib/media';
 
 export type ImageUploadFailureReason =
   'permission-denied' | 'root-missing' | 'quota' | 'security' | 'write-failed' | 'conflict';
@@ -153,5 +154,31 @@ export const uploadLegacyImage = async (file: {
     };
   } catch {
     return { ok: false, reason: 'write-failed' };
+  }
+};
+
+/**
+ * Best-effort deletion of a stored media key (media-pipeline PR-2b).
+ * Only media keys are accepted; legacy paths are left untouched here.
+ */
+export const removeMedia = async (key: string): Promise<boolean> => {
+  if (!isMediaKey(key)) return false;
+
+  const doRequest = async (): Promise<Response> => {
+    const headers = new Headers();
+    const token = authToken.getAccessToken();
+    if (token) headers.set('authorization', `Bearer ${token}`);
+    return fetch(`${API_BASE}/media/${encodeURIComponent(key)}`, {
+      method: 'DELETE',
+      headers,
+      credentials: 'include',
+    });
+  };
+
+  try {
+    const res = await requestWithAuthRefresh(doRequest);
+    return Boolean(res?.ok);
+  } catch {
+    return false;
   }
 };

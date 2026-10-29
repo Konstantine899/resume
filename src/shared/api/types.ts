@@ -107,6 +107,7 @@ export type AboutContentDto = {
   ctaLabel: { en: string; ru: string } | null;
   portrait?: string;
   updatedAt?: string;
+  expectedUpdatedAt?: string;
   id?: string;
 };
 

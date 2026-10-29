@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { authToken } from '@/shared/api';
-import { uploadImage, uploadLegacyImage } from './imageUpload';
+import { removeMedia, uploadImage, uploadLegacyImage } from './imageUpload';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
@@ -184,5 +184,37 @@ describe('uploadLegacyImage (compat shim)', () => {
     });
     const [url] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string];
     expect(url).toBe(`${API_BASE}/images`);
+  });
+});
+
+describe('removeMedia', () => {
+  const originalFetch = globalThis.fetch;
+  beforeEach(() => authToken.clearAccessToken());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    globalThis.fetch = originalFetch;
+    authToken.clearAccessToken();
+  });
+
+  it('returns false for non-media keys without any request', async () => {
+    const fetchMock = vi.fn();
+    globalThis.fetch = asFetch(fetchMock);
+    expect(await removeMedia('not-a-key')).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('deletes a key and is tolerant to refresh failure', async () => {
+    authToken.setAccessToken('stale');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 401 }))
+      .mockResolvedValueOnce(new Response('', { status: 500 }));
+    globalThis.fetch = asFetch(fetchMock);
+    expect(await removeMedia('2f1c9a7e-4b3d-4c8f-9a1b-7d6e5f4a3b2c.webp')).toBe(false);
+  });
+
+  it('returns true when the delete succeeds', async () => {
+    globalThis.fetch = asFetch(vi.fn().mockResolvedValue(new Response('', { status: 200 })));
+    expect(await removeMedia('2f1c9a7e-4b3d-4c8f-9a1b-7d6e5f4a3b2c.webp')).toBe(true);
   });
 });
