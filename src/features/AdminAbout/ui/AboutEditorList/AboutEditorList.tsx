@@ -724,7 +724,9 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                 <span role="alert">{t('adminAboutPortraitUnsupported')}</span>
               </Paragraph>
             ) : null}
-            {portraitError === 'write-failed' ? (
+            {portraitError === 'write-failed' ||
+            portraitError === 'security' ||
+            portraitError === 'quota' ? (
               <Paragraph asChild theme="error" size="s">
                 <span role="alert">{t('adminAboutPortraitSaveError')}</span>
               </Paragraph>
