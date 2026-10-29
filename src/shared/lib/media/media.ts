@@ -1,7 +1,12 @@
+const rawApiBase =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) || 'http://localhost:3000';
+
+// New media contract (backend PR-1a): files are served from `/media/:key`.
+// VITE_MEDIA_BASE_URL may override the whole base for CDN usage; otherwise
+// append the `/media` segment to the API base.
 export const MEDIA_BASE =
   (import.meta.env.VITE_MEDIA_BASE_URL as string | undefined) ||
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
-  'http://localhost:3000';
+  `${rawApiBase.replace(/\/$/, '')}/media`;
 
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const BASE_EXTENSIONS = 'png|webp|avif|svg|jpg|jpeg|gif';

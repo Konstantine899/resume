@@ -44,3 +44,12 @@ describe('shared/lib/media resolver', () => {
     expect(mediaSrcSet('/images/foo.webp')).toBeUndefined();
   });
 });
+
+describe('media remaining branches', () => {
+  it('keeps http redirects/resolved urls unchanged', () => {
+    expect(mediaUrl('http://localhost:3000/media/foo.webp')).toBe(
+      'http://localhost:3000/media/foo.webp'
+    );
+    expect(mediaUrl('https://cdn.example.com/foo.webp')).toBe('https://cdn.example.com/foo.webp');
+  });
+});

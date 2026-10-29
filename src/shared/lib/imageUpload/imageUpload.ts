@@ -23,10 +23,12 @@ export type UploadedMediaFile = {
 export type UploadedLegacyFile = { name: string; path: string };
 
 export type ImageUploadOutcome =
-  { ok: true; file: UploadedMediaFile } | { ok: false; reason: ImageUploadFailureReason };
+  | { ok: true; file: UploadedMediaFile }
+  | { ok: false; reason: ImageUploadFailureReason; detail?: string };
 
 export type LegacyImageUploadOutcome =
-  { ok: true; file: UploadedLegacyFile } | { ok: false; reason: ImageUploadFailureReason };
+  | { ok: true; file: UploadedLegacyFile }
+  | { ok: false; reason: ImageUploadFailureReason; detail?: string };
 
 type MediaUploadResponse = {
   key: string;
@@ -47,6 +49,17 @@ const MEDIA_FALLBACK_REASON_BY_STATUS: Record<number, ImageUploadFailureReason> 
   400: 'security',
   415: 'security',
 };
+
+async function extractDetail(res: Response): Promise<string | undefined> {
+  try {
+    const data = (await res.clone().json()) as { detail?: unknown; message?: unknown };
+    if (typeof data?.detail === 'string') return data.detail;
+    if (typeof data?.message === 'string') return data.message;
+  } catch {
+    // Response was not JSON — ignore and fall back to generic copy.
+  }
+  return undefined;
+}
 
 function mapStatus(status: number): ImageUploadFailureReason {
   return MEDIA_FALLBACK_REASON_BY_STATUS[status] ?? 'write-failed';
@@ -97,7 +110,9 @@ export const uploadImage = async (
   try {
     const res = await requestWithAuthRefresh(doRequest);
     if (!res) return { ok: false, reason: 'permission-denied' };
-    if (!res.ok) return { ok: false, reason: mapStatus(res.status) };
+    if (!res.ok) {
+      return { ok: false, reason: mapStatus(res.status), detail: await extractDetail(res) };
+    }
 
     const data = (await res.json()) as MediaUploadResponse;
     if (!data?.key) return { ok: false, reason: 'write-failed' };
@@ -140,7 +155,9 @@ export const uploadLegacyImage = async (file: {
   try {
     const res = await requestWithAuthRefresh(doRequest);
     if (!res) return { ok: false, reason: 'permission-denied' };
-    if (!res.ok) return { ok: false, reason: mapStatus(res.status) };
+    if (!res.ok) {
+      return { ok: false, reason: mapStatus(res.status), detail: await extractDetail(res) };
+    }
 
     const data = (await res.json()) as UploadedFile;
     if (!data?.url) return { ok: false, reason: 'write-failed' };
