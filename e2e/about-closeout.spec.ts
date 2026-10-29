@@ -19,9 +19,7 @@ const watch = (page: Page, label: string): void => {
 const toPayload = (dto: AboutDto): Record<string, unknown> =>
   Object.fromEntries(Object.entries(dto).filter(([key]) => key !== 'id' && key !== 'updatedAt'));
 
-test.describe.configure({ mode: 'serial' });
-
-test.describe('About-only closeout — live browser evidence', () => {
+test.describe.serial('About-only closeout — live browser evidence', () => {
   let context: BrowserContext;
   let adminPage: Page;
   let publicPage: Page;
