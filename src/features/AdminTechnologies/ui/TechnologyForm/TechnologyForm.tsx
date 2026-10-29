@@ -33,8 +33,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
-import { uploadLegacyImage as uploadImage } from '@/shared/lib/imageUpload';
+import { ensureRootWithinGesture, removeUploadedImage } from '@/shared/lib/imageDir';
+import { isMediaKey } from '@/shared/lib/media';
+import { removeMedia, uploadImage } from '@/shared/lib/imageUpload';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
@@ -145,7 +146,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         addToast({ message: t('adminTechIconUploadSaveError'), type: 'error' });
         return; // form keeps the values for a retry
       }
-      url = uploadOutcome.file.path;
+      url = uploadOutcome.file.key;
     } else if (technology) {
       // Keep-current: the provisional marker (or any form value) must not
       // overwrite the stored url when no NEW file was picked.
@@ -158,7 +159,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     // best-effort (never throws, never masks the toast below).
     const cleanupWrittenFile = async (): Promise<void> => {
       if (pendingFile && url !== technology?.url) {
-        await removeUploadedImage(url);
+        await (isMediaKey(url) ? removeMedia(url) : removeUploadedImage(url));
       }
     };
 

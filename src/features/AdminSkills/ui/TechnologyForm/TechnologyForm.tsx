@@ -39,8 +39,9 @@
 //   `onExitEdit`.
 
 import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
-import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
-import { uploadLegacyImage as uploadImage } from '@/shared/lib/imageUpload';
+import { ensureRootWithinGesture, removeUploadedImage } from '@/shared/lib/imageDir';
+import { isMediaKey } from '@/shared/lib/media';
+import { removeMedia, uploadImage } from '@/shared/lib/imageUpload';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -154,7 +155,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
           setIconSaveErrorKey('skillsIconUploadSaveError');
           return;
         }
-        setValue('iconSvg', outcome.file.path, { shouldDirty: true, shouldValidate: true });
+        setValue('iconSvg', outcome.file.key, { shouldDirty: true, shouldValidate: true });
       } catch {
         setIconSaveErrorKey('skillsIconUploadSaveError');
       }
@@ -171,7 +172,9 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     // overwrite (the stored record still points at that path).
     const cleanupIconFile = async (): Promise<void> => {
       if (data.iconSvg && data.iconSvg !== technology?.iconSvg) {
-        await removeUploadedImage(data.iconSvg);
+        await (isMediaKey(data.iconSvg)
+          ? removeMedia(data.iconSvg)
+          : removeUploadedImage(data.iconSvg));
       }
       setUploadKey((key) => key + 1); // remount the uploader (stale preview)
     };

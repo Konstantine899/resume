@@ -3,6 +3,7 @@
 // ============================================
 
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mediaUrl } from '@/shared/lib/media';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { memo } from 'react';
@@ -106,7 +107,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
               {techIcons.map((tech, index) => (
                 <img
                   key={index}
-                  src={tech.url}
+                  src={mediaUrl(tech.url)}
                   alt={tech.name || 'Tech icon'}
                   className={styles.techIcon}
                 />
