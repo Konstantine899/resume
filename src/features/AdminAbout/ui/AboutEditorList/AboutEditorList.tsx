@@ -704,7 +704,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <div className={styles.portraitUpload}>
             <FileUpload
               label={t('adminAboutPortraitLabel')}
-              acceptExtensions={['.png', '.webp', '.svg']}
+              acceptExtensions={['.jpg', '.jpeg', '.png', '.webp']}
               texts={{
                 button: t('adminAboutPortraitButton'),
                 hint: t('adminAboutPortraitHint'),
