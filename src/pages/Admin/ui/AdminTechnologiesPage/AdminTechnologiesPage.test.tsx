@@ -107,7 +107,7 @@ beforeEach(() => {
   );
   uploadMocks.upload.mockImplementation(async (params: { blob: Blob; name: string }) => ({
     ok: true as const,
-    file: { name: params.name, path: `/images/technologies/${params.name}` },
+    file: { key: `/images/technologies/${params.name}`, width: 24, height: 24, variants: [] },
   }));
 });
 
