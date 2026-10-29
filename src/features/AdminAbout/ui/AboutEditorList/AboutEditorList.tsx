@@ -358,7 +358,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const handleSavePortrait = async (): Promise<void> => {
     if (stagedPortrait === null || savingPortrait) return;
     setSavingPortrait(true);
-    const merged: AboutContent = { ...content, portrait: stagedPortrait.path };
+    const merged: AboutContent = { ...content, portrait: stagedPortrait.key };
     try {
       await dispatch(
         apiSlice.endpoints.updateAboutPortrait.initiate({

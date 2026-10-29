@@ -117,7 +117,7 @@ const { initiateSpy, updateAboutContentInitiate, uploadImage, directoryPickerSup
     })),
     uploadImage: vi.fn(async () => ({
       ok: true,
-      file: { name: 'portrait.png', path: '/images/about/portrait.png' },
+      file: { key: 'portrait-key', width: 1200, height: 900, variants: [] },
     })),
     directoryPickerSupported: vi.fn(() => true),
   }));
@@ -1181,7 +1181,7 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
     initiateSpy.mockImplementation(() => ({ unwrap: () => Promise.resolve({ document: {} }) }));
     uploadImage.mockResolvedValue({
       ok: true,
-      file: { name: 'portrait.png', path: '/images/about/portrait.png' },
+      file: { key: 'portrait-key', width: 1200, height: 900, variants: [] },
     });
     directoryPickerSupported.mockReturnValue(true);
   });
@@ -1274,28 +1274,24 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
     await waitFor(() => expect(initiateSpy).toHaveBeenCalledTimes(1));
     expect(initiateSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: expect.objectContaining({ portrait: '/images/about/portrait.png' }),
+        content: expect.objectContaining({ portrait: 'portrait-key' }),
         persist: expect.any(Function),
       })
     );
     // The seam injected into shared IS the feature's storage module.
     const arg = initiateSpy.mock.calls[0]?.[0];
     await expect(arg?.persist(arg.content)).resolves.toBe(true);
-    expect(persistSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ portrait: '/images/about/portrait.png' })
-    );
+    expect(persistSpy).toHaveBeenCalledWith(expect.objectContaining({ portrait: 'portrait-key' }));
 
     await waitFor(() =>
-      expect(updateSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ portrait: '/images/about/portrait.png' })
-      )
+      expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ portrait: 'portrait-key' }))
     );
     expect(addToast).toHaveBeenCalledWith({ message: 'aboutSaved', type: 'success' });
-    expect(holder.content?.portrait).toBe('/images/about/portrait.png');
+    expect(holder.content?.portrait).toBe('portrait-key');
     // D16: the modal preview follows the SAVED document.
     expect(within(portraitDialog()).getByTestId('mock-image')).toHaveAttribute(
       'data-src',
-      '/images/about/portrait.png'
+      'portrait-key'
     );
     // Staged state cleared — Save disables again.
     expect(savePortraitButton()).toBeDisabled();

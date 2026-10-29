@@ -34,7 +34,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { removeUploadedImage, ensureRootWithinGesture } from '@/shared/lib/imageDir';
-import { uploadImage } from '@/shared/lib/imageUpload';
+import { uploadLegacyImage as uploadImage } from '@/shared/lib/imageUpload';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';

@@ -17,7 +17,7 @@
 import type { SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
+import type { LegacyImageUploadOutcome as ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { TechnologyForm } from './TechnologyForm';
 
 const { persistSpy, addSpy, updateSpy, addToast, holder, dirMocks, uploadMocks } = vi.hoisted(
@@ -70,6 +70,7 @@ vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
 vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
   uploadImage: uploadMocks.upload,
+  uploadLegacyImage: uploadMocks.upload,
 }));
 
 // Deterministic labels: t(key) => key — assertions target raw i18n keys.

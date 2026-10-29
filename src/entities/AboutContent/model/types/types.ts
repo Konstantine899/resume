@@ -37,4 +37,6 @@ export interface AboutContent {
   statLabels?: Record<string, LocalizedText>;
   ctaLabel: LocalizedText | null;
   portrait?: string;
+  /** Backend-provided timestamp (PR-1b); used by PR-2b as `expectedUpdatedAt`. */
+  updatedAt?: string;
 }

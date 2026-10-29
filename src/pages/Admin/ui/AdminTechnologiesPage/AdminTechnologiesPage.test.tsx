@@ -41,6 +41,7 @@ vi.mock('@/entities/Technology/model/services/storage', async (importOriginal) =
 vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
   uploadImage: uploadMocks.upload,
+  uploadLegacyImage: uploadMocks.upload,
 }));
 
 // Identity t(): raw keys in assertions; known options render as

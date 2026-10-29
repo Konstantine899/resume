@@ -162,7 +162,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           setImageSaveErrorKey('projectFileUploadSaveError');
           return;
         }
-        setValue('image', outcome.file.path, { shouldDirty: true, shouldValidate: true });
+        setValue('image', outcome.file.key, { shouldDirty: true, shouldValidate: true });
       } catch {
         setImageSaveErrorKey('projectFileUploadSaveError');
       }

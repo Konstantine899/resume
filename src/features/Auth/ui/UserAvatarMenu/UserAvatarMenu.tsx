@@ -10,6 +10,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { Sun, Moon, Globe } from 'lucide-react';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
+import { mediaUrl } from '@/shared/lib/media';
 import { apiSlice } from '@/shared/api/apiSlice';
 import { selectAuthUser } from '../../model/selectors/selectors';
 import { userSet, signedOut } from '../../model/slices/authSlice';
@@ -39,7 +40,7 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
   const storePortrait = useSelector(
     (state: unknown) => (state as { aboutContent?: { portrait?: string } })?.aboutContent?.portrait
   );
-  const avatarSrc = storePortrait && storePortrait.trim() ? storePortrait : aboutPortrait;
+  const avatarSrc = storePortrait && storePortrait.trim() ? mediaUrl(storePortrait) : aboutPortrait;
 
   useEffect(() => {
     let cancelled = false;

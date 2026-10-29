@@ -31,7 +31,7 @@ const { persistSpy, addSpy, updateSpy, addToast, uploadMocks } = vi.hoisted(() =
   uploadMocks: {
     upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
       ok: true,
-      file: { name: params.name, path: `/images/projects/${params.name}` },
+      file: { key: `/images/projects/${params.name}`, width: 1200, height: 900, variants: [] },
     })),
   },
 }));
@@ -383,7 +383,7 @@ describe('ProjectForm: create save (§3 persist → dispatch)', () => {
   it('persists the uploaded /images/projects path verbatim (rev.4 replaces the WU-3 typed-path test)', async () => {
     uploadMocks.upload.mockResolvedValueOnce({
       ok: true,
-      file: { name: 'dragonfly.webp', path: '/images/projects/dragonfly.webp' },
+      file: { key: '/images/projects/dragonfly.webp', width: 1200, height: 900, variants: [] },
     });
     renderCreate();
 
