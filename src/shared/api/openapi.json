@@ -441,8 +441,8 @@
         },
         "tags": ["SiteSettings"]
       },
-      "patch": {
-        "operationId": "SiteSettingsController_patch",
+      "put": {
+        "operationId": "SiteSettingsController_update",
         "parameters": [],
         "responses": {
           "200": {
