@@ -93,7 +93,7 @@ baseQuery: stubBaseQuery, ... })`.
 
 ### Contract
 
-- `getSiteSettings` — `GET /site/settings`, returns `SiteSettingsDto { id, resumeUrl: string | null, updatedAt? }`.
+- `getSiteSettings` — `GET /site/settings`, returns `SiteSettingsDto { resumeUrl: string | null }`.
 - `updateSiteSettings` — `PUT /site/settings`, admin-only, body `{ resumeUrl?: string | null }`.
 - Transport: URL is HTTPS-only; empty string invalid (must use `null` for absence).
 - Invalid response/empty backend: `resumeUrl` becomes `null`.
