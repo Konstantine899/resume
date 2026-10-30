@@ -88,3 +88,21 @@ baseQuery: stubBaseQuery, ... })`.
   отложена до реального сервера.
 - `storage.test.ts`/`ContactEditorForm.test.tsx` остаются на localStorage-
   моках до окончательной миграции (план §3.6).
+
+## Amendment — SiteSettings (2026-10-30)
+
+### Contract
+
+- `getSiteSettings` — `GET /site/settings`, returns `SiteSettingsDto { id, resumeUrl: string | null, updatedAt? }`.
+- `updateSiteSettings` — `PUT /site/settings`, admin-only, body `{ resumeUrl?: string | null }`.
+- Transport: URL is HTTPS-only; empty string invalid (must use `null` for absence).
+- Invalid response/empty backend: `resumeUrl` becomes `null`.
+
+### Behaviour by implementation
+
+- `UserAvatarMenu` initiates `getSiteSettings`, sets `resumeUrl` or `null`.
+- If `resumeUrl` is empty/whitespace or null, download link falls back to `/contact`.
+- Empty `resumeUrl` is therefore represented as a normal link to `/contact` in the UI (hidden absence, not disabled control): keeps discoverable contact path and avoids exposing a disabled actionable control to assistive tech.
+- `updateSiteSettings` exists as RTK mutation returning updated `SiteSettingsDto`.
+- Optimistic concurrency is not implemented (singleton replace).
+- UI edit field is not present yet; admin changes are not wired; hidden field remains an option.

@@ -129,7 +129,7 @@ export const reauthBaseQuery = baseQueryWithReauth;
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['AboutContent'] as const,
+  tagTypes: ['AboutContent', 'SiteSettings'] as const,
   endpoints: (builder) => ({
     /** GET the whole Contact document. */
     getContactContent: builder.query<ContactDocumentDto, void>({
@@ -230,9 +230,14 @@ export const apiSlice = createApi({
     // Site settings (Phase A backend): global resume download URL.
     getSiteSettings: builder.query<SiteSettingsDto, void>({
       query: () => '/site/settings',
+      providesTags: ['SiteSettings'],
     }),
     siteSettings: builder.query<SiteSettingsDto, void>({
       query: () => '/site/settings',
+    }),
+    updateSiteSettings: builder.mutation<SiteSettingsDto, Partial<SiteSettingsDto>>({
+      query: (body) => ({ url: '/site/settings', method: 'PUT', body }),
+      invalidatesTags: ['SiteSettings'],
     }),
     getAboutContent: builder.query<AboutContentDto, void>({
       query: () => '/about',
