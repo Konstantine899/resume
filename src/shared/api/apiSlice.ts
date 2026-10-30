@@ -232,9 +232,6 @@ export const apiSlice = createApi({
       query: () => '/site/settings',
       providesTags: ['SiteSettings'],
     }),
-    siteSettings: builder.query<SiteSettingsDto, void>({
-      query: () => '/site/settings',
-    }),
     updateSiteSettings: builder.mutation<SiteSettingsDto, Partial<SiteSettingsDto>>({
       query: (body) => ({ url: '/site/settings', method: 'PUT', body }),
       invalidatesTags: ['SiteSettings'],

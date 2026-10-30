@@ -60,7 +60,7 @@
 //   SAVED portrait preview full-width (320px) at the bottom.
 // - ALL copy is i18n (R-6): labels are key lookups, never literals.
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import type { AboutContent } from '@/entities/AboutContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
@@ -161,23 +161,8 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   // still expect a `Promise<boolean>`). Conflict handling lives here as the
   // single toast owner for this boolean path; newer paths call
   // `saveAboutDocument` directly (T14-T18) with richer result reporting.
-  const persistAboutContentToApi = useCallback(
-    async (doc: AboutContent) => {
-      const result = await saveAboutDocument(doc, dispatch);
-      if (result.ok) return true;
-      if (result.reason === 'conflict') {
-        dispatch(updateAboutContent({ ...doc, updatedAt: result.serverUpdatedAt }));
-        addToast({ message: t('aboutConflictError'), type: 'error' });
-      } else {
-        addToast({ message: t('aboutSaveError'), type: 'error' });
-      }
-      return false;
-    },
-    [dispatch, addToast, t]
-  );
-  void persistAboutContentToApi;
 
-  // R-4 / WU-7 (OPEN-4): destructive confirm — `useConfirmAction` owns
+  // R-4 / WU-7 (OPEN-4): destructive confirm...
   // the state machine (MyWork/Jobs/Contact parity). Cancel holds the
   // initial focus; there is NO persist-fail branch below because
   // removeAboutContent is idempotent and never throws (storage.ts) —

@@ -150,9 +150,7 @@ export type UpdatePreferencesInput = {
 // Site settings DTO (Phase A backend)
 // ============================================
 export type SiteSettingsDto = {
-  id: string;
   resumeUrl: string | null;
-  updatedAt?: string;
 };
 
 // Contact messages (plan-contact-crm / backend POST /contact/messages)

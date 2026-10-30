@@ -408,22 +408,20 @@ describe('apiSlice endpoint wiring', () => {
 
   it('reads the About document and the site settings aliases', async () => {
     const about = { fullName: 'Konstantine' };
-    const settings = { id: 's1', resumeUrl: null };
+    const settings = { resumeUrl: null };
     const { fetchMock } = captureFetch((request) =>
       new URL(request.url).pathname === '/about' ? jsonResponse(about) : jsonResponse(settings)
     );
     global.fetch = fetchMock as unknown as typeof fetch;
     const store = makeStore();
 
-    const [aboutResult, settingsResult, aliasResult] = await Promise.all([
+    const [aboutResult, settingsResult] = await Promise.all([
       store.dispatch(apiSlice.endpoints.getAboutContent.initiate()).unwrap(),
       store.dispatch(apiSlice.endpoints.getSiteSettings.initiate()).unwrap(),
-      store.dispatch(apiSlice.endpoints.siteSettings.initiate()).unwrap(),
     ]);
 
     expect(aboutResult).toEqual(about);
     expect(settingsResult).toEqual(settings);
-    expect(aliasResult).toEqual(settings);
   });
 
   it('publishes the About revision after a successful PUT', async () => {
