@@ -131,7 +131,7 @@ const fillMinimalValid = async () => {
   });
   // techIcons: pick the first toggle (create mode starts empty).
   fireEvent.click(
-    screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
+    screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.name })[0] as HTMLElement
   );
 };
 
@@ -257,7 +257,7 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
       target: { value: 'Описание' },
     });
     fireEvent.click(
-      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
+      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.name })[0] as HTMLElement
     );
     fireEvent.click(saveButton());
 
@@ -462,7 +462,7 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
       target: { value: 'Описание' },
     });
     fireEvent.click(
-      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
+      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.name })[0] as HTMLElement
     );
 
     await uploadImageFile();

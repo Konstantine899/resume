@@ -109,7 +109,11 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
                   key={index}
                   src={mediaUrl(tech.url)}
                   alt={tech.name || 'Tech icon'}
-                  className={styles.techIcon}
+                  className={classNames(
+                    styles.techIcon,
+                    tech.invertInDark ? styles.techIconInvert : undefined
+                  )}
+                  title={tech.name}
                 />
               ))}
             </div>

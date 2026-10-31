@@ -166,7 +166,12 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     };
 
     if (technology) {
-      const patch = { url, invertInDark: data.invertInDark };
+      const patch: { url: string; invertInDark: boolean; name?: string } = {
+        url,
+        invertInDark: data.invertInDark,
+      };
+      const cleanedName = data.name?.trim();
+      if (cleanedName) patch.name = cleanedName;
       const next = catalog.map((tech) =>
         tech.key === technology.key ? { ...tech, ...patch } : tech
       );
@@ -181,10 +186,12 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       onExitEdit?.();
       return;
     }
+    const cleanedName = data.name?.trim();
     const record: Technology = {
       key: data.key,
       url,
       invertInDark: data.invertInDark,
+      ...(cleanedName ? { name: cleanedName } : {}),
     };
     if (!persistOutcome(() => persistTechnologies([...catalog, record]))) {
       await cleanupWrittenFile();
@@ -219,6 +226,15 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       gap="lg"
       onSubmit={handleSave}
     >
+      <div className={styles.field}>
+        <Input
+          label={t('adminTechNameLabel')}
+          value={values.name ?? ''}
+          fullWidth
+          {...register('name')}
+        />
+      </div>
+
       <div className={styles.field}>
         <Input
           label={t('adminTechKeyLabel')}

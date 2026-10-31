@@ -216,7 +216,8 @@ describe('ProjectCard', () => {
     expect(screen.getByText('projectFieldRole')).toBeInTheDocument();
     expect(screen.getByText('EN: Lead')).toBeInTheDocument();
     expect(screen.getByText('projectFieldTechIcons')).toBeInTheDocument();
-    expect(screen.getByText('react, nextjs')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Next.js')).toBeInTheDocument();
     expect(screen.getByText('projectFieldImage')).toBeInTheDocument();
     expect(screen.getByText('/images/projects/shop.png')).toBeInTheDocument();
   });

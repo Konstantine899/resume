@@ -135,3 +135,25 @@
   justify-content: flex-start;
   padding-inline: $spacing-3;
 }
+
+
+.techValue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  align-items: center;
+}
+
+.techChip {
+  display: inline-flex;
+  gap: $spacing-1;
+  align-items: center;
+  padding: 0 $spacing-1;
+  border-radius: $spacing-1;
+}
+
+.techChipIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  object-fit: contain;
+}

@@ -39,7 +39,10 @@ import {
   type ProjectCategory,
   type ProjectStatus,
 } from '@/entities/Project';
-import { selectTechnologyKeys } from '@/entities/Technology';
+import {
+  selectAllTechnologies,
+  selectTechnologyKeys,
+} from '@/entities/Technology';
 import { uploadImage } from '@/shared/lib/imageUpload';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
@@ -79,6 +82,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   // the membership rule in `schemaFor` both read the store — seed fallback
   // when the slice is absent (bare tests / Storybook).
   const techKeys = useSelector(selectTechnologyKeys);
+  const technologies = useSelector(selectAllTechnologies);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -278,6 +282,8 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
             <div className={styles.toggles} role="group" aria-label={t('projectFieldTech')}>
               {techKeys.map((key) => {
                 const active = (values.techIcons ?? []).includes(key);
+                const technology = technologies.find((candidate) => candidate.key === key);
+                const label = technology?.name ?? technology?.key ?? key;
                 return (
                   <Button
                     key={key}
@@ -287,7 +293,15 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                     aria-pressed={active}
                     onClick={() => toggleTech(key)}
                   >
-                    {key}
+                    {technology?.url ? <img src={mediaUrl(technology.url)} alt="" className={styles.techToggleIcon} /> : null}
+                    {technology?.url ? (
+                      <img
+                        src={mediaUrl(technology.url)}
+                        alt=""
+                        className={styles.techToggleIcon}
+                      />
+                    ) : null}
+                    {label}
                   </Button>
                 );
               })}

@@ -34,6 +34,7 @@ export const makeTechnologyFormSchema = (
   originalKey?: string
 ) =>
   z.object({
+    name: z.string().trim().max(80).optional(),
     key: z
       .string()
       .trim()
@@ -58,6 +59,7 @@ export const makeTechnologyFormSchema = (
 
 /** Form values — no transforms (input === output), plain and stable. */
 export interface TechnologyFormValues {
+  name?: string;
   key: string;
   iconUrl: string;
   invertInDark: boolean;
@@ -65,6 +67,7 @@ export interface TechnologyFormValues {
 
 /** Fresh blank values (never share one mutable object across mounts). */
 export const emptyTechnologyFormValues = (): TechnologyFormValues => ({
+  name: '',
   key: '',
   iconUrl: '',
   invertInDark: false,
@@ -73,9 +76,11 @@ export const emptyTechnologyFormValues = (): TechnologyFormValues => ({
 /** Record → form values (edit-mode defaults; false for the absent flag). */
 export const toTechnologyFormValues = (technology: {
   key: string;
+  name?: string;
   url: string;
   invertInDark?: boolean;
 }): TechnologyFormValues => ({
+  name: technology.name,
   key: technology.key,
   iconUrl: technology.url,
   invertInDark: technology.invertInDark ?? false,

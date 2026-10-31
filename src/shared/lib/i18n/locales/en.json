@@ -132,6 +132,7 @@
   "adminTechnologiesEdit": "Edit technology",
   "adminTechnologiesDelete": "Delete technology",
   "adminTechKeyLabel": "Key",
+  "adminTechNameLabel": "Name",
   "adminTechIconUploadLabel": "Icon file (SVG)",
   "adminTechIconUploadButton": "Choose SVG",
   "adminTechIconUploadHint": "The file is saved into the technologies images folder",

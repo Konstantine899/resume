@@ -25,7 +25,10 @@
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
 import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '@/entities/Project';
-import { selectTechnologyKeys } from '@/entities/Technology';
+import {
+  selectAllTechnologies,
+  selectTechnologyKeys,
+} from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -93,6 +96,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   // schema's membership rule both read the store; a missing slice falls
   // back to the seed instead of throwing (bare tests / Storybook).
   const techKeys = useSelector(selectTechnologyKeys);
+  const technologies = useSelector(selectAllTechnologies);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -240,6 +244,8 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         <div className={styles.toggles} role="group" aria-label={t('projectFieldTech')}>
           {techKeys.map((key) => {
             const active = (values.techIcons ?? []).includes(key);
+            const technology = technologies.find((candidate) => candidate.key === key);
+            const label = technology?.name ?? technology?.key ?? key;
             return (
               <Button
                 key={key}
@@ -249,7 +255,14 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
                 aria-pressed={active}
                 onClick={() => toggleTech(key)}
               >
-                {key}
+                {technology?.url ? (
+                  <img
+                    src={mediaUrl(technology.url)}
+                    alt=""
+                    className={styles.techToggleIcon}
+                  />
+                ) : null}
+                {label}
               </Button>
             );
           })}

@@ -132,6 +132,7 @@
   "adminTechnologiesEdit": "Редактировать технологию",
   "adminTechnologiesDelete": "Удалить технологию",
   "adminTechKeyLabel": "Ключ",
+  "adminTechNameLabel": "Название",
   "adminTechIconUploadLabel": "Файл иконки (SVG)",
   "adminTechIconUploadButton": "Выбрать SVG",
   "adminTechIconUploadHint": "Файл сохраняется в папку изображений технологий",
