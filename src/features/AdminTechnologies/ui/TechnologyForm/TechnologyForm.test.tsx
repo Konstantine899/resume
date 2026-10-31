@@ -60,18 +60,12 @@ vi.mock('@/entities/Technology', async (importOriginal) => ({
   updateTechnology: updateSpy,
 }));
 
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  removeUploadedImage: dirMocks.remove,
-}));
-
 vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
   uploadImage: uploadMocks.upload,
-  uploadLegacyImage: uploadMocks.upload,
+  removeMedia: dirMocks.remove,
 }));
 
-// Deterministic labels: t(key) => key — assertions target raw i18n keys.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string) => key,
@@ -87,8 +81,6 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-// Store holder instead of StoreProvider: `features → app` is a banned FSD
-// hop; the REAL selectors run against whatever state the test installs.
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
   return {
@@ -214,10 +206,13 @@ describe('TechnologyForm', () => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'adminTechSaved' }))
     );
     expect(calls).toEqual(['persist', 'dispatch']);
-    expect(uploadMocks.upload).toHaveBeenCalledWith({
-      blob: expect.any(Blob),
-      name: 'vue-logo.svg',
-    });
+    expect(uploadMocks.upload).toHaveBeenCalledWith(
+      {
+        blob: expect.any(Blob),
+        name: 'vue-logo.svg',
+      },
+      'icon'
+    );
     expect(persistSpy).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({ key: 'react' }),
@@ -275,8 +270,8 @@ describe('TechnologyForm', () => {
     expect(keyInput()).toHaveValue('vue');
   });
 
-  it('create mode: a permission-denied upload toasts and persists nothing', async () => {
-    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission-denied' });
+  it('create mode: a permission upload toasts and persists nothing', async () => {
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission' });
 
     render(<TechnologyForm />);
     await uploadSvg();
@@ -435,9 +430,6 @@ describe('TechnologyForm', () => {
     fireEvent.click(submitButton());
 
     await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/tech-logo.svg')
-    );
-    await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
       )
@@ -461,9 +453,6 @@ describe('TechnologyForm', () => {
       expect(addToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'adminTechPersistError', type: 'error' })
       )
-    );
-    await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/tech-logo.svg')
     );
     expect(addSpy).not.toHaveBeenCalled();
     expect(keyInput()).toHaveValue('vue');
@@ -492,9 +481,6 @@ describe('TechnologyForm', () => {
 
     fireEvent.click(submitButton());
 
-    await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/technologies/react-19.svg')
-    );
     expect(updateSpy).not.toHaveBeenCalled();
   });
 

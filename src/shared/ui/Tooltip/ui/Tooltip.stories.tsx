@@ -1,5 +1,5 @@
 import { Avatar } from '@/shared/ui/Avatar';
-import avatar from '@/shared/assets/avatar003.jpg';
+const avatar: string = '/assets/about/avatar003.webp';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Icon } from '@/shared/ui/Icon';

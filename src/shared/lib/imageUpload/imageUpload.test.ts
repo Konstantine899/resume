@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { authToken } from '@/shared/api';
-import { removeMedia, uploadImage, uploadLegacyImage } from './imageUpload';
+import { removeMedia, uploadImage } from './imageUpload';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
@@ -92,7 +92,7 @@ describe('uploadImage (new media contract)', () => {
     expect(authorization(requestInit(fetchMock, 2))).toBe('Bearer stale');
   });
 
-  it('clears the token and reports permission-denied when the refresh fails', async () => {
+  it('clears the token and reports permission when the refresh fails', async () => {
     authToken.setAccessToken('stale');
     const fetchMock = vi
       .fn()
@@ -102,11 +102,11 @@ describe('uploadImage (new media contract)', () => {
 
     const result = await uploadImage({ blob: svgFile(), name: 'logo.svg' });
 
-    expect(result).toEqual({ ok: false, reason: 'permission-denied' });
+    expect(result).toEqual({ ok: false, reason: 'permission' });
     expect(authToken.getAccessToken()).toBeNull();
   });
 
-  it('reports permission-denied when the refresh request throws', async () => {
+  it('reports permission when the refresh request throws', async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(new Response('', { status: 401 }))
@@ -115,7 +115,7 @@ describe('uploadImage (new media contract)', () => {
 
     const result = await uploadImage({ blob: svgFile(), name: 'logo.svg' });
 
-    expect(result).toEqual({ ok: false, reason: 'permission-denied' });
+    expect(result).toEqual({ ok: false, reason: 'permission' });
   });
 
   it('maps HTTP statuses and reports write-failed on missing key', async () => {
@@ -131,12 +131,12 @@ describe('uploadImage (new media contract)', () => {
   });
 
   it.each([
-    [403, 'permission-denied'],
-    [413, 'quota'],
-    [400, 'security'],
-    [415, 'security'],
+    [403, 'forbidden'],
+    [413, 'too-large'],
+    [400, 'invalid-format'],
+    [415, 'unsupported'],
     [404, 'write-failed'],
-    [500, 'write-failed'],
+    [500, 'retryable'],
   ] as const)('maps HTTP %s to %s', async (status, reason) => {
     globalThis.fetch = asFetch(vi.fn().mockResolvedValue(new Response('', { status })));
 
@@ -155,35 +155,6 @@ describe('uploadImage (new media contract)', () => {
     expect(
       ((await uploadImage({ blob: svgFile(), name: 'logo.svg' })) as { reason: string }).reason
     ).toBe('write-failed');
-  });
-});
-
-describe('uploadLegacyImage (compat shim)', () => {
-  const originalFetch = globalThis.fetch;
-
-  beforeEach(() => {
-    authToken.clearAccessToken();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    globalThis.fetch = originalFetch;
-    authToken.clearAccessToken();
-  });
-
-  it('keeps the legacy { url, filename } shape', async () => {
-    globalThis.fetch = asFetch(
-      vi.fn().mockResolvedValue(jsonResponse({ url: '/images/logo.svg', filename: 'logo.svg' }))
-    );
-
-    const result = await uploadLegacyImage({ blob: svgFile(), name: 'logo.svg' });
-
-    expect(result).toEqual({
-      ok: true,
-      file: { name: 'logo.svg', path: `${API_BASE}/images/logo.svg` },
-    });
-    const [url] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string];
-    expect(url).toBe(`${API_BASE}/images`);
   });
 });
 

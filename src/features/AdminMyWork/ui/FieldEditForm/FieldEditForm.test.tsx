@@ -13,17 +13,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project } from '@/entities/Project';
 import { FieldEditForm } from './FieldEditForm';
 
-const { persistSpy, updateProjectSpy, addToast, holder, dirMocks } = vi.hoisted(() => ({
+const { persistSpy, updateProjectSpy, addToast, holder, uploadMocks } = vi.hoisted(() => ({
   persistSpy: vi.fn((_projects: unknown[]) => true),
   updateProjectSpy: vi.fn((payload: unknown) => ({ type: 'myWork/updateProject', payload })),
   addToast: vi.fn(),
   holder: { projects: [] as Project[] },
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
+  uploadMocks: {
+    upload: vi.fn(async (params: { blob: Blob; name: string }) => ({
+      ok: true as const,
+      file: { key: `/images/projects/${params.name}`, width: 1200, height: 900, variants: [] },
+    })),
   },
 }));
 
@@ -31,12 +30,9 @@ vi.mock('../../model/services/storage', () => ({
   persistProjects: persistSpy,
 }));
 
-// Issue #273: the image field now routes through the shared save-to-directory
-// flow (ProjectForm parity) — mock the imageDir service at the module boundary.
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
@@ -124,13 +120,12 @@ describe('FieldEditForm (mywork)', () => {
         static revokeObjectURL = vi.fn();
       }
     );
-    // imageDir defaults — some tests override per-case.
-    dirMocks.supported.mockReturnValue(true);
-    dirMocks.save.mockReset();
-    dirMocks.save.mockImplementation(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    );
+    // upload defaults — some tests override per-case.
+    uploadMocks.upload.mockReset();
+    uploadMocks.upload.mockImplementation(async () => ({
+      ok: true as const,
+      file: { key: '/images/projects/photo.webp', width: 1200, height: 900, variants: [] },
+    }));
   });
 
   afterEach(() => {
@@ -155,11 +150,11 @@ describe('FieldEditForm (mywork)', () => {
   const uploadImageFile = async (fileName = 'photo.png') => {
     // Await a NEW save call — a plain toHaveBeenCalled() passes instantly on
     // the second upload (the first call is still recorded).
-    const savesBefore = dirMocks.save.mock.calls.length;
+    const savesBefore = uploadMocks.upload.mock.calls.length;
     fireEvent.change(fileInput(), {
       target: { files: [new File(['x'], fileName, { type: 'image/png' })] },
     });
-    await waitFor(() => expect(dirMocks.save.mock.calls.length).toBeGreaterThan(savesBefore));
+    await waitFor(() => expect(uploadMocks.upload.mock.calls.length).toBeGreaterThan(savesBefore));
   };
 
   it('renders ONLY the active field inputs', () => {
@@ -271,11 +266,9 @@ describe('FieldEditForm (mywork)', () => {
 
       await uploadImageFile('photo.png');
 
-      // saveUploadedImage called with subdir 'projects'; the value becomes the path.
-      expect(dirMocks.save).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'photo.webp', subdir: 'projects' })
-      );
-      // The current-image path row now shows the stored path.
+      // uploadImage called through backend seam; the value becomes the returned key.
+      expect(uploadMocks.upload).toHaveBeenCalled();
+      // The current-image row now shows the stored key.
       expect(await screen.findByText('/images/projects/photo.webp')).toBeInTheDocument();
 
       // Save is now enabled (form dirty) and persists the one-field partial.
@@ -295,23 +288,9 @@ describe('FieldEditForm (mywork)', () => {
       expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
     });
 
-    it('shows projectFileUploadUnsupported when the File System Access API is missing (modal stays open)', async () => {
-      dirMocks.supported.mockReturnValue(false);
-      const { onExitEdit } = renderForm('image');
-
-      fireEvent.change(fileInput(), {
-        target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-      });
-
-      expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadUnsupported');
-      expect(dirMocks.save).not.toHaveBeenCalled();
-      // Save stays disabled (pristine) and the modal did not exit.
-      expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
-      expect(onExitEdit).not.toHaveBeenCalled();
-    });
-
     it('shows projectFileUploadSaveError when the directory write fails (modal stays open)', async () => {
-      dirMocks.save.mockRejectedValueOnce(new DOMException('quota', 'QuotaExceededError'));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'write-failed' } as any);
       const { onExitEdit } = renderForm('image');
 
       fireEvent.change(fileInput(), {
@@ -324,19 +303,6 @@ describe('FieldEditForm (mywork)', () => {
       expect(screen.queryByText('/images/projects/photo.webp')).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
       expect(onExitEdit).not.toHaveBeenCalled();
-    });
-
-    it('stays silent when the user cancels the picker (AbortError)', async () => {
-      dirMocks.save.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
-      renderForm('image');
-
-      fireEvent.change(fileInput(), {
-        target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-      });
-
-      await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
     });
   });
 });

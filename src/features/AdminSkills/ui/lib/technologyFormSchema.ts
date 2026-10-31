@@ -20,6 +20,7 @@
 
 import { z } from 'zod';
 
+import { isMediaKey } from '@/shared/lib/media';
 import { TechnologySchema, type SkillTechnology } from '@/entities/Skill';
 
 export const makeTechnologyFormSchema = (
@@ -38,9 +39,16 @@ export const makeTechnologyFormSchema = (
       .refine((value) => (mode === 'edit' ? true : value !== ''), {
         message: 'skillsErrIcon',
       })
-      .refine((value) => value === '' || value.startsWith('/images/'), {
-        message: 'skillsErrIcon',
-      }),
+      .refine(
+        (value) =>
+          value === '' ||
+          value.startsWith('/images/') ||
+          value.startsWith('/assets/') ||
+          isMediaKey(value),
+        {
+          message: 'skillsErrIcon',
+        }
+      ),
     iconFilter: z
       .string()
       .transform((value) => (value.trim() === '' ? undefined : value.trim()))

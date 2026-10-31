@@ -4,6 +4,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { Heading } from '@/shared/ui/Heading';
 import { CardGrid } from '@/shared/ui/Card';
 import { resolveIconSvg, type SkillCategoryData } from '@/entities/Skill';
+import { isMediaKey, mediaUrl } from '@/shared/lib/media';
 import styles from './SkillItem.module.scss';
 
 /** Empty 24×24 SVG: the tech NAME beside the icon already identifies it. */
@@ -64,7 +65,11 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
         {technologies.map((tech) => (
           <div key={tech.name} className={styles.techItem} role="listitem" aria-label={tech.name}>
             <img
-              src={resolveIconSvg(tech.iconSvg) ?? ICON_FALLBACK}
+              src={
+                isMediaKey(tech.iconSvg)
+                  ? mediaUrl(tech.iconSvg)
+                  : (resolveIconSvg(tech.iconSvg) ?? ICON_FALLBACK)
+              }
               alt={tech.name}
               className={classNames(styles.techIcon, tech.invertInDark && styles.invertInDark)}
               loading="lazy"

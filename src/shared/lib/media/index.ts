@@ -1,1 +1,1 @@
-export { MEDIA_BASE, isMediaKey, mediaSrcSet, mediaUrl } from './media';
+export { MEDIA_BASE, isBaseMediaKey, isMediaKey, mediaSrcSet, mediaUrl } from './media';

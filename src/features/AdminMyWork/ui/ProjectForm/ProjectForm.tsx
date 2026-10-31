@@ -29,6 +29,7 @@ import { selectTechnologyKeys } from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mediaUrl } from '@/shared/lib/media';
 import { ArrowDown, ArrowUp, X } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
@@ -46,7 +47,6 @@ import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { uploadImage } from '@/shared/lib/imageUpload';
-import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
 import { persistProjects } from '../../model/services/storage';
 import {
   addProject,
@@ -294,7 +294,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
             undecodable: t('projectFileUploadUndecodable'),
             selected: t('projectFileUploadSelected'),
           }}
-          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleImageFile}
         />
         {imageSaveErrorKey ? (
@@ -309,7 +308,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         ) : null}
         {values.image ? (
           <div className={styles.imageCurrent}>
-            <img src={values.image} alt="" className={styles.imageCurrentPreview} />
+            <img src={mediaUrl(values.image)} alt="" className={styles.imageCurrentPreview} />
             <span className={styles.imageCurrentPath}>{values.image}</span>
           </div>
         ) : null}

@@ -2,7 +2,6 @@
 import { visualizer } from 'rollup-plugin-visualizer';
 import { PluginOption } from 'vite';
 import checker from 'vite-plugin-checker';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { buildPurgeCssPlugin } from './plugins/buildPurgeCssPlugin.ts';
 import { buildSvgPlugin } from './plugins/buildSvgPlugin.ts';
 import { scssUnusedAnalyzer } from './plugins/scssUnusedAnalyzer.ts';
@@ -29,28 +28,6 @@ export function buildPlugins(options: BuildOptions): PluginOption[] {
     scssUnusedAnalyzer({
       srcPath: paths.src,
       isDev,
-    }),
-
-    // 3. Копирование статических файлов (project images)
-    // Копируем project-изображения из src/shared/assets/images/projects
-    // в public/images/projects
-    // (дев: через middleware, билд: через writeBundle — план project-images WU-2).
-    //
-    // public/locales больше НЕ копируется (issue #298): 0 fetch-потребителей —
-    // все локали статически импортируются из src/shared/lib/i18n/locales
-    // (i18n.ts, AdminAbout/AdminContact seeds), http-backend не установлен.
-    viteStaticCopy({
-      targets: [
-        {
-          src: paths.imagesProjects,
-          dest: paths.buildImagesProjects,
-          // Directory src preserves the full matched dir tree in dest
-          // (public/images/projects/src/shared/...). stripBase flattens it
-          // back to one level so the seed path /images/projects/x.webp
-          // resolves both in build and (via fileMap) in the dev server.
-          rename: { stripBase: true },
-        },
-      ],
     }),
   ];
 

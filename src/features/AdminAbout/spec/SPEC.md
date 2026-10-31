@@ -22,7 +22,7 @@ verified: '2026-10-20'
 - Было: `descriptions` = `z.tuple([3×])` (`entities/AboutContent/model/services/schema.ts:30`), `stats` = ровно 4 `StatKey`, `ctaLabel` обязателен, `fullName` скаляр RU-only. Портрет витрины: статический `Firefly_RemoveBackground.webp` через kit `Image variant="transparent"` (`features/About/ui/About/About.tsx:94-103`), СТИЛИ = `About.module.scss .portrait` — ЗАПРЕЩЕНО менять.
 - Слайс: `updateAboutContent` = FULL REPLACE; persist-THEN-dispatch seam `lib/saveAboutField.ts` остаётся для скалярных правок.
 - RTK Query: `src/shared/api/apiSlice.ts` уже в сторе (reducer+middleware), core-subpath `@reduxjs/toolkit/query` (НЕ /query/react — груз; initiate()-диспатч), `stubBaseQuery` = 503.
-- Загрузка файлов: kit `shared/ui/FileUpload` + `shared/lib/imageDir` (getOrCreateSubdir/saveImageToDir → `/images/<dir>/<name>`) — паттерн ProjectForm/Skills #213/#209.
+- Загрузка файлов: kit `shared/ui/FileUpload` + `shared/lib/server-media` (getOrCreateSubdir/saveImageToDir → `/images/<dir>/<name>`) — паттерн ProjectForm/Skills #213/#209.
 - Avatar: `AvatarVariant = 'circle' | 'square' | 'portrait'` (`shared/ui/Avatar/model/types.ts`, `portrait` добавлен WU-13), внутренний маппинг на Image в `Avatar.tsx`, логика в `lib/hooks/useAvatar.ts`.
 
 ## Решения (директива владельца 2026-10-20)

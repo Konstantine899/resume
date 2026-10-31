@@ -19,6 +19,7 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mediaUrl } from '@/shared/lib/media';
 import { Button } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
@@ -39,12 +40,7 @@ import {
   type ProjectStatus,
 } from '@/entities/Project';
 import { selectTechnologyKeys } from '@/entities/Technology';
-import {
-  ensureRootWithinGesture,
-  isAbortError,
-  isDirectoryPickerSupported,
-  saveUploadedImage,
-} from '@/shared/lib/imageDir';
+import { uploadImage } from '@/shared/lib/imageUpload';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -137,22 +133,12 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   const handleImageFile = useCallback(
     async (file: FileUploadSelection) => {
       setImageSaveErrorKey(null);
-      if (!isDirectoryPickerSupported()) {
-        setImageSaveErrorKey('projectFileUploadUnsupported');
+      const outcome = await uploadImage({ blob: file.blob, name: file.name });
+      if (!outcome.ok) {
+        setImageSaveErrorKey('projectFileUploadSaveError');
         return;
       }
-      try {
-        const path = await saveUploadedImage({
-          blob: file.blob,
-          name: file.name,
-          subdir: 'projects',
-        });
-        setValue('image', path, { shouldDirty: true, shouldValidate: true });
-      } catch (error) {
-        // The user dismissed the picker — no alarm, no value change.
-        if (isAbortError(error)) return;
-        setImageSaveErrorKey('projectFileUploadSaveError');
-      }
+      setValue('image', outcome.file.key, { shouldDirty: true, shouldValidate: true });
     },
     [setValue]
   );
@@ -330,7 +316,6 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 undecodable: t('projectFileUploadUndecodable'),
                 selected: t('projectFileUploadSelected'),
               }}
-              onBeforeSelect={() => ensureRootWithinGesture()}
               onFileSelect={handleImageFile}
             />
             {imageSaveErrorKey ? (
@@ -345,7 +330,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
             ) : null}
             {values.image ? (
               <div className={styles.imageCurrent}>
-                <img src={values.image} alt="" className={styles.imageCurrentPreview} />
+                <img src={mediaUrl(values.image)} alt="" className={styles.imageCurrentPreview} />
                 <span className={styles.imageCurrentPath}>{values.image}</span>
               </div>
             ) : null}

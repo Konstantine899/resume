@@ -42,7 +42,7 @@ Swap-point при реальном NestJS-сервере: `stubBaseQuery` →
   конверта `{v:1, content}`, не импорт).
 - `@reduxjs/toolkit ^2.13.0` — `createApi` входит в пакет, отдельной
   зависимости нет. Библиотечная готовность подтверждена планом rev.2 §0.3.
-- Layout-прецедент shared-модуля: `shared/lib/imageDir/`
+- Layout-прецедент shared-модуля: `shared/lib/server-media/`
   (`модуль.ts` + `index.ts`-баррел + `модуль.test.ts`).
 - API-инфраструктуры в репо НЕТ (0 совпадений `createApi|fetchBaseQuery|
 injectEndpoints|createAsyncThunk` в src/, кроме swap-note) — этот эпик

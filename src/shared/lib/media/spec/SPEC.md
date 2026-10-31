@@ -31,7 +31,7 @@ spec: SPEC.md
 - `features/AdminAbout/.../lib/uploadPortrait.ts` — обёртка над seam,
   возвращает `{ name, path }`; `AboutEditorList` сохраняет `path` в
   `portrait`.
-- `shared/lib/imageDir/imageDir.ts` — Chromium-only FS Access API, содержит
+- `shared/lib/server-media/server-media.ts` — Chromium-only FS Access API, содержит
   свой `API_BASE`; по плану (WU-3) приводится к общему base URL, поведение
   не меняется.
 - `VITE_MEDIA_BASE_URL` ещё не объявлен; default — `VITE_API_BASE_URL`
@@ -52,7 +52,7 @@ spec: SPEC.md
   - Баррел `index.ts`; никаких импортов из `entities`/`features` (FSD).
 - **R-2 — base URL.** Единая константа `MEDIA_BASE`:
   `import.meta.env.VITE_MEDIA_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'`.
-  `imageUpload` и `imageDir` используют её же (без второго источника истины).
+  `imageUpload` и `server-media` используют её же (без второго источника истины).
 - **R-3 — upload seam (растр).** `uploadImage(file, kind = 'portrait')` →
   `POST /media?kind=...`; успех `{ ok: true, file: { key, width, height, variants } }`;
   ошибки — прежние `ImageUploadFailureReason` (`permission-denied`, `quota`,

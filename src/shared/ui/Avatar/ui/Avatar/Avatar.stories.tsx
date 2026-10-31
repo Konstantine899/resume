@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
-const portraitSrc = '';
+const portraitSrc = '/images/projects/covid19-tracker.webp';
 import { Avatar } from './Avatar';
 import { createMeta } from './Avatar.storiesHelper';
 

@@ -18,30 +18,31 @@
 // guaranteed) and uses `?url` so the 62 SVGs stay out of the JS bundle as
 // data-URIs — each becomes a plain asset URL string.
 
-const iconModules = import.meta.glob('../../../shared/assets/icons/skills/*.svg', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-}) as Record<string, string>;
+import { SKILL_ICON_KEYS } from './skillIcons';
 
-/** basename (`react.svg`) and key (`react`) → current asset URL. */
-const ICON_URL_BY_KEY = new Map<string, string>();
-for (const [path, url] of Object.entries(iconModules)) {
-  const base = path.split('/').pop() ?? path;
-  ICON_URL_BY_KEY.set(base, url);
-  ICON_URL_BY_KEY.set(base.endsWith('.svg') ? base.slice(0, -4) : base, url);
-}
+const KNOWN_KEYS = new Set(SKILL_ICON_KEYS);
+
+const rawApiBase =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) || 'http://localhost:3000';
+
+const SERVER_SHARED_ASSETS_BASE_URL = (import.meta.env.VITE_SHARED_ASSETS_BASE_URL ?? '').replace(
+  /\/+$/,
+  ''
+);
 
 export const resolveIconSvg = (value: string): string | undefined => {
   if (value.startsWith('/') || value.startsWith('http') || value.startsWith('data:')) {
     return value;
   }
 
-  const url = ICON_URL_BY_KEY.get(value);
-  if (url === undefined) {
+  const normalizedKey = value.endsWith('.svg') ? value.slice(0, -4) : value;
+
+  if (!KNOWN_KEYS.has(normalizedKey)) {
     // eslint-disable-next-line no-console
     console.warn(`[entities/Skill] Unknown iconSvg key "${value}" — placeholder will render`);
     return undefined;
   }
-  return url;
+
+  const baseUrl = SERVER_SHARED_ASSETS_BASE_URL || `${rawApiBase.replace(/\/+$/, '')}`;
+  return `${baseUrl}/assets/${encodeURIComponent(normalizedKey)}.svg`;
 };

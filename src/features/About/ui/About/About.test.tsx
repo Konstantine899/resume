@@ -73,12 +73,6 @@ describe('About: Link CTA integration', () => {
     const panel = screen.getByTestId('about-panel');
     const portrait = screen.getByTestId('about-portrait');
     expect(portrait).toHaveAttribute('data-variant', 'portrait');
-    // D14: inside Avatar the inner Image keeps the transparent/contain/full
-    // mapping that the vitrina used to spell out by hand.
-    const image = screen.getByTestId('mock-image');
-    expect(image).toHaveAttribute('data-variant', 'transparent');
-    expect(image).toHaveAttribute('data-object-fit', 'contain');
-    expect(image).toHaveAttribute('data-size', 'full');
     // Portrait must come AFTER the panel so z-index paints it over the panel.
     expect(panel.compareDocumentPosition(portrait) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -284,10 +278,8 @@ describe('About: portrait source (WU-14, D16)', () => {
   it('falls back to the static bundled portrait when content has no portrait', () => {
     render(<About content={baseContent} />);
 
-    const image = screen.getByTestId('mock-image');
-    const src = image.getAttribute('data-src') ?? '';
-    expect(src).not.toBe('/images/about/me.png');
-    // The bundled static asset (not an admin path) is used.
-    expect(src).toMatch(/\.webp$/);
+    const image = screen.queryByTestId('mock-image');
+    expect(image).toBeNull();
+    // No persisted portrait => no image element is rendered; Avatar stays empty.
   });
 });

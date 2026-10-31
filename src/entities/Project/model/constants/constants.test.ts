@@ -11,13 +11,13 @@ import { describe, expect, it } from 'vitest';
 
 import { PROJECTS } from './constants';
 
-const IMAGES_DIR = path.join(process.cwd(), 'src', 'shared', 'assets', 'images', 'projects');
+const IMAGES_DIR = path.join(process.cwd(), '..', 'backend', 'shared-assets', 'projects');
 
 describe('PROJECTS seed images', () => {
   it('every seed image points to an existing file in src/shared/assets/images/projects', () => {
     for (const project of PROJECTS) {
-      expect(project.image, `${project.id}/${project.title}`).toMatch(/^\/images\/projects\//);
-      const fileName = project.image.replace('/images/projects/', '');
+      expect(project.image, `${project.id}/${project.title}`).toMatch(/^\/assets\/projects\//);
+      const fileName = project.image.replace('/assets/projects/', '');
       const filePath = path.join(IMAGES_DIR, fileName);
       expect(
         fs.existsSync(filePath),
@@ -27,7 +27,7 @@ describe('PROJECTS seed images', () => {
   });
 
   it('the images directory holds no unreferenced leftovers', () => {
-    const referenced = new Set(PROJECTS.map((p) => p.image.replace('/images/projects/', '')));
+    const referenced = new Set(PROJECTS.map((p) => p.image.replace('/assets/projects/', '')));
     const onDisk = fs.readdirSync(IMAGES_DIR);
     for (const file of onDisk) {
       expect(referenced.has(file), `orphan file in images dir: ${file}`).toBe(true);

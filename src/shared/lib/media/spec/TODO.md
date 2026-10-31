@@ -25,7 +25,7 @@ spec: SPEC.md
       refresh-и-повтор при 401 сохраняется. Legacy `POST /images` seam
       остаётся отдельной функцией для иконок. Unit-тесты обоих seam'ов.
       → SPEC R-3, R-3b.
-- [ ] F-3. `imageDir`: общий `MEDIA_BASE` вместо локального `API_BASE`;
+- [ ] F-3. `server-media`: общий `MEDIA_BASE` вместо локального `API_BASE`;
       поведение FS Access API не меняется. Unit/регрессия. → SPEC R-2.
 - [ ] F-4. About frontend-тип получает `updatedAt` (только тип; отправка
       `expectedUpdatedAt` и 409 — PR-2b). → SPEC R-5.

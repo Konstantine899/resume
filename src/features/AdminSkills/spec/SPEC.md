@@ -146,7 +146,7 @@ Section (data-testid="admin-skills")
 - **Cleanup при неудаче persist (rev.6, аменд 2026-10-22).** Файл этой формы
   пишется на ВЫБОРЕ файла (до Save), поэтому при `persistSkills` → `false`
   (или throw — defensive: контракт boolean) форма обязана удалить записанный
-  ФАЙЛ best-effort (`removeUploadedImage` из `shared/lib/imageDir` —
+  ФАЙЛ best-effort (`removeUploadedImage` из `shared/lib/server-media` —
   НИКОГДА не бросает) И сбросить поле `iconSvg` в форму-значение «сохранить
   текущее» (`''` в ОБОИХ режимах: схема формы не принимает легаси-ключ в
   поле; ретрай в edit персистит хранимое значение записи через патч, в

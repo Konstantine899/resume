@@ -33,8 +33,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
-import { ensureRootWithinGesture, removeUploadedImage } from '@/shared/lib/imageDir';
-import { isMediaKey } from '@/shared/lib/media';
+import { isMediaKey, mediaUrl } from '@/shared/lib/media';
 import { removeMedia, uploadImage } from '@/shared/lib/imageUpload';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -141,7 +140,10 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   const handleSave = handleSubmit(async (data) => {
     let url = data.iconUrl;
     if (pendingFile) {
-      const uploadOutcome = await uploadImage({ blob: pendingFile.blob, name: pendingFile.name });
+      const uploadOutcome = await uploadImage(
+        { blob: pendingFile.blob, name: pendingFile.name },
+        'icon'
+      );
       if (!uploadOutcome.ok) {
         addToast({ message: t('adminTechIconUploadSaveError'), type: 'error' });
         return; // form keeps the values for a retry
@@ -158,8 +160,8 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     // (the stored record still points at that path); removal is
     // best-effort (never throws, never masks the toast below).
     const cleanupWrittenFile = async (): Promise<void> => {
-      if (pendingFile && url !== technology?.url) {
-        await (isMediaKey(url) ? removeMedia(url) : removeUploadedImage(url));
+      if (pendingFile && url !== technology?.url && isMediaKey(url)) {
+        await removeMedia(url);
       }
     };
 
@@ -200,7 +202,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
 
   // WU-2 / A2: edit-mode preview of the CURRENT stored icon — the
   // FileUpload preview shows only the just-picked file.
-  const currentIconUrl = technology ? technology.url : undefined;
+  const currentIconUrl = technology ? mediaUrl(technology.url) : undefined;
 
   // Messages ARE i18n keys (see technologyFormSchema.ts) — t() echoes
   // unknown strings, so this mapping is total. RHF types `message` as
@@ -247,7 +249,6 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
             undecodable: t('adminTechIconUploadUndecodable'),
             selected: t('adminTechIconUploadSelected'),
           }}
-          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleFileSelect}
           maxBlobBytes={ICON_MAX_BYTES}
         />

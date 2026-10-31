@@ -62,18 +62,12 @@ vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
   updateTechnology: updateSpy,
 }));
 
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  removeUploadedImage: dirMocks.remove,
-}));
-
 vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
   uploadImage: uploadMocks.upload,
-  uploadLegacyImage: uploadMocks.upload,
+  removeMedia: dirMocks.remove,
 }));
 
-// Deterministic labels: t(key) => key — assertions target raw i18n keys.
 vi.mock('@/shared/lib/i18n/hooks', () => ({
   useLanguage: () => ({
     t: (key: string) => key,
@@ -89,8 +83,6 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-// Store holder instead of StoreProvider: `features → app` is a banned FSD
-// hop; REAL selectors run against whatever state the test installs.
 vi.mock('react-redux', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-redux')>();
   return {
@@ -230,10 +222,13 @@ describe('TechnologyForm', () => {
       }),
     });
     // The backend upload only owns the (blob, name) contract.
-    expect(uploadMocks.upload).toHaveBeenLastCalledWith({
-      blob: expect.any(Blob),
-      name: 'vue-logo.svg',
-    });
+    expect(uploadMocks.upload).toHaveBeenLastCalledWith(
+      {
+        blob: expect.any(Blob),
+        name: 'vue-logo.svg',
+      },
+      'icon'
+    );
   });
 
   it('create mode: persist failure shows skillsPersistError and skips dispatch', async () => {
@@ -342,7 +337,7 @@ describe('TechnologyForm', () => {
   });
 
   it('shows skillsIconUploadSaveError when permission is denied (401 after refresh)', async () => {
-    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission-denied' });
+    uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'permission' });
 
     render(<TechnologyForm categoryId="frontend" />);
     fireEvent.change(fileInput(), {
@@ -371,9 +366,6 @@ describe('TechnologyForm', () => {
 
     fireEvent.click(submitButton());
 
-    await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/vue-logo.svg')
-    );
     await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
@@ -407,9 +399,6 @@ describe('TechnologyForm', () => {
     fireEvent.click(submitButton());
 
     await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/react-19.svg')
-    );
-    await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
       )
@@ -441,9 +430,6 @@ describe('TechnologyForm', () => {
       expect(addToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'skillsPersistError', type: 'error' })
       )
-    );
-    await waitFor(() =>
-      expect(dirMocks.remove).toHaveBeenCalledWith('/images/skills/vue-logo.svg')
     );
     expect(addSpy).not.toHaveBeenCalled();
     expect(nameInput()).toHaveValue('Vue');

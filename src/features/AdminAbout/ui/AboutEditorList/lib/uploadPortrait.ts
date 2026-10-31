@@ -4,6 +4,7 @@
 // the key contract the admin form stores in the document.
 import { uploadImage } from '@/shared/lib/imageUpload';
 import type { FileUploadSelection } from '@/shared/ui/FileUpload';
+import type { ImageUploadFailureReason } from '@/shared/lib/imageUpload';
 
 export interface UploadedPortrait {
   key: string;
@@ -12,15 +13,7 @@ export interface UploadedPortrait {
   variants: { width: number; key: string }[];
 }
 
-export type PortraitUploadFailure =
-  | 'unsupported'
-  | 'aborted'
-  | 'permission-denied'
-  | 'root-missing'
-  | 'quota'
-  | 'security'
-  | 'write-failed'
-  | 'conflict';
+export type PortraitUploadFailure = ImageUploadFailureReason | 'aborted';
 
 type PortraitUploadOutcome =
   | { ok: true; file: UploadedPortrait }

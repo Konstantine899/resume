@@ -39,8 +39,7 @@
 //   `onExitEdit`.
 
 import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
-import { ensureRootWithinGesture, removeUploadedImage } from '@/shared/lib/imageDir';
-import { isMediaKey } from '@/shared/lib/media';
+import { isMediaKey, mediaUrl } from '@/shared/lib/media';
 import { removeMedia, uploadImage } from '@/shared/lib/imageUpload';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
@@ -150,7 +149,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       setIconSaveErrorKey(null);
 
       try {
-        const outcome = await uploadImage({ blob: file.blob, name: file.name });
+        const outcome = await uploadImage({ blob: file.blob, name: file.name }, 'icon');
         if (!outcome.ok) {
           setIconSaveErrorKey('skillsIconUploadSaveError');
           return;
@@ -171,10 +170,8 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     // persist a link to the DELETED file. Removal skips a same-name
     // overwrite (the stored record still points at that path).
     const cleanupIconFile = async (): Promise<void> => {
-      if (data.iconSvg && data.iconSvg !== technology?.iconSvg) {
-        await (isMediaKey(data.iconSvg)
-          ? removeMedia(data.iconSvg)
-          : removeUploadedImage(data.iconSvg));
+      if (data.iconSvg && data.iconSvg !== technology?.iconSvg && isMediaKey(data.iconSvg)) {
+        await removeMedia(data.iconSvg);
       }
       setUploadKey((key) => key + 1); // remount the uploader (stale preview)
     };
@@ -249,7 +246,11 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
 
   // rev.2: edit-mode preview of the CURRENT stored icon (key or path) —
   // the FileUpload preview shows only the just-picked file.
-  const currentIconUrl = technology ? resolveIconSvg(technology.iconSvg) : undefined;
+  const currentIconUrl = technology
+    ? isMediaKey(technology.iconSvg)
+      ? mediaUrl(technology.iconSvg)
+      : resolveIconSvg(technology.iconSvg)
+    : undefined;
 
   return (
     <Form
@@ -289,7 +290,6 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
             undecodable: t('skillsIconUploadUndecodable'),
             selected: t('skillsIconUploadSelected'),
           }}
-          onBeforeSelect={() => ensureRootWithinGesture()}
           onFileSelect={handleImageFile}
           maxBlobBytes={ICON_MAX_BYTES}
         />

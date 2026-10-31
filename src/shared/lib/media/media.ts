@@ -14,6 +14,13 @@ const BASE_EXTENSIONS = 'png|webp|avif|svg|jpg|jpeg|gif';
 const BASE_KEY_RE = new RegExp(`^${UUID}\\.(${BASE_EXTENSIONS})$`);
 const VARIANT_KEY_RE = new RegExp(`^${UUID}-(?:320|640|960)\\.webp$`);
 
+export function isBaseMediaKey(value: string): boolean {
+  if (typeof value !== 'string' || value.length === 0) {
+    return false;
+  }
+  return BASE_KEY_RE.test(value);
+}
+
 export function isMediaKey(value: string): boolean {
   if (typeof value !== 'string' || value.length === 0) {
     return false;
@@ -33,6 +40,7 @@ export function mediaUrl(value: string | null | undefined): string {
 
 export function mediaSrcSet(key: string | null | undefined): string | undefined {
   if (typeof key !== 'string' || !BASE_KEY_RE.test(key)) return undefined;
+  if (/\.(svg)$/.test(key)) return undefined;
   const uuid = key.slice(0, key.lastIndexOf('.'));
   const base = MEDIA_BASE.replace(/\/$/, '');
   return [320, 640, 960].map((width) => `${base}/${uuid}-${width}.webp ${width}w`).join(', ');

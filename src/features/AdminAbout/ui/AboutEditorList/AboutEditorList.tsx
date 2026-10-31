@@ -65,7 +65,6 @@ import { useState } from 'react';
 import type { AboutContent } from '@/entities/AboutContent';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
-import { ensureRootWithinGesture } from '@/shared/lib/imageDir';
 import { useConfirmAction } from '@/shared/lib/hooks/useConfirmAction';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Avatar } from '@/shared/ui/Avatar';
@@ -721,7 +720,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                 wrongFormat: t('adminAboutPortraitFormat'),
                 selected: t('adminAboutPortraitSelected'),
               }}
-              onBeforeSelect={() => ensureRootWithinGesture()}
               onFileSelect={handlePortraitFile}
             />
             {/* Static keys on purpose — the existence guard scans t('…')
@@ -732,8 +730,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
               </Paragraph>
             ) : null}
             {portraitError === 'write-failed' ||
-            portraitError === 'security' ||
-            portraitError === 'quota' ||
+            portraitError === 'invalid-format' ||
+            portraitError === 'too-large' ||
+            portraitError === 'unsupported' ||
+            portraitError === 'forbidden' ||
             portraitError === 'conflict' ? (
               <Paragraph asChild theme="error" size="s">
                 <span role="alert">

@@ -16,7 +16,7 @@
 
 import { z } from 'zod';
 
-import { isMediaKey } from '@/shared/lib/media';
+import { isBaseMediaKey as isMediaKey } from '@/shared/lib/media';
 import type { Technology } from '../types/types';
 
 /** Slug: lowercase letters, digits, hyphens — no leading/trailing hyphen. */

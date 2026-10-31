@@ -2,14 +2,20 @@
 // imageUpload — backend upload seam (media-pipeline PR-1b)
 // ============================================
 //
-// New contract (WU-3): writes via `POST /media?kind=...` and returns a flat
-// media key plus its width/height/variants. Legacy callers that still need
-// the `/images` shim shape use `uploadLegacyImage`.
+// Contract: writes via `POST /media?kind=...` and returns a flat media key plus its width/height/variants. New uploads only.
 import { authToken } from '@/shared/api/authToken';
 import { isMediaKey } from '@/shared/lib/media';
 
 export type ImageUploadFailureReason =
-  'permission-denied' | 'root-missing' | 'quota' | 'security' | 'write-failed' | 'conflict';
+  | 'invalid-format'
+  | 'too-large'
+  | 'unsupported'
+  | 'permission'
+  | 'forbidden'
+  | 'conflict'
+  | 'storage-full'
+  | 'retryable'
+  | 'write-failed';
 
 export type MediaVariant = { width: number; key: string };
 
@@ -20,14 +26,8 @@ export type UploadedMediaFile = {
   variants: MediaVariant[];
 };
 
-export type UploadedLegacyFile = { name: string; path: string };
-
 export type ImageUploadOutcome =
   | { ok: true; file: UploadedMediaFile }
-  | { ok: false; reason: ImageUploadFailureReason; detail?: string };
-
-export type LegacyImageUploadOutcome =
-  | { ok: true; file: UploadedLegacyFile }
   | { ok: false; reason: ImageUploadFailureReason; detail?: string };
 
 type MediaUploadResponse = {
@@ -37,18 +37,7 @@ type MediaUploadResponse = {
   variants?: MediaVariant[];
 };
 
-type UploadedFile = { url: string; filename: string };
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-
-const MEDIA_FALLBACK_REASON_BY_STATUS: Record<number, ImageUploadFailureReason> = {
-  401: 'permission-denied',
-  403: 'permission-denied',
-  409: 'conflict',
-  413: 'quota',
-  400: 'security',
-  415: 'security',
-};
 
 async function extractDetail(res: Response): Promise<string | undefined> {
   try {
@@ -62,7 +51,26 @@ async function extractDetail(res: Response): Promise<string | undefined> {
 }
 
 function mapStatus(status: number): ImageUploadFailureReason {
-  return MEDIA_FALLBACK_REASON_BY_STATUS[status] ?? 'write-failed';
+  switch (status) {
+    case 400:
+      return 'invalid-format';
+    case 401:
+      return 'permission';
+    case 403:
+      return 'forbidden';
+    case 409:
+      return 'conflict';
+    case 413:
+      return 'too-large';
+    case 415:
+      return 'unsupported';
+    case 429:
+      return 'retryable';
+    case 507:
+      return 'storage-full';
+    default:
+      return status >= 500 ? 'retryable' : 'write-failed';
+  }
 }
 
 async function requestWithAuthRefresh(request: () => Promise<Response>): Promise<Response | null> {
@@ -109,7 +117,7 @@ export const uploadImage = async (
 
   try {
     const res = await requestWithAuthRefresh(doRequest);
-    if (!res) return { ok: false, reason: 'permission-denied' };
+    if (!res) return { ok: false, reason: 'permission' };
     if (!res.ok) {
       return { ok: false, reason: mapStatus(res.status), detail: await extractDetail(res) };
     }
@@ -124,49 +132,6 @@ export const uploadImage = async (
         width: data.width,
         height: data.height,
         variants: Array.isArray(data.variants) ? data.variants : [],
-      },
-    };
-  } catch {
-    return { ok: false, reason: 'write-failed' };
-  }
-};
-
-// Legacy seam kept for icon forms (Skills/Technologies) until PR-3a. These
-// callers still POST `/images` and receive the old `{ url, filename }` shape.
-export const uploadLegacyImage = async (file: {
-  blob: Blob;
-  name: string;
-}): Promise<LegacyImageUploadOutcome> => {
-  const formData = new FormData();
-  formData.append('file', file.blob, file.name);
-
-  const doRequest = async (): Promise<Response> => {
-    const headers = new Headers();
-    const token = authToken.getAccessToken();
-    if (token) headers.set('authorization', `Bearer ${token}`);
-    return fetch(`${API_BASE}/images`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      credentials: 'include',
-    });
-  };
-
-  try {
-    const res = await requestWithAuthRefresh(doRequest);
-    if (!res) return { ok: false, reason: 'permission-denied' };
-    if (!res.ok) {
-      return { ok: false, reason: mapStatus(res.status), detail: await extractDetail(res) };
-    }
-
-    const data = (await res.json()) as UploadedFile;
-    if (!data?.url) return { ok: false, reason: 'write-failed' };
-
-    return {
-      ok: true,
-      file: {
-        name: data.filename || file.name,
-        path: `${API_BASE}${data.url}`,
       },
     };
   } catch {

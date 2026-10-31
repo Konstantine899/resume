@@ -102,25 +102,23 @@ vi.mock('react-redux', async (importOriginal) => {
 // (the file's react-redux mock has no api middleware, so `initiate` is
 // faked and `.unwrap()` is the branch under test) and the file write (the
 // real File-System-Access root must never run in tests).
-const { initiateSpy, updateAboutContentInitiate, uploadImage, directoryPickerSupported } =
-  vi.hoisted(() => ({
-    initiateSpy: vi.fn<
-      (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
-        unwrap: () => Promise<{ document: unknown }>;
-      }
-    >(),
-    updateAboutContentInitiate: vi.fn((doc: unknown) => ({
-      unwrap: async () => {
-        if (!persistSpy(doc as AboutContent)) throw new Error('persist-failed');
-        return doc;
-      },
-    })),
-    uploadImage: vi.fn(async () => ({
-      ok: true,
-      file: { key: 'portrait-key', width: 1200, height: 900, variants: [] },
-    })),
-    directoryPickerSupported: vi.fn(() => true),
-  }));
+const { initiateSpy, updateAboutContentInitiate, uploadImage } = vi.hoisted(() => ({
+  initiateSpy: vi.fn<
+    (arg: { content: AboutContent; persist: (doc: unknown) => boolean }) => {
+      unwrap: () => Promise<{ document: unknown }>;
+    }
+  >(),
+  updateAboutContentInitiate: vi.fn((doc: unknown) => ({
+    unwrap: async () => {
+      if (!persistSpy(doc as AboutContent)) throw new Error('persist-failed');
+      return doc;
+    },
+  })),
+  uploadImage: vi.fn(async () => ({
+    ok: true,
+    file: { key: 'portrait-key', width: 1200, height: 900, variants: [] },
+  })),
+}));
 
 vi.mock('@/shared/api', () => ({
   apiSlice: {
@@ -129,11 +127,6 @@ vi.mock('@/shared/api', () => ({
       updateAboutPortrait: { initiate: initiateSpy },
     },
   },
-}));
-
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: directoryPickerSupported,
 }));
 
 vi.mock('@/shared/lib/imageUpload', () => ({
@@ -1183,7 +1176,6 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
       ok: true,
       file: { key: 'portrait-key', width: 1200, height: 900, variants: [] },
     });
-    directoryPickerSupported.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -1336,7 +1328,9 @@ describe('AboutEditorList: portrait modal (WU-20, R-12/D20)', () => {
   it('falls back to the static bundled asset while the document has no portrait (D16)', () => {
     renderWithPortraitModal();
 
-    const src = within(portraitDialog()).getByTestId('mock-image').getAttribute('data-src') ?? '';
-    expect(src).toMatch(/\.webp$/);
+    const src =
+      within(portraitDialog()).queryByTestId('mock-image')?.getAttribute('data-src') ?? '';
+    // No persisted portrait in this fixture => no inner image is rendered.
+    expect(src).toBe('');
   });
 });

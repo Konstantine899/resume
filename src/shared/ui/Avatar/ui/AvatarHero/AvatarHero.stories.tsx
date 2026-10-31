@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor } from 'storybook/test';
-import avatar1 from '@/shared/assets/avatar003.jpg';
+const avatar1: string = '/assets/about/avatar003.webp';
 import { AvatarHero } from './AvatarHero';
 import {
   createMeta,

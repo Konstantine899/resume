@@ -11,6 +11,10 @@ export function buildServer(options: BuildOptions) {
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/api/, ''),
       },
+      '/assets': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
     },
   };
 }

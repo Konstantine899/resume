@@ -192,7 +192,7 @@ invertInDark}` (create) и `patch {url, invertInDark}` (edit); Save `disabled={!
 maxBlobBytes?, disabled?, className?}`; `FileUploadSelection = {blob, name}`
   (SVG — ОРИГИНАЛЬНЫЙ File passthrough, имя сохраняет `.svg`; растр — сжатый
   webp/jpeg); SVG-безопасность (`isSafeSvgText`) — ВНУТРИ кита, не дублировать.
-- `shared/lib/imageDir`: `isDirectoryPickerSupported()`, `pickImagesRoot()`,
+- `shared/lib/server-media`: `isDirectoryPickerSupported()`, `pickImagesRoot()`,
   `readImagesRootHandle()`, `writeImagesRootHandle()`, `getOrCreateSubdir(root, subdir)`,
   `saveImageToDir(root, blob, name, subdir)` → `/images/<dir>/<name>`.
 - Gold-паттерн интеграции: `AdminSkills/ui/TechnologyForm` (иконка-загрузка,
@@ -245,11 +245,11 @@ maxBlobBytes?, disabled?, className?}`; `FileUploadSelection = {blob, name}`
   `adminTechIconRequired`, persist/dispatch НЕ вызываются.
 - Save в edit БЕЗ нового файла: `url` записи НЕ меняется (keep-current).
 - Save в edit С новым файлом: `url` заменён на `/images/technologies/<имя>`.
-- Ошибка записи файла (нет File System Access API / отказ диска): error-тост,
+- Ошибка записи файла (нет server upload API / отказ диска): error-тост,
   модалка открыта, стор/хранилище не тронуты.
 - Ошибка persist ПОСЛЕ записи файла (аменд 2026-10-22): только что
   записанный файл УДАЛЯЕТСЯ best-effort (`removeUploadedImage` из
-  `shared/lib/imageDir` — удаление НИКОГДА не бросает и не маскирует тост),
+  `shared/lib/server-media` — удаление НИКОГДА не бросает и не маскирует тост),
   error-тост `adminTechPersistError`, модалка открыта, стор не тронут;
   pending-выбор остаётся в state, поэтому ПОВТОРНЫЙ Save перезаписывает
   файл заново. Исключение: если новый путь РАВЕН текущему `url` записи

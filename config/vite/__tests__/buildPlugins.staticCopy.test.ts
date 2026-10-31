@@ -23,8 +23,6 @@ const paths: BuildPath = {
   src: '/repo/src',
   locales: '/repo/src/shared/lib/i18n/locales',
   buildLocales: '/repo/public/locales',
-  imagesProjects: '/repo/src/shared/assets/images/projects',
-  buildImagesProjects: '/repo/public/images/projects',
   app: '/repo/src/app',
   pages: '/repo/src/pages',
   entities: '/repo/src/entities',
@@ -46,18 +44,8 @@ describe('viteStaticCopy targets (WU-2)', () => {
   it('registers the project-images target (flat copy) — issue #298 dropped the dead locales copy', () => {
     buildPlugins(options);
 
-    // stripBase: a directory src preserves the matched dir tree
-    // (public/images/projects/src/shared/...); stripBase flattens it so
-    // /images/projects/x.webp resolves in both build and dev.
-    expect(captured.targets).toContainEqual({
-      src: paths.imagesProjects,
-      dest: paths.buildImagesProjects,
-      rename: { stripBase: true },
-    });
-    // public/locales had 0 fetch consumers (static JSON imports only).
-    expect(captured.targets).not.toContainEqual({
-      src: paths.locales,
-      dest: paths.buildLocales,
-    });
+    // Phase 3: project showcase images are now served from the backend assets plane;
+    // the frontend does not emit/side-load them from src/shared/assets anymore.
+    expect(captured.targets).toBeUndefined();
   });
 });
