@@ -23,7 +23,11 @@ export const ModalFooter = memo((props: ModalFooterProps) => {
 
   const footerClasses = classNames(styles.footer, className);
 
-  return <footer className={footerClasses}>{children}</footer>;
+  return (
+    <footer data-slot="footer" className={footerClasses}>
+      {children}
+    </footer>
+  );
 });
 
 ModalFooter.displayName = 'ModalFooter';

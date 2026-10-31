@@ -46,7 +46,7 @@ export const ModalHeader = memo((props: ModalHeaderProps) => {
   });
 
   return (
-    <header className={headerClasses}>
+    <header data-slot="header" className={headerClasses}>
       {title && (
         <div className={styles.headerContent ?? ''}>
           <Heading level={2} size="xl" id={resolvedTitleId}>

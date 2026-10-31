@@ -25,10 +25,7 @@
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
 import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '@/entities/Project';
-import {
-  selectAllTechnologies,
-  selectTechnologyKeys,
-} from '@/entities/Technology';
+import { selectAllTechnologies, selectTechnologyKeys } from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
@@ -256,11 +253,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
                 onClick={() => toggleTech(key)}
               >
                 {technology?.url ? (
-                  <img
-                    src={mediaUrl(technology.url)}
-                    alt=""
-                    className={styles.techToggleIcon}
-                  />
+                  <img src={mediaUrl(technology.url)} alt="" className={styles.techToggleIcon} />
                 ) : null}
                 {label}
               </Button>

@@ -15,11 +15,13 @@
   min-height: 0;
   padding: var(--space-8);
   overflow-y: auto;
+  overscroll-behavior: contain;
 
   // --foreground is always defined in both themes — no fallback needed.
 
   // Modal body text should use the shared Paragraph component (see stories).
   color: var(--color-text);
+  scroll-padding-block-end: 4rem;
 }
 
 // When scroll="body" — parent modal container has data-scroll-body attribute

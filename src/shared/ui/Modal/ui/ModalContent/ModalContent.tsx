@@ -22,7 +22,13 @@ export const ModalContent = memo((props: ModalContentProps) => {
 
   const contentClasses = classNames(styles.content, className);
 
-  return <div className={contentClasses}>{children}</div>;
+  // `data-slot` is the semantic hook used by keyboard and scroll tests;
+  // it does not add layout or accessibility behavior on its own.
+  return (
+    <div data-slot="content" className={contentClasses}>
+      {children}
+    </div>
+  );
 });
 
 ModalContent.displayName = 'ModalContent';

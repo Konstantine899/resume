@@ -39,10 +39,7 @@ import {
   type ProjectCategory,
   type ProjectStatus,
 } from '@/entities/Project';
-import {
-  selectAllTechnologies,
-  selectTechnologyKeys,
-} from '@/entities/Technology';
+import { selectAllTechnologies, selectTechnologyKeys } from '@/entities/Technology';
 import { uploadImage } from '@/shared/lib/imageUpload';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
@@ -293,7 +290,13 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                     aria-pressed={active}
                     onClick={() => toggleTech(key)}
                   >
-                    {technology?.url ? <img src={mediaUrl(technology.url)} alt="" className={styles.techToggleIcon} /> : null}
+                    {technology?.url ? (
+                      <img
+                        src={mediaUrl(technology.url)}
+                        alt=""
+                        className={styles.techToggleIcon}
+                      />
+                    ) : null}
                     {technology?.url ? (
                       <img
                         src={mediaUrl(technology.url)}

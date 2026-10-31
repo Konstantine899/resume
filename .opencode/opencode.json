@@ -1030,6 +1030,15 @@
           "alertOnFallback": true
         }
       },
+      "desktop-commander": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@wonderwhy-er/desktop-commander"
+        ],
+        "disabled": false
+      },
       "obsidian": {
         "type": "local",
         "command": [

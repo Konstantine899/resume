@@ -1,6 +1,8 @@
 import { memo, useContext } from 'react';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { Button } from '@/shared/ui/Button';
+import { Heading } from '@/shared/ui/Heading';
+import { Paragraph } from '@/shared/ui/Paragraph';
 import { Modal } from '../Modal/Modal';
 import type { ModalAlertProps } from '../../model/types';
 import { ModalContext } from '../../lib/modalContext';
@@ -49,8 +51,12 @@ export const ModalAlert = memo((props: ModalAlertProps) => {
     >
       <div className={styles.body}>
         {icon && <div className={styles.icon}>{icon}</div>}
-        <h3 className={styles.title}>{title}</h3>
-        <p className={styles.message}>{message}</p>
+        <Heading level={3} className={styles.title}>
+          {title}
+        </Heading>
+        <Paragraph theme="muted" className={styles.message}>
+          {message}
+        </Paragraph>
       </div>
       <div className={styles.actions}>
         {hasCancel && (
