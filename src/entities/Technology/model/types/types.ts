@@ -9,6 +9,8 @@
 export interface Technology {
   /** Slug key referenced by projects ('react' | 'nextjs' | …). */
   key: string;
+  /** Optional display name; missing values render from key. */
+  name?: string;
   /** Absolute https:// icon URL (devicon CDN and alike). */
   url: string;
   /** Apply the dark-theme invert filter (parity with the old TECH_ICONS flag). */
@@ -20,6 +22,7 @@ export interface Technology {
  * only display fields can change.
  */
 export interface TechnologyUpdatePatch {
+  name?: string;
   url: string;
   invertInDark?: boolean;
 }

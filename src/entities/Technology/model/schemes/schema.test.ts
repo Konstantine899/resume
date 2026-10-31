@@ -90,14 +90,17 @@ describe('TechnologySchema', () => {
 });
 
 describe('TechnologiesEnvelopeSchema', () => {
-  it('accepts { v: 1, technologies } with valid records', () => {
-    expect(TechnologiesEnvelopeSchema.safeParse({ v: 1, technologies: [VALID] }).success).toBe(
+  it('accepts { v: 2, technologies } with valid records', () => {
+    expect(TechnologiesEnvelopeSchema.safeParse({ v: 2, technologies: [VALID] }).success).toBe(
       true
     );
   });
 
   it('rejects an unknown version (future migration guard)', () => {
-    expect(TechnologiesEnvelopeSchema.safeParse({ v: 2, technologies: [VALID] }).success).toBe(
+    expect(TechnologiesEnvelopeSchema.safeParse({ v: 1, technologies: [VALID] }).success).toBe(
+      false
+    );
+    expect(TechnologiesEnvelopeSchema.safeParse({ v: 3, technologies: [VALID] }).success).toBe(
       false
     );
   });
