@@ -44,11 +44,16 @@ export const TechnologySchema = z.object({
     z.string().refine((value) => isMediaKey(value)),
   ]),
   invertInDark: z.boolean().optional(),
+  name: z.preprocess(
+    (value) =>
+      typeof value === 'string' ? (value.trim() === '' ? undefined : value.trim()) : value,
+    z.string().min(1).max(80).optional()
+  ),
 });
 
 /** The exact envelope persisted under `technologies` (SPEC D1). */
 export const TechnologiesEnvelopeSchema = z.object({
-  v: z.literal(1),
+  v: z.literal(2),
   technologies: z.array(TechnologySchema),
 });
 

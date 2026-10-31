@@ -43,8 +43,21 @@ describe('readTechnologies', () => {
     expect(readTechnologies()).toBeNull();
   });
 
+  it('migrates a v1 envelope to a v2 catalog', () => {
+    localStorage.setItem(
+      TECHNOLOGIES_STORAGE_KEY,
+      JSON.stringify({ v: 1, technologies: VALID.map(({ name: _n, ...record }) => record) })
+    );
+    expect(readTechnologies()).not.toBeNull();
+    expect(
+      readTechnologies()
+        ?.map((technology) => technology.key)
+        .sort()
+    ).toEqual(VALID.map((technology) => technology.key).sort());
+  });
+
   it('returns null for an unknown envelope version (migration guard)', () => {
-    localStorage.setItem(TECHNOLOGIES_STORAGE_KEY, JSON.stringify({ v: 2, technologies: VALID }));
+    localStorage.setItem(TECHNOLOGIES_STORAGE_KEY, JSON.stringify({ v: 3, technologies: VALID }));
     expect(readTechnologies()).toBeNull();
   });
 
