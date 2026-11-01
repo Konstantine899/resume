@@ -1,6 +1,9 @@
 // ============================================
 // Home Page
 // ============================================
+// Stack badges WU-3 (Design C): pages reads the Technology catalog — the
+// About vitrina resolves `name ?? key` from the prop (SPEC E-3).
+import { selectAllTechnologies } from '@/entities/Technology';
 import { selectAboutContent } from '@/features/AdminAbout/model/selectors/selectors';
 // Deep import, NOT the AdminContact barrel (resume-lazy-rhf-chunk): the
 // barrel exports the RHF editor form and must stay lazy-only.
@@ -45,6 +48,9 @@ export const HomePage: React.FC = () => {
   // WorkHistory CRUD WU-4 (Design C): pages reads the adminJobs slice; the
   // WorkHistory vitrina falls back to the entity seed without a Provider.
   const jobsContent = useSelector(selectSortedJobs);
+  // Stack badges WU-3 (Design C): the vitrina stays store-free and receives
+  // the catalog as a prop, exactly like every other content field.
+  const technologies = useSelector(selectAllTechnologies);
 
   return (
     <>
@@ -73,7 +79,7 @@ export const HomePage: React.FC = () => {
             the same order (the standalone "home" anchor was dropped, so nav
             anchors and render order are one list, not two). */}
         <main id="main-content" className={styles.mainContent}>
-          <About content={aboutContent} />
+          <About content={aboutContent} technologies={technologies} />
           <Skills content={skillsContent} />
           <MyWork content={allProjects} />
           <WorkHistory content={jobsContent} />

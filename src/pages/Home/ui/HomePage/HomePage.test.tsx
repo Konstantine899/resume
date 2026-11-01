@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoreProvider } from '@/app/providers';
 import { SKILLS_DATA } from '@/entities/Skill';
+import { persistTechnologies, TECHNOLOGIES_STORAGE_KEY } from '@/entities/Technology';
 import { PROJECTS } from '@/entities/Project';
 import { About } from '@/features/About';
 import { Contact } from '@/features/Contact';
@@ -106,6 +107,29 @@ describe('HomePage: About content wiring (WU-2)', () => {
     const calls = vi.mocked(About).mock.calls;
     expect(calls.length).toBeGreaterThan(0);
     expect(calls[0]?.[0]?.content?.fullName).toBe(createAboutSeed().fullName);
+  });
+});
+
+// WU-3 (contract v3, SPEC E-3): HomePage reads the Technology catalog and
+// passes it down — the vitrina resolves `name ?? key` from this prop and
+// stays store-free (Design C), same shape as every other content field.
+describe('HomePage: stack catalog wiring (WU-3)', () => {
+  afterEach(() => {
+    localStorage.removeItem(TECHNOLOGIES_STORAGE_KEY);
+    vi.clearAllMocks();
+  });
+
+  it('passes the persisted Technology catalog from the store into About', () => {
+    persistTechnologies([{ key: 'rust', url: 'https://example.com/rust.svg' }]);
+    vi.mocked(About).mockClear(); // drop calls from the tests above
+
+    render(renderHome(<HomePage />));
+
+    const calls = vi.mocked(About).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const technologies = calls[0]?.[0]?.technologies;
+    expect(technologies).toHaveLength(1);
+    expect(technologies?.[0]?.key).toBe('rust');
   });
 });
 

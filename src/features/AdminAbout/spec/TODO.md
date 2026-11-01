@@ -14,14 +14,6 @@ spec: SPEC.md
 
 ## WU
 
-- [ ] **WU-1 — backend stack** (ветка `feat/about-stack-contract`):
-      схема + Prisma-миграция + aggregate + репозиторий/DTO + e2e
-      (GET/PUT round-trip) — см. backend-пару. Порядок релиза
-      backend → frontend (`.strict()`).
-- [ ] **WU-2 — frontend контракт v3**: `entities/AboutContent`
-      schema/types/seed-compat + `AboutContentDto` — см. entities-пару.
-- [ ] **WU-3 — витрина About**: бейджи из `content.stack ?? PROFILE_STACK` + резолв имён; characterization DOM-паритет; SCSS `features/About`
-      НЕ трогаем.
 - [ ] **WU-4 — разбивка админки на карточки**: ПЕРЕД стартом перепроверить
       фактический размер бандла (замер ~904.8 КБ устарел, headroom ~7 KiB
       не подтверждён). `AboutEditorList` → 5 Card-блоков (R-1, R-2 persist
