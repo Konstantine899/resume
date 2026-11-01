@@ -106,6 +106,8 @@ export type AboutContentDto = {
   statLabels?: Record<string, { en: string; ru: string }>;
   ctaLabel: { en: string; ru: string } | null;
   portrait?: string;
+  /** Selected Technology keys in document order (contract v3); absent on legacy docs. */
+  stack?: string[];
   updatedAt?: string;
   expectedUpdatedAt?: string;
   id?: string;

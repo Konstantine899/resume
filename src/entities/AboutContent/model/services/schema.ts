@@ -9,11 +9,13 @@
 //   `{ v: 1, content }`; `v` is a migration guard, unknown versions
 //   fall back to the seed (§7).
 //
-// Limits come straight from the plan's validation table (§7) + SPEC D10
-// (contract v2): fullName 2–80 after trim; each paragraph locale ≤600
+// Limits come straight from the plan's validation table (§7) + SPEC D10/E-4
+// (contract v3): fullName 2–80 after trim; each paragraph locale ≤600
 // (0..n paragraphs); stat/label KEYS 1..40 with each locale ≤60;
 // statLabels optional (custom keys only); ctaLabel locale ≤40, nullable
-// (null = deleted row); portrait 1..260, optional. Messages are NOT set
+// (null = deleted row); portrait 1..260, optional; stack optional — an
+// array of Technology catalog slugs ≤20, order preserved, `[]` valid
+// (SPEC E-4). Messages are NOT set
 // here — the form maps failures to i18n keys (R-4: no hardcoded text).
 
 import { z } from 'zod';
@@ -30,6 +32,14 @@ const localizedText = (max: number) =>
 /** Stat record key (stats AND statLabels): non-empty, ≤40 chars (D10). */
 const statKey = z.string().min(1).max(40);
 
+/**
+ * A Technology catalog key (slug): lowercase letters, digits, hyphens;
+ * no leading/trailing hyphen. Mirrors `KEY_SLUG_REGEX` in
+ * `entities/Technology` schema and the backend `technologyUpsertSchema.key`
+ * (SPEC E-4). Order inside the array IS the document order.
+ */
+const stackKey = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
 export const AboutContentSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
   descriptions: z.array(localizedText(600)),
@@ -37,6 +47,9 @@ export const AboutContentSchema = z.object({
   statLabels: z.record(statKey, localizedText(60)).optional(),
   ctaLabel: localizedText(40).nullable(),
   portrait: z.string().min(1).max(260).optional(),
+  // v3 (SPEC E-4): optional — legacy documents omit it; `[]` is a valid
+  // intentionally-empty stack; non-slug keys and >20 entries are rejected.
+  stack: z.array(stackKey).max(20).optional(),
 });
 
 /** The exact envelope persisted under `resume.about.content` (§4.1). */

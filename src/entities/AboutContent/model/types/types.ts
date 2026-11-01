@@ -14,7 +14,7 @@ import type { LocalizedText } from '@/shared/lib/i18n/types';
 export type StatKey = 'aboutStatYears' | 'aboutStatProjects' | 'aboutStatUsers' | 'aboutStatRemote';
 
 /**
- * The editable document of the About section (contract v2, SPEC D10).
+ * The editable document of the About section (contract v3, SPEC E-1..E-5).
  * - `fullName` — the page h1 (a proper name: not localized, RU only).
  * - `descriptions` — pitch paragraphs in document order (0..n, ≤600 per
  *   locale); the seed ships three, the admin adds/removes rows.
@@ -27,8 +27,14 @@ export type StatKey = 'aboutStatYears' | 'aboutStatProjects' | 'aboutStatUsers' 
  *   (the vitrina hides the link).
  * - `portrait` — path of the portrait file (upload lands in WU-14); the
  *   vitrina falls back to the static asset when absent.
- * Deliberately absent: `stack` (shared PROFILE_STACK, out of CRUD scope).
- * v2 is a SUPERSET of v1: a legacy document validates as-is — no migration.
+ * - `stack` — selected Technology catalog keys (slug, ≤20) in document
+ *   order (contract v3, epic about-admin-sections). Optional:
+ *   `undefined` (absent) = legacy document, the showcase falls back to
+ *   PROFILE_STACK (DOM identical to v2); `[]` = intentionally empty, the
+ *   showcase renders no badges. Only KEYS are stored: the `name ?? key`
+ *   resolve lives in features (FSD: entities → entities is banned).
+ *   Seed/Reset does NOT write it (stays `undefined`).
+ * v3 is a SUPERSET of v1/v2: a legacy document validates as-is — no migration.
  */
 export interface AboutContent {
   fullName: string;
@@ -37,6 +43,8 @@ export interface AboutContent {
   statLabels?: Record<string, LocalizedText>;
   ctaLabel: LocalizedText | null;
   portrait?: string;
+  /** Selected Technology keys in document order (v3); absent = legacy fallback. */
+  stack?: string[];
   /** Backend-provided timestamp (PR-1b); used by PR-2b as `expectedUpdatedAt`. */
   updatedAt?: string;
 }

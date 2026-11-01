@@ -201,3 +201,64 @@ describe('AboutContentEnvelopeSchema', () => {
     ).toBe(false);
   });
 });
+
+describe('AboutContentSchema — stack (contract v3, SPEC E-4)', () => {
+  it('accepts a document WITHOUT stack (legacy — field stays absent)', () => {
+    const parsed = AboutContentSchema.safeParse(VALID);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.stack).toBeUndefined();
+  });
+
+  it('accepts stack keys and preserves DOCUMENT order', () => {
+    const parsed = AboutContentSchema.safeParse({
+      ...VALID,
+      stack: ['react', 'nodejs', 'typescript'],
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.stack).toEqual(['react', 'nodejs', 'typescript']);
+  });
+
+  it('accepts an EMPTY stack as intentionally empty (not undefined)', () => {
+    const parsed = AboutContentSchema.safeParse({ ...VALID, stack: [] });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.stack).toEqual([]);
+  });
+
+  it('distinguishes [] from an absent stack at the contract level', () => {
+    const empty = AboutContentSchema.safeParse({ ...VALID, stack: [] });
+    const absent = AboutContentSchema.safeParse(VALID);
+    expect(empty.success && absent.success).toBe(true);
+    if (empty.success && absent.success) {
+      expect(empty.data.stack).toEqual([]);
+      expect(absent.data.stack).toBeUndefined();
+      expect(empty.data.stack).not.toBe(absent.data.stack);
+    }
+  });
+
+  it('accepts exactly 20 entries (cap boundary)', () => {
+    const twenty = Array.from({ length: 20 }, (_, i) => `tech-${i}`);
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: twenty }).success).toBe(true);
+  });
+
+  it('rejects more than 20 entries', () => {
+    const twentyOne = Array.from({ length: 21 }, (_, i) => `tech-${i}`);
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: twentyOne }).success).toBe(false);
+  });
+
+  it('rejects a non-slug stack key', () => {
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: ['React JS'] }).success).toBe(false);
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: ['-leading'] }).success).toBe(false);
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: ['trailing-'] }).success).toBe(false);
+  });
+
+  it('rejects a non-string stack entry', () => {
+    expect(AboutContentSchema.safeParse({ ...VALID, stack: [42] }).success).toBe(false);
+  });
+
+  it('accepts stack inside the envelope (v:1 untouched)', () => {
+    expect(
+      AboutContentEnvelopeSchema.safeParse({ v: 1, content: { ...VALID, stack: ['react'] } })
+        .success
+    ).toBe(true);
+  });
+});
