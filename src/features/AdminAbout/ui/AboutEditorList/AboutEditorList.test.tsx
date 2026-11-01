@@ -82,15 +82,19 @@ describe('AboutEditorList (WU-4 section cards)', () => {
 
   it('a card expands on click, showing its stable content region', () => {
     renderAdminPage(<AboutEditorList />);
-    const button = screen.getAllByRole('button', { name: 'adminAboutExpandTable' })[0];
+    const button = screen.getAllByRole('button', {
+      name: 'adminAboutExpandTable',
+    })[0] as HTMLElement;
     fireEvent.click(button);
-    const content = document.querySelector('[id^="about-card-content-"]');
+    const content = document.querySelector('[id^="about-card-content-"]') as HTMLElement;
     expect(content).not.toHaveAttribute('hidden');
   });
 
   it('persists collapse state to localStorage and reads it back', () => {
     renderAdminPage(<AboutEditorList />);
-    const button = screen.getAllByRole('button', { name: 'adminAboutExpandTable' })[0];
+    const button = screen.getAllByRole('button', {
+      name: 'adminAboutExpandTable',
+    })[0] as HTMLElement;
     fireEvent.click(button);
     const raw = localStorage.getItem('admin-about:collapsed');
     expect(raw).not.toBeNull();
@@ -100,12 +104,10 @@ describe('AboutEditorList (WU-4 section cards)', () => {
   });
 
   it('does not crash when localStorage throws', () => {
-    const original = localStorage.getItem;
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('blocked');
     });
     expect(() => renderAdminPage(<AboutEditorList />)).not.toThrow();
     vi.restoreAllMocks();
-    localStorage.getItem = original;
   });
 });
