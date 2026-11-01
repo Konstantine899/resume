@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderAdminPage } from '@/shared/tests';
 import { AboutEditorList } from './AboutEditorList';
+import { readCollapseState } from './lib/collapseState';
 
 const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
 
@@ -338,5 +339,38 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
     ]) {
       expect(screen.getByText(title)).toBeInTheDocument();
     }
+  });
+
+  it('readCollapseState branches', () => {
+    const original = localStorage.getItem;
+    localStorage.clear();
+    expect(readCollapseState()).toEqual({
+      main: true,
+      descriptions: true,
+      technologies: true,
+      stats: true,
+      cta: true,
+    });
+    localStorage.setItem('admin-about:collapsed', '{broken');
+    expect(readCollapseState()).toEqual({
+      main: true,
+      descriptions: true,
+      technologies: true,
+      stats: true,
+      cta: true,
+    });
+    localStorage.setItem(
+      'admin-about:collapsed',
+      JSON.stringify({ version: 0, collapsed: { main: false, descriptions: true } })
+    );
+    expect(readCollapseState().main).toBe(true);
+    localStorage.setItem(
+      'admin-about:collapsed',
+      JSON.stringify({ version: 1, collapsed: { main: false, cta: true } })
+    );
+    const state = readCollapseState();
+    expect(state.main).toBe(false);
+    expect(state.cta).toBe(true);
+    localStorage.getItem = original;
   });
 });

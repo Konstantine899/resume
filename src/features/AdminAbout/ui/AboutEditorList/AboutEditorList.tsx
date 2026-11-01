@@ -67,66 +67,7 @@ import {
   type UploadedPortrait,
 } from './lib/uploadPortrait';
 import styles from './AboutEditorList.module.scss';
-
-const COLLAPSE_STORAGE_KEY = 'admin-about:collapsed';
-const COLLAPSE_STORAGE_VERSION = 1;
-
-type SectionKey = 'main' | 'descriptions' | 'technologies' | 'stats' | 'cta';
-
-const SECTION_KEYS: readonly SectionKey[] = [
-  'main',
-  'descriptions',
-  'technologies',
-  'stats',
-  'cta',
-] as const;
-
-const defaultCollapsedState = (): Record<SectionKey, boolean> => ({
-  main: true,
-  descriptions: true,
-  technologies: true,
-  stats: true,
-  cta: true,
-});
-
-const readCollapseState = (): Record<SectionKey, boolean> => {
-  try {
-    const raw = localStorage.getItem(COLLAPSE_STORAGE_KEY);
-    if (!raw) return defaultCollapsedState();
-    const parsed = JSON.parse(raw) as {
-      version?: number;
-      collapsed?: Partial<Record<SectionKey, boolean>>;
-    };
-    if (parsed.version !== COLLAPSE_STORAGE_VERSION) {
-      try {
-        localStorage.removeItem(COLLAPSE_STORAGE_KEY);
-      } catch {
-        // ignore
-      }
-      return defaultCollapsedState();
-    }
-    const merged = defaultCollapsedState();
-    // prune: pick only known keys
-    for (const key of SECTION_KEYS) {
-      const value = parsed.collapsed?.[key];
-      if (typeof value === 'boolean') merged[key] = value;
-    }
-    return merged;
-  } catch {
-    return defaultCollapsedState();
-  }
-};
-
-const writeCollapseState = (value: Record<SectionKey, boolean>): void => {
-  try {
-    localStorage.setItem(
-      COLLAPSE_STORAGE_KEY,
-      JSON.stringify({ version: COLLAPSE_STORAGE_VERSION, collapsed: value })
-    );
-  } catch {
-    // private mode — silently run without persistence
-  }
-};
+import { SectionKey, readCollapseState, writeCollapseState } from './lib/collapseState';
 
 export interface AboutEditorListProps {
   className?: string;
@@ -260,6 +201,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   // collapse state (persisted)
   const [collapsed, setCollapsed] = useState<Record<SectionKey, boolean>>(readCollapseState);
+
+  useEffect(() => {
+    writeCollapseState(collapsed);
+  }, [collapsed]);
 
   useEffect(() => {
     writeCollapseState(collapsed);
