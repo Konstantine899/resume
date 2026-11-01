@@ -4,6 +4,7 @@
  * живёт в `entities/Skill` (plan_skills_crud §1 — feature→feature запрещено).
  */
 import type { SkillCategoryData } from '@/entities/Skill';
+import type { Technology } from '@/entities/Technology';
 
 export interface SkillsFeatureProps {
   /** Дополнительный CSS класс */
@@ -16,4 +17,9 @@ export interface SkillsFeatureProps {
    * `SKILLS_DATA` — react-redux в `features/Skills` ЗАПРЕЩЁН (R-5 hook-free).
    */
   content?: SkillCategoryData[];
+  /**
+   * Каталог технологий — live source of truth для render-time resolution.
+   * Опционально для bare consumers/tests.
+   */
+  technologyCatalog?: readonly Technology[];
 }

@@ -80,7 +80,7 @@ export const HomePage: React.FC = () => {
             anchors and render order are one list, not two). */}
         <main id="main-content" className={styles.mainContent}>
           <About content={aboutContent} technologies={technologies} />
-          <Skills content={skillsContent} />
+          <Skills content={skillsContent} technologyCatalog={technologies} />
           <MyWork content={allProjects} />
           <WorkHistory content={jobsContent} />
           <Contact content={contactContent} />
