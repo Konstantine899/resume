@@ -15,7 +15,7 @@
   "skillsCategoryCount_other": "{{count}} technologies",
   "skillsErrCategoryName": "Category name must be 3–50 characters",
   "skillsErrCategoryExists": "This category already exists",
-  "skillsErrTechName": "Technology name must be 2–30 characters",
+  "skillsErrTechName": "Choose a technology",
   "skillsErrTechExists": "A technology with this name already exists in the category",
   "skillsErrIcon": "Choose an icon",
   "skillsErrFilter": "Filter must contain brightness( or invert( and be at most 200 characters",
@@ -462,5 +462,6 @@
   "adminAboutTechnologiesTable": "Technologies table",
   "adminAboutStatsTable": "Statistics table",
   "adminAboutCtaEn": "CTA text (English)",
-  "adminAboutCtaRu": "CTA text (Russian)"
+  "adminAboutCtaRu": "CTA text (Russian)",
+  "skillsSelectTechnology": "Select a technology"
 }

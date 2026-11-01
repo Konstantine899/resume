@@ -19,6 +19,12 @@ export interface SkillTechnology {
   iconSvg: string;
   /** Инвертировать ли иконку в тёмной теме (для светлых логотипов) */
   invertInDark?: boolean;
+  /**
+   * Link back to the technology catalog entry that supplied this record.
+   * Tokens that: added 2026-11-01 — new adminSkills records must use the catalog
+   * as single source of truth; legacy records keep `undefined`.
+   */
+  techKey?: string;
   /** CSS filter для раскраски монохромных иконок */
   iconFilter?: string;
 }
