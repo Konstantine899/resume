@@ -10,7 +10,7 @@ import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
 import { Section } from '@/shared/ui/Section';
 import { Fragment } from 'react';
-import type { AboutFeatureProps } from '../../model/types/types';
+import type { AboutFeatureProps, StackCatalogEntry } from '../../model/types/types';
 import styles from './About.module.scss';
 import { mediaSrcSet, mediaUrl } from '@/shared/lib/media';
 
@@ -22,10 +22,21 @@ const STATS_KEYS = [
   'aboutStatRemote',
 ] as const;
 
+/**
+ * Contract v3 (SPEC E-3): `stack` carries slug keys only — the display name
+ * resolves HERE in features (entities→entities is banned). Forward-compatible
+ * `name ?? key`: the catalog gains `name` with the display-name branch, so
+ * until then the slug itself renders (owner verdict, 2026-11-01). A key missing
+ * from the catalog renders as-is — honest data, never a crash (plan criterion 5).
+ */
+const resolveStackLabel = (key: string, catalog: StackCatalogEntry[] | undefined): string =>
+  catalog?.find((entry) => entry.key === key)?.name ?? key;
+
 export const About: React.FC<AboutFeatureProps> = ({
   className = '',
   'data-testid': testId = 'about',
   content,
+  technologies,
 }) => {
   const { t, language } = useLanguage();
 
@@ -33,6 +44,11 @@ export const About: React.FC<AboutFeatureProps> = ({
   // deleted it, so the link disappears entirely. `undefined` (no content prop)
   // keeps the original i18n fallback.
   const ctaText = content ? content.ctaLabel : undefined;
+
+  // Contract v3 (SPEC E-2): `undefined` — no prop, or a legacy document
+  // without the field — keeps the original PROFILE_STACK badges byte-for-byte;
+  // `[]` is the admin's intentional "no stack" and renders no badges at all.
+  const stackKeys = content?.stack ?? PROFILE_STACK;
 
   return (
     <Section
@@ -72,16 +88,19 @@ export const About: React.FC<AboutFeatureProps> = ({
                 </>
               )}
             </div>
-            {/* Stack badges — shared PROFILE_STACK, scannable proof. */}
-            <ul className={styles.stackBadges} data-testid="about-stack">
-              {PROFILE_STACK.map((tech) => (
-                <li key={tech}>
-                  <Badge variant="outline" size="sm">
-                    {tech}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
+            {/* Stack badges — `content.stack` resolved against the catalog
+                (contract v3), PROFILE_STACK as the legacy fallback. */}
+            {stackKeys.length > 0 && (
+              <ul className={styles.stackBadges} data-testid="about-stack">
+                {stackKeys.map((stackKey) => (
+                  <li key={stackKey}>
+                    <Badge variant="outline" size="sm">
+                      {resolveStackLabel(stackKey, technologies)}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
             {/* Stats row — translatable facts, separated by decorative dots.
                 Contract v2 (D13): with content every record entry renders in
                 insertion order (custom stats show the raw value — no i18n

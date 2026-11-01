@@ -291,3 +291,64 @@ describe('About: portrait source (WU-14, D16)', () => {
     expect(src).toMatch(/\.webp$/);
   });
 });
+
+// WU-3 (contract v3, SPEC E-2/E-3): the badges follow
+// `content.stack ?? PROFILE_STACK` and resolve display names from the
+// catalog prop. The suites above pin the fallback DOM (characterization);
+// these pin the new branches.
+describe('About: stack badges (WU-3, contract v3)', () => {
+  const catalog = [
+    { key: 'react', name: 'React' },
+    { key: 'nodejs', name: 'Node.js' },
+    { key: 'typescript' }, // the catalog shape today: no display name yet
+  ];
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the document stack in order, resolved to display names', () => {
+    render(
+      <About content={{ ...baseContent, stack: ['react', 'nodejs'] }} technologies={catalog} />
+    );
+
+    const items = within(screen.getByTestId('about-stack')).getAllByRole('listitem');
+    // Document order is preserved (plan WU-5 shares this rule).
+    expect(items.map((item) => item.textContent)).toEqual(['React', 'Node.js']);
+  });
+
+  it('falls back to the slug key while the catalog carries no display name', () => {
+    render(<About content={{ ...baseContent, stack: ['typescript'] }} technologies={catalog} />);
+
+    expect(within(screen.getByTestId('about-stack')).getByText('typescript')).toBeInTheDocument();
+  });
+
+  it('renders a key missing from the catalog as-is (honest data, no crash)', () => {
+    render(<About content={{ ...baseContent, stack: ['cobol'] }} technologies={catalog} />);
+
+    expect(within(screen.getByTestId('about-stack')).getByText('cobol')).toBeInTheDocument();
+  });
+
+  it('renders no badges at all for an intentionally empty stack', () => {
+    render(<About content={{ ...baseContent, stack: [] }} technologies={catalog} />);
+
+    expect(screen.queryByTestId('about-stack')).toBeNull();
+  });
+
+  it('keeps the legacy PROFILE_STACK badges when the document has no stack field', () => {
+    render(<About content={baseContent} technologies={catalog} />);
+
+    // No false matches: PROFILE_STACK carries display names, catalog keys are
+    // slugs — every badge still resolves to its own text.
+    const badges = screen.getByTestId('about-stack');
+    for (const tech of ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker']) {
+      expect(within(badges).getByText(tech)).toBeInTheDocument();
+    }
+  });
+
+  it('renders raw keys when no catalog prop is passed (bare render)', () => {
+    render(<About content={{ ...baseContent, stack: ['react'] }} />);
+
+    expect(within(screen.getByTestId('about-stack')).getByText('react')).toBeInTheDocument();
+  });
+});

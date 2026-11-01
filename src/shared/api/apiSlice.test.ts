@@ -426,6 +426,16 @@ describe('apiSlice endpoint wiring', () => {
     expect(aliasResult).toEqual(settings);
   });
 
+  it('passes the stack field through the About DTO (contract v3, SPEC E-5)', async () => {
+    const about = { fullName: 'Konstantine', stack: ['react', 'nodejs'] };
+    const { fetchMock } = captureFetch(() => jsonResponse(about));
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const store = makeStore();
+
+    const doc = await store.dispatch(apiSlice.endpoints.getAboutContent.initiate()).unwrap();
+    expect(doc.stack).toEqual(['react', 'nodejs']);
+  });
+
   it('publishes the About revision after a successful PUT', async () => {
     const dto = {
       fullName: 'Konstantine',

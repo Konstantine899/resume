@@ -1,27 +1,33 @@
 ---
 status: done
+epic: about-admin-sections
+created: '2026-11-01'
 spec: SPEC.md
-epic: admin-about-table
-created: '2026-10-19'
-verified: '2026-10-20'
 ---
 
-# TODO — features/AdminAbout (аменда rev.3: пагинация + карточка + модалка аватара)
+# TODO — features/AdminAbout (секционная админка)
 
-> План к [SPEC.md](./SPEC.md) (approved; вторая директива владельца 2026-10-20). Предыдущие WU-0..16 сожжены 2026-10-20 (история в git); WU-17 (сдача) сохранён и выполняется последним. Пункты сгорают удалением.
+> План к [SPEC.md](./SPEC.md) (approved, вердикт владельца 2026-11-01).
+> Источник: vault `about-admin-sections-refactor.md` rev.2, execution_mode:
+> automatic. Пункты сгорают УДАЛЕНИЕМ, не галочкой. Статусы frontmatter
+> пары: draft → approved → done.
 
 ## WU
 
-- **Эпик закрыт** — PR #315 смержен squash'ем в `dev` 2026-10-20 (`0c04595`); баррельная чистка OPEN-8 довнесена PR #313 (`e95c6e3`). Burn-down пары: этот коммит.
+      honest-data-ключ (R-4), EmptyState.
+      existence-guard), превью-смоук light+dark, axe, bundle-дельта
+      (зафиксировать по WU).
+      grep'ом (правило 7), PR `--base dev` squash, issue close вручную
+      (`Closes #N` в dev не работает).
 
-- **2026-10-20 (аменда 3)** — `.nameRow` перенесён внутрь карточки над таблицей по директиве владельца; SPEC D19/R-11 правлен ДО кода.
+## Гейты (каждый WU)
 
----
-
-## About sync amendment tasks (2026-10-27)
-
-- [x] Add shared API endpoints (`getAboutContent`, `updateAboutContent`)
-- [x] Replace localStorage persist seam with API seam
-- [x] Hydrate public route in App bootstrap
-- [x] Preserve fallback in resolver/content view
-- [ ] optional throttler/HTTP caching in backend request later
+- `npm run validate` (type-check + lint + lint:styles + vitest+coverage +
+  check:public-api), `npm run check:spec`, `npm run check:axe`
+  (PATHS содержит `/admin/about`; baseline обновлять ТОЛЬКО локально),
+  `npm run build` + `npm run check:bundle` (кап 933888 НЕ трогать),
+  превью-смоук light+dark.
+- `gh pr create` ВСЕГДА с `--base dev`; merge только после зелёных
+  чеков и слова владельца (auto-mode: мерж по зелёным, кроме approval-gate
+  пунктов).
+- `git status` перед коммитом spec-пары (`.gitignore` игнорирует `*.md`).

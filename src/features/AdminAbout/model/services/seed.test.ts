@@ -52,6 +52,11 @@ describe('createAboutSeed', () => {
     expect(AboutContentSchema.safeParse(createAboutSeed()).success).toBe(true);
   });
 
+  it('does NOT write stack (v3 SPEC E-2: seed leaves the field absent)', () => {
+    expect('stack' in createAboutSeed()).toBe(false);
+    expect(createAboutSeed().stack).toBeUndefined();
+  });
+
   it('returns a fresh object each call (no shared mutable state)', () => {
     const a = createAboutSeed();
     const b = createAboutSeed();
