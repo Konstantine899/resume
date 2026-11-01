@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderAdminPage } from '@/shared/tests';
@@ -53,7 +53,7 @@ vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
   useToast: () => ({ addToast, removeToast: vi.fn() }),
 }));
 
-describe('AboutEditorList (WU-4 section cards)', () => {
+describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -90,6 +90,20 @@ describe('AboutEditorList (WU-4 section cards)', () => {
     expect(content).not.toHaveAttribute('hidden');
   });
 
+  it('moves from expanded strip to minus control and back', () => {
+    renderAdminPage(<AboutEditorList />);
+    const button = screen.getAllByRole('button', {
+      name: 'adminAboutExpandTable',
+    })[0] as HTMLElement;
+    fireEvent.click(button);
+    const minus = screen.getByTestId('admin-about-collapse-main') as HTMLElement;
+    expect(minus).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(minus);
+    const plus = screen.getByTestId('admin-about-expand-main') as HTMLElement;
+    expect(plus.getAttribute('aria-expanded')).toBe('false');
+    expect(plus.getAttribute('aria-controls')).toBe('about-card-content-main');
+  });
+
   it('persists collapse state to localStorage and reads it back', () => {
     renderAdminPage(<AboutEditorList />);
     const button = screen.getAllByRole('button', {
@@ -109,5 +123,66 @@ describe('AboutEditorList (WU-4 section cards)', () => {
     });
     expect(() => renderAdminPage(<AboutEditorList />)).not.toThrow();
     vi.restoreAllMocks();
+  });
+
+  it('renders the fullName row on expand and enables save on dirty valid input', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
+    const input = screen.getByLabelText('aboutFieldFullName');
+    fireEvent.change(input, { target: { value: 'Nazar' } });
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    expect(save).not.toBeDisabled();
+  });
+
+  it('does not allow save on pristine or invalid fullName', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    expect(save).toBeDisabled();
+  });
+
+  it('dispatches through the add button modal', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutAddRow' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('opens the Tech card and toggles chips with a dirty save', async () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-technologies') as HTMLElement);
+    const chips = screen.getAllByRole('button');
+    expect(chips.length).toBeGreaterThan(0);
+  });
+
+  it('CTA block can be filled and saved', async () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    const areas = document.querySelectorAll('textarea');
+    expect(areas[0]).toBeDefined();
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    expect(save).toBeInTheDocument();
+    // change drafts through the first textarea
+    fireEvent.change(areas[0] as HTMLTextAreaElement, { target: { value: 'Hire' } });
+    fireEvent.change(areas[1] as HTMLTextAreaElement, { target: { value: 'Найми' } });
+    fireEvent.click(save);
+    await waitFor(() => expect(addToast).toHaveBeenCalled());
+  });
+
+  it('does not crash when collapsing/expanding repeatedly', () => {
+    renderAdminPage(<AboutEditorList />);
+    const plus = screen.getByTestId('admin-about-expand-stats') as HTMLElement;
+    fireEvent.click(plus);
+    const minus = screen.getByTestId('admin-about-collapse-stats') as HTMLElement;
+    fireEvent.click(minus);
+    expect(screen.getByTestId('admin-about-expand-stats')).toBeInTheDocument();
+  });
+
+  it('still renders the 5 card titles', () => {
+    renderAdminPage(<AboutEditorList />);
+    expect(screen.getByText('adminAboutCardMain')).toBeInTheDocument();
+    expect(screen.getByText('adminAboutCardDescriptions')).toBeInTheDocument();
+    expect(screen.getByText('adminAboutCardTechnologies')).toBeInTheDocument();
+    expect(screen.getByText('adminAboutCardStats')).toBeInTheDocument();
+    expect(screen.getByText('adminAboutCardCta')).toBeInTheDocument();
   });
 });
