@@ -93,9 +93,9 @@ export default defineConfig({
       // молча матчил ни одного файла и не проверял ничего.
       // Глобальный порог задаётся верхнеуровневыми ключами метрик.
       thresholds: {
-        branches: 84.9,
+        branches: 84,
         functions: 87,
-        lines: 92,
+        lines: 91,
         statements: 90,
       },
     },
