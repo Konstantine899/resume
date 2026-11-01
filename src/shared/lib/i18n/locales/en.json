@@ -448,5 +448,11 @@
   "auth.errors.validation": "Invalid value",
   "auth.errors.generic": "Something went wrong",
   "auth.success.loggedIn": "Signed in",
-  "auth.success.registered": "Registered"
+  "auth.success.registered": "Registered",
+  "comboboxNoOptions": "No options",
+  "comboboxRemove": "Remove",
+  "projectImageSubdirProjects": "projects",
+  "projectImageSubdirNew": "new",
+  "projectFieldLinkPlaceholder": "https://…  or  /…",
+  "adminTechUnknownKeys": "Some technology keys are no longer present in the catalog."
 }

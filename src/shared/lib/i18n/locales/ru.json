@@ -448,5 +448,11 @@
   "auth.errors.validation": "Некорректное значение",
   "auth.errors.generic": "Что-то пошло не так",
   "auth.success.loggedIn": "Вы вошли",
-  "auth.success.registered": "Регистрация выполнена"
+  "auth.success.registered": "Регистрация выполнена",
+  "comboboxNoOptions": "Нет вариантов",
+  "comboboxRemove": "Удалить",
+  "projectImageSubdirProjects": "projects",
+  "projectImageSubdirNew": "new",
+  "projectFieldLinkPlaceholder": "https://…  или  /…",
+  "adminTechUnknownKeys": "Некоторые ключи технологий отсутствуют в каталоге."
 }

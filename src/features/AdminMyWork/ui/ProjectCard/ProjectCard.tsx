@@ -258,8 +258,10 @@ export function ProjectCard({
       fieldKey: 'role',
     });
   }
-  const projectTechIcons = resolveTechIcons(project.techIcons);
-  if (projectTechIcons.length > 0) {
+  const projectTechnologyKeys = project.techIcons ?? [];
+  const projectTechIcons = resolveTechIcons(projectTechnologyKeys);
+  const unresolvedTechnologyKeys = projectTechnologyKeys.length - projectTechIcons.length;
+  if (projectTechnologyKeys.length > 0) {
     rows.push({
       key: 'techIcons',
       label: t('projectFieldTechIcons'),
@@ -275,6 +277,9 @@ export function ProjectCard({
               <span>{tech.name ?? t('projectFieldTechIcons')}</span>
             </span>
           ))}
+          {unresolvedTechnologyKeys > 0 && (
+            <span className={styles.techWarning}>{t('adminTechUnknownKeys')}</span>
+          )}
         </span>
       ),
       fieldKey: 'techIcons',

@@ -43,7 +43,7 @@ describe('readTechnologies', () => {
     expect(readTechnologies()).toBeNull();
   });
 
-  it('migrates a v1 envelope to a v2 catalog', () => {
+  it('migrates a v1 envelope to a v2 catalog and persists it on read', () => {
     localStorage.setItem(
       TECHNOLOGIES_STORAGE_KEY,
       JSON.stringify({ v: 1, technologies: VALID.map(({ name: _n, ...record }) => record) })
@@ -54,6 +54,8 @@ describe('readTechnologies', () => {
         ?.map((technology) => technology.key)
         .sort()
     ).toEqual(VALID.map((technology) => technology.key).sort());
+    const persisted = JSON.parse(localStorage.getItem(TECHNOLOGIES_STORAGE_KEY) as string);
+    expect(persisted.v).toBe(2);
   });
 
   it('returns null for an unknown envelope version (migration guard)', () => {
@@ -88,6 +90,15 @@ describe('readTechnologies', () => {
     });
     expect(readTechnologies()).toBeNull();
   });
+  it('rejects a stale write when the envelope changed behind us', () => {
+    persistTechnologies(VALID);
+    readTechnologies();
+    localStorage.setItem(TECHNOLOGIES_STORAGE_KEY, JSON.stringify({ v: 2, technologies: [] }));
+    expect(persistTechnologies(VALID)).toBe(false);
+    expect(
+      JSON.parse(localStorage.getItem(TECHNOLOGIES_STORAGE_KEY) as string).technologies
+    ).toEqual([]);
+  });
 });
 
 describe('persistTechnologies', () => {
@@ -100,6 +111,12 @@ describe('persistTechnologies', () => {
     expect(localStorage.getItem(TECHNOLOGIES_STORAGE_KEY)).toBeNull();
   });
 
+  it('returns success even when localStorage throws on the multi-tab guard (coverage)', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+    expect(persistTechnologies(VALID)).toBe(true);
+  });
   it('reports failure instead of throwing on quota/SecurityError', () => {
     // Faithful to browsers: setItem throws a DOMException named
     // QuotaExceededError, not a plain Error.

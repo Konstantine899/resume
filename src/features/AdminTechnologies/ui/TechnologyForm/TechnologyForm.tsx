@@ -171,7 +171,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         invertInDark: data.invertInDark,
       };
       const cleanedName = data.name?.trim();
-      if (cleanedName) patch.name = cleanedName;
+      patch.name = cleanedName ? cleanedName : undefined;
       const next = catalog.map((tech) =>
         tech.key === technology.key ? { ...tech, ...patch } : tech
       );
