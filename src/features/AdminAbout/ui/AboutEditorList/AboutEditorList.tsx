@@ -546,7 +546,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                     icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                     ariaLabel={t('adminAboutDeleteRow')}
                     data-testid={`admin-about-delete-stat-${key}`}
-                    onClick={() => requestDelete(field)}
+                    onClick={() => requestDelete(field as AboutRowField)}
                   />
                 </div>
                 <div className={styles.localeColumns}>
