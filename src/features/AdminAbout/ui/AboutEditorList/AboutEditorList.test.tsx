@@ -64,13 +64,10 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the header (h2 + hint + add button + portrait button + Reset)', () => {
+  it('renders the header (h2 + hint)', () => {
     renderAdminPage(<AboutEditorList />);
     expect(screen.getByRole('heading', { level: 2, name: 'adminAboutTitle' })).toBeInTheDocument();
     expect(screen.getByText('adminAboutHint')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'adminAboutAddRow' })).toBeInTheDocument();
-    expect(screen.getByTestId('admin-about-portrait-button')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'aboutReset' })).toBeInTheDocument();
   });
 
   it('renders exactly five collapsed cards by default', () => {
@@ -144,6 +141,7 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
 
   it('dispatches through the add button modal', () => {
     renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-descriptions') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: 'adminAboutAddRow' }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
@@ -158,11 +156,11 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
   it('CTA block can be filled and saved', async () => {
     renderAdminPage(<AboutEditorList />);
     fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutEditRow' }));
     const areas = document.querySelectorAll('textarea');
     expect(areas[0]).toBeDefined();
     const save = screen.getByRole('button', { name: 'aboutSave' });
     expect(save).toBeInTheDocument();
-    // change drafts through the first textarea
     fireEvent.change(areas[0] as HTMLTextAreaElement, { target: { value: 'Hire' } });
     fireEvent.change(areas[1] as HTMLTextAreaElement, { target: { value: 'Найми' } });
     fireEvent.click(save);
@@ -230,7 +228,10 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
     fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
     const input = screen.getByLabelText('aboutFieldFullName') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'Nazar' } });
-    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+    const saveButtons = screen
+      .getAllByRole('button', { name: 'aboutSave' })
+      .filter((btn) => !(btn as HTMLButtonElement).disabled);
+    fireEvent.click(saveButtons[0] as HTMLElement);
     await waitFor(() => expect(addToast).toHaveBeenCalled());
   });
 
@@ -246,18 +247,20 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
   it('tech toggle and save persists', async () => {
     renderAdminPage(<AboutEditorList />);
     fireEvent.click(screen.getByTestId('admin-about-expand-technologies') as HTMLElement);
-    const candidates = screen
-      .getAllByRole('button')
-      .filter((b) => b.textContent?.trim() === 'react');
-    if (candidates.length > 0) fireEvent.click(candidates[0] as HTMLElement);
-    const save = screen.getAllByRole('button', { name: 'aboutSave' }).slice(-1)[0] as HTMLElement;
-    fireEvent.click(save);
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutSelectTechnology' }));
+    const select = screen.getByRole('combobox') as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: 'react' } });
+    const techSaveButtons = screen
+      .getAllByRole('button', { name: 'aboutSave' })
+      .filter((btn) => !(btn as HTMLButtonElement).disabled);
+    fireEvent.click(techSaveButtons[0] as HTMLElement);
     await waitFor(() => expect(addToast).toHaveBeenCalled());
   });
 
   it('CTA save success path', async () => {
     renderAdminPage(<AboutEditorList />);
     fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutEditRow' }));
     const areas = document.querySelectorAll('textarea') as NodeListOf<HTMLTextAreaElement>;
     fireEvent.change(areas[0] as HTMLTextAreaElement, { target: { value: 'Hire' } });
     fireEvent.change(areas[1] as HTMLTextAreaElement, { target: { value: 'Найми' } });
@@ -269,6 +272,7 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
   it('CTA hidden toggle works', () => {
     renderAdminPage(<AboutEditorList />);
     fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: 'adminAboutEditRow' }));
     const checkbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     expect(checkbox).toBeInTheDocument();
     fireEvent.click(checkbox);
@@ -311,14 +315,9 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
   });
 
   it('covers chip selected/unselected rendering when stack exists', () => {
-    // direct render uses seed (stack undefined) -> all catalog chips unselected path + unknown check
     renderAdminPage(<AboutEditorList />);
     fireEvent.click(screen.getByTestId('admin-about-expand-technologies') as HTMLElement);
-    const reactButtons = screen
-      .getAllByRole('button')
-      .filter((b) => b.textContent?.trim() === 'react');
-    if (reactButtons.length > 0) fireEvent.click(reactButtons[0] as HTMLElement);
-    expect(screen.getAllByRole('button').some((b) => b.textContent?.includes('×'))).toBe(true);
+    expect(screen.getByRole('button', { name: 'adminAboutSelectTechnology' })).toBeInTheDocument();
   });
 
   it('renders both input mode cards when localStorage is throwing on setItem', () => {

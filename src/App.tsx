@@ -14,6 +14,7 @@ import { apiSlice } from '@/shared/api/apiSlice';
 import { selectAuthUser } from '@/features/Auth/model/selectors/selectors';
 import { bootstrapSession } from '@/features/Auth';
 import { updateAboutContent } from '@/features/AdminAbout/model/slices/aboutContentSlice';
+import { readAboutContent } from '@/features/AdminAbout/model/services/storage';
 import type { AboutContent } from '@/entities/AboutContent';
 import { ToastProvider } from './shared/lib/contexts/ToastContext';
 import { useTheme } from '@/shared/lib/contexts/ThemeContext';
@@ -45,6 +46,11 @@ const SessionBootstrap: React.FC = () => {
       const content = { ...data } as Record<string, unknown>;
       delete content.id;
       delete content.updatedAt;
+      // Keep locally saved stack when backend response hasn't persisted it yet.
+      if (!Array.isArray(content.stack)) {
+        const local = readAboutContent();
+        if (Array.isArray(local?.stack)) content.stack = local.stack;
+      }
       dispatch(updateAboutContent(content as unknown as AboutContent));
       loadedAboutRevisionRef.current = (data as { updatedAt?: string }).updatedAt ?? null;
     } catch {

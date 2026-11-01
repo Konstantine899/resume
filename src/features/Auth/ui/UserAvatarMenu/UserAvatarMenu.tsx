@@ -92,7 +92,8 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
           toggleTheme();
         }
       } catch {
-        // Keep local state untouched on failure.
+        // Backend preferences endpoint may be unavailable (404): still apply locally.
+        toggleTheme();
       }
     } else {
       toggleTheme();
@@ -109,7 +110,8 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
         dispatch(userSet(updated));
         setLanguage(next);
       } catch {
-        // Keep local state untouched on failure.
+        // Backend preferences endpoint may be unavailable (404): still switch locally.
+        setLanguage(next);
       }
     } else {
       setLanguage(next);

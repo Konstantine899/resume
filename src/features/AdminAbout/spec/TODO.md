@@ -31,3 +31,21 @@ spec: SPEC.md
   чеков и слова владельца (auto-mode: мерж по зелёным, кроме approval-gate
   пунктов).
 - `git status` перед коммитом spec-пары (`.gitignore` игнорирует `*.md`).
+
+## UI cleanup v2 (automatic)
+
+Status: approved (automatic)
+Date: 2026-11-01
+
+### WU
+
+- Header/collapsed ownership
+- Table conversions
+- CTA modal
+- Tech table + modal
+- i18n parity/existence-guard
+- a11y
+- migration + regression
+- gates
+
+Execution mode: automatic (auto WU, burn down, CI green, merge ready).

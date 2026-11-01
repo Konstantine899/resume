@@ -74,7 +74,7 @@
   "adminAboutCardStats": "Показатели",
   "adminAboutCardCta": "CTA",
   "adminAboutTechnologiesPlaceholder": "Технологии настраиваются в WU-5.",
-  "adminAboutTechUnknown": "Некоторые ключи отсутствуют в каталоге (честные данные)",
+  "adminAboutTechUnknown": "Неизвестные ключи технологий сохраняются как есть",
   "adminAboutCtaHidden": "Ссылка скрыта",
   "adminAboutTableField": "Поле",
   "adminAboutTableActions": "Действия",
@@ -454,5 +454,13 @@
   "auth.errors.validation": "Некорректное значение",
   "auth.errors.generic": "Что-то пошло не так",
   "auth.success.loggedIn": "Вы вошли",
-  "auth.success.registered": "Регистрация выполнена"
+  "auth.success.registered": "Регистрация выполнена",
+  "adminAboutSelectTechnology": "Выбрать технологию",
+  "adminAboutSelectAll": "Выбрать все",
+  "adminAboutTechAlreadySelected": "Эта технология уже выбрана.",
+  "adminAboutDescriptionsTable": "Таблица описаний",
+  "adminAboutTechnologiesTable": "Таблица технологий",
+  "adminAboutStatsTable": "Таблица показателей",
+  "adminAboutCtaEn": "Текст CTA (Английский)",
+  "adminAboutCtaRu": "Текст CTA (Русский)"
 }
