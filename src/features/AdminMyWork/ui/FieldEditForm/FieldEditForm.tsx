@@ -22,6 +22,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { mediaUrl } from '@/shared/lib/media';
 import { Button } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
+import { Combobox } from '@/shared/ui/Combobox';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
@@ -120,12 +121,6 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   });
 
   const handleCancel = () => onExitEdit?.();
-
-  const toggleTech = (key: string) => {
-    const current = values.techIcons ?? [];
-    const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-    setValue('techIcons', next, { shouldDirty: true });
-  };
 
   // Issue #273 (ProjectForm parity): the image is picked via kit FileUpload
   // and WRITTEN into the fixed `projects` subdirectory of the shared images
@@ -234,7 +229,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
               label={t('projectFieldLink')}
               error={errors.link ? t('projectLinkInvalid') : undefined}
               value={values.link ?? ''}
-              placeholder="https://…  or  /…"
+              placeholder={t('projectFieldLinkPlaceholder')}
               fullWidth
               {...register('link')}
             />
@@ -276,46 +271,20 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
       case 'techIcons':
         return (
           <div className={styles.field}>
-            <div className={styles.toggles} role="group" aria-label={t('projectFieldTech')}>
-              {techKeys.map((key) => {
-                const active = (values.techIcons ?? []).includes(key);
-                const technology = technologies.find((candidate) => candidate.key === key);
-                const label = technology?.name ?? technology?.key ?? key;
-                return (
-                  <Button
-                    key={key}
-                    type="button"
-                    variant={active ? 'primary' : 'outline'}
-                    size="sm"
-                    aria-pressed={active}
-                    onClick={() => toggleTech(key)}
-                  >
-                    {technology?.url ? (
-                      <img
-                        src={mediaUrl(technology.url)}
-                        alt=""
-                        className={styles.techToggleIcon}
-                      />
-                    ) : null}
-                    {technology?.url ? (
-                      <img
-                        src={mediaUrl(technology.url)}
-                        alt=""
-                        className={styles.techToggleIcon}
-                      />
-                    ) : null}
-                    {label}
-                  </Button>
-                );
-              })}
-            </div>
-            {errors.techIcons && (
-              <Paragraph asChild theme="error" size="s">
-                <span role="alert">{t('projectTechRequired')}</span>
-              </Paragraph>
-            )}
+            <Combobox
+              label={t('projectFieldTech')}
+              values={values.techIcons ?? []}
+              options={technologies.map((technology) => ({
+                value: technology.key,
+                label: technology.name ?? technology.key,
+                iconUrl: technology.url,
+              }))}
+              onChange={(next) => setValue('techIcons', next, { shouldDirty: true })}
+              placeholder={t('projectFieldTech')}
+            />
           </div>
         );
+
       case 'image':
         return (
           <div className={styles.field}>
