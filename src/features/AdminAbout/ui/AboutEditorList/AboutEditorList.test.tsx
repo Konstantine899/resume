@@ -185,4 +185,101 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
     expect(screen.getByText('adminAboutCardStats')).toBeInTheDocument();
     expect(screen.getByText('adminAboutCardCta')).toBeInTheDocument();
   });
+
+  it('restores persisted collapsed sections', () => {
+    localStorage.setItem(
+      'admin-about:collapsed',
+      JSON.stringify({ version: 1, collapsed: { main: false, cta: false } })
+    );
+    renderAdminPage(<AboutEditorList />);
+    expect(screen.getByTestId('admin-about-collapse-main')).toBeInTheDocument();
+    expect(screen.getByTestId('admin-about-collapse-cta')).toBeInTheDocument();
+  });
+
+  it('resets collapsed state on version mismatch', () => {
+    localStorage.setItem(
+      'admin-about:collapsed',
+      JSON.stringify({ version: 999, collapsed: { main: false } })
+    );
+    renderAdminPage(<AboutEditorList />);
+    expect(screen.getAllByTestId(/^admin-about-expand-/)).toHaveLength(5);
+  });
+
+  it('try/catch works when localStorage setItem throws', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    renderAdminPage(<AboutEditorList />);
+    expect(() =>
+      fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement)
+    ).not.toThrow();
+    vi.restoreAllMocks();
+  });
+
+  it('roundtrip collapse persists', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
+    fireEvent.click(screen.getByTestId('admin-about-collapse-main') as HTMLElement);
+    const stored = localStorage.getItem('admin-about:collapsed');
+    expect(JSON.parse(stored as string).collapsed.main).toBe(true);
+  });
+
+  it('fullName valid save success path', async () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
+    const input = screen.getByLabelText('aboutFieldFullName') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'Nazar' } });
+    fireEvent.click(screen.getByRole('button', { name: 'aboutSave' }));
+    await waitFor(() => expect(addToast).toHaveBeenCalled());
+  });
+
+  it('fullName invalid keeps disabled', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-main') as HTMLElement);
+    const input = screen.getByLabelText('aboutFieldFullName') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'a' } });
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    expect(save).toBeDisabled();
+  });
+
+  it('tech toggle and save persists', async () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-technologies') as HTMLElement);
+    const candidates = screen
+      .getAllByRole('button')
+      .filter((b) => b.textContent?.trim() === 'react');
+    if (candidates.length > 0) fireEvent.click(candidates[0] as HTMLElement);
+    const save = screen.getAllByRole('button', { name: 'aboutSave' }).slice(-1)[0] as HTMLElement;
+    fireEvent.click(save);
+    await waitFor(() => expect(addToast).toHaveBeenCalled());
+  });
+
+  it('CTA save success path', async () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    const areas = document.querySelectorAll('textarea') as NodeListOf<HTMLTextAreaElement>;
+    fireEvent.change(areas[0] as HTMLTextAreaElement, { target: { value: 'Hire' } });
+    fireEvent.change(areas[1] as HTMLTextAreaElement, { target: { value: 'Найми' } });
+    const save = screen.getByRole('button', { name: 'aboutSave' });
+    fireEvent.click(save);
+    await waitFor(() => expect(addToast).toHaveBeenCalled());
+  });
+
+  it('CTA hidden toggle works', () => {
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-cta') as HTMLElement);
+    const checkbox = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    expect(checkbox).toBeInTheDocument();
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+  });
+
+  it('collapse all roundtrip survives', () => {
+    renderAdminPage(<AboutEditorList />);
+    for (let i = 0; i < 5; i++) {
+      const btn = screen.getAllByTestId(/^admin-about-expand-/)[0] as HTMLElement;
+      fireEvent.click(btn);
+    }
+    expect(screen.getAllByTestId(/^admin-about-collapse-/)).toHaveLength(5);
+  });
 });
