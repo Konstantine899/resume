@@ -74,6 +74,7 @@
   "adminAboutCardStats": "Stats",
   "adminAboutCardCta": "CTA",
   "adminAboutTechnologiesPlaceholder": "Technologies are edited in WU-5.",
+  "adminAboutTechUnknown": "Some keys are not in catalog (honest data)",
   "adminAboutCtaHidden": "Link hidden",
   "adminAboutTableField": "Field",
   "adminAboutTableActions": "Actions",

@@ -74,6 +74,7 @@
   "adminAboutCardStats": "Показатели",
   "adminAboutCardCta": "CTA",
   "adminAboutTechnologiesPlaceholder": "Технологии настраиваются в WU-5.",
+  "adminAboutTechUnknown": "Некоторые ключи отсутствуют в каталоге (честные данные)",
   "adminAboutCtaHidden": "Ссылка скрыта",
   "adminAboutTableField": "Поле",
   "adminAboutTableActions": "Действия",

@@ -194,6 +194,20 @@
 
 // fighting CSS-module load order (Skills `.strip` parity).
 
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.chip {
+  // placeholder
+}
+
+.chipSelected {
+  font-weight: 600;
+}
+
 .strip.strip {
   gap: $spacing-2;
   justify-content: flex-start;

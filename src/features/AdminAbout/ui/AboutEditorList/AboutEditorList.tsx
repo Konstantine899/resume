@@ -39,6 +39,7 @@ import { Minus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { createAboutSeed } from '../../model/services/seed';
+import { selectAllTechnologies } from '@/entities/Technology';
 import { selectAboutContent } from '../../model/selectors/selectors';
 import { removeAboutContent } from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
@@ -137,6 +138,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   'data-testid': testId = 'about-editor-list',
 }) => {
   const content = useSelector(selectAboutContent);
+  const technologiesCatalog = useSelector(selectAllTechnologies);
   const dispatch = useDispatch<ThunkDispatch<AboutContentRootState, unknown, UnknownAction>>();
   const { t, language } = useLanguage();
   const { addToast } = useToast();
@@ -202,6 +204,8 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const [adding, setAdding] = useState(false);
   const [portraitOpen, setPortraitOpen] = useState(false);
   const [fullNameDraft, setFullNameDraft] = useState(content.fullName);
+  const [stackDraft, setStackDraft] = useState<string[] | undefined>(content.stack);
+  const [stackDirty, setStackDirty] = useState(false);
 
   const fullNameParsed = aboutFieldSchema('fullName').safeParse(fullNameDraft);
   const fullNameValid = fullNameParsed.success;
@@ -230,6 +234,29 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const closeFieldModal = () => setEditingField(null);
   const closeAddModal = () => setAdding(false);
   const closePortraitModal = () => setPortraitOpen(false);
+
+  const toggleTech = (key: string) => {
+    setStackDraft((prev) => {
+      const next = [...(prev ?? [])];
+      const idx = next.indexOf(key);
+      if (idx >= 0) next.splice(idx, 1);
+      else next.push(key);
+      return next;
+    });
+    setStackDirty(true);
+  };
+
+  const handleSaveTech = async (): Promise<void> => {
+    const merged: AboutContent = { ...content, stack: stackDraft };
+    const ok = await persistAboutContentToApi(merged);
+    if (!ok) {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+      return;
+    }
+    dispatch(updateAboutContent(merged));
+    setStackDirty(false);
+    addToast({ message: t('aboutSaved'), type: 'success' });
+  };
 
   // collapse state (persisted)
   const [collapsed, setCollapsed] = useState<Record<SectionKey, boolean>>(readCollapseState);
@@ -508,12 +535,56 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
       {renderCollapseCard(
         'adminAboutCardTechnologies',
         'technologies',
-        <EmptyState
-          title={<Heading>{t('adminAboutCardTechnologies')}</Heading>}
-          description={
-            <Paragraph theme="muted">{t('adminAboutTechnologiesPlaceholder')}</Paragraph>
-          }
-        />
+        technologiesCatalog.length === 0 ? (
+          <EmptyState
+            title={<Heading>{t('adminAboutCardTechnologies')}</Heading>}
+            description={
+              <Paragraph theme="muted">{t('adminAboutTechnologiesPlaceholder')}</Paragraph>
+            }
+          />
+        ) : (
+          <>
+            <div className={styles.chipRow}>
+              {(stackDraft ?? []).map((key) => {
+                const entry = technologiesCatalog.find((t) => t.key === key);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={styles.chipSelected}
+                    onClick={() => toggleTech(key)}
+                  >
+                    {entry?.key ?? key} ×
+                  </button>
+                );
+              })}
+              {technologiesCatalog
+                .filter((tech) => !(stackDraft ?? []).includes(tech.key))
+                .map((tech) => (
+                  <button
+                    key={tech.key}
+                    type="button"
+                    className={styles.chip}
+                    onClick={() => toggleTech(tech.key)}
+                  >
+                    {tech.key}
+                  </button>
+                ))}
+            </div>
+            {stackDraft?.some((key) => !technologiesCatalog.some((t) => t.key === key)) ? (
+              <Paragraph theme="muted">{t('adminAboutTechUnknown')}</Paragraph>
+            ) : null}
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={!stackDirty}
+              onClick={handleSaveTech}
+            >
+              {t('aboutSave')}
+            </Button>
+          </>
+        )
       )}
 
       {/* Card 4: Показатели */}
