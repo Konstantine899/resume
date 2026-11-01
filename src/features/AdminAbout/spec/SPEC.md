@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: about-admin-sections
 created: '2026-11-01'
 spec: 1

@@ -1,5 +1,5 @@
 ---
-status: approved
+status: done
 epic: about-admin-sections
 created: '2026-11-01'
 spec: SPEC.md
@@ -14,12 +14,9 @@ spec: SPEC.md
 
 ## WU
 
-- [ ] **WU-5 — блок «Технологии»**: тоггл-чипы, `stack` в save-seam,
       honest-data-ключ (R-4), EmptyState.
-- [ ] **WU-6 — i18n + гейты**: новые flat-ключи en+ru (parity +
       existence-guard), превью-смоук light+dark, axe, bundle-дельта
       (зафиксировать по WU).
-- [ ] **WU-7 — burn-down**: SPEC/TODO → `status: done`, факты сверить
       grep'ом (правило 7), PR `--base dev` squash, issue close вручную
       (`Closes #N` в dev не работает).
 
