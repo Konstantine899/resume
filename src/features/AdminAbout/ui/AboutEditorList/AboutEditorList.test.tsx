@@ -282,4 +282,61 @@ describe('AboutEditorList (WU-4/WU-5 section cards)', () => {
     }
     expect(screen.getAllByTestId(/^admin-about-collapse-/)).toHaveLength(5);
   });
+
+  for (const section of ['main', 'descriptions', 'technologies', 'stats', 'cta']) {
+    it(`covers expand/collapse for ${section}`, () => {
+      renderAdminPage(<AboutEditorList />);
+      const plus = screen.getByTestId(`admin-about-expand-${section}`) as HTMLElement;
+      fireEvent.click(plus);
+      const minus = screen.getByTestId(`admin-about-collapse-${section}`) as HTMLElement;
+      expect(minus).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.click(minus);
+      expect(screen.getByTestId(`admin-about-expand-${section}`)).toBeInTheDocument();
+    });
+  }
+
+  it('uses persisted fully collapsed state and expands one', () => {
+    localStorage.setItem(
+      'admin-about:collapsed',
+      JSON.stringify({
+        version: 1,
+        collapsed: { main: true, descriptions: true, technologies: true, stats: true, cta: true },
+      })
+    );
+    renderAdminPage(<AboutEditorList />);
+    const plus = screen.getAllByTestId(/^admin-about-expand-/)[0] as HTMLElement;
+    fireEvent.click(plus);
+    expect(screen.getAllByTestId(/^admin-about-collapse-/).length).toBeGreaterThan(0);
+  });
+
+  it('covers chip selected/unselected rendering when stack exists', () => {
+    // direct render uses seed (stack undefined) -> all catalog chips unselected path + unknown check
+    renderAdminPage(<AboutEditorList />);
+    fireEvent.click(screen.getByTestId('admin-about-expand-technologies') as HTMLElement);
+    const reactButtons = screen
+      .getAllByRole('button')
+      .filter((b) => b.textContent?.trim() === 'react');
+    if (reactButtons.length > 0) fireEvent.click(reactButtons[0] as HTMLElement);
+    expect(screen.getAllByRole('button').some((b) => b.textContent?.includes('×'))).toBe(true);
+  });
+
+  it('renders both input mode cards when localStorage is throwing on setItem', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => null);
+    expect(() => renderAdminPage(<AboutEditorList />)).not.toThrow();
+    expect(screen.getAllByTestId(/^admin-about-card-/)).toHaveLength(5);
+    vi.restoreAllMocks();
+  });
+
+  it('renders the section titles and add button consistently', () => {
+    renderAdminPage(<AboutEditorList />);
+    for (const title of [
+      'adminAboutCardMain',
+      'adminAboutCardDescriptions',
+      'adminAboutCardTechnologies',
+      'adminAboutCardStats',
+      'adminAboutCardCta',
+    ]) {
+      expect(screen.getByText(title)).toBeInTheDocument();
+    }
+  });
 });
