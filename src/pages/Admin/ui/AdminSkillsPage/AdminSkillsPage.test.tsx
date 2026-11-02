@@ -120,7 +120,7 @@ describe('AdminSkillsPage (modal criteria)', () => {
     expect(within(modal).getByTestId('technology-form')).toBeInTheDocument();
   });
 
-  it('edit technology: prefilled modal; Save renames the row in the store', async () => {
+  it('edit technology: prefilled modal; Save relinks the row (key change)', async () => {
     const store = renderPage();
 
     fireEvent.click(
@@ -133,10 +133,13 @@ describe('AdminSkillsPage (modal criteria)', () => {
     expect(
       within(modal).getByRole('heading', { level: 2, name: 'skillsEditTechnology' })
     ).toBeInTheDocument();
-    const nameInput = within(modal).getByLabelText('skillsTechnologyName');
-    expect(nameInput).toHaveValue('React');
+    // Seed data has no link (legacy, AD-8): the Select starts empty and
+    // the legacy hint explains the situation.
+    const techSelect = within(modal).getByLabelText('skillsSelectTechnology');
+    expect(techSelect).toHaveValue('');
+    expect(within(modal).getByTestId('skills-tech-legacy-hint')).toBeInTheDocument();
 
-    fireEvent.change(nameInput, { target: { value: 'Preact' } });
+    fireEvent.change(techSelect, { target: { value: 'nodejs' } });
     fireEvent.click(within(modal).getByRole('button', { name: 'skillsSave' }));
 
     await waitFor(() =>
@@ -145,11 +148,11 @@ describe('AdminSkillsPage (modal criteria)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
     const frontend = categoriesOf(store).find((entry) => entry.category === 'frontend');
-    const names = frontend?.technologies.map((tech) => tech.name) ?? [];
-    expect(names).toContain('Preact');
-    expect(names).not.toContain('React');
-    // The renamed row occupies the same window slot on page 1.
-    expect(screen.getByTestId('skill-tech-row-Preact')).toBeInTheDocument();
+    const keys = frontend?.technologies.map((t) => t.techKey ?? t.name) ?? [];
+    expect(keys).toContain('nodejs');
+    expect(keys).not.toContain('react');
+    // The relinked row is rendered under its new identity.
+    expect(screen.getByTestId('skill-tech-row-nodejs')).toBeInTheDocument();
     expect(screen.queryByTestId('skill-tech-row-React')).not.toBeInTheDocument();
   });
 

@@ -66,7 +66,7 @@ describe('persistSkills', () => {
       ...category,
       technologies: category.technologies.map((technology) => ({
         ...technology,
-        iconSvg: normalizeIconSvg(technology.iconSvg),
+        iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
       })),
     }));
     expect(readSkills()).toEqual(expected);
@@ -111,7 +111,7 @@ describe('readSkills', () => {
       ...category,
       technologies: category.technologies.map((technology) => ({
         ...technology,
-        iconSvg: normalizeIconSvg(technology.iconSvg),
+        iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
       })),
     }));
     expect(readSkills()).toEqual(expected);
@@ -123,13 +123,38 @@ describe('readSkills', () => {
   });
 
   it('returns null for an unknown envelope version (migration guard)', () => {
-    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify({ v: 2, data: VALID }));
+    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify({ v: 3, data: VALID }));
     expect(readSkills()).toBeNull();
   });
 
   it('returns null for a schema-invalid payload inside the envelope', () => {
     localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify({ v: 1, data: [INVALID_RECORD] }));
     expect(readSkills()).toBeNull();
+  });
+});
+
+describe('sparse catalog-linked records (D1, AD-4)', () => {
+  const sparse: SkillCategoryData[] = [
+    {
+      category: 'frontend',
+      categoryName: 'Frontend',
+      technologies: [{ techKey: 'nodejs' }],
+    },
+    {
+      category: 'backend',
+      categoryName: 'Backend',
+      technologies: [{ techKey: 'react', invertInDark: true }],
+    },
+  ];
+
+  it('persistSkills returns true for two sparse records', () => {
+    expect(persistSkills(sparse)).toBe(true);
+  });
+
+  it('readSkills returns them unchanged (no synthesized iconSvg)', () => {
+    const stored = persistSkills(sparse);
+    expect(stored).toBe(true);
+    expect(readSkills()).toEqual(sparse);
   });
 });
 

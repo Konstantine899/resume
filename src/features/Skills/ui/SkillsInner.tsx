@@ -22,6 +22,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
   className = '',
   'data-testid': testId = 'skills',
   content,
+  technologyCatalog,
 }) => {
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -91,7 +92,7 @@ export const SkillsInner: React.FC<SkillsFeatureProps> = ({
           <CardGrid columns={2} gap="md" role="list" className={styles.categoriesList}>
             {data.map((categoryData, index) => (
               <AnimatedSection key={categoryData.category} animation="fadeIn" delay={index * 30}>
-                <SkillItem categoryData={categoryData} delay={index * 30} />
+                <SkillItem categoryData={categoryData} technologyCatalog={technologyCatalog} delay={index * 30} />
               </AnimatedSection>
             ))}
           </CardGrid>

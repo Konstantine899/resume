@@ -1,255 +1,173 @@
-// ============================================
-// TechnologyForm — admin create/edit form for one technology (WU-5)
-// ============================================
-//
-// Stage-1 CRUD (plan_skills_crud §7): react-hook-form + zodResolver
-// against `makeTechnologyFormSchema(existingNames, mode)`.
-// Uniqueness is scoped to the OWNING category (render key, R-9) and the
-// current record's own name is excluded so edit mode can keep it.
-//
-// Field-error mapping (issue code → i18n key, i18n-first):
-// - `name`: 'custom' issue = duplicate → skillsErrTechExists, otherwise
-//   presence (min/max) → skillsErrTechName;
-// - `iconSvg` / `iconFilter`: any issue → skillsErrIcon / skillsErrFilter.
-//
-// rev.2 (skills-icon-upload, OPEN-1 = A): the icon Select is GONE —
-// `iconSvg` only ever comes from FileUpload → save-to-directory (subdir
-// `skills`, the ProjectForm pattern from PR #209). Create requires an
-// upload; edit with '' KEEPS the stored record (legacy key or path).
-// The kit never owns copy — unsupported/save errors surface as i18n
-// keys through local state (plan A2).
-//
-// rev.6 (orphan cleanup, 2026-10-22): THIS form writes the file at
-// FILE-SELECT time (not inside handleSave), so a FAILED persist removes
-// the just-written file best-effort (`removeUploadedImage` — never
-// throws) AND resets `iconSvg` to the «keep the stored record» form
-// value ('' — a retry re-persists the stored icon instead of a link to
-// the DELETED file; '' in create blocks the Save until a new upload).
-// A same-name overwrite is NOT removed (the stored record still points
-// at that path). The kit uploader is key-remounted so its "selected"
-// announcement/preview cannot lie after the cleanup.
-//
-// Invariants:
-// - persist BEFORE dispatch (§3) with the nested collection rebuilt from
-//   one `all` snapshot — store === storage.
-// - ALL copy is i18n; Delete lives in SkillsEditorList (§9).
-// - WU-5/A7: the form renders INSIDE the page's kit Modal — the modal
-//   header owns the title and the fixed categoryId moved to the modal
-//   `subtitle`; a SUCCESSFUL Save (create or edit) closes through
-//   `onExitEdit`.
-
-import { resolveIconSvg, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
-import { ensureRootWithinGesture, removeUploadedImage } from '@/shared/lib/imageDir';
-import { isMediaKey } from '@/shared/lib/media';
-import { removeMedia, uploadImage } from '@/shared/lib/imageUpload';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import styles from './TechnologyForm.module.scss';
 import { Button } from '@/shared/ui/Button';
-import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
 import { Form } from '@/shared/ui/Form';
-import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
-import { Textarea } from '@/shared/ui/Textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useCallback, useState } from 'react';
+import { Select } from '@/shared/ui/Select';
+import React, { useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllSkillsData } from '../../model/selectors/selectors';
-import { persistSkills } from '../../model/services/storage';
+
 import { addTechnology, updateTechnology } from '../../model/slices/skillsSlice';
+import { persistSkills } from '../../model/services/storage';
+import { selectAllSkillsData } from '../../model/selectors/selectors';
+import { keyOf, type SkillTechnology } from '@/entities/Skill';
+import { resolveIconSvg } from '@/entities/Skill';
+import { selectAllTechnologies } from '@/entities/Technology/model/selectors/selectors';
 import {
   emptyTechnologyFormValues,
   makeTechnologyFormSchema,
   toTechnologyFormValues,
-  type TechnologyFormOutput,
   type TechnologyFormValues,
 } from '../lib/technologyFormSchema';
-import styles from './TechnologyForm.module.scss';
-
-/** SVG byte cap for the icon upload (~50 KB — plan D1). */
-const ICON_MAX_BYTES = 50_000;
-/** Fixed subdir under the remembered images root (plan D2). */
-
-/** §3: the persist contract is `boolean` — a THROW must fail exactly like `false`. */
-function persistOutcome(persist: () => boolean): boolean {
-  try {
-    return persist();
-  } catch {
-    return false;
-  }
-}
 
 export interface TechnologyFormProps {
   className?: string;
   'data-testid'?: string;
-  /** The category this technology belongs to (create + edit). */
   categoryId: string;
-  /** Edit mode: record being edited. Absent = create mode. */
   technology?: SkillTechnology;
-  /** Close signal: edit exit AND successful create-save (WU-5/A7) — the page clears its selection (key-remounts us). */
   onExitEdit?: () => void;
 }
 
 export const TechnologyForm: React.FC<TechnologyFormProps> = ({
-  className = '',
+  className,
   categoryId,
   technology,
   onExitEdit,
   'data-testid': testId = 'technology-form',
 }) => {
-  // Same-feature selector + dispatch — legal inside AdminSkills (§8).
   const all = useSelector(selectAllSkillsData);
+  const technologies = useSelector(selectAllTechnologies);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
 
-  // Uniqueness inside the owning category, excluding the record's own
-  // name (edit may keep it). Recomputed every render — a technology
-  // added in parallel is immediately part of the check.
-  const categoryRecord: SkillCategoryData | undefined = all.find(
-    (entry) => entry.category === categoryId
-  );
-  const existingNames = (categoryRecord?.technologies ?? [])
-    .map((tech) => tech.name)
-    .filter((name) => name !== technology?.name);
-
-  // rev.2: create requires an upload; edit allows '' (keep the record).
   const mode = technology ? 'edit' : 'create';
+
+  const categoryRecord = all.find((entry) => entry.category === categoryId);
+  const originalKey = technology ? keyOf(technology) : '';
+  const existingKeys = (categoryRecord?.technologies ?? [])
+    .map(keyOf)
+    .filter((key): key is string => Boolean(key))
+    .filter((key) => key !== originalKey);
+
+  const availableKeys = technologies.map((tech) => tech.key);
 
   const {
     register,
     handleSubmit,
-    reset,
-    control,
     setValue,
+    control,
     formState: { errors, isDirty, isSubmitting },
-  } = useForm<TechnologyFormValues, unknown, TechnologyFormOutput>({
-    resolver: zodResolver(makeTechnologyFormSchema(existingNames, mode)),
-    defaultValues: technology ? toTechnologyFormValues(technology) : emptyTechnologyFormValues(),
+  } = useForm<TechnologyFormValues, unknown, TechnologyFormValues>({
+    resolver: zodResolver(makeTechnologyFormSchema(existingKeys, availableKeys, mode)),
+    defaultValues: technology
+      ? toTechnologyFormValues(
+          technology,
+          technologies.find((tech) => tech.key === (technology?.techKey ?? technology?.name))
+            ?.invertInDark
+        )
+      : emptyTechnologyFormValues(),
   });
 
-  // Kit inputs are React-controlled — feed `value` from useWatch() (the
-  // ProjectForm pattern; watch() is React Compiler-incompatible).
   const values = useWatch({ control });
 
-  // File-upload save errors (unsupported / write failure) — i18n keys,
-  // rendered as role=alert below the control (plan A2, no kit copy).
-  const [iconSaveErrorKey, setIconSaveErrorKey] = useState<
-    'skillsIconUploadUnsupported' | 'skillsIconUploadSaveError' | null
-  >(null);
-
-  // rev.6: bumping the key REMOUNTS the kit uploader — its internal
-  // "selected" announcement and preview must not survive a cleanup.
-  const [uploadKey, setUploadKey] = useState(0);
-
-  // rev.2 / D2: the ProjectForm pattern (PR #209) — root handle in
-  // IndexedDB, fixed `skills` subdir, the form stores the PATH.
-  const handleImageFile = useCallback(
-    async (file: FileUploadSelection) => {
-      setIconSaveErrorKey(null);
-
-      try {
-        const outcome = await uploadImage({ blob: file.blob, name: file.name });
-        if (!outcome.ok) {
-          setIconSaveErrorKey('skillsIconUploadSaveError');
-          return;
-        }
-        setValue('iconSvg', outcome.file.key, { shouldDirty: true, shouldValidate: true });
-      } catch {
-        setIconSaveErrorKey('skillsIconUploadSaveError');
-      }
-    },
-    [setValue]
+  const selectedTechnology = useMemo(
+    () => technologies.find((tech) => tech.key === values.techKey),
+    [technologies, values.techKey]
   );
 
-  /** §3 order: persist → dispatch → toast → pristine form / exit. */
-  const handleSave = handleSubmit(async (data) => {
-    // rev.6 orphan cleanup: the file was written at FILE-SELECT time, so
-    // a FAILED persist removes it best-effort (`removeUploadedImage` never
-    // throws) AND restores the `iconSvg` field — a retry must never
-    // persist a link to the DELETED file. Removal skips a same-name
-    // overwrite (the stored record still points at that path).
-    const cleanupIconFile = async (): Promise<void> => {
-      if (data.iconSvg && data.iconSvg !== technology?.iconSvg) {
-        await (isMediaKey(data.iconSvg)
-          ? removeMedia(data.iconSvg)
-          : removeUploadedImage(data.iconSvg));
-      }
-      setUploadKey((key) => key + 1); // remount the uploader (stale preview)
-    };
+  const handleTechnologySelect = (value: string) => {
+    setValue('techKey', value, { shouldDirty: true, shouldValidate: true });
+    const picked = technologies.find((tech) => tech.key === value);
+    if (picked) {
+      setValue('invertInDark', picked.invertInDark ?? false, { shouldDirty: true });
+    }
+  };
+
+  const currentIconUrl = technology
+    ? (selectedTechnology?.url ?? resolveIconSvg(technology.iconSvg ?? ''))
+    : selectedTechnology?.url;
+
+  const techKeyError = errors.techKey ? t('skillsErrTechName') : undefined;
+
+  const handleCancel = () => {
+    if (onExitEdit) onExitEdit();
+  };
+
+  const handleSave = handleSubmit((data) => {
+    const picked = technologies.find((tech) => tech.key === data.techKey);
+
+    if (!picked) {
+      addToast({ message: t('skillsErrTechName'), type: 'error' });
+      return;
+    }
 
     if (technology) {
-      // rev.2: '' means «keep the stored record» (legacy key or path).
-      const patch = {
-        name: data.name,
-        iconSvg: data.iconSvg || technology.iconSvg,
-        iconFilter: data.iconFilter,
-        invertInDark: data.invertInDark,
+      // AD-10 (D9): persist only the link plus a deliberate override.
+      // The catalog owns invertInDark; the snapshot is no longer written.
+      // Legacy records without a catalog link keep their snapshot until
+      // the user resolves them to a catalog entry (omitLegacy false).
+      const omitLegacy = Boolean(technology.techKey);
+      const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
+      const patch: Partial<SkillTechnology> = {
+        techKey: picked.key,
+        invertInDark: undefined,
+        invertInDarkOverride: invertDiffers ? data.invertInDark : undefined,
+        ...(omitLegacy ? { name: undefined, iconSvg: undefined } : {}),
       };
+
       const next = all.map((entry) =>
         entry.category === categoryId
           ? {
               ...entry,
               technologies: entry.technologies.map((tech) =>
-                tech.name === technology.name ? { ...tech, ...patch } : tech
+                keyOf(tech) === originalKey ? { ...tech, ...patch } : tech
               ),
             }
           : entry
       );
-      if (!persistOutcome(() => persistSkills(next))) {
-        await cleanupIconFile();
-        // Restore the «keep the stored record» form value ('' — the
-        // schema never accepts a legacy KEY in the field; a retry
-        // re-persists `technology.iconSvg` through the patch above).
-        setValue('iconSvg', '', { shouldDirty: true });
+
+      if (!persistSkills(next)) {
         addToast({ message: t('skillsPersistError'), type: 'error' });
-        return; // form keeps the values; store unchanged (§7)
+        return;
       }
-      dispatch(updateTechnology({ categoryId, techName: technology.name, patch }));
+
+      dispatch(updateTechnology({ categoryId, techKey: originalKey, patch }));
       addToast({ message: t('skillsSaved'), type: 'success' });
-      reset(toTechnologyFormValues({ ...technology, ...patch }));
       onExitEdit?.();
       return;
     }
+
+    const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
     const record: SkillTechnology = {
-      name: data.name,
-      iconSvg: data.iconSvg,
-      iconFilter: data.iconFilter,
-      invertInDark: data.invertInDark,
+      techKey: picked.key,
+      ...(invertDiffers ? { invertInDarkOverride: data.invertInDark } : {}),
     };
+
     const next = all.map((entry) =>
       entry.category === categoryId
         ? { ...entry, technologies: [...entry.technologies, record] }
         : entry
     );
-    if (!persistOutcome(() => persistSkills(next))) {
-      await cleanupIconFile();
-      setValue('iconSvg', '', { shouldDirty: true }); // next Save requires a NEW upload
+
+    if (!persistSkills(next)) {
       addToast({ message: t('skillsPersistError'), type: 'error' });
       return;
     }
+
     dispatch(addTechnology({ categoryId, technology: record }));
     addToast({ message: t('skillsSaved'), type: 'success' });
-    reset(emptyTechnologyFormValues());
-    // A7: successful create closes the modal too (was: inline form stayed open).
     onExitEdit?.();
   });
 
-  const handleCancel = () => {
-    if (onExitEdit) onExitEdit();
-    else reset(emptyTechnologyFormValues());
-  };
-
-  const nameError = errors.name
-    ? errors.name.type === 'custom'
-      ? t('skillsErrTechExists')
-      : t('skillsErrTechName')
-    : undefined;
-
-  // rev.2: edit-mode preview of the CURRENT stored icon (key or path) —
-  // the FileUpload preview shows only the just-picked file.
-  const currentIconUrl = technology ? resolveIconSvg(technology.iconSvg) : undefined;
+  const options = technologies.map((tech) => ({
+    value: tech.key,
+    label: tech.key,
+  }));
 
   return (
     <Form
@@ -259,62 +177,41 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       onSubmit={handleSave}
     >
       <div className={styles.field}>
-        <Input
-          label={t('skillsTechnologyName')}
-          error={nameError}
-          value={values.name ?? ''}
-          maxLength={30}
+        <Select
+          label={t('skillsSelectTechnology')}
+          value={values.techKey ?? ''}
+          onChange={handleTechnologySelect}
+          options={options}
+          placeholder={technologies.length > 0 ? t('skillsSelectTechnology') : undefined}
+          error={techKeyError}
           fullWidth
-          {...register('name')}
         />
       </div>
 
-      <div className={styles.field}>
-        {currentIconUrl && (
-          <div className={styles.iconPreviewRow}>
-            <img className={styles.iconPreview} src={currentIconUrl} alt="" />
-            <Paragraph asChild theme="muted" size="s">
-              <span>{t('skillsIconCurrent')}</span>
-            </Paragraph>
-          </div>
-        )}
-        <FileUpload
-          key={uploadKey}
-          label={t('skillsIconUploadLabel')}
-          texts={{
-            button: t('skillsIconUploadButton'),
-            hint: t('skillsIconUploadHint'),
-            notImage: t('skillsIconUploadNotImage'),
-            tooLarge: t('skillsIconUploadTooLarge'),
-            undecodable: t('skillsIconUploadUndecodable'),
-            selected: t('skillsIconUploadSelected'),
-          }}
-          onBeforeSelect={() => ensureRootWithinGesture()}
-          onFileSelect={handleImageFile}
-          maxBlobBytes={ICON_MAX_BYTES}
-        />
-        {iconSaveErrorKey && (
-          <Paragraph asChild theme="error" size="s">
-            <span role="alert">{t(iconSaveErrorKey)}</span>
+      {selectedTechnology && (
+        <div className={styles.iconPreviewRow}>
+          <img className={styles.iconPreview} src={selectedTechnology.url} alt="" />
+          <Paragraph asChild theme="muted" size="s">
+            <span>{selectedTechnology.key}</span>
           </Paragraph>
-        )}
-        {errors.iconSvg && (
-          <Paragraph asChild theme="error" size="s">
-            <span role="alert">{t('skillsErrIcon')}</span>
-          </Paragraph>
-        )}
-      </div>
+        </div>
+      )}
+      {/* AD-8 / B4: legacy record without a catalog link — force an
+      explicit choice instead of silently guessing a slug from the label. */}
+      {technology && !technology.techKey && !values.techKey && (
+        <Paragraph theme="muted" size="s" data-testid="skills-tech-legacy-hint">
+          {t('skillsTechLegacyHint')}
+        </Paragraph>
+      )}
 
-      <div className={styles.field}>
-        <Textarea
-          label={t('skillsIconFilter')}
-          error={errors.iconFilter ? t('skillsErrFilter') : undefined}
-          value={values.iconFilter ?? ''}
-          maxLength={200}
-          rows={2}
-          {...register('iconFilter')}
-        />
-      </div>
+      {!selectedTechnology && currentIconUrl && (
+        <div className={styles.iconPreviewRow}>
+          <img className={styles.iconPreview} src={currentIconUrl} alt="" />
+          <Paragraph asChild theme="muted" size="s">
+            <span>{technology?.name ?? technology?.iconSvg ?? ''}</span>
+          </Paragraph>
+        </div>
+      )}
 
       <div className={styles.checkRow}>
         <input

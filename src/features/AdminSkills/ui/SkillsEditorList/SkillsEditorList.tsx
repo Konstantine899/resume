@@ -45,7 +45,7 @@ import { Paragraph } from '@/shared/ui/Paragraph';
 import { Tooltip } from '@/shared/ui/Tooltip';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { SkillCategoryData } from '@/entities/Skill';
+import { keyOf, type SkillCategoryData } from '@/entities/Skill';
 import type { DataTableColumn, SortState } from '@/shared/ui/DataTable';
 import { selectAllSkillsData } from '../../model/selectors/selectors';
 import { persistSkills, removeSkills } from '../../model/services/storage';
@@ -65,15 +65,23 @@ const PAGE_SIZE_OPTIONS: readonly number[] = [5, 10, 20];
 
 /** One row of a single-category table. */
 type TechRow = {
+  /** Stable row identity: category + `keyOf` (AD-1). */
   id: string;
-  techName: string;
+  /** Record identity — actions, testids and payloads use THIS. */
+  key: string;
+  /**
+   * Visible label, split from `key` on purpose. AD-6: the catalog key is
+   * the display name for now; a real display name can land here later
+   * without touching identity or the testid contract.
+   */
+  label: string;
   entry: SkillCategoryData;
 };
 
 /** One pending destructive action behind the shared Modal confirm. */
 type PendingDelete =
   | { kind: 'category'; categoryId: string }
-  | { kind: 'technology'; categoryId: string; techName: string }
+  | { kind: 'technology'; categoryId: string; techKey: string }
   | { kind: 'reset' }
   | null;
 
@@ -86,12 +94,12 @@ export interface SkillsEditorListProps {
   onEditCategory?: (category: SkillCategoryData) => void;
   /** The page opens its create form inside this category. */
   onAddTechnology?: (categoryId: string) => void;
-  /** The page opens its edit form for this technology. */
-  onEditTechnology?: (categoryId: string, techName: string) => void;
+  /** The page opens its edit form for this technology (by `keyOf`). */
+  onEditTechnology?: (categoryId: string, techKey: string) => void;
   /** The page clears a category selection when the record is deleted. */
   onCategoryDeleted?: (categoryId: string) => void;
   /** The page clears a technology selection when the record is deleted. */
-  onTechnologyDeleted?: (categoryId: string, techName: string) => void;
+  onTechnologyDeleted?: (categoryId: string, techKey: string) => void;
 }
 
 export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
@@ -147,10 +155,10 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
     }
 
     if (pending.kind === 'technology') {
-      const { categoryId, techName } = pending;
+      const { categoryId, techKey } = pending;
       const next = all.map((entry) =>
         entry.category === categoryId
-          ? { ...entry, technologies: entry.technologies.filter((tech) => tech.name !== techName) }
+          ? { ...entry, technologies: entry.technologies.filter((tech) => keyOf(tech) !== techKey) }
           : entry
       );
       if (!persistSkills(next)) {
@@ -159,9 +167,9 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
         setDeleting(false);
         return;
       }
-      dispatch(deleteTechnology({ categoryId, techName }));
+      dispatch(deleteTechnology({ categoryId, techKey }));
       addToast({ message: t('skillsDeleted'), type: 'success' });
-      onTechnologyDeleted?.(categoryId, techName);
+      onTechnologyDeleted?.(categoryId, techKey);
       closeModal();
       return;
     }
@@ -183,7 +191,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
   if (pending?.kind === 'reset') {
     confirmBody = t('skillsResetConfirm');
   } else if (pending?.kind === 'technology') {
-    confirmBody = t('skillsConfirmDelete', { name: pending.techName });
+    confirmBody = t('skillsConfirmDelete', { name: pending.techKey });
   } else if (pending?.kind === 'category') {
     const entry = all.find((item) => item.category === pending.categoryId);
     const name = entry?.categoryName ?? pending.categoryId;
@@ -200,10 +208,13 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       key: 'tech',
       header: t('technologies'),
       sortable: true,
-      sortValue: (row) => row.techName,
+      sortValue: (row) => row.label,
       render: (row) => (
-        <span className={styles.nameCell} data-testid={`skill-tech-row-${row.techName}`}>
-          <strong>{row.techName}</strong>
+        // Testid carries IDENTITY, the <strong> carries the LABEL: seed
+        // records have name === key, so the historical `skill-tech-row-React`
+        // ids survive the identity change (H8).
+        <span className={styles.nameCell} data-testid={`skill-tech-row-${row.key}`}>
+          <strong>{row.label}</strong>
         </span>
       ),
     },
@@ -211,7 +222,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
       key: 'actions',
       header: t('skillsTableActions'),
       render: (row) => (
-        <div className={styles.cellActions} data-testid={`skill-tech-actions-${row.techName}`}>
+        <div className={styles.cellActions} data-testid={`skill-tech-actions-${row.key}`}>
           <Tooltip
             content={t('skillsEditTechnology')}
             trigger={['hover', 'focus']}
@@ -224,7 +235,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
               size="sm"
               icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
               ariaLabel={t('skillsEditTechnology')}
-              onClick={() => onEditTechnology?.(row.entry.category, row.techName)}
+              onClick={() => onEditTechnology?.(row.entry.category, row.key)}
             />
           </Tooltip>
           <Tooltip
@@ -243,7 +254,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
                 setPending({
                   kind: 'technology',
                   categoryId: row.entry.category,
-                  techName: row.techName,
+                  techKey: row.key,
                 })
               }
             />
@@ -303,11 +314,17 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           // A9: the kit owns sorting (sortValue on the column) and the
           // pagination window (A10 clamp) — this block only supplies the
           // CONTROLLED sort/page state, keyed by category (A4).
-          const techRows: TechRow[] = entry.technologies.map((tech) => ({
-            id: `${entry.category}::${tech.name}`,
-            techName: tech.name,
-            entry,
-          }));
+          const techRows: TechRow[] = entry.technologies.map((tech) => {
+            const key = keyOf(tech);
+            return {
+              id: `${entry.category}::${key}`,
+              key,
+              // AD-6: identity doubles as the label until the catalog grows
+              // a display-name field.
+              label: key,
+              entry,
+            };
+          });
 
           const pageSize = sizes[entry.category] ?? DEFAULT_PAGE_SIZE;
           const totalPages = Math.max(1, Math.ceil(techRows.length / pageSize));

@@ -1,7 +1,8 @@
 ---
-status: done
-epic: skills-card-collapse
+status: approved
+epic: admin-skills-tech-source
 created: '2026-10-12'
+revised: '2026-11-02'
 verified: '2026-10-22'
 ---
 
@@ -14,6 +15,8 @@ verified: '2026-10-22'
 > **rev.4 (2026-10-13):** эпик `skills-card-collapse` — сворачивание карточек категорий (vault `wiki/plan/plan_skills_card_collapse.md`, вердикты OPEN-1..4 r4 = A/B1/A/A + директива владельца 2026-10-13 «все свёрнуты по умолчанию», auto-режим), **done 2026-10-13, PR #223** (squash `c350d0d`). §Критерии предыдущих эпиков сгорели вместе с их TODO. Companion: [TODO.md](./TODO.md).
 > **rev.5 (2026-10-22):** пилот комбинированного триггера kit `Tooltip` (issue #222): все тултипы этого файла переведены с дефолтного hover-only на `trigger={['hover', 'focus']}` — подсказка открывается и по наведению, и по фокусу на кнопке; A14 устарел (см. ниже). Статус не меняется (малый аменд поверх done-эпика).
 > **rev.6 (2026-10-22):** cleanup-хвост неудачного persist: только что записанный иконкой-загрузкой файл УДАЛЯЕТСЯ best-effort, поле `iconSvg` сбрасывается (см. §Загрузка иконки). Статус не меняется (малый аменд поверх done-эпика).
+>
+> **rev.7 (2026-11-02):** эпик `admin-skills-tech-source` — каталог `/admin/technologies` становится ЕДИНСТВЕННЫМ источником правды для навыков. У `SkillTechnology`: добавлены `techKey` (ссылка на каталог) и `invertInDarkOverride`; `name`/`iconSvg` становятся snapshot-fallback (записываются только при back-compat, на новых записях их нет). Идентичность записи — `keyOf(tech) = tech.techKey ?? tech.name ?? ''` (слайс, формы, список, страница, схема дедуплицируют по нему, не по `name`). Резолвер отдаёт `name = techKey` (AD-6 — slug, до появления `name` в каталоге) с прецедентом `invertInDarkOverride ?? catalog.invertInDark ?? snapshot` (D5). Нормализация storage не синтезирует `iconSvg: ''` (D1). Конверт хранит только `v: 1`; `upgrade` и ветка `v: 2` удалены, fallback-«читатель» старых данных остаётся навсегда (AD-2; bulk-delete фаза 4c отменена). Удаление технологии из каталога НЕ удаляет `Skill` (placeholder в витрине). Form edit пишет только `techKey` + опциональный `invertInDarkOverride` (D9, AD-10). Статус `approved` на время работы; после гейтов — `done`.
 > Язык: русский (правило владельца). Все user-facing строки в коде — i18n-ключи en+ru.
 
 ## Цель
