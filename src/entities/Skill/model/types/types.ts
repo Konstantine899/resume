@@ -14,19 +14,17 @@ export type SkillCategory =
  */
 export interface SkillTechnology {
   /** Название технологии (например, "React", "Node.js") */
-  name: string;
+  name?: string;
   /** SVG иконка (имя файла-ключи из shared/assets/icons/skills/; legacy URL допустим — WU-2 resolver) */
-  iconSvg: string;
+  iconSvg?: string;
   /** Инвертировать ли иконку в тёмной теме (для светлых логотипов) */
   invertInDark?: boolean;
-  /**
-   * Link back to the technology catalog entry that supplied this record.
-   * Tokens that: added 2026-11-01 — new adminSkills records must use the catalog
-   * as single source of truth; legacy records keep `undefined`.
-   */
-  techKey?: string;
   /** CSS filter для раскраски монохромных иконок */
   iconFilter?: string;
+  /** Ссылка на запись каталога технологий, поставившую этот навык. */
+  techKey?: string;
+  /** Переопределение дефолта затемнения только при намеренном отличии. */
+  invertInDarkOverride?: boolean;
 }
 
 /**

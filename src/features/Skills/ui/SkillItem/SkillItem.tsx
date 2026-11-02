@@ -68,10 +68,10 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
       </Heading>
 
       <CardGrid columns={4} gap="sm" role="list" className={styles.skillsGrid}>
-        {resolvedTechnologies.map((tech) => (
-          <div key={tech.name} className={styles.techItem} role="listitem" aria-label={tech.name}>
+        {resolvedTechnologies.map((tech, index) => (
+          <div key={tech.techKey ?? tech.name ?? index} className={styles.techItem} role="listitem" aria-label={tech.name ?? tech.techKey ?? ''}>
             <img
-              src={resolveIconSvg(tech.iconSvg) ?? ICON_FALLBACK}
+              src={resolveIconSvg(tech.iconSvg ?? '') ?? ICON_FALLBACK}
               alt={tech.name}
               className={classNames(styles.techIcon, tech.invertInDark && styles.invertInDark)}
               loading="lazy"

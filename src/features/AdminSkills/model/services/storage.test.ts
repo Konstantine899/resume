@@ -66,7 +66,7 @@ describe('persistSkills', () => {
       ...category,
       technologies: category.technologies.map((technology) => ({
         ...technology,
-        iconSvg: normalizeIconSvg(technology.iconSvg),
+        iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
       })),
     }));
     expect(readSkills()).toEqual(expected);
@@ -111,7 +111,7 @@ describe('readSkills', () => {
       ...category,
       technologies: category.technologies.map((technology) => ({
         ...technology,
-        iconSvg: normalizeIconSvg(technology.iconSvg),
+        iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
       })),
     }));
     expect(readSkills()).toEqual(expected);

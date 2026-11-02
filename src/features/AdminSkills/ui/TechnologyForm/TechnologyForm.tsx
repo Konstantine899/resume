@@ -50,6 +50,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   const categoryRecord = all.find((entry) => entry.category === categoryId);
   const existingKeys = (categoryRecord?.technologies ?? [])
     .map((tech) => tech.techKey ?? tech.name)
+    .filter((key): key is string => Boolean(key))
     .filter((key) => key !== (technology?.techKey ?? technology?.name));
 
   const availableKeys = technologies.map((tech) => tech.key);
@@ -81,7 +82,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   };
 
   const currentIconUrl = technology
-    ? (selectedTechnology?.url ?? resolveIconSvg(technology.iconSvg))
+    ? (selectedTechnology?.url ?? resolveIconSvg(technology.iconSvg ?? ''))
     : selectedTechnology?.url;
 
   const techKeyError = errors.techKey ? t('skillsErrTechName') : undefined;
@@ -122,7 +123,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         return;
       }
 
-      dispatch(updateTechnology({ categoryId, techName: technology.name, patch }));
+      dispatch(updateTechnology({ categoryId, techName: technology.name ?? technology.techKey ?? '', patch }));
       addToast({ message: t('skillsSaved'), type: 'success' });
       onExitEdit?.();
       return;

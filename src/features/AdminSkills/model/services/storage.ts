@@ -46,7 +46,7 @@ const normalizeAll = (data: SkillCategoryData[]): SkillCategoryData[] =>
     ...category,
     technologies: category.technologies.map((technology) => ({
       ...technology,
-      iconSvg: normalizeIconSvg(technology.iconSvg),
+      iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
     })),
   }));
 

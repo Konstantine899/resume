@@ -305,7 +305,7 @@ export const SkillsEditorList: React.FC<SkillsEditorListProps> = ({
           // CONTROLLED sort/page state, keyed by category (A4).
           const techRows: TechRow[] = entry.technologies.map((tech) => ({
             id: `${entry.category}::${tech.name}`,
-            techName: tech.name,
+            techName: tech.name ?? tech.techKey ?? '',
             entry,
           }));
 

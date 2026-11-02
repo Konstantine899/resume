@@ -34,8 +34,8 @@ export const SKILL_CATEGORY_VALUES = [
 const SkillCategorySchema = z.enum(SKILL_CATEGORY_VALUES);
 
 export const TechnologySchema = z.object({
-  name: z.string().trim().min(2).max(30),
-  iconSvg: z.string().min(1),
+  name: z.string().trim().min(2).max(30).optional(),
+  iconSvg: z.string().min(1).optional(),
   invertInDark: z.boolean().optional(),
   iconFilter: z
     .string()
@@ -44,6 +44,8 @@ export const TechnologySchema = z.object({
       message: 'iconFilter must contain brightness( or invert(',
     })
     .optional(),
+  techKey: z.string().trim().min(1).optional(),
+  invertInDarkOverride: z.boolean().optional(),
 });
 
 export const SkillCategoryDataSchema = z
