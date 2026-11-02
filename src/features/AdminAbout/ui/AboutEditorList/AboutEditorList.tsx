@@ -30,6 +30,8 @@ import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
+import { Select } from '@/shared/ui/Select';
+import { Table } from '@/shared/ui/Table';
 import { Paragraph } from '@/shared/ui/Paragraph';
 
 import { Textarea } from '@/shared/ui/Textarea';
@@ -41,7 +43,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createAboutSeed } from '../../model/services/seed';
 import { selectAllTechnologies } from '@/entities/Technology';
 import { selectAboutContent } from '../../model/selectors/selectors';
-import { removeAboutContent } from '../../model/services/storage';
+import {
+  persistAboutContent,
+  readAboutContent,
+  removeAboutContent,
+} from '../../model/services/storage';
 import { resetToDefaults, updateAboutContent } from '../../model/slices/aboutContentSlice';
 import type { AboutContentRootState } from '../../model/types/types';
 import { AboutFieldEditForm } from '../AboutFieldEditForm/AboutFieldEditForm';
@@ -86,6 +92,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   const persistAboutContentToApi = useCallback(
     async (doc: AboutContent) => {
+      // Persist locally FIRST so admin edits survive even if the API is
+      // temporarily unavailable; the persist-THEN-dispatch rule still
+      // holds for Redux state.
+      persistAboutContent(doc);
       try {
         await dispatch(
           apiSlice.endpoints.updateAboutContent.initiate({
@@ -95,6 +105,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
             statLabels: doc.statLabels,
             ctaLabel: doc.ctaLabel,
             portrait: doc.portrait,
+            stack: doc.stack,
             expectedUpdatedAt: doc.updatedAt,
           })
         ).unwrap();
@@ -145,7 +156,10 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const [adding, setAdding] = useState(false);
   const [portraitOpen, setPortraitOpen] = useState(false);
   const [fullNameDraft, setFullNameDraft] = useState(content.fullName);
-  const [stackDraft, setStackDraft] = useState<string[] | undefined>(content.stack);
+  const [stackDraft, setStackDraft] = useState<string[] | undefined>(() => {
+    const local = readAboutContent();
+    return local?.stack ?? content.stack;
+  });
   const [stackDirty, setStackDirty] = useState(false);
 
   const fullNameParsed = aboutFieldSchema('fullName').safeParse(fullNameDraft);
@@ -171,10 +185,21 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
   const [ctaNlDraft, setCtaNlDraft] = useState(content.ctaLabel?.en ?? '');
   const [ctaRuDraft, setCtaRuDraft] = useState(content.ctaLabel?.ru ?? '');
   const [ctaHidden, setCtaHidden] = useState(content.ctaLabel === null);
+  const [ctaOpen, setCtaOpen] = useState(false);
+  const [techOpen, setTechOpen] = useState(false);
+  const [techPick, setTechPick] = useState(
+    technologiesCatalog.some((tech) => tech.key === 'react')
+      ? 'react'
+      : (technologiesCatalog[0]?.key ?? '')
+  );
+  const [editingTech, setEditingTech] = useState('');
+  const [selectAllTech, setSelectAllTech] = useState(false);
 
   const closeFieldModal = () => setEditingField(null);
   const closeAddModal = () => setAdding(false);
   const closePortraitModal = () => setPortraitOpen(false);
+  const closeCtaModal = () => setCtaOpen(false);
+  const closeTechModal = () => setTechOpen(false);
 
   const toggleTech = (key: string) => {
     setStackDraft((prev) => {
@@ -201,10 +226,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
 
   // collapse state (persisted)
   const [collapsed, setCollapsed] = useState<Record<SectionKey, boolean>>(readCollapseState);
-
-  useEffect(() => {
-    writeCollapseState(collapsed);
-  }, [collapsed]);
 
   useEffect(() => {
     writeCollapseState(collapsed);
@@ -292,6 +313,53 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     return statRowLabel(content, statKeyOf(field), language, (key) => t(key));
   };
 
+  const openCtaModal = () => {
+    setCtaNlDraft(content.ctaLabel?.en ?? '');
+    setCtaRuDraft(content.ctaLabel?.ru ?? '');
+    setCtaHidden(content.ctaLabel === null);
+    setCtaOpen(true);
+  };
+  const openTechModal = () => {
+    setEditingTech('');
+    setTechPick(
+      technologiesCatalog.some((tech) => tech.key === 'react')
+        ? 'react'
+        : (technologiesCatalog[0]?.key ?? '')
+    );
+    setSelectAllTech(false);
+    setTechOpen(true);
+  };
+  const openTechEditModal = (key: string) => {
+    setEditingTech(key);
+    setTechPick(key);
+    setSelectAllTech(false);
+    setTechOpen(true);
+  };
+  const handleSaveTechModal = async (): Promise<void> => {
+    const next = [...(stackDraft ?? [])];
+    if (editingTech !== '' && editingTech !== techPick) {
+      const index = next.indexOf(editingTech);
+      if (index >= 0) next.splice(index, 1);
+    }
+    if (selectAllTech)
+      technologiesCatalog.forEach((tech) => {
+        if (!next.includes(tech.key)) next.push(tech.key);
+      });
+    if (techPick !== '' && !next.includes(techPick)) next.push(techPick);
+    setStackDraft(next);
+    setStackDirty(true);
+    setEditingTech('');
+    const merged: AboutContent = { ...content, stack: next };
+    const ok = await persistAboutContentToApi(merged);
+    if (!ok) {
+      addToast({ message: t('aboutSaveError'), type: 'error' });
+      return;
+    }
+    dispatch(updateAboutContent(merged));
+    setStackDirty(false);
+    addToast({ message: t('aboutSaved'), type: 'success' });
+    closeTechModal();
+  };
   const handleSaveCta = async (): Promise<void> => {
     const merged: AboutContent = {
       ...content,
@@ -304,6 +372,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
     }
     dispatch(updateAboutContent(merged));
     addToast({ message: t('aboutSaved'), type: 'success' });
+    closeCtaModal();
   };
 
   const iconToggle = (section: SectionKey, placement: 'expanded' | 'collapsed') => {
@@ -361,7 +430,7 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         <h3 className={styles.cardTitle}>{t(titleKey)}</h3>
         {expanded ? iconToggle(section, 'expanded') : iconToggle(section, 'collapsed')}
         <div id={cid} className={styles.cardContent} hidden={!expanded}>
-          {expanded ? contentNode : null}
+          {contentNode}
         </div>
       </Card>
     );
@@ -373,23 +442,6 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         <div className={styles.headerText}>
           <Heading level={2}>{t('adminAboutTitle')}</Heading>
           <Paragraph theme="muted">{t('adminAboutHint')}</Paragraph>
-        </div>
-        <div className={styles.headerActions}>
-          <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)}>
-            {t('adminAboutAddRow')}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="admin-about-portrait-button"
-            onClick={() => setPortraitOpen(true)}
-          >
-            {t('adminAboutPortraitEdit')}
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
-            {t('aboutReset')}
-          </Button>
         </div>
       </div>
 
@@ -422,6 +474,9 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
             <Button type="button" variant="outline" size="sm" onClick={() => setPortraitOpen(true)}>
               {t('adminAboutPortraitEdit')}
             </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => requestReset('reset')}>
+              {t('aboutReset')}
+            </Button>
           </div>
         </>
       )}
@@ -434,23 +489,43 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)}>
             {t('adminAboutAddRow')}
           </Button>
-          <ul className={styles.rowList}>
-            {content.descriptions.map((paragraph, index) => {
-              const field = `description-${index}` as EditAboutField;
-              return (
-                <li key={index} className={styles.rowItem}>
-                  <span className={styles.rowLabel}>
-                    {t('aboutFieldDescriptions')} {index + 1}
-                  </span>
-                  <div className={styles.rowActions}>
+          <Table
+            caption="adminAboutDescriptionsTable"
+            columns={[
+              {
+                key: 'field',
+                header: t('aboutFieldDescriptions'),
+                render: (row: Record<string, unknown>) => String((row as { label: string }).label),
+              },
+              {
+                key: 'en',
+                header: 'EN',
+                render: (row: Record<string, unknown>) => String((row as { en: string }).en),
+              },
+              {
+                key: 'ru',
+                header: 'RU',
+                render: (row: Record<string, unknown>) => String((row as { ru: string }).ru),
+              },
+              {
+                key: 'actions',
+                header: t('adminAboutEditRow'),
+                render: (row: Record<string, unknown>) => (
+                  <div className={styles.cellActions}>
                     <IconButton
                       type="button"
                       variant="outline"
                       size="sm"
                       icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
                       ariaLabel={t('adminAboutEditRow')}
-                      data-testid={`admin-about-edit-description-${index}`}
-                      onClick={() => setEditingField(field)}
+                      data-testid={
+                        'admin-about-edit-description-' + (row as { index: number }).index
+                      }
+                      onClick={() =>
+                        setEditingField(
+                          ('description-' + (row as { index: number }).index) as EditAboutField
+                        )
+                      }
                     />
                     <IconButton
                       type="button"
@@ -458,21 +533,28 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                       size="sm"
                       icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                       ariaLabel={t('adminAboutDeleteRow')}
-                      data-testid={`admin-about-delete-description-${index}`}
-                      onClick={() => requestDelete(field as AboutRowField)}
+                      data-testid={
+                        'admin-about-delete-description-' + (row as { index: number }).index
+                      }
+                      onClick={() =>
+                        requestDelete(
+                          ('description-' + (row as { index: number }).index) as AboutRowField
+                        )
+                      }
                     />
                   </div>
-                  <details open={false} className={styles.rowDetails}>
-                    <summary>{t('aboutFieldDescriptions')}</summary>
-                    <div className={styles.localeColumns}>
-                      <span>EN: {paragraph.en}</span>
-                      <span>RU: {paragraph.ru}</span>
-                    </div>
-                  </details>
-                </li>
-              );
-            })}
-          </ul>
+                ),
+              },
+            ]}
+            rows={content.descriptions.map((paragraph, index) => ({
+              __key: index,
+              index,
+              label: t('aboutFieldDescriptions') + ' ' + (index + 1),
+              en: paragraph.en,
+              ru: paragraph.ru,
+            }))}
+            getKey={(row: Record<string, unknown>) => String((row as { __key: number }).__key)}
+          />
         </>
       )}
 
@@ -489,34 +571,50 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
           />
         ) : (
           <>
-            <div className={styles.chipRow}>
-              {(stackDraft ?? []).map((key) => {
-                const entry = technologiesCatalog.find((t) => t.key === key);
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    className={styles.chipSelected}
-                    onClick={() => toggleTech(key)}
-                  >
-                    {entry?.key ?? key} ×
-                  </button>
-                );
-              })}
-              {technologiesCatalog
-                .filter((tech) => !(stackDraft ?? []).includes(tech.key))
-                .map((tech) => (
-                  <button
-                    key={tech.key}
-                    type="button"
-                    className={styles.chip}
-                    onClick={() => toggleTech(tech.key)}
-                  >
-                    {tech.key}
-                  </button>
-                ))}
-            </div>
-            {stackDraft?.some((key) => !technologiesCatalog.some((t) => t.key === key)) ? (
+            <Button type="button" variant="outline" size="sm" onClick={openTechModal}>
+              {t('adminAboutSelectTechnology')}
+            </Button>
+            <Table
+              caption="adminAboutTechnologiesTable"
+              columns={[
+                {
+                  key: 'key',
+                  header: 'Technology',
+                  render: (row: Record<string, unknown>) => String((row as { key: string }).key),
+                },
+                {
+                  key: 'actions',
+                  header: t('adminAboutEditRow'),
+                  align: 'right',
+                  render: (row: Record<string, unknown>) => (
+                    <div className={styles.cellActions}>
+                      <IconButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
+                        ariaLabel={t('adminAboutEditRow')}
+                        onClick={() => openTechEditModal((row as { key: string }).key)}
+                      />
+                      <IconButton
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
+                        ariaLabel={t('adminAboutDeleteRow')}
+                        onClick={() => toggleTech((row as { key: string }).key)}
+                      />
+                    </div>
+                  ),
+                },
+              ]}
+              rows={(stackDraft ?? []).map((key) => ({ __key: key, key }))}
+              getKey={(row: Record<string, unknown>) => String((row as { __key: string }).__key)}
+              emptyState={
+                <EmptyState title={<Heading>{t('adminAboutTechnologiesPlaceholder')}</Heading>} />
+              }
+            />
+            {stackDraft?.some((key) => !technologiesCatalog.some((tech) => tech.key === key)) ? (
               <Paragraph theme="muted">{t('adminAboutTechUnknown')}</Paragraph>
             ) : null}
             <Button
@@ -536,24 +634,39 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
       {renderCollapseCard(
         'adminAboutCardStats',
         'stats',
-        <ul className={styles.rowList}>
-          {Object.keys(content.stats).map((key) => {
-            const field = `stat-${key}` as EditAboutField;
-            const val = content.stats[key];
-            return (
-              <li key={key} className={styles.rowItem}>
-                <span className={styles.rowLabel}>
-                  {statRowLabel(content, key, language, (k) => t(k))}
-                </span>
-                <div className={styles.rowActions}>
+        <Table
+          caption="adminAboutStatsTable"
+          columns={[
+            {
+              key: 'label',
+              header: 'Field',
+              render: (row: Record<string, unknown>) => String((row as { label: string }).label),
+            },
+            {
+              key: 'en',
+              header: 'EN',
+              render: (row: Record<string, unknown>) => String((row as { en: string }).en),
+            },
+            {
+              key: 'ru',
+              header: 'RU',
+              render: (row: Record<string, unknown>) => String((row as { ru: string }).ru),
+            },
+            {
+              key: 'actions',
+              header: t('adminAboutEditRow'),
+              render: (row: Record<string, unknown>) => (
+                <div className={styles.cellActions}>
                   <IconButton
                     type="button"
                     variant="outline"
                     size="sm"
                     icon={<Icon name={Pencil} size={20} color="inherit" decorative />}
                     ariaLabel={t('adminAboutEditRow')}
-                    data-testid={`admin-about-edit-stat-${key}`}
-                    onClick={() => setEditingField(field)}
+                    data-testid={'admin-about-edit-stat-' + (row as { key: string }).key}
+                    onClick={() =>
+                      setEditingField(('stat-' + (row as { key: string }).key) as EditAboutField)
+                    }
                   />
                   <IconButton
                     type="button"
@@ -561,18 +674,24 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
                     size="sm"
                     icon={<Icon name={Trash2} size={20} color="inherit" decorative />}
                     ariaLabel={t('adminAboutDeleteRow')}
-                    data-testid={`admin-about-delete-stat-${key}`}
-                    onClick={() => requestDelete(field as AboutRowField)}
+                    data-testid={'admin-about-delete-stat-' + (row as { key: string }).key}
+                    onClick={() =>
+                      requestDelete(('stat-' + (row as { key: string }).key) as AboutRowField)
+                    }
                   />
                 </div>
-                <div className={styles.localeColumns}>
-                  <span>EN: {val?.en ?? ''}</span>
-                  <span>RU: {val?.ru ?? ''}</span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+              ),
+            },
+          ]}
+          rows={Object.keys(content.stats).map((key) => ({
+            __key: key,
+            key,
+            label: statRowLabel(content, key, language, (k) => t(k)),
+            en: content.stats[key]?.en ?? '',
+            ru: content.stats[key]?.ru ?? '',
+          }))}
+          getKey={(row: Record<string, unknown>) => (row as { __key: string }).__key}
+        />
       )}
 
       {/* Card 5: CTA */}
@@ -580,28 +699,11 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         'adminAboutCardCta',
         'cta',
         <>
-          <Textarea
-            value={ctaNlDraft}
-            onChange={(event) => setCtaNlDraft(event.target.value)}
-            rows={2}
-            maxLength={40}
-          />
-          <Textarea
-            value={ctaRuDraft}
-            onChange={(event) => setCtaRuDraft(event.target.value)}
-            rows={2}
-            maxLength={40}
-          />
-          <label className={styles.toggleRow}>
-            <input
-              type="checkbox"
-              checked={ctaHidden}
-              onChange={(event) => setCtaHidden(event.target.checked)}
-            />
-            <span>{t('adminAboutCtaHidden')}</span>
-          </label>
-          <Button type="button" variant="primary" size="sm" onClick={handleSaveCta}>
-            {t('aboutSave')}
+          <Paragraph theme="muted">
+            {content.ctaLabel === null ? t('adminAboutCtaHidden') : content.ctaLabel.en}
+          </Paragraph>
+          <Button type="button" variant="outline" size="sm" onClick={openCtaModal}>
+            {t('adminAboutEditRow')}
           </Button>
         </>
       )}
@@ -740,6 +842,78 @@ export const AboutEditorList: React.FC<AboutEditorListProps> = ({
         </div>
       </Modal>
 
+      <Modal isOpen={ctaOpen} onClose={closeCtaModal} title={t('aboutFieldCta')} size="md">
+        <div className={styles.portraitModal}>
+          <Textarea
+            label={t('adminAboutCtaEn')}
+            value={ctaNlDraft}
+            onChange={(event) => setCtaNlDraft(event.target.value)}
+            rows={2}
+            maxLength={40}
+            showCounter
+          />
+          <Textarea
+            label={t('adminAboutCtaRu')}
+            value={ctaRuDraft}
+            onChange={(event) => setCtaRuDraft(event.target.value)}
+            rows={2}
+            maxLength={40}
+            showCounter
+          />
+          <label className={styles.toggleRow}>
+            <input
+              type="checkbox"
+              checked={ctaHidden}
+              onChange={(event) => setCtaHidden(event.target.checked)}
+            />
+            <span>{t('adminAboutCtaHidden')}</span>
+          </label>
+          <div className={styles.portraitActions}>
+            <Button type="button" variant="primary" onClick={handleSaveCta}>
+              {t('aboutSave')}
+            </Button>
+            <Button type="button" variant="outline" onClick={closeCtaModal}>
+              {t('aboutCancel')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={techOpen}
+        onClose={closeTechModal}
+        title={t('adminAboutSelectTechnology')}
+        size="md"
+      >
+        <div className={styles.portraitModal}>
+          <Select
+            label={t('adminAboutSelectTechnology')}
+            value={techPick}
+            onChange={(value) => setTechPick(value)}
+            options={technologiesCatalog.map((tech) => ({ value: tech.key, label: tech.key }))}
+            fullWidth
+          />
+          {techPick !== '' && (stackDraft ?? []).includes(techPick) && editingTech !== techPick ? (
+            <Paragraph theme="muted">{t('adminAboutTechAlreadySelected')}</Paragraph>
+          ) : null}
+          <label className={styles.toggleRow}>
+            <input
+              type="checkbox"
+              checked={selectAllTech}
+              onChange={(event) => setSelectAllTech(event.target.checked)}
+            />
+            <span>{t('adminAboutSelectAll')}</span>
+          </label>
+          <div className={styles.portraitActions}>
+            <Button type="button" variant="primary" onClick={handleSaveTechModal}>
+              {t('aboutSave')}
+            </Button>
+            <Button type="button" variant="outline" onClick={closeTechModal}>
+              {t('aboutCancel')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
       <Modal
         isOpen={editingField !== null}
         onClose={closeFieldModal}

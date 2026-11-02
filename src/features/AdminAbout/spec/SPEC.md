@@ -136,3 +136,20 @@ spec: 1
   `resume-skills-card-collapse` (aria-контракт strip), `resume-axe-stale-build`
   (build ДО check:axe/bundle), `resume-gitignore-md` (git status перед
   коммитом .md).
+
+## UI cleanup v2 (plan `admin-about-refactor-v2.md`)
+
+Status: approved (automatic)
+Date: 2026-11-01
+
+Scope: короткая очистка admin UX после WU-0..WU-7:
+
+- portrait editing in Main card only;
+- remove duplicate action buttons;
+- Descriptions/Stats rows represented as kit Table;
+- CTA 'Hire me' edited in modal;
+- Technology table with DB-catalog Select modal and key-only persistence;
+- no change to public About contract semantics;
+- i18n/parity + a11y + local storage + harness updates.
+
+Non-goals: no new backend workflow beyond payload/DTO verification.

@@ -48,7 +48,7 @@ export const About: React.FC<AboutFeatureProps> = ({
   // Contract v3 (SPEC E-2): `undefined` — no prop, or a legacy document
   // without the field — keeps the original PROFILE_STACK badges byte-for-byte;
   // `[]` is the admin's intentional "no stack" and renders no badges at all.
-  const stackKeys = content?.stack ?? PROFILE_STACK;
+  const stackKeys = content?.stack === undefined ? PROFILE_STACK : content.stack;
 
   return (
     <Section
