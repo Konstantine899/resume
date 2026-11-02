@@ -133,6 +133,31 @@ describe('readSkills', () => {
   });
 });
 
+describe('sparse catalog-linked records (D1, AD-4)', () => {
+  const sparse: SkillCategoryData[] = [
+    {
+      category: 'frontend',
+      categoryName: 'Frontend',
+      technologies: [{ techKey: 'nodejs' }],
+    },
+    {
+      category: 'backend',
+      categoryName: 'Backend',
+      technologies: [{ techKey: 'react', invertInDark: true }],
+    },
+  ];
+
+  it('persistSkills returns true for two sparse records', () => {
+    expect(persistSkills(sparse)).toBe(true);
+  });
+
+  it('readSkills returns them unchanged (no synthesized iconSvg)', () => {
+    const stored = persistSkills(sparse);
+    expect(stored).toBe(true);
+    expect(readSkills()).toEqual(sparse);
+  });
+});
+
 describe('removeSkills', () => {
   it('drops the stored envelope (Reset path)', () => {
     persistSkills(VALID);

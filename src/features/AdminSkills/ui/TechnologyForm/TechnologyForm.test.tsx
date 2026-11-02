@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TechnologyForm } from './TechnologyForm';
-import type { SkillTechnology } from '@/entities/Skill';
+import type { SkillCategoryData, SkillTechnology } from '@/entities/Skill';
 
 const { persistSpy, addToast, dispatchMock, holder, addTechnologySpy, updateTechnologySpy } =
   vi.hoisted(() => ({
@@ -25,10 +25,19 @@ const { persistSpy, addToast, dispatchMock, holder, addTechnologySpy, updateTech
     updateTechnologySpy: vi.fn((payload: unknown) => payload),
   }));
 
-vi.mock('../../model/services/storage', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../model/services/storage')>()),
-  persistSkills: persistSpy,
-}));
+// AD-5: the form must exercise the REAL `persistSkills` so a sparse record
+// (no iconSvg) still fails validation locally instead of being masked by a
+// hoisted stub. The spy is kept only to inject a "storage rejected" result.
+vi.mock('../../model/services/storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../model/services/storage')>();
+  return {
+    ...actual,
+    persistSkills: vi.fn((data: unknown) => {
+      const ok = persistSpy(data as unknown[]);
+      return ok ? actual.persistSkills(data as SkillCategoryData[]) : false;
+    }),
+  };
+});
 
 vi.mock('../../model/slices/skillsSlice', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../model/slices/skillsSlice')>()),
@@ -66,6 +75,7 @@ describe('TechnologyForm (single-source selector)', () => {
     persistSpy.mockReturnValue(true);
     dispatchMock.mockClear();
     addToast.mockClear();
+    localStorage.clear();
   });
 
   afterEach(() => {

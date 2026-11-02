@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addTechnology, updateTechnology } from '../../model/slices/skillsSlice';
 import { persistSkills } from '../../model/services/storage';
 import { selectAllSkillsData } from '../../model/selectors/selectors';
-import type { SkillTechnology } from '@/entities/Skill';
+import { keyOf, type SkillTechnology } from '@/entities/Skill';
 import { resolveIconSvg } from '@/entities/Skill';
 import { selectAllTechnologies } from '@/entities/Technology/model/selectors/selectors';
 import {
@@ -48,10 +48,11 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
   const mode = technology ? 'edit' : 'create';
 
   const categoryRecord = all.find((entry) => entry.category === categoryId);
+  const originalKey = technology ? keyOf(technology) : '';
   const existingKeys = (categoryRecord?.technologies ?? [])
-    .map((tech) => tech.techKey ?? tech.name)
+    .map(keyOf)
     .filter((key): key is string => Boolean(key))
-    .filter((key) => key !== (technology?.techKey ?? technology?.name));
+    .filter((key) => key !== originalKey);
 
   const availableKeys = technologies.map((tech) => tech.key);
 
@@ -63,7 +64,13 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     formState: { errors, isDirty, isSubmitting },
   } = useForm<TechnologyFormValues, unknown, TechnologyFormValues>({
     resolver: zodResolver(makeTechnologyFormSchema(existingKeys, availableKeys, mode)),
-    defaultValues: technology ? toTechnologyFormValues(technology) : emptyTechnologyFormValues(),
+    defaultValues: technology
+      ? toTechnologyFormValues(
+          technology,
+          technologies.find((tech) => tech.key === (technology?.techKey ?? technology?.name))
+            ?.invertInDark
+        )
+      : emptyTechnologyFormValues(),
   });
 
   const values = useWatch({ control });
@@ -100,23 +107,25 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     }
 
     if (technology) {
-      const omitLegacy = (technology?.techKey ?? '').trim() !== '';
-      const patch = {
+      // AD-10 (D9): persist only the link plus a deliberate override.
+      // The catalog owns invertInDark; the snapshot is no longer written.
+      // Legacy records without a catalog link keep their snapshot until
+      // the user resolves them to a catalog entry (omitLegacy false).
+      const omitLegacy = Boolean(technology.techKey);
+      const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
+      const patch: Partial<SkillTechnology> = {
         techKey: picked.key,
-        invertInDark: data.invertInDark,
+        invertInDark: undefined,
+        invertInDarkOverride: invertDiffers ? data.invertInDark : undefined,
         ...(omitLegacy ? { name: undefined, iconSvg: undefined } : {}),
       };
-      const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
-      if (invertDiffers) {
-        (patch as Record<string, unknown>).invertInDarkOverride = data.invertInDark;
-      }
 
       const next = all.map((entry) =>
         entry.category === categoryId
           ? {
               ...entry,
               technologies: entry.technologies.map((tech) =>
-                tech.name === technology.name ? { ...tech, ...patch } : tech
+                keyOf(tech) === originalKey ? { ...tech, ...patch } : tech
               ),
             }
           : entry
@@ -127,7 +136,7 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
         return;
       }
 
-      dispatch(updateTechnology({ categoryId, techName: technology.name ?? technology.techKey ?? '', patch }));
+      dispatch(updateTechnology({ categoryId, techKey: originalKey, patch }));
       addToast({ message: t('skillsSaved'), type: 'success' });
       onExitEdit?.();
       return;
@@ -187,6 +196,14 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
           </Paragraph>
         </div>
       )}
+      {/* AD-8 / B4: legacy record without a catalog link — force an
+      explicit choice instead of silently guessing a slug from the label. */}
+      {technology && !technology.techKey && !values.techKey && (
+        <Paragraph theme="muted" size="s" data-testid="skills-tech-legacy-hint">
+          {t('skillsTechLegacyHint')}
+        </Paragraph>
+      )}
+
       {!selectedTechnology && currentIconUrl && (
         <div className={styles.iconPreviewRow}>
           <img className={styles.iconPreview} src={currentIconUrl} alt="" />

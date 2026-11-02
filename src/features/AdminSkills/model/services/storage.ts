@@ -40,26 +40,30 @@ export const normalizeIconSvg = (value: string): string => {
   return withoutExt.replace(/-[A-Za-z0-9_-]{8}$/, '');
 };
 
-/** Apply normalization across a whole collection (immutably). */
+/**
+ * Apply normalization across a whole collection (immutably).
+ *
+ * AD-4: normalization never SYNTHESIZES a value. The old version wrote
+ * `iconSvg: ''` for every sparse record, the schema rejects `min(1)`, and
+ * `persist` validated its own output — so a catalog-linked record without
+ * an icon could never be saved (D1). A record without `iconSvg` keeps not
+ * having one.
+ */
 const normalizeAll = (data: SkillCategoryData[]): SkillCategoryData[] =>
   data.map((category) => ({
     ...category,
-    technologies: category.technologies.map((technology) => ({
-      ...technology,
-      iconSvg: normalizeIconSvg(technology.iconSvg ?? ''),
-    })),
+    technologies: category.technologies.map((technology) =>
+      technology.iconSvg === undefined
+        ? technology
+        : { ...technology, iconSvg: normalizeIconSvg(technology.iconSvg) }
+    ),
   }));
 
 const storage = createVersionedStorage<SkillCategoryData[], SkillsEnvelope>({
   key: SKILLS_STORAGE_KEY,
   envelopeSchema: SkillsEnvelopeSchema,
-  upgrade: (raw) => {
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-      const obj = raw as Record<string, unknown>;
-      if (obj.v === undefined) return { ...obj, v: 1 };
-    }
-    return raw;
-  },
+  // AD-3: no `upgrade` hook — `wrap` has always written `v: 1`, so an
+  // envelope without `v` was never produced by this app.
   extract: (envelope) => envelope.data,
   wrap: (data) => ({ v: 1, data: normalizeAll(data) }),
 });

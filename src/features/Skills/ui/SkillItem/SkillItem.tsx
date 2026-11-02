@@ -69,16 +69,25 @@ const SkillItemInner: React.FC<SkillItemProps> = ({
 
       <CardGrid columns={4} gap="sm" role="list" className={styles.skillsGrid}>
         {resolvedTechnologies.map((tech, index) => (
-          <div key={tech.techKey ?? tech.name ?? index} className={styles.techItem} role="listitem" aria-label={tech.name ?? tech.techKey ?? ''}>
+          <div
+            key={tech.techKey ?? (tech.name || index)}
+            className={styles.techItem}
+            role="listitem"
+            aria-label={tech.name || undefined}
+          >
             <img
               src={resolveIconSvg(tech.iconSvg ?? '') ?? ICON_FALLBACK}
+              // `name` is a string after the resolver: a catalog-less record
+              // keeps its snapshot label, and the unreachable empty string
+              // renders a decorative icon (alt="") instead of a missing
+              // attribute (axe image-alt, D6).
               alt={tech.name}
               className={classNames(styles.techIcon, tech.invertInDark && styles.invertInDark)}
               loading="lazy"
               style={{ filter: tech.iconFilter }}
               onError={handleIconError}
             />
-            <span className={styles.techName}>{tech.name}</span>
+            {tech.name && <span className={styles.techName}>{tech.name}</span>}
           </div>
         ))}
       </CardGrid>

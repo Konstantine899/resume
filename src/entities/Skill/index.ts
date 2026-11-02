@@ -20,6 +20,7 @@ export {
   TechnologySchema,
 } from './model/services/schema';
 export type { SkillsEnvelope } from './model/services/schema';
+export { keyOf } from './lib/keyOf';
 export { resolveIconSvg } from './lib/resolveIconSvg';
 export { resolveSkillTechnology } from './lib/resolveSkillTechnology';
-export { SKILL_ICON_KEYS } from './lib/skillIcons';
+export type { ResolvedSkillTechnology } from './lib/resolveSkillTechnology';

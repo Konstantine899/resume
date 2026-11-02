@@ -463,5 +463,6 @@
   "adminAboutStatsTable": "Statistics table",
   "adminAboutCtaEn": "CTA text (English)",
   "adminAboutCtaRu": "CTA text (Russian)",
-  "skillsSelectTechnology": "Select a technology"
+  "skillsSelectTechnology": "Select a technology",
+  "skillsTechLegacyHint": "This record is not linked to the technology catalog. Pick a technology to link it."
 }

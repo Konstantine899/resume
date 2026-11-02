@@ -463,5 +463,6 @@
   "adminAboutStatsTable": "Таблица показателей",
   "adminAboutCtaEn": "Текст CTA (Английский)",
   "adminAboutCtaRu": "Текст CTA (Русский)",
-  "skillsSelectTechnology": "Выберите технологию"
+  "skillsSelectTechnology": "Выберите технологию",
+  "skillsTechLegacyHint": "Запись не привязана к каталогу технологий. Выберите технологию, чтобы привязать ее."
 }

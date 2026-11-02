@@ -21,7 +21,7 @@
 // assertions, `number` for pagination pages, and `name` (WU-6, OPEN-10)
 // so the confirm subtitle can prove it NAMES the entity.
 
-import type { SkillCategory, SkillCategoryData } from '@/entities/Skill';
+import { keyOf, type SkillCategory, SkillCategoryData } from '@/entities/Skill';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillsEditorList } from './SkillsEditorList';
@@ -114,12 +114,12 @@ vi.mock('react-redux', async (importOriginal) => {
         );
       }
       if (action?.type === 'adminSkills/deleteTechnology' && action.payload) {
-        const payload = action.payload as { categoryId: string; techName: string };
+        const payload = action.payload as { categoryId: string; techKey: string };
         holder.state.adminSkills = holder.state.adminSkills.map((entry) =>
           entry.category === payload.categoryId
             ? {
                 ...entry,
-                technologies: entry.technologies.filter((tech) => tech.name !== payload.techName),
+                technologies: entry.technologies.filter((tech) => keyOf(tech) !== payload.techKey),
               }
             : entry
         );

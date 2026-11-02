@@ -5,7 +5,7 @@
 
 import { describe, expect, it, beforeEach } from 'vitest';
 
-import { SKILLS_DATA, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
+import { keyOf, SKILLS_DATA, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
 import {
   addSkillCategory,
   addTechnology,
@@ -113,14 +113,14 @@ describe('updateTechnology', () => {
     const state = hydrated();
     const next = skillsReducer(
       state,
-      updateTechnology({ categoryId: 'frontend', techName: 'React', patch: { invertInDark: true } })
+      updateTechnology({ categoryId: 'frontend', techKey: 'React', patch: { invertInDark: true } })
     );
     const react = next
       .find((c) => c.category === 'frontend')
-      ?.technologies.find((tech) => tech.name === 'React');
+      ?.technologies.find((tech) => keyOf(tech) === 'React');
     expect(react?.invertInDark).toBe(true);
     expect(react?.iconSvg).toBe(
-      SKILLS_DATA[0]?.technologies.find((t) => t.name === 'React')?.iconSvg
+      SKILLS_DATA[0]?.technologies.find((t) => keyOf(t) === 'React')?.iconSvg
     );
   });
 
@@ -128,7 +128,7 @@ describe('updateTechnology', () => {
     const state = hydrated();
     const next = skillsReducer(
       state,
-      updateTechnology({ categoryId: 'frontend', techName: 'Solid', patch: { invertInDark: true } })
+      updateTechnology({ categoryId: 'frontend', techKey: 'Solid', patch: { invertInDark: true } })
     );
     expect(next).toEqual(state);
   });
@@ -137,7 +137,7 @@ describe('updateTechnology', () => {
     const state = hydrated();
     const next = skillsReducer(
       state,
-      updateTechnology({ categoryId: 'mobile', techName: 'React', patch: { invertInDark: true } })
+      updateTechnology({ categoryId: 'mobile', techKey: 'React', patch: { invertInDark: true } })
     );
     expect(next).toEqual(state);
   });
@@ -149,7 +149,7 @@ describe('deleteTechnology', () => {
     const before = state.find((c) => c.category === 'frontend')?.technologies.length ?? 0;
     const next = skillsReducer(
       state,
-      deleteTechnology({ categoryId: 'frontend', techName: 'React' })
+      deleteTechnology({ categoryId: 'frontend', techKey: 'React' })
     );
     const after = next.find((c) => c.category === 'frontend')?.technologies.length ?? 0;
     expect(after).toBe(before - 1);
@@ -159,7 +159,7 @@ describe('deleteTechnology', () => {
     const state = hydrated();
     const next = skillsReducer(
       state,
-      deleteTechnology({ categoryId: 'frontend', techName: 'Solid' })
+      deleteTechnology({ categoryId: 'frontend', techKey: 'Solid' })
     );
     expect(next).toEqual(state);
   });

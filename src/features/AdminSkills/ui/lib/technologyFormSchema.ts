@@ -34,7 +34,15 @@ export const emptyTechnologyFormValues = (): TechnologyFormValues => ({
 
 import type { SkillTechnology } from '@/entities/Skill';
 
-export const toTechnologyFormValues = (technology: SkillTechnology): TechnologyFormValues => ({
+// catalogDefault feeds the resolved value: when neither override nor
+// snapshot is stored, the form shows what the resolver would render
+// (`override ?? catalog ?? snapshot`, D5), so saving "untouched" does not
+// silently freeze the old default.
+export const toTechnologyFormValues = (
+  technology: SkillTechnology,
+  catalogDefault?: boolean
+): TechnologyFormValues => ({
   techKey: technology.techKey ?? '',
-  invertInDark: technology.invertInDarkOverride ?? technology.invertInDark ?? false,
+  invertInDark:
+    technology.invertInDarkOverride ?? catalogDefault ?? technology.invertInDark ?? false,
 });

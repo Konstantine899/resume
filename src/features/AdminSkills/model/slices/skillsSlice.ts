@@ -18,7 +18,7 @@
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { SkillCategoryData, SkillTechnology } from '@/entities/Skill';
+import { keyOf, type SkillCategoryData, type SkillTechnology } from '@/entities/Skill';
 import { readSkills, skillsSeed } from '../services/storage';
 
 const skillsSlice = createSlice({
@@ -44,25 +44,29 @@ const skillsSlice = createSlice({
       const found = state.find((entry) => entry.category === action.payload.category);
       if (found) Object.assign(found, action.payload.patch);
     },
+    // AD-1: both actions address a record by its single identity. Keying
+    // on `tech.name` patched/deleted the FIRST sibling when two sparse
+    // records shared an empty name (D3) and missed linked records whose
+    // catalog key differs from the legacy label.
     updateTechnology(
       state,
       action: PayloadAction<{
         categoryId: string;
-        techName: string;
+        techKey: string;
         patch: Partial<SkillTechnology>;
       }>
     ) {
       const category = state.find((entry) => entry.category === action.payload.categoryId);
       const technology = category?.technologies.find(
-        (tech) => tech.name === action.payload.techName
+        (tech) => keyOf(tech) === action.payload.techKey
       );
       if (technology) Object.assign(technology, action.payload.patch);
     },
-    deleteTechnology(state, action: PayloadAction<{ categoryId: string; techName: string }>) {
+    deleteTechnology(state, action: PayloadAction<{ categoryId: string; techKey: string }>) {
       const category = state.find((entry) => entry.category === action.payload.categoryId);
       if (!category) return;
       const index = category.technologies.findIndex(
-        (tech) => tech.name === action.payload.techName
+        (tech) => keyOf(tech) === action.payload.techKey
       );
       if (index !== -1) category.technologies.splice(index, 1);
     },
