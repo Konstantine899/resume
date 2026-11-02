@@ -129,10 +129,12 @@ const fillMinimalValid = async () => {
   fireEvent.change(screen.getByLabelText('projectFieldDescription · RU'), {
     target: { value: 'Описание' },
   });
-  // techIcons: pick the first toggle (create mode starts empty).
-  fireEvent.click(
-    screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
-  );
+  // techIcons: pick the first combobox option (create mode starts empty).
+  fireEvent.click(screen.getByRole('combobox', { name: 'projectFieldTech' }));
+  const reactOption = screen.getByRole('option', {
+    name: TECHNOLOGIES_SEED[0]?.name ?? 'React',
+  });
+  fireEvent.mouseDown(reactOption as HTMLElement);
 };
 
 beforeEach(() => {
@@ -186,8 +188,8 @@ describe('ProjectForm: render (WU-4)', () => {
     );
 
     // One toggle per catalog key — the seed mirrors the live store (D4 fallback).
-    const toggles = screen.getByRole('group', { name: 'projectFieldTech' });
-    expect(toggles.querySelectorAll('button')).toHaveLength(TECHNOLOGIES_SEED.length);
+    const techCombobox = screen.getByRole('combobox', { name: 'projectFieldTech' });
+    expect(techCombobox).toBeInTheDocument();
 
     // rev.4: the image control is the file picker — no URL input exists.
     expect(fileInput()).toBeInTheDocument();
@@ -256,8 +258,12 @@ describe('ProjectForm: validation (§7, i18n-first)', () => {
     fireEvent.change(screen.getByLabelText('projectFieldDescription · RU'), {
       target: { value: 'Описание' },
     });
-    fireEvent.click(
-      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
+    const techInput = screen.getByRole('combobox', { name: 'projectFieldTech' });
+    fireEvent.click(techInput);
+    fireEvent.mouseDown(
+      screen.getByRole('option', {
+        name: TECHNOLOGIES_SEED[0]?.name ?? 'React',
+      }) as HTMLElement
     );
     fireEvent.click(saveButton());
 
@@ -461,8 +467,12 @@ describe('ProjectForm: FileUpload → save-to-directory (rev.4)', () => {
     fireEvent.change(screen.getByLabelText('projectFieldDescription · RU'), {
       target: { value: 'Описание' },
     });
-    fireEvent.click(
-      screen.getAllByRole('button', { name: TECHNOLOGIES_SEED[0]?.key })[0] as HTMLElement
+    const techInput = screen.getByRole('combobox', { name: 'projectFieldTech' });
+    fireEvent.click(techInput);
+    fireEvent.mouseDown(
+      screen.getByRole('option', {
+        name: TECHNOLOGIES_SEED[0]?.name ?? 'React',
+      }) as HTMLElement
     );
 
     await uploadImageFile();

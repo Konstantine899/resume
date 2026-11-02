@@ -6,6 +6,7 @@ import { classNames } from '@/shared/lib/utils/classNames';
 import { mediaUrl } from '@/shared/lib/media';
 import { Link } from '@/shared/ui/Link';
 import { Paragraph } from '@/shared/ui/Paragraph';
+import { useLanguage } from '@/shared/lib/i18n';
 import { memo } from 'react';
 import type { ProjectCardProps } from '../../model/types';
 import styles from './ProjectCard.module.scss';
@@ -37,14 +38,17 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
   backgroundImage,
   techIcons,
   link,
-  builtUsingLabel = 'Создано с помощью',
-  linkLabel = 'Ссылка',
+  builtUsingLabel,
+  linkLabel,
   role,
   metrics,
   year,
   className = '',
   onClick,
 }) => {
+  const { t } = useLanguage();
+  const builtUsingDisplay = builtUsingLabel ?? t('builtUsing');
+  const linkDisplay = linkLabel ?? t('link');
   return (
     <div
       className={classNames(styles.projectCard, className)}
@@ -101,15 +105,19 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
         {techIcons && techIcons.length > 0 && (
           <div className={styles.techSection}>
             <Paragraph as="span" size="xs" theme="muted">
-              {builtUsingLabel}
+              {builtUsingDisplay}
             </Paragraph>
             <div className={styles.techIcons}>
-              {techIcons.map((tech, index) => (
+              {techIcons.map((tech) => (
                 <img
-                  key={index}
+                  key={tech.url}
                   src={mediaUrl(tech.url)}
-                  alt={tech.name || 'Tech icon'}
-                  className={styles.techIcon}
+                  alt={tech.name || (tech.url.split('/').pop() ?? tech.url)}
+                  className={classNames(
+                    styles.techIcon,
+                    tech.invertInDark ? styles.techIconInvert : undefined
+                  )}
+                  title={tech.name}
                 />
               ))}
             </div>
@@ -118,7 +126,7 @@ const ProjectCardComponent: React.FC<ProjectCardProps> = ({
         {link && (
           <div className={styles.linkSection}>
             <Paragraph as="span" size="xs" theme="muted">
-              {linkLabel}
+              {linkDisplay}
             </Paragraph>
             <Link
               href={link}

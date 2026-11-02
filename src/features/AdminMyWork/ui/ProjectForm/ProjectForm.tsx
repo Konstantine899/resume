@@ -25,13 +25,14 @@
 
 import type { Project, ProjectCategory, ProjectStatus } from '@/entities/Project';
 import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '@/entities/Project';
-import { selectTechnologyKeys } from '@/entities/Technology';
+import { selectAllTechnologies, selectTechnologyKeys } from '@/entities/Technology';
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
 import { ArrowDown, ArrowUp, X } from 'lucide-react';
 import { Button, IconButton } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
+import { Combobox } from '@/shared/ui/Combobox';
 import { Form } from '@/shared/ui/Form';
 import { Heading } from '@/shared/ui/Heading';
 import { Icon } from '@/shared/ui/Icon';
@@ -66,12 +67,6 @@ import styles from './ProjectForm.module.scss';
 /** The two editable locales — the field order is en then ru everywhere. */
 const LOCALES = ['en', 'ru'] as const;
 
-/** Amend 2026-10-10: subdirectory options for the image picker (default + create-new). */
-const IMAGE_SUBDIR_OPTIONS = [
-  { value: 'projects', label: 'projects' },
-  { value: 'new', label: 'new' },
-];
-
 export interface ProjectFormProps {
   className?: string;
   'data-testid'?: string;
@@ -93,6 +88,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   // schema's membership rule both read the store; a missing slice falls
   // back to the seed instead of throwing (bare tests / Storybook).
   const techKeys = useSelector(selectTechnologyKeys);
+  const technologies = useSelector(selectAllTechnologies);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -118,12 +114,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   // every keystroke/validation/reset flows through RHF state into the DOM
   // (useWatch, NOT watch(): React Compiler incompatible-library rule).
   const values = useWatch({ control });
-
-  const toggleTech = (key: string) => {
-    const current = values.techIcons ?? [];
-    const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-    setValue('techIcons', next, { shouldDirty: true });
-  };
 
   const toggleFeatured = () => {
     setValue('featured', !values.featured, { shouldDirty: true });
@@ -237,28 +227,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
 
       <div className={styles.group}>
         <Heading level={3}>{t('projectFieldTech')}</Heading>
-        <div className={styles.toggles} role="group" aria-label={t('projectFieldTech')}>
-          {techKeys.map((key) => {
-            const active = (values.techIcons ?? []).includes(key);
-            return (
-              <Button
-                key={key}
-                type="button"
-                variant={active ? 'primary' : 'outline'}
-                size="sm"
-                aria-pressed={active}
-                onClick={() => toggleTech(key)}
-              >
-                {key}
-              </Button>
-            );
-          })}
-        </div>
-        {errors.techIcons && (
-          <Paragraph asChild theme="error" size="s">
-            <span role="alert">{t('projectTechRequired')}</span>
-          </Paragraph>
-        )}
+        <Combobox
+          label={t('projectFieldTech')}
+          values={values.techIcons ?? []}
+          options={technologies.map((technology) => ({
+            value: technology.key,
+            label: technology.name ?? technology.key,
+            iconUrl: technology.url,
+          }))}
+          onChange={(next) => setValue('techIcons', next, { shouldDirty: true })}
+          placeholder={t('projectFieldTech')}
+        />
       </div>
 
       <div className={styles.field}>
@@ -266,7 +245,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           label={t('projectFieldLink')}
           error={errors.link ? t('projectLinkInvalid') : undefined}
           value={values.link ?? ''}
-          placeholder="https://…  or  /…"
+          placeholder={t('projectFieldLinkPlaceholder')}
           fullWidth
           {...register('link')}
         />
@@ -280,7 +259,10 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
         <Select
           id="project-form-image-subdir"
           label={t('projectImageSubdirLabel')}
-          options={IMAGE_SUBDIR_OPTIONS}
+          options={[
+            { value: 'projects', label: t('projectImageSubdirProjects') },
+            { value: 'new', label: t('projectImageSubdirNew') },
+          ]}
           value={values.imageSubdir ?? 'projects'}
           onChange={(value) => setValue('imageSubdir', value, { shouldDirty: true })}
         />

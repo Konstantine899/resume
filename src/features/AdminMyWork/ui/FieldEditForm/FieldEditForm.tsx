@@ -19,8 +19,10 @@
 import { useToast } from '@/shared/lib/contexts/ToastContext';
 import { useLanguage } from '@/shared/lib/i18n/hooks';
 import { classNames } from '@/shared/lib/utils/classNames';
+import { mediaUrl } from '@/shared/lib/media';
 import { Button } from '@/shared/ui/Button';
 import { FileUpload, type FileUploadSelection } from '@/shared/ui/FileUpload';
+import { Combobox } from '@/shared/ui/Combobox';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import { Paragraph } from '@/shared/ui/Paragraph';
@@ -38,13 +40,8 @@ import {
   type ProjectCategory,
   type ProjectStatus,
 } from '@/entities/Project';
-import { selectTechnologyKeys } from '@/entities/Technology';
-import {
-  ensureRootWithinGesture,
-  isAbortError,
-  isDirectoryPickerSupported,
-  saveUploadedImage,
-} from '@/shared/lib/imageDir';
+import { selectAllTechnologies, selectTechnologyKeys } from '@/entities/Technology';
+import { uploadImage } from '@/shared/lib/imageUpload';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import { selectAllProjects } from '../../model/selectors/selectors';
 import { persistProjects } from '../../model/services/storage';
@@ -83,6 +80,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   // the membership rule in `schemaFor` both read the store — seed fallback
   // when the slice is absent (bare tests / Storybook).
   const techKeys = useSelector(selectTechnologyKeys);
+  const technologies = useSelector(selectAllTechnologies);
   const dispatch = useDispatch();
   const { t } = useLanguage();
   const { addToast } = useToast();
@@ -124,12 +122,6 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
 
   const handleCancel = () => onExitEdit?.();
 
-  const toggleTech = (key: string) => {
-    const current = values.techIcons ?? [];
-    const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-    setValue('techIcons', next, { shouldDirty: true });
-  };
-
   // Issue #273 (ProjectForm parity): the image is picked via kit FileUpload
   // and WRITTEN into the fixed `projects` subdirectory of the shared images
   // root — the field value becomes the returned `/images/projects/<name>`
@@ -137,22 +129,12 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
   const handleImageFile = useCallback(
     async (file: FileUploadSelection) => {
       setImageSaveErrorKey(null);
-      if (!isDirectoryPickerSupported()) {
-        setImageSaveErrorKey('projectFileUploadUnsupported');
+      const outcome = await uploadImage({ blob: file.blob, name: file.name });
+      if (!outcome.ok) {
+        setImageSaveErrorKey('projectFileUploadSaveError');
         return;
       }
-      try {
-        const path = await saveUploadedImage({
-          blob: file.blob,
-          name: file.name,
-          subdir: 'projects',
-        });
-        setValue('image', path, { shouldDirty: true, shouldValidate: true });
-      } catch (error) {
-        // The user dismissed the picker — no alarm, no value change.
-        if (isAbortError(error)) return;
-        setImageSaveErrorKey('projectFileUploadSaveError');
-      }
+      setValue('image', outcome.file.key, { shouldDirty: true, shouldValidate: true });
     },
     [setValue]
   );
@@ -247,7 +229,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
               label={t('projectFieldLink')}
               error={errors.link ? t('projectLinkInvalid') : undefined}
               value={values.link ?? ''}
-              placeholder="https://…  or  /…"
+              placeholder={t('projectFieldLinkPlaceholder')}
               fullWidth
               {...register('link')}
             />
@@ -289,30 +271,20 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
       case 'techIcons':
         return (
           <div className={styles.field}>
-            <div className={styles.toggles} role="group" aria-label={t('projectFieldTech')}>
-              {techKeys.map((key) => {
-                const active = (values.techIcons ?? []).includes(key);
-                return (
-                  <Button
-                    key={key}
-                    type="button"
-                    variant={active ? 'primary' : 'outline'}
-                    size="sm"
-                    aria-pressed={active}
-                    onClick={() => toggleTech(key)}
-                  >
-                    {key}
-                  </Button>
-                );
-              })}
-            </div>
-            {errors.techIcons && (
-              <Paragraph asChild theme="error" size="s">
-                <span role="alert">{t('projectTechRequired')}</span>
-              </Paragraph>
-            )}
+            <Combobox
+              label={t('projectFieldTech')}
+              values={values.techIcons ?? []}
+              options={technologies.map((technology) => ({
+                value: technology.key,
+                label: technology.name ?? technology.key,
+                iconUrl: technology.url,
+              }))}
+              onChange={(next) => setValue('techIcons', next, { shouldDirty: true })}
+              placeholder={t('projectFieldTech')}
+            />
           </div>
         );
+
       case 'image':
         return (
           <div className={styles.field}>
@@ -330,7 +302,6 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
                 undecodable: t('projectFileUploadUndecodable'),
                 selected: t('projectFileUploadSelected'),
               }}
-              onBeforeSelect={() => ensureRootWithinGesture()}
               onFileSelect={handleImageFile}
             />
             {imageSaveErrorKey ? (
@@ -345,7 +316,7 @@ export const FieldEditForm: React.FC<FieldEditFormProps> = ({
             ) : null}
             {values.image ? (
               <div className={styles.imageCurrent}>
-                <img src={values.image} alt="" className={styles.imageCurrentPreview} />
+                <img src={mediaUrl(values.image)} alt="" className={styles.imageCurrentPreview} />
                 <span className={styles.imageCurrentPath}>{values.image}</span>
               </div>
             ) : null}

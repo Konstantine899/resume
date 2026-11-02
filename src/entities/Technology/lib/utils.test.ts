@@ -14,14 +14,17 @@ import { resolveTechIcons } from './utils';
 
 // Independent literals — byte-parity with the old TECH_ICONS entries.
 const REACT_ICON = {
+  name: 'React',
   url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
   invertInDark: true,
 };
 const NEXTJS_ICON = {
+  name: 'Next.js',
   url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
   invertInDark: true,
 };
 const CSS_ICON = {
+  name: 'CSS3',
   url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
 };
 

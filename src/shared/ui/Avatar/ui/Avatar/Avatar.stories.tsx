@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
-import portraitSrc from '@/shared/assets/Firefly_RemoveBackground.webp';
+const portraitSrc = '';
 import { Avatar } from './Avatar';
 import { createMeta } from './Avatar.storiesHelper';
 

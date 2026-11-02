@@ -1,0 +1,248 @@
+/**
+ * Large catalog fixture used for combobox/search stress tests.
+ * This is dev/test data only; production seed remains 14 real technologies.
+ */
+import type { Technology } from '../types/types';
+
+export const LARGE_TECHNOLOGY_FIXTURE: Technology[] = [
+  {
+    key: 'tech-00',
+    name: 'Tech 00 (react)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-01',
+    name: 'Tech 01 (nextjs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-02',
+    name: 'Tech 02 (typescript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-03',
+    name: 'Tech 03 (javascript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-04',
+    name: 'Tech 04 (tailwind)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwind/tailwind-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-05',
+    name: 'Tech 05 (css)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css/css-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-06',
+    name: 'Tech 06 (html)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html/html-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-07',
+    name: 'Tech 07 (sass)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-08',
+    name: 'Tech 08 (nodejs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-09',
+    name: 'Tech 09 (python)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-10',
+    name: 'Tech 10 (postgresql)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-11',
+    name: 'Tech 11 (redux)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-12',
+    name: 'Tech 12 (framer)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/framer/framer-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-13',
+    name: 'Tech 13 (d3js)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/d3js/d3js-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-14',
+    name: 'Tech 14 (react)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-15',
+    name: 'Tech 15 (nextjs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-16',
+    name: 'Tech 16 (typescript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-17',
+    name: 'Tech 17 (javascript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-18',
+    name: 'Tech 18 (tailwind)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwind/tailwind-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-19',
+    name: 'Tech 19 (css)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css/css-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-20',
+    name: 'Tech 20 (html)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html/html-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-21',
+    name: 'Tech 21 (sass)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-22',
+    name: 'Tech 22 (nodejs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-23',
+    name: 'Tech 23 (python)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-24',
+    name: 'Tech 24 (postgresql)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-25',
+    name: 'Tech 25 (redux)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-26',
+    name: 'Tech 26 (framer)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/framer/framer-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-27',
+    name: 'Tech 27 (d3js)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/d3js/d3js-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-28',
+    name: 'Tech 28 (react)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-29',
+    name: 'Tech 29 (nextjs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-30',
+    name: 'Tech 30 (typescript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-31',
+    name: 'Tech 31 (javascript)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-32',
+    name: 'Tech 32 (tailwind)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwind/tailwind-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-33',
+    name: 'Tech 33 (css)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css/css-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-34',
+    name: 'Tech 34 (html)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html/html-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-35',
+    name: 'Tech 35 (sass)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-36',
+    name: 'Tech 36 (nodejs)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+    invertInDark: true,
+  },
+  {
+    key: 'tech-37',
+    name: 'Tech 37 (python)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-38',
+    name: 'Tech 38 (postgresql)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+    invertInDark: false,
+  },
+  {
+    key: 'tech-39',
+    name: 'Tech 39 (redux)',
+    url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
+    invertInDark: true,
+  },
+];

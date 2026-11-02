@@ -49,6 +49,8 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllProjects } from '../../model/selectors/selectors';
+import { resolveTechIcons } from '@/entities/Technology';
+import { mediaUrl } from '@/shared/lib/media';
 import { persistProjects } from '../../model/services/storage';
 import { updateProject } from '../../model/slices/myWorkSlice';
 import type { ProjectUpdatePatch } from '../../model/types/types';
@@ -256,11 +258,30 @@ export function ProjectCard({
       fieldKey: 'role',
     });
   }
-  if (project.techIcons.length > 0) {
+  const projectTechnologyKeys = project.techIcons ?? [];
+  const projectTechIcons = resolveTechIcons(projectTechnologyKeys);
+  const unresolvedTechnologyKeys = projectTechnologyKeys.length - projectTechIcons.length;
+  if (projectTechnologyKeys.length > 0) {
     rows.push({
       key: 'techIcons',
       label: t('projectFieldTechIcons'),
-      value: project.techIcons.join(', '),
+      value: (
+        <span className={styles.techValue}>
+          {projectTechIcons.map((tech) => (
+            <span className={styles.techChip} key={tech.url}>
+              <img
+                src={mediaUrl(tech.url)}
+                alt={tech.name ?? t('projectFieldTechIcons')}
+                className={styles.techChipIcon}
+              />
+              <span>{tech.name ?? t('projectFieldTechIcons')}</span>
+            </span>
+          ))}
+          {unresolvedTechnologyKeys > 0 && (
+            <span className={styles.techWarning}>{t('adminTechUnknownKeys')}</span>
+          )}
+        </span>
+      ),
       fieldKey: 'techIcons',
     });
   }
