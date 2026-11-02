@@ -36,5 +36,5 @@ import type { SkillTechnology } from '@/entities/Skill';
 
 export const toTechnologyFormValues = (technology: SkillTechnology): TechnologyFormValues => ({
   techKey: technology.techKey ?? '',
-  invertInDark: technology.invertInDark ?? false,
+  invertInDark: technology.invertInDarkOverride ?? technology.invertInDark ?? false,
 });

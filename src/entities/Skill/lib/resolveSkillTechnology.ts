@@ -27,7 +27,7 @@ export const resolveSkillTechnology = (
     ...technology,
     name: technology.techKey,
     iconSvg: source.url,
-    invertInDark: technology.invertInDark ?? source.invertInDark,
+    invertInDark: technology.invertInDarkOverride ?? technology.invertInDark ?? source.invertInDark,
     techKey: technology.techKey,
   };
 };

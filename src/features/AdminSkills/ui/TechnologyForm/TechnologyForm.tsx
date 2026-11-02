@@ -100,12 +100,16 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
     }
 
     if (technology) {
+      const omitLegacy = (technology?.techKey ?? '').trim() !== '';
       const patch = {
-        name: picked.key,
-        iconSvg: picked.url,
-        invertInDark: data.invertInDark,
         techKey: picked.key,
+        invertInDark: data.invertInDark,
+        ...(omitLegacy ? { name: undefined, iconSvg: undefined } : {}),
       };
+      const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
+      if (invertDiffers) {
+        (patch as Record<string, unknown>).invertInDarkOverride = data.invertInDark;
+      }
 
       const next = all.map((entry) =>
         entry.category === categoryId
@@ -129,11 +133,10 @@ export const TechnologyForm: React.FC<TechnologyFormProps> = ({
       return;
     }
 
+    const invertDiffers = data.invertInDark !== (picked.invertInDark ?? false);
     const record: SkillTechnology = {
-      name: picked.key,
-      iconSvg: picked.url,
-      invertInDark: data.invertInDark,
       techKey: picked.key,
+      ...(invertDiffers ? { invertInDarkOverride: data.invertInDark } : {}),
     };
 
     const next = all.map((entry) =>
