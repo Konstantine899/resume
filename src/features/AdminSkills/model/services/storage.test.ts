@@ -123,7 +123,7 @@ describe('readSkills', () => {
   });
 
   it('returns null for an unknown envelope version (migration guard)', () => {
-    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify({ v: 2, data: VALID }));
+    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify({ v: 3, data: VALID }));
     expect(readSkills()).toBeNull();
   });
 

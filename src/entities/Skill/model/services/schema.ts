@@ -63,7 +63,7 @@ export const SkillCategoryDataSchema = z
 /** The exact envelope persisted under `resume.skills` (§5). */
 export const SkillsEnvelopeSchema = z
   .object({
-    v: z.literal(1),
+    v: z.union([z.literal(1), z.literal(2)]),
     data: z.array(SkillCategoryDataSchema),
   })
   .refine(

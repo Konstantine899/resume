@@ -53,6 +53,13 @@ const normalizeAll = (data: SkillCategoryData[]): SkillCategoryData[] =>
 const storage = createVersionedStorage<SkillCategoryData[], SkillsEnvelope>({
   key: SKILLS_STORAGE_KEY,
   envelopeSchema: SkillsEnvelopeSchema,
+  upgrade: (raw) => {
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const obj = raw as Record<string, unknown>;
+      if (obj.v === undefined) return { ...obj, v: 1 };
+    }
+    return raw;
+  },
   extract: (envelope) => envelope.data,
   wrap: (data) => ({ v: 1, data: normalizeAll(data) }),
 });
