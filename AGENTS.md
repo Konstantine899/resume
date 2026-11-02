@@ -46,6 +46,7 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
 - `npm run generate:slice <layer> <SliceName>` — scaffolds an FSD slice through `scripts/createSlices/` (templates in `createSlices/templates/`). Layers come from `scripts/fsd-layers.json` only; reruns need `--force`; route/composition-root/i18n edits are printed as "Next steps" and never auto-applied. Gotchas: `resume-fsd-ssot`, `resume-genslice-eperm`.
 - `npm run check:public-api` — shared/ui barrel boundary, the **last step of `npm run validate`** (exit 1 on a missing `index.ts` or a deep `<Component>/<X>` import). Sibling `npm run refactor:imports` rewrites bare FSD-layer specifiers (dry-run default, `--fix` to write). Gotcha: `resume-refactor-tools`.
 - Not ported by decision — `clear-cache`, `getApiUrl`/`build:dev` (xargs), Loki report, `print-env.mjs` (OPEN-7 No). Gotcha: `resume-scripts-nonported`.
+<<<<<<< HEAD
 
 - Spec-driven changes run as `SPEC.md` (survives) + `TODO.md` (burns down); the pack's own pair lives in `scripts/spec/`. The per-feature spec workflow (same pair, per slice) is defined in **Spec-driven features** below.
 
@@ -69,6 +70,7 @@ Adapted from the upstream `advansed-frontend-app` pack. Spec + stage log: `scrip
 5. SPEC — единственная копия. Не дублировать в vault / openspec.
 6. Папку `spec/` не заводить заранее — только при старте планирования.
 7. При расхождении SPEC с кодом обновить SPEC и дату `verified`.
+<<<<<<< HEAD
 8. Язык: `SPEC.md` и `TODO.md` ВСЕГДА на русском (владелец, 2026-10-08) —
    включая заголовки секций и прозу; это перекрывает дефолтный English
    Language Domain Contract для этих двух файлов. Исключение — КЛЮЧИ
