@@ -1,5 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    "@nick-vi/opencode-type-inject",
+    "@tarquinen/opencode-dcp",
+    "opencode-vibeguard",
+    "@mohak34/opencode-notifier"
+  ],
   "agent": {
     "spec-planner-deepseek": {
       "description": "Spec planner — fills a slice spec/ pair (SPEC.md acceptance criteria + Plan files, TODO.md work units). Trigger: 'заполни spec для <slice>', 'fill spec', 'spec-planner'. Writes ONLY spec/; never code; status stays draft.",
