@@ -154,8 +154,8 @@ function printPointer(names, scaffold) {
     );
   } else {
     console.log(
-      `Next: fill ${specDir}/SPEC.md (owner sets status: approved), then rerun with ` +
-        `--scaffold — Work units: ${specDir}/TODO.md.`
+      `  - src/storeReducers.ts: import { ${names.camel}Reducer } from ` +
+        `'@/${names.layer}/${names.name}/model/slices/${names.camel}Slice'; and register it in the reducers map.`
     );
   }
 }

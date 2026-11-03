@@ -118,7 +118,32 @@
       `continue` в `node_modules/.bin`, не в PATH, ноль ссылок; `npm run` теперь проводит каждую
       запись к существующему файлу/бинарю); нет `postinstall` / `test:ui:*`
 
-## Этап 4 — Документация и память
+## Stage 3.5 — Nested `model/` subdirectories (owner directive, 2026-10-04)
+
+- [x] **3.5.1** SPEC §3.2 amended first (REQ-G8/G9/G10/G11, REQ-T2/T6): `model/` = only
+      `types/`, `slices/`, `selectors/`, `services/`; flat files forbidden; `services/`
+      never auto-created — header `Change` row added (2026-10-04)
+- [x] **3.5.2** Tests first (REQ-Q4.3/Q4.6): `create-slices-cli.test.mjs` assertions →
+      nested paths + `../types` content import — suite 48/48 green
+- [x] **3.5.3** `create-model.mjs` planFiles + docstring → `model/types/index.ts`,
+      `model/slices/<camel>Slice(.test).ts`, `model/selectors/index.ts`
+- [x] **3.5.4** Templates: relative imports `./types` → `../types`, `./selectors` →
+      `../selectors` (redux-slice, selectors); barrel `./model/<camel>Slice` →
+      `./model/slices/<camel>Slice` (index.mjs)
+- [x] **3.5.5** `printNextSteps` snippet → `model/slices/<camel>Slice` (create-template.mjs)
+      — verified live in smoke output
+- [x] **3.5.6** Smoke: tmp-root `--dry-run` (nested tree, zero writes), base + `--with-slice`
+      generation, `--force` keeps foreign files (REQ-G5); live S2/S3 `--with-slice` in real
+      `src` → validate exit 0 (nested `../types` compiles + lints)
+- [x] **Gate:** `npm run validate` green ×2 (with generated slice 9-file tree; after cleanup
+      162 files / 2786 tests = baseline, stmts 91.67, Public API 28/28); generator suite
+      48/48; worktree residue-free
+- [x] **3.5.7** Fifth subdirectory decided (owner, 2026-10-04): `constants/` joins the
+      closed set `types/`, `slices/`, `selectors/`, `services/` — docs-only in this PR
+      (the generator never emits constants; SPEC REQ-G8 paragraph + `create-model.mjs`
+      docstring amended; `./model/constants` specifiers resolve unchanged)
+
+## Stage 4 — Documentation and memory
 
 - [ ] **4.1** Раздел в AGENTS.md: `generate:slice`, `check:public-api`, правило SSOT, решения
       «не портировано», конвенция директорий `createSlices`

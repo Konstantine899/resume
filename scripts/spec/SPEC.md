@@ -3,11 +3,12 @@
 | Field   | Value                                                                                                           |
 | ------- | --------------------------------------------------------------------------------------------------------------- |
 | Status  | draft                                                                                                           |
-| Date    | 2026-10-07 (поправка ARCH-1 — архитектура владельца, см. REQ-G8 в §3.2; поправка spec-phase — REQ-G14/G15 §3.2) |
-| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; ревизия 2 — замечания ревью учтены)              |
-| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 файлов, 17 исполняемых, все прочитаны)        |
+| Date    | 2026-10-04                                                                                                      |
+| Change  | 2026-10-04: nested `model/{types,slices,selectors,constants}` subdirectories — owner directive (REQ-G8 amended) |
+| Plan    | `resume-app/wiki/plan/implementation-plan.md` (Obsidian vault; revision 2 — review findings applied)            |
+| Source  | `Konstantine899/advansed-frontend-app` @ `master`, `scripts/` (19 files, 17 executable, all read)               |
 | Target  | resume-app @ `dev` — Vite 8 / React 19 / TS 6.0 / RTK 2.13 / Storybook 10, ESM (`"type": "module"`)             |
-| Tracker | `scripts/spec/TODO.md` (поэтапный разбор задач)                                                                 |
+| Tracker | `scripts/spec/TODO.md` (staged task breakdown)                                                                  |
 
 ---
 
@@ -136,7 +137,7 @@
   ├── index.ts
   ├── model/
   │   └── types/
-  │       └── types.ts      # <Name>Props (self-named file, ARCH-1: no index barrel)
+  │       └── index.ts      # <Name>Props (nested model: types live in model/types/)
   └── ui/
       └── <Name>/
           ├── <Name>.tsx
@@ -150,277 +151,170 @@
   ```
   ├── model/
   │   ├── types/
-  │   │   └── types.ts      # + <Name>State, <Name>RootState (structural)
+  │   │   └── index.ts      # + <Name>State, <Name>RootState (structural)
   │   ├── slices/
-  │   │   ├── <name>Slice.ts       # file MUST match *Slice.ts (no-param-reassign override)
+  │   │   ├── <name>Slice.ts      # file MUST match *Slice.ts (no-param-reassign override)
   │   │   └── <name>Slice.test.ts
   │   └── selectors/
-  │       └── selectors.ts         # self-named file, no index barrel (ARCH-1)
+  │       └── index.ts
   ```
 
-  **ARCH-1 (владелец, 2026-10-07) — каноническая архитектура слайса**, выведенная из ручной
-  перестройки `src/` владельцем и обязательная для генератора:
-  - **`ui/` — директории по компонентам**: `ui/<Name>/<Name>.{tsx,test.tsx,stories.tsx,module.scss}`
-    (прецедент: `features/About/ui/About/`, `pages/Admin/ui/<Page>/`). Плоский
-    `ui/<Name>.tsx` больше не эмитится.
-  - **`model/` содержит ТОЛЬКО поддиректории; каждый файл назван по себе** (`types/types.ts`,
-    `selectors/selectors.ts`, `slices/<name>Slice.ts`, `constants/constants.ts`,
-    `schemes/schema.ts`) — внутри `model/` нет баррелей `index.ts`, поэтому импортёры пишут
-    полный путь (`./model/types/types`, прецедент `entities/Job/index.ts`). Спекификаторы
-    импортёров поэтому МЕНЯЮТСЯ при миграции слайса (в отличие от index-barrel-дизайна плана
-    рев.4).
-  - **`services/`, `constants/` и `schemes/` генератор НИКОГДА не создаёт** (пустые директории
-    не коммитятся) — их делают вручную, когда появляются реальные файлы. `schemes/` — домен
-    entity для zod-схем (прецедент `entities/Job/model/schemes/schema.ts`); логика
-    storage/seed/session фич остаётся в `services/`.
-  - Дерево ИДЕНТИЧНО в каждом слое генерации (`entities`, `features`, `pages`, `widgets`) —
-    OPEN-1 (владелец, 2026-10-04) остаётся в силе; ARCH-1 меняет форму, а не правило
-    униформности.
-  - `shared/**` ВНЕ области: нет в `generatorLayers`, до сих пор плоский
-    `shared/ui/*/model/types.ts` (план §5 / риск R6 без изменений). Две конвенции сосуществуют
-    ПО ДИЗАЙНУ.
+  **Amended 2026-10-04 (owner directive): nested `model/`.** `model/` contains ONLY the
+  subdirectories `types/`, `slices/`, `selectors/`, `services/`, `constants/` — flat files
+  directly in `model/` are forbidden (supersedes the flat-model `AdminAuth`/`About`
+  precedent of the previous revision). The generator always emits `types/`; `slices/` +
+  `selectors/` only with `--with-slice`; `services/` and `constants/` are never auto-created
+  (empty directories are not committable) — they are created by hand when real files
+  appear. Cross-directory template imports use `../types` and `../selectors`; barrel
+  specifiers `./model/types` and `./model/selectors` resolve unchanged (directory +
+  `index.ts`); the same holds for `./model/constants`.
 
-- **REQ-G9** Содержимое `model/types/types.ts`: без слайса — только `<Name>Props`; со слайсом —
-  плюс `<Name>State` (≥1 поле; `no-empty-object-type`) и структурный
-  `<Name>RootState = { <name>: <Name>State }` с комментарием композиционного корня
-  (прецедент: `AdminAuth/model/types/index.ts` — глобального RootState не может существовать,
-  пока редьюсеры инжектятся из `src/App.tsx`).
-- **REQ-G10** `model/selectors/selectors.ts` (только с `--with-slice`):
+  The tree is IDENTICAL in every generator layer (`entities`, `features`, `pages`, `widgets`) —
+  OPEN-1 decided (owner): no per-layer variants in v1. If a data-only slice is ever needed,
+  that is a separate explicit decision (e.g. a `--no-ui` flag), never a silent layer
+  special-case.
+
+- **REQ-G9** `model/types/index.ts` content: without slice — `<Name>Props` only; with slice — plus
+  `<Name>State` (≥1 field; `no-empty-object-type`) and structural
+  `<Name>RootState = { <name>: <Name>State }` with the composition-root comment
+  (precedent: `AdminAuth/model/types` — no global RootState can exist while reducers are
+  injected from `src/App.tsx`).
+- **REQ-G10** `model/selectors/index.ts` (only with `--with-slice`):
   `export const select… = (state: <Name>RootState): … => state.<name>…;`
-  (прецедент: `AdminAbout/model/selectors/selectors.ts`; файл назван по себе, ARCH-1).
-- **REQ-G11** Генератор никогда не правит `storeReducers.ts` / `routerConfig.tsx` /
-  `HomePage.tsx` / локали; эти шаги (точный сниппет импорта редьюсера
-  `…/model/slices/<camel>Slice`, если использовался `--with-slice`) эмитятся как рабочие
-  единицы в шаблоне `spec/TODO.md` фазы A (REQ-G14); в консоль выводится только указатель на
-  следующую фазу.
-- **REQ-G12** Windows: npm-скрипты — обычный `node <file>` — без труб, без `xargs`, без `npx`
-  внутри порождаемых процессов; подпроцессы в тестах используют `process.execPath`.
-- **REQ-G13** Эмит должен быть чист по Prettier (`printWidth: 100`, одинарные кавычки) — либо
-  прогонять эмит-строки через `prettier.format()` (программный API), либо проверять
-  `prettier --check` на сгенерированной директории в смоуке (REQ-Q6).
-- **REQ-G14** Фаза A (ПО УМОЛЧАНИЮ, без `--scaffold`) — каркас спеков, БЕЗ кода:
+  (precedent: `AdminAuth/model/selectors`).
+- **REQ-G11** The generator never edits `storeReducers.ts` / `routerConfig.tsx` / `HomePage.tsx` /
+  locales; it prints a "Next steps" block with the exact reducer import snippet
+  (`model/slices/<camel>Slice`) when `--with-slice` was used.
+- **REQ-G12** Windows: npm scripts are plain `node <file>` — no pipes, no `xargs`, no `npx`
+  inside spawned processes; subprocesses in tests use `process.execPath`.
+- **REQ-G13** Emitted output must be Prettier-clean (`printWidth: 100`, single quotes) — either
+  run emitted strings through `prettier.format()` (programmatic API) or assert
+  `prettier --check` on the generated directory in the smoke (REQ-Q6).
 
-  ```
-  src/<layer>/<Name>/
-  └── spec/
-      ├── SPEC.md    # frontmatter status: draft — Цель / Контекст / Критерии приёмки /
-      │              # Планируемые файлы / Что не входит / Риски / Открытые вопросы
-      └── TODO.md    # frontmatter + Рабочие единицы (сгорание: выполненные удаляются)
-  ```
+### 3.3 Templates (REQ-T)
 
-  - Контент по умолчанию: критерии приёмки начинаются как пустой чеклист с подсказкой
-    наблюдаемости (критерий = наблюдаемый исход, а не оценка); секция **«Планируемые файлы»**
-    перечисляет точные пути, которые эмитит фаза B (база REQ-G8 + extras с `--with-slice`,
-    плюс свободный список для доп. компонентов, заскаффолденных на следующем этапе); рабочие
-    единицы ВСЕГДА включают шаги композиционного корня из REQ-G11 (импорт storeReducers —
-    только с `--with-slice`, router/HomePage, i18n en+ru) и поток фаз: заполнить SPEC →
-    владелец ставит `status: approved` → запустить `--scaffold` → реализовать по критериям.
-  - Frontmatter, который потребляет тулинг: `status: draft | approved | done`, `epic:` (имя
-    плана в vault), `issue:`, `created:`, `verified:`.
-  - Общая семантика REQ-G4–G7 применяется, файлами во владении являются `spec/SPEC.md` +
-    `spec/TODO.md`: `--force` фазы A заменяет пару спеков и НИКОГДА не удаляет чужие (кодовые)
-    файлы.
-  - `.gitignore` обязан отслеживать спек-файлы в КАЖДОМ слое генерации:
-    `!src/**/spec/**/*.md` (старый `!src/features/*/spec/**/*.md` покрывал только features).
-    Тест утверждает, что `git check-ignore` сообщает NOT ignored и для путей `entities/`,
-    `pages/`, `widgets/`.
-
-- **REQ-G15** Гейт и семантика `--scaffold` (фаза B):
-  - нет `spec/SPEC.md` → exit 1 с командой фазы A в качестве подсказки для восстановления;
-  - во frontmatter `status:` ≠ `approved` → exit 1 с указанием текущего статуса (draft / done /
-    отсутствует);
-  - `status: approved` → эмит дерева кода REQ-G8 через конвейер staging (REQ-G4–G7);
-    спек-файлы в фазе B НЕ принадлежат генератору (после фазы A ими владеет человек — подмена
-    в стиле `--force` сохраняет их как чужие файлы);
-  - целевая директория должна уже существовать (фаза A выполнена раньше) — фаза B никогда не
-    создаёт сам слайс;
-  - при успехе в консоль выводится только указатель на `spec/TODO.md` (консольный блок
-    «Next steps» бывшего REQ-G11 переехал в шаблон TODO этой поправкой).
-- **REQ-G16** Доп. компоненты `--scaffold` из секции «Планируемые файлы» SPEC (Этап 2):
-  - перечисленные пути диффятся против стандартного плана кода (REQ-G8); любой путь под
-    `ui/<Pascal>/`, которого НЕТ в стандартном плане, регистрирует компонент `<Pascal>` —
-    эмитится полная четвёрка (tsx + test + story + style) как СКЕЛЕТ: тело компонента несёт
-    маркер `// TODO(spec): implement per ../../spec/SPEC.md`, а тест — три заглушки
-    `it.todo(...)`, зеркалящие стандартные кейсы (сгорает вместе с рабочей единицей TODO);
-  - если перечислена лишь часть файлов четвёрки (например, только `<X>.test.tsx`) —
-    директория компонента эмитится целиком;
-  - перечисленные пути, не подходящие под паттерн компонента (`lib/…`, `model/…`,
-    директории не в PascalCase), НЕ эмитятся — они печатаются как `manual: <path>` для
-    ручного создания;
-  - удаление записи из «Планируемых файлов» НЕ удаляет автоматически ранее заскаффолденный
-    extra (он выживает как чужой файл и о нём сообщается) — чистка вручную;
-  - принятый побочный эффект (план R2): скелеты `it.todo` и нереализованные компоненты
-    ПОНИЖАЮТ покрытие — слайс с extras может легитимно держать `npm run validate` красным,
-    пока не будет реализован («не мержь пустое» — в этом суть). Стандартные слайсы остаются
-    зелёными.
-- **REQ-G17** `npm run check:spec` (`scripts/check-spec.mjs`): сканирует
-  `<root>/src/**/spec/SPEC.md`; спек ПРОХОДИТ, когда статус во frontmatter — `approved` или
-  `done` (`done` — это уже после одобрения; цель гейта — «ни один draft не доживает до
-  реализации»; это уточняет `status != approved` из плана §1.3), любой другой статус
-  (отсутствует / `draft` / неизвестен) — нарушение: перечисляется с путём, exit 1; ноль
-  спеков → exit 0. `--root=<dir>` для фикстур, та же конвенция, что у CLI генератора.
-- **REQ-G18** `npm run spec:status` (`scripts/spec-status.mjs`): печатает по одной строке
-  `slice | status | verified` на каждый `src/**/spec/SPEC.md` — тот дашборд, который ЧИТАЕТ
-  план в vault (vault никогда не правит спеки); всегда exit 0; поддерживается `--root=<dir>`.
-  Оба скрипта и гейт каркаса делят ОДИН сканер/парсер frontmatter
-  (`scripts/spec-tools.mjs`).
-
-### 3.3 Шаблоны (REQ-T)
-
-- **REQ-T1 `types.mjs`** — см. REQ-G9/G10. Баннер-комментарий `// ==== <Name> — … ====`.
-- **REQ-T2 `component.mjs`** — именованная функция в `memo`; пропсы импортируются как
-  `import type { <Name>Props } from '../../model/types/types'` (компонент сидит в
-  `ui/<Name>/`, на два уровня ниже корня слайса; прецедент: `About/ui/About/About.tsx`);
-  `ReactNode` импортируется ТОЛЬКО из `model/types.ts` для слота `children` (план §4.5.7) —
-  компонент НЕ должен его импортировать (нарушение линта на неиспользуемый импорт; голый
-  `React.ReactNode` тоже запрещён) — _поправлено после гейтов Этапа 1, когда выяснилось, что
-  старая формулировка красная под `no-unused-vars`_;
-  `className={classNames(styles.<camel>, {}, [className])}` с
-  `import { classNames } from '@/shared/lib/utils/classNames'` — **единственный разрешённый
-  путь** (запрещено: `clsx`, `classnames`, `shared/lib/classNames/…`);
-  `data-testid` по умолчанию = kebab-имя; **без console, без `any`, без неиспользуемых
-  импортов, без захардкоженного текста.**
-- **REQ-T3 `component-test.mjs`** — явный
-  `import { describe, expect, it } from 'vitest'` (прецедент: `About.test.tsx`; `globals: true`
-  существует, но конвенция кодовой базы — явные импорты) + `@testing-library/react`;
-  кейсы: наличие `data-testid` по умолчанию, слияние кастомного `className` (селектор
-  фиксируется против фактической разметки до слияния), рендер детей.
-- **REQ-T4 `story.mjs`** — CSF3 для SB 10:
+- **REQ-T1 `types.mjs`** — see REQ-G9/G10. Banner comment `// ==== <Name> — … ====`.
+- **REQ-T2 `component.mjs`** — `memo` named function; props imported as
+  `import type { <Name>Props } from '../model/types'` (precedent: `About.tsx`, `Nav.tsx`);
+  `ReactNode` is imported ONLY by `model/types/index.ts` for the `children` slot (plan §4.5.7) —
+  the component must NOT import it (unused-import lint violation; bare `React.ReactNode` is
+  likewise forbidden) — _amended after the Stage-1 gates, which proved the old wording
+  red under `no-unused-vars`_;
+  `className={classNames(styles.<camel>, {}, [className])}` with
+  `import { classNames } from '@/shared/lib/utils/classNames'` — **the only allowed path**
+  (forbidden: `clsx`, `classnames`, `shared/lib/classNames/…`);
+  `data-testid` default = kebab name; **no console, no `any`, no unused imports, no hardcoded text.**
+- **REQ-T3 `component-test.mjs`** — explicit
+  `import { describe, expect, it } from 'vitest'` (precedent: `About.test.tsx`; `globals: true`
+  exists but the codebase convention is explicit imports) + `@testing-library/react`;
+  cases: default `data-testid` present, custom `className` merged (selector fixed against actual
+  markup before landing), children render.
+- **REQ-T4 `story.mjs`** — CSF3 for SB 10:
   `import type { Meta, StoryObj } from '@storybook/react-vite'`,
   `satisfies Meta<typeof <Name>>`, `tags: ['autodocs']`,
-  `title: '<LayerPascal>/<Name>'`. Без `ComponentStory`/`Template.bind`.
-- **REQ-T5 `style.mjs`** — `.<camel> {\n  /* styles go here */\n}` (комментарий обязателен:
-  `block-no-empty`; пустой файл → `no-empty-source`); токены через `var(--…)`, без сырого hex,
-  без `@use`.
-- **REQ-T6 `redux-slice.mjs`** (только `--with-slice`) — `createSlice` с именованными
-  экспортами экшенов; обёртка lazy-hydration
-  `export const <name>Reducer: typeof <name>Slice.reducer = (state, action) =>
-<name>Slice.reducer(state ?? initialState, action)` + комментарий урока
-  (`resume-rtk-lazy-hydration`); имя файла `model/slices/<name>Slice.ts` (область
-  переопределения `no-param-reassign`); слайс и его тест импортируют состояние из
-  `'../types/types'`, тест импортирует селекторы из `'../selectors/selectors'`.
-- **REQ-T7 `selectors.mjs`** — см. REQ-G10; читает `<Name>RootState` из `'../types/types'`.
-- **REQ-T8** `index.mjs` — баннер + **только именованные re-export** (без `export *`):
-  база: `export { <Name> } from './ui/<Name>/<Name>';` +
-  `export type { <Name>Props } from './model/types/types';`
-  со слайсом: также `<Name>State`, `<Name>RootState`,
-  `export { <name>Reducer, setInitialized } from './model/slices/<name>Slice';`,
-  `export { select<Name>Initialized } from './model/selectors/selectors';`.
-- **REQ-T9** Каждый шаблон обязан пройти все четыре гейта (type-check, eslint, stylelint,
-  покрытие vitest) как изолированный образец ДО того, как генератор выйдет (этап 0.5).
+  `title: '<LayerPascal>/<Name>'`. No `ComponentStory`/`Template.bind`.
+- **REQ-T5 `style.mjs`** — `.<camel> {\n  /* styles go here */\n}` (comment mandatory:
+  `block-no-empty`; empty file → `no-empty-source`); tokens via `var(--…)`, no raw hex, no `@use`.
+- **REQ-T6 `redux-slice.mjs`** (only `--with-slice`) — `createSlice` with named action exports;
+  lazy-hydration wrapper `export const <name>Reducer: typeof <name>Slice.reducer = (state, action) =>
+<name>Slice.reducer(state ?? initialState, action)` + lesson comment (`resume-rtk-lazy-hydration`);
+  file name `*Slice.ts` at `model/slices/<name>Slice.ts` (scope of the
+  `no-param-reassign` override).
+- **REQ-T7 `selectors.mjs`** — see REQ-G10.
+- **REQ-T8 `index.mjs`** — banner + **named re-exports only** (no `export *`):
+  base: `export { <Name> } from './ui/<Name>';` + `export type { <Name>Props } from './model/types';`
+  with slice: also `<Name>State`, `<Name>RootState`, reducer, actions, selectors.
+- **REQ-T9** Every template must pass all four gates (type-check, eslint, stylelint, vitest
+  coverage) as an isolated sample BEFORE the generator ships (stage 0.5).
 
-### 3.4 Инструменты рефакторинга (REQ-R)
+### 3.4 Refactoring tools (REQ-R)
 
-- **REQ-R1** `update-imports.mjs` — dry-run по умолчанию (печатает спекификаторы, первый
-  сегмент которых является слоем FSD, но без префикса `@/`); `--fix` переписывает в
-  `@/<specifier>`; определение слоя из SSOT; хелпер называется `startsWithFsdLayer` (чинит
-  неудачное имя `isAbsolute` в исходнике); ожидаемый результат на текущем `src`: **0 находок**.
-- **REQ-R2** `check-shared-ui-public-api.mjs` — явный гард: нет `src/shared/ui` → понятная
-  ошибка + exit 1 (без молчаливого no-op). Проход 1: директории без `index.ts` (dry-run
-  перечисляет; `--fix` создаёт баррели с **именованными** re-export, никогда `export *`).
-  Проход 2: глубокие импорты `@/shared/ui/<C>/<X>` → `@/shared/ui/<C>` (dry-run exit 1 при
-  нарушениях; `--fix` переписывает). Каждый `file.save()` / `project.save()` с await (без
-  floating promises).
-  **Поправка 2026-10-04 (доказательство, Этап 2):** проход 2 пропускает глубокий импорт, если
-  первый сегмент после компонента — санкционированный внутренний сегмент (`lib`, `constants`,
-  `types`, `model` — зеркалит `public-api-only.allowInternal` в `eslint.config.js`). Провести
-  18 глубоких импортов `model`/`lib` реального дерева через баррели ломает type-check
-  (символы вроде `getFallbackColor`, `validateDividerProps`, `ToastAction` намеренно не
-  экспортируются через баррель) и противоречило бы гейту ESLint внутри `npm run validate`
-  (OPEN-6); литеральный предикат также сделал бы невозможным чистый exit 0 смоука S7.
-- **REQ-R3** Рантайм: **Вариант A** — ESM `.mjs` + `ts-morph` (последняя версия по
-  `resume-version-policy`), ноль изменений конфига (решение OPEN-4; фолбэк — Вариант B `.ts` +
-  `tsx` + правки конфига, перечисленные в плане §2.4).
-- **REQ-R4** `--fix` обязан быть идемпотентным (второй запуск → 0 изменений).
-- **REQ-R5** Dry-run на чистом дереве завершает exit 0 для обоих инструментов (можно
-  использовать как CI-гейт; добавление `check:public-api` в `npm run validate` — это OPEN-6).
+- **REQ-R1** `update-imports.mjs` — dry-run by default (prints specifiers whose first segment is
+  an FSD layer but is not `@/`-prefixed); `--fix` rewrites to `@/<specifier>`; layer detection
+  from SSOT; helper named `startsWithFsdLayer` (fixes the source's `isAbsolute` misnomer);
+  expected result on current `src`: **0 findings**.
+- **REQ-R2** `check-shared-ui-public-api.mjs` — explicit guard: missing `src/shared/ui` → clear
+  error + exit 1 (no silent no-op). Pass 1: directories without `index.ts` (dry-run lists;
+  `--fix` creates barrels with **named** re-exports, never `export *`). Pass 2: deep imports
+  `@/shared/ui/<C>/<X>` → `@/shared/ui/<C>` (dry-run exit 1 on violations; `--fix` rewrites).
+  Every `file.save()` / `project.save()` is awaited (no floating promises).
+  **Amended 2026-10-04 (evidence, Stage 2):** pass 2 skips a deep import when the first segment
+  after the component is a sanctioned internal segment (`lib`, `constants`, `types`, `model` —
+  mirrors `public-api-only.allowInternal` in `eslint.config.js`). Forcing the real tree's 18
+  `model`/`lib` deep imports through barrels breaks type-check (symbols such as
+  `getFallbackColor`, `validateDividerProps`, `ToastAction` are deliberately not
+  barrel-exported) and would contradict the ESLint gate inside `npm run validate` (OPEN-6);
+  the literal predicate would also make smoke S7's clean-tree exit 0 impossible.
+- **REQ-R3** Runtime: **Variant A** — ESM `.mjs` + `ts-morph` (latest per `resume-version-policy`),
+  zero config changes (decision OPEN-4; fallback Variant B `.ts` + `tsx` + config edits listed in
+  the plan §2.4).
+- **REQ-R4** `--fix` must be idempotent (second run → 0 changes).
+- **REQ-R5** Dry-run on a clean tree exits 0 for both tools (usable as a CI gate; adding
+  `check:public-api` to `npm run validate` is OPEN-6).
 
-### 3.5 Тесты и гейты качества (REQ-Q)
+### 3.5 Tests and quality gates (REQ-Q)
 
-- **REQ-Q1** Расположение тестов: `scripts/__tests__/**` (ко-лосированный стиль `__tests__` в
-  репо). Они выполняются в проекте vitest `unit` только после того, как в `include` добавят
-  `scripts/**/*.{test,spec}.{ts,tsx,mjs}` (OPEN-5, изменение конфига с одобрения человека).
-  Фолбэк на случай отказа: выделенный проект vitest `scripts` с `environment: 'node'` —
-  НЕ полагаться на тесты, которые никогда не выполняются.
-- **REQ-Q2** Покрытие type-check: `scripts/**/*.ts` должен быть в **корневом**
-  `tsconfig.json → include` — корневой проект — единственный, который запускает
-  `npm run type-check` (`tsc --noEmit`; `references` простой `tsc` игнорирует).
-  **Поправка 2026-10-04 (доказательство):** `tsconfig.node.json` не принадлежит ни одному
-  гейту и сегодня красный с предсуществующими ошибками (TS5097 ×4, TS7016 ×1), поэтому
-  `scripts/**` там ничего не гейтило; вместо этого реализован root-include, а готча
-  записана в AGENTS.md (`resume-tsconfig-node-dead`). Тесты вне корневого include невидимы
-  для гейта.
-- **REQ-Q3** Тесты генератора порождают CLI через `execFile(process.execPath, [entry, …args])`
-  во временной корне (`--root` / env `SLICE_ROOT`) — никогда через шелл, никогда
-  `spawn('node')`.
-- **REQ-Q4** Обязательные тесты (TDD — пишутся до реализации):
-  1. хелперы именования: случаи Pascal/camel/kebab, включая цифры (`Contact2`, `OAuthClient2`);
-  2. валидация CLI: плохой слой / имя в нижнем регистре / `with-dash` → exit 1;
-  3. дерево равно REQ-G8 (база и `--with-slice`);
-  4. повторный запуск без `--force` → exit 1 и контрольная сумма цели неизменна (CRITICAL-регрессия);
-  5. `--dry-run` → ноль записей в файловую систему;
-  6. утверждения содержимого шаблонов: разрешённый путь `classNames` присутствует; запрещённые
-     подстроки отсутствуют (`clsx`, `classnames`, `useTranslation`, `shared/lib/classNames`,
-     пустой `interface X {}`, `ComponentStory`, `Template.bind`);
-  7. инвариант SSOT (REQ-S5);
-  8. `update-imports`: фикстура с `@/` и без; идемпотентность `--fix`;
-  9. `check-shared-ui-public-api`: гард на отсутствующую директорию → exit 1; формат эмита
-     барреля; правка глубокого импорта; чистое дерево → exit 0;
-  10. фаза A по умолчанию → дерево ровно `spec/SPEC.md` + `spec/TODO.md` (REQ-G14), больше
-      ничего в директории слайса; в TODO есть рабочая единица storeReducers тогда и только
-      тогда, когда `--with-slice`;
-  11. `--scaffold` → exit 1 без `spec/SPEC.md`; exit 1 при `status: draft`; дерево кода REQ-G8
-      при `status: approved`, а spec/ сохраняется байт-в-байт (REQ-G15);
-  12. extras (REQ-G16): одобренный SPEC, чьи «Планируемые файлы» перечисляют
-      `ui/Extra/Extra.tsx` → каркас эмитит четвёрку `ui/Extra/` с маркером TODO(spec) и
-      тестом `it.todo`; перечисленный не-ui путь печатается как `manual:`; стандартные пути
-      никогда не дублируются;
-  13. `check:spec` (REQ-G17): draft → exit 1 + путь перечислен; approved/done → exit 0;
-      ноль спеков → exit 0;
-  14. `spec:status` (REQ-G18): по одной строке на спек, exit 0.
-- **REQ-Q5** Смоу матрица (интеграционная точка каждого этапа):
+- **REQ-Q1** Test location: `scripts/__tests__/**` (co-located `__tests__` style of the repo).
+  They run in the vitest `unit` project only after `include` gains
+  `scripts/**/*.{test,spec}.{ts,tsx,mjs}` (OPEN-5, human-approved config change).
+  Fallback if refused: a dedicated vitest project `scripts` with `environment: 'node'` —
+  do NOT rely on tests that never execute.
+- **REQ-Q2** Type-check coverage: `scripts/**/*.ts` must be in the **root** `tsconfig.json → include`
+  — the root project is the only one `npm run type-check` runs (`tsc --noEmit`; `references` are
+  ignored by plain `tsc`). **Amended 2026-10-04 (evidence):** `tsconfig.node.json` belongs to no
+  gate and is red today with pre-existing errors (TS5097 ×4, TS7016 ×1), so `scripts/**` there
+  would gate nothing; root-include was implemented instead and the gotcha recorded in AGENTS.md
+  (`resume-tsconfig-node-dead`). Tests outside the root include are invisible to the gate.
+- **REQ-Q3** Generator tests spawn the CLI via `execFile(process.execPath, [entry, …args])` in a
+  temp root (`--root` / `SLICE_ROOT` env) — never through a shell, never `spawn('node')`.
+- **REQ-Q4** Required tests (TDD — written before implementation):
+  1. naming helpers: Pascal/camel/kebab cases incl. digits (`Contact2`, `OAuthClient2`);
+  2. CLI validation: bad layer / lowercase name / `with-dash` → exit 1;
+  3. tree equals REQ-G8 (base and `--with-slice`);
+  4. rerun without `--force` → exit 1 and target checksum unchanged (CRITICAL regression);
+  5. `--dry-run` → zero filesystem writes;
+  6. template content assertions: allowed `classNames` path present; forbidden substrings absent
+     (`clsx`, `classnames`, `useTranslation`, `shared/lib/classNames`, empty `interface X {}`,
+     `ComponentStory`, `Template.bind`);
+  7. SSOT invariant (REQ-S5);
+  8. `update-imports`: fixture with/without `@/`; `--fix` idempotency;
+  9. `check-shared-ui-public-api`: missing-dir guard → exit 1; barrel emission format;
+     deep-import fix; clean-tree exit 0.
+- **REQ-Q5** Smoke matrix (each stage's integration point):
 
-  | #   | Проверка                                                                                                 |
-  | --- | -------------------------------------------------------------------------------------------------------- |
-  | S1  | все 7 шаблонов через type-check + eslint + stylelint во временной директории (этап 0.5)                  |
-  | S2  | фаза A → фикстура SPEC `status: approved` → `--scaffold` → `npm run validate` зелёный, без ручных правок |
-  | S3  | то же с `--with-slice` → `npm run validate` зелёный (покрытие + переопределение `*Slice.ts`)             |
-  | S4  | новая сториса собирается: `npm run build-storybook` или `npm run test:storybook`                         |
-  | S5  | повтор того же команды → exit 1, `git status` без изменений                                              |
-  | S6  | `prettier --check` на сгенерированной директории (REQ-G13)                                               |
-  | S7  | инструменты рефакторинга: dry-run exit 0 на чистом дереве; `--fix` на искусственно сломанном + revert    |
-  | S8  | уборка смоу-слайса → `npm run validate` снова зелёный                                                    |
+  | #   | Check                                                                                         |
+  | --- | --------------------------------------------------------------------------------------------- |
+  | S1  | all 7 templates through type-check + eslint + stylelint in a tmp dir (stage 0.5)              |
+  | S2  | `generate:slice -- features SmokeSlice` → `npm run validate` green, no manual edits           |
+  | S3  | same with `--with-slice` → `npm run validate` green (coverage + `*Slice.ts` override)         |
+  | S4  | new story builds: `npm run build-storybook` or `npm run test:storybook`                       |
+  | S5  | rerun same command → exit 1, `git status` unchanged                                           |
+  | S6  | `prettier --check` on the generated directory (REQ-G13)                                       |
+  | S7  | refactoring tools: dry-run exit 0 on clean tree; `--fix` on artificially broken tree + revert |
+  | S8  | cleanup of smoke slice → `npm run validate` green again                                       |
 
-- **REQ-Q6** Пороги покрытия остаются нетронутыми (branches 85 / functions 87 / lines 92 /
-  statements 90). `**/scripts/**` остаётся исключённым из покрытия; S2/S3 — эмпирический гейт
-  R8.
-- **REQ-Q7** Стиль кода самих скриптов: английские идентификаторы/комментарии (Language
-  Domain Contract), безопасная для `no-console` обработка точек входа в `.ts`-файлах, без
-  шелл-конструкт, работающих только в POSIX.
+- **REQ-Q6** Coverage thresholds stay untouched (branches 85 / functions 87 / lines 92 /
+  statements 90). `**/scripts/**` remains coverage-excluded; S2/S3 are the empirical R8 gate.
+- **REQ-Q7** Code style of the scripts themselves: English identifiers/comments (Language Domain
+  Contract), `no-console`-safe entry handling in `.ts` files, no POSIX-only shell constructs.
 
-## 4. Критерии приёмки
+## 4. Acceptance criteria
 
-1. Все результаты D1–D6 присутствуют; все REQ-G/R/S/Q демонстративно удовлетворены тестами и
-   смоуком S1–S8.
-2. `npm run validate` зелёный на каждой границе этапа; сгенерированный слайс требует нуля
-   ручных правок.
-3. `scripts/fsd-layers.json` — единственный список слоёв (grep по скриптам и плагину не
-   находит других).
-4. Тест-регрессия на безопасность повторного запуска на месте; `--force` никогда не удаляет
-   чужие файлы.
-5. Все решения OPEN (§5) записаны с ответом и датой ДО этапа, который они блокируют.
-6. Раздел AGENTS.md + dual-write в engram/vault выполнены (этап 4).
+1. All deliverables D1–D6 present; all REQ-G/R/S/Q demonstrably satisfied by tests + smoke S1–S8.
+2. `npm run validate` green on every stage boundary; generated slice requires zero manual edits.
+3. `scripts/fsd-layers.json` is the single layer list (grep across scripts + plugin shows none).
+4. Rerun-safety regression test in place; `--force` never deletes foreign files.
+5. All OPEN decisions (§5) recorded with an answer and date before the stage they block.
+6. AGENTS.md section + engram/vault dual-write done (stage 4).
 
-## 5. Открытые решения (блокируют указанный этап)
+## 5. Open decisions (block the listed stage)
 
-| ID     | Вопрос                                                      | Рекомендация                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Блокирует | Статус      |
-| ------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------- |
-| OPEN-1 | Оставить `entities` в `generatorLayers`?                    | **Да — решение (владелец, 2026-10-04): равномерная генерация в любом слайс-слое**; наблюдение «у существующих entities нет `ui/`» — история, а не правило. Перекрытое требование: одинаковое дерево, без вариантов по слоям (REQ-G8)                                                                                                                                                                                                                                | Этап 1    | **решено**  |
-| OPEN-2 | Добавить `pages` в `generatorLayers`?                       | **Да — решение (владелец, 2026-10-04): включён с первого дня**; регистрация маршрутов остаётся ручным гейтом (REQ-G11). `shared`/`app` остаются вне области (другая структура слайса)                                                                                                                                                                                                                                                                               | Этап 1    | **решено**  |
-| OPEN-3 | Подключить или удалить `eslint-plugin-fsd-imports.test.js`? | **Перенаправить на `.cjs` + добавить `.opencode/eslint/**` в include vitest** — решение (владелец, 2026-10-04)                                                                                                                                                                                                                                                                                                                                                      | Этап 0    | **решено**  |
-| OPEN-4 | Инструменты рефакторинга: `.mjs` (A) или `.ts`+`tsx` (B)?   | **A — решение (владелец, 2026-10-04): ESM `.mjs` + `ts-morph` (последняя), ноль изменений конфига**; Вариант B (`.ts` + `tsx` + правки конфига) остаётся задокументированным в плане §2.4 как фолбэк                                                                                                                                                                                                                                                                | Этап 2    | **решено**  |
-| OPEN-5 | Расширить `include` vitest до `scripts/**`?                 | **Да** (фолбэк: выделенный node-проект) — решение (владелец, 2026-10-04)                                                                                                                                                                                                                                                                                                                                                                                            | Этап 0/1  | **решено**  |
-| OPEN-6 | Добавить `check:public-api` в `npm run validate`?           | **Да — решение (владелец, 2026-10-04): добавлено как финальный шаг `npm run validate`** после Этапа 2 (чистый exit 0 доказан смоуком S7)                                                                                                                                                                                                                                                                                                                            | Этап 2    | **решено**  |
-| OPEN-7 | Реализовать `print-env.mjs`?                                | **Нет — решение 2026-10-04 (Этап 3): реальной потребности нет**; `__API__` определён (`config/vite/buildViteConfig.ts:61`), но нигде не используется в `src` (только декларация `vite-env.d.ts`), так что печатать нечего. Вернуться к вопросу только когда конкретной задаче понадобится инспекция env (Этап 3 / план §7)                                                                                                                                          | Этап 3    | **решено**  |
-| OPEN-8 | Выровнять оставшиеся расхождения `model/` по ARCH-1?        | Поднято 2026-10-07, ПОКА НЕ решено: `constants/index.ts` (ContactContent, Developer) против названного по себе `constants/constants.ts` (Job, Project); zod-схема в `services/schema.ts` (#179 entities) против `schemes/schema.ts` (Job, Project); двойной файл `selectors/{selectors.ts,index.ts}` (админ-фичи) против единого `selectors/selectors.ts` (ARCH-1); плоский `model/constants.ts` в `widgets/Nav`. Миграция ARCH-1 от 2026-10-07 покрыла ТОЛЬКО типы | Этап 5    | **открыто** |
-| OPEN-9 | Режим по умолчанию у `generate:slice`: код или spec?        | **только spec — решение (владелец, 2026-10-07, plan_spec_workflow §0.6)**: сначала планирование; код только через `--scaffold` после `status: approved` (REQ-G1/G14/G15)                                                                                                                                                                                                                                                                                            | Этап 1    | **решено**  |
+| ID     | Question                                            | Recommendation                                                                                                                                                                                                                                                                                      | Blocks    | Status      |
+| ------ | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------- |
+| OPEN-1 | Keep `entities` in `generatorLayers`?               | **Yes — decided (owner, 2026-10-04): uniform generation in any slice layer**; the "existing entities have no `ui/`" observation is history, not a rule. Superseded requirement: uniform tree, no per-layer variants (REQ-G8)                                                                        | Stage 1   | **decided** |
+| OPEN-2 | Add `pages` to `generatorLayers`?                   | **Yes — decided (owner, 2026-10-04): included from day one**; route registration stays a manual gate (REQ-G11). `shared`/`app` remain out of scope (different slice structure)                                                                                                                      | Stage 1   | **decided** |
+| OPEN-3 | Wire or delete `eslint-plugin-fsd-imports.test.js`? | **Repoint to `.cjs` + add `.opencode/eslint/**` to vitest include** — decided (owner, 2026-10-04)                                                                                                                                                                                                   | Stage 0   | **decided** |
+| OPEN-4 | Refactoring tools: `.mjs` (A) or `.ts`+`tsx` (B)?   | **A — decided (owner, 2026-10-04): ESM `.mjs` + `ts-morph` (latest), zero config changes**; Variant B (`.ts` + `tsx` + config edits) stays documented in plan §2.4 as the fallback                                                                                                                  | Stage 2   | **decided** |
+| OPEN-5 | Extend vitest `include` with `scripts/**`?          | **Yes** (fallback: dedicated node project) — decided (owner, 2026-10-04)                                                                                                                                                                                                                            | Stage 0/1 | **decided** |
+| OPEN-6 | Add `check:public-api` to `npm run validate`?       | **Yes — decided (owner, 2026-10-04): appended as the final step of `npm run validate`** after Stage 2 (clean-tree exit 0 proven by smoke S7)                                                                                                                                                        | Stage 2   | **decided** |
+| OPEN-7 | Implement `print-env.mjs`?                          | **No — decided 2026-10-04 (Stage 3): no real need exists**; `__API__` is defined (`config/vite/buildViteConfig.ts:61`) but unused anywhere in `src` (only the `vite-env.d.ts` declaration), so there is no env to print. Revisit only when a concrete task needs env inspection (Stage 3 / plan §7) | Stage 3   | **decided** |

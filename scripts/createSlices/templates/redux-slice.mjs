@@ -27,7 +27,7 @@ export function reduxSliceTemplate(names) {
 // (tests, a future persistence stage) never showed.
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ${name}State } from '../types/types';
+import type { ${name}State } from '../types';
 
 const initialState: ${name}State = { initialized: false };
 
@@ -65,8 +65,8 @@ export function sliceTestTemplate(names) {
 
 import { describe, expect, it } from 'vitest';
 import { setInitialized, ${camel}Reducer } from './${camel}Slice';
-import { select${name}Initialized } from '../selectors/selectors';
-import type { ${name}RootState } from '../types/types';
+import { select${name}Initialized } from '../selectors';
+import type { ${name}RootState } from '../types';
 
 describe('${camel} slice', () => {
   it('hydrates the initial state on the first reducer call', () => {

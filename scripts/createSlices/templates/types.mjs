@@ -1,8 +1,8 @@
 /**
- * `model/types.ts` template — plan §4.5.7 (rev.4, gate-verified).
+ * `model/types/index.ts` template — plan §4.5.7 (rev.4, gate-verified).
  *
  * `Props` is an `interface` (About/Nav precedent); `State`/`RootState` are
- * `type` aliases (exact AdminAuth/model/types.ts precedent, plan §2.3.4) and
+ * `type` aliases (exact AdminAuth/model/types precedent, plan §2.3.4) and
  * appear only with `--with-slice`. `State` must carry at least one field —
  * `@typescript-eslint/no-empty-object-type` rejects empty objects. `children`
  * is typed through a `type` ReactNode import (shared/ui/Card precedent).
