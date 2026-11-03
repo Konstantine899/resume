@@ -1,4 +1,4 @@
-# SPEC — FSD slice generator and repo scripts
+# SPEC — генератор FSD-слайсов и скрипты репозитория
 
 | Field   | Value                                                                                                           |
 | ------- | --------------------------------------------------------------------------------------------------------------- |
@@ -12,42 +12,45 @@
 
 ---
 
-## 1. Goal
+## 1. Цель
 
-Adapt the automation scripts of `advansed-frontend-app` to resume-app: a fail-fast **FSD slice
-generator**, two **boundary-check tools**, and a **single source of truth for FSD layers** — all
-passing `npm run validate` on generated output with zero manual edits.
+Адаптировать скрипты автоматизации `advansed-frontend-app` под resume-app: fail-fast
+**генератор FSD-слайсов**, два **инструмента проверки границ** и **единый источник правды для
+слоёв FSD** — всё это проходит `npm run validate` на сгенерированном выводе без единой ручной
+правки.
 
-## 2. Scope
+## 2. Область
 
-### 2.1 In scope (deliverables)
+### 2.1 В области (результаты)
 
-| ID  | Deliverable                                                | Path                                                                          |
-| --- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| D1  | SSOT for FSD layers + thin ESM wrapper                     | `scripts/fsd-layers.json`, `scripts/fsd-layers.mjs`                           |
-| D2  | Slice generator (rewritten templates, fail-fast semantics) | `scripts/createSlices/**` + npm `generate:slice`                              |
-| D3  | Alias-consistency checker (dry-run by default)             | `scripts/refactoring/update-imports.mjs` + npm `refactor:imports`             |
-| D4  | `shared/ui` public-API checker (dry-run / `--fix`)         | `scripts/refactoring/check-shared-ui-public-api.mjs` + npm `check:public-api` |
-| D5  | Tests for D1–D4                                            | `scripts/__tests__/**`                                                        |
-| D6  | Decision records and docs                                  | AGENTS.md section, `wiki/scripts/*` status, engram + vault                    |
+| ID  | Результат                                                                                                      | Путь                                                                          |
+| --- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| D1  | SSOT для слоёв FSD + тонкая ESM-обёртка                                                                        | `scripts/fsd-layers.json`, `scripts/fsd-layers.mjs`                           |
+| D2  | Генератор слайсов (переписанные шаблоны, семантика fail-fast)                                                  | `scripts/createSlices/**` + npm `generate:slice`                              |
+| D3  | Проверка консистентности алиасов (по умолчанию dry-run)                                                        | `scripts/refactoring/update-imports.mjs` + npm `refactor:imports`             |
+| D4  | Проверка public API `shared/ui` (dry-run / `--fix`)                                                            | `scripts/refactoring/check-shared-ui-public-api.mjs` + npm `check:public-api` |
+| D5  | Тесты для D1–D4                                                                                                | `scripts/__tests__/**`                                                        |
+| D6  | Записи решений и документация                                                                                  | раздел AGENTS.md, статусы `wiki/scripts/*`, engram + vault                    |
+| D7  | Рабочий процесс spec-фазы: каркас `spec/` в фазе A (по умолчанию) + `--scaffold` в фазе B (с гейтом одобрения) | `scripts/createSlices/**` + npm `generate:slice`                              |
+| D8  | Spec-гейты `check:spec` / `spec:status` + доп. скелеты из секции «Планируемые файлы» (Этап 2)                  | `scripts/{check-spec,spec-status,spec-tools}.mjs` + npm-скрипты               |
 
-### 2.2 Out of scope (non-goals, fixed decisions)
+### 2.2 Вне области (что не входит, зафиксированные решения)
 
 - `clear-cache.js`, `getApiUrl.js` + `build:dev` (xargs), Loki `generate-visual-json-report.js` —
-  not ported (no `postinstall`, dead `__API__`, no `.loki/`; POSIX pipelines are forbidden).
-- Source `README.md` files (learning material of another project).
-- In-slice `spec/` generator (plan Appendix A, stage P4 — starts only after a manual trial).
-- Auto-editing composition root (`src/storeReducers.ts`, `src/pages/routerConfig.tsx`,
-  `src/pages/Home/HomePage.tsx`, `en.json`/`ru.json`) — generator prints "Next steps" instead.
-- User-facing text in generated code → no i18n keys are ever emitted in v1.
+  не портированы (нет `postinstall`, мёртвый `__API__`, нет `.loki/`; POSIX-конвейеры запрещены).
+- Исходные файлы `README.md` (учебный материал другого проекта).
+- Авто-правка композиционного корня (`src/storeReducers.ts`, `src/pages/routerConfig.tsx`,
+  `src/pages/Home/ui/HomePage/HomePage.tsx`, `en.json`/`ru.json`) — вместо этого эти шаги
+  эмитятся как рабочие единицы в `spec/TODO.md` фазы A (REQ-G14).
+- Пользовательский текст в сгенерированном коде → в v1 i18n-ключи никогда не эмитятся.
 
-## 3. Requirements
+## 3. Требования
 
-### 3.1 SSOT — layers (REQ-S)
+### 3.1 SSOT — слои (REQ-S)
 
-- **REQ-S1** `scripts/fsd-layers.json` is the ONLY place that declares FSD layers. No script may
-  declare a local layer array (enforced by review + AGENTS.md rule).
-- **REQ-S2** File shape (exact):
+- **REQ-S1** `scripts/fsd-layers.json` — ЕДИНСТВЕННОЕ место, которое объявляет слои FSD. Ни один
+  скрипт не может объявлять локальный массив слоёв (контролируется ревью и правилом в AGENTS.md).
+- **REQ-S2** Точный вид файла:
 
   ```json
   {
@@ -64,60 +67,70 @@ passing `npm run validate` on generated output with zero manual edits.
   }
   ```
 
-  `generatorLayers` = the four slice layers — **OPEN-1 decided (owner, 2026-10-04): the
-  generator must work uniformly in ANY slice layer**, so every generator layer emits the
-  identical tree (REQ-G8) with no per-layer variants. The fact that the four existing entities
-  have no `ui/` is treated as history, not as a layer rule. **OPEN-2 decided (owner,
-  2026-10-04): `pages` is included from day one** — route registration stays a manual gate
-  (Next steps, REQ-G11); `shared` and `app` remain out of scope (different slice structure).
+  `generatorLayers` = четыре слайс-слоя — **решение OPEN-1 (владелец, 2026-10-04): генератор
+  должен работать одинаково в ЛЮБОМ слайс-слое**, поэтому каждый слой генерации эмитит
+  идентичное дерево (REQ-G8) без вариантов по слоям. То, что у четырёх существующих entities
+  нет `ui/`, рассматривается как история, а не как правило слоя. **Решение OPEN-2 (владелец,
+  2026-10-04): `pages` включён с первого дня** — регистрация маршрутов остаётся ручным гейтом
+  (Next steps, REQ-G11); `shared` и `app` остаются вне области (другая структура слайса).
 
-- **REQ-S3** `.opencode/eslint/eslint-plugin-fsd-imports.cjs` reads the JSON via
-  `require('../../scripts/fsd-layers.json')` — depth `../../` from `.opencode/eslint/`.
-  **`../../../` escapes the repository root and must not be used** (would crash every `npm run lint`).
-- **REQ-S4** Plugin hygiene: the tracked test `.opencode/eslint/eslint-plugin-fsd-imports.test.js`
-  imports `./eslint-plugin-fsd-imports.js`, which is **gitignored (`*.js`) and absent on a fresh
-  clone**, and no vitest glob executes this test (`.opencode/eslint/**` is not in `include`).
-  Resolution (OPEN-3): repoint the test at the `.cjs` implementation and add
-  `.opencode/eslint/**` to the vitest unit `include` (human-approved config change), or delete the
-  test. The live plugin stays the `.cjs` loaded by `eslint.config.js`.
-- **REQ-S5** Invariant test (`scripts/__tests__/fsd-layers.test.ts`):
-  - `keys(allowedImports) == layers` (set equality);
+- **REQ-S3** `.opencode/eslint/eslint-plugin-fsd-imports.cjs` читает JSON через
+  `require('../../scripts/fsd-layers.json')` — глубина `../../` от `.opencode/eslint/`.
+  **`../../../` выходит за корень репозитория и не должна использоваться** (упадёт каждый
+  `npm run lint`).
+- **REQ-S4** Гигиена плагина: отслеживаемый тест `.opencode/eslint/eslint-plugin-fsd-imports.test.js`
+  импортирует `./eslint-plugin-fsd-imports.js`, который **в gitignore (`*.js`) и отсутствует в
+  свежем клоне**, и ни один glob vitest не выполняет этот тест (`.opencode/eslint/**` нет в
+  `include`). Решение (OPEN-3): перенаправить тест на реализацию `.cjs` и добавить
+  `.opencode/eslint/**` в `include` vitest unit (изменение конфига с одобрения человека), либо
+  удалить тест. Рабочий плагин остаётся тем `.cjs`, который загружает `eslint.config.js`.
+- **REQ-S5** Тест инвариантов (`scripts/__tests__/fsd-layers.test.ts`):
+  - `keys(allowedImports) == layers` (равенство множеств);
   - `generatorLayers ⊆ layers`;
-  - `layers ⊆ keys(BuildPath in vite.config.ts)` **minus**
-    `{src, locales, buildLocales}` (subset check — naive set equality fails on the extra keys);
-  - layer regexes inside the plugin are constructed FROM the JSON (no second hardcoded list).
-- **REQ-S6** After REQ-S3 lands, the invariant's plugin side is tautological; the meaningful
-  assertions are the vite/config side + regex construction. Document this in the test.
+  - `layers ⊆ keys(BuildPath in vite.config.ts)` **минус**
+    `{src, locales, buildLocales}` (проверка подмножества — наивное равенство множеств падает
+    на лишних ключах);
+  - регулярки слоёв внутри плагина строятся ИЗ JSON (без второго захардкоженного списка).
+- **REQ-S6** После внедрения REQ-S3 плагинная сторона инварианта становится тавтологией;
+  осмысленные утверждения — сторона vite/конфига + построение регулярок. Задокументировать это
+  в тесте.
 
-### 3.2 Generator — `scripts/createSlices/` (REQ-G)
+### 3.2 Генератор — `scripts/createSlices/` (REQ-G)
 
-- **REQ-G1** CLI: `npm run generate:slice -- <Layer> <SliceName> [--with-slice] [--force] [--dry-run]`.
-  Entry `scripts/createSlices/index.mjs`; all modules `.mjs` ESM (a `.ts` entry would fail
-  `npm run lint` `no-console` — verified).
-- **REQ-G2** Validation: `layer ∈ generatorLayers`; `SliceName` matches `/^[A-Z][a-zA-Z0-9]*$/`;
-  `await run()` inside `try/catch` → `process.exitCode = 1` (never a silent exit 0).
-- **REQ-G3** Naming rules:
+- **REQ-G1** CLI: `npm run generate:slice -- <Layer> <SliceName> [--with-slice] [--force] [--dry-run] [--scaffold]`.
+  Две фазы (рабочий процесс spec-фазы, план, одобренный владельцем
+  `wiki/plan/plan_spec_workflow.md`, 2026-10-07): ПО УМОЛЧАНИЮ = фаза A — только каркас
+  `spec/SPEC.md` + `spec/TODO.md` (сначала планирование, без кода); `--scaffold` = фаза B —
+  эмит дерева кода REQ-G8, допустимо только если SPEC слайса несёт `status: approved`
+  (REQ-G14, REQ-G15). Точка входа `scripts/createSlices/index.mjs`; все модули `.mjs` ESM
+  (точка входа `.ts` упала бы на `no-console` в `npm run lint` — проверено).
+- **REQ-G2** Валидация: `layer ∈ generatorLayers`; `SliceName` соответствует
+  `/^[A-Z][a-zA-Z0-9]*$/`; `await run()` внутри `try/catch` → `process.exitCode = 1`
+  (никогда не молчаливый exit 0).
+- **REQ-G3** Правила именования:
 
-  | Artifact                    | Rule                                                            | Example (`ContactForm`)              |
-  | --------------------------- | --------------------------------------------------------------- | ------------------------------------ |
-  | Directory / component       | PascalCase, argument as-is                                      | `ContactForm`                        |
-  | RTK `name`, store key, file | first char lower-case                                           | `contactForm`, `contactFormSlice.ts` |
-  | SCSS class                  | camelCase (stylelint pattern)                                   | `.contactForm`                       |
-  | Story title                 | `<LayerPascal>/<Name>`                                          | `Features/ContactForm`               |
-  | `data-testid`               | kebab: `s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()` | `contact-form`, `contact2-form`      |
+  | Артефакт                     | Правило                                                         | Пример (`ContactForm`)               |
+  | ---------------------------- | --------------------------------------------------------------- | ------------------------------------ |
+  | Директория / компонент       | PascalCase, аргумент как есть                                   | `ContactForm`                        |
+  | RTK `name`, ключ стора, файл | первый символ в нижнем регистре                                 | `contactForm`, `contactFormSlice.ts` |
+  | SCSS-класс                   | camelCase (паттерн stylelint)                                   | `.contactForm`                       |
+  | Заголовок сториса            | `<LayerPascal>/<Name>`                                          | `Features/ContactForm`               |
+  | `data-testid`                | kebab: `s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()` | `contact-form`, `contact2-form`      |
 
-- **REQ-G4** All-or-nothing write: build the full target path list → conflict check → write the
-  entire tree into a staging directory next to the target (`src/<layer>/.<Name>.tmp-<ts>/`, same
-  filesystem) → atomic `rename` into place → remove staging on any failure. Target dir is never
-  left in a mixed state (kills CRITICAL issue #1 and HIGH #3/#4 of the source).
-- **REQ-G5** Existing target without `--force` → error **before any write**, exit 1, byte-identical
-  tree (regression test with checksums). With `--force`: swap semantics (staged tree replaces the
-  target atomically with rollback on failure); **only generator-owned files are replaced — foreign
-  files are never deleted**, they are reported in the output.
-- **REQ-G6** Recovery message on a leftover/partial target:
+- **REQ-G4** Запись «всё или ничего»: собрать полный список путей назначения → проверка
+  конфликтов → записать всё дерево в staging-директорию рядом с целью
+  (`src/<layer>/.<Name>.tmp-<ts>/`, та же файловая система) → атомарный `rename` на место →
+  удалить staging при любой ошибке. Целевая директория никогда не остаётся в смешанном
+  состоянии (убивает CRITICAL-issue #1 и HIGH #3/#4 исходника).
+- **REQ-G5** Существующая цель без `--force` → ошибка **до любой записи**, exit 1, дерево
+  байт-в-байт (регрессионный тест с контрольными суммами). С `--force`: семантика подмены
+  (staged-дерево атомарно заменяет цель с откатом при ошибке); **заменяются только файлы,
+  которыми владеет генератор, — чужие файлы никогда не удаляются**, о них сообщается в выводе.
+- **REQ-G6** Сообщение о восстановлении при остаточной или неполной цели:
   `Target <path> already exists. Remove it manually or rerun with --force.`
-- **REQ-G7** `--dry-run`: prints the full future file tree, zero writes, exit 0.
-- **REQ-G8** Output tree — base (no `--with-slice`):
+- **REQ-G7** `--dry-run`: печатает полное будущее дерево файлов, ноль записей, exit 0.
+- **REQ-G8** Дерево кода — эмитится ТОЛЬКО `--scaffold` (фаза B, после `status: approved`,
+  REQ-G15) — база (без `--with-slice`):
 
   ```
   src/<layer>/<Name>/
@@ -126,13 +139,14 @@ passing `npm run validate` on generated output with zero manual edits.
   │   └── types/
   │       └── index.ts      # <Name>Props (nested model: types live in model/types/)
   └── ui/
-      ├── <Name>.tsx
-      ├── <Name>.test.tsx
-      ├── <Name>.stories.tsx
-      └── <Name>.module.scss
+      └── <Name>/
+          ├── <Name>.tsx
+          ├── <Name>.test.tsx
+          ├── <Name>.stories.tsx
+          └── <Name>.module.scss
   ```
 
-  Extra with `--with-slice`:
+  Дополнительно с `--with-slice`:
 
   ```
   ├── model/

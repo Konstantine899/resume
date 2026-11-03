@@ -1,0 +1,43 @@
+// ============================================
+
+// JobsList — admin vitrina layout (jobs-detail-table WU-2)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors come from inherited
+
+// tokens — no hardcoded values (plan §8). The list itself is one JobCard
+
+// per record (SPEC R-5); only the header chrome lives here.
+
+@use '@/shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+// Sort Select + add IconButton (SkillsEditorList .headerActions parity).
+
+// flex-end: the button bottom-aligns with the select field, not its label.
+
+.headerActions {
+  display: flex;
+  gap: $spacing-2;
+  align-items: flex-end;
+}

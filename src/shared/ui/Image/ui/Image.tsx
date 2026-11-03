@@ -251,6 +251,7 @@ const ImageRenderer = forwardRef<HTMLImageElement, ImageRendererProps>((props, r
       )}
 
       <img
+        key={resolvedSrc.src}
         ref={imageRefCallback}
         src={sanitizeImageSrc(resolvedSrc.src) || undefined}
         srcSet={sanitizeImageSrcSet(resolvedSrc.srcSet)}

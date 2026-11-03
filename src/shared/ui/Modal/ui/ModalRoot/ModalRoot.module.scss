@@ -28,6 +28,8 @@
 // Modal Base
 .modal {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: $modal-width-md;
   max-height: $modal-max-height;

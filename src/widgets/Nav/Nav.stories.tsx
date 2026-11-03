@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { SOCIAL_LINKS } from '@/entities/Developer';
 import { Nav } from './Nav';
-import { ADMIN_HREF, CTA_HREF, MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
+import { MOBILE_MENU_ID, NAV_ITEMS } from './model/constants';
 
 /**
  * Page-like mount: the sticky header above an empty body — the same shape
@@ -68,17 +68,8 @@ export const Desktop: Story = {
     const firstSection = sectionLinks[0] as HTMLElement;
     expect(firstSection).toHaveAttribute('aria-current', 'page');
 
-    // Right side (decision R5): 🌍🎨 switches → 📄 CTA → social links
-    // (the 🔐 AdminLink is hidden from public surfaces — recruiter audit P0).
+    // Right side: social links only; settings moved into the user avatar menu.
     const controls = canvas.getByTestId('nav-controls');
-    expect(within(controls).getByTestId('language-switch')).toBeVisible();
-    expect(within(controls).getByTestId('theme-switch')).toBeVisible();
-
-    const cta = within(controls).getByTestId('nav-cta');
-    expect(cta).toBeVisible();
-    expect(cta).toHaveAttribute('href', CTA_HREF);
-    expect(cta).toHaveTextContent(i18n.t('getResume'));
-
     const socials = within(controls).getByTestId('nav-social-links');
     expect(socials).toBeVisible();
     for (const link of SOCIAL_LINKS) {
@@ -86,13 +77,12 @@ export const Desktop: Story = {
       expect(anchor).toBeVisible();
       expect(anchor).toHaveAttribute('href', link.href);
     }
-    const admin = within(controls).getByTestId('nav-admin-link');
-    expect(admin).toBeVisible();
-    expect(admin).toHaveAttribute('href', ADMIN_HREF);
+    // AdminLink was removed from the navbar controls.
+    expect(within(controls).queryByTestId('nav-admin-link')).not.toBeInTheDocument();
 
     // Burger row is hidden at the desktop breakpoint (decision R4).
     expect(canvas.getByTestId('nav-burger')).not.toBeVisible();
-    expect(canvas.getByTestId('nav-cta-mobile')).not.toBeVisible();
+    expect(canvas.queryByTestId('nav-cta-mobile')).not.toBeInTheDocument();
   },
 };
 
@@ -108,7 +98,7 @@ export const MobileBurger: Story = {
 
     // Below the breakpoint the burger row replaces links + controls (R4).
     expect(canvas.getByTestId('nav-burger')).toBeVisible();
-    expect(canvas.getByTestId('nav-cta-mobile')).toBeVisible();
+    expect(canvas.queryByTestId('nav-cta-mobile')).not.toBeInTheDocument();
     expect(canvas.getByTestId('nav-controls')).not.toBeVisible();
     const nav = canvas.getByRole('navigation');
     expect(within(nav).getByRole('list', { hidden: true })).not.toBeVisible();
@@ -176,9 +166,7 @@ export const SocialLinks: Story = {
       expect(anchor).toHaveAttribute('target', '_blank');
     }
 
-    // The 🔐 AdminLink is the desktop admin entry (wired back deliberately).
-    const admin = canvas.getByTestId('nav-admin-link');
-    expect(admin).toBeVisible();
-    expect(admin).toHaveAttribute('href', ADMIN_HREF);
+    // AdminLink was removed from the navbar controls.
+    expect(canvas.queryByTestId('nav-admin-link')).not.toBeInTheDocument();
   },
 };

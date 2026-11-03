@@ -10,14 +10,7 @@ import type {
 export type ParagraphSize = 'xs' | 's' | 'm' | 'l' | 'xl' | '2xl';
 
 export type ParagraphTheme =
-  | 'primary'
-  | 'muted'
-  | 'inverted'
-  | 'error'
-  | 'success'
-  | 'warning'
-  | 'gradient'
-  | 'tertiary';
+  'primary' | 'muted' | 'inverted' | 'error' | 'success' | 'warning' | 'gradient' | 'tertiary';
 
 export type ParagraphAlign = 'left' | 'center' | 'right';
 

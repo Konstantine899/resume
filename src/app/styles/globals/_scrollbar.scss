@@ -1,0 +1,14 @@
+// ============================================
+
+// Custom Scrollbar
+
+// ============================================
+
+@use '@/shared/styles/variables/colors' as *;
+@use '@/shared/styles/variables/radius' as *;
+
+// Глобальные скроллбары для всех элементов
+* {
+  scrollbar-color: var(--color-text-tertiary) var(--color-surface-secondary);
+  scrollbar-width: thin;
+}

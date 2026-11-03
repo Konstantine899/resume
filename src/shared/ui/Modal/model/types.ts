@@ -192,15 +192,17 @@ export interface ModalProps {
    * Ref для фокуса при открытии модалки
    * @description Когда передан, фокус перемещается на этот элемент вместо первого фокусируемого
    * @example initialFocusRef={nameInputRef}
+   * @remarks `| null` — React 19 типы: `useRef<HTMLElement>(null)` даёт `RefObject<HTMLElement | null>`
    */
-  initialFocusRef?: React.RefObject<HTMLElement>;
+  initialFocusRef?: React.RefObject<HTMLElement | null>;
 
   /**
    * Ref для фокуса после закрытия модалки
    * @description Переопределяет restoreFocus — фокус на конкретный элемент (Chakra pattern)
    * @example finalFocusRef={submitButtonRef}
+   * @remarks `| null` — React 19 типы: `useRef<HTMLElement>(null)` даёт `RefObject<HTMLElement | null>`
    */
-  finalFocusRef?: React.RefObject<HTMLElement>;
+  finalFocusRef?: React.RefObject<HTMLElement | null>;
 
   /**
    * Включить trap фокуса (удержание фокуса внутри модалки)

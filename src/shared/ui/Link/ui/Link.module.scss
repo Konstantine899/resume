@@ -56,7 +56,9 @@ $link-active-scale: 0.98;
 @mixin link-color-scheme-warning {
   --link-fill: var(--color-warning);
   --link-fill-hover: var(--color-warning-hover);
-  --link-fill-text: var(--color-text-primary);
+
+  // theme-aware ink: white on light's dark amber, dark on dark's bright amber
+  --link-fill-text: var(--color-text-on-warning);
   --link-color: var(--color-warning);
   --link-color-subtle: var(--color-warning-subtle);
   --link-focus-outline: var(--shadow-focus);

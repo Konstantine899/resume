@@ -292,3 +292,71 @@ describe('Avatar polymorphic', () => {
     expect(section).toHaveClass('custom-class');
   });
 });
+
+describe('Avatar portrait variant (WU-13)', () => {
+  it('marks the root with data-variant="portrait" and skips the fixed size class', () => {
+    const { container } = render(
+      <Avatar
+        variant="portrait"
+        src="https://example.com/portrait.png"
+        alt=""
+        showSkeleton={false}
+      />
+    );
+
+    const root = container.firstChild as HTMLElement;
+    expect(root).toHaveAttribute('data-variant', 'portrait');
+    expect(root.className).toContain('portrait');
+    // Fill-container contract: the consumer's layout class owns the box — the
+    // fixed size mixin (sm/md/lg/xl) must not fight it at equal specificity.
+    expect(root.className).not.toContain('md');
+  });
+
+  it('maps the inner Image to transparent/contain/full with no fixed inline size', () => {
+    const { container } = render(
+      <Avatar variant="portrait" src="/portrait.png" alt="" showSkeleton={false} />
+    );
+
+    const figure = container.querySelector('figure');
+    expect(figure).toHaveAttribute('data-variant', 'transparent');
+    expect(figure?.className ?? '').toContain('objectFitContain');
+    expect(figure?.className ?? '').toContain('sizeFull');
+    // No inline width/height — size="full" keeps the image a fill-container.
+    expect((figure as HTMLElement).style.width).toBeFalsy();
+    expect((figure as HTMLElement).style.height).toBeFalsy();
+  });
+
+  it('does not draw the initials fallback circle for portrait', () => {
+    const { container } = render(<Avatar variant="portrait" alt="John Doe" />);
+
+    // No src → the initials circle would paint over the transparent portrait
+    // box — portrait renders an empty container instead.
+    expect(screen.queryByText('JD')).toBeNull();
+    expect(container.querySelector('[class*="fallback"]')).toBeNull();
+  });
+
+  it('still honors a custom fallback node', () => {
+    render(
+      <Avatar
+        variant="portrait"
+        alt="Portrait"
+        fallback={<span data-testid="portrait-fallback">P</span>}
+      />
+    );
+
+    expect(screen.getByTestId('portrait-fallback')).toBeInTheDocument();
+  });
+
+  it('renders a decorative root without role="img" when alt is empty', () => {
+    // axe 4.13 `role-img-alt`: role="img" with an empty label is a violation.
+    // An empty alt is the decorative contract (About vitrina) — the root must
+    // expose nothing, exactly like the plain decorative Image it replaced.
+    const { container } = render(
+      <Avatar variant="portrait" src="/portrait.png" alt="" showSkeleton={false} />
+    );
+
+    const root = container.firstChild as HTMLElement;
+    expect(root).not.toHaveAttribute('role');
+    expect(root).not.toHaveAttribute('aria-label');
+  });
+});

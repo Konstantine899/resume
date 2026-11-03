@@ -32,8 +32,20 @@ const MIN_CLASS_RULES = 500;
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const THEMES = ['light', 'dark'];
 
-/** Pages scanned per theme (WU-6: the admin shell joins the gate). */
-const PATHS = ['/', '/admin'];
+/** Pages scanned per theme (WU-6: the admin shell joins; WU-7: the skills
+ * page; project-images WU-5: /admin/mywork — the FileUpload pilot page;
+ * admin-about-refactor WU-3: /admin/about; admin-contact-refactor WU-4:
+ * /admin/contact; technologies-crud WU-5: /admin/technologies). */
+const PATHS = [
+  '/',
+  '/admin',
+  '/admin/skills',
+  '/admin/jobs',
+  '/admin/mywork',
+  '/admin/about',
+  '/admin/contact',
+  '/admin/technologies',
+];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

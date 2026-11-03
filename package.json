@@ -11,7 +11,12 @@
     "analyze:dead-code": "knip --include files,dependencies,exports",
     "check:bundle": "node scripts/check-bundle.mjs public",
     "check:axe": "node scripts/purge-axe-check.mjs",
+    "check:axe:stories": "node scripts/axe-stories-check.mjs",
     "check:public-api": "node scripts/refactoring/check-shared-ui-public-api.mjs",
+    "check:spec": "node scripts/check-spec.mjs",
+    "snapshot:openapi": "node scripts/snapshot-openapi.mjs",
+    "check:contract": "node scripts/check-contract.mjs",
+    "spec:status": "node scripts/spec-status.mjs",
     "generate:slice": "node scripts/createSlices/index.mjs",
     "refactor:imports": "node scripts/refactoring/update-imports.mjs",
     "preview": "vite preview",
@@ -34,6 +39,7 @@
     "build-storybook": "storybook build",
     "storybook:test": "test-storybook",
     "test:storybook": "vitest --project=storybook",
+    "test:app": "npm run build && playwright test -c playwright.app.config.ts",
     "lint:storybook": "eslint .storybook/**/* --max-warnings 0"
   },
   "keywords": [],
@@ -123,7 +129,6 @@
     ]
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@hookform/resolvers": "^5.4.0",
     "@reduxjs/toolkit": "^2.13.0",
     "i18next": "^26.0.6",

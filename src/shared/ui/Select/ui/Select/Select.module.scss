@@ -1,0 +1,147 @@
+// src/shared/ui/Select/ui/Select/Select.module.scss
+
+// Select — нативный <select> в стилях kit (plan_kit_select, OPEN-1=A).
+
+// Закрытый контрол: appearance: none + собственная стрелка (.field::after);
+
+// открытый пикер — progressive enhancement через @supports (appearance:
+
+// base-select): вне поддержки (Firefox и др.) пикер остаётся нативным
+
+// по дизайну — это заявленный fallback, а не баг.
+
+.selectRoot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  // Собственная стрелка закрытого контроля (направлена вниз).
+  &::after {
+    position: absolute;
+    right: var(--space-3);
+    color: var(--color-text-muted);
+    pointer-events: none;
+    content: '';
+    border-top: 4px solid currentcolor;
+    border-right: 4px solid transparent;
+    border-bottom: 0;
+    border-left: 4px solid transparent;
+  }
+}
+
+.select {
+  width: 100%;
+
+  // WCAG 2.2 SC 2.5.8 target-size floor — прецедент kit Pagination.
+  min-height: 24px;
+  padding: var(--space-1-5) var(--space-6) var(--space-1-5) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  appearance: none;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  &:disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    background: var(--color-surface-disabled);
+  }
+
+  &.error {
+    border-color: var(--color-error);
+  }
+
+  &.error:focus-visible {
+    box-shadow: var(--shadow-focus-error);
+  }
+
+  // Семантика вариантов — зеркало Input (module.scss Input: .outline/.filled).
+  &.outline {
+    border: 2px solid var(--color-border);
+  }
+
+  &.filled {
+    background-color: var(--color-surface-hover);
+    border-color: transparent;
+
+    &:focus-visible {
+      background-color: var(--color-surface);
+    }
+  }
+
+  // Размеры: md — дефолт сверху; xs/sm компактнее, lg/xl крупнее.
+  &.xs {
+    padding: var(--space-0-5) var(--space-5) var(--space-0-5) var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  &.sm {
+    padding: var(--space-1) var(--space-5) var(--space-1) var(--space-2);
+  }
+
+  &.lg {
+    font-size: var(--text-base);
+  }
+
+  &.xl {
+    font-size: var(--text-lg);
+  }
+}
+
+.errorText {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+}
+
+.helperText {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+// Progressive enhancement (не Baseline: Chrome/Edge 134+, Safari 27;
+
+// Firefox — нативный fallback). Текст опций не удаляется — golden rule WebKit.
+@supports (appearance: base-select) {
+  .select {
+    appearance: base-select;
+  }
+
+  .select::picker(select) {
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+  }
+
+  // Стрелка остаётся нашей (.field::after) — нативную прячем.
+  .select::picker-icon {
+    display: none;
+  }
+}

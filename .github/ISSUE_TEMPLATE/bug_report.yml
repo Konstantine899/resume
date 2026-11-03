@@ -1,6 +1,6 @@
 name: Bug report
 description: Сообщить об ошибке в резюме-приложении
-title: "[bug]: "
+title: '[bug]: '
 body:
   - type: markdown
     attributes:
@@ -11,7 +11,7 @@ body:
     attributes:
       label: Окружение
       description: ОС, браузер, версия приложения/коммита
-      placeholder: "Windows 11, Chrome 120, commit abc1234"
+      placeholder: 'Windows 11, Chrome 120, commit abc1234'
     validations:
       required: true
   - type: textarea

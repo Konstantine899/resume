@@ -21,33 +21,109 @@
 //              module is a dynamic import: the showcase `/` never loads an
 //              admin chunk.
 //   `*`      → redirect to `/` (unknown paths never 404 the SPA shell)
-import { AdminHydrateFallback } from './Admin/AdminHydrateFallback';
 import { HomePage } from '@/pages/Home';
-import { redirect } from 'react-router';
 import type { RouteObject } from 'react-router';
+import { redirect } from 'react-router';
+import { AdminHydrateFallback } from './Admin/ui/AdminHydrateFallback/AdminHydrateFallback';
 
 export const routerConfig: RouteObject[] = [
   { path: '/', Component: HomePage },
   {
     path: '/admin',
     // Dynamic imports = vite code-split points (tests: AppRouter > lazy boundary).
-    lazy: () => import('./Admin/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+    lazy: async () => {
+      const [layoutModule, authModule] = await Promise.all([
+        import('./Admin/ui/AdminLayout/AdminLayout'),
+        import('@/features/Auth'),
+      ]);
+      const AdminLayout = layoutModule.AdminLayout;
+      const RequireAdmin = authModule.RequireAdmin;
+      return {
+        Component: () => (
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        ),
+      };
+    },
     // Deep-loads of /admin hydrate asynchronously (RR 8 initial-hydration
     // path) — a route-level fallback prevents the blank frame + RR warning.
     hydrateFallbackElement: <AdminHydrateFallback />,
     children: [
       {
         index: true,
-        lazy: () => import('./Admin/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+        lazy: () =>
+          import('./Admin/ui/DashboardPage/DashboardPage').then((m) => ({
+            Component: m.DashboardPage,
+          })),
       },
       {
         path: 'settings',
-        lazy: () => import('./Admin/AdminSettings').then((m) => ({ Component: m.AdminSettings })),
+        lazy: () =>
+          import('./Admin/ui/AdminSettings/AdminSettings').then((m) => ({
+            Component: m.AdminSettings,
+          })),
       },
       {
         // About CRUD stage-1 (plan §10 WU-3) — own chunk like the rest.
         path: 'about',
-        lazy: () => import('./Admin/AdminAboutPage').then((m) => ({ Component: m.AdminAboutPage })),
+        lazy: () =>
+          import('./Admin/ui/AdminAboutPage/AdminAboutPage').then((m) => ({
+            Component: m.AdminAboutPage,
+          })),
+      },
+      {
+        // Contact CRUD stage-1 (plan_contact_crud §10 WU-3) — own chunk.
+        path: 'contact',
+        lazy: () =>
+          import('./Admin/ui/AdminContactPage/AdminContactPage').then((m) => ({
+            Component: m.AdminContactPage,
+          })),
+      },
+      {
+        // Projects CRUD stage-1 (plan_projects_crud §10 WU-4) — own chunk;
+        // carries the RHF editor (resume-lazy-rhf-chunk, same as /admin/about).
+        path: 'mywork',
+        lazy: () =>
+          import('./Admin/ui/AdminMyWorkPage/AdminMyWorkPage').then((m) => ({
+            Component: m.AdminMyWorkPage,
+          })),
+      },
+      {
+        // Skills CRUD stage-1 (plan_skills_crud §9 WU-5) — own chunk;
+        // carries the RHF editors (resume-lazy-rhf-chunk, same as /admin/about).
+        path: 'skills',
+        lazy: () =>
+          import('./Admin/ui/AdminSkillsPage/AdminSkillsPage').then((m) => ({
+            Component: m.AdminSkillsPage,
+          })),
+      },
+      {
+        // WorkHistory CRUD stage-1 (plan_workhistory_crud §9 WU-5) — own
+        // chunk; carries the RHF editor (resume-lazy-rhf-chunk, same as
+        // /admin/about). RHF must never reach the showcase bundle.
+        path: 'jobs',
+        lazy: () =>
+          import('./Admin/ui/AdminJobsPage/AdminJobsPage').then((m) => ({
+            Component: m.AdminJobsPage,
+          })),
+      },
+      {
+        // Technologies CRUD (#258) — own chunk; carries the RHF editor
+        // (resume-lazy-rhf-chunk, same as /admin/about).
+        path: 'technologies',
+        lazy: () =>
+          import('./Admin/ui/AdminTechnologiesPage/AdminTechnologiesPage').then((m) => ({
+            Component: m.AdminTechnologiesPage,
+          })),
+      },
+      {
+        // Contact inbox (plan-contact-crm Phase 4) — own chunk.
+        path: 'contact-messages',
+        lazy: () =>
+          import('./Admin/ui/AdminContactMessagesPage/AdminContactMessagesPage').then((m) => ({
+            Component: m.AdminContactMessagesPage,
+          })),
       },
     ],
   },

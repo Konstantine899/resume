@@ -1,0 +1,90 @@
+// src/shared/ui/FileUpload/ui/FileUpload/FileUpload.module.scss
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.dropzone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+
+  &:has(:focus-visible) {
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.dragging {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+// Visually hidden, still associated with the visible label via htmlFor.
+
+// tabIndex=-1 keeps a single keyboard stop (the visible button).
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+// SC 2.5.8 (target size ≥24px) — kit Button declares no min-* of its own
+
+// (Pagination precedent: the floor lives in the consumer's SCSS). Element
+
+// selector: the Button class is CSS-module-hashed, `:global(.button)` would
+
+// never match.
+.dropzone > button {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.preview {
+  max-width: 96px;
+  max-height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-error);
+}
+
+// Visually hidden live region for the success announcement.
+.liveRegion {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
+}

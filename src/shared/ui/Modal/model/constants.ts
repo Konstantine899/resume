@@ -9,12 +9,23 @@ export const MODAL_CONSTANTS = {
 /**
  * Exit (close) animation duration for `forceMount` modals, in milliseconds.
  * @description Must mirror the CSS token `--duration-normal`
- * (see `src/shared/styles/globals/_theme.scss`), which drives the `scaleOut`
+ * (see `src/app/styles/globals/_theme.scss`), which drives the `scaleOut`
  * close animation applied by `.modal.closing` in `ModalRoot.module.scss`.
  * The `.closing` class (and its `pointer-events: none`) is kept for exactly
  * this long while the exit delay runs.
  */
 export const MODAL_CLOSE_DURATION_MS = 200;
+
+/**
+ * Poll interval for `select:open` inside an open modal (#232), in milliseconds.
+ * @description Chrome's base-select picker exposes NO open/close event
+ * (`toggle` never fires) and light-dismisses before the overlay `pointerdown`
+ * dispatch, so the only way to learn "a picker was open until this press" is
+ * sampling. 120 ms is imperceptible for a human press sequence (the fastest
+ * realistic open→overlay-press gap is well above it) and costs one
+ * `querySelector` per tick while a modal is open.
+ */
+export const MODAL_SELECT_POLL_MS = 120;
 
 /**
  * Base z-index for stacked modal layers (M7).

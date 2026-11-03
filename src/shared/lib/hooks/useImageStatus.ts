@@ -20,6 +20,15 @@ export const useImageStatus = (
   onError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void
 ) => {
   const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [trackedSrc, setTrackedSrc] = useState<string | undefined>(normalizedSrc);
+
+  // A new src is a new image: reset to `loading` during render (React's
+  // "adjusting state when a prop changes"). A setState-in-effect would add a
+  // cascading render and is rejected by react-hooks/set-state-in-effect.
+  if (trackedSrc !== normalizedSrc) {
+    setTrackedSrc(normalizedSrc);
+    setImageStatus('loading');
+  }
 
   const showFallback = (!normalizedSrc && !forceLoading) || imageStatus === 'error';
 

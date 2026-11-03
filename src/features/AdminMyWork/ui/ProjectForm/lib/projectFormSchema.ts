@@ -1,0 +1,129 @@
+// ============================================
+// ProjectFormSchema — DOM-input adapter over ProjectFormDataSchema
+// ============================================
+//
+// Plan §10 says "RHF + zodResolver(ProjectFormDataSchema)": RHF however
+// always hands the resolver RAW input values (textareas/inputs are strings,
+// the metrics bullet editor hands over raw rows), while
+// `ProjectFormDataSchema` speaks the persisted contract
+// (link null, metrics string[], year number, role optional). Every rule
+// below is delegated to the SHARED schema via `.pipe()`, so the contract
+// in entities stays the single source of truth (§7) and form fields can
+// never drift from record fields.
+//
+// No zod messages are set (i18n-first): the component maps field errors
+// to i18n keys exactly like AboutFieldEditForm (AdminAbout).
+
+import { z } from 'zod';
+
+import { ProjectFormDataSchema, type Project } from '@/entities/Project';
+
+/** Bullet-row contract (mywork-metrics-bullet-rows): ONE row = ONE metric,
+ *  blanks dropped — the old `splitMetricLines` semantics over the Textarea,
+ *  now fed by the row-based UI instead of a newline-joined string. */
+const normalizeMetricRows = (rows: string[]): string[] =>
+  rows.map((row) => row.trim()).filter((row) => row.length > 0);
+
+/**
+ * Form-input schema: shape comes from `ProjectFormDataSchema`, only the
+ * four DOM-side fields are adapted (link, metric rows, year, role).
+ */
+export const ProjectFormSchema = ProjectFormDataSchema.extend({
+  /** '' → null, otherwise the shared null | https:// | /… rule. */
+  link: z
+    .string()
+    .trim()
+    .transform((value) => (value === '' ? null : value))
+    .pipe(ProjectFormDataSchema.shape.link),
+  /** Bullet rows → string[]; all-blank → undefined (shape.metrics is optional
+   *  and zod's .pipe() requires the EXACT input type `string[] | undefined`). */
+  metrics: z
+    .array(z.string())
+    .transform((rows) => {
+      const lines = normalizeMetricRows(rows);
+      return lines.length === 0 ? undefined : lines;
+    })
+    .pipe(ProjectFormDataSchema.shape.metrics),
+  /** '' → undefined, otherwise an int 2000…2100 (NaN fails is-int). */
+  year: z
+    .string()
+    .trim()
+    .transform((value) => (value === '' ? undefined : Number(value)))
+    .pipe(ProjectFormDataSchema.shape.year),
+  /** Both locales blank → no role; one locale set → shared min(1) per side. */
+  role: z
+    .object({ en: z.string(), ru: z.string() })
+    .transform((value) =>
+      value.en.trim() === '' && value.ru.trim() === ''
+        ? undefined
+        : { en: value.en.trim(), ru: value.ru.trim() }
+    )
+    .pipe(ProjectFormDataSchema.shape.role),
+});
+
+/**
+ * Membership-checked techIcons field (technologies-crud D2): the ONLY rule
+ * that needs the live catalog. The check rides the ARRAY schema, so inside
+ * any object wrapper the issue path stays ['techIcons'] and the forms'
+ * existing `errors.techIcons` alert keeps rendering.
+ */
+export const makeTechIconsFieldSchema = (validKeys: readonly string[]) =>
+  ProjectFormSchema.shape.techIcons.refine((keys) => keys.every((key) => validKeys.includes(key)), {
+    message: 'projectTechRequired',
+  });
+
+/**
+ * The full form schema WITH catalog membership (D2): `validKeys` comes from
+ * `selectTechnologyKeys` at render time — the deleted TECH_ICONS enum can no
+ * longer enforce it from entities (sibling entities never import each other).
+ */
+export const makeProjectFormSchema = (validKeys: readonly string[]) =>
+  ProjectFormSchema.extend({ techIcons: makeTechIconsFieldSchema(validKeys) });
+
+/** Raw DOM values the form works with (RHF `useForm<T>` input type). */
+export type ProjectFormValues = z.input<typeof ProjectFormSchema> & {
+  /**
+   * Amend 2026-10-10: UI-only subdirectory picker for the save-to-directory
+   * flow (default `projects`, or `new` for a fresh name). NOT persisted —
+   * stripped by the schema (`.strip()` in `output`), only read by the
+   * save-to-directory handler.
+   */
+  imageSubdir?: string;
+};
+/** Parsed output — identical to the persisted `ProjectFormData` contract
+ *  (no `imageSubdir`; the extra form-only field is stripped). */
+export type ProjectFormOutput = z.output<typeof ProjectFormSchema>;
+
+/** Fresh blank values (never share one mutable object across mounts). */
+export const emptyProjectFormValues = (): ProjectFormValues => ({
+  title: '',
+  description: { en: '', ru: '' },
+  techIcons: [],
+  link: '',
+  image: '',
+  category: 'other',
+  status: 'completed',
+  featured: false,
+  role: { en: '', ru: '' },
+  // One empty row — the bullet editor never starts with zero rows (JobForm parity).
+  metrics: [''],
+  year: '',
+  imageSubdir: 'projects',
+});
+
+/** Record → DOM values (edit-mode defaults; RHF needs the row forms). */
+export const toProjectFormValues = (project: Project): ProjectFormValues => ({
+  title: project.title,
+  description: { ...project.description },
+  techIcons: [...project.techIcons],
+  link: project.link ?? '',
+  image: project.image,
+  category: project.category,
+  status: project.status,
+  featured: project.featured,
+  role: project.role ? { ...project.role } : { en: '', ru: '' },
+  // Bullet rows: one input row per metric; no metrics → one empty row.
+  metrics: project.metrics && project.metrics.length > 0 ? [...project.metrics] : [''],
+  year: project.year === undefined ? '' : String(project.year),
+  imageSubdir: 'projects',
+});

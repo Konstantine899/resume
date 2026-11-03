@@ -1,0 +1,93 @@
+// ============================================
+// ContactContent zod schemas (plan Contact CRUD §5, §7)
+// ============================================
+//
+// Three schemas, one source of truth:
+// - `ContactContentSchema` — resolves the admin form (react-hook-form
+//   zodResolver) AND validates a document before it is persisted.
+// - `ContactFormDataSchema` — the Create form (§7): imported by
+//   `useContactForm` in WU-2 to replace the manual check.
+// - `ContactContentEnvelopeSchema` — reads the localStorage envelope
+//   `{ v: 1, content }`; `v` is a migration guard, unknown versions
+//   fall back to the seed (§7).
+//
+// Limits come straight from the plan's validation table (§7):
+// email valid format after trim; formTexts ≤120; Create name 2–80 after
+// trim, message 10–2000 (owner-approved spam floor). contact-rows-crud R-1
+// (D1): the per-key texts cap is unified at 600 per locale — an open
+// record cannot carry per-key limits, and 600 was the maximum anyway.
+// contact-social-crud (R-1/S9): socialLinks is a required open record —
+// name 1..48 trimmed, href https-only URL ≤2048; legacy documents are
+// upgraded by the read-path, not by this schema.
+// Messages are NOT set here — callers map failures to i18n keys (R-4).
+
+import { z } from 'zod';
+
+import type { ContactContent } from '../types/types';
+
+/** Row identity: slug key, unique per table (uniqueness enforced by the form). */
+const rowKey = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[a-zA-Z][a-zA-Z0-9_-]*$/);
+
+/** One localized string with a per-table length cap. */
+const localizedText = (max: number) =>
+  z.object({
+    en: z.string().min(1).max(max),
+    ru: z.string().min(1).max(max),
+  });
+
+/** Socials caps (contact-social-crud S9): shared with the admin form schema. */
+export const SOCIAL_NAME_MAX = 48;
+export const SOCIAL_HREF_MAX = 2048;
+
+/**
+ * One https-URL rule for the contract AND the admin form (S9 single
+ * source): `new URL` rejects garbage, the protocol check kills http:/javascript:.
+ */
+export const isHttpsUrl = (value: string): boolean => {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/** One social row — the href rule comes from the shared `isHttpsUrl`. */
+const contactSocialLink = z.object({
+  name: z.string().trim().min(1).max(SOCIAL_NAME_MAX),
+  href: z.string().trim().min(1).max(SOCIAL_HREF_MAX).refine(isHttpsUrl),
+});
+
+export const ContactContentSchema = z.object({
+  email: z.string().trim().pipe(z.email()),
+  // Open records: rows are dynamic (add/delete ops are valid documents).
+  texts: z.record(rowKey, localizedText(600)),
+  formTexts: z.record(rowKey, localizedText(120)),
+  // Required field: a legacy document without it is upgraded by
+  // readContactContent BEFORE validation (missing ≠ emptied, R-1).
+  socialLinks: z.record(rowKey, contactSocialLink),
+});
+
+/** Create-form payload (§7): the owner-approved min(10) rejects one-word spam. */
+export const ContactFormDataSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().pipe(z.email()),
+  message: z.string().min(10).max(2000),
+});
+
+/** The exact envelope persisted under `resume.contact.content` (§4.1). */
+export const ContactContentEnvelopeSchema = z.object({
+  v: z.literal(1),
+  content: ContactContentSchema,
+});
+
+export type ContactContentEnvelope = z.infer<typeof ContactContentEnvelopeSchema>;
+export type ContactFormDataInput = z.infer<typeof ContactFormDataSchema>;
+
+// Compile-time guard: the schema's inferred output must stay assignable
+// to the FSD contract — a schema drift breaks the build, not the runtime.
+const _contractCheck: ContactContent = {} as z.infer<typeof ContactContentSchema>;
+void _contractCheck;

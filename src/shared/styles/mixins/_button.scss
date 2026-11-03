@@ -48,6 +48,13 @@
   --btn-color: var(--secondary);
   --btn-color-subtle: var(--color-neutral-subtle);
   --btn-focus-outline: var(--shadow-focus);
+
+  // --secondary (#6c757d) is theme-invariant; dark --color-text-inverse
+
+  // (#0f0f0f) drops the fill text to 4.09:1 — pin white (4.69:1) in dark.
+  [data-theme='dark'] & {
+    --btn-fill-text: var(--color-text-on-dark);
+  }
 }
 
 @mixin color-scheme-success {

@@ -11,6 +11,10 @@ export default defineConfig(({ mode }) => {
     src: normalizePath(path.resolve(__dirname, 'src')),
     locales: normalizePath(path.resolve(__dirname, 'src', 'shared', 'lib', 'i18n', 'locales')),
     buildLocales: normalizePath(path.resolve(__dirname, 'public', 'locales')),
+    imagesProjects: normalizePath(
+      path.resolve(__dirname, 'src', 'shared', 'assets', 'images', 'projects')
+    ),
+    buildImagesProjects: normalizePath(path.resolve(__dirname, 'public', 'images', 'projects')),
     app: normalizePath(path.resolve(__dirname, 'src', 'app')),
     pages: normalizePath(path.resolve(__dirname, 'src', 'pages')),
     entities: normalizePath(path.resolve(__dirname, 'src', 'entities')),

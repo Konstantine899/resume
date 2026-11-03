@@ -1,0 +1,119 @@
+// ============================================
+
+// TechnologiesList — vitrina layout (technologies-crud WU-3)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens. `.cellActions` is nowrap and used ONLY for cell renders — the
+
+// header wrapper stays on `.headerActions` (PR #256: a wrapped flex row
+
+// inside a td collapses the column to one button per line).
+
+@use '@/shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.header {
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.keyCell {
+  display: inline-flex;
+}
+
+// technologies-pagination REVISED (owner directive 2026-10-17): only the
+
+// size group lives here — right-aligned above the table (parity with the
+
+// kit DataTable `.sizeRow`); the pagination block moved to
+
+// `.paginationRow` BELOW the table.
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Whole nav block (numbers + arrows) below the table (owner directive
+
+// 2026-10-17). No margin — `.root` is a flex column with gap
+
+// $spacing-4.
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+}
+
+// Sort toggle inside <th> — ported verbatim from the kit DataTable
+
+// decoration (kit Table is markup-only). Layout, typography and color are
+
+// inherited from the cell so sorting changes zero visual tokens; only the
+
+// focus ring is added (WCAG 2.4.7).
+
+.sortButton {
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+
+  &:focus-visible {
+    outline: var(--shadow-focus);
+    outline-offset: 2px;
+  }
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+// dark-theme invert parity with SkillItem .invertInDark
+
+.iconInvert {
+  [data-theme='dark'] & {
+    filter: invert(1) brightness(1.5);
+  }
+}
+
+.cellActions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+}

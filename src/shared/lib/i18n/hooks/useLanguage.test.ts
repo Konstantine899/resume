@@ -23,16 +23,23 @@ describe('useLanguage', () => {
     expect(['en', 'ru']).toContain(result.current.language);
   });
 
-  it('setLanguage changes language and persists it to localStorage', () => {
+  it('setLanguage switches language and persists it to localStorage', async () => {
     const { result } = renderHook(() => useLanguage());
-    act(() => result.current.setLanguage('ru'));
+    // The ru bundle is lazy: setLanguage awaits loadRu() before the switch
+    // (no flash of en copy), so the changeLanguage call lands a microtask
+    // later — await inside act.
+    await act(async () => {
+      result.current.setLanguage('ru');
+    });
     expect(changeLanguage).toHaveBeenCalledWith('ru');
     expect(localStorage.getItem('language')).toBe('ru');
   });
 
-  it('toggleLanguage flips between en and ru', () => {
+  it('toggleLanguage flips between en and ru', async () => {
     const { result } = renderHook(() => useLanguage());
-    act(() => result.current.toggleLanguage());
+    await act(async () => {
+      result.current.toggleLanguage();
+    });
     expect(changeLanguage).toHaveBeenCalled();
   });
 

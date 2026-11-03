@@ -1,0 +1,93 @@
+// ============================================
+// Skills — localStorage persistence (plan_skills_crud §5)
+// ============================================
+//
+// Stage-1 "backend": a versioned envelope `{ v: 1, data }` under
+// `resume.skills`. Mechanics (parse/validate/fallback/write) come from the
+// shared `createVersionedStorage` factory (issue #302); this module keeps
+// only the feature specifics: the key, the envelope schema, the payload
+// extraction and the iconSvg write normalization (A3/R-3).
+//
+// Every write runs iconSvg normalization first (A3/R-3): vite content
+// hashes change on rebuild, so the store must only ever contain key
+// names (`'react'`), never URLs — legacy URLs are reduced on the way in,
+// and the WU-2 resolver passes them through on the way out.
+//
+// Swap note (§4.1): on the NestJS stage this whole module is replaced by
+// RTK Query; nothing outside imports localStorage directly.
+
+import {
+  SKILLS_DATA,
+  SkillsEnvelopeSchema,
+  type SkillCategoryData,
+  type SkillsEnvelope,
+} from '@/entities/Skill';
+import { createVersionedStorage } from '@/shared/lib/versionedStorage';
+
+export const SKILLS_STORAGE_KEY = 'resume.skills';
+
+/**
+ * URL/key → key name: basename → strip `.svg` → strip the 8-char vite
+ * content hash. Values that are already key names and `data:` URLs pass
+ * through untouched. Pure — exported for direct unit tests.
+ */
+export const normalizeIconSvg = (value: string): string => {
+  if (value.startsWith('data:')) return value;
+  if (!value.includes('/') && !value.endsWith('.svg')) return value;
+
+  const base = value.split('/').pop() ?? value;
+  const withoutExt = base.endsWith('.svg') ? base.slice(0, -4) : base;
+  return withoutExt.replace(/-[A-Za-z0-9_-]{8}$/, '');
+};
+
+/**
+ * Apply normalization across a whole collection (immutably).
+ *
+ * AD-4: normalization never SYNTHESIZES a value. The old version wrote
+ * `iconSvg: ''` for every sparse record, the schema rejects `min(1)`, and
+ * `persist` validated its own output — so a catalog-linked record without
+ * an icon could never be saved (D1). A record without `iconSvg` keeps not
+ * having one.
+ */
+const normalizeAll = (data: SkillCategoryData[]): SkillCategoryData[] =>
+  data.map((category) => ({
+    ...category,
+    technologies: category.technologies.map((technology) =>
+      technology.iconSvg === undefined
+        ? technology
+        : { ...technology, iconSvg: normalizeIconSvg(technology.iconSvg) }
+    ),
+  }));
+
+const storage = createVersionedStorage<SkillCategoryData[], SkillsEnvelope>({
+  key: SKILLS_STORAGE_KEY,
+  envelopeSchema: SkillsEnvelopeSchema,
+  // AD-3: no `upgrade` hook — `wrap` has always written `v: 1`, so an
+  // envelope without `v` was never produced by this app.
+  extract: (envelope) => envelope.data,
+  wrap: (data) => ({ v: 1, data: normalizeAll(data) }),
+});
+
+/**
+ * Valid collection or `null` — for missing/absent/corrupt/version-mismatched
+ * data alike: every unreadable state falls back to the seed (§7), never a
+ * throw.
+ */
+export const readSkills = storage.read;
+
+/**
+ * Normalize, validate, then write. `false` means NOTHING was written
+ * (invalid payload or storage failure) — the caller must NOT dispatch
+ * (§3 order).
+ */
+export const persistSkills = storage.persist;
+
+/** Drop the stored collection (Reset path, §3). Idempotent, never throws. */
+export const removeSkills = storage.remove;
+
+/** Seed re-export for hydration fallbacks (single source: entities/Skill). */
+export const skillsSeed = (): SkillCategoryData[] =>
+  SKILLS_DATA.map((category) => ({
+    ...category,
+    technologies: [...category.technologies],
+  }));

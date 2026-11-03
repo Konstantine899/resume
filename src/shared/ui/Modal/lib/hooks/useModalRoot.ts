@@ -11,7 +11,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { MODAL_CLOSE_DURATION_MS, MODAL_Z_BASE } from '../../model/constants';
+import { MODAL_CLOSE_DURATION_MS, MODAL_SELECT_POLL_MS, MODAL_Z_BASE } from '../../model/constants';
 import {
   getLayerManagerSnapshot,
   isTopLayer,
@@ -178,6 +178,15 @@ export function useModalRoot(props: ModalRootProps) {
 
   const Tag = component || 'div';
   const modalRef = useRef<HTMLElement>(null);
+  // === #232: sticky "an inner select picker was open" flag ===
+  // Chrome closes an open `appearance: base-select` picker BEFORE dispatching
+  // the overlay `pointerdown`, leaving no event, no `defaultPrevented` and
+  // `select:open` already false. The poll effect below (MODAL_SELECT_POLL_MS)
+  // sets this flag while a picker inside `modalRef` is open; the overlay press
+  // handler consumes exactly ONE press when the flag is set — that press only
+  // meant "dismiss the picker". Cleared on: consumption, Escape, inner
+  // pointerdown, modal close (see the effects near the Escape handler).
+  const selectPickerOpenRef = useRef(false);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const untrapFocusRef = useRef<(() => void) | null>(null);
   const wasOpenedRef = useRef<boolean>(false);
@@ -308,7 +317,12 @@ export function useModalRoot(props: ModalRootProps) {
     if (!effectiveIsOpen || !closeOnEsc || !isTop) return;
 
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !e.defaultPrevented) {
+      if (e.key !== 'Escape') return;
+      // #232: with an open inner <select> picker the browser default-prevents
+      // this Escape (innermost-first — probe-verified). Drop the consume-flag
+      // regardless of the gate so the NEXT overlay press is not swallowed.
+      selectPickerOpenRef.current = false;
+      if (!e.defaultPrevented) {
         handleEscKey(e);
       }
     };
@@ -316,6 +330,47 @@ export function useModalRoot(props: ModalRootProps) {
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, [effectiveIsOpen, closeOnEsc, handleEscKey, isTop]);
+
+  // === #232: select-picker light-dismiss detection ===
+  // Poll `select:open` while the modal is open — Chrome exposes no picker
+  // open/close event. Symmetric set/clear: a tick without an open picker also
+  // heals a stale flag from a close path we did not observe. The flag MUST
+  // survive from the last tick to the overlay press handler: the browser's
+  // pre-dispatch light-dismiss and the whole pointerdown dispatch run in one
+  // task, so no tick can interleave between "picker closed" and the handler.
+  useEffect(() => {
+    if (!effectiveIsOpen) {
+      selectPickerOpenRef.current = false;
+      return;
+    }
+    const pollId = window.setInterval(() => {
+      try {
+        selectPickerOpenRef.current = Boolean(modalRef.current?.querySelector('select:open'));
+      } catch {
+        // Selector engine without `:open` support (jsdom): keep the flag as-is.
+      }
+    }, MODAL_SELECT_POLL_MS);
+    return () => {
+      window.clearInterval(pollId);
+      selectPickerOpenRef.current = false;
+    };
+  }, [effectiveIsOpen]);
+
+  // Any pointerdown INSIDE the modal means the user pressed the form itself
+  // (e.g. the select — that press toggles its own picker); the consume-flag
+  // must not survive it. Overlay presses target the sibling overlay, which is
+  // NOT inside `modalRef`, so they fall through to `handleOverlayPointerDown`.
+  useEffect(() => {
+    if (!effectiveIsOpen) return;
+    const onInnerPointerDown = (e: PointerEvent) => {
+      const root = modalRef.current;
+      if (root && e.target instanceof Node && root.contains(e.target)) {
+        selectPickerOpenRef.current = false;
+      }
+    };
+    document.addEventListener('pointerdown', onInnerPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onInnerPointerDown, true);
+  }, [effectiveIsOpen]);
 
   useEffect(() => {
     if (!effectiveIsOpen || !effectiveTrapFocus || !modalRef.current) return;
@@ -400,6 +455,15 @@ export function useModalRoot(props: ModalRootProps) {
     (event: React.PointerEvent<HTMLDivElement>) => {
       onPointerDownOutsideRef.current?.(event);
       if (event.defaultPrevented) return;
+
+      // #232: this press may be the browser's light-dismiss of an open select
+      // picker (Chrome closes it pre-dispatch with no signal). The sticky poll
+      // flag means "a picker was open until this press" — consume exactly one
+      // press so the modal survives it; the NEXT press closes the modal.
+      if (selectPickerOpenRef.current) {
+        selectPickerOpenRef.current = false;
+        return;
+      }
 
       if (closeOnOverlayClick && canCloseModal()) {
         handleClose();

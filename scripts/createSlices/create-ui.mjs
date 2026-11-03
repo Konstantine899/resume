@@ -1,28 +1,34 @@
 /**
- * `ui/` step of the slice generator — plan §2.3.3 (component directly in
- * `ui/`, like Contact/Skills/WorkHistory; the `ui/<Name>/` folder is reserved
- * for sub-components such as `Skills/ui/SkillItem/`).
+ * `ui/` step of the slice generator — SPEC REQ-G8 / ARCH-1 (owner,
+ * 2026-10-07): EVERY component lives in its own directory `ui/<Name>/`
+ * (precedent: `features/About/ui/About/`, `pages/Admin/ui/<Page>/`).
  *
- * Files: `<Name>.tsx`, `<Name>.test.tsx` (mandatory — coverage thresholds,
- * plan R8), `<Name>.stories.tsx`, `<Name>.module.scss`.
+ * Files: `ui/<Name>/<Name>.tsx`, `<Name>.test.tsx` (mandatory — coverage
+ * thresholds, plan R8), `<Name>.stories.tsx`, `<Name>.module.scss`.
  */
 import path from 'node:path';
 import { componentTemplate } from './templates/component.mjs';
+import { componentSkeletonTestTemplate } from './templates/component-skeleton-test.mjs';
 import { componentTestTemplate } from './templates/component-test.mjs';
 import { storyTemplate } from './templates/story.mjs';
 import { styleTemplate } from './templates/style.mjs';
 
 /**
  * @param {{ name: string, camel: string, kebab: string, storyTitle: string }} names
+ * @param {{ skeleton?: boolean }} [options] skeleton = Plan-files extra
+ *   (REQ-G16): TODO(spec) marker + `it.todo` test instead of the real cases.
  * @returns {{ relPath: string, content: string }[]}
  */
-export function uiFiles(names) {
+export function uiFiles(names, { skeleton = false } = {}) {
   const { name } = names;
   return [
-    { relPath: `ui/${name}.tsx`, content: componentTemplate(names) },
-    { relPath: `ui/${name}.test.tsx`, content: componentTestTemplate(names) },
-    { relPath: `ui/${name}.stories.tsx`, content: storyTemplate(names) },
-    { relPath: `ui/${name}.module.scss`, content: styleTemplate(names) },
+    { relPath: `ui/${name}/${name}.tsx`, content: componentTemplate(names, { skeleton }) },
+    {
+      relPath: `ui/${name}/${name}.test.tsx`,
+      content: skeleton ? componentSkeletonTestTemplate(names) : componentTestTemplate(names),
+    },
+    { relPath: `ui/${name}/${name}.stories.tsx`, content: storyTemplate(names) },
+    { relPath: `ui/${name}/${name}.module.scss`, content: styleTemplate(names) },
   ];
 }
 

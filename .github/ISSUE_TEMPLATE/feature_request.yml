@@ -1,6 +1,6 @@
 name: Feature request
 description: Предложить улучшение или новую фичу
-title: "[feat]: "
+title: '[feat]: '
 body:
   - type: textarea
     id: problem

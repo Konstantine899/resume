@@ -14,8 +14,8 @@ export function publicApiTemplate(names) {
 // ${name} — Public API (FSD slice)
 // ============================================
 
-export { ${name} } from './ui/${name}';
-export type { ${name}Props } from './model/types';
+export { ${name} } from './ui/${name}/${name}';
+export type { ${name}Props } from './model/types/types';
 `;
 
   if (!withSlice) return base;

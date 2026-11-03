@@ -1,0 +1,45 @@
+// src/shared/ui/DataTable/ui/DataTable/DataTable.module.scss
+
+@use '@/shared/styles/variables' as *;
+
+// Layout mirrors the approved MyWork arrangement (plan rev.5 OPEN-6,
+
+// owner 2026-10-09): size group above the table, right-aligned;
+
+// navigation below, centered.
+
+.sizeRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-6;
+}
+
+.paginationRow {
+  display: flex;
+  justify-content: center;
+  margin-top: $spacing-6;
+}
+
+// Sort toggle inside <th> (WU-5): a bare — button-like header. Layout,
+
+// typography and color are inherited from the cell so sorting changes
+
+// zero visual tokens; only the focus ring is added (WCAG 2.4.7).
+.sortButton {
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+
+  &:focus-visible {
+    outline: var(--shadow-focus);
+    outline-offset: 2px;
+  }
+}

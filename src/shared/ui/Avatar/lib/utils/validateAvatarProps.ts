@@ -5,7 +5,7 @@
 import type { AvatarProps, AvatarSize, AvatarVariant } from '../../model/types';
 
 const VALID_SIZES: AvatarSize[] = ['sm', 'md', 'lg', 'xl'];
-const VALID_VARIANTS: AvatarVariant[] = ['circle', 'square'];
+const VALID_VARIANTS: AvatarVariant[] = ['circle', 'square', 'portrait'];
 
 /**
  * Validate Avatar props in development mode
@@ -39,8 +39,10 @@ export function validateAvatarProps(props: AvatarProps): void {
     );
   }
 
-  // Validate alt (required for accessibility)
-  if (!alt || alt.trim() === '') {
+  // Validate alt (required for accessibility). The portrait variant renders no
+  // initials fallback and is used decoratively (About vitrina: alt=""), so an
+  // empty alt is a legitimate contract there — warning would be dev noise.
+  if ((!alt || alt.trim() === '') && variant !== 'portrait') {
     // eslint-disable-next-line no-console
     console.warn('Avatar: missing or empty "alt" prop. Alt text is required for accessibility.');
   }

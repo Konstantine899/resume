@@ -5,20 +5,26 @@
 // NOTE (FSD, §8): only `pages` and this feature itself may import this
 // API — `features → features` is banned, so `features/About` never
 // touches it (the vitrina receives content as a prop from HomePage).
+//
+// admin-about-refactor WU-3 (SPEC R-4): the barrel keeps ONLY symbols
+// with a production consumer at the BARREL level:
+// - `AboutEditorList` — `AdminAboutPage` (the lazy /admin/about route);
+// - `createAboutSeed` / `persistAboutContent` / `removeAboutContent` —
+//   `HomePage.test` (`fsd-imports/tests-public-api-only` forces a test to
+//   consume a cross-slice symbol through the barrel, so these stay).
+// Seven dead re-exports are gone (selectAboutContent, ABOUT_CONTENT_
+// STORAGE_KEY, readAboutContent, aboutContentReducer, resetToDefaults,
+// updateAboutContent, AboutContentRootState) — their IMPLEMENTATIONS stay
+// put: `storeReducers.ts` deep-imports the slice and `HomePage.tsx`
+// deep-imports the selector (resume-lazy-rhf-chunk: instantiating this
+// barrel — and the RHF form behind it — in the main chunk is forbidden),
+// while the model's own unit tests import the modules directly.
+//
+// `src/features/AdminAbout/index.test.ts` pins the live set.
 
-export {
-  aboutContentReducer,
-  resetToDefaults,
-  updateAboutContent,
-} from './model/aboutContentSlice';
-export { createAboutSeed } from './model/seed';
-export { selectAboutContent } from './model/selectors';
-export {
-  ABOUT_CONTENT_STORAGE_KEY,
-  persistAboutContent,
-  readAboutContent,
-  removeAboutContent,
-} from './model/storage';
-export type { AboutContentRootState } from './model/types';
-export { AboutEditorForm } from './ui/AboutEditorForm';
-export type { AboutEditorFormProps } from './ui/AboutEditorForm';
+export { createAboutSeed } from './model/services/seed';
+export { persistAboutContent, removeAboutContent } from './model/services/storage';
+export { AboutEditorList } from './ui/AboutEditorList/AboutEditorList';
+// admin-about-table WU-15: `AboutEditorListProps` is NOT re-exported — zero
+// consumers outside the feature (the component file still exports it per the
+// repo-wide React convention; type re-exports are for CONSUMED types only).

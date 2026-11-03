@@ -58,11 +58,10 @@ export const TooltipProvider = memo((props: TooltipProviderProps) => {
     arrowShadowColor,
   });
 
-  const activeTrigger = trigger ?? 'hover';
-
+  // activeTrigger/activeTriggers приходят из useTooltip — там же нормализация
+  // одиночного режима и массива (комбо-триггер, issue #222).
   const value: TooltipContextValue = {
     ...state,
-    activeTrigger,
     disabled: Boolean(disabled),
     skeleton: Boolean(skeleton),
     color,
@@ -92,6 +91,7 @@ const createNoopContext = (): TooltipContextValue => ({
   tooltipRef: { current: null },
   tooltipId: '',
   activeTrigger: 'hover',
+  activeTriggers: ['hover'],
   disabled: false,
   skeleton: false,
   color: undefined,

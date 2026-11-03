@@ -108,6 +108,10 @@
     object-fit: contain;
   }
 
+  .techIconInvert {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
   .linkSection {
     display: flex;
     gap: var(--space-2);

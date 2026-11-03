@@ -84,13 +84,17 @@ export function useAvatar({
   const avatarWidth = AVATAR_SIZES[size];
 
   // Compute className
-  const avatarClassName = useMemo(
-    () =>
-      classNames(styles.avatar ?? '', styles[size] ?? '', styles[variant] ?? '', className, {
-        [styles.heroStyle ?? '']: heroStyle,
-      }),
-    [size, variant, heroStyle, className]
-  );
+  const avatarClassName = useMemo(() => {
+    // Portrait is a fill-container variant: the consumer's layout class owns
+    // the box (About's `.stack .portrait`), so the fixed size mixin
+    // (.sm/.md/.lg/.xl) is intentionally skipped — it would fight the
+    // consumer's layout at equal specificity (both (0,2,0), order-dependent).
+    const sizeClass = variant === 'portrait' ? '' : (styles[size] ?? '');
+
+    return classNames(styles.avatar ?? '', sizeClass, styles[variant] ?? '', className, {
+      [styles.heroStyle ?? '']: heroStyle,
+    });
+  }, [size, variant, heroStyle, className]);
 
   return {
     avatarClassName,

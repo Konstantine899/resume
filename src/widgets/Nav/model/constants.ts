@@ -1,5 +1,5 @@
 import { Code, FileText, Mail, Sparkles, WorkflowIcon } from 'lucide-react';
-import type { NavItem } from './types';
+import type { NavItem } from './types/types';
 
 /**
  * Placeholder section anchors for the Nav scaffold (T1).

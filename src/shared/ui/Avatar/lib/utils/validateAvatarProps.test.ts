@@ -51,4 +51,16 @@ describe('validateAvatarProps', () => {
     validateAvatarProps({ alt: 'Konstantin', size: 'md', variant: 'circle' } as never);
     expect(warn).not.toHaveBeenCalled();
   });
+
+  it('accepts the portrait variant without warning', () => {
+    validateAvatarProps({ alt: 'Portrait', size: 'lg', variant: 'portrait' } as never);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('does not demand alt text for the decorative portrait variant', () => {
+    // Portrait renders no initials fallback — an empty alt is the legitimate
+    // decorative contract (About vitrina uses it), so no warning is expected.
+    validateAvatarProps({ alt: '', variant: 'portrait' } as never);
+    expect(warn).not.toHaveBeenCalled();
+  });
 });

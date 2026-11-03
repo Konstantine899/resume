@@ -1,0 +1,450 @@
+// ============================================
+// JobForm tests (WorkHistory CRUD — plan §12 WU-5/§7/§3)
+// ============================================
+//
+// RED-first contract: field labels are i18n keys, §7 errors surface inline
+// as keys, current ⇄ endDate (disabled input while current), the bullet
+// and chip editors, and the §3 save order (persist BEFORE dispatch) for
+// both create and edit — edit recomputes `period` through applyJobUpdate
+// (A5: the form never enters it by hand).
+
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Job } from '@/entities/Job';
+import { JobForm } from './JobForm';
+
+const { persistSpy, addJobSpy, updateJobSpy, addToast, holder } = vi.hoisted(() => ({
+  persistSpy: vi.fn((_jobs: unknown[]) => true),
+  addJobSpy: vi.fn((payload: unknown) => ({ type: 'adminJobs/addJob', payload })),
+  updateJobSpy: vi.fn((payload: unknown) => ({ type: 'adminJobs/updateJob', payload })),
+  addToast: vi.fn(),
+  holder: {
+    state: {
+      adminJobs: [] as Job[],
+    },
+  },
+}));
+
+vi.mock('../../model/services/storage', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../model/services/storage')>()),
+  persistJobs: persistSpy,
+}));
+
+// Only the ACTIONS are spied — makeJobRecord/applyJobUpdate stay real so
+// the persisted array carries the real period recomputation (A5).
+vi.mock('../../model/slices/jobsSlice', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../model/slices/jobsSlice')>()),
+  addJob: addJobSpy,
+  updateJob: updateJobSpy,
+}));
+
+// Deterministic labels: t(key) => key — assertions target raw i18n keys.
+vi.mock('@/shared/lib/i18n/hooks', () => ({
+  useLanguage: () => ({
+    t: (key: string) => key,
+    language: 'en',
+    setLanguage: vi.fn(),
+    toggleLanguage: vi.fn(),
+    isTransitioning: false,
+  }),
+}));
+
+vi.mock('@/shared/lib/contexts/ToastContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/contexts/ToastContext')>()),
+  useToast: () => ({ addToast, removeToast: vi.fn() }),
+}));
+
+// Store holder instead of StoreProvider: `features → app` is a banned FSD
+// hop. Dispatch simulates the add/update reducers for real state checks.
+vi.mock('react-redux', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-redux')>();
+  return {
+    ...actual,
+    useSelector: (selector: (state: typeof holder.state) => unknown) => selector(holder.state),
+    useDispatch:
+      () => (action: { type?: string; payload?: Job | ({ id: string } & Partial<Job>) }) => {
+        if (action?.type === 'adminJobs/addJob' && action.payload) {
+          holder.state.adminJobs = [...holder.state.adminJobs, action.payload as Job];
+        }
+        if (action?.type === 'adminJobs/updateJob' && action.payload) {
+          const payload = action.payload as { id: string } & Partial<Job>;
+          holder.state.adminJobs = holder.state.adminJobs.map((job) =>
+            job.id === payload.id ? { ...job, ...payload } : job
+          );
+        }
+        return action;
+      },
+  };
+});
+
+const EXISTING: Job = {
+  id: 'job-1',
+  company: 'Acme Corp',
+  position: { en: 'Developer', ru: 'Разработчик' },
+  period: '2020 — 2022',
+  startDate: new Date('2020-01-01'),
+  endDate: new Date('2022-01-01'),
+  description: { en: ['Built things'], ru: ['Строил вещи'] },
+  technologies: ['React'],
+  location: 'Remote',
+  current: false,
+  employmentType: 'full-time',
+  level: 'middle',
+  companyUrl: 'https://acme.example',
+  featured: false,
+};
+
+/** Fill the create form with a §7-valid record. */
+const fillValidForm = () => {
+  fireEvent.change(screen.getByLabelText('adminJobPositionEn'), {
+    target: { value: 'Senior Developer' },
+  });
+  fireEvent.change(screen.getByLabelText('adminJobPositionRu'), {
+    target: { value: 'Старший разработчик' },
+  });
+  fireEvent.change(screen.getByLabelText('adminJobCompany'), { target: { value: 'New Co' } });
+  fireEvent.change(screen.getByLabelText('adminJobStartDate'), {
+    target: { value: '2023-05-01' },
+  });
+  fireEvent.change(screen.getByLabelText('adminJobEndDate'), {
+    target: { value: '2024-05-01' },
+  });
+  fireEvent.change(screen.getByLabelText('adminJobLocation'), { target: { value: 'Berlin' } });
+  // description defaults to one empty bullet per locale — §7-valid already.
+};
+
+describe('JobForm', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    persistSpy.mockReturnValue(true);
+    holder.state.adminJobs = [EXISTING];
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders every field group with its i18n label', () => {
+    render(<JobForm />);
+
+    for (const label of [
+      'adminJobPositionEn',
+      'adminJobPositionRu',
+      'adminJobCompany',
+      'adminJobCompanyUrl',
+      'adminJobStartDate',
+      'adminJobEndDate',
+      'adminJobStatus',
+      'adminJobLocation',
+      'adminJobEmploymentType',
+      'adminJobLevel',
+      'adminJobTechnologies',
+    ]) {
+      expect(screen.getByLabelText(label)).toBeInTheDocument();
+    }
+    expect(screen.getByRole('button', { name: 'adminJobSave' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'adminJobCancel' })).toBeInTheDocument();
+  });
+
+  it('surfaces §7 inline errors as i18n keys and blocks the submit', async () => {
+    render(<JobForm />);
+    const submit = screen.getByRole('button', { name: 'adminJobSave' });
+    expect(submit).toBeDisabled(); // pristine
+
+    // Dirty the company with one character → below the 2-char minimum.
+    fireEvent.change(screen.getByLabelText('adminJobCompany'), { target: { value: 'A' } });
+    fireEvent.click(submit);
+
+    // zodResolver validates asynchronously — wait for the inline error.
+    await waitFor(() => expect(screen.getByText('adminJobErrCompany')).toBeInTheDocument());
+    expect(persistSpy).not.toHaveBeenCalled();
+  });
+
+  it('disables endDate while the status select is current (A6)', () => {
+    render(<JobForm />);
+    const endDate = screen.getByLabelText('adminJobEndDate');
+    expect(endDate).toBeEnabled();
+
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'current' },
+    });
+    expect(endDate).toBeDisabled();
+  });
+
+  // ---- WU-4: kit DatePicker pilot -------------------------------------
+
+  it('renders both date fields as kit DatePickers (calendar triggers)', () => {
+    render(<JobForm />);
+    expect(screen.getAllByRole('button', { name: 'calendarOpen' })).toHaveLength(2);
+  });
+
+  it('disables the endDate calendar trigger while the status select is current (A6)', () => {
+    render(<JobForm />);
+    const triggers = screen.getAllByRole('button', { name: 'calendarOpen' });
+    expect(triggers[1]).toBeEnabled();
+
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'current' },
+    });
+    expect(triggers[1]).toBeDisabled();
+  });
+
+  it('bounds the endDate calendar with minDate = startDate', () => {
+    render(<JobForm />);
+    // First day of NEXT month: every day of the current-month view is
+    // earlier than minDate → the whole grid must be aria-disabled.
+    const next = new Date();
+    next.setDate(1);
+    next.setMonth(next.getMonth() + 1);
+    const iso = `${next.getFullYear()}-${`${next.getMonth() + 1}`.padStart(2, '0')}-01`;
+    fireEvent.change(screen.getByLabelText('adminJobStartDate'), { target: { value: iso } });
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'calendarOpen' })[1] as HTMLElement);
+    // Visible cells = only the in-month days (padding is aria-hidden); the
+    // current-month view is entirely before the first of NEXT month.
+    const cells = screen.getAllByRole('gridcell');
+    expect(cells.length).toBeGreaterThanOrEqual(28);
+    for (const cell of cells) {
+      expect(cell).toHaveAttribute('aria-disabled', 'true');
+    }
+  });
+
+  // ---- rev.5: status select (job-status-select, variant A) ---------------
+
+  it('renders the status select with three options and no checkboxes (R-1)', () => {
+    render(<JobForm />);
+
+    const select = screen.getByLabelText('adminJobStatus');
+    const options = within(select).getAllByRole('option');
+    expect(options.map((option) => option.textContent)).toEqual([
+      'adminJobStatusNone',
+      'adminJobCurrent',
+      'adminJobFeatured',
+    ]);
+    expect(select).toHaveValue(''); // create default = standard entry (R-2)
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+  });
+
+  it('maps the status select onto dates and dirty state (R-1)', () => {
+    render(<JobForm />);
+    const select = screen.getByLabelText('adminJobStatus');
+    const endDate = screen.getByLabelText('adminJobEndDate');
+    const save = screen.getByRole('button', { name: 'adminJobSave' });
+
+    expect(endDate).toBeEnabled();
+    expect(save).toBeDisabled(); // pristine
+
+    // 'featured' — a label flag only: dates stay editable, form goes dirty.
+    fireEvent.change(select, { target: { value: 'featured' } });
+    expect(select).toHaveValue('featured');
+    expect(endDate).toBeEnabled();
+    expect(save).toBeEnabled();
+
+    // 'current' (A6): endDate cleared + disabled via toggleCurrent parity.
+    fireEvent.change(select, { target: { value: 'current' } });
+    expect(endDate).toBeDisabled();
+    expect(endDate).toHaveValue('');
+
+    // Back to '' — both flags off, dates editable again.
+    fireEvent.change(select, { target: { value: '' } });
+    expect(select).toHaveValue('');
+    expect(endDate).toBeEnabled();
+  });
+
+  const PREFILL_CASES: {
+    name: string;
+    flags: { current: boolean; featured: boolean };
+    expected: string;
+  }[] = [
+    { name: 'standard', flags: { current: false, featured: false }, expected: '' },
+    { name: 'current', flags: { current: true, featured: false }, expected: 'current' },
+    { name: 'featured', flags: { current: false, featured: true }, expected: 'featured' },
+    // Variant A: the functional flag wins the display…
+    { name: 'both flags', flags: { current: true, featured: true }, expected: 'current' },
+  ];
+
+  for (const { name, flags, expected } of PREFILL_CASES) {
+    it(`prefills the status select for a ${name} record (R-2)`, () => {
+      render(<JobForm job={{ ...EXISTING, ...flags }} />);
+      expect(screen.getByLabelText('adminJobStatus')).toHaveValue(expected);
+    });
+  }
+
+  it('persists the selected status flags on create (R-1)', async () => {
+    render(<JobForm />);
+    fillValidForm();
+    fireEvent.change(screen.getByLabelText('adminJobStatus'), {
+      target: { value: 'featured' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    const created = persisted[1];
+    expect(created?.featured).toBe(true);
+    expect(created?.current).toBe(false);
+  });
+
+  it('normalizes a both-flags record to current-only on save (R-2)', async () => {
+    const onExitEdit = vi.fn();
+    render(
+      <JobForm job={{ ...EXISTING, current: true, featured: true }} onExitEdit={onExitEdit} />
+    );
+    // Variant A: the select shows 'current'; Save must drop `featured`, so
+    // the displayed state and the persisted record can never diverge.
+    expect(screen.getByLabelText('adminJobStatus')).toHaveValue('current');
+
+    fireEvent.change(screen.getByLabelText('adminJobLocation'), {
+      target: { value: 'Berlin' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]?.current).toBe(true);
+    expect(persisted[0]?.featured).toBe(false);
+    expect(onExitEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates: persist FIRST, then dispatch, toast, reset', async () => {
+    render(<JobForm />);
+    fillValidForm();
+
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    expect(persisted).toHaveLength(2); // seed + created
+    const created = persisted[1];
+    expect(created?.company).toBe('New Co');
+    expect(created?.period).toBe('2023 — 2024'); // A5: recomputed, never entered
+    expect(created?.current).toBe(false);
+    expect(created?.endDate).toBeInstanceOf(Date);
+    expect(addJobSpy).toHaveBeenCalledTimes(1);
+    expect(addToast).toHaveBeenCalledWith({ message: 'adminJobSaved', type: 'success' });
+    expect(holder.state.adminJobs).toHaveLength(2);
+  });
+
+  it('keeps the form and skips dispatch when persist fails (§3)', async () => {
+    persistSpy.mockReturnValue(false);
+    render(<JobForm />);
+    fillValidForm();
+
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ message: 'adminJobPersistError', type: 'error' })
+    );
+    expect(addJobSpy).not.toHaveBeenCalled();
+    expect(holder.state.adminJobs).toHaveLength(1);
+    expect(screen.getByLabelText('adminJobCompany')).toHaveValue('New Co');
+  });
+
+  it('edits: applyJobUpdate recomputes period, dispatch + exit', async () => {
+    const onExitEdit = vi.fn();
+    render(<JobForm job={EXISTING} onExitEdit={onExitEdit} />);
+
+    // Start moves a year later → period must follow (never hand-entered).
+    fireEvent.change(screen.getByLabelText('adminJobStartDate'), {
+      target: { value: '2021-05-01' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobSave' }));
+
+    await waitFor(() => expect(persistSpy).toHaveBeenCalledTimes(1));
+    const persisted = persistSpy.mock.calls[0]?.[0] as Job[];
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]?.startDate.getFullYear()).toBe(2021);
+    expect(persisted[0]?.period).toBe('2021 — 2022');
+    expect(updateJobSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'job-1', startDate: expect.any(Date) })
+    );
+    expect(onExitEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('supports add/remove/reorder of description bullets', () => {
+    render(<JobForm />);
+    const addButtons = screen.getAllByRole('button', { name: 'adminJobAddBullet' });
+    expect(addButtons).toHaveLength(2); // en + ru blocks
+
+    const enBlock = screen.getByTestId('job-bullets-en');
+    expect(within(enBlock).getAllByRole('textbox')).toHaveLength(1);
+
+    fireEvent.click(addButtons[0] as HTMLElement);
+    expect(within(enBlock).getAllByRole('textbox')).toHaveLength(2);
+
+    const remove = within(enBlock).getAllByRole('button', {
+      name: 'adminJobRemoveBullet',
+    })[1] as HTMLElement;
+    fireEvent.click(remove);
+    expect(within(enBlock).getAllByRole('textbox')).toHaveLength(1);
+  });
+
+  // ---- WU-3: bullet editor kit restyle (SPEC R-6) -----------------------
+
+  it('carries kit Paragraph classes on the bullet input (R-6 asChild path)', () => {
+    render(<JobForm />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+    const input = within(enBlock).getAllByRole('textbox')[0] as HTMLElement;
+    expect(input).toHaveClass(/paragraph/);
+    expect(input).toHaveAttribute('data-size', 'xs');
+    expect(input).toHaveAttribute('data-theme', 'primary');
+    expect(input).toHaveAttribute('data-align', 'left');
+  });
+
+  it('exposes IconButtons per bullet with the R-6 disabled matrix', () => {
+    render(<JobForm />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+
+    // Single bullet: every action is disabled (↑ first, ↓ last, × length<=1).
+    const up = within(enBlock).getByRole('button', { name: 'adminJobBulletUp' });
+    const down = within(enBlock).getByRole('button', { name: 'adminJobBulletDown' });
+    const remove = within(enBlock).getByRole('button', { name: 'adminJobRemoveBullet' });
+    expect(up).toBeDisabled();
+    expect(down).toBeDisabled();
+    expect(remove).toBeDisabled();
+    expect(up).toHaveAttribute('data-testid', 'icon-button');
+
+    fireEvent.click(within(enBlock).getByRole('button', { name: 'adminJobAddBullet' }));
+    const ups = within(enBlock).getAllByRole('button', { name: 'adminJobBulletUp' });
+    const downs = within(enBlock).getAllByRole('button', { name: 'adminJobBulletDown' });
+    const removes = within(enBlock).getAllByRole('button', { name: 'adminJobRemoveBullet' });
+    expect(ups[0]).toBeDisabled();
+    expect(ups[1]).toBeEnabled();
+    expect(downs[0]).toBeEnabled();
+    expect(downs[1]).toBeDisabled();
+    expect(removes[0]).toBeEnabled();
+    expect(removes[1]).toBeEnabled();
+  });
+
+  it('moves a bullet up via the IconButtons without changing the wiring', () => {
+    render(<JobForm job={EXISTING} />);
+    const enBlock = screen.getByTestId('job-bullets-en');
+
+    fireEvent.click(within(enBlock).getByRole('button', { name: 'adminJobAddBullet' }));
+    const inputs = within(enBlock).getAllByRole('textbox');
+    fireEvent.change(inputs[1] as HTMLElement, { target: { value: 'Second bullet' } });
+
+    const ups = within(enBlock).getAllByRole('button', { name: 'adminJobBulletUp' });
+    fireEvent.click(ups[1] as HTMLElement);
+
+    const after = within(enBlock).getAllByRole('textbox');
+    expect(after[0]).toHaveValue('Second bullet');
+    expect(after[1]).toHaveValue('Built things');
+  });
+
+  it('supports the technologies chip editor (add + remove)', () => {
+    render(<JobForm />);
+
+    fireEvent.change(screen.getByLabelText('adminJobTechnologies'), {
+      target: { value: 'TypeScript' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'adminJobAddTech' }));
+
+    const chips = screen.getByTestId('job-tech-chips');
+    expect(within(chips).getByText('TypeScript')).toBeInTheDocument();
+
+    fireEvent.click(within(chips).getByRole('button', { name: 'adminJobRemoveTech-TypeScript' }));
+    expect(within(chips).queryByText('TypeScript')).not.toBeInTheDocument();
+  });
+});

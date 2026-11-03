@@ -13,6 +13,8 @@ const paths: BuildPath = {
   src: '/repo/src',
   locales: '/repo/src/shared/lib/i18n/locales',
   buildLocales: '/repo/public/locales',
+  imagesProjects: '/repo/src/shared/assets/images/projects',
+  buildImagesProjects: '/repo/public/images/projects',
   app: '/repo/src/app',
   pages: '/repo/src/pages',
   entities: '/repo/src/entities',
@@ -68,7 +70,7 @@ describe('buildPlugins', () => {
     expect(names).not.toContain('visualizer');
   });
 
-  it('always registers the svg transform and static locale copy', () => {
+  it('always registers the svg transform and static-copy plugin', () => {
     const names = pluginNames(buildPlugins(makeOptions()));
 
     expect(names).toContain('vite-plugin-scss-unused-analyzer');

@@ -1,0 +1,88 @@
+// Seed tests (plan Contact CRUD §5 + R-8: seed must BE the current locales).
+
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+import { ContactContentSchema, CONTACT_EMAIL } from '@/entities/ContactContent';
+// Public API only (fsd-imports/tests-public-api-only): the bundled en locale
+// the i18n instance reads, exposed as `resources`.
+import { resources } from '@/shared/lib/i18n';
+
+import { createContactSeed } from './seed';
+
+const en = resources.en.translation;
+// ru reads from DISK, not the runtime bundle: the ru locale is lazy (issue
+// #298) and locales-parity.test.ts drift-locks SEED_RU_TEXTS to ru.json —
+// the seed must equal the ON-DISK ru.json either way (artifact-under-test
+// precedent, the same readFileSync the parity/invariant tests use).
+const ru: Record<string, string> = JSON.parse(
+  readFileSync(join(resolve(__dirname, '../../../../shared/lib/i18n/locales'), 'ru.json'), 'utf8')
+);
+
+const TEXT_KEYS = [
+  'contactDescription',
+  'responseTimeHint',
+  'nameField',
+  'email',
+  'message',
+  'namePlaceholder',
+  'emailPlaceholder',
+  'messagePlaceholder',
+  'sendMessage',
+  'sending',
+] as const;
+
+const FORM_TEXT_KEYS = [
+  'contactFormRequired',
+  'contactFormSent',
+  'contactFormError',
+  'contactFormConfigError',
+] as const;
+
+describe('createContactSeed', () => {
+  it('takes email from CONTACT_EMAIL (single source, R-2)', () => {
+    expect(createContactSeed().email).toBe(CONTACT_EMAIL);
+  });
+
+  it('texts equal the current locale values (drift guard, R-8)', () => {
+    const { texts } = createContactSeed();
+    for (const key of TEXT_KEYS) {
+      expect(texts[key]).toEqual({ en: en[key], ru: ru[key] });
+    }
+  });
+
+  it('formTexts equal the current locale values (drift guard, R-8)', () => {
+    const { formTexts } = createContactSeed();
+    for (const key of FORM_TEXT_KEYS) {
+      expect(formTexts[key]).toEqual({ en: en[key], ru: ru[key] });
+    }
+  });
+
+  it('never includes the shared `contact` nav key (split-brain guard)', () => {
+    const { texts } = createContactSeed();
+    expect(Object.keys(texts)).not.toContain('contact');
+    expect(Object.keys(texts)).toHaveLength(TEXT_KEYS.length);
+  });
+
+  it('derives socialLinks from the shared SOCIAL_LINKS (slugs, S4)', () => {
+    const { socialLinks } = createContactSeed();
+    expect(Object.keys(socialLinks)).toEqual(['github', 'linkedin', 'telegram']);
+    expect(socialLinks.github).toEqual({
+      name: 'GitHub',
+      href: 'https://github.com/konstantin-atroshchenko',
+    });
+  });
+
+  it('always produces a schema-valid document (locales can never exceed limits)', () => {
+    expect(ContactContentSchema.safeParse(createContactSeed()).success).toBe(true);
+  });
+
+  it('returns a fresh object each call (no shared mutable state)', () => {
+    const a = createContactSeed();
+    const b = createContactSeed();
+    expect(a).not.toBe(b);
+    a.email = 'mutated@example.com';
+    expect(b.email).toBe(CONTACT_EMAIL);
+  });
+});

@@ -5,7 +5,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LanguageSwitch } from '@/features/LanguageSwitch';
 import { ThemeSwitch } from '@/features/ThemeSwitch';
-import type { NavControlsProps } from '../../model/types';
+import type { NavControlsProps } from '../../model/types/types';
 import { NavControls } from './NavControls';
 
 // Deterministic spies — created via vi.hoisted so BOTH the vi.mock factories

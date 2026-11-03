@@ -1,0 +1,30 @@
+// ============================================
+
+// AboutFieldEditForm — one-field modal layout (admin-about-table WU-4)
+
+// ============================================
+
+// Layout only: spacing via the $spacing-* scale, colors from inherited
+
+// tokens — no hardcoded values (SPEC R-6/plan §8). Same shape as the
+
+// AdminJobs FieldEditForm chrome.
+
+@use '@/shared/styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-2;
+}

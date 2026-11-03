@@ -11,8 +11,11 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
  * Форма аватара
  * @circle - круглый (50% border-radius)
  * @square - квадратный со скруглёнными углами
+ * @portrait - портретный вариант: без chrome (border/background/radius),
+ *   заполняет контейнер потребителя (fill-container) — для вырезанных
+ *   PNG/WebP-портретов (About vitrina, D14)
  */
-export type AvatarVariant = 'circle' | 'square';
+export type AvatarVariant = 'circle' | 'square' | 'portrait';
 
 /**
  * Props для основного компонента Avatar
@@ -20,6 +23,10 @@ export type AvatarVariant = 'circle' | 'square';
 export interface AvatarProps {
   /** URL изображения аватара */
   src?: string;
+  /** Универсальный srcSet для responsive-портретов (media-pipeline WU-4). */
+  srcSet?: string;
+  /** Повысить приоритет загрузки для above-the-fold (media-pipeline WU-4). */
+  priority?: boolean;
   /** Альтернативный текст для доступности (используется для инициалов) */
   alt?: string;
   /** Размер аватара */

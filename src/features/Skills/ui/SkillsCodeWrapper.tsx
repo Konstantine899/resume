@@ -1,7 +1,7 @@
 import { Code } from '@/shared/ui/Code';
 import React from 'react';
 import SkillsCode from './SkillsCode/SkillsCode';
-import styles from './Skills.module.scss';
+import styles from './Skills/Skills.module.scss';
 
 export interface SkillsCodeWrapperProps {
   /** Localized role, passed down to the hook-free `SkillsCode` snippet */

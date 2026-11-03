@@ -297,6 +297,167 @@ describe('Tooltip', () => {
     });
   });
 
+  // issue #222: комбинированный триггер hover + focus.
+  describe('Combined trigger (hover + focus)', () => {
+    it('открывает tooltip по focus', async () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+
+      fireEvent.focus(screen.getByText('Combined'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('открывает tooltip по hover', async () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+
+      fireEvent.mouseEnter(screen.getByText('Combined'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+    });
+
+    it('unhover НЕ закрывает тултип, открытый по focus; blur закрывает', async () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+      const trigger = screen.getByText('Combined');
+
+      fireEvent.focus(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      // Курсор залетел и тут же ушёл — фокус всё ещё держит подсказку.
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseLeave(trigger);
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // Фокуса нет и курсор не наведён — blur закрывает.
+      fireEvent.blur(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('blur НЕ закрывает тултип, открытый по hover, пока курсор наведён', async () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+      const trigger = screen.getByText('Combined');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      // Фокус пришёл и ушёл, но курсор всё ещё над триггером.
+      fireEvent.focus(trigger);
+      fireEvent.blur(trigger);
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // Курсор ушёл, фокуса нет — закрывается.
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('перечисляет активные режимы в data-tooltip-trigger', () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+
+      expect(screen.getByText('Combined').parentElement).toHaveAttribute(
+        'data-tooltip-trigger',
+        'hover focus'
+      );
+    });
+
+    it('НЕ получает role/tabIndex обёртки (нет вложенного интерактивного виджета)', () => {
+      render(
+        <Tooltip content="Combined tooltip" trigger={['hover', 'focus']}>
+          <button>Combined</button>
+        </Tooltip>
+      );
+
+      const wrapper = screen.getByText('Combined').parentElement;
+      expect(wrapper).not.toHaveAttribute('role');
+      expect(wrapper).not.toHaveAttribute('tabindex');
+    });
+  });
+
+  // Characterization: одиночные режимы НЕ меняются (легаси-поведение).
+  describe('Single modes stay strict (characterization)', () => {
+    it('hover-режим: focus НЕ открывает тултип', async () => {
+      render(
+        <Tooltip content="Hover only" trigger="hover">
+          <button>Hover only</button>
+        </Tooltip>
+      );
+
+      fireEvent.focus(screen.getByText('Hover only'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('focus-режим: mouseenter НЕ открывает тултип', async () => {
+      render(
+        <Tooltip content="Focus only" trigger="focus">
+          <button>Focus only</button>
+        </Tooltip>
+      );
+
+      fireEvent.mouseEnter(screen.getByText('Focus only'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+
+    it('focus-режим: blur закрывает, даже если курсор наведён (кросс-защита не проникает)', async () => {
+      render(
+        <Tooltip content="Focus only" trigger="focus">
+          <button>Focus only</button>
+        </Tooltip>
+      );
+      const trigger = screen.getByText('Focus only');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.focus(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      });
+
+      fireEvent.blur(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Accessibility', () => {
     it('должен иметь aria-describedby когда tooltip виден', async () => {
       render(

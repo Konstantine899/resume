@@ -8,7 +8,7 @@ import { Link } from '@/shared/ui/Link';
 import { Download } from 'lucide-react';
 import React from 'react';
 import { CTA_HREF } from '../../model/constants';
-import type { CtaButtonProps } from '../../model/types';
+import type { CtaButtonProps } from '../../model/types/types';
 
 /**
  * Resume CTA of the Nav right side (issue #138, T5).

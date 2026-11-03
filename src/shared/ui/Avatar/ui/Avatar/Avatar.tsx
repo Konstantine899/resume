@@ -41,6 +41,8 @@ import styles from './Avatar.module.scss';
 function AvatarImpl<C extends React.ElementType = 'div'>(
   {
     src,
+    srcSet,
+    priority = false,
     alt = 'Avatar placeholder',
     size = 'md',
     variant = 'circle',
@@ -85,14 +87,23 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
 
   const Tag = component ?? 'div';
 
+  // D14: portrait maps onto the chrome-less Image variant — transparent
+  // container, contain fit, fill-container sizing (no fixed px width/height).
+  const isPortrait = variant === 'portrait';
+  const imageVariant = isPortrait ? 'transparent' : variant === 'circle' ? 'circular' : 'rounded';
+
+  // Empty alt = decorative avatar (About vitrina portrait): role="img" with an
+  // empty accessible name violates axe `role-img-alt`, and the plain decorative
+  // Image this replaces exposed nothing either — keep the root neutral.
+  const isDecorative = alt.trim() === '';
+
   /* eslint-disable react-hooks/refs */
   return createElement(
     Tag,
     {
       ref,
       className: avatarClassName,
-      role: 'img',
-      'aria-label': alt,
+      ...(isDecorative ? {} : { role: 'img', 'aria-label': alt }),
       'data-state': imageStatus,
       'data-size': size,
       'data-variant': variant,
@@ -104,21 +115,28 @@ function AvatarImpl<C extends React.ElementType = 'div'>(
       {showRing && <div className={styles.ring} />}
 
       {showFallback ? (
-        <div className={styles.fallback}>
-          {fallback || <AvatarFallback name={alt} size={size} variant={variant} />}
-        </div>
+        // Portrait must not paint the initials circle over the transparent
+        // portrait box — an explicit consumer fallback is still honored.
+        isPortrait && !fallback ? null : (
+          <div className={styles.fallback}>
+            {fallback || <AvatarFallback name={alt} size={size} variant={variant} />}
+          </div>
+        )
       ) : (
         <Image
-          src={src || ''}
+          src={srcSet ? { src: src || '', srcSet } : src || ''}
           alt=""
           decorative
-          variant={variant === 'circle' ? 'circular' : 'rounded'}
-          width={avatarWidth}
-          height={avatarWidth}
+          variant={imageVariant}
+          objectFit={isPortrait ? 'contain' : undefined}
+          size={isPortrait ? 'full' : undefined}
+          width={isPortrait ? undefined : avatarWidth}
+          height={isPortrait ? undefined : avatarWidth}
           placeholder={showSkeleton ? 'skeleton' : 'color'}
           showPlaceholder={showSkeleton}
           forceLoading={forceLoading}
           className={styles.image}
+          priority={priority}
           onLoadSuccess={handleLoadSuccess}
           onLoadError={handleLoadError}
         />

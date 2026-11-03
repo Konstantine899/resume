@@ -10,7 +10,7 @@
 //   - disableAnimation / prefers-reduced-motion skip the delay entirely
 //   - StrictMode double-invoke does not break scheduling
 
-import { StrictMode, type ReactNode } from 'react';
+import { StrictMode, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MODAL_CLOSE_DURATION_MS } from '../../model/constants';
@@ -96,7 +96,8 @@ describe('useModalRoot close scheduling (M6)', () => {
 
     expect(result.current.isClosing).toBe(false);
     expect(result.current.modalClassName).not.toContain(closingClass);
-    expect(vi.getTimerCount()).toBe(0); // pending timer cleared
+    // 0 exit timers + 1 active `select:open` poll (modal reopened → #232)
+    expect(vi.getTimerCount()).toBe(1); // pending timer cleared
 
     // A stale callback must not resurrect the closing state
     act(() => {
@@ -190,7 +191,8 @@ describe('useModalRoot close scheduling (M6)', () => {
     rerender({ children: null, isOpen: true, onClose, forceMount: true });
     expect(result.current.isClosing).toBe(false);
     expect(result.current.modalClassName).not.toContain(closingClass);
-    expect(vi.getTimerCount()).toBe(0);
+    // 0 exit timers + 1 active `select:open` poll (modal open → #232)
+    expect(vi.getTimerCount()).toBe(1);
 
     act(() => {
       vi.advanceTimersByTime(MODAL_CLOSE_DURATION_MS * 2);
@@ -222,5 +224,147 @@ describe('useModalRoot close scheduling (M6)', () => {
 
     expect(firstOnClosed).not.toHaveBeenCalled();
     expect(secondOnClosed).not.toHaveBeenCalled();
+  });
+});
+
+// ============================================
+// #232 — select-picker light-dismiss vs overlay press
+// ============================================
+//
+// Chrome closes an open base-select picker BEFORE dispatching the overlay
+// `pointerdown` and leaves NO signal (no toggle event, defaultPrevented stays
+// false, `select:open` is already false at document-capture). The modal must
+// still learn that THIS press only meant "dismiss the picker": a sticky flag
+// set by the `select:open` poll consumes exactly one overlay press, so the
+// next press closes the modal (owner acceptance criterion, issue #232).
+describe('useModalRoot select-picker overlay press (#232)', () => {
+  const onClose = vi.fn<() => void>();
+
+  // Plain object cast: only `defaultPrevented` is read before consumers
+  // (onPointerDownOutside is absent in these tests).
+  const overlayPress = () =>
+    ({ defaultPrevented: false }) as unknown as ReactPointerEvent<HTMLDivElement>;
+
+  const attachedRoots: HTMLElement[] = [];
+
+  // Creates a dialog-like root attached to the document: the hook's
+  // inner-pointerdown clear listens on `document` (capture), so a detached
+  // root would never see bubbling events — the real dialog is always attached.
+  const attachRoot = () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    attachedRoots.push(root);
+    return root;
+  };
+
+  // Simulate the poll tick seeing an open picker (jsdom has no real picker).
+  const setPickerOpen = (root: HTMLElement) =>
+    vi.spyOn(root, 'querySelector').mockReturnValue(document.createElement('select'));
+
+  const tick = (ms = 125) => {
+    act(() => {
+      vi.advanceTimersByTime(ms);
+    });
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.clearAllMocks();
+    resetOpenCount();
+    resetLayerManager();
+  });
+
+  afterEach(() => {
+    cleanup();
+    resetOpenCount();
+    resetLayerManager();
+    document.body.style.overflow = '';
+    vi.useRealTimers();
+    for (const root of attachedRoots) root.remove();
+    attachedRoots.length = 0;
+  });
+
+  it('consumes the first overlay press while the picker was open; the second press closes the modal', () => {
+    const { result } = renderModalRoot({ children: null, isOpen: true, onClose });
+    const root = attachRoot();
+    result.current.modalRef.current = root;
+    const querySpy = setPickerOpen(root);
+
+    tick(); // poll observes `select:open` → flag set
+
+    act(() => {
+      result.current.handleOverlayPointerDown(overlayPress());
+    });
+    expect(onClose).not.toHaveBeenCalled(); // press #1 = picker dismissal only
+
+    // Chrome already dismissed the picker on press #1 → poll now sees closed.
+    querySpy.mockReturnValue(null);
+    tick();
+
+    act(() => {
+      result.current.handleOverlayPointerDown(overlayPress());
+    });
+    expect(onClose).toHaveBeenCalledTimes(1); // press #2 closes the modal
+  });
+
+  it('keeps the flag clear when the browser cannot match :open (jsdom) — poll never throws', () => {
+    const { result } = renderModalRoot({ children: null, isOpen: true, onClose });
+    const root = attachRoot();
+    result.current.modalRef.current = root;
+    root.appendChild(document.createElement('select'));
+
+    tick(1000); // real querySelector('select:open') — unsupported pseudo must not throw
+
+    act(() => {
+      result.current.handleOverlayPointerDown(overlayPress());
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears the flag on Escape even when the browser default-prevented it (innermost-first, like the key path)', () => {
+    const { result } = renderModalRoot({ children: null, isOpen: true, onClose });
+    const root = attachRoot();
+    result.current.modalRef.current = root;
+    setPickerOpen(root);
+    tick(); // flag set
+
+    // Real browser flow with an open picker: Chrome preventDefaults the Escape
+    // (probe3) → the hook must not close the modal, only drop the flag.
+    const prevent = (e: Event) => e.preventDefault();
+    document.addEventListener('keydown', prevent, true);
+    try {
+      act(() => {
+        document.body.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+        );
+      });
+    } finally {
+      document.removeEventListener('keydown', prevent, true);
+    }
+    expect(onClose).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.handleOverlayPointerDown(overlayPress());
+    });
+    expect(onClose).toHaveBeenCalledTimes(1); // flag was cleared by Escape
+  });
+
+  it('clears the flag on a pointerdown inside the modal (press on the select itself)', () => {
+    const { result } = renderModalRoot({ children: null, isOpen: true, onClose });
+    const root = attachRoot();
+    result.current.modalRef.current = root;
+    setPickerOpen(root);
+    tick(); // flag set
+
+    const inner = document.createElement('button');
+    root.appendChild(inner);
+    act(() => {
+      inner.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+    });
+
+    act(() => {
+      result.current.handleOverlayPointerDown(overlayPress());
+    });
+    expect(onClose).toHaveBeenCalledTimes(1); // flag was cleared by the inner press
   });
 });

@@ -36,7 +36,12 @@ function walk(dir, out = []) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
       walk(full, out);
-    } else if (entry.endsWith('.js') || entry.endsWith('.css')) {
+    } else if (!entry.endsWith('.html')) {
+      // Everything except HTML documents: index.html is the entry shell and
+      // stats.html is the optional ANALYZE=1 report — neither is a runtime
+      // asset. .js/.css keep their own checks below; every other file (webp,
+      // svg, png, …) is counted as a binary asset against assets.maxSize
+      // (issue #298: this category was never measured before).
       out.push(full);
     }
   }
@@ -44,18 +49,27 @@ function walk(dir, out = []) {
 }
 
 const files = walk(DIST);
-if (files.length === 0) {
-  console.error(`✗ No JS/CSS files found in ${DIST}`);
+
+const jsFiles = files.filter((f) => f.endsWith('.js'));
+const binaryFiles = files.filter((f) => !f.endsWith('.js') && !f.endsWith('.css'));
+
+if (jsFiles.length === 0) {
+  console.error(`✗ No JS files found in ${DIST}. Run build first.`);
   process.exit(1);
 }
 
-const jsFiles = files.filter((f) => f.endsWith('.js'));
 const totalSize = jsFiles.reduce((sum, f) => sum + statSync(f).size, 0);
+const binarySize = binaryFiles.reduce((sum, f) => sum + statSync(f).size, 0);
 const limit = budgets.total.maxSize;
+const assetLimit = budgets.assets.maxSize;
 const failures = [];
 
 console.log(`Bundle check — ${files.length} files, total ${(totalSize / 1024).toFixed(1)} KiB`);
-console.log(`Budget total: ${(limit / 1024).toFixed(1)} KiB\n`);
+console.log(`Budget total: ${(limit / 1024).toFixed(1)} KiB`);
+console.log(
+  `Binary assets — ${binaryFiles.length} files, ${(binarySize / 1024).toFixed(1)} KiB ` +
+    `(cap ${(assetLimit / 1024).toFixed(1)} KiB)\n`
+);
 
 for (const file of files) {
   const size = statSync(file).size;
@@ -80,6 +94,13 @@ const exceedsTotal = totalSize > limit;
 if (exceedsTotal) {
   failures.push(
     `  ✗ TOTAL = ${(totalSize / 1024).toFixed(1)} KiB > ${(limit / 1024).toFixed(1)} KiB`
+  );
+}
+
+const exceedsAssets = binarySize > assetLimit;
+if (exceedsAssets) {
+  failures.push(
+    `  ✗ ASSETS TOTAL = ${(binarySize / 1024).toFixed(1)} KiB > ${(assetLimit / 1024).toFixed(1)} KiB`
   );
 }
 

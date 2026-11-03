@@ -35,6 +35,23 @@ describe('validateTooltipProps', () => {
     ).toBe(true);
   });
 
+  // issue #222: комбинированный триггер (массив режимов).
+  it('accepts a valid trigger array without warnings', () => {
+    expect(validateTooltipProps({ trigger: ['hover', 'focus'] })).toEqual([]);
+  });
+
+  it('warns on an invalid member of a trigger array', () => {
+    expect(
+      validateTooltipProps({ trigger: ['hover', 'teleport'] as never }).some(
+        (w) => w.prop === 'trigger'
+      )
+    ).toBe(true);
+  });
+
+  it('warns on an empty trigger array (nothing would ever open)', () => {
+    expect(validateTooltipProps({ trigger: [] }).some((w) => w.prop === 'trigger')).toBe(true);
+  });
+
   it('warns when showDelay is negative', () => {
     expect(validateTooltipProps({ showDelay: -1 }).some((w) => w.prop === 'showDelay')).toBe(true);
   });

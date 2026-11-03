@@ -5,7 +5,9 @@
 // against, and (c) keep node_modules/react-hit packages inside "vendor" exactly
 // as they are today — EXCEPT react-hook-form, which follows the lazy
 // /admin/about editor into its own route chunk (About CRUD WU-4: the form
-// left main, so RHF no longer needs the vendor substring match).
+// left main, so RHF no longer needs the vendor substring match), and
+// (d) route zod core into a dedicated "zod" chunk (issue #298) while leaving
+// @hookform/resolvers/zod with its lazy importer.
 import { describe, expect, it } from 'vitest';
 
 import { buildViteConfig, resolveManualChunk } from '../buildViteConfig.ts';
@@ -15,6 +17,8 @@ const paths: BuildPath = {
   src: '/repo/src',
   locales: '/repo/src/shared/lib/i18n/locales',
   buildLocales: '/repo/public/locales',
+  imagesProjects: '/repo/src/shared/assets/images/projects',
+  buildImagesProjects: '/repo/public/images/projects',
   app: '/repo/src/app',
   pages: '/repo/src/pages',
   entities: '/repo/src/entities',
@@ -36,9 +40,13 @@ function makeOptions(overrides: Partial<BuildOptions> = {}): BuildOptions {
 }
 
 describe('resolveManualChunk', () => {
-  it('routes bundled locale JSON into the i18n chunk', () => {
+  it('routes bundled locale JSON into the i18n chunk, except the lazy ru locale', () => {
     expect(resolveManualChunk('/repo/src/shared/lib/i18n/locales/en.json')).toBe('i18n');
-    expect(resolveManualChunk('D:\\repo\\src\\shared\\lib\\i18n\\locales\\ru.json')).toBe('i18n');
+    // ru.json is loaded lazily via dynamic import (loadRu, issue #298): it must
+    // NOT be forced into the static i18n chunk, or it would be modulepreloaded.
+    expect(
+      resolveManualChunk('D:\\repo\\src\\shared\\lib\\i18n\\locales\\ru.json')
+    ).toBeUndefined();
   });
 
   it('routes i18next runtime packages into the i18n chunk', () => {
@@ -50,7 +58,6 @@ describe('resolveManualChunk', () => {
   });
 
   it('stops emitting a forms chunk', () => {
-    expect(resolveManualChunk('/repo/node_modules/zod/index.js')).not.toBe('forms');
     expect(resolveManualChunk('/repo/node_modules/@hookform/resolvers/zod/index.js')).not.toBe(
       'forms'
     );
@@ -58,6 +65,18 @@ describe('resolveManualChunk', () => {
     expect(resolveManualChunk('/repo/node_modules/react-hook-form/dist/index.cjs.js')).not.toBe(
       'forms'
     );
+  });
+
+  it('routes zod core into the dedicated zod chunk, after the RHF rule (issue #298)', () => {
+    expect(resolveManualChunk('/repo/node_modules/zod/index.js')).toBe('zod');
+    expect(resolveManualChunk('/repo/node_modules/zod/v4/classic/parse.js')).toBe('zod');
+    expect(resolveManualChunk('D:\\repo\\node_modules\\zod\\index.js')).toBe('zod');
+    // @hookform/resolvers/zod must NOT match: it rides the lazy admin chunk
+    // with the form (RHF rule returns undefined first for react-hook-form
+    // itself; the resolver simply falls through to Rollup).
+    expect(
+      resolveManualChunk('/repo/node_modules/@hookform/resolvers/zod/index.js')
+    ).toBeUndefined();
   });
 
   it('keeps react-related packages in vendor', () => {
