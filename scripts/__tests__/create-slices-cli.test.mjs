@@ -179,41 +179,37 @@ describe('generate:slice CLI — phase A default spec scaffold (REQ-G14)', () =>
     await rm(root, { recursive: true, force: true });
   });
 
-  it('base tree: index + model/types/ + 4 ui files, nothing else', async () => {
+  it('base tree is exactly spec/SPEC.md + spec/TODO.md, nothing else (REQ-Q4.10)', async () => {
     const result = await runCli(['--root=' + root, 'features', 'TreeBase']);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Created src/features/TreeBase');
 
     const files = await listFiles(path.join(root, 'src', 'features', 'TreeBase'));
-    expect(files).toEqual(
-      [
-        'index.ts',
-        'model/types/index.ts',
-        'ui/TreeBase.module.scss',
-        'ui/TreeBase.stories.tsx',
-        'ui/TreeBase.test.tsx',
-        'ui/TreeBase.tsx',
-      ].sort()
-    );
+    expect(files).toEqual(['spec/SPEC.md', 'spec/TODO.md']);
   });
 
-  it('--with-slice tree adds model/slices, model/selectors and the slice test', async () => {
-    const result = await runCli(['--root=' + root, '--with-slice', 'features', 'SliceTree']);
+  it('SPEC frontmatter starts at draft and the template carries the required sections', async () => {
+    const result = await runCli(['--root=' + root, 'features', 'DraftSlice']);
     expect(result.exitCode).toBe(0);
 
-    const files = await listFiles(path.join(root, 'src', 'features', 'SliceTree'));
-    expect(files).toEqual(
-      [
-        'index.ts',
-        'model/selectors/index.ts',
-        'model/slices/sliceTreeSlice.test.ts',
-        'model/slices/sliceTreeSlice.ts',
-        'model/types/index.ts',
-        'ui/SliceTree.module.scss',
-        'ui/SliceTree.stories.tsx',
-        'ui/SliceTree.test.tsx',
-        'ui/SliceTree.tsx',
-      ].sort()
+    const spec = await readFile(
+      path.join(root, 'src', 'features', 'DraftSlice', 'spec', 'SPEC.md'),
+      'utf8'
+    );
+    expect(spec).toContain('status: draft');
+    expect(spec).toContain('## Цель');
+    expect(spec).toContain('## Критерии приёмки');
+    expect(spec).toContain('## Планируемые файлы');
+    expect(spec).toContain('`index.ts`');
+    expect(spec).toContain('`model/types/types.ts`');
+  });
+
+  it('TODO carries the storeReducers Work unit iff --with-slice (REQ-G11/G14)', async () => {
+    const plain = await runCli(['--root=' + root, 'features', 'PlainA']);
+    expect(plain.exitCode).toBe(0);
+    const plainTodo = await readFile(
+      path.join(root, 'src', 'features', 'PlainA', 'spec', 'TODO.md'),
+      'utf8'
     );
     expect(plainTodo).toContain('## Рабочие единицы');
     expect(plainTodo).not.toContain('storeReducers');
@@ -254,16 +250,8 @@ describe('generate:slice CLI — phase A default spec scaffold (REQ-G14)', () =>
   it('--dry-run prints the spec tree and writes nothing (REQ-G7)', async () => {
     const result = await runCli(['--root=' + root, '--dry-run', 'features', 'DrySlice']);
     expect(result.exitCode).toBe(0);
-    for (const planned of [
-      'index.ts',
-      'model/types/index.ts',
-      'ui/DrySlice.tsx',
-      'ui/DrySlice.test.tsx',
-      'ui/DrySlice.stories.tsx',
-      'ui/DrySlice.module.scss',
-    ]) {
-      expect(result.stdout).toContain(planned);
-    }
+    expect(result.stdout).toContain('spec/SPEC.md');
+    expect(result.stdout).toContain('spec/TODO.md');
     expect(existsSync(path.join(root, 'src'))).toBe(false);
   });
 
@@ -285,9 +273,10 @@ describe('generate:slice CLI — phase A default spec scaffold (REQ-G14)', () =>
     const forced = await runCli(['--root=' + root, '--force', 'features', 'ForceSlice']);
     expect(forced.exitCode).toBe(0);
 
-    // Generator-owned files were replaced with the new configuration.
-    expect(existsSync(path.join(sliceDir, 'model', 'slices', 'forceSliceSlice.ts'))).toBe(true);
-    expect(existsSync(path.join(sliceDir, 'model', 'selectors', 'index.ts'))).toBe(true);
+    // Spec pair replaced with the phase-A template again.
+    const specAfter = await readFile(specPath, 'utf8');
+    expect(specAfter).not.toContain('CUSTOM-MARKER');
+    expect(specAfter).toContain('status: draft');
 
     // Code and foreign files survive and foreign files are reported.
     expect(existsSync(path.join(sliceDir, 'index.ts'))).toBe(true);
@@ -604,8 +593,8 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
     expect(story).toContain('export const Default: Story');
   });
 
-  it('types/ always carries Props, and State/RootState with --with-slice', () => {
-    const types = files['model/types/index.ts'];
+  it('types/types.ts carries Props, and State/RootState with --with-slice', () => {
+    const types = files['model/types/types.ts'];
     expect(types).toContain('export interface ContentSliceProps {');
     expect(types).toContain('export type ContentSliceState = {');
     expect(types).toContain('export type ContentSliceRootState = {');
@@ -613,7 +602,7 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
     expect(types).toMatch(/interface\s+ContentSliceProps\s*\{[^}]+\}/);
   });
 
-  it('redux model follows the lazy-hydration rule in a *Slice.ts file', () => {
+  it('redux model follows the lazy-hydration rule in model/slices/<name>Slice.ts', () => {
     const slice = files['model/slices/contentSliceSlice.ts'];
     expect(slice).toBeDefined();
     expect(slice).toContain("name: 'contentSlice'");
@@ -622,11 +611,11 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
       'export const contentSliceReducer: typeof contentSliceSlice.reducer = (state, action) =>'
     );
     expect(slice).toContain('contentSliceSlice.reducer(state ?? initialState, action)');
-    expect(slice).toContain("import type { ContentSliceState } from '../types';");
+    expect(slice).toContain("import type { ContentSliceState } from '../types/types';");
   });
 
   it('selectors and the slice test read the structural root state', () => {
-    const selectors = files['model/selectors/index.ts'];
+    const selectors = files['model/selectors/selectors.ts'];
     expect(selectors).toContain('export const selectContentSliceInitialized');
     expect(selectors).toContain('(state: ContentSliceRootState): boolean');
     expect(selectors).toContain("from '../types/types'");
@@ -655,7 +644,7 @@ describe('generate:slice CLI — template content (REQ-Q4.6, REQ-T1–T8)', () =
       "export { contentSliceReducer, setInitialized } from './model/slices/contentSliceSlice';"
     );
     expect(index).toContain(
-      "export { contentSliceReducer, setInitialized } from './model/slices/contentSliceSlice';"
+      "export { selectContentSliceInitialized } from './model/selectors/selectors';"
     );
     expect(index).not.toContain('export *');
   });

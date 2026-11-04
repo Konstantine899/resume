@@ -20,8 +20,8 @@ export type { ${name}Props } from './model/types/types';
 
   if (!withSlice) return base;
 
-  return `${base}export type { ${name}State, ${name}RootState } from './model/types';
+  return `${base}export type { ${name}State, ${name}RootState } from './model/types/types';
 export { ${camel}Reducer, setInitialized } from './model/slices/${camel}Slice';
-export { select${name}Initialized } from './model/selectors';
+export { select${name}Initialized } from './model/selectors/selectors';
 `;
 }

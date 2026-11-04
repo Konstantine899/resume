@@ -11,19 +11,19 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Project } from '@/entities/Project';
+import type { ImageUploadOutcome } from '@/shared/lib/imageUpload';
 import { FieldEditForm } from './FieldEditForm';
 
-const { persistSpy, updateProjectSpy, addToast, holder, dirMocks } = vi.hoisted(() => ({
+const { persistSpy, updateProjectSpy, addToast, holder, uploadMocks } = vi.hoisted(() => ({
   persistSpy: vi.fn((_projects: unknown[]) => true),
   updateProjectSpy: vi.fn((payload: unknown) => ({ type: 'myWork/updateProject', payload })),
   addToast: vi.fn(),
   holder: { projects: [] as Project[] },
-  dirMocks: {
-    supported: vi.fn(() => true),
-    save: vi.fn(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    ),
+  uploadMocks: {
+    upload: vi.fn(async (params: { blob: Blob; name: string }): Promise<ImageUploadOutcome> => ({
+      ok: true,
+      file: { key: `/images/projects/${params.name}`, width: 1200, height: 900, variants: [] },
+    })),
   },
 }));
 
@@ -31,12 +31,12 @@ vi.mock('../../model/services/storage', () => ({
   persistProjects: persistSpy,
 }));
 
-// Issue #273: the image field now routes through the shared save-to-directory
-// flow (ProjectForm parity) — mock the imageDir service at the module boundary.
-vi.mock('@/shared/lib/imageDir', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/shared/lib/imageDir')>()),
-  isDirectoryPickerSupported: dirMocks.supported,
-  saveUploadedImage: dirMocks.save,
+// Issue #273: the image field routes through the backend upload seam
+// (`imageUpload.uploadImage`), NOT the retired File-System-Access write.
+// ProjectForm.test.tsx is the reference mock for this boundary.
+vi.mock('@/shared/lib/imageUpload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/shared/lib/imageUpload')>()),
+  uploadImage: uploadMocks.upload,
 }));
 
 vi.mock('../../model/slices/myWorkSlice', async (importOriginal) => ({
@@ -124,13 +124,12 @@ describe('FieldEditForm (mywork)', () => {
         static revokeObjectURL = vi.fn();
       }
     );
-    // imageDir defaults — some tests override per-case.
-    dirMocks.supported.mockReturnValue(true);
-    dirMocks.save.mockReset();
-    dirMocks.save.mockImplementation(
-      async (params: { blob: Blob; name: string; subdir: string }) =>
-        `/images/${params.subdir}/${params.name}`
-    );
+    // Backend upload seam default — some tests override per-case.
+    uploadMocks.upload.mockReset();
+    uploadMocks.upload.mockImplementation(async (params: { blob: Blob; name: string }) => ({
+      ok: true,
+      file: { key: `/images/projects/${params.name}`, width: 1200, height: 900, variants: [] },
+    }));
   });
 
   afterEach(() => {
@@ -151,15 +150,17 @@ describe('FieldEditForm (mywork)', () => {
 
   const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
-  /** Drive the FileUpload pipeline against the mocked canvas + imageDir. */
+  /** Drive the FileUpload pipeline against the mocked backend upload. */
   const uploadImageFile = async (fileName = 'photo.png') => {
-    // Await a NEW save call — a plain toHaveBeenCalled() passes instantly on
+    // Await a NEW upload call — a plain toHaveBeenCalled() passes instantly on
     // the second upload (the first call is still recorded).
-    const savesBefore = dirMocks.save.mock.calls.length;
+    const uploadsBefore = uploadMocks.upload.mock.calls.length;
     fireEvent.change(fileInput(), {
       target: { files: [new File(['x'], fileName, { type: 'image/png' })] },
     });
-    await waitFor(() => expect(dirMocks.save.mock.calls.length).toBeGreaterThan(savesBefore));
+    await waitFor(() =>
+      expect(uploadMocks.upload.mock.calls.length).toBeGreaterThan(uploadsBefore)
+    );
   };
 
   it('renders ONLY the active field inputs', () => {
@@ -265,16 +266,17 @@ describe('FieldEditForm (mywork)', () => {
       expect(screen.queryByLabelText('projectFieldImage')).not.toBeInTheDocument();
     });
 
-    it('picking a file writes /images/projects/<name>, enables Save, and persists it', async () => {
+    it('picking a file uploads it to the backend seam, enables Save, and persists it', async () => {
       const { onExitEdit } = renderForm('image');
       expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
 
       await uploadImageFile('photo.png');
 
-      // saveUploadedImage called with subdir 'projects'; the value becomes the path.
-      expect(dirMocks.save).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'photo.webp', subdir: 'projects' })
-      );
+      // The backend seam owns the path: (blob, name) in, media key out.
+      expect(uploadMocks.upload).toHaveBeenCalledWith({
+        blob: expect.any(Blob),
+        name: 'photo.webp',
+      });
       // The current-image path row now shows the stored path.
       expect(await screen.findByText('/images/projects/photo.webp')).toBeInTheDocument();
 
@@ -295,23 +297,8 @@ describe('FieldEditForm (mywork)', () => {
       expect(addToast).toHaveBeenCalledWith({ message: 'projectSaved', type: 'success' });
     });
 
-    it('shows projectFileUploadUnsupported when the File System Access API is missing (modal stays open)', async () => {
-      dirMocks.supported.mockReturnValue(false);
-      const { onExitEdit } = renderForm('image');
-
-      fireEvent.change(fileInput(), {
-        target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-      });
-
-      expect(await screen.findByRole('alert')).toHaveTextContent('projectFileUploadUnsupported');
-      expect(dirMocks.save).not.toHaveBeenCalled();
-      // Save stays disabled (pristine) and the modal did not exit.
-      expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
-      expect(onExitEdit).not.toHaveBeenCalled();
-    });
-
-    it('shows projectFileUploadSaveError when the directory write fails (modal stays open)', async () => {
-      dirMocks.save.mockRejectedValueOnce(new DOMException('quota', 'QuotaExceededError'));
+    it('shows projectFileUploadSaveError when the backend upload fails (modal stays open)', async () => {
+      uploadMocks.upload.mockResolvedValueOnce({ ok: false, reason: 'write-failed' });
       const { onExitEdit } = renderForm('image');
 
       fireEvent.change(fileInput(), {
@@ -324,19 +311,6 @@ describe('FieldEditForm (mywork)', () => {
       expect(screen.queryByText('/images/projects/photo.webp')).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
       expect(onExitEdit).not.toHaveBeenCalled();
-    });
-
-    it('stays silent when the user cancels the picker (AbortError)', async () => {
-      dirMocks.save.mockRejectedValueOnce(new DOMException('cancelled', 'AbortError'));
-      renderForm('image');
-
-      fireEvent.change(fileInput(), {
-        target: { files: [new File(['x'], 'photo.png', { type: 'image/png' })] },
-      });
-
-      await waitFor(() => expect(dirMocks.save).toHaveBeenCalledTimes(1));
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'projectSave' })).toBeDisabled();
     });
   });
 });

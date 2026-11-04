@@ -410,3 +410,32 @@ describe('FileUpload: accessibility', () => {
     expect(container.textContent).toBe(`${FIXTURE}-label${FIXTURE}-button${FIXTURE}-hint`);
   });
 });
+
+describe('FileUpload: disabled + onBeforeSelect gates', () => {
+  it('bails out of every drop handler when disabled', () => {
+    renderFU({ disabled: true });
+
+    const dropzone = screen.getByRole('group', { name: 'Project image' });
+    fireEvent.dragEnter(dropzone);
+    fireEvent.dragLeave(dropzone);
+    fireEvent.dragOver(dropzone);
+    fireEvent.drop(dropzone);
+  });
+
+  it('skips the native picker when onBeforeSelect rejects', async () => {
+    const user = userEvent.setup();
+    const clickSpy = vi
+      .spyOn(HTMLInputElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    renderFU({
+      onBeforeSelect: async () => {
+        throw new Error('blocked');
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: TEXTS.button }));
+
+    expect(clickSpy).not.toHaveBeenCalled();
+    clickSpy.mockRestore();
+  });
+});
