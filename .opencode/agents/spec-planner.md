@@ -1,7 +1,7 @@
 ---
 description: Fill a slice spec/ pair from feature context — SPEC.md (observable acceptance criteria + Plan files) and TODO.md (Work units). Trigger phrases: "заполни spec для <slice>", "fill spec", "spec-planner". Writes ONLY files under spec/; never touches code; status stays draft (the owner sets approved).
 mode: subagent
-model: opencode/mimo-v2.6-flash-free
+model: opencode/mimo-v2.6-flash-free#precise
 steps: 6
 permissions:
   - action: edit

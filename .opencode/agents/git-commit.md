@@ -1,7 +1,7 @@
 ---
 description: Stage files, validate Conventional Commits, commit, return JSON summary
 mode: subagent
-model: opencode/deepseek-v4-flash-free
+model: opencode/deepseek-v4-flash-free#precise
 steps: 8
 permissions:
   - action: edit

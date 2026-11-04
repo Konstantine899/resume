@@ -1,7 +1,7 @@
 ---
 description: Coordinate multi-agent workflows — decompose tasks, dispatch subtasks, aggregate results
 mode: primary
-model: opencode/nemotron-3-ultra-free
+model: opencode/nemotron-3-ultra-free#precise
 steps: 15
 permissions:
   - action: edit

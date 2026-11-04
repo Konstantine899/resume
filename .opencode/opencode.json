@@ -35,5 +35,43 @@
         "write": true
       }
     }
+  },
+  "provider": {
+    "opencode": {
+      "models": {
+        "mimo-v2.6-flash-free": {
+          "variants": {
+            "precise": {
+              "temperature": 0.1
+            }
+          }
+        },
+        "deepseek-v4-flash-free": {
+          "variants": {
+            "precise": {
+              "temperature": 0.1
+            }
+          }
+        },
+        "nemotron-3-ultra-free": {
+          "variants": {
+            "precise": {
+              "temperature": 0.1
+            }
+          }
+        }
+      }
+    },
+    "ollama-cloud": {
+      "models": {
+        "qwen3.5:397b-cloud": {
+          "variants": {
+            "precise": {
+              "temperature": 0.1
+            }
+          }
+        }
+      }
+    }
   }
 }

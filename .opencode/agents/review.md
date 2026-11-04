@@ -1,7 +1,7 @@
 ---
 description: Code review, performance audit, and style validation for React 19 + TypeScript + FSD
 mode: subagent
-model: opencode/deepseek-v4-flash-free
+model: opencode/deepseek-v4-flash-free#precise
 steps: 10
 permissions:
   - action: edit
