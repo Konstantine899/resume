@@ -80,4 +80,21 @@ describe('Combobox', () => {
     fireEvent.keyDown(input, { key: 'Backspace' });
     expect(onChange).toHaveBeenCalledWith([]);
   });
+
+  it('opens on focus and closes on blur', () => {
+    const onChange = vi.fn();
+    render(<Combobox values={[]} options={[{ value: 'vue', label: 'Vue' }]} onChange={onChange} />);
+    const input = screen.getByRole('combobox') as HTMLInputElement;
+    fireEvent.focus(input);
+    expect(screen.getByRole('option', { name: 'Vue' })).toBeInTheDocument();
+    fireEvent.blur(input);
+  });
+
+  it('ignores an unhandled key without side effects', () => {
+    const onChange = vi.fn();
+    render(<Combobox values={[]} options={[{ value: 'vue', label: 'Vue' }]} onChange={onChange} />);
+    const input = screen.getByRole('combobox') as HTMLInputElement;
+    fireEvent.keyDown(input, { key: 'x' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });
