@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fsd from '../fsd-layers.json';
-import pluginSource from '../../.opencode/eslint/eslint-plugin-fsd-imports.cjs?raw';
+import pluginSource from '../../config/eslint/fsd-imports.cjs?raw';
 import buildPathTypes from '../../config/vite/types/config.ts?raw';
 
 /**

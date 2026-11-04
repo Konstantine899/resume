@@ -18,7 +18,7 @@ import reactPlugin from 'eslint-plugin-react';
 
 // Local FSD imports plugin removed together with .opencode project configuration.
 const require = createRequire(import.meta.url);
-const fsdImports = null;
+const fsdImports = require('./config/eslint/fsd-imports.cjs');
 
 // Strict mode rules for P0 security enforcement
 const strictRules = {
@@ -33,6 +33,18 @@ const strictRules = {
   'react-hooks/exhaustive-deps': 'error',
   'react-hooks/rules-of-hooks': 'error',
   'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
+
+  // FSD Architecture rules (moved under config/eslint after .opencode removal)
+  'fsd-imports/layer-dependency': 'error',
+  'fsd-imports/no-circular': 'error',
+  'fsd-imports/tests-public-api-only': 'error',
+  'fsd-imports/public-api-only': [
+    'error',
+    {
+      allowInternal: ['lib', 'constants', 'types', 'model'],
+      disallowPatterns: ['**/ui/**', '**/api/**'],
+    },
+  ],
   
   // No direct state mutations (caught by no-param-reassign + immutability checks)
   'no-param-reassign': ['error', { props: true }],
@@ -61,6 +73,7 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'unused-imports': unusedImports,
+      'fsd-imports': fsdImports,
     },
     settings: {
       react: {
