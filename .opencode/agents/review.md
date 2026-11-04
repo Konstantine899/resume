@@ -2,10 +2,41 @@
 description: Code review, performance audit, and style validation for React 19 + TypeScript + FSD
 mode: subagent
 model: opencode/deepseek-v4-flash-free
-permission:
-  edit: deny
-  bash: ask
-temperature: 0.1
+steps: 10
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git status *"
+    effect: allow
+  - action: shell
+    resource: "npm run type-check*"
+    effect: allow
+  - action: shell
+    resource: "npm run lint*"
+    effect: allow
+  - action: shell
+    resource: "npm run check:bundle*"
+    effect: allow
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: webfetch
+    resource: "*"
+    effect: deny
+  - action: websearch
+    resource: "*"
+    effect: deny
 ---
 
 Use serena MCP tools (find_symbol, find_declaration, find_referencing_symbols, get_diagnostics_for_file, get_symbols_overview) for code navigation — prefer them over grep/glob for symbol-level queries.
