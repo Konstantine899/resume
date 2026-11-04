@@ -16,9 +16,9 @@ import prettierConfig from 'eslint-config-prettier';
 // React-specific lint rules (JSX semantics, a11y, key propping)
 import reactPlugin from 'eslint-plugin-react';
 
-// Local FSD imports plugin
+// Local FSD imports plugin removed together with .opencode.
 const require = createRequire(import.meta.url);
-const fsdImports = require('./.opencode/eslint/eslint-plugin-fsd-imports.cjs');
+const fsdImports = null;
 
 // Strict mode rules for P0 security enforcement
 const strictRules = {
@@ -61,7 +61,6 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'unused-imports': unusedImports,
-      'fsd-imports': fsdImports,
     },
     settings: {
       react: {
@@ -98,17 +97,7 @@ export default tseslint.config(
       'no-implicit-coercion': 'error',
       'no-new-func': 'error',
       'no-script-url': 'error',
-      // FSD Architecture rules
-      'fsd-imports/layer-dependency': 'error',
-      'fsd-imports/no-circular': 'error',
-      'fsd-imports/tests-public-api-only': 'error',
-      'fsd-imports/public-api-only': [
-        'error',
-        {
-          allowInternal: ['lib', 'constants', 'types', 'model'],
-          disallowPatterns: ['**/ui/**', '**/api/**'],
-        },
-      ],
+
     },
   },
   // Redux Toolkit reducer convention: createSlice reducers mutate the immer
