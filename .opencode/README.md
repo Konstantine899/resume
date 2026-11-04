@@ -44,6 +44,25 @@
 
 ---
 
+## 🧾 Review Output Contract (Phase D)
+
+`review` agent reports must be emitted as three explicit fenced sections (in this order):
+
+```
+## critical
+...
+## warning
+...
+## suggestion
+...
+```
+
+- Each item must cite the affected file/path and a one-line rationale.
+- Missing section is allowed only with the literal text `none`.
+- Compaction hook runs **before** commit handoff when context window is > 70% full — `review` must finish before compaction (so findings aren't compacted away).
+
+---
+
 ## 🎯 Architecture Principles
 
 ### Layer Separation
