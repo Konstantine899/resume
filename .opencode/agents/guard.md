@@ -1,7 +1,7 @@
 ---
 description: Premoderate all agent actions against security policy before they reach MCP or filesystem
 mode: subagent
-model: ollama-cloud/qwen3.5:397b-cloud
+model: ollama-cloud/qwen3.5:397b-cloud#precise
 hidden: true
 steps: 6
 permissions:

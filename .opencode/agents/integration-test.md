@@ -1,7 +1,7 @@
 ---
 description: Integration testing for FSD cross-layer interaction with MSW mocking
 mode: subagent
-model: ollama-cloud/qwen3.5:397b-cloud
+model: ollama-cloud/qwen3.5:397b-cloud#precise
 steps: 12
 permissions:
   - action: edit
