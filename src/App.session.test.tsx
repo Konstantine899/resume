@@ -17,6 +17,13 @@ import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
+// Mirrors ABOUT_CONTENT_STORAGE_KEY in
+// @/features/AdminAbout/model/services/storage (pinned to this value by that
+// feature's storage.test.ts). Kept as a literal here so this cross-slice
+// test does not expand that feature's public API (SPEC R-9 barrelling) nor
+// reach into its model/.
+const ABOUT_CONTENT_STORAGE_KEY = 'resume.about.content';
+
 const h = vi.hoisted(() => ({
   initiate: vi.fn(),
   bootstrapSession: vi.fn(),
@@ -142,6 +149,9 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   delete (document as unknown as { visibilityState?: unknown }).visibilityState;
+  // The stack-fallback tests seed the persisted About document — clear it so
+  // later cases keep asserting the storage-less payload.
+  localStorage.clear();
 });
 
 describe('SessionBootstrap — canonical About load', () => {
@@ -176,6 +186,60 @@ describe('SessionBootstrap — canonical About load', () => {
     render(<App />);
     await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(1));
     expect(h.updateAboutContent).toHaveBeenCalledWith({ fullName: 'Ada Lovelace' });
+  });
+
+  it('merges the locally persisted stack when the backend omits it', async () => {
+    localStorage.setItem(
+      ABOUT_CONTENT_STORAGE_KEY,
+      JSON.stringify({
+        v: 1,
+        content: {
+          fullName: 'Ada Lovelace',
+          descriptions: [],
+          stats: {},
+          ctaLabel: null,
+          stack: ['react', 'typescript'],
+        },
+      })
+    );
+
+    render(<App />);
+    await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(1));
+    expect(h.updateAboutContent).toHaveBeenCalledWith({
+      fullName: 'Ada Lovelace',
+      stack: ['react', 'typescript'],
+    });
+  });
+
+  it('prefers the backend stack over the locally persisted one', async () => {
+    localStorage.setItem(
+      ABOUT_CONTENT_STORAGE_KEY,
+      JSON.stringify({
+        v: 1,
+        content: {
+          fullName: 'Ada Lovelace',
+          descriptions: [],
+          stats: {},
+          ctaLabel: null,
+          stack: ['react', 'typescript'],
+        },
+      })
+    );
+    h.initiate.mockImplementation(() => ({
+      unwrap: async () => ({
+        id: 'about-1',
+        updatedAt: 'rev-1',
+        fullName: 'Ada Lovelace',
+        stack: ['python'],
+      }),
+    }));
+
+    render(<App />);
+    await waitFor(() => expect(h.updateAboutContent).toHaveBeenCalledTimes(1));
+    expect(h.updateAboutContent).toHaveBeenCalledWith({
+      fullName: 'Ada Lovelace',
+      stack: ['python'],
+    });
   });
 
   it('falls back to the seed when the API call rejects', async () => {

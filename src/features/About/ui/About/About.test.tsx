@@ -68,7 +68,9 @@ describe('About: Link CTA integration', () => {
   });
 
   it('renders the portrait via the Avatar portrait variant after the panel in the DOM', () => {
-    render(<About />);
+    // The inner Image only exists once the contract carries a portrait: with
+    // `src=''` Avatar's portrait fallback renders nothing (no bundled webp).
+    render(<About content={{ ...baseContent, portrait: '/images/about/me.png' }} />);
 
     const panel = screen.getByTestId('about-panel');
     const portrait = screen.getByTestId('about-portrait');
@@ -264,8 +266,9 @@ describe('About: dynamic content branches (WU-11)', () => {
 });
 
 // WU-14 (SPEC D16): the portrait follows the SAME store-prop contract as the
-// other fields — `content.portrait` overrides the static asset, and the
-// fallback (no prop, or content without a portrait) keeps the bundled image.
+// other fields — `content.portrait` supplies the image, and content WITHOUT a
+// portrait renders an empty portrait box (the bundled webp fallback was
+// removed by 8a6ebc0a; Avatar renders no Image for an empty src).
 describe('About: portrait source (WU-14, D16)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -281,14 +284,14 @@ describe('About: portrait source (WU-14, D16)', () => {
     expect(screen.getByTestId('about-portrait')).toHaveAttribute('data-variant', 'portrait');
   });
 
-  it('falls back to the static bundled portrait when content has no portrait', () => {
+  it('renders no bundled image when content has no portrait', () => {
     render(<About content={baseContent} />);
 
-    const image = screen.getByTestId('mock-image');
-    const src = image.getAttribute('data-src') ?? '';
-    expect(src).not.toBe('/images/about/me.png');
-    // The bundled static asset (not an admin path) is used.
-    expect(src).toMatch(/\.webp$/);
+    // 8a6ebc0a dropped the bundled webp fallback: an empty src makes Avatar's
+    // portrait branch render NOTHING (no <Image> at all) instead of a stale
+    // static asset. The box itself stays in the DOM.
+    expect(screen.getByTestId('about-portrait')).toBeInTheDocument();
+    expect(screen.queryByTestId('mock-image')).toBeNull();
   });
 });
 
