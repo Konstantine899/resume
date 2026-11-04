@@ -16,7 +16,7 @@ import prettierConfig from 'eslint-config-prettier';
 // React-specific lint rules (JSX semantics, a11y, key propping)
 import reactPlugin from 'eslint-plugin-react';
 
-// Local FSD imports plugin removed together with .opencode project configuration.
+// Local FSD imports plugin relocated out of .opencode into config/eslint.
 const require = createRequire(import.meta.url);
 const fsdImports = require('./config/eslint/fsd-imports.cjs');
 
