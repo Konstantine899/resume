@@ -1,0 +1,80 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "lsp": {
+    "typescript": {
+      "command": ["npx", "--no-install", "typescript-language-server", "--stdio"],
+      "extensions": [".ts", ".tsx"]
+    }
+  },
+  "formatter": {
+    "prettier": {
+      "command": ["npx", "--no-install", "prettier", "--write", "$FILE"],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs",
+        ".json",
+        ".jsonc",
+        ".md",
+        ".mdx",
+        ".css",
+        ".scss",
+        ".html",
+        ".yml",
+        ".yaml"
+      ]
+    }
+  },
+  "mcp": {
+    "timeout": { "startup": 45000, "catalog": 30000 },
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "protocol": "auto",
+        "pool": true
+      }
+    }
+  },
+  "agents": {
+    "frontend-dev": {
+      "description": "React/Vite frontend specialist: FSD structure, Storybook, Vitest, Playwright",
+      "mode": "subagent",
+      "system": "You work in the resume-frontend repository (React + Vite + Storybook + Vitest + Playwright). Read AGENTS.md first. Prefer project scripts: npm run type-check, npm run lint, npm run lint:styles, npx vitest run --project=unit, npm run build, npm run check:public-api, npm run check:spec, npm run check:contract, npm run storybook, npm run test:storybook, npm run test:app. Keep the shared UI public API stable and respect FSD import boundaries. Treat .env and .env.* as secret: never read or print them; use .env.example. Do not push or rewrite Git history; local commits only with user approval. Report failures with the exact command and output."
+    }
+  },
+  "commands": {
+    "typecheck": {
+      "description": "Run the frontend TypeScript type-check",
+      "template": "Run `npm run type-check` in resume-frontend. Fix every reported error in the smallest reasonable change, then run the command again and report the final result."
+    },
+    "test": {
+      "description": "Run frontend unit tests",
+      "template": "Run `npx vitest run --project=unit` in resume-frontend. Diagnose failures, fix them without weakening tests, and rerun until green. Report the final summary."
+    },
+    "lint": {
+      "description": "Run ESLint and Stylelint",
+      "template": "Run `npm run lint:all` in resume-frontend. Fix reported issues without disabling rules, then rerun and report the final result."
+    },
+    "styles": {
+      "description": "Fix SCSS with Stylelint",
+      "template": "Run `npm run lint:styles:fix` in resume-frontend. Review the changes for unintended selector or order changes, then rerun `npm run lint:styles` and report the result."
+    },
+    "validate": {
+      "description": "Run the full frontend validation pipeline",
+      "template": "Run `npm run validate` in resume-frontend. Fix failures in order (type-check, lint, unit coverage, public API). Do not skip or disable checks. Report the final result and any remaining blockers."
+    },
+    "storybook": {
+      "description": "Run Storybook tests",
+      "template": "Run `npm run test:storybook` in resume-frontend. Diagnose failures, fix the story or component, and rerun until green. Report the final summary."
+    },
+    "playwright": {
+      "description": "Build and run Playwright app tests",
+      "template": "Run `npm run test:app` in resume-frontend. Diagnose failures, fix them without weakening assertions, and rerun until green. Report the final summary."
+    }
+  }
+}
